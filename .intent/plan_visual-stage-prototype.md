@@ -33,23 +33,23 @@ date: 2026-10-11
 
 ## 작업 순서
 
-1. 앱 생성: workspace, React Router SPA, shadcn init — `pnpm dev`로 빈 페이지가 열린다.
-2. 토큰과 레이아웃: tokens.css, 2단 레이아웃, 샘플 표시 — 스크린샷에서 무채색 화면 확인, 토큰 테스트 통과.
-3. 이벤트와 상태: events.ts, store.ts, 테스트 — `pnpm test` 통과.
-4. 채팅: ACF 레지스트리를 `python3 -m http.server 3100 --directory ~/code/framework/agent-chat-framework/public`으로 제공하고 `thread-aui` 설치, 시나리오 어댑터 연결 — 질문하면 텍스트가 스트리밍되고 이벤트가 스토어에 쌓인다.
-5. 스테이지 기본 장면: Canvas, CameraControls, 지면, 조명·그림자, fog, 파티클, 후처리 — 스크린샷 확인.
-6. 그래프: 힘 기반 배치, 노드 등장, 초점 이동, 탐색 파티클, 드래그 — 탐색 시나리오 재생 확인.
-7. 지도: 경계 데이터 다운로드(허락 후), 압출·경계선·라벨·방위 고리, 카메라 이동 — 지도 시나리오 재생 확인.
-8. 결과 패널: 차트·타임라인·주장 비교, 주장 선택 시 초점 이동 — 조작 확인.
-9. 근거 부족 시나리오, reduced motion, `?debug` 프레임 표시 — 에뮬레이션과 측정.
+1. 앱 생성: workspace, React Router SPA, shadcn init. Canvas는 클라이언트에서만 마운트한다 — 빈 Canvas 상태로 `pnpm build`가 통과한다.
+2. 토큰과 레이아웃: tokens.css와 shadcn 생성 CSS의 UI 토큰을 무채색으로 덮어쓴다(`--chart-*`만 데이터 색 허용). 2단 레이아웃, 샘플 표시, 임시 입력창과 제안 질문 — 토큰 테스트 통과.
+3. 이벤트와 상태: events.ts, store.ts, 시나리오 재생기, 테스트 — `pnpm test` 통과.
+4. 스테이지 기본 장면: Canvas, CameraControls, 지면, 조명·그림자, fog, 파티클, 후처리 — 스크린샷을 사용자에게 공유.
+5. 그래프: 힘 기반 배치, 노드 등장, 초점 이동, 탐색 파티클, 드래그 — 탐색 시나리오 재생, 스크린샷 공유.
+6. 지도: 경계 데이터 다운로드(허락 후), 압출·경계선·라벨·방위 고리, 카메라 이동 — 지도 시나리오 재생, 스크린샷 공유.
+7. 결과 패널: 차트·타임라인·주장 비교, 주장 선택 시 초점 이동 — 조작 확인.
+8. 근거 부족 시나리오, reduced motion, `?debug` 프레임 표시 — 에뮬레이션과 측정.
+9. 채팅: ACF 레지스트리를 `python3 -m http.server 3100 --directory ~/code/framework/agent-chat-framework/public`으로 제공하고 `thread-aui` 설치, 시나리오 재생 `ChatModelAdapter`로 임시 입력창 교체. 한 커밋 분량 안에 해결되지 않으면 임시 입력창을 유지하고 README에 기록한다.
 10. README, 전체 검증, 커밋·push.
 
 단계마다 `feat:` 등 태그로 커밋한다.
 
 ## 가장 위험한 단계
 
-- 5~7단계 후처리 조합: GodRays·DepthOfField·Bloom을 함께 쓰면 프레임이 R14 기준 아래로 떨어질 수 있다. 측정 후 GodRays 해상도와 DoF 해상도를 낮추고, 그래도 부족하면 효과별 on/off를 `?debug`에서 비교해 조정한다.
-- 4단계 ACF 설치: 레지스트리 항목이 Next.js 전용 import를 포함하면 React Router에서 빌드가 깨진다. 이 경우 해당 파일만 수정하고 수정 내역을 README에 적는다.
+- 4~6단계 후처리 조합: GodRays·DepthOfField·Bloom을 함께 쓰면 프레임이 R14 기준 아래로 떨어질 수 있다. 측정 후 GodRays 해상도와 DoF 해상도를 낮추고, 그래도 부족하면 효과별 on/off를 `?debug`에서 비교해 조정한다.
+- 9단계 ACF 설치: 레지스트리 항목이 Next.js 전용 import를 포함하면 React Router에서 빌드가 깨진다. 이 경우 해당 파일만 수정하고 수정 내역을 README에 적는다.
 - 되돌리기: 단계별 커밋이므로 깨진 단계의 커밋을 되돌린다.
 
 ## 검증

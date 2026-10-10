@@ -4,3 +4,6 @@
 !.env.example
 node_modules/
 .worktree/
+.react-router/
+build/
+.claude/launch.json

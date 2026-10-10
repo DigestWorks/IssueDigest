@@ -1,0 +1,121 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "pretendard/dist/web/variable/pretendardvariable-dynamic-subset.css";
+@import "@fontsource-variable/geist-mono";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Pretendard Variable', Pretendard, sans-serif;
+    --font-mono: 'Geist Mono Variable', ui-monospace, monospace;
+    --color-data-cat-1: var(--data-cat-1);
+    --color-data-cat-2: var(--data-cat-2);
+    --color-data-cat-3: var(--data-cat-3);
+    --color-data-cat-4: var(--data-cat-4);
+    --color-data-cat-5: var(--data-cat-5);
+    --color-data-cat-6: var(--data-cat-6);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+ * 디자인 원칙: 색상은 데이터에만 쓴다.
+ * UI 토큰은 채도 0(oklch(L 0 0))만 사용한다. 깊이는 명도, 빛, 그림자로 표현한다.
+ * 색이 있는 값은 데이터 팔레트(--data-*)와 그 별칭인 --chart-* 에만 둔다.
+ * 데이터 팔레트의 기준 값은 app/design/palette.ts 이고, 테스트가 두 값을 대조한다.
+ */
+:root,
+.dark {
+    --background: oklch(0.09 0 0);
+    --foreground: oklch(0.96 0 0);
+    --card: oklch(0.13 0 0);
+    --card-foreground: oklch(0.96 0 0);
+    --popover: oklch(0.14 0 0);
+    --popover-foreground: oklch(0.96 0 0);
+    --primary: oklch(0.94 0 0);
+    --primary-foreground: oklch(0.12 0 0);
+    --secondary: oklch(0.2 0 0);
+    --secondary-foreground: oklch(0.96 0 0);
+    --muted: oklch(0.18 0 0);
+    --muted-foreground: oklch(0.66 0 0);
+    --accent: oklch(0.22 0 0);
+    --accent-foreground: oklch(0.96 0 0);
+    --destructive: oklch(0.85 0 0);
+    --border: oklch(1 0 0 / 9%);
+    --input: oklch(1 0 0 / 13%);
+    --ring: oklch(0.6 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.11 0 0);
+    --sidebar-foreground: oklch(0.96 0 0);
+    --sidebar-primary: oklch(0.94 0 0);
+    --sidebar-primary-foreground: oklch(0.12 0 0);
+    --sidebar-accent: oklch(0.2 0 0);
+    --sidebar-accent-foreground: oklch(0.96 0 0);
+    --sidebar-border: oklch(1 0 0 / 9%);
+    --sidebar-ring: oklch(0.6 0 0);
+
+    /* 데이터 팔레트: 범주형 */
+    --data-cat-1: oklch(0.72 0.17 25);
+    --data-cat-2: oklch(0.72 0.14 245);
+    --data-cat-3: oklch(0.76 0.15 150);
+    --data-cat-4: oklch(0.8 0.14 85);
+    --data-cat-5: oklch(0.7 0.16 320);
+    --data-cat-6: oklch(0.78 0.11 200);
+
+    /* shadcn chart 는 데이터 팔레트를 쓴다 */
+    --chart-1: var(--data-cat-1);
+    --chart-2: var(--data-cat-2);
+    --chart-3: var(--data-cat-3);
+    --chart-4: var(--data-cat-4);
+    --chart-5: var(--data-cat-5);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-background text-foreground;
+    }
+  html {
+    @apply font-sans;
+    }
+}
