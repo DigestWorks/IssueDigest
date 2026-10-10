@@ -29,6 +29,9 @@ date: 2026-10-11
 | `apps/web/app/routes/home.tsx` (신규) | 2단 레이아웃 |
 | `apps/web/public/geo/seoul-gu.json`, `apps/web/public/geo/SOURCE.md` (신규) | 서울 자치구 경계와 출처 |
 | `apps/web/app/**/*.test.ts` (신규) | 토큰·이벤트·리듀서 테스트 |
+| `apps/web/app/design/tokens.ts`, `apps/web/app/design/guide.ts` (신규) | 불투명도·글자·모션 토큰, 스타일 가이드 규칙 데이터 |
+| `apps/web/app/routes/style.tsx`, `apps/web/app/style/specimens.tsx` (신규) | `/style` 스타일 가이드 페이지와 견본 |
+| `docs/design/style-guide.md` (신규) | 정체성 기준과 결정 기록 |
 | `README.md` (신규) | 실행 방법 |
 
 ## 작업 순서
@@ -42,7 +45,8 @@ date: 2026-10-11
 7. 결과 패널: 차트·타임라인·주장 비교, 주장 선택 시 초점 이동 — 조작 확인.
 8. 근거 부족 시나리오, reduced motion, `?debug` 프레임 표시 — 에뮬레이션과 측정.
 9. 채팅: ACF 레지스트리를 `python3 -m http.server 3100 --directory ~/code/framework/agent-chat-framework/public`으로 제공하고 `thread-aui` 설치, 시나리오 재생 `ChatModelAdapter`로 임시 입력창 교체. 한 커밋 분량 안에 해결되지 않으면 임시 입력창을 유지하고 README에 기록한다.
-10. README, 전체 검증, 커밋·push.
+10. 스타일 가이드(사용자 요청, 2026-10-11): 정체성 기준 「출처가 붙은 조사 기록」을 정하고, 토큰 모듈(`design/tokens.ts`)과 규칙 데이터(`design/guide.ts`)를 만들어 `/style` 페이지에서 렌더링한다 — 페이지 전체 스크린샷 확인.
+11. README, 전체 검증, 커밋·push.
 
 단계마다 `feat:` 등 태그로 커밋한다.
 
