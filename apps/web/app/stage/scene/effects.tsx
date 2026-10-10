@@ -1,38 +1,28 @@
 import { useRef } from "react"
 import { useFrame } from "@react-three/fiber"
-import {
-  Bloom,
-  DepthOfField,
-  EffectComposer,
-  GodRays,
-  Noise,
-  ToneMapping,
-  Vignette,
-} from "@react-three/postprocessing"
-import { BlendFunction, KernelSize, ToneMappingMode, type DepthOfFieldEffect } from "postprocessing"
-import { Vector3, type Mesh } from "three"
+import { DepthOfField, EffectComposer, Vignette } from "@react-three/postprocessing"
+import type { DepthOfFieldEffect } from "postprocessing"
+import { Vector3 } from "three"
 
 import { useStage } from "../store"
 import { focusPoint } from "./registry"
 
 const DEFAULT_TARGET = new Vector3(0, 2.5, 0)
 
-/**
- * 후처리 효과. GodRays 와 DepthOfField 설정은 pmndrs/react-postprocessing
- * 문서(docs/effects/god-rays.mdx, _autodocs/api-reference/DepthOfField.md)를 따른다.
- * GodRays 는 가림 처리를 위해 EffectComposer autoClear={false} 가 필요하다.
- */
-export type EffectName = "dof" | "godrays" | "bloom" | "noise" | "vignette"
-export const ALL_EFFECTS: EffectName[] = ["dof", "godrays", "bloom", "noise", "vignette"]
+export type EffectName = "dof" | "vignette"
+export const ALL_EFFECTS: EffectName[] = ["dof", "vignette"]
 
+/**
+ * 후처리 효과. 흰 배경에서는 Bloom 이 화면 전체를 번지게 하므로 쓰지 않는다.
+ * DepthOfField 설정은 pmndrs/react-postprocessing 문서
+ * (_autodocs/api-reference/DepthOfField.md)를 따른다.
+ */
 export function Effects({
-  sun,
   reducedMotion,
   enabled = ALL_EFFECTS,
 }: {
-  sun: Mesh | null
   reducedMotion: boolean
-  /** ?fx=bloom,dof 처럼 효과별로 켜고 끈다(성능 측정용) */
+  /** ?fx=dof 처럼 효과별로 켜고 끈다(성능 측정용) */
   enabled?: EffectName[]
 }) {
   const on = (name: EffectName) => enabled.includes(name)
@@ -49,33 +39,13 @@ export function Effects({
   })
 
   return (
-    <EffectComposer autoClear={false} multisampling={0}>
+    <EffectComposer multisampling={4}>
       {reducedMotion || !on("dof") ? (
         <></>
       ) : (
-        <DepthOfField ref={dofRef} target={[0, 2.5, 0]} focalLength={0.04} bokehScale={2.6} height={540} />
+        <DepthOfField ref={dofRef} target={[0, 2.5, 0]} focalLength={0.06} bokehScale={1.1} height={540} />
       )}
-      {sun && !reducedMotion && on("godrays") ? (
-        <GodRays
-          sun={sun}
-          samples={48}
-          density={0.95}
-          decay={0.93}
-          weight={0.5}
-          exposure={0.55}
-          clampMax={1}
-          width={512}
-          height={512}
-          kernelSize={KernelSize.SMALL}
-          blur
-        />
-      ) : (
-        <></>
-      )}
-      {on("bloom") ? <Bloom mipmapBlur intensity={0.85} luminanceThreshold={0.55} luminanceSmoothing={0.2} /> : <></>}
-      {on("noise") ? <Noise premultiply blendFunction={BlendFunction.SCREEN} opacity={0.035} /> : <></>}
-      {on("vignette") ? <Vignette offset={0.25} darkness={0.78} /> : <></>}
-      <ToneMapping mode={ToneMappingMode.ACES_FILMIC} />
+      {on("vignette") ? <Vignette offset={0.35} darkness={0.22} /> : <></>}
     </EffectComposer>
   )
 }

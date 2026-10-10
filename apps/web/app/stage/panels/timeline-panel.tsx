@@ -35,7 +35,7 @@ export function TimelinePanel({ panel, animate }: { panel: TimelinePanelData; an
                 aria-hidden
                 className={
                   active
-                    ? "absolute top-1.5 -left-5 size-[11px] rounded-full border-2 border-foreground bg-background shadow-[0_0_12px_rgb(255_255_255/0.6)]"
+                    ? "absolute top-1.5 -left-5 size-[11px] rounded-full border-2 border-foreground bg-background"
                     : "absolute top-2 -left-[17px] size-[7px] rounded-full bg-muted-foreground"
                 }
               />

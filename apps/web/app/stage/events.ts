@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { NODE_TYPE_COLOR_INDEX, type NodeType } from "~/design/palette"
+import { NODE_TYPES } from "./graph/glyphs"
 
 /**
  * 시각화 스테이지가 받는 이벤트.
@@ -8,8 +8,6 @@ import { NODE_TYPE_COLOR_INDEX, type NodeType } from "~/design/palette"
  * 스테이지는 이 이벤트만으로 상태를 바꾼다. 지금은 샘플 시나리오가 이벤트를
  * 보내고, 이후 실제 에이전트가 같은 스키마를 도구 인자로 보낸다.
  */
-
-const nodeTypes = Object.keys(NODE_TYPE_COLOR_INDEX) as [NodeType, ...NodeType[]]
 
 /** 출처. 샘플 데이터는 sample=true 로 표시한다. */
 export const Source = z.object({
@@ -22,7 +20,7 @@ export const Source = z.object({
 
 export const GraphNode = z.object({
   id: z.string(),
-  type: z.enum(nodeTypes),
+  type: z.enum(NODE_TYPES),
   label: z.string(),
   detail: z.string().optional(),
   source: Source,

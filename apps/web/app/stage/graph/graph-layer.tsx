@@ -12,7 +12,6 @@ import {
 import {
   BufferAttribute,
   BufferGeometry,
-  Color,
   InstancedMesh,
   Object3D,
   Plane,
@@ -20,7 +19,8 @@ import {
   type Group,
 } from "three"
 
-import { NEUTRAL, type NodeType } from "~/design/palette"
+import { NEUTRAL } from "~/design/palette"
+import type { NodeType } from "./glyphs"
 import { useStage } from "../store"
 import { nodePositions, sceneFlags } from "../scene/registry"
 import { GraphNodeMesh } from "./graph-node"
@@ -190,18 +190,19 @@ export function GraphLayer({ reducedMotion }: { reducedMotion: boolean }) {
   useEffect(() => () => void sim.stop(), [sim])
 
   const drag = useNodeDrag(simNodes, sim, setFocus)
+  const activeIds = useMemo(() => new Set(traversal?.path ?? []), [traversal])
 
   return (
     <group>
       <lineSegments geometry={edgeGeometry} frustumCulled={false}>
-        <lineBasicMaterial color={NEUTRAL.line} transparent opacity={0.22} depthWrite={false} />
+        <lineBasicMaterial color={NEUTRAL.lineDim} transparent opacity={0.55} depthWrite={false} />
       </lineSegments>
       <lineSegments geometry={pathGeometry} frustumCulled={false}>
-        <lineBasicMaterial color={NEUTRAL.light} transparent opacity={0.85} toneMapped={false} />
+        <lineBasicMaterial color={NEUTRAL.ink} />
       </lineSegments>
       <instancedMesh ref={particles} args={[undefined, undefined, PARTICLES]} frustumCulled={false}>
         <sphereGeometry args={[0.045, 8, 8]} />
-        <meshBasicMaterial color={new Color(NEUTRAL.light).multiplyScalar(3)} toneMapped={false} />
+        <meshBasicMaterial color={NEUTRAL.ink} />
       </instancedMesh>
 
       {nodes.map((n) => (
@@ -209,6 +210,7 @@ export function GraphLayer({ reducedMotion }: { reducedMotion: boolean }) {
           key={n.id}
           node={n}
           focused={focus?.kind === "node" && focus.id === n.id}
+          active={activeIds.has(n.id)}
           reducedMotion={reducedMotion}
           registerGroup={(g) => {
             if (g) groups.current.set(n.id, g)

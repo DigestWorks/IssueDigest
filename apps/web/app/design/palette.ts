@@ -2,7 +2,7 @@
  * 데이터 팔레트의 기준 값.
  *
  * 디자인 원칙은 「색상은 데이터에만 쓴다」이다. 이 파일의 색은 지역별 값,
- * 차트 계열, 그래프 노드 유형처럼 데이터를 나타내는 곳에서만 참조한다.
+ * 차트 계열, 입장 구분처럼 데이터 값을 나타내는 곳에서만 참조한다.
  * app.css 의 --data-cat-* 는 같은 값을 갖고, palette.test.ts 가 대조한다.
  *
  * three.js 는 OKLCH 문자열을 읽지 못하므로 sRGB hex 로 바꿔 넘긴다.
@@ -13,12 +13,12 @@
 export type Oklch = readonly [l: number, c: number, h: number]
 
 export const DATA_CATEGORICAL: readonly Oklch[] = [
-  [0.72, 0.17, 25],
-  [0.72, 0.14, 245],
-  [0.76, 0.15, 150],
-  [0.8, 0.14, 85],
-  [0.7, 0.16, 320],
-  [0.78, 0.11, 200],
+  [0.6, 0.19, 25],
+  [0.55, 0.16, 255],
+  [0.6, 0.15, 150],
+  [0.7, 0.15, 75],
+  [0.55, 0.18, 320],
+  [0.62, 0.11, 210],
 ]
 
 export function oklchToHex([l, c, h]: Oklch): string {
@@ -50,34 +50,18 @@ export function oklchToHex([l, c, h]: Oklch): string {
 export const dataColor = (index: number) =>
   oklchToHex(DATA_CATEGORICAL[index % DATA_CATEGORICAL.length])
 
-/** 그래프 노드 유형별 데이터 색. 유형은 데이터이므로 색을 쓴다. */
-export const NODE_TYPE_COLOR_INDEX = {
-  issue: 3,
-  bill: 1,
-  member: 0,
-  party: 4,
-  committee: 5,
-  meeting: 5,
-  statistic: 2,
-  document: 3,
-  claim: 0,
-  region: 2,
-} as const
-
-export type NodeType = keyof typeof NODE_TYPE_COLOR_INDEX
-
-export const nodeColor = (type: NodeType) => dataColor(NODE_TYPE_COLOR_INDEX[type])
-
 /**
- * 3D 장면의 무채색 값. 데이터가 아닌 요소(지면, 경계선, 광원, 파티클)는
- * 이 값만 쓴다. 모두 채도 0 이다.
+ * 3D 장면의 무채색 값(흰 배경 기준). 데이터가 아닌 요소(지면, 격자, 선,
+ * 파티클, 선택 표시)는 이 값만 쓴다. 모두 채도 0 이다.
  */
 export const NEUTRAL = {
-  void: "#050505",
-  ground: "#0b0b0b",
-  grid: "#2a2a2a",
-  line: "#d9d9d9",
-  lineDim: "#5a5a5a",
-  light: "#ffffff",
-  particle: "#e6e6e6",
+  background: "#ffffff",
+  ground: "#ffffff",
+  grid: "#ececec",
+  gridSection: "#d6d6d6",
+  line: "#3a3a3a",
+  lineDim: "#9c9c9c",
+  ink: "#111111",
+  label: "#262626",
+  particle: "#8a8a8a",
 } as const

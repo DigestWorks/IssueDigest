@@ -8,7 +8,7 @@ const css = readFileSync(
   fileURLToPath(new URL("../app.css", import.meta.url)),
   "utf8"
 )
-const rootBlock = css.slice(css.indexOf(":root,"), css.indexOf("@layer base"))
+const rootBlock = css.slice(css.indexOf(":root {"), css.indexOf("@layer base"))
 const tokens = [...rootBlock.matchAll(/--([\w-]+):\s*([^;]+);/g)].map(
   ([, name, value]) => ({ name, value: value.trim() })
 )

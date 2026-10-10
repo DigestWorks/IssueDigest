@@ -1,20 +1,8 @@
 import { AnimatePresence, motion } from "motion/react"
 
-import { dataColor, nodeColor, type NodeType } from "~/design/palette"
+import { dataColor } from "~/design/palette"
+import { glyphPoints, NODE_GLYPH, NODE_TYPE_LABEL, type NodeType } from "../graph/glyphs"
 import { useStage } from "../store"
-
-const TYPE_LABEL: Record<NodeType, string> = {
-  issue: "이슈",
-  bill: "법안",
-  member: "의원",
-  party: "정당",
-  committee: "위원회",
-  meeting: "회의",
-  statistic: "통계",
-  document: "문서",
-  claim: "주장",
-  region: "지역",
-}
 
 const STATUS_LABEL = {
   idle: "대기",
@@ -84,7 +72,7 @@ export function StageHud() {
           ? choropleth.legend.map((l) => (
               <LegendItem key={l.label} color={dataColor(l.category)} label={l.label} />
             ))
-          : types.map((t) => <LegendItem key={t} color={nodeColor(t)} label={TYPE_LABEL[t]} />)}
+          : types.map((t) => <GlyphLegendItem key={t} type={t} />)}
       </div>
     </div>
   )
@@ -93,8 +81,28 @@ export function StageHud() {
 function LegendItem({ color, label }: { color: string; label: string }) {
   return (
     <span className="flex items-center gap-1.5">
-      <span className="size-2 rounded-full" style={{ backgroundColor: color, boxShadow: `0 0 8px ${color}` }} />
+      <span className="size-2 rounded-full" style={{ backgroundColor: color }} />
       {label}
+    </span>
+  )
+}
+
+/** 노드 유형 범례. 장면과 같은 기호를 SVG 로 그린다. */
+function GlyphLegendItem({ type }: { type: NodeType }) {
+  const g = NODE_GLYPH[type]
+  const points = glyphPoints(g, 5)
+    .map(([x, y]) => `${6 + x},${6 - y}`)
+    .join(" ")
+  return (
+    <span className="flex items-center gap-1.5">
+      <svg viewBox="0 0 12 12" className="size-3" aria-hidden>
+        <polygon
+          points={points}
+          className={g.filled ? "fill-foreground" : "fill-none stroke-foreground"}
+          strokeWidth={1.2}
+        />
+      </svg>
+      {NODE_TYPE_LABEL[type]}
     </span>
   )
 }

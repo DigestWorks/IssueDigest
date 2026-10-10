@@ -1,23 +1,27 @@
 import { useMemo, useRef } from "react"
 import { Billboard, Text } from "@react-three/drei"
 import { useFrame, type ThreeEvent } from "@react-three/fiber"
-import { Color, type Group, type Mesh } from "three"
+import {
+  BufferGeometry,
+  CircleGeometry,
+  RingGeometry,
+  type Group,
+} from "three"
 
-import { NEUTRAL, nodeColor } from "~/design/palette"
+import { NEUTRAL } from "~/design/palette"
 import type { GraphNode } from "../events"
 import { FONT_LIGHT, FONT_MEDIUM } from "../scene/fonts"
+import { NODE_GLYPH, NODE_TYPE_LABEL, type Glyph } from "./glyphs"
 
-const RADIUS: Partial<Record<GraphNode["type"], number>> = {
-  issue: 0.55,
-  bill: 0.46,
-  party: 0.38,
-  committee: 0.36,
-}
-const ENTER_MS = 700
+const ENTER_MS = 600
+const STROKE = 0.045
+const MUTED = "#a3a3a3"
 
 type Props = {
   node: GraphNode & { addedAt: number }
   focused: boolean
+  /** 초점이거나 현재 탐색 경로 위에 있는 노드 */
+  active: boolean
   reducedMotion: boolean
   registerGroup: (g: Group | null) => void
   onPointerDown: (e: ThreeEvent<PointerEvent>) => void
@@ -26,14 +30,19 @@ type Props = {
 }
 
 /**
- * 그래프 노드. 구의 색은 노드 유형(데이터)을 나타낸다.
- * 선택 표시는 화면 상태이므로 무채색 고리로 그린다.
+ * 그래프 노드. 카메라를 향한 평면 기호로 그리고, 유형은 기호 모양으로 구분한다.
+ * 색은 쓰지 않는다. 초점과 탐색 경로 위 노드는 검정, 나머지는 회색이다.
+ * 노드에서 지면까지 수직선을 내려 공간 위치를 읽게 한다.
  */
-export function GraphNodeMesh({ node, focused, reducedMotion, registerGroup, ...handlers }: Props) {
-  const radius = RADIUS[node.type] ?? 0.26
-  const color = useMemo(() => new Color(nodeColor(node.type)), [node.type])
+export function GraphNodeMesh({ node, focused, active, reducedMotion, registerGroup, ...handlers }: Props) {
+  const glyph = NODE_GLYPH[node.type]
+  const geometry = useMemo(() => glyphGeometry(glyph), [glyph])
   const scaleRef = useRef<Group>(null)
-  const ring = useRef<Mesh>(null)
+  const ring = useRef<Group>(null)
+  const drop = useRef<Group>(null)
+  const ink = focused || active ? NEUTRAL.ink : MUTED
+  // 초점 고리 바깥에 라벨을 둔다
+  const labelX = glyph.size + (focused ? 0.34 : 0.18)
 
   useFrame((state) => {
     const g = scaleRef.current
@@ -41,72 +50,85 @@ export function GraphNodeMesh({ node, focused, reducedMotion, registerGroup, ...
     const t = reducedMotion ? 1 : Math.min(1, (performance.now() - node.addedAt) / ENTER_MS)
     g.scale.setScalar(easeOutBack(t))
     if (ring.current) {
-      const pulse = reducedMotion ? 1 : 1 + 0.06 * Math.sin(state.clock.elapsedTime * 3)
+      const pulse = reducedMotion ? 1 : 1 + 0.08 * Math.sin(state.clock.elapsedTime * 3)
       ring.current.scale.setScalar(pulse)
+    }
+    // 지면까지 내려가는 수직선: 그룹의 월드 높이만큼 늘린다
+    const parent = g.parent
+    if (drop.current && parent) {
+      const h = Math.max(0.001, parent.position.y)
+      drop.current.scale.set(1, h, 1)
+      drop.current.position.y = -h / 2
     }
   })
 
   return (
     <group ref={registerGroup}>
+      <group ref={drop}>
+        <mesh>
+          <cylinderGeometry args={[0.006, 0.006, 1, 4]} />
+          <meshBasicMaterial color={focused || active ? NEUTRAL.lineDim : NEUTRAL.grid} />
+        </mesh>
+      </group>
       <group ref={scaleRef} scale={0}>
-        <mesh
-          castShadow
-          onPointerDown={handlers.onPointerDown}
-          onPointerMove={handlers.onPointerMove}
-          onPointerUp={handlers.onPointerUp}
-          onPointerOver={() => (document.body.style.cursor = "grab")}
-          onPointerOut={() => (document.body.style.cursor = "")}
-        >
-          <sphereGeometry args={[radius, 32, 32]} />
-          <meshStandardMaterial
-            color={color}
-            emissive={color}
-            emissiveIntensity={focused ? 2.2 : 0.75}
-            roughness={0.35}
-            metalness={0.1}
-          />
-        </mesh>
-        <mesh scale={1.9}>
-          <sphereGeometry args={[radius, 16, 16]} />
-          <meshBasicMaterial color={color} transparent opacity={focused ? 0.16 : 0.07} depthWrite={false} />
-        </mesh>
         <Billboard>
+          {/* 포인터 판정용 투명 원 */}
+          <mesh
+            onPointerDown={handlers.onPointerDown}
+            onPointerMove={handlers.onPointerMove}
+            onPointerUp={handlers.onPointerUp}
+            onPointerOver={() => (document.body.style.cursor = "grab")}
+            onPointerOut={() => (document.body.style.cursor = "")}
+          >
+            <circleGeometry args={[Math.max(glyph.size, 0.3) * 1.4, 16]} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} />
+          </mesh>
+          {/* 엣지 선보다 나중에 그려 선이 기호 위로 지나가지 않게 한다 */}
+          <mesh geometry={geometry} renderOrder={10}>
+            <meshBasicMaterial color={ink} transparent />
+          </mesh>
           {focused ? (
-            <mesh ref={ring}>
-              <ringGeometry args={[radius * 1.9, radius * 1.9 + 0.035, 64]} />
-              <meshBasicMaterial color={NEUTRAL.light} toneMapped={false} transparent opacity={0.9} />
-            </mesh>
+            <group ref={ring}>
+              <mesh renderOrder={10}>
+                <ringGeometry args={[glyph.size + 0.16, glyph.size + 0.19, 64]} />
+                <meshBasicMaterial color={NEUTRAL.ink} transparent />
+              </mesh>
+            </group>
           ) : null}
           <Text
             font={focused ? FONT_MEDIUM : FONT_LIGHT}
-            position={[0, radius + 0.34, 0]}
-            fontSize={focused ? 0.34 : 0.24}
-            letterSpacing={0.04}
-            color={focused ? NEUTRAL.light : NEUTRAL.line}
-            anchorX="center"
+            position={[labelX, 0.02, 0]}
+            fontSize={focused ? 0.3 : 0.22}
+            letterSpacing={0.02}
+            color={focused || active ? NEUTRAL.ink : NEUTRAL.lineDim}
+            anchorX="left"
             anchorY="bottom"
-            outlineWidth={0.012}
-            outlineColor={NEUTRAL.void}
           >
             {node.label}
           </Text>
-          {focused && node.detail ? (
-            <Text
-              font={FONT_LIGHT}
-              position={[0, -radius - 0.28, 0]}
-              fontSize={0.18}
-              letterSpacing={0.06}
-              color={NEUTRAL.lineDim}
-              anchorX="center"
-              anchorY="top"
-            >
-              {node.detail}
-            </Text>
-          ) : null}
+          <Text
+            font={FONT_LIGHT}
+            position={[labelX, -0.02, 0]}
+            fontSize={0.13}
+            letterSpacing={0.12}
+            color={NEUTRAL.lineDim}
+            anchorX="left"
+            anchorY="top"
+          >
+            {focused && node.detail ? `${NODE_TYPE_LABEL[node.type]} · ${node.detail}` : NODE_TYPE_LABEL[node.type]}
+          </Text>
         </Billboard>
       </group>
     </group>
   )
+}
+
+/** 채움 기호는 다각형, 외곽선 기호는 같은 모양의 고리로 만든다. */
+function glyphGeometry(g: Glyph): BufferGeometry {
+  if (g.filled) return new CircleGeometry(g.size, g.sides, g.start)
+  if (g.sides > 8) return new RingGeometry(g.size - STROKE, g.size, g.sides)
+  // 꼭짓점이 적은 고리는 RingGeometry 의 thetaStart 로 회전한다
+  return new RingGeometry(g.size - STROKE * 1.4, g.size, g.sides, 1, g.start)
 }
 
 function easeOutBack(t: number) {

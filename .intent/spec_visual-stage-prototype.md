@@ -16,9 +16,9 @@ intent: `.intent/intent_visual-stage-prototype.md`
 | --- | --- | --- |
 | R1 | 1280px 이상 화면에서 좌측 채팅(약 400px)과 우측 스테이지가 나란히 표시된다 | 브라우저 스크린샷 |
 | R2 | UI 토큰(배경·전경·테두리·버튼 등)은 채도 0의 OKLCH 값이다. 색이 있는 값은 데이터 팔레트 토큰(`--data-*`)에만 있다 | 토큰 검사 단위 테스트 |
-| R3 | 스테이지에 볼류메트릭 라이트, 파티클, 블룸, 피사계 심도, 거리 감쇠(fog), 그림자가 적용된다 | 스크린샷 |
+| R3 | 스테이지는 흰 배경이다. 깊이는 부드러운 그림자, 거리 감쇠(fog), 피사계 심도, 부유 파티클로 표현한다. 화면에 보이는 광원 물체(원판, 스포트라이트 원뿔)와 Bloom 은 쓰지 않는다 (2026-10-11 사용자 피드백으로 변경) | 스크린샷 |
 | R4 | 스테이지는 이벤트(R10)만으로 상태가 바뀐다. 채팅 시나리오는 이벤트 열을 시간 간격을 두고 보낸다 | 리듀서 단위 테스트 |
-| R5 | 탐색 시나리오: 노드·엣지가 이벤트마다 추가되고 등장 애니메이션을 가진다. 초점 노드로 카메라와 피사계 심도 초점이 이동한다. 탐색 경로 엣지를 따라 파티클이 이동한다 | 브라우저에서 재생 확인 |
+| R5 | 탐색 시나리오: 노드는 무광·무채색 평면 기호(유형별 모양)이고 초점·탐색 경로 노드는 검정, 나머지는 회색이다. 노드·엣지가 이벤트마다 추가되고 등장 애니메이션을 가진다. 초점 노드로 카메라와 피사계 심도 초점이 이동한다. 탐색 경로 엣지를 따라 파티클이 이동한다 | 브라우저에서 재생 확인 |
 | R6 | 그래프 노드는 3D 힘 기반 물리 시뮬레이션으로 배치된다. 노드를 드래그하면 연결된 노드가 따라 움직이고, 놓으면 시뮬레이션이 다시 안정된다 | 브라우저 조작 |
 | R7 | 지도 시나리오: 서울 자치구 3D 지도가 나타나고 카메라가 서울로 이동한다. 자치구 면은 범주 색과 압출 높이로 값을 표시하고 높이 0에서 올라온다. 경계선은 흰 선, 지역명은 지면에 눕힌 글자다. 방위 고리가 있다 | 스크린샷 |
 | R8 | 사용자는 스테이지에서 확대·축소, 회전, 기울이기, 이동을 할 수 있다 | 브라우저 조작 |
@@ -62,7 +62,7 @@ apps/web/app/
 ### 스테이지 렌더링
 
 - three 0.186 + `@react-three/fiber` 9.8 + `@react-three/drei` 10.7 + `@react-three/postprocessing` 3.2(postprocessing 6.39). peer 범위: fiber는 react `>=19 <19.4`, postprocessing은 three `>=0.168 <0.187`(npm registry, 2026-10-11 조회).
-- 후처리: `EffectComposer autoClear={false}` 안에 `GodRays`(광원 메시 지정), `Bloom`, `DepthOfField`(`target`으로 초점), `Vignette`, `Noise`. 근거: pmndrs/react-postprocessing 문서 `docs/effects/god-rays.mdx`, `_autodocs/api-reference/DepthOfField.md`.
+- 후처리: `DepthOfField`(`target`으로 초점)와 약한 `Vignette`. 흰 배경을 유지하기 위해 톤 매핑을 끄고(`NoToneMapping`) Bloom 은 쓰지 않는다. 근거: pmndrs/react-postprocessing 문서 `_autodocs/api-reference/DepthOfField.md`.
 - 카메라: drei `CameraControls`로 사용자 조작과 초점 이동 애니메이션을 함께 처리한다.
 - 물리: `d3-force-3d` 3.0 시뮬레이션. 드래그 중에는 노드의 `fx/fy/fz`를 고정하고 시뮬레이션을 다시 가열한다.
 - 지도: `d3-geo` Mercator 투영으로 GeoJSON을 평면 좌표로 바꾸고, three `ExtrudeGeometry`로 압출한다. 경계선은 `EdgesGeometry` 흰 선이다. 지면 라벨은 drei `Text`(troika)를 쓰며 Pretendard `.woff`를 지정한다. troika는 `.woff2`를 지원하지 않는다(troika-three-text 문서).
@@ -70,8 +70,8 @@ apps/web/app/
 
 ### 디자인 토큰
 
-- UI 토큰: `oklch(L 0 0)` 형식만 사용한다. 깊이는 명도 단계, 그림자, 빛으로 표현한다.
-- 데이터 팔레트: 범주형 `--data-cat-1..6`, 노드 유형별 색. 데이터 인코딩에서만 참조한다.
+- UI 토큰: 흰 배경 기준 `oklch(L 0 0)` 형식만 사용한다. 깊이는 명도 단계와 그림자로 표현한다.
+- 데이터 팔레트: 범주형 `--data-cat-1..6`. 지역별 값, 차트 계열, 입장 구분 같은 데이터 값에만 쓴다. 노드 유형은 색이 아니라 기호 모양으로 구분한다.
 - 글꼴: Pretendard(OFL). 수치는 `tabular-nums`.
 
 ### 외부 자료

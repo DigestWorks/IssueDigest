@@ -16,7 +16,7 @@ export function PanelCard({
   children: ReactNode
 }) {
   return (
-    <Card size="sm" className="bg-card/70 shadow-[0_24px_60px_-20px_rgb(0_0_0/0.9)] backdrop-blur-md">
+    <Card size="sm" className="bg-card/70 shadow-[0_18px_40px_-18px_rgb(0_0_0/0.22)] backdrop-blur-md">
       <CardHeader>
         <CardDescription className="text-[11px] tracking-[0.12em]">{eyebrow}</CardDescription>
         <CardTitle>{title}</CardTitle>
