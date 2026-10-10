@@ -180,8 +180,8 @@ IssueDigest는 기존 서비스 모두의입법(LawDigest, lawdigest.kr, 자연�
 
 | 대화에 나온 이름 | 대화 내용 | 확인할 것 |
 | --- | --- | --- |
-| Jev | 비용 최적화와 시맨틱 라우팅에 사용 (민재) | 무엇을 가리키는지 |
-| luna | 디자인 패턴 문서와 Decisions를 쓰면 이 모델로도 대응 가능 (재신) | 어떤 모델인지 |
+| Jev | 비용 최적화와 시맨틱 라우팅에 사용 (민재) | 확인됨: TypeSafe의 외부 유료 API(`https://api.typesafe.ai/v1/systemone`). OpenIntelligentUI가 매 턴 표현 방식(text, table, bar_chart 등)을 고르는 데 사용한다(`apps/agent/src/visualization_router.py:14`). PoC에서는 도입하지 않고 에이전트 프롬프트로 대체한다 ([기술 검토](../research/2026-10-11-poc-feasibility.md)) |
+| luna | 디자인 패턴 문서와 Decisions를 쓰면 이 모델로도 대응 가능 (재신) | `agent-chat-framework`의 `src/app/api/chat/route.ts:27`이 `openai("gpt-5.6-luna")`를 사용한다. 재신이 말한 luna가 이 모델인지는 재신 확인 필요 |
 | Decisions API | 데모에서 표현 방식·화면 배치·자료 범위·답변 가능 여부를 라우팅 (재신) | 외부 API인지, 데모 내부 구성 이름인지 |
 | Responses API, gpt-5.4-mini | 데모의 답변 생성 API와 모델 (재신) | 제공사, 가격, 사용 조건 |
 | agents api | 에이전트 작업 흐름 구성에 쓸 수 있으나 비용이 큼 (재신) | 제공사, 가격 |
