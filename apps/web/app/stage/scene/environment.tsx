@@ -82,8 +82,8 @@ export function Environment({ reducedMotion }: { reducedMotion: boolean }) {
  */
 export const LightSource = forwardRef<Mesh>(function LightSource(_, ref) {
   return (
-    <mesh ref={ref} position={[0, 5.5, -52]}>
-      <circleGeometry args={[1.4, 48]} />
+    <mesh ref={ref} position={[0, 15, -52]}>
+      <circleGeometry args={[2.2, 48]} />
       <meshBasicMaterial color={NEUTRAL.line} fog={false} />
     </mesh>
   )

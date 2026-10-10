@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router"
 
 import { Badge } from "~/components/ui/badge"
 import { StageHud } from "./hud/stage-hud"
+import { PanelStack } from "./panels/panel-stack"
 import { ALL_EFFECTS, type EffectName } from "./scene/effects"
 
 // three.js 는 브라우저 전용이다. SPA 빌드는 루트를 미리 렌더하므로
@@ -29,6 +30,7 @@ export function StageView() {
         </Suspense>
       ) : null}
       <StageHud />
+      <PanelStack />
       <Badge variant="outline" className="absolute top-5 right-5 bg-background/60 backdrop-blur">
         샘플 데이터
       </Badge>

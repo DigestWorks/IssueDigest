@@ -20,6 +20,7 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
   const focus = useStage((s) => s.focus)
   const mapShownAt = useStage((s) => s.map?.shownAt ?? null)
   const empty = useStage((s) => s.nodes.length === 0 && s.map === null)
+  const hasPanels = useStage((s) => s.panels.length > 0)
   const animate = !reducedMotion
 
   useEffect(() => {
@@ -51,6 +52,11 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     })
     return () => cancelAnimationFrame(id)
   }, [focus, animate])
+
+  // 결과 패널이 오른쪽을 차지하면 장면을 왼쪽으로 옮겨 보이게 한다.
+  useEffect(() => {
+    void controls.current?.setFocalOffset(hasPanels ? 4.5 : 0, 0, 0, animate)
+  }, [hasPanels, animate])
 
   useFrame(() => {
     if (controls.current) controls.current.enabled = !sceneFlags.dragging

@@ -66,7 +66,7 @@ apps/web/app/
 - 카메라: drei `CameraControls`로 사용자 조작과 초점 이동 애니메이션을 함께 처리한다.
 - 물리: `d3-force-3d` 3.0 시뮬레이션. 드래그 중에는 노드의 `fx/fy/fz`를 고정하고 시뮬레이션을 다시 가열한다.
 - 지도: `d3-geo` Mercator 투영으로 GeoJSON을 평면 좌표로 바꾸고, three `ExtrudeGeometry`로 압출한다. 경계선은 `EdgesGeometry` 흰 선이다. 지면 라벨은 drei `Text`(troika)를 쓰며 Pretendard `.woff`를 지정한다. troika는 `.woff2`를 지원하지 않는다(troika-three-text 문서).
-- 결과 패널: drei `Html transform`으로 3D 위치에 DOM 패널을 두고, shadcn chart(Recharts)와 shadcn 카드로 그린다. 초점 밖 패널은 CSS blur와 명도 저하로 흐린다.
+- 결과 패널: 스테이지 위에 CSS 원근(perspective)을 준 DOM 층으로 쌓고, 깊이 방향에서 회전하며 들어오는 등장 애니메이션을 준다. shadcn chart(Recharts)와 shadcn 카드로 그린다. 패널이 보이면 카메라 focal offset으로 장면을 왼쪽으로 옮긴다. drei `Html transform`으로 3D 위치에 붙이는 방식은 카메라 이동 중 글자가 흔들리고 흐려져 데이터 판독 제약에 맞지 않아 쓰지 않았다(구현 중 변경).
 
 ### 디자인 토큰
 
