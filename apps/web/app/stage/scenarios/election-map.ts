@@ -46,7 +46,8 @@ function sampleValue(code: string): RegionValue {
   let h = 0
   for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) >>> 0
   const southEast = ["11220", "11230", "11240", "11250", "11030"].includes(code)
-  const lead = southEast ? 0 : h % 5 === 0 ? 2 : 1
+  // 후보 A(0)가 다수 구에서 앞서고, 동남권 5개 구는 후보 B(1)가 앞선다
+  const lead = southEast ? 1 : h % 5 === 0 ? 2 : 0
   const margin = 0.15 + ((h >>> 3) % 70) / 100
   const c = CANDIDATES[lead]
   return {
@@ -137,6 +138,8 @@ function regionClaim(code: string, text: string) {
     source: sampleSource("가상 여론조사", SEOUL_GU[code]),
   }
 }
+
+export const electionSampleValue = sampleValue
 
 export const electionMapScenario: Scenario = {
   id: "election-map",

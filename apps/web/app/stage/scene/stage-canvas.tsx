@@ -4,6 +4,7 @@ import { NoToneMapping } from "three"
 
 import { useReducedMotion } from "~/design/use-reduced-motion"
 import { GraphLayer } from "../graph/graph-layer"
+import { MapLayer } from "../map/map-layer"
 import { CameraRig } from "./camera-rig"
 import { ALL_EFFECTS, Effects, type EffectName } from "./effects"
 import { Environment } from "./environment"
@@ -28,6 +29,7 @@ export default function StageCanvas({
     >
       <Environment reducedMotion={reducedMotion} />
       <GraphLayer reducedMotion={reducedMotion} />
+      <MapLayer reducedMotion={reducedMotion} />
       <CameraRig reducedMotion={reducedMotion} />
       {effects ? <Effects reducedMotion={reducedMotion} enabled={effects} /> : null}
       {debug ? <Stats /> : null}

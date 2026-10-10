@@ -40,3 +40,17 @@ describe("샘플 시나리오", () => {
     expect(pickScenario("오늘 날씨 어때").id).toBe("insufficient")
   })
 })
+
+describe("지도 시나리오 데이터 일관성", () => {
+  it("주장 패널의 입장과 해당 지역의 우세 후보가 같다", async () => {
+    const { electionMapScenario, electionSampleValue } = await import("./election-map")
+    for (const step of electionMapScenario.steps) {
+      if (!("event" in step) || step.event.type !== "panel.add" || step.event.panel.kind !== "claims") continue
+      for (const side of step.event.panel.sides) {
+        for (const c of side.claims) {
+          expect(electionSampleValue(c.target.id).category, c.target.id).toBe(side.category)
+        }
+      }
+    }
+  })
+})

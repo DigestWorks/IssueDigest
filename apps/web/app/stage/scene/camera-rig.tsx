@@ -8,8 +8,8 @@ import { focusPoint, nodePositions, sceneFlags } from "./registry"
 
 const HOME_POSITION = new Vector3(0, 10, 24)
 const HOME_TARGET = new Vector3(0, 2.5, 0)
-const MAP_POSITION = new Vector3(0, 17, 15)
-const MAP_TARGET = new Vector3(0, 0, 0)
+const MAP_POSITION = new Vector3(0, 21, 19)
+const MAP_TARGET = new Vector3(0, 0, 0.5)
 
 /**
  * 카메라. 사용자는 회전(왼쪽 드래그), 이동(오른쪽 드래그), 확대·축소(휠)를 한다.
@@ -45,7 +45,7 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
       // 노드 초점은 그래프 중심과 노드 사이를 바라봐 주변 맥락이 화면에 남게 한다.
       const p = focus.kind === "node" ? graphCentroid(new Vector3()).lerp(node, 0.6) : node
       const from = c.camera.position.clone().sub(c.getTarget(new Vector3())).normalize()
-      const distance = focus.kind === "region" ? 13 : 24
+      const distance = focus.kind === "region" ? 27 : 24
       from.y = Math.max(from.y, focus.kind === "region" ? 0.75 : 0.3)
       from.normalize().multiplyScalar(distance)
       void c.setLookAt(p.x + from.x, p.y + from.y, p.z + from.z, p.x, p.y, p.z, animate)
