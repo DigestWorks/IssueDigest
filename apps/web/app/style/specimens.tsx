@@ -3,10 +3,14 @@ import { motion } from "motion/react"
 
 import { Button } from "~/components/ui/button"
 import { DATA_CATEGORICAL, dataColor, oklchToHex } from "~/design/palette"
-import { EASE_OUT, MAX_TEXT_TILT_DEG, MOTION, OPACITY, TYPE_ROLES } from "~/design/tokens"
+import { EASE_OUT, MAX_TEXT_TILT_DEG, MOTION, OPACITY, SCHEMATIC_THEME, TYPE_ROLES } from "~/design/tokens"
 import { useReducedMotion } from "~/design/use-reduced-motion"
 import { GlyphIcon } from "~/stage/graph/glyph-icon"
+import type { Panel } from "~/stage/events"
 import { NODE_GLYPH, NODE_TYPE_LABEL, NODE_TYPES } from "~/stage/graph/glyphs"
+import { SchematicTheme } from "~/stage/schematic/primitives"
+import { SchematicPanel } from "~/stage/schematic/schematic-panel"
+import { useStage } from "~/stage/store"
 
 /** UI 색 토큰. 값은 실행 중인 app.css 에서 읽는다. */
 const UI_TOKENS = [
@@ -240,6 +244,40 @@ export function MotionSpecimen() {
           </span>
         ))}
       </div>
+    </div>
+  )
+}
+
+/**
+ * 도면 양식 결과 패널 견본. 어두운 장면 위에 시나리오의 샘플 패널을 그대로 그리고
+ * 등장을 다시 재생할 수 있다. 첫 화면에서는 타임라인의 한 항목을 선택 상태로 둔다.
+ */
+export function SchematicPanelSpecimen({ panels }: { panels: Panel[] }) {
+  const reduced = useReducedMotion()
+  const [run, setRun] = useState(0)
+  const setFocus = useStage((s) => s.setFocus)
+  useEffect(() => setFocus({ kind: "node", id: "mt1" }), [setFocus])
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <Button variant="outline" size="sm" onClick={() => setRun((r) => r + 1)}>
+          등장 다시 재생
+        </Button>
+      </div>
+      <SchematicTheme
+        className="relative overflow-hidden px-10 py-12"
+        style={{
+          background: `radial-gradient(120% 90% at 30% 20%, #1b2127 0%, ${SCHEMATIC_THEME.scene} 70%)`,
+        }}
+      >
+        <div key={run} className="grid grid-cols-1 gap-x-16 gap-y-14 md:grid-cols-2">
+          {panels.map((p, i) => (
+            <div key={i} className="w-full max-w-[380px]">
+              <SchematicPanel panel={p} index={i + 1} animate={!reduced} />
+            </div>
+          ))}
+        </div>
+      </SchematicTheme>
     </div>
   )
 }

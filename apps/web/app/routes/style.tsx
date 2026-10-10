@@ -4,10 +4,6 @@ import { Badge } from "~/components/ui/badge"
 import { Separator } from "~/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
 import { CHAPTERS, IDENTITY, statusCounts, type RuleStatus } from "~/design/guide"
-import type { Panel } from "~/stage/events"
-import { ChartPanel } from "~/stage/panels/chart-panel"
-import { ClaimsPanel } from "~/stage/panels/claims-panel"
-import { TimelinePanel } from "~/stage/panels/timeline-panel"
 import { SCENARIOS } from "~/stage/scenarios"
 import {
   DataPaletteSpecimen,
@@ -15,6 +11,7 @@ import {
   LineSpecimen,
   MotionSpecimen,
   OpacitySpecimen,
+  SchematicPanelSpecimen,
   TiltSpecimen,
   TypeSpecimen,
   UiColorSpecimen,
@@ -44,6 +41,11 @@ const SPECIMENS: Record<string, { title: string; node: ReactNode }[]> = {
   motion: [{ title: "등장 순서", node: <MotionSpecimen /> }],
 }
 
+const SAMPLE_PANELS = SCENARIOS.flatMap((s) =>
+  s.steps.flatMap((st) => ("event" in st && st.event.type === "panel.add" ? [st.event.panel] : []))
+)
+SPECIMENS.panels = [{ title: "결과 패널 (시나리오 샘플 데이터)", node: <SchematicPanelSpecimen panels={SAMPLE_PANELS} /> }]
+
 const STATUS_VARIANT: Record<RuleStatus, "default" | "secondary" | "outline"> = {
   구현: "default",
   부분: "secondary",
@@ -52,10 +54,6 @@ const STATUS_VARIANT: Record<RuleStatus, "default" | "secondary" | "outline"> = 
 
 export default function StyleGuide() {
   const counts = statusCounts()
-  const samplePanels = SCENARIOS.flatMap((s) =>
-    s.steps.flatMap((st) => ("event" in st && st.event.type === "panel.add" ? [st.event.panel] : []))
-  )
-
   return (
     <div className="min-h-svh bg-background">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-10 px-6 py-12 lg:grid-cols-[200px_minmax(0,1fr)]">
@@ -69,9 +67,6 @@ export default function StyleGuide() {
                 {c.number}. {c.title}
               </a>
             ))}
-            <a href="#components" className="py-1 text-muted-foreground hover:text-foreground">
-              11. 구성 요소
-            </a>
             <Separator className="my-3" />
             <a href="/" className="py-1 text-muted-foreground hover:text-foreground">
               스테이지로 돌아가기
@@ -142,33 +137,9 @@ export default function StyleGuide() {
             </section>
           ))}
 
-          <section id="components" className="flex scroll-mt-12 flex-col gap-6">
-            <div className="flex items-baseline gap-4">
-              <span className="font-mono text-sm text-muted-foreground tabular-nums">11</span>
-              <h2 className="text-2xl font-light">구성 요소</h2>
-              <span className="text-sm text-muted-foreground">스테이지 결과 패널 (샘플 데이터)</span>
-            </div>
-            <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
-              {samplePanels.map((p, i) => (
-                <div key={i} className="w-full max-w-[360px]">
-                  <PanelBody panel={p} />
-                </div>
-              ))}
-            </div>
-          </section>
         </main>
       </div>
     </div>
   )
 }
 
-function PanelBody({ panel }: { panel: Panel }) {
-  switch (panel.kind) {
-    case "chart":
-      return <ChartPanel panel={panel} animate={false} />
-    case "timeline":
-      return <TimelinePanel panel={panel} animate={false} />
-    case "claims":
-      return <ClaimsPanel panel={panel} animate={false} />
-  }
-}

@@ -46,7 +46,8 @@ date: 2026-10-11
 8. 근거 부족 시나리오, reduced motion, `?debug` 프레임 표시 — 에뮬레이션과 측정.
 9. 채팅: ACF 레지스트리를 `python3 -m http.server 3100 --directory ~/code/framework/agent-chat-framework/public`으로 제공하고 `thread-aui` 설치, 시나리오 재생 `ChatModelAdapter`로 임시 입력창 교체. 한 커밋 분량 안에 해결되지 않으면 임시 입력창을 유지하고 README에 기록한다.
 10. 스타일 가이드(사용자 요청, 2026-10-11): 정체성 기준 「출처가 붙은 조사 기록」을 정하고, 토큰 모듈(`design/tokens.ts`)과 규칙 데이터(`design/guide.ts`)를 만들어 `/style` 페이지에서 렌더링한다 — 페이지 전체 스크린샷 확인.
-11. README, 전체 검증, 커밋·push.
+11. 결과 패널 재디자인(사용자 요청, 2026-10-11): The Division 양식(선과 점으로 만든 틀, 주황 강조, 어두운 반투명 바탕)으로 `stage/schematic/*` 를 새로 만들어 `/style` 에서 먼저 확인받고, 승인 후 `panel-layer.tsx` 를 교체한다.
+12. README, 전체 검증, 커밋·push.
 
 단계마다 `feat:` 등 태그로 커밋한다.
 

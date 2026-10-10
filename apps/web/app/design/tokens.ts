@@ -1,3 +1,5 @@
+import type React from "react"
+
 /**
  * IssueDigest 디자인 토큰 중 색 외의 값: 불투명도 단계, 글자 역할, 모션.
  * 색은 palette.ts 와 app.css 에 있다. 장면(three.js)과 화면(DOM), /style 페이지가
@@ -44,3 +46,26 @@ export const MOTION = {
 } as const
 
 export const EASE_OUT = [0.16, 1, 0.3, 1] as const
+
+/**
+ * 도면 양식 패널 테마(The Division UI 스타일 가이드의 색 체계를 따른다).
+ * - 주색: 강조용 주황(RGB 255,127,0)과 기본 상태용 따뜻한 흰색.
+ * - 주황은 초점·선택·강조 계열에만 아껴 쓴다. 나머지는 흰색과 불투명도 단계로 위계를 만든다.
+ * - 바탕은 어두운 반투명 면이다.
+ * 출처: The Division User Interface Style Guide 6.1 Primary Colors (VGLeaks 게시 이미지, 2014).
+ */
+export const SCHEMATIC_THEME = {
+  ink: "#F4FFFF",
+  accent: "#FF7F00",
+  backing: "rgb(10 12 14 / 0.62)",
+  shadow: "rgb(0 0 0 / 0.33)",
+  scene: "#0c0f12",
+} as const
+
+export const schematicVars = {
+  "--sch-ink": SCHEMATIC_THEME.ink,
+  "--sch-accent": SCHEMATIC_THEME.accent,
+  "--sch-backing": SCHEMATIC_THEME.backing,
+  "--sch-shadow": SCHEMATIC_THEME.shadow,
+  "--sch-scene": SCHEMATIC_THEME.scene,
+} as React.CSSProperties

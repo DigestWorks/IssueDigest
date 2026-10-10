@@ -144,6 +144,20 @@ export const CHAPTERS: Chapter[] = [
       { title: "사용자 조작", rule: "사용자는 언제든 회전, 기울이기, 이동, 확대·축소를 할 수 있고, 공간 속 패널은 카메라를 따라 읽히는 방향을 유지한다.", status: "구현", where: "camera-rig.tsx, panel-layer.tsx" },
     ],
   },
+  {
+    id: "panels",
+    number: 11,
+    title: "패널",
+    summary: "The Division 양식 결과 패널 (시험 중)",
+    rules: [
+      { title: "틀", rule: "틀은 선과 점으로만 만든다. 위쪽 보조선은 틀 밖으로 연장되고, 왼쪽 세로선과 아래 짧은 가로선이 L자 꺾쇠를 이루며, 모서리에 사각점을 둔다. 바탕은 흐림 처리한 어두운 반투명 면이고 모서리는 직각이다. 왼쪽 위 모서리 점과 머리선 시작점은 주황이다.", status: "미구현", where: "stage/schematic/primitives.tsx 에 구현, 스테이지 적용 전" },
+      { title: "머리", rule: "작은 고정폭 번호와 보조 글자, 가는 굵기의 제목, 시작점이 있는 머리선 순서로 쌓는다. 같은 번호를 크고 아주 옅게(배경 단계) 깔아 잔상 층을 만든다.", status: "미구현", where: "SchematicFrame" },
+      { title: "차트", rule: "축 상자 대신 기준선과 짧은 눈금, 배경 단계의 점선 격자를 쓴다. 계열은 가는 선과 정사각형 점이고, 끝값은 꺾인 지시선과 수치로 주석한다. 계열은 흰색과 불투명도로 그리고 강조할 계열 하나만 주황으로 그린다.", status: "미구현", where: "stage/schematic/schematic-chart.tsx" },
+      { title: "타임라인", rule: "세로 축선 위의 사각점과 꺾인 지시선으로 날짜와 항목을 잇는다. 선택한 항목은 채운 사각점과 꺾쇠 눈금으로 표시한다.", status: "미구현", where: "stage/schematic/schematic-timeline.tsx" },
+      { title: "주장 비교", rule: "입장 머리는 짧은 굵은 막대로 표시한다(첫 입장 주황, 둘째 입장 흰색). 주장마다 근거 사각점과 꺾인 지시선으로 인용 위치를 잇고, 선택한 주장은 주황 사각점과 꺾쇠 눈금으로 표시한다.", status: "미구현", where: "stage/schematic/schematic-claims.tsx" },
+      { title: "등장", rule: "틀의 선 → 점 → 지시선 → 글자 순서로 그려진다. 시간은 MOTION 토큰을 따른다.", status: "미구현", where: "stage/schematic/*" },
+    ],
+  },
 ]
 
 export function statusCounts() {
