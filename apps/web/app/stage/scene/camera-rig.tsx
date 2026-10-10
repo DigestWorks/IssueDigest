@@ -4,6 +4,7 @@ import { useFrame } from "@react-three/fiber"
 import { Vector3 } from "three"
 
 import { useStage } from "../store"
+import { PANEL_SHIFT_RIGHT } from "../panels/panel-layer"
 import { focusPoint, nodePositions, sceneFlags } from "./registry"
 
 const HOME_POSITION = new Vector3(0, 10, 24)
@@ -53,9 +54,9 @@ export function CameraRig({ reducedMotion }: { reducedMotion: boolean }) {
     return () => cancelAnimationFrame(id)
   }, [focus, animate])
 
-  // 결과 패널이 오른쪽을 차지하면 장면을 왼쪽으로 옮겨 보이게 한다.
+  // 결과 패널은 장면 오른쪽(눕힘) 또는 너머 오른쪽(세움)에 놓이므로 시야를 오른쪽으로 옮긴다.
   useEffect(() => {
-    void controls.current?.setFocalOffset(hasPanels ? 4.5 : 0, 0, 0, animate)
+    void controls.current?.setFocalOffset(hasPanels ? PANEL_SHIFT_RIGHT : 0, 0, 0, animate)
   }, [hasPanels, animate])
 
   useFrame(() => {
