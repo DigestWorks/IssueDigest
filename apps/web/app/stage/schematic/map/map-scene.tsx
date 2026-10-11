@@ -23,7 +23,7 @@ import {
 } from "three"
 
 import { dataColor } from "~/design/palette"
-import { OPACITY, type SchematicPalette } from "~/design/tokens"
+import { FLOOR, HOLOGRAM, MAP_EFFECTS, MAP_MOTION, OPACITY, type SchematicPalette } from "~/design/tokens"
 import type { RegionValue } from "../../events"
 import {
   fitProjection,
@@ -58,12 +58,10 @@ export type MapSceneProps = {
 }
 
 const MAP_SIZE = 16
-/** 등장 시작 시 지도 가로 배율 */
-const EXPAND_FROM = 0.3
+const EXPAND_FROM = MAP_MOTION.expandFrom
 const BASE_H = 0.1
-const MAX_H = 1.8
-/** 층 외곽선 색 번짐: 사본 간격(장면 단위)과 불투명도 */
-const FRINGE = { px: 1.2, colored: 0.5, neutral: 0.2 }
+const MAX_H = HOLOGRAM.maxHeight
+const FRINGE = HOLOGRAM.fringe
 
 /**
  * 색 번짐 사본용 선 재질. 꼭짓점을 화면 가로 방향으로 uShift(화면 픽셀)만큼 옮긴다.
@@ -102,14 +100,9 @@ function fringeMaterialProps(color: string, shift: number, blending: typeof Addi
 }
 /** 누른 곳과 뗀 곳이 이 거리(px)보다 멀면 클릭이 아니라 끌기로 본다 */
 const DRAG_PX = 4
-/** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
-const LAYER_GAP = 0.18
-/**
- * 선택한 지역의 층 간격 배율. 선택하면 층 사이가 벌어져 묶음이 위로 늘어난다.
- * 높은 지역이 지나치게 솟지 않도록 늘어나는 높이를 FOCUS_RISE_MAX 로 제한한다.
- */
-const FOCUS_SPREAD = 1.5
-const FOCUS_RISE_MAX = 0.6
+const LAYER_GAP = HOLOGRAM.layerGap
+const FOCUS_SPREAD = HOLOGRAM.focusSpread
+const FOCUS_RISE_MAX = HOLOGRAM.focusRiseMax
 
 const LEADER = 2.6
 /** 장면 색(모드별). Canvas 안에서 제공하므로 R3F 의 컨텍스트 연결 여부와 관계없이 읽힌다 */
@@ -120,25 +113,8 @@ const useTheme = () => {
   return t
 }
 
-/**
- * 등장 시각(ms, 경계 데이터를 받은 시점 기준). 지도 홀로그램이 가운데에서 펼쳐진다.
- * - expand: 지도 전체가 가운데에서 바깥으로 커진다(가로 배율 EXPAND_FROM → 1).
- * - wave: 바닥의 고리가 가운데에서 바깥으로 퍼지고, 고리가 닿는 지역부터 나타난다.
- *   지역의 등장 시각은 지도 중심에서의 거리에 비례한다.
- * - region: 지역마다 바닥 외곽선이 그려진 뒤, 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다.
- * - label·frame: 지역 이름과 지도 틀은 마지막에 나타난다.
- */
-const T = {
-  expand: { ms: 1000 },
-  wave: { at: 60, ms: 850 },
-  region: { outlineMs: 300, unfoldAt: 120, unfoldMs: 600 },
-  label: { at: 600, ms: 250 },
-  frame: { at: 850, ms: 450 },
-  compass: { at: 0, ms: 1000 },
-  focusTrace: 700,
-  focusPulse: { at: 500, ms: 1000 },
-  focusLeader: { at: 400, ms: 400 },
-}
+/** 등장 시각. 값과 설명은 design/tokens.ts 의 MAP_MOTION */
+const T = MAP_MOTION
 
 const VIEWS: Record<MapView, { position: [number, number, number]; target: [number, number, number] }> = {
   overview: { position: [0, 21, 20], target: [0, 0, 0.6] },
@@ -204,8 +180,8 @@ export default function MapScene(props: MapSceneProps) {
  * - 색수차: 화면 가장자리로 갈수록 빨강·파랑 성분이 어긋난다(radialModulation).
  * 설정은 @react-three/postprocessing 3.x 의 DepthOfField·ChromaticAberration 속성을 따른다.
  */
-const FOCUS_RANGE = 14
-const CA_OFFSET = new Vector2(0.0014, 0.0009)
+const FOCUS_RANGE = MAP_EFFECTS.focusRange
+const CA_OFFSET = new Vector2(...MAP_EFFECTS.caOffset)
 const MAP_CENTER = new Vector3(0, 0.6, 0)
 
 function MapEffects({ focus }: { focus: string | null }) {
@@ -224,15 +200,15 @@ function MapEffects({ focus }: { focus: string | null }) {
     <EffectComposer multisampling={4}>
       {/* 흐림 계산을 화면 해상도 그대로 한다. 낮은 해상도(예: 세로 540px)로 계산해 늘리면
           선 가장자리에서 흐림 경계가 계단처럼 보인다 */}
-      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={1.6} resolutionScale={1} />
-      <ChromaticAberration offset={CA_OFFSET} radialModulation modulationOffset={0.2} />
+      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={MAP_EFFECTS.bokehScale} resolutionScale={1} />
+      <ChromaticAberration offset={CA_OFFSET} radialModulation modulationOffset={MAP_EFFECTS.caModulationOffset} />
     </EffectComposer>
   )
 }
 
-const FLOOR_SIZE = 90
-/** 바닥 조명: 중심에서 이 거리(장면 단위)까지는 중앙색, OUTER 에서 바깥색이 된다 */
-const SPOT = { inner: 9, outer: 30 }
+const FLOOR_SIZE = FLOOR.size
+/** 바닥 조명 범위. 값과 설명은 design/tokens.ts 의 FLOOR */
+const SPOT = FLOOR
 
 /**
  * 바닥 조명. 지도 중심을 비추는 원형 밝기 분포를 바닥면에 직접 칠한다(광원 물체는 두지 않는다).

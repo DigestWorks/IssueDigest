@@ -122,3 +122,53 @@ export const schematicVars = (mode: SchematicMode = "dark") => {
     "--sch-backdrop": t.backdrop,
   } as React.CSSProperties
 }
+
+/**
+ * 홀로그램 부피(지도 지역의 층 묶음). 길이는 장면 단위, px 는 화면 픽셀이다.
+ * - 높이는 벽이 있는 덩어리 대신 layerGap 간격으로 쌓은 수평 외곽선 층의 수로 나타낸다(최대 maxHeight).
+ * - 선택하면 층 수는 그대로 두고 층 간격을 최대 focusSpread 배로 벌린다. 늘어나는 높이는 focusRiseMax 까지다.
+ * - 층 외곽선에 빨강(왼쪽)·청록(오른쪽) 사본을 fringe.px 씩 어긋나게 겹친다.
+ */
+export const HOLOGRAM = {
+  layerGap: 0.18,
+  maxHeight: 1.8,
+  focusSpread: 1.5,
+  focusRiseMax: 0.6,
+  fringe: { px: 1.2, colored: 0.5, neutral: 0.2 },
+} as const
+
+/**
+ * 지도 후처리. @react-three/postprocessing 3.x 의 DepthOfField·ChromaticAberration 속성 값이다.
+ * - focusRange: 초점 거리와의 차이가 0 에서 이 값(장면 단위)까지 커지는 동안 흐림이 smoothstep 으로 커진다.
+ * - caOffset: 화면 가장자리 색수차 크기(화면 좌표 비율), caModulationOffset: 색수차가 없는 가운데 영역.
+ */
+export const MAP_EFFECTS = {
+  focusRange: 14,
+  bokehScale: 1.6,
+  caOffset: [0.0014, 0.0009],
+  caModulationOffset: 0.2,
+} as const
+
+/** 지도 바닥 조명: 지름 size 바닥에서 반지름 inner 까지 중앙색, outer 에서 바깥색(backdrop)이 된다 */
+export const FLOOR = { size: 90, inner: 9, outer: 30 } as const
+
+/**
+ * 지도 등장 시각(ms, 경계 데이터를 받은 시점 기준). 지도 홀로그램이 가운데에서 펼쳐진다.
+ * - expand: 지도 전체가 가로 배율 expandFrom 에서 1 로 커진다.
+ * - wave: 바닥의 고리가 가운데에서 바깥으로 퍼지고, 고리가 닿는 지역부터 나타난다(중심 거리에 비례).
+ * - region: 지역마다 바닥 외곽선이 그려진 뒤, 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다.
+ * - label·frame: 지역 이름과 지도 틀은 마지막에 나타난다.
+ * - focus*: 선택 표시(외곽선 추적, 바깥으로 커지며 사라지는 외곽선, 수직 지시선).
+ */
+export const MAP_MOTION = {
+  expandFrom: 0.3,
+  expand: { ms: 1000 },
+  wave: { at: 60, ms: 850 },
+  region: { outlineMs: 300, unfoldAt: 120, unfoldMs: 600 },
+  label: { at: 600, ms: 250 },
+  frame: { at: 850, ms: 450 },
+  compass: { at: 0, ms: 1000 },
+  focusTrace: 700,
+  focusPulse: { at: 500, ms: 1000 },
+  focusLeader: { at: 400, ms: 400 },
+} as const
