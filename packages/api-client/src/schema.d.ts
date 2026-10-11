@@ -45,6 +45,87 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** Citation */
+        Citation: {
+            /**
+             * Citation Id
+             * Format: uuid4
+             */
+            citation_id: string;
+            /**
+             * Document Version Id
+             * Format: uuid4
+             */
+            document_version_id: string;
+            /**
+             * Representation Id
+             * Format: uuid4
+             */
+            representation_id: string;
+            /** Selector */
+            selector: components["schemas"]["TextQuoteSelector"] | components["schemas"]["PdfQuoteSelector"] | components["schemas"]["TableCellSelector"];
+        };
+        /** CitationAnchorValidation */
+        CitationAnchorValidation: {
+            /**
+             * Anchor Status
+             * @default matched
+             * @constant
+             */
+            anchor_status: "matched";
+            /**
+             * Citation Id
+             * Format: uuid4
+             */
+            citation_id: string;
+            /**
+             * Support Status
+             * @default not_evaluated
+             * @constant
+             */
+            support_status: "not_evaluated";
+        };
+        /** DocumentVersion */
+        DocumentVersion: {
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /** Media Type */
+            media_type: string;
+            /**
+             * Raw Object Id
+             * Format: uuid4
+             */
+            raw_object_id: string;
+            /** Raw Sha256 */
+            raw_sha256: string;
+            /**
+             * Version Id
+             * Format: uuid4
+             */
+            version_id: string;
+        };
+        /** EvidenceBundle */
+        EvidenceBundle: {
+            /** Citations */
+            citations: components["schemas"]["Citation"][];
+            document: components["schemas"]["SourceDocument"];
+            representation: components["schemas"]["ParsedRepresentation"];
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            version: components["schemas"]["DocumentVersion"];
+        };
         /** Liveness */
         Liveness: {
             /**
@@ -52,6 +133,94 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /**
+         * NormalizedBox
+         * @description Coordinates after crop/rotation, measured from displayed page top-left.
+         */
+        NormalizedBox: {
+            /** X0 */
+            x0: number;
+            /** X1 */
+            x1: number;
+            /** Y0 */
+            y0: number;
+            /** Y1 */
+            y1: number;
+        };
+        /** PageSpan */
+        PageSpan: {
+            /** End */
+            end: number;
+            /** Page Number */
+            page_number: number;
+            /** Start */
+            start: number;
+        };
+        /** ParsedRepresentation */
+        ParsedRepresentation: {
+            /**
+             * Document Version Id
+             * Format: uuid4
+             */
+            document_version_id: string;
+            /** Normalization Profile */
+            normalization_profile: string;
+            /** Pages */
+            pages: components["schemas"]["PageSpan"][];
+            /** Parser Name */
+            parser_name: string;
+            /** Parser Version */
+            parser_version: string;
+            /**
+             * Representation Id
+             * Format: uuid4
+             */
+            representation_id: string;
+            /** Tables */
+            tables: components["schemas"]["ParsedTable"][];
+            /** Text */
+            text: string;
+            /** Text Sha256 */
+            text_sha256: string;
+        };
+        /** ParsedTable */
+        ParsedTable: {
+            /** Cells */
+            cells: components["schemas"]["TableCell"][];
+            /** Table Id */
+            table_id: string;
+        };
+        /** PdfQuoteSelector */
+        PdfQuoteSelector: {
+            /** End */
+            end: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "pdf";
+            /** Page Number */
+            page_number: number;
+            /**
+             * Prefix
+             * @default null
+             */
+            prefix: string | null;
+            /** Quote */
+            quote: string;
+            /**
+             * Regions
+             * @default []
+             */
+            regions: components["schemas"]["NormalizedBox"][];
+            /** Start */
+            start: number;
+            /**
+             * Suffix
+             * @default null
+             */
+            suffix: string | null;
         };
         /** ServiceStatus */
         ServiceStatus: {
@@ -70,6 +239,113 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** SourceDocument */
+        SourceDocument: {
+            /**
+             * Canonical Url
+             * @default null
+             */
+            canonical_url: string | null;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /** Provider */
+            provider: string;
+            /** Source Id */
+            source_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other";
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** TableCell */
+        TableCell: {
+            /** Cell Id */
+            cell_id: string;
+            /**
+             * Methodology
+             * @default null
+             */
+            methodology: string | null;
+            /**
+             * Period
+             * @default null
+             */
+            period: string | null;
+            /**
+             * Population
+             * @default null
+             */
+            population: string | null;
+            /**
+             * Question
+             * @default null
+             */
+            question: string | null;
+            /**
+             * Sample Size
+             * @default null
+             */
+            sample_size: number | null;
+            /** Text */
+            text: string;
+            /**
+             * Unit
+             * @default null
+             */
+            unit: string | null;
+            /**
+             * Weighting
+             * @default null
+             */
+            weighting: string | null;
+        };
+        /** TableCellSelector */
+        TableCellSelector: {
+            /** Cell Id */
+            cell_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "table_cell";
+            /** Quote */
+            quote: string;
+            /** Table Id */
+            table_id: string;
+        };
+        /** TextQuoteSelector */
+        TextQuoteSelector: {
+            /** End */
+            end: number;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "text";
+            /**
+             * Prefix
+             * @default null
+             */
+            prefix: string | null;
+            /** Quote */
+            quote: string;
+            /** Start */
+            start: number;
+            /**
+             * Suffix
+             * @default null
+             */
+            suffix: string | null;
         };
     };
     responses: never;

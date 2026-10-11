@@ -40,3 +40,9 @@ Sites 반영 상태:
 ```
 
 질문에 대한 답이나 PR에서 합의한 내용이 결정·요구사항을 바꾸면 해당 문서에도 반영한다. 대화나 PR 댓글에만 남겨두지 않는다. 문서에 완료된 것처럼 보이는 계획·예상·권고 표현을 섞지 않는다.
+
+## 첫 원문·파싱·인용 계약
+
+원문 식별/버전과 파싱 표현을 분리한 첫 계약 및 정확한 인용 anchor 검증을 구현했습니다. [Python 도메인](../packages/domain/README.md)과 [생성 웹 타입·Unicode 변환](../packages/api-client/README.md)에 실제 공개 모델과 검증 경계를 기록합니다. API OpenAPI components로 연결하며 제품 HTTP 경로를 추가하지 않습니다. 완료 증거와 리뷰·Sites 대기는 [진행 기록](planning/progress.md), 후속 범위는 [작업 목록](planning/tasks.md)에서 관리합니다.
+
+이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage가 남아 있습니다.

@@ -9,7 +9,15 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from issuedigest_domain.status import Liveness, ServiceStatus
 
-app = FastAPI(title="IssueDigest API", version="v1")
+from .contracts import add_evidence_schemas
+
+
+class IssueDigestAPI(FastAPI):
+    def openapi(self) -> dict[str, Any]:
+        return add_evidence_schemas(super().openapi())
+
+
+app = IssueDigestAPI(title="IssueDigest API", version="v1")
 logger = logging.getLogger(__name__)
 REQUEST_ID_RESPONSE: dict[int | str, dict[str, Any]] = {
     200: {
