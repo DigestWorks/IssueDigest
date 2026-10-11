@@ -147,6 +147,8 @@ class ComparisonReason(BaseModel):
     def valid_reason(self) -> Self:
         if len(set(self.observation_ids)) != len(self.observation_ids):
             raise ValueError("reason observation_ids must be unique")
+        if self.kind == "missing" and self.field in {"metric", "dimensions"}:
+            raise ValueError("non-nullable context fields cannot have missing reasons")
         if self.kind == "different":
             if self.field == "value" or len(self.observation_ids) < 2:
                 raise ValueError("different requires at least two IDs and a context field")
@@ -176,6 +178,16 @@ class ComparisonAssessment(BaseModel):
             raise ValueError("field/kind reasons must be unique")
         if any(not set(reason.observation_ids) <= ids for reason in self.reasons):
             raise ValueError("reason observation_ids must belong to assessment")
+        reason_ids = {
+            (reason.field, reason.kind): set(reason.observation_ids) for reason in self.reasons
+        }
+        for field in _COMPARISON_FIELDS:
+            if reason_ids.get((field, "missing"), set()) & reason_ids.get(
+                (field, "different"), set()
+            ):
+                raise ValueError(
+                    "same-field missing and different observation_ids must be disjoint"
+                )
         if self.status != _comparison_status(self.reasons):
             raise ValueError("status is inconsistent with reasons")
         return self

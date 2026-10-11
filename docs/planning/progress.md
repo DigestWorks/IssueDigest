@@ -15,7 +15,13 @@
 
 ## 현재 작업
 
-작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · 선행 Draft PR #4 위 작업, 새 PR 대기. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조 검증과 실제 OpenAPI→생성 TS 타입을 구현했다. focused Python 228개와 생성 타입 소비자 검증 통과. 전체 `npm run check` 1회 통과: Python 380개·JS 60개와 lint/타입/SPA 빌드/계약 drift 검사. 독립 작업/전체 변경 리뷰·Draft PR·사용자 폴더 연결은 controller가 진행한다. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. Sites v19는 선행 원문·인용 구현 공개 상태이며 이번 계약 요약 반영은 대기다.
+작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · 선행 Draft PR #4 위 작업, 새 PR 대기. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조 검증과 실제 OpenAPI→생성 TS 타입을 구현했다. 최종 리뷰 P2의 비교 결과 모순 검증을 수정했다. 관측 focused Python 107개 및 수정 후 전체 `npm run check` 1회 통과: Python 393개·JS 60개와 lint/타입/SPA 빌드/계약 drift 검사. 수정 범위 재검토·Draft PR·사용자 폴더 연결은 controller가 진행한다. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. Sites v19는 선행 원문·인용 구현 공개 상태이며 이번 계약 요약 반영은 대기다.
+
+## 2026-10-11 · 최종 리뷰 P2 비교 결과 검증 수정
+
+- 제공된 ComparisonReason/ComparisonAssessment JSON은 non-nullable metric/dimensions 결측 사유를 거부한다. 같은 필드의 missing/different에 같은 관측 ID가 있으면 거부하고, 세 개 이상의 관측에서 두 사유 ID가 분리된 결과와 다른 필드의 독립 사유는 허용한다. 비교 알고리즘·v1 정책·공개 API와 생성 스키마 형태는 유지했다.
+- 검증: 실제 JSON 회귀 RED 8개 실패·허용 사례 5개 통과 → 최소 validator 수정 후 관측 107개 GREEN. 수정 후 전체 `npm run check` 1회 통과: Python 393개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·생산 SPA 빌드·생성 계약 drift 통과. 생성 스키마 변경이 없어 재생성하지 않았다. 상세와 출력은 로컬 SDD 보고서에 추가했다.
+- 인계: controller의 한 번의 수정 범위 재검토 및 PR·Sites·사용자 폴더 연결 대기. C1~C4 결합 게시 체크박스는 미체크 유지. 초기 comparator 알고리즘 자체의 좁은 RED 증거 한계는 이전 보고서에 보존하며 이번 JSON 회귀가 그 이력을 대체하지 않는다.
 
 ## 2026-10-11 · 개체·주장·관계·비교 조건 계약
 
@@ -24,7 +30,7 @@
 - 정확한 Python date/JSON YYYY-MM-DD 기간·strict 양의 표본 크기·최대128자 정밀 ASCII 소수 문자열과 원문/결측을 보존한다. 비교는 모든 조건과 value 결측을 순서대로 보고하고 different를 missing보다 우선한다. 같은 조건의 다른 값·순서만 다른 차원은 same_context이며 합산/분포는 not_evaluated다. 결과 ID·사유·status 모순도 거부한다.
 - ResearchBundle의 전체 공간·문서/버전 일치·고유 인용/표현/검토 ID·typed 참조·검토 citation subset을 검증한다. 같은 문서/버전의 다른 파싱 표현은 허용한다. 검증 대상은 제공된 묶음이며 저장소 전체 unique enforcement는 아니다.
 - 실제 OpenAPI components를 단일 등록 경로로 확장하고 생성 TS와 공개 aliases/compile 소비자를 갱신했다. 기존 HTTP 두 경로·상태/원문/인용·웹 UI를 보존했다. 종속성·외부/유료 호출·비공개/운영 자료 사용 없음.
-- 검증: focused 새 계약+API 228개 통과, Ruff/mypy·공개 생성 타입 소비자 통과. 전체 `npm run check` 1회 통과: Python 380개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·SPA 생산 빌드·생성 계약 drift 검사 통과. RED/GREEN·수정 파일·self-review는 로컬 SDD `research-contracts/task-1-report.md`에 보존한다.
+- 초기 구현 검증: focused 새 계약+API 228개 통과, Ruff/mypy·공개 생성 타입 소비자 통과. 전체 `npm run check` 1회 통과: Python 380개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·SPA 생산 빌드·생성 계약 drift 검사 통과. RED/GREEN·수정 파일·self-review는 로컬 SDD `research-contracts/task-1-report.md`에 보존한다.
 - 인계: controller 독립 리뷰/전체 변경 리뷰·Draft PR·Sites·사용자 폴더 연결 대기. C1~C4 결합 완료는 미체크 유지. Sites v19 선행 요약은 그대로이며 이번 변경 반영 대기. 나머지 P1·출처 시간 정밀도·재수집·내용 비교 fingerprint·Run/Event/Canvas/Usage·실제 자료/추출/저장/권한·AI·Neo4j는 미완료.
 
 ## 2026-10-11 · 첫 원문·파싱·인용 계약

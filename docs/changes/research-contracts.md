@@ -59,7 +59,7 @@
 - `ComparisonAssessment`: policy_version=`issuedigest-comparison-v1`, observation_ids(tuple), status(`same_context`, `different_context`, `insufficient_context`), reasons(tuple ComparisonReason), aggregation_status=`not_evaluated`. `ComparisonReason`: field(아래 목록), kind(`different`, `missing`), observation_ids(관련 unique ID tuple).
 - 비교할 필드 순서는 metric, unit, period, population, geography, question, methodology, sample_size, weighting, denominator, series_id, dimensions, value. value는 수치 자체를 비교하지 않고 결측만 확인한다. nullable 조건 하나라도 null이면 해당 field missing 사유, 알려진 값이 서로 다르면 different 사유도 함께 남긴다. missing이 없어도 값이 다르면 different_context, 하나라도 different가 있으면 missing과 같이 있더라도 different_context, different 없이 missing이면 insufficient_context, 사유가 없으면 same_context.
 - dimensions는 key/value 맵으로 비교하여 순서만 다른 동일 조건은 같게 취급한다. 빈 dimensions는 차원 없음으로 유효하다. 비교 대상 observation_ids는 모든 입력 ID, 사유의 observation_ids는 missing인 항목만 또는 서로 다른 알려진 값이 있는 항목들을 입력 순서대로 기록한다.
-- 결과 모델 자체도 observation_ids 최소2개/중복 거부, 사유 ID nonempty/unique 및 전체 ID의 부분집합, (field,kind) 사유 중복 거부, different 사유 최소2개 ID를 검사한다. value 필드는 missing 사유만 허용한다. reasons로부터 위 우선순위로 정해진 status와 전달 status가 같아야 한다. 완성 결과 JSON의 모순도 거부하되 원래 observation 내용의 의미를 재판정하지 않는다.
+- 결과 모델 자체도 observation_ids 최소2개/중복 거부, 사유 ID nonempty/unique 및 전체 ID의 부분집합, (field,kind) 사유 중복 거부, different 사유 최소2개 ID를 검사한다. value 필드는 missing 사유만 허용한다. 같은 field의 missing/different 사유 ID는 서로 겹치면 안 되며 non-nullable metric/dimensions의 missing 사유를 거부한다. 같은 field에서 결측 항목과 알려진 차이 항목이 분리된 사유 및 다른 field의 독립 사유는 허용한다. reasons로부터 위 우선순위로 정해진 status와 전달 status가 같아야 한다. 완성 결과 JSON의 모순도 거부하되 원래 observation 내용의 의미를 재판정하지 않는다.
 - `same_context`는 메타데이터가 모두 알려져 일치한다는 뜻이며 조사 동등성·합산 가능성·분포 완전성을 증명하지 않는다. sample_size까지 엄격히 비교하는 보수적 정책이다. 다른 조건도 화면에서 나란히 읽을 수 있지만 하나의 동등 집단/합산/완전 분포로 인증하지 않는다. 합산/분포 엔진은 구현하지 않는다.
 
 ### C4. 묶음 참조·타입·검증
@@ -83,3 +83,5 @@
 ## 구현 인계
 
 역할별 Python 불변 모델·참조 검사와 비교 함수, 실제 OpenAPI components·생성 TypeScript/public aliases를 구현했다. 기존 HTTP paths·원문/인용·상태·웹 기능과 선행 계약 버전은 유지했다. 합성 자료만 사용했고 종속성·DB·추출·AI·그래프·UI를 추가하지 않았다. C1~C4 결합 체크박스는 controller의 독립 리뷰·PR·Sites 게시 전까지 대기로 유지한다. 실행 검증 결과·남은 단계는 [진행 기록](../planning/progress.md)에 기록한다. 제품 계약 조사·과거 제안은 보존한다.
+
+최종 리뷰 P2 수정: 제공된 비교 결과 JSON에서 같은 필드의 결측/차이 ID 중복과 metric/dimensions 결측을 거부한다. 비교 알고리즘·정책 버전·생성 스키마 형태는 유지한다. 수정 회귀 검증과 재검토 상태는 진행 기록에 남긴다.

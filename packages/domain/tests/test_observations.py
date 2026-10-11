@@ -378,3 +378,113 @@ def test_json_date_shape_rejects_non_ascii_and_trailing_newline():
                     }
                 )
             )
+
+
+@pytest.mark.parametrize("overlap_index", [0, 1])
+@pytest.mark.parametrize("reverse_reasons", [False, True])
+def test_result_json_rejects_missing_and_different_id_overlap_for_same_field(
+    overlap_index, reverse_reasons
+):
+    first, second, third = (str(uuid4()) for _ in range(3))
+    different_ids = [first, second]
+    reasons = [
+        {"field": "unit", "kind": "missing", "observation_ids": [different_ids[overlap_index]]},
+        {"field": "unit", "kind": "different", "observation_ids": different_ids},
+    ]
+    if reverse_reasons:
+        reasons.reverse()
+    with pytest.raises(ValidationError):
+        contracts.ComparisonAssessment.model_validate_json(
+            json.dumps(
+                {
+                    "observation_ids": [first, second, third],
+                    "status": "different_context",
+                    "reasons": reasons,
+                }
+            )
+        )
+
+
+@pytest.mark.parametrize("field", ["metric", "dimensions"])
+@pytest.mark.parametrize("boundary", ["reason", "assessment"])
+def test_reason_and_result_json_reject_missing_nonnullable_policy_fields(field, boundary):
+    first, second = str(uuid4()), str(uuid4())
+    reason = {"field": field, "kind": "missing", "observation_ids": [first]}
+    if boundary == "reason":
+        model, payload = contracts.ComparisonReason, reason
+    else:
+        model = contracts.ComparisonAssessment
+        payload = {
+            "observation_ids": [first, second],
+            "status": "insufficient_context",
+            "reasons": [reason],
+        }
+    with pytest.raises(ValidationError):
+        model.model_validate_json(json.dumps(payload))
+
+
+@pytest.mark.parametrize("reverse_reasons", [False, True])
+def test_result_json_accepts_disjoint_missing_and_different_ids_for_same_field(reverse_reasons):
+    first, second, third = (str(uuid4()) for _ in range(3))
+    reasons = [
+        {"field": "unit", "kind": "missing", "observation_ids": [first]},
+        {"field": "unit", "kind": "different", "observation_ids": [second, third]},
+    ]
+    if reverse_reasons:
+        reasons.reverse()
+    payload = {
+        "observation_ids": [first, second, third],
+        "status": "different_context",
+        "reasons": reasons,
+    }
+    item = contracts.ComparisonAssessment.model_validate_json(json.dumps(payload))
+    assert [(reason.field, reason.kind) for reason in item.reasons] == [
+        (reason["field"], reason["kind"]) for reason in reasons
+    ]
+    assert item.status == "different_context"
+    assert contracts.ComparisonAssessment.model_validate_json(item.model_dump_json()) == item
+
+
+def test_result_json_preserves_cross_field_independent_missing_and_different_reasons():
+    first, second = str(uuid4()), str(uuid4())
+    item = contracts.ComparisonAssessment.model_validate_json(
+        json.dumps(
+            {
+                "observation_ids": [first, second],
+                "status": "different_context",
+                "reasons": [
+                    {"field": "unit", "kind": "missing", "observation_ids": [first]},
+                    {
+                        "field": "population",
+                        "kind": "different",
+                        "observation_ids": [first, second],
+                    },
+                ],
+            }
+        )
+    )
+    assert [
+        (reason.field, reason.kind, tuple(map(str, reason.observation_ids)))
+        for reason in item.reasons
+    ] == [
+        ("unit", "missing", (first,)),
+        ("population", "different", (first, second)),
+    ]
+
+
+@pytest.mark.parametrize("field", ["metric", "dimensions"])
+def test_result_json_keeps_known_differences_for_nonnullable_policy_fields(field):
+    first, second = str(uuid4()), str(uuid4())
+    item = contracts.ComparisonAssessment.model_validate_json(
+        json.dumps(
+            {
+                "observation_ids": [first, second],
+                "status": "different_context",
+                "reasons": [
+                    {"field": field, "kind": "different", "observation_ids": [first, second]}
+                ],
+            }
+        )
+    )
+    assert item.reasons[0].field == field
+    assert item.reasons[0].kind == "different"
