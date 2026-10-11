@@ -1,6 +1,625 @@
 {
   "components": {
     "schemas": {
+      "AcceptedPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "run.accepted",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "AcceptedPayload",
+        "type": "object"
+      },
+      "AskQuestionAction": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "ask_question",
+            "title": "Kind",
+            "type": "string"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "question"
+        ],
+        "title": "AskQuestionAction",
+        "type": "object"
+      },
+      "AwaitingReconciliationPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Attempt Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "run.awaiting_reconciliation",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "attempt_ids"
+        ],
+        "title": "AwaitingReconciliationPayload",
+        "type": "object"
+      },
+      "BudgetAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "allowed": {
+            "title": "Allowed",
+            "type": "boolean"
+          },
+          "limit_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Limit Microwon",
+            "type": "string"
+          },
+          "overrun_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Overrun Microwon",
+            "type": "string"
+          },
+          "policy_version": {
+            "const": "issuedigest-budget-v1",
+            "default": "issuedigest-budget-v1",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "remaining_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Remaining Microwon",
+            "type": "string"
+          },
+          "requested_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Requested Microwon",
+            "type": "string"
+          },
+          "used_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Used Microwon",
+            "type": "string"
+          }
+        },
+        "required": [
+          "limit_microwon",
+          "used_microwon",
+          "requested_microwon",
+          "remaining_microwon",
+          "overrun_microwon",
+          "allowed"
+        ],
+        "title": "BudgetAssessment",
+        "type": "object"
+      },
+      "BudgetWindow": {
+        "additionalProperties": false,
+        "properties": {
+          "committed_other_cost_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Committed Other Cost Microwon",
+            "type": "string"
+          },
+          "limit_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Limit Microwon",
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/DateInterval"
+          },
+          "timezone": {
+            "const": "Asia/Seoul",
+            "default": "Asia/Seoul",
+            "title": "Timezone",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "period",
+          "limit_microwon",
+          "committed_other_cost_microwon"
+        ],
+        "title": "BudgetWindow",
+        "type": "object"
+      },
+      "CallAttempt": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "format": "uuid4",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "attempt_number": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "title": "Attempt Number",
+            "type": "integer"
+          },
+          "authorized_after_seq": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "title": "Authorized After Seq",
+            "type": "integer"
+          },
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "dispatched_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Dispatched At"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "paid": {
+            "title": "Paid",
+            "type": "boolean"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "provider_idempotency_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Idempotency Key"
+          },
+          "provider_request_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Request Id"
+          },
+          "result_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Result Id"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "prepared",
+              "dispatched",
+              "succeeded",
+              "failed",
+              "outcome_unknown",
+              "cancelled_before_dispatch"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "step_id": {
+            "format": "uuid4",
+            "title": "Step Id",
+            "type": "string"
+          },
+          "supports_cancel": {
+            "title": "Supports Cancel",
+            "type": "boolean"
+          },
+          "supports_query": {
+            "title": "Supports Query",
+            "type": "boolean"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "attempt_id",
+          "workspace_id",
+          "run_id",
+          "step_id",
+          "attempt_number",
+          "authorized_after_seq",
+          "provider",
+          "operation",
+          "model",
+          "paid",
+          "status",
+          "created_at",
+          "dispatched_at",
+          "finished_at",
+          "result_id",
+          "provider_request_id",
+          "provider_idempotency_key",
+          "supports_query",
+          "supports_cancel"
+        ],
+        "title": "CallAttempt",
+        "type": "object"
+      },
+      "CancelRequestedPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "run.cancel_requested",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "CancelRequestedPayload",
+        "type": "object"
+      },
+      "CancelledPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "run.cancelled",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind"
+        ],
+        "title": "CancelledPayload",
+        "type": "object"
+      },
+      "CanvasBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "research": {
+            "$ref": "#/components/schemas/ResearchBundle"
+          },
+          "revision": {
+            "$ref": "#/components/schemas/CanvasRevision"
+          }
+        },
+        "required": [
+          "research",
+          "revision"
+        ],
+        "title": "CanvasBundle",
+        "type": "object"
+      },
+      "CanvasDraft": {
+        "additionalProperties": false,
+        "properties": {
+          "draft_id": {
+            "format": "uuid4",
+            "title": "Draft Id",
+            "type": "string"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "modules": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "chart": "#/components/schemas/ChartModule",
+                  "comparison": "#/components/schemas/ComparisonModule",
+                  "evidence": "#/components/schemas/EvidenceModule",
+                  "graph": "#/components/schemas/GraphModule",
+                  "summary": "#/components/schemas/SummaryModule",
+                  "timeline": "#/components/schemas/TimelineModule"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/EvidenceModule"
+                },
+                {
+                  "$ref": "#/components/schemas/SummaryModule"
+                },
+                {
+                  "$ref": "#/components/schemas/ComparisonModule"
+                },
+                {
+                  "$ref": "#/components/schemas/TimelineModule"
+                },
+                {
+                  "$ref": "#/components/schemas/GraphModule"
+                },
+                {
+                  "$ref": "#/components/schemas/ChartModule"
+                }
+              ]
+            },
+            "title": "Modules",
+            "type": "array"
+          },
+          "outcome": {
+            "enum": [
+              "answer",
+              "insufficient_evidence",
+              "clarification_needed",
+              "provider_refusal",
+              "incomplete_output"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "draft_id",
+          "outcome",
+          "modules",
+          "message"
+        ],
+        "title": "CanvasDraft",
+        "type": "object"
+      },
+      "CanvasRevision": {
+        "additionalProperties": false,
+        "properties": {
+          "draft": {
+            "$ref": "#/components/schemas/CanvasDraft"
+          },
+          "parent_revision_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Revision Id"
+          },
+          "revision_id": {
+            "format": "uuid4",
+            "title": "Revision Id",
+            "type": "string"
+          },
+          "revision_number": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "title": "Revision Number",
+            "type": "integer"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "selected_version_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "title": "Selected Version Ids",
+            "type": "array"
+          },
+          "validated_at": {
+            "format": "date-time",
+            "title": "Validated At",
+            "type": "string"
+          },
+          "validation_policy": {
+            "const": "issuedigest-canvas-v1",
+            "default": "issuedigest-canvas-v1",
+            "title": "Validation Policy",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "revision_id",
+          "workspace_id",
+          "run_id",
+          "revision_number",
+          "parent_revision_id",
+          "selected_version_ids",
+          "draft",
+          "validated_at"
+        ],
+        "title": "CanvasRevision",
+        "type": "object"
+      },
+      "ChartModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "chart_type": {
+            "const": "bar",
+            "title": "Chart Type",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "chart",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "observation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 2,
+            "title": "Observation Ids",
+            "type": "array"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind",
+          "observation_ids",
+          "chart_type"
+        ],
+        "title": "ChartModule",
+        "type": "object"
+      },
       "Citation": {
         "additionalProperties": false,
         "properties": {
@@ -392,6 +1011,91 @@
         "title": "ComparisonContext",
         "type": "object"
       },
+      "ComparisonModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "claim_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 2,
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "comparison",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind",
+          "claim_ids"
+        ],
+        "title": "ComparisonModule",
+        "type": "object"
+      },
       "ComparisonReason": {
         "additionalProperties": false,
         "properties": {
@@ -714,6 +1418,240 @@
         "title": "EvidenceBundle",
         "type": "object"
       },
+      "EvidenceModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "evidence",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind"
+        ],
+        "title": "EvidenceModule",
+        "type": "object"
+      },
+      "ExecutionVersions": {
+        "additionalProperties": false,
+        "properties": {
+          "execution_engine_version": {
+            "title": "Execution Engine Version",
+            "type": "string"
+          },
+          "model_config_version": {
+            "title": "Model Config Version",
+            "type": "string"
+          },
+          "ontology_version": {
+            "const": "issuedigest-relations-v1",
+            "default": "issuedigest-relations-v1",
+            "title": "Ontology Version",
+            "type": "string"
+          },
+          "prompt_version": {
+            "title": "Prompt Version",
+            "type": "string"
+          },
+          "tool_registry_version": {
+            "title": "Tool Registry Version",
+            "type": "string"
+          },
+          "ui_schema_version": {
+            "const": "issuedigest-canvas-v1",
+            "default": "issuedigest-canvas-v1",
+            "title": "Ui Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "model_config_version",
+          "prompt_version",
+          "tool_registry_version",
+          "execution_engine_version"
+        ],
+        "title": "ExecutionVersions",
+        "type": "object"
+      },
+      "FailedPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "error_code": {
+            "enum": [
+              "validation_failed",
+              "provider_refused",
+              "incomplete_output",
+              "tool_failed",
+              "internal_error",
+              "budget_exceeded"
+            ],
+            "title": "Error Code",
+            "type": "string"
+          },
+          "kind": {
+            "const": "run.failed",
+            "title": "Kind",
+            "type": "string"
+          },
+          "retryable": {
+            "title": "Retryable",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "kind",
+          "error_code",
+          "retryable"
+        ],
+        "title": "FailedPayload",
+        "type": "object"
+      },
+      "GraphModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "graph",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "relation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Relation Ids",
+            "type": "array"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind",
+          "relation_ids"
+        ],
+        "title": "GraphModule",
+        "type": "object"
+      },
       "IdentityReview": {
         "additionalProperties": false,
         "properties": {
@@ -796,6 +1734,62 @@
           "status"
         ],
         "title": "Liveness",
+        "type": "object"
+      },
+      "ModuleReadyPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "module.ready",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module": {
+            "discriminator": {
+              "mapping": {
+                "chart": "#/components/schemas/ChartModule",
+                "comparison": "#/components/schemas/ComparisonModule",
+                "evidence": "#/components/schemas/EvidenceModule",
+                "graph": "#/components/schemas/GraphModule",
+                "summary": "#/components/schemas/SummaryModule",
+                "timeline": "#/components/schemas/TimelineModule"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceModule"
+              },
+              {
+                "$ref": "#/components/schemas/SummaryModule"
+              },
+              {
+                "$ref": "#/components/schemas/ComparisonModule"
+              },
+              {
+                "$ref": "#/components/schemas/TimelineModule"
+              },
+              {
+                "$ref": "#/components/schemas/GraphModule"
+              },
+              {
+                "$ref": "#/components/schemas/ChartModule"
+              }
+            ],
+            "title": "Module"
+          },
+          "revision_id": {
+            "format": "uuid4",
+            "title": "Revision Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "revision_id",
+          "module"
+        ],
+        "title": "ModuleReadyPayload",
         "type": "object"
       },
       "NormalizedBox": {
@@ -937,6 +1931,27 @@
           "citation_ids"
         ],
         "title": "Observation",
+        "type": "object"
+      },
+      "OpenEvidenceAction": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "format": "uuid4",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "open_evidence",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "citation_id"
+        ],
+        "title": "OpenEvidenceAction",
         "type": "object"
       },
       "PageSpan": {
@@ -1122,6 +2137,114 @@
         "title": "PdfQuoteSelector",
         "type": "object"
       },
+      "PricingSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "captured_at": {
+            "format": "date-time",
+            "title": "Captured At",
+            "type": "string"
+          },
+          "currency": {
+            "enum": [
+              "KRW",
+              "USD"
+            ],
+            "title": "Currency",
+            "type": "string"
+          },
+          "exchange_rate_version": {
+            "title": "Exchange Rate Version",
+            "type": "string"
+          },
+          "fx_krw_per_currency": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+            "title": "Fx Krw Per Currency",
+            "type": "string"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "pricing_version": {
+            "title": "Pricing Version",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "snapshot_id": {
+            "format": "uuid4",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "unit_price": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$",
+            "title": "Unit Price",
+            "type": "string"
+          },
+          "unit_quantity": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "title": "Unit Quantity",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "provider",
+          "operation",
+          "model",
+          "pricing_version",
+          "exchange_rate_version",
+          "captured_at",
+          "currency",
+          "unit_price",
+          "unit_quantity",
+          "fx_krw_per_currency"
+        ],
+        "title": "PricingSnapshot",
+        "type": "object"
+      },
+      "ReconciliationResolvedPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Attempt Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "run.reconciliation_resolved",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "attempt_ids"
+        ],
+        "title": "ReconciliationResolvedPayload",
+        "type": "object"
+      },
       "Relation": {
         "additionalProperties": false,
         "properties": {
@@ -1271,6 +2394,46 @@
         "title": "RelationReference",
         "type": "object"
       },
+      "ReplayBatch": {
+        "additionalProperties": false,
+        "properties": {
+          "after_seq": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "title": "After Seq",
+            "type": "integer"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RunEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "latest_snapshot": {
+            "$ref": "#/components/schemas/RunSnapshot"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "run_id",
+          "after_seq",
+          "events",
+          "latest_snapshot"
+        ],
+        "title": "ReplayBatch",
+        "type": "object"
+      },
       "ResearchBundle": {
         "additionalProperties": false,
         "properties": {
@@ -1340,6 +2503,435 @@
         "title": "ResearchBundle",
         "type": "object"
       },
+      "Run": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "input_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Input Sha256",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "submission": {
+            "$ref": "#/components/schemas/RunSubmission"
+          },
+          "trace_id": {
+            "format": "uuid4",
+            "title": "Trace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "request_id",
+          "trace_id",
+          "submission",
+          "input_sha256",
+          "created_at"
+        ],
+        "title": "Run",
+        "type": "object"
+      },
+      "RunEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "occurred_at": {
+            "format": "date-time",
+            "title": "Occurred At",
+            "type": "string"
+          },
+          "payload": {
+            "discriminator": {
+              "mapping": {
+                "module.ready": "#/components/schemas/ModuleReadyPayload",
+                "run.accepted": "#/components/schemas/AcceptedPayload",
+                "run.awaiting_reconciliation": "#/components/schemas/AwaitingReconciliationPayload",
+                "run.cancel_requested": "#/components/schemas/CancelRequestedPayload",
+                "run.cancelled": "#/components/schemas/CancelledPayload",
+                "run.failed": "#/components/schemas/FailedPayload",
+                "run.reconciliation_resolved": "#/components/schemas/ReconciliationResolvedPayload",
+                "run.succeeded": "#/components/schemas/SucceededPayload",
+                "stage.changed": "#/components/schemas/StageChangedPayload"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AcceptedPayload"
+              },
+              {
+                "$ref": "#/components/schemas/StageChangedPayload"
+              },
+              {
+                "$ref": "#/components/schemas/ModuleReadyPayload"
+              },
+              {
+                "$ref": "#/components/schemas/CancelRequestedPayload"
+              },
+              {
+                "$ref": "#/components/schemas/AwaitingReconciliationPayload"
+              },
+              {
+                "$ref": "#/components/schemas/ReconciliationResolvedPayload"
+              },
+              {
+                "$ref": "#/components/schemas/SucceededPayload"
+              },
+              {
+                "$ref": "#/components/schemas/FailedPayload"
+              },
+              {
+                "$ref": "#/components/schemas/CancelledPayload"
+              }
+            ],
+            "title": "Payload"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "seq": {
+            "maximum": 9007199254740991,
+            "minimum": 1,
+            "title": "Seq",
+            "type": "integer"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "run_id",
+          "seq",
+          "occurred_at",
+          "payload"
+        ],
+        "title": "RunEvent",
+        "type": "object"
+      },
+      "RunExecutionBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "attempts": {
+            "items": {
+              "$ref": "#/components/schemas/CallAttempt"
+            },
+            "title": "Attempts",
+            "type": "array"
+          },
+          "history": {
+            "$ref": "#/components/schemas/RunHistory"
+          },
+          "research": {
+            "$ref": "#/components/schemas/ResearchBundle"
+          },
+          "revisions": {
+            "items": {
+              "$ref": "#/components/schemas/CanvasRevision"
+            },
+            "title": "Revisions",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "usage": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/UsageBook"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "history",
+          "research",
+          "revisions",
+          "attempts",
+          "usage"
+        ],
+        "title": "RunExecutionBundle",
+        "type": "object"
+      },
+      "RunHistory": {
+        "additionalProperties": false,
+        "properties": {
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/RunEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "run": {
+            "$ref": "#/components/schemas/Run"
+          }
+        },
+        "required": [
+          "run",
+          "events"
+        ],
+        "title": "RunHistory",
+        "type": "object"
+      },
+      "RunInput": {
+        "additionalProperties": false,
+        "properties": {
+          "base_revision_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Revision Id"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "selected_version_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "title": "Selected Version Ids",
+            "type": "array"
+          },
+          "versions": {
+            "$ref": "#/components/schemas/ExecutionVersions"
+          }
+        },
+        "required": [
+          "question",
+          "selected_version_ids",
+          "base_revision_id",
+          "versions"
+        ],
+        "title": "RunInput",
+        "type": "object"
+      },
+      "RunSnapshot": {
+        "additionalProperties": false,
+        "properties": {
+          "accepted": {
+            "title": "Accepted",
+            "type": "boolean"
+          },
+          "base_revision_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Base Revision Id"
+          },
+          "cancel_requested": {
+            "title": "Cancel Requested",
+            "type": "boolean"
+          },
+          "current_revision_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Current Revision Id"
+          },
+          "last_event_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Last Event At"
+          },
+          "last_seq": {
+            "maximum": 9007199254740991,
+            "minimum": 0,
+            "title": "Last Seq",
+            "type": "integer"
+          },
+          "pending_revision_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pending Revision Id"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "stage": {
+            "anyOf": [
+              {
+                "enum": [
+                  "search",
+                  "tools",
+                  "validation",
+                  "composition"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Stage"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "running",
+              "cancel_requested",
+              "awaiting_reconciliation",
+              "succeeded",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "unresolved_attempt_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "title": "Unresolved Attempt Ids",
+            "type": "array"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "run_id",
+          "status",
+          "accepted",
+          "last_seq",
+          "last_event_at",
+          "stage",
+          "base_revision_id",
+          "current_revision_id",
+          "pending_revision_id",
+          "cancel_requested",
+          "unresolved_attempt_ids"
+        ],
+        "title": "RunSnapshot",
+        "type": "object"
+      },
+      "RunSubmission": {
+        "additionalProperties": false,
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/RunInput"
+          },
+          "requester_id": {
+            "format": "uuid4",
+            "title": "Requester Id",
+            "type": "string"
+          },
+          "submission_key": {
+            "title": "Submission Key",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "requester_id",
+          "submission_key",
+          "input"
+        ],
+        "title": "RunSubmission",
+        "type": "object"
+      },
+      "SelectDocumentAction": {
+        "additionalProperties": false,
+        "properties": {
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "select_document",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "document_id"
+        ],
+        "title": "SelectDocumentAction",
+        "type": "object"
+      },
       "ServiceStatus": {
         "additionalProperties": false,
         "properties": {
@@ -1365,6 +2957,39 @@
           "status"
         ],
         "title": "ServiceStatus",
+        "type": "object"
+      },
+      "SortAction": {
+        "additionalProperties": false,
+        "properties": {
+          "direction": {
+            "enum": [
+              "asc",
+              "desc"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "field": {
+            "enum": [
+              "source_date",
+              "title"
+            ],
+            "title": "Field",
+            "type": "string"
+          },
+          "kind": {
+            "const": "sort",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "field",
+          "direction"
+        ],
+        "title": "SortAction",
         "type": "object"
       },
       "SourceDocument": {
@@ -1449,6 +3074,170 @@
           "value"
         ],
         "title": "SourceIdentity",
+        "type": "object"
+      },
+      "StageChangedPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "stage.changed",
+            "title": "Kind",
+            "type": "string"
+          },
+          "stage": {
+            "enum": [
+              "search",
+              "tools",
+              "validation",
+              "composition"
+            ],
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "stage"
+        ],
+        "title": "StageChangedPayload",
+        "type": "object"
+      },
+      "SubmissionAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "action": {
+            "enum": [
+              "create",
+              "reuse",
+              "conflict"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "existing_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Existing Run Id"
+          }
+        },
+        "required": [
+          "action",
+          "existing_run_id"
+        ],
+        "title": "SubmissionAssessment",
+        "type": "object"
+      },
+      "SucceededPayload": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "run.succeeded",
+            "title": "Kind",
+            "type": "string"
+          },
+          "revision_id": {
+            "format": "uuid4",
+            "title": "Revision Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "revision_id"
+        ],
+        "title": "SucceededPayload",
+        "type": "object"
+      },
+      "SummaryModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "claim_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "summary",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind",
+          "claim_ids"
+        ],
+        "title": "SummaryModule",
         "type": "object"
       },
       "SupportReview": {
@@ -1739,6 +3528,350 @@
           "quote"
         ],
         "title": "TextQuoteSelector",
+        "type": "object"
+      },
+      "TimelineModule": {
+        "additionalProperties": false,
+        "properties": {
+          "actions": {
+            "items": {
+              "discriminator": {
+                "mapping": {
+                  "ask_question": "#/components/schemas/AskQuestionAction",
+                  "open_evidence": "#/components/schemas/OpenEvidenceAction",
+                  "select_document": "#/components/schemas/SelectDocumentAction",
+                  "sort": "#/components/schemas/SortAction"
+                },
+                "propertyName": "kind"
+              },
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/OpenEvidenceAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SelectDocumentAction"
+                },
+                {
+                  "$ref": "#/components/schemas/AskQuestionAction"
+                },
+                {
+                  "$ref": "#/components/schemas/SortAction"
+                }
+              ]
+            },
+            "title": "Actions",
+            "type": "array"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "claim_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Claim Ids",
+            "type": "array"
+          },
+          "kind": {
+            "const": "timeline",
+            "title": "Kind",
+            "type": "string"
+          },
+          "module_id": {
+            "format": "uuid4",
+            "title": "Module Id",
+            "type": "string"
+          },
+          "span": {
+            "enum": [
+              "half",
+              "full"
+            ],
+            "title": "Span",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "module_id",
+          "title",
+          "span",
+          "citation_ids",
+          "actions",
+          "kind",
+          "claim_ids"
+        ],
+        "title": "TimelineModule",
+        "type": "object"
+      },
+      "UsageBook": {
+        "additionalProperties": false,
+        "properties": {
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/UsageEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "pricing_snapshots": {
+            "items": {
+              "$ref": "#/components/schemas/PricingSnapshot"
+            },
+            "title": "Pricing Snapshots",
+            "type": "array"
+          },
+          "reservations": {
+            "items": {
+              "$ref": "#/components/schemas/UsageReservation"
+            },
+            "title": "Reservations",
+            "type": "array"
+          },
+          "window": {
+            "$ref": "#/components/schemas/BudgetWindow"
+          }
+        },
+        "required": [
+          "window",
+          "pricing_snapshots",
+          "reservations",
+          "entries"
+        ],
+        "title": "UsageBook",
+        "type": "object"
+      },
+      "UsageEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "attempt_id": {
+            "format": "uuid4",
+            "title": "Attempt Id",
+            "type": "string"
+          },
+          "charge_status": {
+            "enum": [
+              "confirmed",
+              "estimated",
+              "unknown",
+              "not_charged"
+            ],
+            "title": "Charge Status",
+            "type": "string"
+          },
+          "cost_microwon": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "pattern": "^(0|[1-9][0-9]*)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cost Microwon"
+          },
+          "entry_id": {
+            "format": "uuid4",
+            "title": "Entry Id",
+            "type": "string"
+          },
+          "input_tokens": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Input Tokens"
+          },
+          "model": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model"
+          },
+          "operation": {
+            "title": "Operation",
+            "type": "string"
+          },
+          "output_tokens": {
+            "anyOf": [
+              {
+                "maximum": 9007199254740991,
+                "minimum": 0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Output Tokens"
+          },
+          "pricing_snapshot_id": {
+            "format": "uuid4",
+            "title": "Pricing Snapshot Id",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "provider_usage_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Provider Usage Ref"
+          },
+          "reservation_id": {
+            "format": "uuid4",
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entry_id",
+          "workspace_id",
+          "run_id",
+          "reservation_id",
+          "attempt_id",
+          "pricing_snapshot_id",
+          "provider",
+          "operation",
+          "model",
+          "input_tokens",
+          "output_tokens",
+          "charge_status",
+          "cost_microwon",
+          "provider_usage_ref"
+        ],
+        "title": "UsageEntry",
+        "type": "object"
+      },
+      "UsageReservation": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "period": {
+            "$ref": "#/components/schemas/DateInterval"
+          },
+          "pricing_snapshot_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Pricing Snapshot Ids",
+            "type": "array"
+          },
+          "reservation_id": {
+            "format": "uuid4",
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "reserved_microwon": {
+            "maxLength": 128,
+            "pattern": "^(0|[1-9][0-9]*)$",
+            "title": "Reserved Microwon",
+            "type": "string"
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "settled_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled At"
+          },
+          "settled_microwon": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "pattern": "^(0|[1-9][0-9]*)$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Settled Microwon"
+          },
+          "status": {
+            "enum": [
+              "held",
+              "settled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "reservation_id",
+          "workspace_id",
+          "run_id",
+          "period",
+          "reserved_microwon",
+          "status",
+          "pricing_snapshot_ids",
+          "created_at",
+          "settled_at",
+          "settled_microwon"
+        ],
+        "title": "UsageReservation",
         "type": "object"
       }
     }

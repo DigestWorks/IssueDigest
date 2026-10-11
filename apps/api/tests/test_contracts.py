@@ -103,3 +103,151 @@ def test_research_component_collision_rejects_input_without_mutation(name):
     with pytest.raises(ValueError, match=name):
         contracts.add_evidence_schemas(original)
     assert original == {"components": {"schemas": {name: {"type": "string"}}}, "paths": {}}
+
+
+EXECUTION_MODELS = {
+    "ExecutionVersions",
+    "RunInput",
+    "RunSubmission",
+    "Run",
+    "SubmissionAssessment",
+    "RunEvent",
+    "RunHistory",
+    "RunSnapshot",
+    "ReplayBatch",
+    "CallAttempt",
+    "CanvasDraft",
+    "CanvasRevision",
+    "CanvasBundle",
+    "BudgetWindow",
+    "PricingSnapshot",
+    "UsageReservation",
+    "UsageEntry",
+    "UsageBook",
+    "BudgetAssessment",
+    "RunExecutionBundle",
+    "EvidenceModule",
+    "SummaryModule",
+    "ComparisonModule",
+    "TimelineModule",
+    "GraphModule",
+    "ChartModule",
+    "OpenEvidenceAction",
+    "SelectDocumentAction",
+    "AskQuestionAction",
+    "SortAction",
+}
+
+
+def test_execution_components_registered_public_and_legacy_unchanged():
+    import issuedigest_domain as domain
+    from pydantic.json_schema import models_json_schema
+
+    schema = TestClient(main.app).get("/openapi.json").json()
+    schemas = schema["components"]["schemas"]
+    assert EXECUTION_MODELS <= schemas.keys()
+    assert set(schema["paths"]) == {"/health/live", "/api/v1/status"}
+    _, legacy = models_json_schema(
+        [
+            (domain.EvidenceBundle, "validation"),
+            (domain.CitationAnchorValidation, "validation"),
+            (domain.ResearchBundle, "validation"),
+            (domain.ComparisonAssessment, "validation"),
+        ],
+        ref_template="#/components/schemas/{model}",
+    )
+    for name, definition in legacy["$defs"].items():
+        assert schemas[name] == definition
+    for name in EXECUTION_MODELS:
+        assert name in domain.__all__
+        assert getattr(domain, name).model_json_schema()["title"] == name
+    for name in [
+        "hash_run_input",
+        "assess_submission",
+        "replay_run",
+        "events_after",
+        "may_start_paid_step",
+        "promote_revision",
+        "assess_budget",
+        "CanvasModule",
+        "CanvasAction",
+        "RunEventPayload",
+        "MoneyMicrowon",
+    ]:
+        assert name in domain.__all__
+    for reference in walk_references(schema):
+        assert reference.removeprefix("#/components/schemas/") in schemas
+    for model, field, tags in [
+        (
+            "RunEvent",
+            "payload",
+            {
+                "run.accepted",
+                "stage.changed",
+                "module.ready",
+                "run.cancel_requested",
+                "run.awaiting_reconciliation",
+                "run.reconciliation_resolved",
+                "run.succeeded",
+                "run.failed",
+                "run.cancelled",
+            },
+        ),
+        (
+            "ModuleReadyPayload",
+            "module",
+            {"evidence", "summary", "comparison", "timeline", "graph", "chart"},
+        ),
+    ]:
+        discriminator = schemas[model]["properties"][field]["discriminator"]
+        assert discriminator["propertyName"] == "kind"
+        assert set(discriminator["mapping"]) == tags
+        for reference in discriminator["mapping"].values():
+            assert reference.removeprefix("#/components/schemas/") in schemas
+    assert schemas["RunEvent"]["properties"]["seq"]["maximum"] == 2**53 - 1
+    assert schemas["UsageEntry"]["properties"]["cost_microwon"]["anyOf"][0]["type"] == "string"
+    assert (
+        schemas["EvidenceModule"]["properties"]["actions"]["items"]["discriminator"]["propertyName"]
+        == "kind"
+    )
+    for name in EXECUTION_MODELS:
+        assert schemas[name]["additionalProperties"] is False
+
+
+@pytest.mark.parametrize(
+    "name", ["RunHistory", "RunExecutionBundle", "CanvasRevision", "UsageBook"]
+)
+def test_execution_schema_collision_does_not_mutate_input(name):
+    from issuedigest_api import contracts
+
+    original = {"components": {"schemas": {name: {"type": "string"}}}, "paths": {}}
+    with pytest.raises(ValueError, match=name):
+        contracts.add_evidence_schemas(original)
+    assert original == {"components": {"schemas": {name: {"type": "string"}}}, "paths": {}}
+
+
+@pytest.mark.parametrize(
+    "model,field,minimum",
+    [
+        ("EvidenceModule", "citation_ids", 1),
+        ("SummaryModule", "citation_ids", 1),
+        ("ComparisonModule", "citation_ids", 1),
+        ("TimelineModule", "citation_ids", 1),
+        ("GraphModule", "citation_ids", 1),
+        ("ChartModule", "citation_ids", 1),
+        ("SummaryModule", "claim_ids", 1),
+        ("ComparisonModule", "claim_ids", 2),
+        ("TimelineModule", "claim_ids", 1),
+        ("GraphModule", "relation_ids", 1),
+        ("ChartModule", "observation_ids", 2),
+        ("AwaitingReconciliationPayload", "attempt_ids", 1),
+        ("ReconciliationResolvedPayload", "attempt_ids", 1),
+        ("UsageReservation", "pricing_snapshot_ids", 1),
+    ],
+)
+def test_actual_execution_schema_preserves_minimum_id_array_cardinality(model, field, minimum):
+    schema = TestClient(main.app).get("/openapi.json").json()
+    array = schema["components"]["schemas"][model]["properties"][field]
+    assert array["type"] == "array"
+    assert array.get("minItems") == minimum, "actual OpenAPI loses minimum array cardinality"
+    assert "minLength" not in array, "array constraints must not use the string length keyword"

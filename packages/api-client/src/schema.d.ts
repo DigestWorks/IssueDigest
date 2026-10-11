@@ -45,6 +45,250 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** AcceptedPayload */
+        AcceptedPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.accepted";
+        };
+        /** AskQuestionAction */
+        AskQuestionAction: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "ask_question";
+            /** Question */
+            question: string;
+        };
+        /** AwaitingReconciliationPayload */
+        AwaitingReconciliationPayload: {
+            /** Attempt Ids */
+            attempt_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.awaiting_reconciliation";
+        };
+        /** BudgetAssessment */
+        BudgetAssessment: {
+            /** Allowed */
+            allowed: boolean;
+            /** Limit Microwon */
+            limit_microwon: string;
+            /** Overrun Microwon */
+            overrun_microwon: string;
+            /**
+             * Policy Version
+             * @default issuedigest-budget-v1
+             * @constant
+             */
+            policy_version: "issuedigest-budget-v1";
+            /** Remaining Microwon */
+            remaining_microwon: string;
+            /** Requested Microwon */
+            requested_microwon: string;
+            /** Used Microwon */
+            used_microwon: string;
+        };
+        /** BudgetWindow */
+        BudgetWindow: {
+            /** Committed Other Cost Microwon */
+            committed_other_cost_microwon: string;
+            /** Limit Microwon */
+            limit_microwon: string;
+            period: components["schemas"]["DateInterval"];
+            /**
+             * Timezone
+             * @default Asia/Seoul
+             * @constant
+             */
+            timezone: "Asia/Seoul";
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** CallAttempt */
+        CallAttempt: {
+            /**
+             * Attempt Id
+             * Format: uuid4
+             */
+            attempt_id: string;
+            /** Attempt Number */
+            attempt_number: number;
+            /** Authorized After Seq */
+            authorized_after_seq: number;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Dispatched At */
+            dispatched_at: string | null;
+            /** Finished At */
+            finished_at: string | null;
+            /** Model */
+            model: string | null;
+            /** Operation */
+            operation: string;
+            /** Paid */
+            paid: boolean;
+            /** Provider */
+            provider: string;
+            /** Provider Idempotency Key */
+            provider_idempotency_key: string | null;
+            /** Provider Request Id */
+            provider_request_id: string | null;
+            /** Result Id */
+            result_id: string | null;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "prepared" | "dispatched" | "succeeded" | "failed" | "outcome_unknown" | "cancelled_before_dispatch";
+            /**
+             * Step Id
+             * Format: uuid4
+             */
+            step_id: string;
+            /** Supports Cancel */
+            supports_cancel: boolean;
+            /** Supports Query */
+            supports_query: boolean;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** CancelRequestedPayload */
+        CancelRequestedPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.cancel_requested";
+        };
+        /** CancelledPayload */
+        CancelledPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.cancelled";
+        };
+        /** CanvasBundle */
+        CanvasBundle: {
+            research: components["schemas"]["ResearchBundle"];
+            revision: components["schemas"]["CanvasRevision"];
+        };
+        /** CanvasDraft */
+        CanvasDraft: {
+            /**
+             * Draft Id
+             * Format: uuid4
+             */
+            draft_id: string;
+            /** Message */
+            message: string | null;
+            /** Modules */
+            modules: (components["schemas"]["EvidenceModule"] | components["schemas"]["SummaryModule"] | components["schemas"]["ComparisonModule"] | components["schemas"]["TimelineModule"] | components["schemas"]["GraphModule"] | components["schemas"]["ChartModule"])[];
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "answer" | "insufficient_evidence" | "clarification_needed" | "provider_refusal" | "incomplete_output";
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+        };
+        /** CanvasRevision */
+        CanvasRevision: {
+            draft: components["schemas"]["CanvasDraft"];
+            /** Parent Revision Id */
+            parent_revision_id: string | null;
+            /**
+             * Revision Id
+             * Format: uuid4
+             */
+            revision_id: string;
+            /** Revision Number */
+            revision_number: number;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Selected Version Ids */
+            selected_version_ids: string[];
+            /**
+             * Validated At
+             * Format: date-time
+             */
+            validated_at: string;
+            /**
+             * Validation Policy
+             * @default issuedigest-canvas-v1
+             * @constant
+             */
+            validation_policy: "issuedigest-canvas-v1";
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** ChartModule */
+        ChartModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /**
+             * Chart Type
+             * @constant
+             */
+            chart_type: "bar";
+            /** Citation Ids */
+            citation_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "chart";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /** Observation Ids */
+            observation_ids: string[];
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
+        };
         /** Citation */
         Citation: {
             /**
@@ -220,6 +464,32 @@ export interface components {
              */
             weighting: string | null;
         };
+        /** ComparisonModule */
+        ComparisonModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /** Citation Ids */
+            citation_ids: string[];
+            /** Claim Ids */
+            claim_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "comparison";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
+        };
         /** ComparisonReason */
         ComparisonReason: {
             /**
@@ -370,6 +640,94 @@ export interface components {
             schema_version: 1;
             version: components["schemas"]["DocumentVersion"];
         };
+        /** EvidenceModule */
+        EvidenceModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /** Citation Ids */
+            citation_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "evidence";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
+        };
+        /** ExecutionVersions */
+        ExecutionVersions: {
+            /** Execution Engine Version */
+            execution_engine_version: string;
+            /** Model Config Version */
+            model_config_version: string;
+            /**
+             * Ontology Version
+             * @default issuedigest-relations-v1
+             * @constant
+             */
+            ontology_version: "issuedigest-relations-v1";
+            /** Prompt Version */
+            prompt_version: string;
+            /** Tool Registry Version */
+            tool_registry_version: string;
+            /**
+             * Ui Schema Version
+             * @default issuedigest-canvas-v1
+             * @constant
+             */
+            ui_schema_version: "issuedigest-canvas-v1";
+        };
+        /** FailedPayload */
+        FailedPayload: {
+            /**
+             * Error Code
+             * @enum {string}
+             */
+            error_code: "validation_failed" | "provider_refused" | "incomplete_output" | "tool_failed" | "internal_error" | "budget_exceeded";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.failed";
+            /** Retryable */
+            retryable: boolean;
+        };
+        /** GraphModule */
+        GraphModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /** Citation Ids */
+            citation_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "graph";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /** Relation Ids */
+            relation_ids: string[];
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
+        };
         /** IdentityReview */
         IdentityReview: {
             /**
@@ -410,6 +768,21 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** ModuleReadyPayload */
+        ModuleReadyPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "module.ready";
+            /** Module */
+            module: components["schemas"]["EvidenceModule"] | components["schemas"]["SummaryModule"] | components["schemas"]["ComparisonModule"] | components["schemas"]["TimelineModule"] | components["schemas"]["GraphModule"] | components["schemas"]["ChartModule"];
+            /**
+             * Revision Id
+             * Format: uuid4
+             */
+            revision_id: string;
         };
         /**
          * NormalizedBox
@@ -465,6 +838,19 @@ export interface components {
              * Format: uuid4
              */
             workspace_id: string;
+        };
+        /** OpenEvidenceAction */
+        OpenEvidenceAction: {
+            /**
+             * Citation Id
+             * Format: uuid4
+             */
+            citation_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "open_evidence";
         };
         /** PageSpan */
         PageSpan: {
@@ -540,6 +926,50 @@ export interface components {
              */
             suffix: string | null;
         };
+        /** PricingSnapshot */
+        PricingSnapshot: {
+            /**
+             * Captured At
+             * Format: date-time
+             */
+            captured_at: string;
+            /**
+             * Currency
+             * @enum {string}
+             */
+            currency: "KRW" | "USD";
+            /** Exchange Rate Version */
+            exchange_rate_version: string;
+            /** Fx Krw Per Currency */
+            fx_krw_per_currency: string;
+            /** Model */
+            model: string | null;
+            /** Operation */
+            operation: string;
+            /** Pricing Version */
+            pricing_version: string;
+            /** Provider */
+            provider: string;
+            /**
+             * Snapshot Id
+             * Format: uuid4
+             */
+            snapshot_id: string;
+            /** Unit Price */
+            unit_price: string;
+            /** Unit Quantity */
+            unit_quantity: number;
+        };
+        /** ReconciliationResolvedPayload */
+        ReconciliationResolvedPayload: {
+            /** Attempt Ids */
+            attempt_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.reconciliation_resolved";
+        };
         /** Relation */
         Relation: {
             /**
@@ -592,6 +1022,24 @@ export interface components {
              */
             relation_id: string;
         };
+        /** ReplayBatch */
+        ReplayBatch: {
+            /** After Seq */
+            after_seq: number;
+            /** Events */
+            events: components["schemas"]["RunEvent"][];
+            latest_snapshot: components["schemas"]["RunSnapshot"];
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
         /** ResearchBundle */
         ResearchBundle: {
             /** Claims */
@@ -618,6 +1066,163 @@ export interface components {
              */
             workspace_id: string;
         };
+        /** Run */
+        Run: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Input Sha256 */
+            input_sha256: string;
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            submission: components["schemas"]["RunSubmission"];
+            /**
+             * Trace Id
+             * Format: uuid4
+             */
+            trace_id: string;
+        };
+        /** RunEvent */
+        RunEvent: {
+            /**
+             * Occurred At
+             * Format: date-time
+             */
+            occurred_at: string;
+            /** Payload */
+            payload: components["schemas"]["AcceptedPayload"] | components["schemas"]["StageChangedPayload"] | components["schemas"]["ModuleReadyPayload"] | components["schemas"]["CancelRequestedPayload"] | components["schemas"]["AwaitingReconciliationPayload"] | components["schemas"]["ReconciliationResolvedPayload"] | components["schemas"]["SucceededPayload"] | components["schemas"]["FailedPayload"] | components["schemas"]["CancelledPayload"];
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Seq */
+            seq: number;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** RunExecutionBundle */
+        RunExecutionBundle: {
+            /** Attempts */
+            attempts: components["schemas"]["CallAttempt"][];
+            history: components["schemas"]["RunHistory"];
+            research: components["schemas"]["ResearchBundle"];
+            /** Revisions */
+            revisions: components["schemas"]["CanvasRevision"][];
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            usage: components["schemas"]["UsageBook"] | null;
+        };
+        /** RunHistory */
+        RunHistory: {
+            /** Events */
+            events: components["schemas"]["RunEvent"][];
+            run: components["schemas"]["Run"];
+        };
+        /** RunInput */
+        RunInput: {
+            /** Base Revision Id */
+            base_revision_id: string | null;
+            /** Question */
+            question: string;
+            /** Selected Version Ids */
+            selected_version_ids: string[];
+            versions: components["schemas"]["ExecutionVersions"];
+        };
+        /** RunSnapshot */
+        RunSnapshot: {
+            /** Accepted */
+            accepted: boolean;
+            /** Base Revision Id */
+            base_revision_id: string | null;
+            /** Cancel Requested */
+            cancel_requested: boolean;
+            /** Current Revision Id */
+            current_revision_id: string | null;
+            /** Last Event At */
+            last_event_at: string | null;
+            /** Last Seq */
+            last_seq: number;
+            /** Pending Revision Id */
+            pending_revision_id: string | null;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /** Stage */
+            stage: ("search" | "tools" | "validation" | "composition") | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "running" | "cancel_requested" | "awaiting_reconciliation" | "succeeded" | "failed" | "cancelled";
+            /** Unresolved Attempt Ids */
+            unresolved_attempt_ids: string[];
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** RunSubmission */
+        RunSubmission: {
+            input: components["schemas"]["RunInput"];
+            /**
+             * Requester Id
+             * Format: uuid4
+             */
+            requester_id: string;
+            /** Submission Key */
+            submission_key: string;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** SelectDocumentAction */
+        SelectDocumentAction: {
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "select_document";
+        };
         /** ServiceStatus */
         ServiceStatus: {
             /**
@@ -635,6 +1240,24 @@ export interface components {
              * @constant
              */
             status: "ok";
+        };
+        /** SortAction */
+        SortAction: {
+            /**
+             * Direction
+             * @enum {string}
+             */
+            direction: "asc" | "desc";
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "source_date" | "title";
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "sort";
         };
         /** SourceDocument */
         SourceDocument: {
@@ -671,6 +1294,68 @@ export interface components {
             provider: string;
             /** Value */
             value: string;
+        };
+        /** StageChangedPayload */
+        StageChangedPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "stage.changed";
+            /**
+             * Stage
+             * @enum {string}
+             */
+            stage: "search" | "tools" | "validation" | "composition";
+        };
+        /** SubmissionAssessment */
+        SubmissionAssessment: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "create" | "reuse" | "conflict";
+            /** Existing Run Id */
+            existing_run_id: string | null;
+        };
+        /** SucceededPayload */
+        SucceededPayload: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "run.succeeded";
+            /**
+             * Revision Id
+             * Format: uuid4
+             */
+            revision_id: string;
+        };
+        /** SummaryModule */
+        SummaryModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /** Citation Ids */
+            citation_ids: string[];
+            /** Claim Ids */
+            claim_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "summary";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
         };
         /** SupportReview */
         SupportReview: {
@@ -791,6 +1476,131 @@ export interface components {
              * @default null
              */
             suffix: string | null;
+        };
+        /** TimelineModule */
+        TimelineModule: {
+            /** Actions */
+            actions: (components["schemas"]["OpenEvidenceAction"] | components["schemas"]["SelectDocumentAction"] | components["schemas"]["AskQuestionAction"] | components["schemas"]["SortAction"])[];
+            /** Citation Ids */
+            citation_ids: string[];
+            /** Claim Ids */
+            claim_ids: string[];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "timeline";
+            /**
+             * Module Id
+             * Format: uuid4
+             */
+            module_id: string;
+            /**
+             * Span
+             * @enum {string}
+             */
+            span: "half" | "full";
+            /** Title */
+            title: string;
+        };
+        /** UsageBook */
+        UsageBook: {
+            /** Entries */
+            entries: components["schemas"]["UsageEntry"][];
+            /** Pricing Snapshots */
+            pricing_snapshots: components["schemas"]["PricingSnapshot"][];
+            /** Reservations */
+            reservations: components["schemas"]["UsageReservation"][];
+            window: components["schemas"]["BudgetWindow"];
+        };
+        /** UsageEntry */
+        UsageEntry: {
+            /**
+             * Attempt Id
+             * Format: uuid4
+             */
+            attempt_id: string;
+            /**
+             * Charge Status
+             * @enum {string}
+             */
+            charge_status: "confirmed" | "estimated" | "unknown" | "not_charged";
+            /** Cost Microwon */
+            cost_microwon: string | null;
+            /**
+             * Entry Id
+             * Format: uuid4
+             */
+            entry_id: string;
+            /** Input Tokens */
+            input_tokens: number | null;
+            /** Model */
+            model: string | null;
+            /** Operation */
+            operation: string;
+            /** Output Tokens */
+            output_tokens: number | null;
+            /**
+             * Pricing Snapshot Id
+             * Format: uuid4
+             */
+            pricing_snapshot_id: string;
+            /** Provider */
+            provider: string;
+            /** Provider Usage Ref */
+            provider_usage_ref: string | null;
+            /**
+             * Reservation Id
+             * Format: uuid4
+             */
+            reservation_id: string;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** UsageReservation */
+        UsageReservation: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            period: components["schemas"]["DateInterval"];
+            /** Pricing Snapshot Ids */
+            pricing_snapshot_ids: string[];
+            /**
+             * Reservation Id
+             * Format: uuid4
+             */
+            reservation_id: string;
+            /** Reserved Microwon */
+            reserved_microwon: string;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /** Settled At */
+            settled_at: string | null;
+            /** Settled Microwon */
+            settled_microwon: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "held" | "settled";
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
         };
     };
     responses: never;

@@ -1,11 +1,11 @@
 # 진행 기록
 
-2026-10-11 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-12 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 첫 원문·파싱·인용과 두 번째 개체·주장·관계·비교 조건 부분 계약 구현. 워커·나머지 제품 계약·DB·검색·실행기·인증은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. 실제 저장·이벤트 전달·워커·DB·검색·실행기·인증은 미완료 |
 | P2 실제 근거 | 미착수 | 첫 이슈·원문·읽기 스냅샷·데이터 API 접근 필요 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 미착수 | 근거 검색·도구·복구·UI 명세 계약 필요 |
@@ -15,7 +15,24 @@
 
 ## 현재 작업
 
-작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), 선행 PR #4 위·미병합. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조와 OpenAPI→생성 TS 타입 구현, 독립 작업/전체 변경 리뷰 및 비교 결과 모순 보완 후 수정 부분 리뷰 통과. 최종 전체 검사: Python 393개·JS 60개, lint/타입/SPA 빌드/계약 drift 통과. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. 사용자 폴더 `/data/lawdigest/IssueDigest`에 브랜치를 연결했다. 실제 API의 OpenAPI와 생성 계약 일치·새 모델·기존 두 경로 및 웹 HTTP 200을 확인했다. Sites v20 공개 요약 게시 완료. 다음은 Run/Event/Canvas/Usage 실행·화면·사용량 계약과 그 복구 검증이다.
+현재 진행 중인 구현 작업은 없다. 세 번째 실행·화면·사용량 부분 계약은 아래 2026-10-12 기록과 [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6)에 인계했다. 사용자 폴더는 `feat/execution-contracts`다. 전체 P1과 제품 기능은 미완료.
+
+다음 예정: A001~A003의 기준 DB·검색·실행기 및 인증 판단을 정리하고 실제 저장·이벤트 전달 연결 범위를 확정한다. 기존 서버·운영 데이터 상세는 사용자가 추후 제공 예정이며 다시 요청하지 않았다. 첫 이슈·실제 평가 자료와 남은 스택 선택은 아직 미정이다. 현재 단계에서 새 키·유료 자원 설정은 필요하지 않다.
+
+## 2026-10-12 · 실행 계약 검토·인계
+
+- 구현 `b408ad6` + 배열 최소 개수 보완 `e2255d7`. 실제 API 스키마의 14개 필드 RED 후 보완 GREEN, Python/JSON의 개수·중복 검증 보존. 작업 리뷰·수정 범위 재검토·전체 변경 리뷰 통과, 최종 신규 지적 없음. controller의 reviewed-head 전체 검사 672 Python + 60 JS 및 lint/타입/빌드/drift 성공. 의존성·HTTP 경로·기존 도메인 정책·웹 UI 변경 없음.
+- [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6)을 선행 PR #5 위에 게시했다. GitHub CI·Sites·사용자 폴더 연결은 이 기록 이후 완료 상태를 갱신한다. 자동 PR 첨부 요청은 응답하지 않아 직접 URL로 공유한다. 미병합 PR의 ignored SDD 검토/실행 증거는 이 작업의 격리 폴더에 보존한다.
+
+## 2026-10-11 · 실행·이벤트·화면·사용량 부분 계약
+
+- 역할별 `contract_values.py`, `canvas_modules.py`, `execution.py`, `canvas.py`, `usage.py`, `execution_bundle.py`에 순수 모델/함수를 구현했다. 새 계약의 strict 버전/정수/문자열·UTC 시각·tuple/frozen·추가 필드 거부를 적용하고 기존 원문/연구 정책·두 HTTP 경로·웹 UI를 보존한다.
+- 입력 자료 순서와 원문 질문·실행 버전을 SHA-256에 고정하고 실제 입력 동등성으로 제출 reuse/conflict를 판정한다. 연속 seq 이력을 fold하여 취소/미확인/완료 경합·늦은 모듈을 거부하고 실패/취소의 base 화면과 비용 확인을 보존한다.
+- Canvas는 허용 모듈/액션·선택 원문/인용 합집합·주장/관계/관측 존재·차트의 알려진 같은 조건·부모/expected ID를 검사한다. CallAttempt는 상태별 시각/결과와 prefix별 유료 적격성을 기록한다. 이 함수들은 실행·권한·서버 저장 인증이 아니다.
+- Usage는 서울 완전한 달·월 전체 운영비 10만 원·다른 비용·정밀 정수 금액·unknown hold·각 retry 합계·실제 초과비용과 정산을 검사한다. 전체 bundle은 모듈 발표/성공 revision·attempt/reconciliation·가격/예약/entry를 연결한다. 제공된 다른 run의 정상 historical revision도 검사하며 최소 ancestor 목록을 선택하지 않는다.
+- 검증: 순수 알고리즘 일곱 개 각각 callable scaffold에 대한 실제 assertion RED를 확인하고 focused GREEN과 실제 schema 등록/기존 component 동일·collision/입력 불변·생성 TS compile 소비자를 확인했다. 상세 명령/출력·self-review는 ignored `.superpowers/sdd/execution-contracts/task-1-report.md`와 evidence에 보존한다. 초기 `npm run check` 1회 통과: Python 656개·JS 60개, Ruff/format/mypy·ESLint·양쪽 TS 타입·SPA 생산 빌드·생성 계약 drift 통과. 유료 적격 cursor는 실제 dispatch 직전 권한 재확인·물리적 취소 경합 보장의 증거가 아니며 worker/DB 처리는 후속이다.
+- 리뷰 보완 1차: 실제 OpenAPI의 ID 배열에 문자열 `minLength`가 생성되는 P2를 확인했다. 공통 tuple 길이 제약을 AfterValidator보다 먼저 적용하여 `minItems`를 생성하고 runtime cardinality/uniqueness를 보존했다. 실제 앱의 14개 배열 assertion RED 후 focused 286개·전체 `npm run check` 1회(Python 672개·JS 60개, lint/타입/SPA 빌드/계약 drift) 통과. OpenAPI/TS를 재생성했으며 TS 결과는 동일하다. 수정 부분 독립 재리뷰 대기다.
+- 인계 대기: 독립 작업·전체 변경 리뷰, Draft PR, Sites v20 이후 공개 요약, 사용자 폴더 연결은 controller가 담당한다. 결합 완료 checkbox를 닫지 않았다. 신규 의존성·외부/유료 호출·비공개/운영 자료·실행기·저장소·SSE/제품 API·UI/AI 구현은 없다.
 
 ## 2026-10-11 · 개체·주장·관계·비교 조건 계약
 
@@ -118,3 +135,16 @@
 - Sites v15 source: `a96fae750ac020212d239e3d69344718cd6c3f02`, deployment `appgdep_6acb5724c784819184713ada7b2a8a8a`, 상태 `succeeded`.
 - Vercel: 배포 목록 0개, `paused=true`, Git 연결 없음. 대표 주소와 두 과거 배포 주소는 HTTP 404 `DEPLOYMENT_NOT_FOUND`.
 - 화면: 1366×1000·390×844에서 문서 가로 넘침 없음, 내부 메뉴 이동 확인, 콘솔 오류 0건. 문서 링크·보존 원문·계획 사본 일치 확인.
+
+
+## 2026-10-12 · 사용자 폴더 연결·게시 준비
+
+- 사용자 폴더 `/data/lawdigest/IssueDigest`의 깨끗한 상태를 확인하고 `feat/execution-contracts`를 연결했다. 격리 구현 폴더는 같은 커밋에 detached로 보존했다. 기존에 이 작업이 실행한 API 프로세스만 중지하고 새 브랜치의 통합 개발 실행을 기동했다. 실제 `/openapi.json` HTTP 200과 생성 JSON의 정확한 일치, RunHistory/RunExecutionBundle/CanvasBundle/UsageBook/BudgetAssessment 및 차트 minItems2·기존 HTTP 두 경로를 확인했다. 웹 HTTP 200. 새로운 제품 화면/AI 실행 검증은 아니다.
+- 검토된 구현 `e2255d7`의 [GitHub CI #38150424568](https://github.com/DigestWorks/IssueDigest/actions/runs/38150424568) 성공. Docs-only 인계 커밋 뒤의 최종 HEAD CI는 마지막에 다시 확인한다. Sites의 이전 v20 기록을 보존하고 새 공개 요약·docs 사본 게시를 준비 중이다. 결합 체크는 게시 성공 후 처리한다.
+
+
+## 2026-10-12 · 실행 계약 결합 완료·Sites 게시
+
+- C1~C5의 구현·독립 작업/수정 범위/전체 변경 리뷰·Draft PR #6·사용자 폴더/실제 API 확인·Sites 공개 게시를 마쳤다. 최종 code 검증은 `e2255d7`의 컨트롤러 전체 672 Python + 60 JS 및 lint/타입/SPA/drift. 공급자 호출·실제 과금·저장·SSE·인증·renderer/AI·전체 P1은 미완료다.
+- [Sites v21](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 성공. source `2d5d6afc7ab659985e71bd9439b972b73ab4f5a0`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2819fa8720c481918101b0b01fab19dc`, deployment `appgdep_6acba95b486c8191b665b1b05bd473f8`의 native succeeded를 확인했다. 이전 v20을 추가 보존하고 v14/v18/v19·데이터/와이어프레임 기록을 유지했다. docs 사본은 `cac6258` 기준이며 대기 표시는 그 시점의 상태다. 최신 상태는 이 원본/PR에서 확인한다. 데스크톱1366/모바일390·가로 넘침 없음·계약4행·672/60·PR6/이전 기록·console0·로컬 링크/anchor 검사 통과.
+- 구현·Root 연결 문서 커밋 `cac6258`의 [CI #38150676791](https://github.com/DigestWorks/IssueDigest/actions/runs/38150676791) 성공. 마지막 게시 기록 커밋의 exact-HEAD check는 PR에서 확인한다. 앱 자동 PR 첨부/사이트 열기 요청이 응답하지 않아 직접 URL을 공유한다. PR을 병합하지 않았다. 격리 폴더와 이 작업의 검토/실행 증거를 보존한다.
