@@ -52,6 +52,8 @@ const BASE_H = 0.1
 const MAX_H = 1.8
 /** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
 const LAYER_GAP = 0.18
+/** 선택한 지역의 층 간격 배율. 선택하면 층 사이가 벌어져 묶음이 위로 늘어난다 */
+const FOCUS_SPREAD = 2.2
 
 const LEADER = 2.6
 const INK = SCHEMATIC_THEME.ink
@@ -194,6 +196,8 @@ type RegionCommon = {
  * 맨 위 층 외곽선은 판독성을 위해 화면 픽셀 두께의 굵은 선(drei Line)으로 강조한다
  * (WebGL 기본 선은 두께가 1px 로 고정이다).
  * 등장할 때 층이 아래에서부터 하나씩 쌓인다.
+ * 선택하면 층 수는 그대로 두고 층 간격이 FOCUS_SPREAD 배로 벌어지며 묶음이 위로 늘어나고,
+ * 선택을 풀면 원래 간격으로 돌아온다. 층은 두께가 없는 평면이므로 묶음의 세로 배율만 바꾼다.
  */
 function RegionVolume({
   region,
@@ -229,15 +233,20 @@ function RegionVolume({
   const fillMat = useRef<MeshBasicMaterial>(null)
   const base = useRef<LineBasicMaterial>(null)
   const top = useRef<Group>(null)
+  const stack = useRef<Group>(null)
+  const spread = useRef(1)
   const topLine = useRef<{ material: { opacity: number } } | null>(null)
 
-  useFrame(() => {
+  useFrame((_, delta) => {
     const now = performance.now()
     const tOutline = progress(now, t0 + T.outline.at + order * T.outline.step, T.outline.ms, reducedMotion)
     const tFill = progress(now, t0 + T.fill.at + order * T.fill.step, T.fill.ms, reducedMotion)
     // 층이 아래에서부터 하나씩 쌓인다
     const shown = Math.ceil(count * easeOutCubic(tFill))
-    const h = shown * LAYER_GAP
+    const target = focused ? FOCUS_SPREAD : 1
+    spread.current = reducedMotion ? target : MathUtils.damp(spread.current, target, 5, delta)
+    stack.current?.scale.set(1, spread.current, 1)
+    const h = shown * LAYER_GAP * spread.current
     heights.set(region.code, Math.max(h, BASE_H))
     hitColumn.current?.scale.set(1, 1, Math.max(0.001, h))
     setDrawProgress(outline, tOutline)
@@ -266,12 +275,14 @@ function RegionVolume({
       <lineSegments geometry={outline} position-y={0.004}>
         <lineBasicMaterial ref={base} color={INK} transparent opacity={0} depthWrite={false} />
       </lineSegments>
-      <lineSegments geometry={layers.lines}>
-        <lineBasicMaterial ref={lineMat} vertexColors transparent opacity={0} depthWrite={false} />
-      </lineSegments>
-      <mesh geometry={layers.fills}>
-        <meshBasicMaterial ref={fillMat} vertexColors transparent opacity={0} depthWrite={false} side={DoubleSide} />
-      </mesh>
+      <group ref={stack}>
+        <lineSegments geometry={layers.lines}>
+          <lineBasicMaterial ref={lineMat} vertexColors transparent opacity={0} depthWrite={false} />
+        </lineSegments>
+        <mesh geometry={layers.fills}>
+          <meshBasicMaterial ref={fillMat} vertexColors transparent opacity={0} depthWrite={false} side={DoubleSide} />
+        </mesh>
+      </group>
       <group ref={top}>
         <Line
           ref={(l: unknown) => void (topLine.current = l as typeof topLine.current)}
@@ -490,7 +501,8 @@ function FocusMarker({
         </mesh>
       </group>
       <group ref={callout}>
-        <Html zIndexRange={[10, 0]} style={{ pointerEvents: "none" }}>
+        {/* 화면 고정 주석 뒤 어두운 층(z-10) 위, 화면 고정 주석(z-20) 아래에 둔다 */}
+        <Html zIndexRange={[15, 15]} style={{ pointerEvents: "none" }}>
           <RegionCallout code={region.code} name={region.name} value={value} source={source} animate={!reducedMotion} />
         </Html>
       </group>
