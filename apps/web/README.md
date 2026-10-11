@@ -12,6 +12,8 @@ npm run setup
 npm run dev
 ```
 
+`npm run dev` 통합 실행기는 Linux에서 지원·검증했습니다. Windows에서는 `npm run dev:api`와 `npm run dev:web`을 별도 터미널에서 실행하고 각각 직접 종료합니다.
+
 웹은 `http://127.0.0.1:5173`입니다. 웹만 실행하려면 `npm run dev:web`을 사용하고, 다른 터미널에서 `npm run dev:api`로 API를 실행합니다. 확인 요청을 접수하면 확인 중 상태와 중복 클릭 방지를 표시하고 검증된 성공·실패·재시도를 안내합니다. 시간 초과는 기본 5초이며 응답 본문 읽기도 포함합니다.
 
 웹은 같은 출처의 `/api/v1/status`를 `@issuedigest/api-client`로 호출합니다. 인증·도메인·공급자·도구 호출은 API의 책임이며 앱 내부 코드를 직접 가져오지 않습니다.

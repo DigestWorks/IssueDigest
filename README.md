@@ -54,7 +54,7 @@ npm run setup
 npm run dev
 ```
 
-`setup`은 `uv sync --locked --all-packages`로 API·도메인·검증 도구를 설치합니다. uv가 지정 Python을 찾지 못하면 `uv python install 3.13.12`로 설치합니다. `dev`는 두 앱을 실행하고 종료 신호를 받으면 함께 중지합니다.
+`setup`은 `uv sync --locked --all-packages`로 API·도메인·검증 도구를 설치합니다. uv가 지정 Python을 찾지 못하면 `uv python install 3.13.12`로 설치합니다. `npm run dev` 통합 실행기는 Linux에서 지원·검증했으며 두 앱을 실행하고 종료 신호를 받으면 함께 중지합니다. Windows에서는 `npm run dev:api`와 `npm run dev:web`을 별도 터미널에서 실행하고 각 터미널에서 직접 종료합니다.
 
 - 웹: [http://127.0.0.1:5173](http://127.0.0.1:5173) · API: [http://127.0.0.1:8000](http://127.0.0.1:8000).
 - 별도 터미널 실행: `npm run dev:api`, `npm run dev:web`.

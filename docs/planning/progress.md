@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [개발 실행 기반](../changes/development-foundation.md) · P1 일부. 담당: Codex. 브랜치: `feat/development-foundation` · PR 생성 예정. 범위: React Router 웹·FastAPI API·상태 계약·의존성 고정·검증 CI. 구현과 자동 검증은 통과했으며 실제 HTTP·데스크톱·모바일·API 중단·재시도 스모크를 통과했다. 구현·검증 완료, 변경 검토 대기다. 기준 DB·검색·실행기·인증·운영 배포는 이번 변경 밖이다. Sites 반영 대기.
+작업: [개발 실행 기반](../changes/development-foundation.md) · P1 일부. 담당: Codex. 브랜치: `feat/development-foundation` · [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2). 범위: React Router 웹·FastAPI API·상태 계약·의존성 고정·검증 CI. 구현과 자동 검증은 통과했으며 실제 HTTP·데스크톱·모바일·API 중단·재시도 스모크를 통과했다. 구현·검증 및 명세·코드 품질 검토 통과. PR 검토 대기다. 기준 DB·검색·실행기·인증·운영 배포는 이번 변경 밖이다. Sites 반영 대기.
 
 ## 2026-10-11 · 웹·API 개발 실행 기반
 
@@ -24,10 +24,11 @@
 - API의 `/health/live`, `/api/v1/status`는 지정한 JSON과 서버 UUID `X-Request-ID`를 반환한다. 오류에도 요청 ID를 부여한다. 상태는 API 프로세스의 응답 여부이며 DB·워커 준비 완료가 아니다.
 - Python 모델/FastAPI OpenAPI에서 OpenAPI·TypeScript 타입을 생성·버전 관리한다. 재생성 비교와 런타임 응답 검증을 포함했다. 웹은 Framework SPA, 같은 출처 개발 프록시, 한국어 빈 자료 상태와 실제 연결 확인만 제공한다.
 - TDD: API 7개 실패 후 7개 통과. 클라이언트·화면 20개 실패 후 20개 통과. 잘못된 응답·HTTP/네트워크 실패·본문까지 포함한 시간 초과·화면 확인 중·실패·재시도를 검증했다.
-- 자동 검증: `npm run check` 통과. Python Ruff·mypy·pytest, TypeScript ESLint·타입·Vitest, 생산 SPA 빌드와 계약 변경 검사. 같은 절차를 GitHub Actions로 구성했으며 원격 실행 결과는 아직 없다.
+- 자동 검증: `npm run check` 통과. Python Ruff·mypy·pytest, TypeScript ESLint·타입·Vitest, 생산 SPA 빌드와 계약 변경 검사. 같은 절차의 [GitHub Actions 실행 #38133178226](https://github.com/DigestWorks/IssueDigest/actions/runs/38133178226)이 기반 코드 커밋 `d132583`에서 성공했다. 원격에서도 테스트 27개·lint·타입·생산 빌드·계약 검사를 통과했다.
 - 실제 스모크: 컨트롤러 확인 완료. API 직접 연결과 웹 프록시의 두 엔드포인트에 정확한 JSON/UUID v4, 404에 UUID v4, 웹 HTTP 200을 확인했다. 데스크톱 1366×900·모바일 390×844에서 가로 넘침 없이 hydration을 확인했다. 실제 응답 지연 때 접수 안내·확인 중 비활성 버튼, API 중단 때 실패·재시도, 복구 후 재시도 성공을 확인했다. `npm run dev`로 두 서버 기동, Ctrl+C 후 두 포트 해제도 확인했다. favicon 404는 로컬 SVG로 수정했고 새 브라우저 콘솔 오류·경고는 각 0건이다. 생산 빌드의 `build/client`도 QA용 정적 미리보기에서 hydration·실제 동일 출처 상태 요청·콘솔 오류 없음으로 확인했다. 이는 빌드 검증이며 운영 배포는 아니다. 브라우저 산출물은 로컬 `output/issuedigest-foundation`에만 보관하고 커밋하지 않는다.
 - 범위 밖: 기준 DB·검색·실행기·인증 결정, 워커·자료 수집·AI·권한·저장·운영 배포. 기존 P1 미완료 항목과 계획 Draft PR #1의 검토 이력을 유지한다.
-- 다음 행동: Task 1 변경 검토, 변경 PR에서 원격 CI 결과 확인. 운영 서버 설치·유료 외부 호출은 수행하지 않는다.
+- 검토 후속: 통합 개발 실행기의 프로세스 종료 지원·검증 범위를 Linux로 문서화하고 Windows는 두 앱의 별도 터미널 실행·종료를 안내했다. 앱 코드는 변경하지 않았다.
+- 다음 행동: [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2) 검토, Sites 요약 반영. 운영 서버 설치·유료 외부 호출은 수행하지 않는다.
 - Sites: 이번 개발 기반 요약 반영 대기. 최신 원본은 저장소 문서다.
 
 ## 2026-10-11 · 모노레포 구현 준비
