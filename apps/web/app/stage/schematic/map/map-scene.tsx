@@ -1,11 +1,12 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react"
-import { CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
+import { Billboard, CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import { ChromaticAberration, DepthOfField, EffectComposer } from "@react-three/postprocessing"
 import type { DepthOfFieldEffect } from "postprocessing"
 import {
   AdditiveBlending,
   BufferGeometry,
+  CanvasTexture,
   Color,
   DoubleSide,
   ExtrudeGeometry,
@@ -14,6 +15,8 @@ import {
   NormalBlending,
   NoToneMapping,
   ShapeGeometry,
+  SRGBColorSpace,
+  type Texture,
   Vector2,
   Vector3,
   type Group,
@@ -112,6 +115,9 @@ const FOCUS_SPREAD = 1.5
 const FOCUS_RISE_MAX = 0.6
 
 const LEADER = 2.6
+/** 어두운 장면인지(바탕 명도 기준) */
+const isDarkTheme = (th: SchematicPalette) => new Color(th.scene).getHSL({ h: 0, s: 0, l: 0 }).l < 0.5
+
 /** 장면 색(모드별). Canvas 안에서 제공하므로 R3F 의 컨텍스트 연결 여부와 관계없이 읽힌다 */
 const ThemeContext = createContext<SchematicPalette | null>(null)
 const useTheme = () => {
@@ -123,18 +129,26 @@ const useTheme = () => {
 /**
  * 등장 시각(ms, 경계 데이터를 받은 시점 기준). 지도 홀로그램이 가운데에서 펼쳐진다.
  * - expand: 지도 전체가 가운데에서 바깥으로 커진다(가로 배율 EXPAND_FROM → 1).
- * - wave: 바닥의 고리가 가운데에서 바깥으로 퍼지고, 고리가 닿는 지역부터 나타난다.
+ * - wave: 어두운 모드에서는 가운데의 빛무리가, 밝은 모드에서는 바닥의 고리가 바깥으로 퍼지고,
+ *   그 앞쪽이 닿는 지역부터 빛 → 홀로그램 → 층 펼침 순서로 나타난다.
  *   지역의 등장 시각은 지도 중심에서의 거리에 비례한다.
  * - region: 지역마다 바닥 외곽선이 그려진 뒤, 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다.
  * - label·frame: 지역 이름과 지도 틀은 마지막에 나타난다.
  */
 const T = {
-  expand: { ms: 1000 },
-  wave: { at: 60, ms: 850 },
-  region: { outlineMs: 300, unfoldAt: 120, unfoldMs: 600 },
-  label: { at: 600, ms: 250 },
-  frame: { at: 850, ms: 450 },
-  compass: { at: 0, ms: 1000 },
+  /** 퍼지기 전에 가운데에 빛이 모이는 시간(어두운 모드). 퍼짐과 지도 확대는 이 뒤에 시작한다 */
+  gather: { ms: 280 },
+  expand: { at: 280, ms: 1100 },
+  wave: { at: 280, ms: 900 },
+  /**
+   * 지역마다(빛의 앞쪽이 닿은 시각 기준):
+   * glow 동안 넓고 흐린 빛 외곽선이 좁아지며 사라지고(어두운 모드), holoAt 부터 홀로그램 선·면이 나타난 뒤,
+   * unfoldAt 부터 층이 아래에서 위로 펼쳐진다.
+   */
+  region: { glowMs: 420, holoAt: 160, outlineMs: 300, unfoldAt: 420, unfoldMs: 600 },
+  label: { at: 850, ms: 250 },
+  frame: { at: 1380, ms: 450 },
+  compass: { at: 280, ms: 1000 },
   focusTrace: 700,
   focusPulse: { at: 500, ms: 1000 },
   focusLeader: { at: 400, ms: 400 },
@@ -311,10 +325,12 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
     () => (data ? Math.max(...data.regions.map((r) => Math.hypot(r.centroid.x, r.centroid.z))) : 1),
     [data]
   )
+  const th = useTheme()
+  const dark = useMemo(() => isDarkTheme(th), [th])
   const expand = useRef<Group>(null)
   useFrame(() => {
     if (!data || !expand.current) return
-    const e = easeOutCubic(progress(performance.now(), data.t0, T.expand.ms, reducedMotion))
+    const e = easeOutCubic(progress(performance.now(), data.t0 + T.expand.at, T.expand.ms, reducedMotion))
     const k = EXPAND_FROM + (1 - EXPAND_FROM) * e
     expand.current.scale.set(k, 1, k)
   })
@@ -325,7 +341,11 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
 
   return (
     <group ref={expand} scale={[EXPAND_FROM, 1, EXPAND_FROM]}>
-      <ExpandWave radius={maxDist + 1.5} t0={t0} reducedMotion={reducedMotion} />
+      {dark ? (
+        <GlowField radius={maxDist + 1.5} t0={t0} reducedMotion={reducedMotion} />
+      ) : (
+        <ExpandWave radius={maxDist + 1.5} t0={t0} reducedMotion={reducedMotion} />
+      )}
       {regions.map((r) => {
         const common = {
           region: r,
@@ -365,6 +385,121 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
       ) : null}
     </group>
   )
+}
+
+/**
+ * 빛무리(어두운 모드 등장): 가운데의 흐린 빛이 바깥으로 퍼진다. 광원 물체 없이 바닥과 공중의 밝기 분포만 그린다.
+ * - 바닥 고리: 빛의 앞쪽(반지름 R)이 가장 밝은 띠이고, 앞쪽이 지나간 안쪽은 어두워진다.
+ *   R 이 작을 때는 가운데에 모인 덩어리로 보인다.
+ * - 바닥 빛: 앞쪽 안쪽에 남는 옅은 원형 밝기. 퍼지면서 사라진다.
+ * - 공중: 카메라를 향한 판에 흐린 원형 밝기를 그려, 처음 가운데에 떠 있는 빛 덩어리를 만든다.
+ * 밝기 분포는 캔버스 원형 그라디언트 텍스처로 만든다.
+ * 가산 혼합이며 색은 무채색이다. 퍼짐이 끝나면 보이지 않는다.
+ */
+function GlowField({ radius, t0, reducedMotion }: { radius: number; t0: number; reducedMotion: boolean }) {
+  const ringTex = useMemo(() => radialTexture(RING_STOPS), [])
+  const blobTex = useMemo(() => radialTexture(BLOB_STOPS), [])
+  const ring = useRef<Group>(null)
+  const pool = useRef<Group>(null)
+  const haze = useRef<Group>(null)
+  const mats = useRef<(MeshBasicMaterial | null)[]>([])
+
+  useFrame(() => {
+    const now = performance.now()
+    // 모임: 가운데에 빛 덩어리가 밝아진다
+    const gather = easeOutCubic(progress(now, t0, T.gather.ms, reducedMotion))
+    // 퍼짐: 앞쪽 반지름이 지역 등장 시각(중심 거리에 비례)과 같은 속도로 커진다
+    const p = progress(now, t0 + T.wave.at, T.wave.ms, reducedMotion)
+    const done = reducedMotion || p >= 1
+    const r = 0.8 + radius * p
+    // 고리 텍스처에서 가장 밝은 곳은 반지름의 RING_PEAK 배 위치다
+    ring.current?.scale.set(r / RING_PEAK, r / RING_PEAK, 1)
+    pool.current?.scale.set(r * 0.9, r * 0.9, 1)
+    haze.current?.scale.setScalar(2.2 + 5 * p)
+    const [ringMat, poolMat, hazeMat] = mats.current
+    if (ringMat) ringMat.opacity = done ? 0 : gather * 0.5 * (1 - p ** 2)
+    if (poolMat) poolMat.opacity = done ? 0 : gather * 0.5 * (1 - p) ** 1.5
+    if (hazeMat) hazeMat.opacity = done ? 0 : gather * 0.8 * Math.max(0, 1 - p * 1.6)
+    for (const m of mats.current) if (m) m.visible = !done
+  })
+
+  const material = (i: number, map: Texture) => (
+    <meshBasicMaterial
+      ref={(m) => void (mats.current[i] = m)}
+      map={map}
+      color={GLOW_COLOR}
+      transparent
+      opacity={0}
+      depthWrite={false}
+      blending={AdditiveBlending}
+      toneMapped={false}
+    />
+  )
+
+  return (
+    <group>
+      <group rotation-x={-Math.PI / 2} position-y={0.015}>
+        <group ref={ring}>
+          <mesh renderOrder={2}>
+            <planeGeometry args={[2, 2]} />
+            {material(0, ringTex)}
+          </mesh>
+        </group>
+        <group ref={pool}>
+          <mesh renderOrder={2}>
+            <planeGeometry args={[2, 2]} />
+            {material(1, blobTex)}
+          </mesh>
+        </group>
+      </group>
+      <group ref={haze} position-y={0.8}>
+        <Billboard>
+          <mesh renderOrder={3}>
+            <planeGeometry args={[1, 0.6]} />
+            {material(2, blobTex)}
+          </mesh>
+        </Billboard>
+      </group>
+    </group>
+  )
+}
+
+const GLOW_COLOR = "#dfeaf0"
+/** 고리 텍스처: 가운데는 비어 있고 RING_PEAK 반지름에서 가장 밝다. 앞쪽 바깥은 짧게, 안쪽은 길게 어두워진다 */
+const RING_PEAK = 0.84
+const RING_STOPS: [number, number][] = [
+  [0, 0],
+  [0.4, 0.04],
+  [0.66, 0.28],
+  [0.78, 0.7],
+  [RING_PEAK, 1],
+  [0.9, 0.4],
+  [0.97, 0.06],
+  [1, 0],
+]
+/** 덩어리 텍스처: 가운데가 가장 밝고 바깥으로 부드럽게 어두워진다 */
+const BLOB_STOPS: [number, number][] = [
+  [0, 1],
+  [0.25, 0.75],
+  [0.5, 0.35],
+  [0.75, 0.1],
+  [1, 0],
+]
+
+/** 원형 밝기 분포 텍스처. stops 는 [반지름 비율, 밝기] 목록이다 */
+function radialTexture(stops: [number, number][]) {
+  const size = 256
+  const canvas = document.createElement("canvas")
+  canvas.width = size
+  canvas.height = size
+  const ctx = canvas.getContext("2d")!
+  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2)
+  for (const [at, v] of stops) g.addColorStop(at, `rgba(255,255,255,${v})`)
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, size, size)
+  const tex = new CanvasTexture(canvas)
+  tex.colorSpace = SRGBColorSpace
+  return tex
 }
 
 /**
@@ -472,7 +607,7 @@ function RegionVolume({
   const fringeMats = useRef<(ShaderMaterial | null)[]>([])
   const res = useMemo(() => new Vector2(), [])
   const dpr = useThree((st) => st.viewport.dpr)
-  const dark = useMemo(() => new Color(th.scene).getHSL({ h: 0, s: 0, l: 0 }).l < 0.5, [th])
+  const dark = useMemo(() => isDarkTheme(th), [th])
   const fringeProps = useMemo(
     () =>
       (["#ff2d55", "#00d8ff"] as const).map((c, i) =>
@@ -482,10 +617,22 @@ function RegionVolume({
   )
   const spread = useRef(1)
   const topLine = useRef<{ material: { opacity: number } } | null>(null)
+  const glowLines = useRef<({ visible: boolean; material: { opacity: number; linewidth: number } } | null)[]>([])
 
   useFrame((state, delta) => {
     const now = performance.now()
-    const tOutline = progress(now, t0 + delay, T.region.outlineMs, reducedMotion)
+    // 빛 외곽선(어두운 모드): 넓고 흐린 선이 좁아지며 사라진다
+    const g = progress(now, t0 + delay, T.region.glowMs, reducedMotion)
+    const glowOn = dark && !reducedMotion && g > 0 && g < 1
+    glowLines.current.forEach((l, i) => {
+      if (!l) return
+      l.visible = glowOn
+      if (!glowOn) return
+      const w = (i === 0 ? 14 : 5) * (1 - easeOutCubic(g)) + 1.5
+      l.material.linewidth = w
+      l.material.opacity = (i === 0 ? 0.22 : 0.55) * Math.sin(Math.PI * Math.min(1, g * 1.25))
+    })
+    const tOutline = progress(now, t0 + delay + T.region.holoAt, T.region.outlineMs, reducedMotion)
     // 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다
     const unfold = easeOutCubic(progress(now, t0 + delay + T.region.unfoldAt, T.region.unfoldMs, reducedMotion))
     const full = count * LAYER_GAP
@@ -542,6 +689,24 @@ function RegionVolume({
           <meshBasicMaterial ref={fillMat} vertexColors transparent opacity={0} depthWrite={false} side={DoubleSide} />
         </mesh>
       </group>
+      {dark
+        ? [0, 1].map((i) => (
+            <Line
+              key={i}
+              ref={(l: unknown) => void (glowLines.current[i] = l as (typeof glowLines.current)[number])}
+              points={topPoints}
+              segments
+              color="#e8f2f6"
+              lineWidth={1}
+              transparent
+              opacity={0}
+              depthWrite={false}
+              blending={AdditiveBlending}
+              visible={false}
+              position-y={0.02}
+            />
+          ))
+        : null}
       <group ref={top}>
         <Line
           ref={(l: unknown) => void (topLine.current = l as typeof topLine.current)}
