@@ -2,8 +2,8 @@ import { useState } from "react"
 import { useSearchParams } from "react-router"
 
 import type { SchematicMode } from "~/design/tokens"
-import { op } from "~/stage/schematic/primitives"
-import { ControlButton, SchematicMap } from "~/stage/schematic/map/schematic-map"
+import { ControlButton, op } from "~/stage/schematic/primitives"
+import { SchematicMap } from "~/stage/schematic/map/schematic-map"
 import { electionMapSample } from "~/stage/scenarios/election-map"
 
 import type { Route } from "./+types/map"

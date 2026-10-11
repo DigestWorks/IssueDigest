@@ -21,14 +21,17 @@ export const OPACITY = {
 
 export type OpacityStep = keyof typeof OPACITY
 
-/** 글자 역할. 글꼴은 Pretendard 한 가족이고 숫자는 고정폭 숫자(tabular-nums)를 쓴다. */
+/**
+ * 글자 역할. 본문·제목은 Pretendard, 번호·코드·좌표·보조 글자는 고정폭(mono)이다. 수치는 고정폭 숫자(tabular-nums)를 쓴다.
+ * 값은 지도·패널·화면 고정 주석에서 쓰는 크기와 굵기다.
+ */
 export const TYPE_ROLES = [
-  { id: "display", label: "스테이지 제목", size: 28, weight: 300, tracking: "0.04em", sample: "서울시장 선거 자치구별 우세" },
-  { id: "title", label: "패널 제목", size: 15, weight: 600, tracking: "0", sample: "후보별 지지율 추이" },
-  { id: "body", label: "본문", size: 14, weight: 400, tracking: "0", sample: "샘플 법안 A는 소위원회 두 차례를 거쳤습니다." },
-  { id: "label", label: "공간 속 라벨", size: 13, weight: 500, tracking: "0.02em", sample: "제1차 법안심사소위" },
-  { id: "caption", label: "보조 글자", size: 11, weight: 400, tracking: "0.12em", sample: "출처 · 회의록 · 발언 27" },
-  { id: "numeric", label: "수치", size: 20, weight: 600, tracking: "0", sample: "38.4%  ·  5,600명", numeric: true },
+  { id: "display", label: "화면 제목", size: 26, weight: 200, tracking: "0.06em", sample: "서울시장 선거 자치구별 우세" },
+  { id: "title", label: "패널·주석 제목", size: 20, weight: 200, tracking: "0.06em", sample: "후보별 지지율 추이" },
+  { id: "body", label: "본문·규칙", size: 13, weight: 400, tracking: "0.01em", sample: "샘플 법안 A는 소위원회 두 차례를 거쳤습니다." },
+  { id: "label", label: "항목·버튼", size: 12, weight: 400, tracking: "0.12em", sample: "제1차 소위 심사 · 위에서" },
+  { id: "numeric", label: "수치", size: 14, weight: 300, tracking: "0", sample: "38.4% · 5,600명", numeric: true },
+  { id: "caption", label: "머리 줄·보조 글자", size: 10, weight: 400, tracking: "0.22em", sample: "03 | 차트 · 단위 명", mono: true },
 ] as const
 
 /** 공간 속 글자가 카메라 시선에 대해 기울 수 있는 최대 각도(도) */

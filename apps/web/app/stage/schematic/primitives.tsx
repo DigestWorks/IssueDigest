@@ -204,3 +204,36 @@ export function SchematicFrame({
     </section>
   )
 }
+
+/**
+ * 도면 양식 버튼: 글자와 사각점. 선택된 항목은 주황 사각점과 꺾쇠 눈금으로 표시한다.
+ * 상자와 둥근 모서리를 쓰지 않는다. point 로 사각점을 글자 앞(start)이나 뒤(end)에 둔다.
+ */
+export function ControlButton({
+  active,
+  onClick,
+  children,
+  point = "end",
+}: {
+  active: boolean
+  onClick: () => void
+  children: ReactNode
+  point?: "start" | "end"
+}) {
+  const square = <SquarePoint size={5} filled={false} emphasized={active} />
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className="group flex items-center gap-1 py-0.5 text-[12px] tracking-[0.12em] outline-none focus-visible:outline-1 focus-visible:outline-offset-2"
+      style={{ color: INK, outlineColor: ACCENT }}
+    >
+      {point === "start" ? square : null}
+      <span className="transition-opacity group-hover:opacity-100" style={{ opacity: active ? 1 : op("related") }}>
+        {children}
+      </span>
+      {point === "end" ? square : null}
+    </button>
+  )
+}

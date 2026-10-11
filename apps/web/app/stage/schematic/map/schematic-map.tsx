@@ -6,7 +6,7 @@ import { EASE_OUT, SCHEMATIC_THEMES, type SchematicMode } from "~/design/tokens"
 import { useReducedMotion } from "~/design/use-reduced-motion"
 import { cn } from "~/lib/utils"
 import type { RegionValue } from "../../events"
-import { ACCENT, ACCENT_TEXT, INK, op, Rule, SchematicTheme, SquarePoint, useSchematicMode } from "../primitives"
+import { ACCENT_TEXT, ControlButton, INK, op, Rule, SchematicTheme, useSchematicMode } from "../primitives"
 import type { MapSource, MapView } from "./map-scene"
 
 // three.js 는 브라우저 전용이다. SPA 빌드가 라우트를 미리 렌더하므로 마운트 후에만 불러온다.
@@ -160,22 +160,5 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
         </div>
       </div>
     </SchematicTheme>
-  )
-}
-
-/** 도면 양식 버튼: 왼쪽 사각점과 글자. 선택된 보기는 주황 사각점과 꺾쇠 눈금으로 표시한다. */
-export function ControlButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="group flex items-center gap-1 py-0.5 pl-1 text-[12px] tracking-[0.12em] outline-none focus-visible:outline-1 focus-visible:outline-offset-2"
-      style={{ color: INK, outlineColor: ACCENT }}
-    >
-      <span className="transition-opacity group-hover:opacity-100" style={{ opacity: active ? 1 : op("related") }}>
-        {children}
-      </span>
-      <SquarePoint size={5} filled={false} emphasized={active} />
-    </button>
   )
 }

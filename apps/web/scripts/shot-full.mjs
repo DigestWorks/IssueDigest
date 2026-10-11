@@ -6,7 +6,7 @@ const p = await b.newPage({ viewport: { width: 1440, height: 900 } })
 const logs = []
 p.on("console", (m) => m.type() === "error" && logs.push(m.text()))
 p.on("pageerror", (e) => logs.push(e.message))
-await p.goto(url, { waitUntil: "networkidle" })
+await p.goto(url, { waitUntil: "load" })
 await p.waitForTimeout(2500)
 await p.screenshot({ path: out, fullPage: true })
 console.log(logs.join("\n") || "no errors", await p.evaluate(() => document.body.scrollHeight))

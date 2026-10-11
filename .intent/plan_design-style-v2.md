@@ -14,12 +14,14 @@ date: 2026-10-11
 
 | 파일 | 무엇을 |
 |---|---|
-| `apps/web/app/design/tokens.ts` | `HOLOGRAM`·`MAP_EFFECTS`·`FLOOR`·`MAP_MOTION` 토큰 추가 |
+| `apps/web/app/design/tokens.ts` | `HOLOGRAM`·`MAP_EFFECTS`·`FLOOR`·`MAP_MOTION` 토큰 추가, `TYPE_ROLES` 를 새 글자 규칙 값으로 교체 |
 | `apps/web/app/stage/schematic/map/map-scene.tsx` | 표현 상수를 토큰에서 읽음(값 그대로) |
 | `apps/web/app/design/guide.ts` | 장 재작성, 색 원칙 교체, `RETIRED` 폐기 목록 |
 | `apps/web/app/stage/schematic/schematic-chart.tsx`, `schematic-claims.tsx` | 차트 계열·입장 막대를 주황 대신 데이터 색으로(색 원칙 결정 3 적용) |
 | `apps/web/app/routes/style.tsx` | 도면 양식 페이지로 재작성, 어두운 모드 기본 |
 | `apps/web/app/style/specimens.tsx` | 도면 양식 견본으로 재작성, 흰 바탕 견본 삭제 |
+| `apps/web/app/stage/schematic/primitives.tsx`, `map/schematic-map.tsx`, `routes/map.tsx` | `ControlButton` 을 공용 요소로 옮김(페이지·견본·지도가 함께 씀) |
+| `apps/web/scripts/shot-full.mjs` | `/style` 이 networkidle 에 도달하지 않아 load 대기로 변경 |
 | `docs/design/style-guide.md` | 원칙 요약·결정 기록·폐기 요약으로 정리 |
 
 ## 작업 순서
