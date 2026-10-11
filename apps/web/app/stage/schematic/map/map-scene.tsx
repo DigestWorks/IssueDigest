@@ -4,16 +4,16 @@ import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
   BufferGeometry,
   Color,
-  EdgesGeometry,
+  DoubleSide,
   ExtrudeGeometry,
   Float32BufferAttribute,
   MathUtils,
   NoToneMapping,
+  ShapeGeometry,
   Vector3,
   type Group,
   type LineBasicMaterial,
   type MeshBasicMaterial,
-  type MeshLambertMaterial,
 } from "three"
 
 import { dataColor } from "~/design/palette"
@@ -50,6 +50,10 @@ export type MapSceneProps = {
 const MAP_SIZE = 16
 const BASE_H = 0.1
 const MAX_H = 1.8
+/** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
+const LAYER_GAP = 0.18
+/** 주사선이 바닥에서 MAX_H 위까지 한 번 지나가는 시간(ms) */
+const SCAN = { ms: 3200 }
 const LEADER = 2.6
 const INK = SCHEMATIC_THEME.ink
 const ACCENT = SCHEMATIC_THEME.accent
@@ -77,7 +81,7 @@ const VIEWS: Record<MapView, { position: [number, number, number]; target: [numb
 
 /**
  * 도면 양식(The Division UI 스타일 가이드) 3D 지도 장면.
- * - 지역은 반투명 압출 부피와 밝은 모서리 선으로 그린다. 색은 범주, 높이는 크기다.
+ * - 지역 높이는 일정 간격으로 쌓은 수평 외곽선 층(홀로그램 표현)으로 그린다. 색은 범주, 층 수는 크기다.
  * - 경계선·틀·방위 고리·좌표 눈금은 흰색과 불투명도 단계로만 그린다.
  * - 선택한 지역은 주황 외곽선이 한 바퀴 그려지고 한 번 바깥으로 커지며 사라진 뒤, 수직 지시선 끝에 주석이 붙는다.
  * - 발광(Bloom)은 쓰지 않는다.
@@ -92,8 +96,7 @@ export default function MapScene(props: MapSceneProps) {
     >
       <color attach="background" args={[SCENE]} />
       <fog attach="fog" args={[SCENE, 30, 70]} />
-      <ambientLight intensity={0.9} />
-      <directionalLight position={[-10, 20, 8]} intensity={1.3} />
+      {/* 모든 재질이 조명을 받지 않는 MeshBasic·LineBasic 이므로 조명을 두지 않는다 */}
       <Grid
         position-y={-0.005}
         args={[120, 120]}
@@ -185,7 +188,13 @@ type RegionCommon = {
   reducedMotion: boolean
 }
 
-/** 지역 하나: 바닥 외곽선, 반투명 압출 부피, 모서리 선 */
+/**
+ * 지역 하나: 바닥 외곽선과 수평 층 묶음(홀로그램 표현).
+ * 높이는 벽이 있는 덩어리 대신 일정 간격으로 쌓은 외곽선 층의 수로 나타낸다. 층 사이는 비어 있어
+ * 뒤가 보인다. 맨 위 층이 가장 밝고 아래로 갈수록 배경색에 가까워진다.
+ * 등장할 때 층이 아래에서부터 하나씩 쌓이고, 장면 전체를 아래에서 위로 지나가는 주사선이
+ * 층을 지날 때 그 높이의 외곽선을 밝게 그린다.
+ */
 function RegionVolume({
   region,
   value,
@@ -199,39 +208,50 @@ function RegionVolume({
   onFocus,
   onHover,
 }: RegionCommon & Pick<MapSceneProps, "onFocus" | "onHover"> & { value: RegionValue | undefined }) {
-  const extrude = useMemo(
+  const count = value ? Math.max(1, Math.round((value.magnitude * MAX_H) / LAYER_GAP)) : 1
+  const color = useMemo(() => new Color(value ? dataColor(value.category) : LINE_DIM), [value])
+  const layers = useMemo(() => buildLayers(region, count, color, !!value), [region, count, color, value])
+  // 포인터 판정용 보이지 않는 기둥. 층 사이 빈 곳을 가리켜도 지역이 잡히게 한다.
+  const hit = useMemo(
     () => new ExtrudeGeometry(region.shapes, { depth: 1, bevelEnabled: false, curveSegments: 1 }),
     [region.shapes]
   )
-  // 경계 꼭짓점이 촘촘해 20° 기준이면 벽에 세로선이 너무 많다. 꺾임이 큰 모서리만 남긴다.
-  const edges = useMemo(() => new EdgesGeometry(extrude, 40), [extrude])
   const outline = useMemo(() => outlineGeometry(region.outlines), [region.outlines])
-  const color = useMemo(() => new Color(value ? dataColor(value.category) : LINE_DIM), [value])
-  const edgeColor = useMemo(() => color.clone().lerp(new Color(INK), value ? 0.35 : 0.1), [color, value])
+  const plate = useMemo(() => new ShapeGeometry(region.shapes, 1).rotateX(-Math.PI / 2), [region.shapes])
 
-  const column = useRef<Group>(null)
-  const fill = useRef<MeshLambertMaterial>(null)
-  const edge = useRef<LineBasicMaterial>(null)
+  const hitColumn = useRef<Group>(null)
+  const lineMat = useRef<LineBasicMaterial>(null)
+  const fillMat = useRef<MeshBasicMaterial>(null)
   const base = useRef<LineBasicMaterial>(null)
-  const target = value ? BASE_H + value.magnitude * MAX_H : BASE_H
+  const scan = useRef<Group>(null)
+  const scanMat = useRef<LineBasicMaterial>(null)
+  const scanFill = useRef<MeshBasicMaterial>(null)
 
   useFrame(() => {
     const now = performance.now()
     const tOutline = progress(now, t0 + T.outline.at + order * T.outline.step, T.outline.ms, reducedMotion)
     const tFill = progress(now, t0 + T.fill.at + order * T.fill.step, T.fill.ms, reducedMotion)
-    const h = BASE_H + (target - BASE_H) * easeOutCubic(tFill)
-    heights.set(region.code, h)
-    column.current?.scale.set(1, 1, Math.max(0.001, h))
+    // 층이 아래에서부터 하나씩 쌓인다
+    const shown = Math.ceil(count * easeOutCubic(tFill))
+    const h = shown * LAYER_GAP
+    heights.set(region.code, Math.max(h, BASE_H))
+    hitColumn.current?.scale.set(1, 1, Math.max(0.001, h))
     setDrawProgress(outline, tOutline)
+    layers.lines.setDrawRange(0, shown * layers.lineStride)
+    layers.fills.setDrawRange(0, shown * layers.fillStride)
 
     if (base.current) base.current.opacity = dimmed ? OPACITY.faint.value : OPACITY.context.value
-    if (fill.current) {
-      const o = !value ? 0.04 : focused ? 0.6 : hovered ? 0.52 : dimmed ? 0.1 : 0.34
-      fill.current.opacity = o * tFill
-    }
-    if (edge.current) {
-      const o = focused || hovered ? 1 : dimmed ? 0.18 : value ? 0.62 : 0.3
-      edge.current.opacity = o * tFill
+    const o = focused || hovered ? 1 : dimmed ? 0.22 : value ? 0.85 : 0.4
+    if (lineMat.current) lineMat.current.opacity = o
+    if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
+
+    // 주사선: 모든 지역에서 같은 높이로 아래에서 위로 지나간다
+    if (scan.current && scanMat.current && scanFill.current) {
+      const y = (((now - t0) % SCAN.ms) / SCAN.ms) * (MAX_H + LAYER_GAP * 2)
+      const inside = !reducedMotion && tFill >= 1 && y <= h + 0.001
+      scan.current.position.y = y
+      scanMat.current.opacity = inside ? (dimmed ? 0.3 : 1) : 0
+      scanFill.current.opacity = inside ? (dimmed ? 0.05 : 0.16) : 0
     }
   })
 
@@ -247,10 +267,24 @@ function RegionVolume({
       <lineSegments geometry={outline} position-y={0.004}>
         <lineBasicMaterial ref={base} color={INK} transparent opacity={0} depthWrite={false} />
       </lineSegments>
+      <lineSegments geometry={layers.lines}>
+        <lineBasicMaterial ref={lineMat} vertexColors transparent opacity={0} depthWrite={false} />
+      </lineSegments>
+      <mesh geometry={layers.fills}>
+        <meshBasicMaterial ref={fillMat} vertexColors transparent opacity={0} depthWrite={false} side={DoubleSide} />
+      </mesh>
+      <group ref={scan}>
+        <lineSegments geometry={outline}>
+          <lineBasicMaterial ref={scanMat} color={color.clone().lerp(new Color(INK), 0.85)} transparent opacity={0} depthWrite={false} />
+        </lineSegments>
+        <mesh geometry={plate}>
+          <meshBasicMaterial ref={scanFill} color={color.clone().lerp(new Color(INK), 0.4)} transparent opacity={0} depthWrite={false} side={DoubleSide} />
+        </mesh>
+      </group>
       <group rotation-x={-Math.PI / 2}>
-        <group ref={column} scale={[1, 1, BASE_H]}>
+        <group ref={hitColumn} scale={[1, 1, BASE_H]}>
           <mesh
-            geometry={extrude}
+            geometry={hit}
             onClick={select}
             onPointerOver={(e) => {
               e.stopPropagation()
@@ -262,15 +296,70 @@ function RegionVolume({
               document.body.style.cursor = ""
             }}
           >
-            <meshLambertMaterial ref={fill} color={color} transparent opacity={0} depthWrite={false} />
+            <meshBasicMaterial transparent opacity={0} depthWrite={false} colorWrite={false} />
           </mesh>
-          <lineSegments geometry={edges}>
-            <lineBasicMaterial ref={edge} color={edgeColor} transparent opacity={0} />
-          </lineSegments>
         </group>
       </group>
     </group>
   )
+}
+
+/**
+ * 층 묶음 형상. 층 k(1..count)는 높이 k × LAYER_GAP 에 놓인다.
+ * 색은 꼭짓점 색으로 넣는다. 맨 위 층은 데이터 색을 흰색 쪽으로 밝힌 값이고, 아래 층일수록 배경색에 가깝다.
+ * 면은 맨 위 층만 진하게, 나머지는 아주 옅게 채운다.
+ * 층 순서대로 이어 붙였으므로 drawRange 로 아래 층부터 보이게 할 수 있다.
+ */
+function buildLayers(region: ProjectedRegion, count: number, color: Color, hasValue: boolean) {
+  const scene = new Color(SCENE)
+  const top = color.clone().lerp(new Color(INK), hasValue ? 0.3 : 0.1)
+  const c = new Color()
+
+  // 외곽선 층
+  const ring: number[] = []
+  for (const r of region.outlines)
+    for (let i = 0; i < r.length - 1; i++) ring.push(r[i].x, r[i].z, r[i + 1].x, r[i + 1].z)
+  const lineStride = ring.length / 2
+  const lp = new Float32Array(lineStride * 3 * count)
+  const lc = new Float32Array(lineStride * 3 * count)
+
+  // 면 층: 지면 형상(ShapeGeometry 의 x, y)을 (x, 높이, -y) 로 옮긴다
+  const shape = new ShapeGeometry(region.shapes, 1)
+  const sp = shape.getAttribute("position")
+  const si = shape.getIndex()!
+  const fillStride = si.count
+  const fp = new Float32Array(sp.count * 3 * count)
+  const fc = new Float32Array(sp.count * 3 * count)
+  const fi: number[] = []
+
+  for (let k = 0; k < count; k++) {
+    const y = (k + 1) * LAYER_GAP
+    const isTop = k === count - 1
+    const a = isTop ? 1 : 0.22 + 0.5 * ((k + 1) / count) ** 1.5
+    c.copy(scene).lerp(top, a)
+    for (let v = 0; v < lineStride; v++) {
+      const o = (k * lineStride + v) * 3
+      lp.set([ring[v * 2], y, ring[v * 2 + 1]], o)
+      lc.set([c.r, c.g, c.b], o)
+    }
+    c.copy(scene).lerp(color, isTop ? 0.55 : 0.12)
+    for (let v = 0; v < sp.count; v++) {
+      const o = (k * sp.count + v) * 3
+      fp.set([sp.getX(v), y, -sp.getY(v)], o)
+      fc.set([c.r, c.g, c.b], o)
+    }
+    for (let j = 0; j < si.count; j++) fi.push(si.getX(j) + k * sp.count)
+  }
+  shape.dispose()
+
+  const lines = new BufferGeometry()
+  lines.setAttribute("position", new Float32BufferAttribute(lp, 3))
+  lines.setAttribute("color", new Float32BufferAttribute(lc, 3))
+  const fills = new BufferGeometry()
+  fills.setAttribute("position", new Float32BufferAttribute(fp, 3))
+  fills.setAttribute("color", new Float32BufferAttribute(fc, 3))
+  fills.setIndex(fi)
+  return { lines, fills, lineStride, fillStride }
 }
 
 /**
