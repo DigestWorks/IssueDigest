@@ -1,6 +1,6 @@
 # 개체·주장·관계·비교 조건 계약
 
-상태: 코드·검증·리뷰·Draft PR #5 완료 / Sites 게시 대기 · 2026-10-11 한국 시간. 기준 `ef62666`, 선행 PR #4. 다음 작업 진행 요청으로 승인된 계약 구현의 두 번째 묶음이다.
+상태: 구현·검증·독립 리뷰·Draft PR #5·Sites v20 완료 · 2026-10-11 한국 시간. 기준 `ef62666`, 선행 PR #4. 다음 작업 진행 요청으로 승인된 계약 구현의 두 번째 묶음이다.
 
 ## 목표와 경계
 
@@ -73,7 +73,7 @@
 
 ## Task 1: 연구 계약과 조건 비교·생성 타입
 
-- [ ] C1~C4의 실행 코드·자동 검증·기록을 구현한다. controller가 독립 리뷰/PR/Sites를 마무리한다.
+- [x] C1~C4의 실행 코드·자동 검증·기록·독립 리뷰와 보완 재검토, Draft PR #5·Sites v20 공개 게시·사용자 폴더 연결을 완료했다.
 
 관련 원본은 위 Global Constraints와 C1~C4, `docs/research/product-contracts.md`의 개체·주장·관계 부분이다. 기존 공개 EvidenceBundle 타입/Unicode helper/상태 API는 보존한다. `packages/domain/src/issuedigest_domain/`에 역할별 파일과 공개 exports, `packages/domain/tests/`에 의미 있는 동작 테스트를 추가한다. API contracts/테스트와 api-client 생성 파일/public exports/README를 확장한다. 새 TS 런타임 기능은 없다. docs/README, planning/tasks/progress에서 두 번째 부분 계약과 미완료 경계를 기록한다. controller가 Sites·GitHub·사용자 폴더 연결을 담당한다.
 
