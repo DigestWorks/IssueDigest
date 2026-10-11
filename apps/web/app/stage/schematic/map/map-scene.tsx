@@ -19,6 +19,7 @@ import {
   type Group,
   type LineBasicMaterial,
   type MeshBasicMaterial,
+  type ShaderMaterial,
 } from "three"
 
 import { dataColor } from "~/design/palette"
@@ -60,7 +61,43 @@ const MAP_SIZE = 16
 const BASE_H = 0.1
 const MAX_H = 1.8
 /** 층 외곽선 색 번짐: 사본 간격(장면 단위)과 불투명도 */
-const FRINGE = { offset: 0.035, colored: 0.45, neutral: 0.18 }
+const FRINGE = { px: 1.2, colored: 0.5, neutral: 0.2 }
+
+/**
+ * 색 번짐 사본용 선 재질. 꼭짓점을 화면 가로 방향으로 uShift(화면 픽셀)만큼 옮긴다.
+ * 장면 좌표가 아니라 화면 픽셀로 옮기므로 카메라 각도·거리와 관계없이 빨강은 왼쪽, 청록은 오른쪽에 같은 폭으로 생긴다.
+ * 세로로 놓인 선에는 양옆에 색이 갈라지고, 가로로 놓인 선은 사본이 겹쳐 색이 거의 생기지 않는다(실제 색수차와 같은 모양).
+ */
+function fringeMaterialProps(color: string, shift: number, blending: typeof AdditiveBlending | typeof NormalBlending) {
+  return {
+    uniforms: {
+      uColor: { value: new Color(color) },
+      uOpacity: { value: 0 },
+      uShift: { value: shift },
+      uRes: { value: new Vector2(1, 1) },
+    },
+    transparent: true,
+    depthWrite: false,
+    blending,
+    vertexShader: `
+      uniform float uShift;
+      uniform vec2 uRes;
+      void main() {
+        vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        p.x += uShift * 2.0 / uRes.x * p.w;
+        gl_Position = p;
+      }
+    `,
+    fragmentShader: `
+      uniform vec3 uColor;
+      uniform float uOpacity;
+      void main() {
+        gl_FragColor = vec4(uColor, uOpacity);
+        #include <colorspace_fragment>
+      }
+    `,
+  }
+}
 /** 누른 곳과 뗀 곳이 이 거리(px)보다 멀면 클릭이 아니라 끌기로 본다 */
 const DRAG_PX = 4
 /** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
@@ -362,11 +399,17 @@ function RegionVolume({
   const base = useRef<LineBasicMaterial>(null)
   const top = useRef<Group>(null)
   const stack = useRef<Group>(null)
-  const fringeR = useRef<Group>(null)
-  const fringeC = useRef<Group>(null)
-  const fringeMats = useRef<(LineBasicMaterial | null)[]>([])
-  const camRight = useMemo(() => new Vector3(), [])
+  const fringeMats = useRef<(ShaderMaterial | null)[]>([])
+  const res = useMemo(() => new Vector2(), [])
+  const dpr = useThree((st) => st.viewport.dpr)
   const dark = useMemo(() => new Color(th.scene).getHSL({ h: 0, s: 0, l: 0 }).l < 0.5, [th])
+  const fringeProps = useMemo(
+    () =>
+      (["#ff2d55", "#00d8ff"] as const).map((c, i) =>
+        fringeMaterialProps(c, (i === 0 ? -1 : 1) * FRINGE.px * dpr, dark ? AdditiveBlending : NormalBlending)
+      ),
+    [dpr, dark]
+  )
   const spread = useRef(1)
   const topLine = useRef<{ material: { opacity: number } } | null>(null)
 
@@ -391,12 +434,14 @@ function RegionVolume({
     const o = focused || hovered ? 1 : dimmed ? 0.22 : neutral ? 0.6 : 0.85
     if (lineMat.current) lineMat.current.opacity = o
 
-    // 층 외곽선 색 번짐: 빨강·청록 사본을 화면 가로 방향으로 조금씩 어긋나게 둔다
-    camRight.setFromMatrixColumn(state.camera.matrixWorld, 0).multiplyScalar(FRINGE.offset)
-    fringeR.current?.position.set(camRight.x, 0, camRight.z)
-    fringeC.current?.position.set(-camRight.x, 0, -camRight.z)
+    // 층 외곽선 색 번짐: 빨강·청록 사본을 화면 픽셀 단위로 좌우에 어긋나게 둔다
     const f = (neutral ? FRINGE.neutral : FRINGE.colored) * (dimmed ? 0.4 : 1) * (dark ? 1 : 0.8)
-    for (const m of fringeMats.current) if (m) m.opacity = f
+    state.gl.getDrawingBufferSize(res)
+    for (const m of fringeMats.current) {
+      if (!m) continue
+      m.uniforms.uOpacity.value = f
+      m.uniforms.uRes.value.copy(res)
+    }
     if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
 
     // 맨 위 층 강조선: 지금 보이는 가장 높은 층을 따라간다
@@ -417,19 +462,10 @@ function RegionVolume({
         <lineBasicMaterial ref={base} color={th.ink} transparent opacity={0} depthWrite={false} />
       </lineSegments>
       <group ref={stack}>
-        {(["#ff2d55", "#00d8ff"] as const).map((c, i) => (
-          <group key={c} ref={i === 0 ? fringeR : fringeC}>
-            <lineSegments geometry={layers.lines}>
-              <lineBasicMaterial
-                ref={(m) => void (fringeMats.current[i] = m)}
-                color={c}
-                transparent
-                opacity={0}
-                depthWrite={false}
-                blending={dark ? AdditiveBlending : NormalBlending}
-              />
-            </lineSegments>
-          </group>
+        {fringeProps.map((props, i) => (
+          <lineSegments key={`${i}-${dark}-${dpr}`} geometry={layers.lines}>
+            <shaderMaterial ref={(m) => void (fringeMats.current[i] = m)} {...props} />
+          </lineSegments>
         ))}
         <lineSegments geometry={layers.lines}>
           <lineBasicMaterial ref={lineMat} vertexColors transparent opacity={0} depthWrite={false} />
