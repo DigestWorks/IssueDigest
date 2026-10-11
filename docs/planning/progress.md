@@ -15,7 +15,9 @@
 
 ## 현재 작업
 
-작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts` · [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6), base `feat/research-contracts` · 미병합. 순수 모델/함수·전체 참조·실제 OpenAPI→생성 TS 공개 타입을 구현했다. 작업 리뷰에서 배열 최소 개수의 OpenAPI 표현 P2를 보완하고 수정 부분·전체 변경 리뷰까지 통과했다. 컨트롤러 최종 전체 검사: Python 672개·JS 60개, lint/format/mypy·양쪽 TS·SPA 빌드·계약 drift 통과. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 사용자 폴더 `/data/lawdigest/IssueDigest`를 새 브랜치로 연결했고 실제 API OpenAPI=생성 계약·새 모델/배열 최소 개수·기존 두 경로 및 웹 HTTP 200을 확인했다. Sites v20 이후 공개 요약 게시는 대기 중이다. 다음은 DB·검색·실행기·인증 판단과 실제 저장·전달 연결이다.
+현재 진행 중인 구현 작업은 없다. 세 번째 실행·화면·사용량 부분 계약은 아래 2026-10-12 기록과 [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6)에 인계했다. 사용자 폴더는 `feat/execution-contracts`다. 전체 P1과 제품 기능은 미완료.
+
+다음 예정: A001~A003의 기준 DB·검색·실행기 및 인증 판단을 정리하고 실제 저장·이벤트 전달 연결 범위를 확정한다. 기존 서버·운영 데이터 상세는 사용자가 추후 제공 예정이며 다시 요청하지 않았다. 첫 이슈·실제 평가 자료와 남은 스택 선택은 아직 미정이다. 현재 단계에서 새 키·유료 자원 설정은 필요하지 않다.
 
 ## 2026-10-12 · 실행 계약 검토·인계
 
@@ -139,3 +141,10 @@
 
 - 사용자 폴더 `/data/lawdigest/IssueDigest`의 깨끗한 상태를 확인하고 `feat/execution-contracts`를 연결했다. 격리 구현 폴더는 같은 커밋에 detached로 보존했다. 기존에 이 작업이 실행한 API 프로세스만 중지하고 새 브랜치의 통합 개발 실행을 기동했다. 실제 `/openapi.json` HTTP 200과 생성 JSON의 정확한 일치, RunHistory/RunExecutionBundle/CanvasBundle/UsageBook/BudgetAssessment 및 차트 minItems2·기존 HTTP 두 경로를 확인했다. 웹 HTTP 200. 새로운 제품 화면/AI 실행 검증은 아니다.
 - 검토된 구현 `e2255d7`의 [GitHub CI #38150424568](https://github.com/DigestWorks/IssueDigest/actions/runs/38150424568) 성공. Docs-only 인계 커밋 뒤의 최종 HEAD CI는 마지막에 다시 확인한다. Sites의 이전 v20 기록을 보존하고 새 공개 요약·docs 사본 게시를 준비 중이다. 결합 체크는 게시 성공 후 처리한다.
+
+
+## 2026-10-12 · 실행 계약 결합 완료·Sites 게시
+
+- C1~C5의 구현·독립 작업/수정 범위/전체 변경 리뷰·Draft PR #6·사용자 폴더/실제 API 확인·Sites 공개 게시를 마쳤다. 최종 code 검증은 `e2255d7`의 컨트롤러 전체 672 Python + 60 JS 및 lint/타입/SPA/drift. 공급자 호출·실제 과금·저장·SSE·인증·renderer/AI·전체 P1은 미완료다.
+- [Sites v21](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 성공. source `2d5d6afc7ab659985e71bd9439b972b73ab4f5a0`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2819fa8720c481918101b0b01fab19dc`, deployment `appgdep_6acba95b486c8191b665b1b05bd473f8`의 native succeeded를 확인했다. 이전 v20을 추가 보존하고 v14/v18/v19·데이터/와이어프레임 기록을 유지했다. docs 사본은 `cac6258` 기준이며 대기 표시는 그 시점의 상태다. 최신 상태는 이 원본/PR에서 확인한다. 데스크톱1366/모바일390·가로 넘침 없음·계약4행·672/60·PR6/이전 기록·console0·로컬 링크/anchor 검사 통과.
+- 구현·Root 연결 문서 커밋 `cac6258`의 [CI #38150676791](https://github.com/DigestWorks/IssueDigest/actions/runs/38150676791) 성공. 마지막 게시 기록 커밋의 exact-HEAD check는 PR에서 확인한다. 앱 자동 PR 첨부/사이트 열기 요청이 응답하지 않아 직접 URL을 공유한다. PR을 병합하지 않았다. 격리 폴더와 이 작업의 검토/실행 증거를 보존한다.

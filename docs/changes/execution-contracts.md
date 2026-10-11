@@ -66,7 +66,7 @@
 
 ## Task 1: 실행·화면·사용량 계약과 제공 이력 검증
 
-- [ ] Global Constraints와 C1~C5를 구현한다. controller가 독립 리뷰·Draft PR·Sites·사용자 폴더 연결을 마무리한다.
+- [x] Global Constraints와 C1~C5를 구현한다. controller가 독립 리뷰·Draft PR·Sites·사용자 폴더 연결을 마무리한다.
 
 정확한 요구사항은 위 블록이다. 폴더/모델/순수함수·생성 타입·의미 있는 합성 테스트·문서를 구현한다. 이벤트/모듈/비용 참조가 강하게 연결된 한 묶음이며 구현자 한 명이 소유한다. test-driven-development를 적용하고 명시된 알고리즘의 assertion RED도 확인한다. 실제 실패/명령/출력과 self-review/범위·미검증을 ignored SDD report에 보존한다. 리뷰/게시 전 결합 완료 checkbox를 닫지 않는다. 리뷰·PR·게시·branch transfer·추가 에이전트는 controller가 담당한다.
 
@@ -96,3 +96,12 @@
 - 현재 run의 첫 revision은 입력 base를 부모로 하는 하나까지다. 이후 현재 run 부모의 형제 후보는 허용하며 `(run, number)` 고유 제약을 추가하지 않았다. 잘못 해석한 경우 경쟁하는 두 첫 후보를 같은 run에 넣을 수 없으므로 별도 draft나 run으로 보존해야 한다.
 
 실제 저장·SSE·동시 예산·dispatch 직전 권한/취소 강제·과금 인증·공급자/AI·renderer와 전체 P1은 후속이다.
+
+
+## 결합 완료
+
+2026-10-12 한국 시간. 작업/수정 부분/전체 변경 리뷰, 최종 672 Python + 60 JS 및 lint/타입/빌드/drift, Draft PR #6, 사용자 폴더 연결·실제 API 계약/웹 기동, Sites v21 공개 게시를 확인하여 C1~C5 결합 체크를 닫았다. 병합은 실행하지 않았다.
+
+Sites source `2d5d6afc7ab659985e71bd9439b972b73ab4f5a0`, version21 `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2819fa8720c481918101b0b01fab19dc`, deployment `appgdep_6acba95b486c8191b665b1b05bd473f8`의 native succeeded와 공개 URL을 확인했다. 사본 기준은 `cac625814c38408141b064bd6856fb4824d85004`이며 그 이후 상태는 저장소 원본을 따른다. 이전 v20 페이지와 v14/v18/v19 기록은 보존했다. 데스크톱1366/모바일390에서 가로 넘침 없음·4개 계약 행·672/60 테스트·PR6/v20 참조 확인, console 오류/경고0과 상대 링크/anchor 검사 통과. 앱 자동 사이트 열기는 응답하지 않아 직접 URL로 공유한다.
+
+계약 밖 제품 기능·운영 검증과 전체 P1은 미완료다. 최종 doc-only HEAD CI는 진행 기록/PR의 현재 check에서 확인한다.
