@@ -84,3 +84,15 @@
 
 
 리뷰 보완 1차: 공통 NonemptyIds/MultipleIds의 tuple 길이 제약이 AfterValidator 뒤에 적용되어 실제 OpenAPI 배열에 문자열 `minLength`가 생성된 P2를 보완했다. 길이를 tuple에 먼저 적용하여 올바른 `minItems`를 생성하며 runtime uniqueness/cardinality는 유지한다. 실제 API의 영향받는 14개 필드에서 assertion RED를 확인한 뒤 focused 286개·전체 `npm run check` 1회(Python 672개·JS 60개, lint/format/타입/SPA 빌드/계약 drift)를 통과했다. OpenAPI/TS를 실제 경로로 재생성했으며 현재 생성기의 TS 결과는 동일하다. 수정 부분 독립 재리뷰·나머지 인계는 pending이다.
+
+
+## 컨트롤러 검토·인계 기록
+
+2026-10-12 한국 시간. 구현 `b408ad6`, P2 보완 `e2255d7`의 작업 리뷰·수정 부분 재리뷰·전체 변경 리뷰(신규 지적 없음)를 통과했다. 컨트롤러 전체 검사 672 Python + 60 JS·lint/format/mypy·TS·SPA 빌드·drift 성공. [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6)은 `feat/research-contracts` 위에 게시했고 병합하지 않았다. 사용자 폴더·Sites 게시는 현재 인계 중이다. Task 1 결합 체크는 그 완료 후 갱신한다.
+
+해석 기록과 영향:
+
+- 같은 공간의 과거 revision은 base 조상만으로 제한하지 않는다. 모든 제공 revision은 부모/번호/근거 검증을 받는다. 잘못 해석한 경우 불필요한 과거 자료로 묶음이 커질 수 있으므로 필요한 목록 선택은 호출자의 책임이다.
+- 현재 run의 첫 revision은 입력 base를 부모로 하는 하나까지다. 이후 현재 run 부모의 형제 후보는 허용하며 `(run, number)` 고유 제약을 추가하지 않았다. 잘못 해석한 경우 경쟁하는 두 첫 후보를 같은 run에 넣을 수 없으므로 별도 draft나 run으로 보존해야 한다.
+
+실제 저장·SSE·동시 예산·dispatch 직전 권한/취소 강제·과금 인증·공급자/AI·renderer와 전체 P1은 후속이다.
