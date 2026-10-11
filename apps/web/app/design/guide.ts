@@ -164,7 +164,7 @@ export const CHAPTERS: Chapter[] = [
     title: "지도",
     summary: "The Division 양식 3D 인터랙티브 지도 (시험 중)",
     rules: [
-      { title: "지역 층", rule: "지역 높이는 벽이 있는 덩어리 대신 일정 간격으로 쌓은 수평 외곽선 층의 수로 나타낸다(홀로그램 표현). 층 사이는 비어 있어 뒤가 보이고, 맨 위 층이 가장 밝으며 아래 층일수록 배경색에 가깝다. 층 색은 범주를 나타낸다. 아래에서 위로 지나가는 주사선이 지나는 높이의 외곽선과 면을 밝게 그린다.", status: "부분", where: "stage/schematic/map/map-scene.tsx 의 RegionVolume·buildLayers, 스테이지 적용 전" },
+      { title: "지역 층", rule: "지역 높이는 벽이 있는 덩어리 대신 일정 간격으로 쌓은 수평 외곽선 층의 수로 나타낸다(홀로그램 표현). 층 사이는 비어 있어 뒤가 보이고, 맨 위 층이 가장 밝으며 아래 층일수록 배경색에 가깝다. 층 색은 범주를 나타낸다. 판독성을 위해 맨 위 층 외곽선만 굵고 밝은 선(1.8px, 가리키거나 선택하면 2.4px)으로 강조한다.", status: "부분", where: "stage/schematic/map/map-scene.tsx 의 RegionVolume·buildLayers, 스테이지 적용 전" },
       { title: "경계와 틀", rule: "바닥 경계선은 흰색 맥락 단계로 그린다. 지도 범위는 모서리 꺾쇠로 두르고, 경도·위도 눈금, 축척 막대, 경계 자료 출처를 지면에 적는다.", status: "부분", where: "map-scene.tsx 의 MapFrame" },
       { title: "선택 표시", rule: "선택한 지역은 주황 외곽선이 윗면과 바닥을 따라 한 바퀴 그려지고 한 번 바깥으로 커지며 사라진다. 윗면 중심에서 주황 수직 지시선이 올라가고 그 끝에 코드·이름·값·출처 주석이 붙는다. 나머지 지역은 옅어진다.", status: "부분", where: "map-scene.tsx 의 FocusMarker, region-callout.tsx" },
       { title: "지역 이름", rule: "카메라가 높으면 윗면에 눕고, 낮으면 윗면 위에 선다. 카메라 방위를 따라 돌아 바로 읽히는 방향을 유지한다.", status: "부분", where: "map-scene.tsx 의 RegionLabel, scene/view-angle.ts" },

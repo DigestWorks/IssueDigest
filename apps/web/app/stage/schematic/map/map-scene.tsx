@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react"
-import { CameraControls, Grid, Html, Text } from "@react-three/drei"
+import { CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
   BufferGeometry,
@@ -52,8 +52,7 @@ const BASE_H = 0.1
 const MAX_H = 1.8
 /** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
 const LAYER_GAP = 0.18
-/** 주사선이 바닥에서 MAX_H 위까지 한 번 지나가는 시간(ms) */
-const SCAN = { ms: 3200 }
+
 const LEADER = 2.6
 const INK = SCHEMATIC_THEME.ink
 const ACCENT = SCHEMATIC_THEME.accent
@@ -192,8 +191,9 @@ type RegionCommon = {
  * 지역 하나: 바닥 외곽선과 수평 층 묶음(홀로그램 표현).
  * 높이는 벽이 있는 덩어리 대신 일정 간격으로 쌓은 외곽선 층의 수로 나타낸다. 층 사이는 비어 있어
  * 뒤가 보인다. 맨 위 층이 가장 밝고 아래로 갈수록 배경색에 가까워진다.
- * 등장할 때 층이 아래에서부터 하나씩 쌓이고, 장면 전체를 아래에서 위로 지나가는 주사선이
- * 층을 지날 때 그 높이의 외곽선을 밝게 그린다.
+ * 맨 위 층 외곽선은 판독성을 위해 화면 픽셀 두께의 굵은 선(drei Line)으로 강조한다
+ * (WebGL 기본 선은 두께가 1px 로 고정이다).
+ * 등장할 때 층이 아래에서부터 하나씩 쌓인다.
  */
 function RegionVolume({
   region,
@@ -217,15 +217,19 @@ function RegionVolume({
     [region.shapes]
   )
   const outline = useMemo(() => outlineGeometry(region.outlines), [region.outlines])
-  const plate = useMemo(() => new ShapeGeometry(region.shapes, 1).rotateX(-Math.PI / 2), [region.shapes])
+  const topPoints = useMemo(() => {
+    const pts: Vector3[] = []
+    for (const r of region.outlines) for (let i = 0; i < r.length - 1; i++) pts.push(r[i], r[i + 1])
+    return pts
+  }, [region.outlines])
+  const topColor = useMemo(() => color.clone().lerp(new Color(INK), value ? 0.5 : 0.2), [color, value])
 
   const hitColumn = useRef<Group>(null)
   const lineMat = useRef<LineBasicMaterial>(null)
   const fillMat = useRef<MeshBasicMaterial>(null)
   const base = useRef<LineBasicMaterial>(null)
-  const scan = useRef<Group>(null)
-  const scanMat = useRef<LineBasicMaterial>(null)
-  const scanFill = useRef<MeshBasicMaterial>(null)
+  const top = useRef<Group>(null)
+  const topLine = useRef<{ material: { opacity: number } } | null>(null)
 
   useFrame(() => {
     const now = performance.now()
@@ -245,14 +249,9 @@ function RegionVolume({
     if (lineMat.current) lineMat.current.opacity = o
     if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
 
-    // 주사선: 모든 지역에서 같은 높이로 아래에서 위로 지나간다
-    if (scan.current && scanMat.current && scanFill.current) {
-      const y = (((now - t0) % SCAN.ms) / SCAN.ms) * (MAX_H + LAYER_GAP * 2)
-      const inside = !reducedMotion && tFill >= 1 && y <= h + 0.001
-      scan.current.position.y = y
-      scanMat.current.opacity = inside ? (dimmed ? 0.3 : 1) : 0
-      scanFill.current.opacity = inside ? (dimmed ? 0.05 : 0.16) : 0
-    }
+    // 맨 위 층 강조선: 지금 보이는 가장 높은 층을 따라간다
+    top.current?.position.setY(h + 0.002)
+    if (topLine.current) topLine.current.material.opacity = shown > 0 ? (dimmed ? 0.3 : 1) : 0
   })
 
   const select = (e: ThreeEvent<MouseEvent>) => {
@@ -273,13 +272,17 @@ function RegionVolume({
       <mesh geometry={layers.fills}>
         <meshBasicMaterial ref={fillMat} vertexColors transparent opacity={0} depthWrite={false} side={DoubleSide} />
       </mesh>
-      <group ref={scan}>
-        <lineSegments geometry={outline}>
-          <lineBasicMaterial ref={scanMat} color={color.clone().lerp(new Color(INK), 0.85)} transparent opacity={0} depthWrite={false} />
-        </lineSegments>
-        <mesh geometry={plate}>
-          <meshBasicMaterial ref={scanFill} color={color.clone().lerp(new Color(INK), 0.4)} transparent opacity={0} depthWrite={false} side={DoubleSide} />
-        </mesh>
+      <group ref={top}>
+        <Line
+          ref={(l: unknown) => void (topLine.current = l as typeof topLine.current)}
+          points={topPoints}
+          segments
+          color={topColor}
+          lineWidth={focused || hovered ? 2.4 : 1.8}
+          transparent
+          opacity={0}
+          depthWrite={false}
+        />
       </group>
       <group rotation-x={-Math.PI / 2}>
         <group ref={hitColumn} scale={[1, 1, BASE_H]}>
