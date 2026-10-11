@@ -1,0 +1,29 @@
+[project]
+name = "issuedigest-workspace"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[dependency-groups]
+dev = ["httpx2==2.13.1", "pytest==9.1.1", "ruff==0.17.0", "mypy==2.4.0"]
+
+[tool.uv]
+required-version = "==0.11.4"
+
+[tool.uv.workspace]
+members = ["apps/api", "packages/domain"]
+
+[tool.pytest.ini_options]
+testpaths = ["apps/api/tests"]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+files = ["apps/api/src", "packages/domain/src", "scripts/export_openapi.py"]

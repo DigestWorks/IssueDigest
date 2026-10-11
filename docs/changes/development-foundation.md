@@ -1,6 +1,6 @@
 # 개발 실행 기반
 
-상태: 구현 진행 중 · 2026-10-11. 상위 범위는 P1 기반 작업이다. 사용자 지시: 모노레포 구현 준비 다음 단계로 진행. 제품의 기능·엔진 결정은 기존 결정 기록을 따른다.
+상태: Task 1 구현·자동 검증·실제 스모크 통과 · 2026-10-11. 상위 범위는 P1 기반 작업이다. 사용자 지시: 모노레포 구현 준비 다음 단계로 진행. 제품의 기능·엔진 결정은 기존 결정 기록을 따른다.
 
 ## Task 1 · 웹·API·공유 계약·개발 검증 구성
 
@@ -35,7 +35,7 @@
 
 ### 작업
 
-- [ ] 위 B1~B7과 Global Constraints를 모두 구현·검증한다.
+- [x] 위 B1~B7과 Global Constraints를 모두 구현·검증한다.
 - 작업 파일: 루트 Node/Python 워크스페이스·잠금·런타임 버전·개발/검증 스크립트, `apps/web`, `apps/api`, `packages/domain`, `packages/api-client`, `.github/workflows`, 해당 README와 진행·작업 기록.
 - 정확한 API 경로·응답·요청 ID·기술 경계·화면 상태·검증 요건은 위 수용 조건을 그대로 사용한다.
 - 개발 의존성을 설치하고 실패 테스트부터 실행한다. 셸에서 시스템 기본 Python 3.8이나 Node 22를 쓰지 않고 지정한 런타임으로 실행한다.
@@ -51,3 +51,14 @@
 - [uv GitHub Actions](https://docs.astral.sh/uv/guides/integration/github/)
 - [OpenAPI TypeScript](https://openapi-ts.dev/introduction)
 - [상위 작업 목록](../planning/tasks.md)
+
+## 구현·검증 기록
+
+- 런타임: Node 24.21.0·npm 11.19.0·Python 3.13.12·uv 0.11.4. 직접 의존성은 정확한 버전, 전체 해석 결과는 npm/uv 잠금 파일로 고정했다.
+- TDD 실패 증거: `uv run pytest`에서 엔드포인트·서버 요청 ID·OpenAPI 계약에 대해 7개 assertion 실패. `npm test`에서 클라이언트 16개·화면 4개 assertion 실패. 구현 후 각각 7개·20개 모두 통과했다.
+- 전체 자동 검증: `npm run check` 통과. Python lint/format·타입·테스트, TypeScript lint·타입·테스트, Framework SPA 빌드, OpenAPI/TypeScript 재생성 비교를 포함한다.
+- CI는 같은 고정 설치·검증을 수행하도록 구성했다. 실제 GitHub Actions 실행은 PR 검토 단계에서 확인한다.
+- 실제 API·프록시 HTTP와 데스크톱 1366×900·모바일 390×844 hydration, 응답 지연·확인 중, API 중단·실패, 복구·재시도를 컨트롤러가 확인했다. 가로 넘침 없음, 새 브라우저 콘솔 오류·경고 각 0건, 개발 서버 함께 기동·종료 통과. 결과는 [진행 기록](../planning/progress.md)에 기록했다. Task 1만 완료 표시하며 전체 P1은 미완료다.
+- TypeScript는 생성기 `^5.x`와 린트 도구 `<6.1.0` 범위의 공통 안정 버전 5.9.3이다. `isbot` 5.2.2는 React Router 기본 진입점의 빌드 의존성이므로 명시 고정했다. 의존성 충돌을 강제로 무시하지 않는다.
+- 생산은 정적 `apps/web/build/client`와 같은 출처의 `/api`·`/health` 리버스 프록시 경계를 유지한다. API 프로세스 응답을 DB·작업 엔진 준비 상태로 표현하지 않는다.
+- 전체 P1·워커·제품 계약·기준 DB·검색·실행기·인증은 미완료다. Sites 요약 반영 대기, 운영 배포·기존 서버 설치·유료 호출 없음.
