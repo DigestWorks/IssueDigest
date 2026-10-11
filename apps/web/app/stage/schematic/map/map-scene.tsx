@@ -129,19 +129,19 @@ const useTheme = () => {
  * - label·frame: 지역 이름과 지도 틀은 마지막에 나타난다.
  */
 const T = {
-  expand: { ms: 1500 },
-  wave: { at: 100, ms: 1300 },
-  region: { outlineMs: 450, unfoldAt: 200, unfoldMs: 900 },
-  label: { at: 900, ms: 300 },
-  frame: { at: 1300, ms: 600 },
-  compass: { at: 0, ms: 1500 },
+  expand: { ms: 1000 },
+  wave: { at: 60, ms: 850 },
+  region: { outlineMs: 300, unfoldAt: 120, unfoldMs: 600 },
+  label: { at: 600, ms: 250 },
+  frame: { at: 850, ms: 450 },
+  compass: { at: 0, ms: 1000 },
   focusTrace: 700,
   focusPulse: { at: 500, ms: 1000 },
   focusLeader: { at: 400, ms: 400 },
 }
 
 const VIEWS: Record<MapView, { position: [number, number, number]; target: [number, number, number] }> = {
-  overview: { position: [0, 17, 16], target: [0, 0, 0.6] },
+  overview: { position: [0, 21, 20], target: [0, 0, 0.6] },
   top: { position: [0, 25, 0.001], target: [0, 0, 0] },
   low: { position: [0, 4.2, 20], target: [0, 1.2, 0] },
 }
@@ -222,7 +222,9 @@ function MapEffects({ focus }: { focus: string | null }) {
 
   return (
     <EffectComposer multisampling={4}>
-      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={1.6} height={540} />
+      {/* 흐림 계산을 화면 해상도 그대로 한다. 낮은 해상도(예: 세로 540px)로 계산해 늘리면
+          선 가장자리에서 흐림 경계가 계단처럼 보인다 */}
+      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={1.6} resolutionScale={1} />
       <ChromaticAberration offset={CA_OFFSET} radialModulation modulationOffset={0.2} />
     </EffectComposer>
   )
