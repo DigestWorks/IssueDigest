@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: 첫 원문·파싱·인용 계약 · P1/R2/R3. 담당: Codex 구현자·컨트롤러. 브랜치: `feat/source-evidence-contracts` · PR은 컨트롤러 후속. 범위: 불변 Python 원문/파싱/인용 모델·정확한 anchor 검증과 실제 OpenAPI→생성 TS 타입·Unicode 변환. 구현 및 focused 검증 완료; 전체 검증 결과는 아래 기록. 독립 task/branch 리뷰는 컨트롤러 후속이다. 원문 저장·실제 parser·권한·주장 지지·다른 제품 계약은 미완료. 남은 입력: 지금 서버·키 추가 작업 불필요. 다음: 독립 리뷰와 후속 계약 묶음. Sites: v18 유지, 이번 부분 계약 요약 반영 대기(컨트롤러 담당).
+작업: [첫 원문·파싱·인용 계약](../changes/source-evidence-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/source-evidence-contracts` · [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4), base `docs/product-contract-research`, 미병합. 불변 모델·정확한 위치 검증·실제 OpenAPI→생성 TS·Unicode 변환을 구현했다. 독립 작업 리뷰와 전체 변경 리뷰에서 지적 없음. 컨트롤러가 작업 공간과 사용자 폴더에서 전체 검사를 확인했다. 원문 저장·실제 파서·권한·주장 지지·나머지 계약은 미완료. 지금 서버·키 추가 작업은 불필요하다. 다음: 주장·관계·비교 조건 계약. Sites v18 유지, 이번 구현 요약은 게시 대기.
 
 ## 2026-10-11 · 첫 원문·파싱·인용 계약
 
@@ -26,7 +26,8 @@
 - `getCitationUtf16Range`는 Python code point→JS UTF-16 범위를 변환하며 quote/context 오류를 거부한다. 공통 합성 UTF-8 fixture로 한글·BMP 밖 이모지·결합 문자·NFC/NFD·선행/후행 공백을 검사한다. grapheme 분할·PDF 렌더링은 범위 밖이다.
 - 검증: focused Python domain 140개, API 포함 150개 및 TS 인용 변환 40개 통과. 전체 `npm run check` 1회 통과: Python 150개·TS 60개, Ruff/mypy/ESLint·양쪽 타입·생산 SPA 빌드·생성 계약 drift 검사 통과. RED/GREEN 상세는 로컬 SDD `task-1-report.md`에 보존한다. 새 종속성·외부 호출·운영/비공개 자료 사용 없음.
 - 후속: 출처 연/월/일 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/원문 저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage·저장·권한 검증. 전체 P1과 제품 기능은 미완료.
-- 검토/게시: 독립 task review·branch review, PR 및 Sites 반영은 컨트롤러 후속. Sites 현재 v18, 이번 부분 완료 요약은 반영 대기. 기존 v17/v18 이력은 보존한다.
+- 검토: `9271a0a`에서 독립 작업 명세/품질 리뷰와 전체 변경 리뷰 모두 지적 없음. 컨트롤러 전체 검사도 통과. 사용자 폴더 `/data/lawdigest/IssueDigest`에 브랜치를 연결하고 잠긴 설치·전체 검사 150 Python + 60 JS를 다시 통과했다. 별도 작업 공간의 검증 기록은 PR 병합 전까지 보존한다.
+- 게시: [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4) 생성, 선행 PR #3 위에 쌓았으며 미병합. 구현 커밋 `9271a0a`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38137640138) 성공. Sites 현재 v18, 이번 요약은 반영 대기. 앱의 브라우저 열기·PR 첨부 요청이 응답하지 않아 직접 URL로 공유한다.
 
 ## 2026-10-11 · 제품 계약 조사
 
@@ -77,7 +78,7 @@
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
 - Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v18 공개 게시 성공. 첫 원문·파싱·인용 계약 요약은 반영 대기. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
-- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1·#2는 Draft이며 병합하지 않았다.
+- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#4는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
 
