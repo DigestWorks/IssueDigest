@@ -71,3 +71,13 @@
 정확한 요구사항은 위 블록이다. 폴더/모델/순수함수·생성 타입·의미 있는 합성 테스트·문서를 구현한다. 이벤트/모듈/비용 참조가 강하게 연결된 한 묶음이며 구현자 한 명이 소유한다. test-driven-development를 적용하고 명시된 알고리즘의 assertion RED도 확인한다. 실제 실패/명령/출력과 self-review/범위·미검증을 ignored SDD report에 보존한다. 리뷰/게시 전 결합 완료 checkbox를 닫지 않는다. 리뷰·PR·게시·branch transfer·추가 에이전트는 controller가 담당한다.
 
 환경 Node24.21.0/npm11.19.0(PATH=/home/xinics/.nvm/versions/node/v24.21.0/bin:$PATH), uv0.11.4/잠긴 Python3.13.12. 새 의존성 없음. 역할별 모듈을 읽기 쉬운 단위로 유지한다. 모든 공개 모델/함수의 이름과 형식은 위 계약을 따른다.
+
+
+## 구현 인계 기록
+
+불변 모델·순수 알고리즘·제공 객체 참조 검증·실제 OpenAPI/생성 TS 계약을 구현했다. `BudgetAssessment`의 금액 필드는 단위를 명시하는 `*_microwon`이다. 제공된 같은 공간의 다른 run historical revisions를 ancestor 최소 목록으로 제한하지 않으며 모두 부모/번호/CanvasBundle 검증을 받는다. 현재 run의 first revision은 입력 base(없으면 None)를 부모로 하는 한 개까지다. 이후 후보는 현재 run revision을 부모로 하며 같은 부모의 후속 후보를 unique 번호로 제한하지 않는다. 이는 controller가 확인한 C4 해석이고 운영 저장·권한·실제 CAS 인증은 아니다.
+
+순수 알고리즘별 assertion RED와 focused GREEN, 결과 자체 모순·strict/UTC/JSON 왕복·실제 schema/compile 소비자 검증을 로컬 SDD evidence/report에 보존한다. 독립 리뷰·Draft PR·Sites·사용자 폴더 연결 전까지 Task 1 checkbox는 pending이다. 실제 실행·저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료다.
+
+
+최종 검증: focused 270개, 전체 `npm run check` 1회 통과(Python 656개·JS 60개, lint/format/mypy·TS 타입·SPA 생산 빌드·생성 계약 drift). 제공된 유료 `authorized_after_seq` prefix가 적격이어야 하며 명시된 시각 부등식을 검사한다. 적격 cursor는 실제 dispatch 직전의 새 권한 확인 증거가 아니고, 단조 증가하지 않는 이벤트 시각으로 물리적 취소 경합을 추정하지 않는다. 실제 worker/DB의 dispatch 직전 취소/예산 강제는 후속이다.

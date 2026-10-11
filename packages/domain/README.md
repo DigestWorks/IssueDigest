@@ -1,6 +1,6 @@
 # 공통 Python 도메인·계약
 
-Python 3.13.12·Pydantic 2.14.0의 `issuedigest-domain` 패키지입니다. 상태 응답 `Liveness`, `ServiceStatus`, 첫 원문·파싱·인용 계약과 두 번째 개체·주장·관계·비교 조건 부분 계약을 정의합니다. Python 모델 → 실제 FastAPI OpenAPI components → 생성 TypeScript 타입이 하나의 계약을 사용합니다. 이 패키지는 앱 내부 구현이나 저장소에 의존하지 않습니다.
+Python 3.13.12·Pydantic 2.14.0의 `issuedigest-domain` 패키지입니다. 상태 응답 `Liveness`, `ServiceStatus`, 첫 원문·파싱·인용 계약과 두 번째 개체·주장·관계·비교 조건과 세 번째 실행·화면·사용량 부분 계약을 정의합니다. Python 모델 → 실제 FastAPI OpenAPI components → 생성 TypeScript 타입이 하나의 계약을 사용합니다. 이 패키지는 앱 내부 구현이나 저장소에 의존하지 않습니다.
 
 | 모델·공개 함수 | 검증 범위 |
 | --- | --- |
@@ -36,7 +36,7 @@ npm run contract:generate
 npm run contract:check
 ```
 
-`uv.lock`으로 의존성을 고정합니다. pytest는 API와 domain 테스트를 함께 발견하며 두 언어가 `tests/fixtures/citation-unicode.json`의 합성 UTF-8 자료를 공유합니다. 생성 파일은 직접 수정하지 않습니다. 후속 범위는 출처 시간의 연/월/일 정밀도, 재수집 관측, 내용 비교 fingerprint, 실제 parser·원문 저장, Run/Event/Canvas/Usage와 권한 검증입니다. 기준 DB·Neo4j·검색·실행기·제품 자료 수집은 아직 구현하지 않았습니다.
+`uv.lock`으로 의존성을 고정합니다. pytest는 API와 domain 테스트를 함께 발견하며 두 언어가 `tests/fixtures/citation-unicode.json`의 합성 UTF-8 자료를 공유합니다. 생성 파일은 직접 수정하지 않습니다. 후속 범위는 출처 시간의 연/월/일 정밀도, 재수집 관측, 내용 비교 fingerprint, 실제 parser·원문 저장, 실행 이벤트 저장·SSE·권한·공급자 호출·화면 렌더러와 동시 예산 처리입니다. 기준 DB·Neo4j·검색·실행기·제품 자료 수집은 아직 구현하지 않았습니다.
 
 
 `ResearchBundle.schema_version=1`은 strict int입니다. 동일 이름의 개체는 다른 ID로 유지하며 외부 identity 없는 개체와 `identity_review=None`을 허용합니다. 검토의 `reviewed_at`은 시간대 있는 datetime 또는 ISO datetime 문자열만 받아 UTC로 직렬화하고 epoch 숫자/숫자 문자열을 거부합니다. 검토 입력은 인증된 사용자 행위 기록이 아닙니다. `SupportReview`는 claim 귀속(`attribution`)/내용(`content`) 또는 관계(`relation`)를 구분하며 인용은 target 인용의 부분집합이어야 합니다. 인용 존재와 입력된 `supported` 검토는 주장 내용의 진실을 자동 판정한 결과가 아닙니다.
@@ -46,3 +46,29 @@ npm run contract:check
 `DateInterval`은 양 끝을 포함하며 Python date만 받고 datetime은 거부합니다. JSON은 정확한 ASCII `YYYY-MM-DD`만 허용합니다. 날짜를 모르면 null과 `raw_period`/`raw_validity_text`로 보존합니다. 수치 `value`는 최대 128자의 ASCII 소수 문자열이며 부동소수점 변환·반올림·음의 0 정규화를 하지 않습니다. 값이 있으면 `raw_value`가 필요하고, 값이 없으면 `missing_reason`이 필요합니다. 원문 값과 해석 값의 의미 일치는 인증하지 않습니다.
 
 `assess_comparison`은 검증된 Observation tuple을 최소 두 개 받아 입력 순서와 객체를 보존합니다. metric부터 value 결측까지 고정된 순서로 확인합니다. 알려진 조건이 다르면 `different_context`, 차이 없이 결측이 있으면 `insufficient_context`, 모두 알려져 같으면 `same_context`입니다. dimensions는 순서를 제외한 key/value로 비교하며 빈 차원은 유효합니다. 수치 자체가 달라도 같은 조건이면 `same_context`이고 sample_size까지 같아야 합니다. 이 판정은 조사 동등성·합산·완전 분포를 증명하지 않으며 `aggregation_status`는 항상 `not_evaluated`입니다. 결과 모델은 사유 ID·중복·status 일관성도 검증합니다. 같은 필드의 missing/different 사유 ID는 겹칠 수 없으며, 항상 알려진 metric/dimensions에는 missing 사유를 허용하지 않습니다. 세 개 이상 관측에서 결측 항목과 다른 알려진 항목이 분리된 사유, 서로 다른 필드의 독립 사유는 허용합니다.
+
+
+## 실행·화면·사용량의 제공 객체 계약
+
+| 파일·공개 모델/함수 | 검증 범위 |
+| --- | --- |
+| `contract_values.py` / `MoneyMicrowon` | 새 계약의 strict 문자열·0..2**53-1 정수·UTC 시각·정밀 정수 금액 공유 값 |
+| `canvas_modules.py` / `CanvasModule`, `CanvasAction` 및 종류별 모델 | evidence/summary/comparison/timeline/graph/bar chart, 인용/기록 ID와 네 종류의 제안 액션 |
+| `execution.py` / `ExecutionVersions`, `RunInput`, `RunSubmission`, `Run`, `SubmissionAssessment` | 자료 버전 순서·원문 질문 고정, 정확한 JSON SHA-256 재계산, 제출 범위별 create/reuse/conflict |
+| `execution.py` / `RunEvent`, `RunEventPayload`, `RunHistory`, `RunSnapshot`, `ReplayBatch`, `CallAttempt` | 단일 kind 태그, 연속 seq·공간/실행·취소·미확인 상태와 호출 시각/결과 기록 |
+| `hash_run_input`, `assess_submission`, `replay_run`, `events_after`, `may_start_paid_step` | 입력 해시·제공 중복 제출 판정·결정적 fold·정확한 cursor tail·유료 시작 적격성 |
+| `canvas.py` / `CanvasDraft`, `CanvasRevision`, `CanvasBundle`, `promote_revision` | 정상 제안과 실패 안내 분리, 선택 자료·인용 합집합·기록 존재, 같은 조건의 알려진 차트 값, 부모/번호/expected ID 충돌 |
+| `usage.py` / `PricingSnapshot`, `BudgetWindow`, `UsageReservation`, `UsageEntry`, `UsageBook`, `BudgetAssessment`, `assess_budget` | 서울 완전한 월·전체 운영비 한도, 가격/예약/entry 참조와 정산, 정밀 합계·unknown 예약 유지·실제 초과비용 |
+| `execution_bundle.py` / `RunExecutionBundle` | 전체 제공 객체 연결, 동일 revision 모듈 발표 후 성공, prefix별 유료 권한과 중복 재시도 거부, 미확인/해소 및 사용량 참조 |
+
+새 계약에만 strict 문자열과 JS 안전 정수를 적용합니다. `schema_version=1`은 bool/숫자 문자열을 거부합니다. 새 시각은 aware datetime 또는 ISO datetime 문자열만 받고 UTC로 정규화하며 epoch·date-only·naive·UTC 범위 초과를 거부합니다. 기존 원문/연구 계약의 값 정책은 그대로입니다. 모든 새 모델은 frozen/extra-forbid, 중첩 컬렉션은 tuple입니다. 검증 생략 construction/copy는 입력 경로가 아닙니다.
+
+Run의 세 ID는 실행·요청·추적을 구분하고 설정/엔진 버전은 기록입니다. 자료 tuple 순서와 질문 공백을 해시에 보존합니다. 제공된 입력 객체의 실제 동등성으로 재전송을 판정하며 해시만으로 reuse하지 않습니다. 실제 중복 제출 unique·트랜잭션은 후속입니다.
+
+이력은 저장 순번으로 처리하고 시각은 run 생성 이후이면 허용합니다. 벽시계의 단조 증가나 가상 진행률을 요구하지 않습니다. 정상 화면은 성공만 승격하고 실패·취소는 base를 보존합니다. 취소된 작업의 늦은 비용 확인은 unresolved 목록만 해소하며 화면/최종 상태를 되돌리지 않습니다. 유료 시작은 accepted/running·취소 의도와 unresolved 없음일 때만 적격입니다. cursor tail과 latest snapshot은 제공된 전체 이력을 검사한 결과이며 저장·SSE·실시간 합류·복구·보존 만료를 구현하지 않습니다.
+
+Canvas의 네 액션은 원문 열기·자료 선택·질문 제안·정렬입니다. 임의 HTML/CSS/URL/도구/쓰기 필드는 없습니다. 표시는 기존 인용·주장·관측에서 가져올 참조이고 안전 렌더링·권한·실제 행위는 후속입니다. `promote_revision`은 후보 근거/부모 충돌만 검사하여 후보를 반환합니다. 실행 성공/취소 적격성은 이력이 검사하고 저장 CAS나 동시 변경은 구현하지 않습니다.
+
+Money는 최대128자의 strict ASCII 정수 문자열이며 1원=1,000,000 microwon입니다. Python int로 합산하여 float/Decimal context 반올림을 사용하지 않습니다. `BudgetAssessment`의 `limit_microwon`, `used_microwon`, `requested_microwon`, `remaining_microwon`, `overrun_microwon`은 모두 같은 단위입니다. 월 상한은 전체 운영비 10만 원이며 `committed_other_cost_microwon`에 서버·DB·저장·세금·같은 키의 외부 비용을 입력합니다. held는 예약과 entry 비용 합의 최댓값, settled는 알려진 실제 비용을 사용합니다. 취소/실패·예약 초과는 비용을 없애지 않습니다. 가격·환율·사용량의 입력은 공급자 확인이나 완전한 청구 내역을 증명하지 않습니다. 실제 요금 변환·외부 지출 집계·동시 예약·원자성은 후속입니다.
+
+`RunExecutionBundle`은 현재 run의 base·revision·module.ready·attempt·usage를 연결합니다. 제공된 같은 공간의 다른 run revision도 부모/번호/근거를 모두 검사하며 ancestor만 포함하는 최소 이력을 선택하지 않습니다. 현재 run의 first revision은 base(없으면 None)를 부모로 하는 한 개까지이며 이후 후보는 현재 run revision을 부모로 합니다. 같은 부모의 후속 후보를 unique 번호로 제한하지 않고 저장 CAS도 구현하지 않습니다. 유료 dispatch는 제공된 `authorized_after_seq` prefix와 시각 부등식으로 검증합니다. 이 적격 cursor는 실제 dispatch 시점에 새 권한 확인을 했다는 증거가 아니며, 단조 증가하지 않는 이벤트 시각에서 물리적 취소 경합 순서를 추정하지 않습니다. 실제 worker/DB가 dispatch 직전 취소·예산 권한을 강제하는 작업은 후속입니다. UsageBook에는 다른 run의 예약도 담을 수 있지만 해당 run의 실행 이력을 인증하지 않습니다. 합성 fixture 검증은 제품 화면·AI 출력·운영 복구 구현의 증거가 아닙니다.

@@ -4,10 +4,17 @@ from copy import deepcopy
 from typing import Any
 
 from issuedigest_domain import (
+    BudgetAssessment,
+    CanvasBundle,
     CitationAnchorValidation,
     ComparisonAssessment,
     EvidenceBundle,
+    ReplayBatch,
     ResearchBundle,
+    RunExecutionBundle,
+    RunHistory,
+    SubmissionAssessment,
+    UsageBook,
 )
 from pydantic.json_schema import models_json_schema
 
@@ -16,6 +23,13 @@ def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
     """Return a new OpenAPI document; reject all existing component name collisions."""
     _, definitions = models_json_schema(
         [
+            (RunHistory, "validation"),
+            (ReplayBatch, "validation"),
+            (SubmissionAssessment, "validation"),
+            (CanvasBundle, "validation"),
+            (UsageBook, "validation"),
+            (BudgetAssessment, "validation"),
+            (RunExecutionBundle, "validation"),
             (EvidenceBundle, "validation"),
             (CitationAnchorValidation, "validation"),
             (ResearchBundle, "validation"),

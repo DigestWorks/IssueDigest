@@ -1,5 +1,20 @@
 """Public domain contracts; no application or storage dependencies."""
 
+from .canvas import CanvasBundle, CanvasDraft, CanvasRevision, promote_revision
+from .canvas_modules import (
+    AskQuestionAction,
+    CanvasAction,
+    CanvasModule,
+    ChartModule,
+    ComparisonModule,
+    EvidenceModule,
+    GraphModule,
+    OpenEvidenceAction,
+    SelectDocumentAction,
+    SortAction,
+    SummaryModule,
+    TimelineModule,
+)
 from .citations import (
     Citation,
     CitationAnchorValidation,
@@ -9,7 +24,27 @@ from .citations import (
     TextQuoteSelector,
     validate_citation,
 )
+from .contract_values import MoneyMicrowon
 from .evidence import EvidenceBundle
+from .execution import (
+    CallAttempt,
+    ExecutionVersions,
+    ReplayBatch,
+    Run,
+    RunEvent,
+    RunEventPayload,
+    RunHistory,
+    RunInput,
+    RunSnapshot,
+    RunSubmission,
+    SubmissionAssessment,
+    assess_submission,
+    events_after,
+    hash_run_input,
+    may_start_paid_step,
+    replay_run,
+)
+from .execution_bundle import RunExecutionBundle
 from .knowledge import (
     Claim,
     ClaimReference,
@@ -42,8 +77,58 @@ from .sources import (
     TableCell,
 )
 from .status import Liveness, ServiceStatus
+from .usage import (
+    BudgetAssessment,
+    BudgetWindow,
+    PricingSnapshot,
+    UsageBook,
+    UsageEntry,
+    UsageReservation,
+    assess_budget,
+)
 
 __all__ = [
+    "CanvasBundle",
+    "CanvasDraft",
+    "CanvasRevision",
+    "promote_revision",
+    "CanvasAction",
+    "CanvasModule",
+    "EvidenceModule",
+    "SummaryModule",
+    "ComparisonModule",
+    "TimelineModule",
+    "GraphModule",
+    "ChartModule",
+    "OpenEvidenceAction",
+    "SelectDocumentAction",
+    "AskQuestionAction",
+    "SortAction",
+    "MoneyMicrowon",
+    "ExecutionVersions",
+    "RunInput",
+    "RunSubmission",
+    "Run",
+    "SubmissionAssessment",
+    "RunEvent",
+    "RunEventPayload",
+    "RunHistory",
+    "RunSnapshot",
+    "ReplayBatch",
+    "CallAttempt",
+    "hash_run_input",
+    "assess_submission",
+    "replay_run",
+    "may_start_paid_step",
+    "events_after",
+    "RunExecutionBundle",
+    "PricingSnapshot",
+    "BudgetWindow",
+    "UsageReservation",
+    "UsageEntry",
+    "UsageBook",
+    "BudgetAssessment",
+    "assess_budget",
     "Claim",
     "ClaimReference",
     "DerivationRecord",

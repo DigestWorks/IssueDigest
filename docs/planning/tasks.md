@@ -20,7 +20,8 @@
 - [ ] 문서·인용·관계·Run/Event·CanvasRevision·Usage 계약과 버전 정책을 정의. 서버/웹 타입·검증을 같은 계약에 맞춤.
 - [x] 첫 원문·파싱·인용 부분 계약: SourceDocument/DocumentVersion/ParsedRepresentation/Citation/EvidenceBundle, 정확한 anchor 검증, OpenAPI→생성 웹 타입·Unicode 변환과 합성 테스트. 전체 검사와 독립 작업/전체 변경 리뷰 통과. PR #4·검증 결과는 진행 기록, Sites v19 공개 요약 완료.
 - [x] 두 번째 개체·주장·관계·비교 조건 부분 계약: Entity/Claim/Relation/SupportReview/Observation/ResearchBundle, 제한된 v1 관계·보수적 조건 판정·묶음 참조, OpenAPI→생성 웹 타입과 합성 검증 구현. 독립 작업/전체 변경·수정 부분 리뷰 통과, Draft PR #5·최종 453개 테스트 통과. 사용자 폴더 연결·실제 API 계약/웹 기동 확인 완료. Sites v20 공개 요약 완료. 결합 완료 기준은 [작업 명세](../changes/research-contracts.md)에 유지.
-- [ ] 후속 계약: 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint, 실제 parser·원문 저장, Run/Event/Canvas/Usage·저장·권한 검증.
+- [ ] 후속 계약: 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint, 실제 parser·원문 저장, 실행 이벤트 저장·SSE·권한·공급자 호출·렌더러·동시 예산 처리.
+- [ ] [실행·화면·사용량 부분 계약](../changes/execution-contracts.md)의 C1~C5 결합 완료: 순수 모델/함수·생성 타입·합성 검증 구현, 독립 리뷰·Draft PR·Sites·사용자 폴더 연결 대기. 실제 운영 실행·저장·SSE·인증·renderer/AI와 전체 P1은 미완료.
 - [x] [개발 실행 기반](../changes/development-foundation.md)의 웹·API·시스템 상태 계약·의존성 고정·자동 검증 구성. HTTP·데스크톱·모바일·API 중단·재시도 스모크 통과. 제품 기능·워커·DB 연결은 제외.
 - [ ] React Router 웹, FastAPI API, Python 워커와 도메인 패키지 구성. 같은 DB·Neo4j·실행 엔진을 개발/배포 환경에서 사용.
 - [ ] 세션·작업 공간 권한·초대 목록·동시 변경 버전 확인 구현. 비회원·다른 공간 접근 거부 테스트.

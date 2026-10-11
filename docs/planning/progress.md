@@ -15,7 +15,16 @@
 
 ## 현재 작업
 
-작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), 선행 PR #4 위·미병합. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조와 OpenAPI→생성 TS 타입 구현, 독립 작업/전체 변경 리뷰 및 비교 결과 모순 보완 후 수정 부분 리뷰 통과. 최종 전체 검사: Python 393개·JS 60개, lint/타입/SPA 빌드/계약 drift 통과. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. 사용자 폴더 `/data/lawdigest/IssueDigest`에 브랜치를 연결했다. 실제 API의 OpenAPI와 생성 계약 일치·새 모델·기존 두 경로 및 웹 HTTP 200을 확인했다. Sites v20 공개 요약 게시 완료. 다음은 Run/Event/Canvas/Usage 실행·화면·사용량 계약과 그 복구 검증이다.
+작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts`, 선행 Draft PR #5 위·미병합. 제공된 Run/Event/Canvas/Usage 모델, 입력 해시·재전송·이력 재생·화면 근거/승격·월 예산 판정, 전체 참조와 실제 OpenAPI→생성 TS 공개 타입을 구현했다. focused 270개·전체 Python 656개/JS 60개와 lint·타입·SPA 빌드·계약 drift 검사를 통과했다. 독립 리뷰·Draft PR·Sites·사용자 폴더 연결은 진행 중이다. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 기존 Sites v20은 두 번째 부분 계약까지의 공개 사본이며 이번 요약 반영 대기다.
+
+## 2026-10-11 · 실행·이벤트·화면·사용량 부분 계약
+
+- 역할별 `contract_values.py`, `canvas_modules.py`, `execution.py`, `canvas.py`, `usage.py`, `execution_bundle.py`에 순수 모델/함수를 구현했다. 새 계약의 strict 버전/정수/문자열·UTC 시각·tuple/frozen·추가 필드 거부를 적용하고 기존 원문/연구 정책·두 HTTP 경로·웹 UI를 보존한다.
+- 입력 자료 순서와 원문 질문·실행 버전을 SHA-256에 고정하고 실제 입력 동등성으로 제출 reuse/conflict를 판정한다. 연속 seq 이력을 fold하여 취소/미확인/완료 경합·늦은 모듈을 거부하고 실패/취소의 base 화면과 비용 확인을 보존한다.
+- Canvas는 허용 모듈/액션·선택 원문/인용 합집합·주장/관계/관측 존재·차트의 알려진 같은 조건·부모/expected ID를 검사한다. CallAttempt는 상태별 시각/결과와 prefix별 유료 적격성을 기록한다. 이 함수들은 실행·권한·서버 저장 인증이 아니다.
+- Usage는 서울 완전한 달·월 전체 운영비 10만 원·다른 비용·정밀 정수 금액·unknown hold·각 retry 합계·실제 초과비용과 정산을 검사한다. 전체 bundle은 모듈 발표/성공 revision·attempt/reconciliation·가격/예약/entry를 연결한다. 제공된 다른 run의 정상 historical revision도 검사하며 최소 ancestor 목록을 선택하지 않는다.
+- 검증: 순수 알고리즘 일곱 개 각각 callable scaffold에 대한 실제 assertion RED를 확인하고 focused GREEN과 실제 schema 등록/기존 component 동일·collision/입력 불변·생성 TS compile 소비자를 확인했다. 상세 명령/출력·self-review는 ignored `.superpowers/sdd/execution-contracts/task-1-report.md`와 evidence에 보존한다. 최종 `npm run check` 1회 통과: Python 656개·JS 60개, Ruff/format/mypy·ESLint·양쪽 TS 타입·SPA 생산 빌드·생성 계약 drift 통과. 유료 적격 cursor는 실제 dispatch 직전 권한 재확인·물리적 취소 경합 보장의 증거가 아니며 worker/DB 처리는 후속이다.
+- 인계 대기: 독립 작업·전체 변경 리뷰, Draft PR, Sites v20 이후 공개 요약, 사용자 폴더 연결은 controller가 담당한다. 결합 완료 checkbox를 닫지 않았다. 신규 의존성·외부/유료 호출·비공개/운영 자료·실행기·저장소·SSE/제품 API·UI/AI 구현은 없다.
 
 ## 2026-10-11 · 개체·주장·관계·비교 조건 계약
 
