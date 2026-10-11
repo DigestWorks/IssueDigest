@@ -15,13 +15,7 @@
 
 ## 현재 작업
 
-작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · 선행 Draft PR #4 위 작업, 새 PR 대기. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조 검증과 실제 OpenAPI→생성 TS 타입을 구현했다. 최종 리뷰 P2의 비교 결과 모순 검증을 수정했다. 관측 focused Python 107개 및 수정 후 전체 `npm run check` 1회 통과: Python 393개·JS 60개와 lint/타입/SPA 빌드/계약 drift 검사. 수정 범위 재검토·Draft PR·사용자 폴더 연결은 controller가 진행한다. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. Sites v19는 선행 원문·인용 구현 공개 상태이며 이번 계약 요약 반영은 대기다.
-
-## 2026-10-11 · 최종 리뷰 P2 비교 결과 검증 수정
-
-- 제공된 ComparisonReason/ComparisonAssessment JSON은 non-nullable metric/dimensions 결측 사유를 거부한다. 같은 필드의 missing/different에 같은 관측 ID가 있으면 거부하고, 세 개 이상의 관측에서 두 사유 ID가 분리된 결과와 다른 필드의 독립 사유는 허용한다. 비교 알고리즘·v1 정책·공개 API와 생성 스키마 형태는 유지했다.
-- 검증: 실제 JSON 회귀 RED 8개 실패·허용 사례 5개 통과 → 최소 validator 수정 후 관측 107개 GREEN. 수정 후 전체 `npm run check` 1회 통과: Python 393개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·생산 SPA 빌드·생성 계약 drift 통과. 생성 스키마 변경이 없어 재생성하지 않았다. 상세와 출력은 로컬 SDD 보고서에 추가했다.
-- 인계: controller의 한 번의 수정 범위 재검토 및 PR·Sites·사용자 폴더 연결 대기. C1~C4 결합 게시 체크박스는 미체크 유지. 초기 comparator 알고리즘 자체의 좁은 RED 증거 한계는 이전 보고서에 보존하며 이번 JSON 회귀가 그 이력을 대체하지 않는다.
+작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), 선행 PR #4 위·미병합. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조와 OpenAPI→생성 TS 타입 구현, 독립 작업/전체 변경 리뷰 및 비교 결과 모순 보완 후 수정 부분 리뷰 통과. 최종 전체 검사: Python 393개·JS 60개, lint/타입/SPA 빌드/계약 drift 통과. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. 사용자 폴더 연결·Sites 요약 갱신을 진행 중이다.
 
 ## 2026-10-11 · 개체·주장·관계·비교 조건 계약
 
@@ -31,7 +25,9 @@
 - ResearchBundle의 전체 공간·문서/버전 일치·고유 인용/표현/검토 ID·typed 참조·검토 citation subset을 검증한다. 같은 문서/버전의 다른 파싱 표현은 허용한다. 검증 대상은 제공된 묶음이며 저장소 전체 unique enforcement는 아니다.
 - 실제 OpenAPI components를 단일 등록 경로로 확장하고 생성 TS와 공개 aliases/compile 소비자를 갱신했다. 기존 HTTP 두 경로·상태/원문/인용·웹 UI를 보존했다. 종속성·외부/유료 호출·비공개/운영 자료 사용 없음.
 - 초기 구현 검증: focused 새 계약+API 228개 통과, Ruff/mypy·공개 생성 타입 소비자 통과. 전체 `npm run check` 1회 통과: Python 380개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·SPA 생산 빌드·생성 계약 drift 검사 통과. RED/GREEN·수정 파일·self-review는 로컬 SDD `research-contracts/task-1-report.md`에 보존한다.
-- 인계: controller 독립 리뷰/전체 변경 리뷰·Draft PR·Sites·사용자 폴더 연결 대기. C1~C4 결합 완료는 미체크 유지. Sites v19 선행 요약은 그대로이며 이번 변경 반영 대기. 나머지 P1·출처 시간 정밀도·재수집·내용 비교 fingerprint·Run/Event/Canvas/Usage·실제 자료/추출/저장/권한·AI·Neo4j는 미완료.
+- 인계: 독립 작업 리뷰 통과. 전체 변경 리뷰의 P2 지적(같은 항목의 결측/다름 ID 겹침과 필수 항목의 결측 사유)을 `e902cb4`에서 보완했다. JSON 회귀 RED 8개 실패·정상 5개 통과 후 GREEN 107개, 수정 부분 재리뷰 지적 없음. 컨트롤러 최종 전체 검사도 393 Python + 60 JS 통과. 초기 비교 알고리즘만의 독립 RED 증거 범위는 제한적이며 이를 뒤늦게 충족했다고 주장하지 않는다. 현재 동작 테스트·코드 리뷰로 구현을 검증했다. C1~C4 결합 완료는 Sites·사용자 폴더 연결까지 미체크 유지. 나머지 P1·출처 시간 정밀도·재수집·내용 비교 fingerprint·Run/Event/Canvas/Usage·실제 자료/추출/저장/권한·AI·Neo4j는 미완료.
+
+- 게시: [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), base `feat/source-evidence-contracts`, 구현 `d82a8f1` + 보완 `e902cb4`. 보완 커밋의 [GitHub CI #38144301870](https://github.com/DigestWorks/IssueDigest/actions/runs/38144301870) 성공. Sites v19에서 이번 요약 갱신 대기. 앱의 PR 첨부 요청이 응답하지 않아 직접 링크로 공유한다.
 
 ## 2026-10-11 · 첫 원문·파싱·인용 계약
 
@@ -94,7 +90,7 @@
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
 - Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v19 공개 게시 성공. 첫 원문·파싱·인용 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
-- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#4는 Draft이며 병합하지 않았다.
+- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#5는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
 
