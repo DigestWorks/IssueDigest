@@ -74,6 +74,8 @@ export type SchematicPalette = {
   neutral: string
   /** 견본 바탕의 방사형 그라디언트 중심색 */
   glow: string
+  /** 지도 바닥 조명 범위 밖의 색. 바닥 중앙은 scene, 바깥으로 갈수록 이 색이 된다 */
+  backdrop: string
 }
 
 export const SCHEMATIC_THEMES: Record<SchematicMode, SchematicPalette> = {
@@ -88,6 +90,7 @@ export const SCHEMATIC_THEMES: Record<SchematicMode, SchematicPalette> = {
     gridSection: "#1e262b",
     neutral: "#8b9598",
     glow: "#1b2127",
+    backdrop: "#050607",
   },
   light: {
     ink: NEUTRAL.ink,
@@ -100,6 +103,7 @@ export const SCHEMATIC_THEMES: Record<SchematicMode, SchematicPalette> = {
     gridSection: NEUTRAL.gridSection,
     neutral: "#8b9598",
     glow: "#f3f4f4",
+    backdrop: "#d9dcdb",
   },
 }
 
@@ -115,5 +119,6 @@ export const schematicVars = (mode: SchematicMode = "dark") => {
     "--sch-backing": t.backing,
     "--sch-shadow": t.shadow,
     "--sch-scene": t.scene,
+    "--sch-backdrop": t.backdrop,
   } as React.CSSProperties
 }

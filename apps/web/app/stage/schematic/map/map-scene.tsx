@@ -114,8 +114,9 @@ export default function MapScene(props: MapSceneProps) {
       camera={{ position: [0, 30, 30], fov: 36, near: 0.1, far: 200 }}
       gl={{ antialias: true, toneMapping: NoToneMapping }}
     >
-      <color attach="background" args={[props.theme.scene]} />
-      <fog attach="fog" args={[props.theme.scene, 30, 70]} />
+      <color attach="background" args={[props.theme.backdrop]} />
+      <fog attach="fog" args={[props.theme.backdrop, 34, 75]} />
+      <SpotFloor center={props.theme.scene} edge={props.theme.backdrop} />
       {/* 모든 재질이 조명을 받지 않는 MeshBasic·LineBasic 이므로 조명을 두지 않는다 */}
       <Grid
         position-y={-0.005}
@@ -126,8 +127,10 @@ export default function MapScene(props: MapSceneProps) {
         sectionSize={4}
         sectionThickness={0.8}
         sectionColor={props.theme.gridSection}
-        fadeDistance={48}
-        fadeStrength={1.4}
+        // 격자는 카메라가 아니라 지도 중심(원점)에서 멀어질수록 옅어져 바닥 조명 범위 안에만 보인다
+        fadeFrom={0}
+        fadeDistance={26}
+        fadeStrength={1.6}
         infiniteGrid
       />
       <ThemeContext.Provider value={props.theme}>
@@ -135,6 +138,59 @@ export default function MapScene(props: MapSceneProps) {
         <MapCamera {...props} />
       </ThemeContext.Provider>
     </Canvas>
+  )
+}
+
+const FLOOR_SIZE = 90
+/** 바닥 조명: 중심에서 이 거리(장면 단위)까지는 중앙색, OUTER 에서 바깥색이 된다 */
+const SPOT = { inner: 9, outer: 30 }
+
+/**
+ * 바닥 조명. 지도 중심을 비추는 원형 밝기 분포를 바닥면에 직접 칠한다(광원 물체는 두지 않는다).
+ * 회전하면 원근에 따라 밝은 원이 타원으로 바뀌어 바닥면의 방향과 깊이를 읽게 한다.
+ * 8비트 출력에서 생기는 밝기 계단은 화면 좌표 잡음(±0.5/255)으로 흩는다.
+ */
+function SpotFloor({ center, edge }: { center: string; edge: string }) {
+  const uniforms = useMemo(
+    () => ({
+      uCenter: { value: new Color(center) },
+      uEdge: { value: new Color(edge) },
+      uInner: { value: SPOT.inner / (FLOOR_SIZE / 2) },
+      uOuter: { value: SPOT.outer / (FLOOR_SIZE / 2) },
+    }),
+    [center, edge]
+  )
+  return (
+    <mesh rotation-x={-Math.PI / 2} position-y={-0.02} renderOrder={-1}>
+      <planeGeometry args={[FLOOR_SIZE, FLOOR_SIZE]} />
+      <shaderMaterial
+        key={center + edge}
+        uniforms={uniforms}
+        depthWrite={false}
+        vertexShader={`
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 uCenter;
+          uniform vec3 uEdge;
+          uniform float uInner;
+          uniform float uOuter;
+          varying vec2 vUv;
+          float rand(vec2 co) { return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453); }
+          void main() {
+            float d = distance(vUv, vec2(0.5)) * 2.0;
+            float t = smoothstep(uInner, uOuter, d);
+            gl_FragColor = vec4(mix(uCenter, uEdge, t), 1.0);
+            #include <colorspace_fragment>
+            gl_FragColor.rgb += (rand(gl_FragCoord.xy) - 0.5) / 255.0;
+          }
+        `}
+      />
+    </mesh>
   )
 }
 

@@ -58,7 +58,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
   const count = Object.keys(values).length
 
   return (
-    <SchematicTheme mode={m} className={cn("relative overflow-hidden select-none", className)} style={{ background: "var(--sch-scene)" }}>
+    <SchematicTheme mode={m} className={cn("relative overflow-hidden select-none", className)} style={{ background: "var(--sch-backdrop)" }}>
       <div className="absolute inset-0">
         {mounted ? (
           <Suspense fallback={null}>
@@ -85,7 +85,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
         className="pointer-events-none absolute inset-0 z-10"
         style={{
           background:
-            "linear-gradient(to bottom, var(--sch-scene) 0%, transparent 22%, transparent 74%, var(--sch-scene) 100%)",
+            "linear-gradient(to bottom, var(--sch-backdrop) 0%, transparent 22%, transparent 74%, var(--sch-backdrop) 100%)",
           opacity: 0.85,
         }}
       />
