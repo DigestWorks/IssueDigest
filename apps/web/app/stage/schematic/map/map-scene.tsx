@@ -1,15 +1,20 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react"
 import { CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
+import { ChromaticAberration, DepthOfField, EffectComposer } from "@react-three/postprocessing"
+import type { DepthOfFieldEffect } from "postprocessing"
 import {
+  AdditiveBlending,
   BufferGeometry,
   Color,
   DoubleSide,
   ExtrudeGeometry,
   Float32BufferAttribute,
   MathUtils,
+  NormalBlending,
   NoToneMapping,
   ShapeGeometry,
+  Vector2,
   Vector3,
   type Group,
   type LineBasicMaterial,
@@ -54,6 +59,8 @@ export type MapSceneProps = {
 const MAP_SIZE = 16
 const BASE_H = 0.1
 const MAX_H = 1.8
+/** 층 외곽선 색 번짐: 사본 간격(장면 단위)과 불투명도 */
+const FRINGE = { offset: 0.035, colored: 0.45, neutral: 0.18 }
 /** 누른 곳과 뗀 곳이 이 거리(px)보다 멀면 클릭이 아니라 끌기로 본다 */
 const DRAG_PX = 4
 /** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
@@ -137,7 +144,40 @@ export default function MapScene(props: MapSceneProps) {
         <MapContent {...props} />
         <MapCamera {...props} />
       </ThemeContext.Provider>
+      <MapEffects focus={props.focus} />
     </Canvas>
+  )
+}
+
+/**
+ * 후처리: 아웃포커스와 색수차(홀로그램 표현, 2026-10-11 민재 요청).
+ * - 아웃포커스: 선택 지역(없으면 지도 중심)에 초점을 맞춘다. 흐림 정도는 초점 거리와의 차이에 따라
+ *   0 에서 FOCUS_RANGE(장면 단위)까지 smoothstep 으로 커진다(postprocessing 6.39 CircleOfConfusionMaterial).
+ *   선택 주석과 화면 고정 주석은 DOM 이라 흐려지지 않는다.
+ * - 색수차: 화면 가장자리로 갈수록 빨강·파랑 성분이 어긋난다(radialModulation).
+ * 설정은 @react-three/postprocessing 3.x 의 DepthOfField·ChromaticAberration 속성을 따른다.
+ */
+const FOCUS_RANGE = 14
+const CA_OFFSET = new Vector2(0.0014, 0.0009)
+const MAP_CENTER = new Vector3(0, 0.6, 0)
+
+function MapEffects({ focus }: { focus: string | null }) {
+  const dof = useRef<DepthOfFieldEffect>(null)
+  const target = useRef(MAP_CENTER.clone())
+  const goal = useRef(new Vector3())
+
+  useFrame((_, delta) => {
+    const c = focus ? focusCentroids.get(focus) : undefined
+    goal.current.copy(c ?? MAP_CENTER).setY(0.6)
+    target.current.lerp(goal.current, 1 - Math.exp(-delta * 4))
+    dof.current?.target?.copy(target.current)
+  })
+
+  return (
+    <EffectComposer multisampling={4}>
+      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={1.6} height={540} />
+      <ChromaticAberration offset={CA_OFFSET} radialModulation modulationOffset={0.2} />
+    </EffectComposer>
   )
 }
 
@@ -149,6 +189,7 @@ const SPOT = { inner: 9, outer: 30 }
  * 바닥 조명. 지도 중심을 비추는 원형 밝기 분포를 바닥면에 직접 칠한다(광원 물체는 두지 않는다).
  * 회전하면 원근에 따라 밝은 원이 타원으로 바뀌어 바닥면의 방향과 깊이를 읽게 한다.
  * 8비트 출력에서 생기는 밝기 계단은 화면 좌표 잡음(±0.5/255)으로 흩는다.
+ * 불투명 바닥이므로 깊이를 기록한다. 아웃포커스는 지도 영역의 깊이를 이 바닥에서 읽는다.
  */
 function SpotFloor({ center, edge }: { center: string; edge: string }) {
   const uniforms = useMemo(
@@ -166,7 +207,7 @@ function SpotFloor({ center, edge }: { center: string; edge: string }) {
       <shaderMaterial
         key={center + edge}
         uniforms={uniforms}
-        depthWrite={false}
+        // 층·선은 반투명이라 깊이를 쓰지 않는다. 아웃포커스가 읽는 깊이는 이 바닥이 채운다.
         vertexShader={`
           varying vec2 vUv;
           void main() {
@@ -321,10 +362,15 @@ function RegionVolume({
   const base = useRef<LineBasicMaterial>(null)
   const top = useRef<Group>(null)
   const stack = useRef<Group>(null)
+  const fringeR = useRef<Group>(null)
+  const fringeC = useRef<Group>(null)
+  const fringeMats = useRef<(LineBasicMaterial | null)[]>([])
+  const camRight = useMemo(() => new Vector3(), [])
+  const dark = useMemo(() => new Color(th.scene).getHSL({ h: 0, s: 0, l: 0 }).l < 0.5, [th])
   const spread = useRef(1)
   const topLine = useRef<{ material: { opacity: number } } | null>(null)
 
-  useFrame((_, delta) => {
+  useFrame((state, delta) => {
     const now = performance.now()
     const tOutline = progress(now, t0 + T.outline.at + order * T.outline.step, T.outline.ms, reducedMotion)
     const tFill = progress(now, t0 + T.fill.at + order * T.fill.step, T.fill.ms, reducedMotion)
@@ -344,6 +390,13 @@ function RegionVolume({
     if (base.current) base.current.opacity = dimmed ? OPACITY.faint.value : OPACITY.context.value
     const o = focused || hovered ? 1 : dimmed ? 0.22 : neutral ? 0.6 : 0.85
     if (lineMat.current) lineMat.current.opacity = o
+
+    // 층 외곽선 색 번짐: 빨강·청록 사본을 화면 가로 방향으로 조금씩 어긋나게 둔다
+    camRight.setFromMatrixColumn(state.camera.matrixWorld, 0).multiplyScalar(FRINGE.offset)
+    fringeR.current?.position.set(camRight.x, 0, camRight.z)
+    fringeC.current?.position.set(-camRight.x, 0, -camRight.z)
+    const f = (neutral ? FRINGE.neutral : FRINGE.colored) * (dimmed ? 0.4 : 1) * (dark ? 1 : 0.8)
+    for (const m of fringeMats.current) if (m) m.opacity = f
     if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
 
     // 맨 위 층 강조선: 지금 보이는 가장 높은 층을 따라간다
@@ -364,6 +417,20 @@ function RegionVolume({
         <lineBasicMaterial ref={base} color={th.ink} transparent opacity={0} depthWrite={false} />
       </lineSegments>
       <group ref={stack}>
+        {(["#ff2d55", "#00d8ff"] as const).map((c, i) => (
+          <group key={c} ref={i === 0 ? fringeR : fringeC}>
+            <lineSegments geometry={layers.lines}>
+              <lineBasicMaterial
+                ref={(m) => void (fringeMats.current[i] = m)}
+                color={c}
+                transparent
+                opacity={0}
+                depthWrite={false}
+                blending={dark ? AdditiveBlending : NormalBlending}
+              />
+            </lineSegments>
+          </group>
+        ))}
         <lineSegments geometry={layers.lines}>
           <lineBasicMaterial ref={lineMat} vertexColors transparent opacity={0} depthWrite={false} />
         </lineSegments>
