@@ -5,11 +5,11 @@ import { motion } from "motion/react"
 import { MathUtils, type Group } from "three"
 import type { CameraControls } from "@react-three/drei"
 
+import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
 import { useStage } from "../store"
-import { ChartPanel } from "./chart-panel"
-import { ClaimsPanel } from "./claims-panel"
-import { TimelinePanel } from "./timeline-panel"
+import { SchematicTheme } from "../schematic/primitives"
+import { SchematicPanel } from "../schematic/schematic-panel"
 
 /** 패널 가로 폭(px). Html transform 의 distanceFactor 와 함께 장면 크기를 정한다. */
 const PANEL_WIDTH = 360
@@ -113,12 +113,16 @@ function PanelInSpace({
           <Html transform distanceFactor={DISTANCE_FACTOR} zIndexRange={[20, 0]} style={{ pointerEvents: "auto" }}>
             {/* 아래 가장자리 가운데를 기준점에 맞춘다 */}
             <div style={{ width: PANEL_WIDTH, transform: "translate(0, -50%)" }}>
+              {/* filter 를 쓰면 패널 바탕의 backdrop-filter 가 장면을 흐리지 못하므로 위치와 불투명도만 바꾼다.
+                  패널 안의 점 → 선 → 글자 등장은 SchematicPanel 에 구현되어 있다. */}
               <motion.div
-                initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.92, filter: "blur(8px)" }}
-                animate={{ opacity: 1, y: 0, scale: 1, filter: "blur(0px)" }}
-                transition={{ duration: reducedMotion ? 0 : 0.9, ease: [0.16, 1, 0.3, 1] }}
+                initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reducedMotion ? 0 : MOTION.panel.duration / 1000, ease: EASE_OUT }}
               >
-                <PanelBody panel={panel} animate={!reducedMotion} />
+                <SchematicTheme>
+                  <SchematicPanel panel={panel} index={index + 1} animate={!reducedMotion} />
+                </SchematicTheme>
               </motion.div>
             </div>
           </Html>
@@ -126,15 +130,4 @@ function PanelInSpace({
       </group>
     </group>
   )
-}
-
-function PanelBody({ panel, animate }: { panel: Panel; animate: boolean }) {
-  switch (panel.kind) {
-    case "chart":
-      return <ChartPanel panel={panel} animate={animate} />
-    case "timeline":
-      return <TimelinePanel panel={panel} animate={animate} />
-    case "claims":
-      return <ClaimsPanel panel={panel} animate={animate} />
-  }
 }
