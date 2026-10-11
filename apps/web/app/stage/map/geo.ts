@@ -23,19 +23,34 @@ export type ProjectedRegion = {
   radius: number
 }
 
-/**
- * 경위도를 지면 좌표로 바꾼다. 지도 전체가 size × size 안에 들어가게 맞춘다.
- * Shape 좌표는 (x, -z) 로 두고 장면에서 X축으로 -90° 회전해 지면에 눕힌다.
- */
-export function projectRegions(collection: RegionCollection, size = 22): ProjectedRegion[] {
+const GEO_URL = "/geo/seoul-gu.json"
+let cached: Promise<RegionCollection> | null = null
+
+/** 서울 자치구 경계 데이터(public/geo/seoul-gu.json, 출처는 같은 폴더 SOURCE.md). 한 번만 받는다. */
+export const loadRegionCollection = () =>
+  (cached ??= fetch(GEO_URL).then((r) => {
+    if (!r.ok) throw new Error(`지도 경계 데이터를 불러오지 못했습니다 (${r.status})`)
+    return r.json() as Promise<RegionCollection>
+  }))
+
+/** 경계 전체가 size × size 안에 들어가는 메르카토르 투영. 반환값 [x, y] 의 y 는 장면의 z 다. */
+export function fitProjection(collection: RegionCollection, size = 22) {
   const half = size / 2
-  const projection = geoMercator().fitExtent(
+  return geoMercator().fitExtent(
     [
       [-half, -half],
       [half, half],
     ],
     collection as unknown as Parameters<ReturnType<typeof geoMercator>["fitExtent"]>[1]
   )
+}
+
+/**
+ * 경위도를 지면 좌표로 바꾼다. 지도 전체가 size × size 안에 들어가게 맞춘다.
+ * Shape 좌표는 (x, -z) 로 두고 장면에서 X축으로 -90° 회전해 지면에 눕힌다.
+ */
+export function projectRegions(collection: RegionCollection, size = 22): ProjectedRegion[] {
+  const projection = fitProjection(collection, size)
 
   return collection.features.map((f) => {
     const polygons = f.geometry.type === "Polygon" ? [f.geometry.coordinates] : f.geometry.coordinates

@@ -18,9 +18,8 @@ import { FONT_LIGHT, FONT_MEDIUM } from "../scene/fonts"
 import { regionCentroids } from "../scene/registry"
 import { useStage } from "../store"
 import { CompassRing } from "./compass-ring"
-import { projectRegions, type ProjectedRegion, type RegionCollection } from "./geo"
+import { loadRegionCollection, projectRegions, type ProjectedRegion } from "./geo"
 
-const GEO_URL = "/geo/seoul-gu.json"
 const BASE_HEIGHT = 0.12
 const MAX_HEIGHT = 1.6
 const MAP_SIZE = 16
@@ -28,12 +27,6 @@ const BASE_FILL = new Color("#ededed")
 const DIM_FILL = new Color("#f6f6f6")
 const WHITE = new Color("#ffffff")
 const RISE_MS = 1300
-
-let cached: Promise<RegionCollection> | null = null
-const loadRegions = () => (cached ??= fetch(GEO_URL).then((r) => {
-  if (!r.ok) throw new Error(`지도 경계 데이터를 불러오지 못했습니다 (${r.status})`)
-  return r.json() as Promise<RegionCollection>
-}))
 
 /**
  * 서울 자치구 3D 지도. 지도 바탕과 경계선은 무채색이고, 지역 면의 색(범주)과
@@ -48,7 +41,7 @@ export function MapLayer({ reducedMotion }: { reducedMotion: boolean }) {
 
   useEffect(() => {
     if (!map || regions) return
-    loadRegions()
+    loadRegionCollection()
       .then((c) => setRegions(projectRegions(c, MAP_SIZE)))
       .catch((e: unknown) => console.warn("[stage] 지도", e))
   }, [map, regions])

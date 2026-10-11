@@ -32,6 +32,7 @@ date: 2026-10-11
 | `apps/web/app/design/tokens.ts`, `apps/web/app/design/guide.ts` (신규) | 불투명도·글자·모션 토큰, 스타일 가이드 규칙 데이터 |
 | `apps/web/app/routes/style.tsx`, `apps/web/app/style/specimens.tsx` (신규) | `/style` 스타일 가이드 페이지와 견본 |
 | `docs/design/style-guide.md` (신규) | 정체성 기준과 결정 기록 |
+| `apps/web/app/stage/schematic/map/*`, `apps/web/app/stage/scene/view-angle.ts` (신규) | 도면 양식 3D 지도 컴포넌트, 눕힘·세움 각도 기준 |
 | `README.md` (신규) | 실행 방법 |
 
 ## 작업 순서
@@ -47,7 +48,8 @@ date: 2026-10-11
 9. 채팅: ACF 레지스트리를 `python3 -m http.server 3100 --directory ~/code/framework/agent-chat-framework/public`으로 제공하고 `thread-aui` 설치, 시나리오 재생 `ChatModelAdapter`로 임시 입력창 교체. 한 커밋 분량 안에 해결되지 않으면 임시 입력창을 유지하고 README에 기록한다.
 10. 스타일 가이드(사용자 요청, 2026-10-11): 정체성 기준 「출처가 붙은 조사 기록」을 정하고, 토큰 모듈(`design/tokens.ts`)과 규칙 데이터(`design/guide.ts`)를 만들어 `/style` 페이지에서 렌더링한다 — 페이지 전체 스크린샷 확인.
 11. 결과 패널 재디자인(사용자 요청, 2026-10-11): The Division 양식(선과 점으로 만든 틀, 주황 강조, 어두운 반투명 바탕)으로 `stage/schematic/*` 를 새로 만들어 `/style` 에서 먼저 확인받고, 승인 후 `panel-layer.tsx` 를 교체한다.
-12. README, 전체 검증, 커밋·push.
+12. 3D 지도 인터랙티브 컴포넌트(사용자 요청, 2026-10-11): 스테이지 상태와 분리된 도면 양식 지도 `stage/schematic/map/*` 를 자체 Canvas·카메라로 만들어 `/style` 에서 먼저 확인받는다. 스테이지 교체는 승인 후 진행한다 — 극각별 스크린샷과 클릭·Esc·보기 전환 조작 확인.
+13. README, 전체 검증, 커밋·push.
 
 단계마다 `feat:` 등 태그로 커밋한다.
 

@@ -9,6 +9,7 @@ import { GlyphIcon } from "~/stage/graph/glyph-icon"
 import type { Panel } from "~/stage/events"
 import { NODE_GLYPH, NODE_TYPE_LABEL, NODE_TYPES } from "~/stage/graph/glyphs"
 import { SchematicTheme } from "~/stage/schematic/primitives"
+import { SchematicMap, type SchematicMapProps } from "~/stage/schematic/map/schematic-map"
 import { SchematicPanel } from "~/stage/schematic/schematic-panel"
 import { useStage } from "~/stage/store"
 
@@ -278,6 +279,30 @@ export function SchematicPanelSpecimen({ panels }: { panels: Panel[] }) {
           ))}
         </div>
       </SchematicTheme>
+    </div>
+  )
+}
+
+/**
+ * 도면 양식 3D 지도 견본. 지도 시나리오의 샘플 값을 그대로 쓰고, 선택 상태는 이 견본이 갖는다.
+ * 첫 화면에서는 등장이 끝난 뒤 강남구를 선택해 선택 표시와 주석을 보여 준다.
+ */
+export function SchematicMapSpecimen({ data }: { data: Omit<SchematicMapProps, "focus" | "onFocus" | "className"> }) {
+  const [run, setRun] = useState(0)
+  const [focus, setFocus] = useState<string | null>(null)
+  useEffect(() => {
+    setFocus(null)
+    const id = window.setTimeout(() => setFocus("11230"), 3200)
+    return () => window.clearTimeout(id)
+  }, [run])
+  return (
+    <div className="flex flex-col gap-4">
+      <div>
+        <Button variant="outline" size="sm" onClick={() => setRun((r) => r + 1)}>
+          등장 다시 재생
+        </Button>
+      </div>
+      <SchematicMap key={run} {...data} focus={focus} onFocus={setFocus} className="h-[720px]" />
     </div>
   )
 }

@@ -7,6 +7,7 @@ import type { CameraControls } from "@react-three/drei"
 
 import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
+import { uprightAmount } from "../scene/view-angle"
 import { useStage } from "../store"
 import { SchematicTheme } from "../schematic/primitives"
 import { SchematicPanel } from "../schematic/schematic-panel"
@@ -25,9 +26,6 @@ const CONTENT_RADIUS = 8
 const BEYOND = 10
 /** 패널 줄을 카메라 기준 오른쪽으로 옮기는 거리. 카메라 focal offset 과 맞춘다 */
 export const PANEL_SHIFT_RIGHT = 3
-/** 카메라 극각(수직에서 기운 각도, rad). 이 범위에서 눕힌 상태와 세운 상태를 보간한다. */
-const FLAT_BELOW = MathUtils.degToRad(32)
-const UPRIGHT_ABOVE = MathUtils.degToRad(58)
 
 /**
  * 결과 패널을 3D 공간에 띄운다.
@@ -84,7 +82,7 @@ function PanelInSpace({
   useFrame((_, delta) => {
     if (!controls || !root.current || !yaw.current || !tilt.current) return
     const polar = controls.polarAngle
-    const target = MathUtils.smoothstep(polar, FLAT_BELOW, UPRIGHT_ABOVE)
+    const target = uprightAmount(polar)
     upright.current = reducedMotion ? target : MathUtils.damp(upright.current, target, 6, delta)
     const t = upright.current
 

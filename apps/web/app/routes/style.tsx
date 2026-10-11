@@ -5,12 +5,14 @@ import { Separator } from "~/components/ui/separator"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "~/components/ui/table"
 import { CHAPTERS, IDENTITY, statusCounts, type RuleStatus } from "~/design/guide"
 import { SCENARIOS } from "~/stage/scenarios"
+import { electionMapScenario } from "~/stage/scenarios/election-map"
 import {
   DataPaletteSpecimen,
   GlyphSpecimen,
   LineSpecimen,
   MotionSpecimen,
   OpacitySpecimen,
+  SchematicMapSpecimen,
   SchematicPanelSpecimen,
   TiltSpecimen,
   TypeSpecimen,
@@ -45,6 +47,22 @@ const SAMPLE_PANELS = SCENARIOS.flatMap((s) =>
   s.steps.flatMap((st) => ("event" in st && st.event.type === "panel.add" ? [st.event.panel] : []))
 )
 SPECIMENS.panels = [{ title: "결과 패널 (시나리오 샘플 데이터)", node: <SchematicPanelSpecimen panels={SAMPLE_PANELS} /> }]
+
+const mapEvents = electionMapScenario.steps.flatMap((st) => ("event" in st ? [st.event] : []))
+const mapShow = mapEvents.find((e) => e.type === "map.show")
+const mapValues = mapEvents.find((e) => e.type === "map.choropleth")
+if (mapShow?.type === "map.show" && mapValues?.type === "map.choropleth") {
+  SPECIMENS.map = [
+    {
+      title: "3D 지도 (지도 시나리오 샘플 데이터)",
+      node: (
+        <SchematicMapSpecimen
+          data={{ title: mapShow.title, values: mapValues.values, legend: mapValues.legend, source: mapValues.source }}
+        />
+      ),
+    },
+  ]
+}
 
 const STATUS_VARIANT: Record<RuleStatus, "default" | "secondary" | "outline"> = {
   구현: "default",
