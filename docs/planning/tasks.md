@@ -18,7 +18,7 @@
 - [ ] A005~A006: 서버 자원·외부 백업·초대 계정 기준으로 배치·인증 공급자 결정. 운영 서버 설치는 대상 확인 후 진행.
 - [x] [제품 계약 조사](../research/product-contracts.md): 기존 코드·공식 문서 비교, 설계 제안·재사용 경계·검증 계획 기록. 첫 원문·파싱·인용 계약은 아래 부분 작업에서 구현하며 전체 계약과 엔진 실측은 미완료.
 - [ ] 문서·인용·관계·Run/Event·CanvasRevision·Usage 계약과 버전 정책을 정의. 서버/웹 타입·검증을 같은 계약에 맞춤.
-- [x] 첫 원문·파싱·인용 부분 계약: SourceDocument/DocumentVersion/ParsedRepresentation/Citation/EvidenceBundle, 정확한 anchor 검증, OpenAPI→생성 웹 타입·Unicode 변환과 합성 테스트. 전체 검사와 독립 작업/전체 변경 리뷰 통과. PR #4·검증 결과는 진행 기록, Sites 요약은 게시 대기.
+- [x] 첫 원문·파싱·인용 부분 계약: SourceDocument/DocumentVersion/ParsedRepresentation/Citation/EvidenceBundle, 정확한 anchor 검증, OpenAPI→생성 웹 타입·Unicode 변환과 합성 테스트. 전체 검사와 독립 작업/전체 변경 리뷰 통과. PR #4·검증 결과는 진행 기록, Sites v19 공개 요약 완료.
 - [ ] 후속 계약: 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint, 실제 parser·원문 저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage·저장·권한 검증.
 - [x] [개발 실행 기반](../changes/development-foundation.md)의 웹·API·시스템 상태 계약·의존성 고정·자동 검증 구성. HTTP·데스크톱·모바일·API 중단·재시도 스모크 통과. 제품 기능·워커·DB 연결은 제외.
 - [ ] React Router 웹, FastAPI API, Python 워커와 도메인 패키지 구성. 같은 DB·Neo4j·실행 엔진을 개발/배포 환경에서 사용.

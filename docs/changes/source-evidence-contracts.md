@@ -1,6 +1,6 @@
 # 원문·파싱·인용 계약 구현
 
-상태: 코드·자동 검증·독립 리뷰 완료, Sites 게시 대기 · 2026-10-11. 기준 커밋 `92befb1`, 선행 PR #3. 사용자 승인: 다음 작업 진행 요청.
+상태: 구현·자동 검증·독립 리뷰·Sites 게시 완료 · 2026-10-11. 기준 커밋 `92befb1`, 선행 PR #3. 사용자 승인: 다음 작업 진행 요청.
 
 ## 목표와 범위
 
@@ -58,7 +58,7 @@
 
 ## Task 1: 원문·파싱·인용 계약과 타입 연결
 
-- [ ] B1~B4를 하나의 변경 단위로 구현하고 검증한다.
+- [x] B1~B4를 하나의 변경 단위로 구현하고 검증한다.
 
 읽을 원본: `docs/research/product-contracts.md`의 원문/인용 부분과 위 B1~B4. 기존 status 계약·API paths·웹 화면은 보존한다. `packages/domain/src/issuedigest_domain/`에 모델과 검증을, `packages/domain/tests/`에 테스트를 추가하고 domain의 공개 exports/README를 갱신한다. `apps/api/src/issuedigest_api/contracts.py`에 순수 OpenAPI 컴포넌트 등록을 분리하고 main에 연결한다. `apps/api/tests/`에 스키마 등록 검증을 추가한다. `packages/api-client/src/citations.ts`와 public exports/테스트/README를 갱신한다. 합성 공통 fixture는 `tests/fixtures/citation-unicode.json`. 생성 계약 파일과 pytest 설정을 갱신한다. `docs/planning/tasks.md`, `progress.md`, `docs/README.md`에 첫 계약 부분 완료와 후속 범위를 기록한다. Sites는 controller가 반영한다.
 

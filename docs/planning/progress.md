@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [첫 원문·파싱·인용 계약](../changes/source-evidence-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/source-evidence-contracts` · [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4), base `docs/product-contract-research`, 미병합. 불변 모델·정확한 위치 검증·실제 OpenAPI→생성 TS·Unicode 변환을 구현했다. 독립 작업 리뷰와 전체 변경 리뷰에서 지적 없음. 컨트롤러가 작업 공간과 사용자 폴더에서 전체 검사를 확인했다. 원문 저장·실제 파서·권한·주장 지지·나머지 계약은 미완료. 지금 서버·키 추가 작업은 불필요하다. 다음: 주장·관계·비교 조건 계약. Sites v18 유지, 이번 구현 요약은 게시 대기.
+작업: [첫 원문·파싱·인용 계약](../changes/source-evidence-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/source-evidence-contracts` · [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4), base `docs/product-contract-research`, 미병합. 불변 모델·정확한 위치 검증·실제 OpenAPI→생성 TS·Unicode 변환을 구현했다. 독립 작업 리뷰와 전체 변경 리뷰에서 지적 없음. 컨트롤러가 작업 공간과 사용자 폴더에서 전체 검사를 확인했다. 원문 저장·실제 파서·권한·주장 지지·나머지 계약은 미완료. 지금 서버·키 추가 작업은 불필요하다. 다음: 주장·관계·비교 조건 계약. Sites v19 공개 게시 완료. 구현·미구현 범위와 PR/검증을 요약하고 v18 조사안을 보존했다.
 
 ## 2026-10-11 · 첫 원문·파싱·인용 계약
 
@@ -27,7 +27,7 @@
 - 검증: focused Python domain 140개, API 포함 150개 및 TS 인용 변환 40개 통과. 전체 `npm run check` 1회 통과: Python 150개·TS 60개, Ruff/mypy/ESLint·양쪽 타입·생산 SPA 빌드·생성 계약 drift 검사 통과. RED/GREEN 상세는 로컬 SDD `task-1-report.md`에 보존한다. 새 종속성·외부 호출·운영/비공개 자료 사용 없음.
 - 후속: 출처 연/월/일 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/원문 저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage·저장·권한 검증. 전체 P1과 제품 기능은 미완료.
 - 검토: `9271a0a`에서 독립 작업 명세/품질 리뷰와 전체 변경 리뷰 모두 지적 없음. 컨트롤러 전체 검사도 통과. 사용자 폴더 `/data/lawdigest/IssueDigest`에 브랜치를 연결하고 잠긴 설치·전체 검사 150 Python + 60 JS를 다시 통과했다. 별도 작업 공간의 검증 기록은 PR 병합 전까지 보존한다.
-- 게시: [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4) 생성, 선행 PR #3 위에 쌓았으며 미병합. 구현 커밋 `9271a0a`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38137640138) 성공. Sites 현재 v18, 이번 요약은 반영 대기. 앱의 브라우저 열기·PR 첨부 요청이 응답하지 않아 직접 URL로 공유한다.
+- 게시: [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4) 생성, 선행 PR #3 위에 쌓았으며 미병합. 구현 커밋 `9271a0a`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38137640138) 성공. Sites v19 공개 배포 성공. 스냅샷 기준은 `63f88fe`이며 최신 상태는 이 저장소다. 앱의 브라우저 열기·PR 첨부 요청이 응답하지 않아 직접 URL로 공유한다.
 
 ## 2026-10-11 · 제품 계약 조사
 
@@ -77,7 +77,7 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v18 공개 게시 성공. 첫 원문·파싱·인용 계약 요약은 반영 대기. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v19 공개 게시 성공. 첫 원문·파싱·인용 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
 - 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#4는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
@@ -90,6 +90,10 @@
 유료 외부 호출이나 운영 서버 설치를 시작한 것으로 표시하지 않는다.
 
 ## 게시 검증 증거
+
+- Sites v19 source: `36ece7df45854a5db46d1c9690641a3d5bfd09d9`, deployment `appgdep_6acb7b68bcb08191a9b187bc7327f92e`, 상태 `succeeded` (2026-10-11 12:05 UTC). 기존 공개 설정 유지. 로컬 1366×900·390×844에서 새 계약 요약·내부 anchor와 보존 파일 링크 정상, 가로 넘침 없음, 콘솔 오류/경고 0건. v18 이전 조사안을 별도 보존했다. 저장소 원본/공개 사본 기준을 구분했다.
+- 원격 검증: 구현 `9271a0a` CI #38137640138, 검토/PR 문서 `63f88fe` CI #38137818441 성공. 제품 구현 코드는 독립 작업/전체 리뷰 이후 변경하지 않았다.
+- 사용자 폴더의 실제 API `/openapi.json`에서 EvidenceBundle과 기존 상태 경로만 확인, 웹 HTTP200 확인. 개발 서버는 로컬 5173/8000에서 기동 중이며 운영 배포가 아니다.
 
 - Sites v18 source: `02565938f167a9a6c0c5203b5bfdf6569640e8f6`, deployment `appgdep_6acb6fc608108191b1f9a302100aed7b`, 상태 `succeeded`. 기존 공개 설정 유지. 1366×900·390×844에서 가로 넘침 없음, 새 요약 4행·전체 내부 링크 정상, 콘솔 오류/경고 0건 확인.
 
