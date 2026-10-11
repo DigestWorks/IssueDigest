@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useRef, useState } from "react"
+import { lazy, Suspense, useEffect, useRef, useState, type ReactNode } from "react"
 import { motion } from "motion/react"
 
 import { dataColor } from "~/design/palette"
@@ -28,6 +28,8 @@ export type SchematicMapProps = {
   /** 선택한 지역 코드 */
   focus: string | null
   onFocus: (code: string | null) => void
+  /** 보기 전환 아래에 덧붙일 조작(예: 다시 재생, 색 모드). ControlButton 으로 만든다 */
+  controls?: ReactNode
   /** 색 모드. 주지 않으면 바깥 SchematicTheme 의 모드(없으면 어두운 모드) */
   mode?: SchematicMode
   className?: string
@@ -39,7 +41,7 @@ export type SchematicMapProps = {
  * - 화면 고정 주석: 제목, 보기 전환, 범례와 출처, 카메라 방위·기울기·거리, 가리킨 지역.
  * 스테이지 상태와 분리된 컴포넌트다. 값과 선택 상태는 속성으로 받는다.
  */
-export function SchematicMap({ title, values, colored, legend, source, focus, onFocus, mode, className }: SchematicMapProps) {
+export function SchematicMap({ title, values, colored, legend, source, focus, onFocus, controls, mode, className }: SchematicMapProps) {
   const outer = useSchematicMode()
   const m = mode ?? outer
   const reducedMotion = useReducedMotion()
@@ -124,6 +126,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
                 선택 해제
               </ControlButton>
             ) : null}
+            {controls}
           </div>
         </div>
 
@@ -161,7 +164,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
 }
 
 /** 도면 양식 버튼: 왼쪽 사각점과 글자. 선택된 보기는 주황 사각점과 꺾쇠 눈금으로 표시한다. */
-function ControlButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+export function ControlButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
       type="button"

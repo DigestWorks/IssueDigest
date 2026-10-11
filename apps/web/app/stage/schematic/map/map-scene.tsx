@@ -58,6 +58,8 @@ export type MapSceneProps = {
 }
 
 const MAP_SIZE = 16
+/** 등장 시작 시 지도 가로 배율 */
+const EXPAND_FROM = 0.3
 const BASE_H = 0.1
 const MAX_H = 1.8
 /** 층 외곽선 색 번짐: 사본 간격(장면 단위)과 불투명도 */
@@ -118,13 +120,21 @@ const useTheme = () => {
   return t
 }
 
-/** 등장 시각(ms, 경계 데이터를 받은 시점 기준). 틀 → 외곽선 → 면 → 글자 순서다. */
+/**
+ * 등장 시각(ms, 경계 데이터를 받은 시점 기준). 지도 홀로그램이 가운데에서 펼쳐진다.
+ * - expand: 지도 전체가 가운데에서 바깥으로 커진다(가로 배율 EXPAND_FROM → 1).
+ * - wave: 바닥의 고리가 가운데에서 바깥으로 퍼지고, 고리가 닿는 지역부터 나타난다.
+ *   지역의 등장 시각은 지도 중심에서의 거리에 비례한다.
+ * - region: 지역마다 바닥 외곽선이 그려진 뒤, 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다.
+ * - label·frame: 지역 이름과 지도 틀은 마지막에 나타난다.
+ */
 const T = {
-  frame: { at: 0, ms: 600 },
-  compass: { at: 0, ms: 1200 },
-  outline: { at: 200, ms: 500, step: 30 },
-  fill: { at: 900, ms: 1100, step: 35 },
-  label: { at: 1500, ms: 300, step: 20 },
+  expand: { ms: 1500 },
+  wave: { at: 100, ms: 1300 },
+  region: { outlineMs: 450, unfoldAt: 200, unfoldMs: 900 },
+  label: { at: 900, ms: 300 },
+  frame: { at: 1300, ms: 600 },
+  compass: { at: 0, ms: 1500 },
   focusTrace: 700,
   focusPulse: { at: 500, ms: 1000 },
   focusLeader: { at: 400, ms: 400 },
@@ -294,16 +304,30 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
     for (const r of data.regions) focusCentroids.set(r.code, r.centroid)
   }, [data])
 
+  // 지도 중심에서 가장 먼 지역 중심까지의 거리. 퍼지는 고리가 이 거리에 닿을 때 마지막 지역이 나타난다.
+  const maxDist = useMemo(
+    () => (data ? Math.max(...data.regions.map((r) => Math.hypot(r.centroid.x, r.centroid.z))) : 1),
+    [data]
+  )
+  const expand = useRef<Group>(null)
+  useFrame(() => {
+    if (!data || !expand.current) return
+    const e = easeOutCubic(progress(performance.now(), data.t0, T.expand.ms, reducedMotion))
+    const k = EXPAND_FROM + (1 - EXPAND_FROM) * e
+    expand.current.scale.set(k, 1, k)
+  })
+
   if (!data) return null
   const { collection, regions, t0 } = data
   const focused = focus ? regions.find((r) => r.code === focus) : undefined
 
   return (
-    <group>
-      {regions.map((r, i) => {
+    <group ref={expand} scale={[EXPAND_FROM, 1, EXPAND_FROM]}>
+      <ExpandWave radius={maxDist + 1.5} t0={t0} reducedMotion={reducedMotion} />
+      {regions.map((r) => {
         const common = {
           region: r,
-          order: i,
+          delay: T.wave.at + (Math.hypot(r.centroid.x, r.centroid.z) / maxDist) * T.wave.ms,
           t0,
           focused: focus === r.code,
           dimmed: focus !== null && focus !== r.code,
@@ -341,9 +365,53 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
   )
 }
 
+/**
+ * 등장 고리: 바닥에서 가운데부터 바깥으로 퍼지는 원. 고리가 지나간 자리에 지역이 나타난다.
+ * 퍼지는 동안 옅어지고 끝나면 보이지 않는다(한 번만 재생).
+ */
+function ExpandWave({ radius, t0, reducedMotion }: { radius: number; t0: number; reducedMotion: boolean }) {
+  const th = useTheme()
+  const ring = useMemo(() => {
+    const pts: number[] = []
+    const n = 192
+    for (let i = 0; i < n; i++) {
+      const a1 = (i / n) * Math.PI * 2
+      const a2 = ((i + 1) / n) * Math.PI * 2
+      pts.push(Math.sin(a1), 0, -Math.cos(a1), Math.sin(a2), 0, -Math.cos(a2))
+    }
+    return lineGeometry(pts)
+  }, [])
+  const outer = useRef<Group>(null)
+  const inner = useRef<Group>(null)
+  const mats = useRef<(LineBasicMaterial | null)[]>([])
+
+  useFrame(() => {
+    const p = progress(performance.now(), t0 + T.wave.at, T.wave.ms, reducedMotion)
+    const r = Math.max(0.001, radius * p)
+    outer.current?.scale.set(r, 1, r)
+    inner.current?.scale.set(r * 0.92, 1, r * 0.92)
+    const o = reducedMotion || p <= 0 || p >= 1 ? 0 : 0.9 * (1 - p ** 3)
+    if (mats.current[0]) mats.current[0].opacity = o
+    if (mats.current[1]) mats.current[1].opacity = o * 0.35
+  })
+
+  return (
+    <group position-y={0.01}>
+      {[outer, inner].map((g, i) => (
+        <group key={i} ref={g}>
+          <lineSegments geometry={ring}>
+            <lineBasicMaterial ref={(m) => void (mats.current[i] = m)} color={th.ink} transparent opacity={0} depthWrite={false} />
+          </lineSegments>
+        </group>
+      ))}
+    </group>
+  )
+}
+
 type RegionCommon = {
   region: ProjectedRegion
-  order: number
+  /** 등장 지연(ms, t0 기준). 지도 중심에서의 거리에 비례한다 */
+  delay: number
   t0: number
   focused: boolean
   dimmed: boolean
@@ -365,7 +433,7 @@ type RegionCommon = {
 function RegionVolume({
   region,
   value,
-  order,
+  delay,
   t0,
   focused,
   dimmed,
@@ -415,27 +483,25 @@ function RegionVolume({
 
   useFrame((state, delta) => {
     const now = performance.now()
-    const tOutline = progress(now, t0 + T.outline.at + order * T.outline.step, T.outline.ms, reducedMotion)
-    const tFill = progress(now, t0 + T.fill.at + order * T.fill.step, T.fill.ms, reducedMotion)
-    // 층이 아래에서부터 하나씩 쌓인다
-    const shown = Math.ceil(count * easeOutCubic(tFill))
+    const tOutline = progress(now, t0 + delay, T.region.outlineMs, reducedMotion)
+    // 바닥에 포개져 있던 층 사이가 벌어지며 위로 펼쳐진다
+    const unfold = easeOutCubic(progress(now, t0 + delay + T.region.unfoldAt, T.region.unfoldMs, reducedMotion))
     const full = count * LAYER_GAP
     const target = focused ? Math.min(FOCUS_SPREAD, 1 + FOCUS_RISE_MAX / full) : 1
     spread.current = reducedMotion ? target : MathUtils.damp(spread.current, target, 5, delta)
-    stack.current?.scale.set(1, spread.current, 1)
-    const h = shown * LAYER_GAP * spread.current
+    const k = Math.max(0.001, unfold * spread.current)
+    stack.current?.scale.set(1, k, 1)
+    const h = full * k
     heights.set(region.code, Math.max(h, BASE_H))
     hitColumn.current?.scale.set(1, 1, Math.max(0.001, h))
     setDrawProgress(outline, tOutline)
-    layers.lines.setDrawRange(0, shown * layers.lineStride)
-    layers.fills.setDrawRange(0, shown * layers.fillStride)
 
-    if (base.current) base.current.opacity = dimmed ? OPACITY.faint.value : OPACITY.context.value
-    const o = focused || hovered ? 1 : dimmed ? 0.22 : neutral ? 0.6 : 0.85
+    if (base.current) base.current.opacity = (dimmed ? OPACITY.faint.value : OPACITY.context.value) * tOutline
+    const o = (focused || hovered ? 1 : dimmed ? 0.22 : neutral ? 0.6 : 0.85) * tOutline
     if (lineMat.current) lineMat.current.opacity = o
 
     // 층 외곽선 색 번짐: 빨강·청록 사본을 화면 픽셀 단위로 좌우에 어긋나게 둔다
-    const f = (neutral ? FRINGE.neutral : FRINGE.colored) * (dimmed ? 0.4 : 1) * (dark ? 1 : 0.8)
+    const f = (neutral ? FRINGE.neutral : FRINGE.colored) * (dimmed ? 0.4 : 1) * (dark ? 1 : 0.8) * tOutline
     state.gl.getDrawingBufferSize(res)
     for (const m of fringeMats.current) {
       if (!m) continue
@@ -444,9 +510,9 @@ function RegionVolume({
     }
     if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
 
-    // 맨 위 층 강조선: 지금 보이는 가장 높은 층을 따라간다
+    // 맨 위 층 강조선: 펼쳐지는 맨 위 층을 따라간다
     top.current?.position.setY(h + 0.002)
-    if (topLine.current) topLine.current.material.opacity = shown > 0 ? (dimmed ? 0.3 : 1) : 0
+    if (topLine.current) topLine.current.material.opacity = (dimmed ? 0.3 : 1) * tOutline
   })
 
   const select = (e: ThreeEvent<MouseEvent>) => {
@@ -572,7 +638,7 @@ function buildLayers(region: ProjectedRegion, count: number, color: Color, color
  * 지역 이름. 카메라가 높으면 윗면에 눕고, 낮으면 윗면 위에 선다(결과 패널과 같은 각도 기준).
  * 카메라 방위를 따라 돌아 글자가 바로 읽히는 방향을 유지한다. 선택한 지역은 주석이 이름을 대신한다.
  */
-function RegionLabel({ region, order, t0, focused, dimmed, hovered, heights, reducedMotion }: RegionCommon) {
+function RegionLabel({ region, delay, t0, focused, dimmed, hovered, heights, reducedMotion }: RegionCommon) {
   const th = useTheme()
   const group = useRef<Group>(null)
   const text = useRef<TextLike | null>(null)
@@ -588,7 +654,7 @@ function RegionLabel({ region, order, t0, focused, dimmed, hovered, heights, red
     const h = heights.get(region.code) ?? BASE_H
     g.position.set(region.centroid.x, h + 0.02 + up.current * fontSize * 0.7, region.centroid.z)
     g.rotation.set(MathUtils.lerp(-Math.PI / 2, 0, up.current), controls?.azimuthAngle ?? 0, 0, "YXZ")
-    const a = progress(performance.now(), t0 + T.label.at + order * T.label.step, T.label.ms, reducedMotion)
+    const a = progress(performance.now(), t0 + delay + T.label.at, T.label.ms, reducedMotion)
     if (text.current) text.current.fillOpacity = a * (focused ? 0 : hovered ? 1 : dimmed ? 0.3 : 0.8)
   })
 

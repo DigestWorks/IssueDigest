@@ -147,3 +147,23 @@ export const electionMapScenario: Scenario = {
   match: (q) => /선거|지지율|서울|자치구|시장/.test(q),
   steps: buildSteps(),
 }
+
+/** 지도 견본과 지도 페이지에서 색으로 표시할 도심 자치구: 종로·중·용산·성동·동대문·서대문 */
+export const CENTRAL_GU = ["11010", "11020", "11030", "11040", "11060", "11130"]
+
+/** 시나리오의 map.show·map.choropleth 이벤트에서 꺼낸 지도 표시 값(지도 견본과 지도 페이지가 함께 쓴다) */
+export function electionMapSample() {
+  const events = electionMapScenario.steps.flatMap((st) => ("event" in st ? [st.event] : []))
+  const show = events.find((e) => e.type === "map.show")
+  const choropleth = events.find((e) => e.type === "map.choropleth")
+  if (show?.type !== "map.show" || choropleth?.type !== "map.choropleth") {
+    throw new Error("지도 시나리오에 map.show·map.choropleth 이벤트가 없습니다")
+  }
+  return {
+    title: show.title,
+    values: choropleth.values,
+    colored: CENTRAL_GU,
+    legend: choropleth.legend,
+    source: choropleth.source,
+  }
+}
