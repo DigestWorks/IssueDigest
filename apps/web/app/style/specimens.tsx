@@ -285,14 +285,14 @@ export function SchematicPanelSpecimen({ panels }: { panels: Panel[] }) {
 
 /**
  * 도면 양식 3D 지도 견본. 지도 시나리오의 샘플 값을 그대로 쓰고, 선택 상태는 이 견본이 갖는다.
- * 첫 화면에서는 등장이 끝난 뒤 강남구를 선택해 선택 표시와 주석을 보여 준다.
+ * 첫 화면에서는 등장이 끝난 뒤 용산구를 선택해 선택 표시와 주석을 보여 준다.
  */
 export function SchematicMapSpecimen({ data }: { data: Omit<SchematicMapProps, "focus" | "onFocus" | "className"> }) {
   const [run, setRun] = useState(0)
   const [focus, setFocus] = useState<string | null>(null)
   useEffect(() => {
     setFocus(null)
-    const id = window.setTimeout(() => setFocus("11230"), 3200)
+    const id = window.setTimeout(() => setFocus("11030"), 3200)
     return () => window.clearTimeout(id)
   }, [run])
   return (

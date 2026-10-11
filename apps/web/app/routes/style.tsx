@@ -48,6 +48,8 @@ const SAMPLE_PANELS = SCENARIOS.flatMap((s) =>
 )
 SPECIMENS.panels = [{ title: "결과 패널 (시나리오 샘플 데이터)", node: <SchematicPanelSpecimen panels={SAMPLE_PANELS} /> }]
 
+/** 지도 견본에서 색으로 표시할 도심 자치구: 종로·중·용산·성동·동대문·서대문 */
+const CENTRAL_GU = ["11010", "11020", "11030", "11040", "11060", "11130"]
 const mapEvents = electionMapScenario.steps.flatMap((st) => ("event" in st ? [st.event] : []))
 const mapShow = mapEvents.find((e) => e.type === "map.show")
 const mapValues = mapEvents.find((e) => e.type === "map.choropleth")
@@ -57,7 +59,13 @@ if (mapShow?.type === "map.show" && mapValues?.type === "map.choropleth") {
       title: "3D 지도 (지도 시나리오 샘플 데이터)",
       node: (
         <SchematicMapSpecimen
-          data={{ title: mapShow.title, values: mapValues.values, legend: mapValues.legend, source: mapValues.source }}
+          data={{
+            title: mapShow.title,
+            values: mapValues.values,
+            colored: CENTRAL_GU,
+            legend: mapValues.legend,
+            source: mapValues.source,
+          }}
         />
       ),
     },

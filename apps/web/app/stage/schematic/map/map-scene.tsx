@@ -35,6 +35,8 @@ export type MapSource = { label: string; span?: string }
 
 export type MapSceneProps = {
   values: Record<string, RegionValue>
+  /** 색으로 표시할 지역 코드. 없으면 값이 있는 모든 지역. 나머지는 높이만 두고 중립색으로 그린다 */
+  colored?: string[]
   source: MapSource
   focus: string | null
   hovered: string | null
@@ -59,7 +61,7 @@ const LEADER = 2.6
 const INK = SCHEMATIC_THEME.ink
 const ACCENT = SCHEMATIC_THEME.accent
 const SCENE = SCHEMATIC_THEME.scene
-/** 값이 없는 지역의 선 색 */
+/** 색으로 표시하지 않는 지역(값이 없는 지역 포함)의 중립색 */
 const LINE_DIM = "#8b9598"
 
 /** 등장 시각(ms, 경계 데이터를 받은 시점 기준). 틀 → 외곽선 → 면 → 글자 순서다. */
@@ -117,7 +119,8 @@ export default function MapScene(props: MapSceneProps) {
   )
 }
 
-function MapContent({ values, source, focus, hovered, onFocus, onHover, reducedMotion }: MapSceneProps) {
+function MapContent({ values, colored, source, focus, hovered, onFocus, onHover, reducedMotion }: MapSceneProps) {
+  const colorSet = useMemo(() => (colored ? new Set(colored) : null), [colored])
   const [data, setData] = useState<{ collection: RegionCollection; regions: ProjectedRegion[]; t0: number } | null>(null)
   const heights = useRef(new Map<string, number>())
 
@@ -157,7 +160,14 @@ function MapContent({ values, source, focus, hovered, onFocus, onHover, reducedM
         }
         return (
           <group key={r.code}>
-            <RegionVolume {...common} value={values[r.code]} onFocus={onFocus} onHover={onHover} />
+            <RegionVolume
+              {...common}
+              value={values[r.code]}
+              // 선택한 지역은 중립색이었더라도 데이터 색을 보여 준다
+              neutral={!values[r.code] || (colorSet !== null && !colorSet.has(r.code) && focus !== r.code)}
+              onFocus={onFocus}
+              onHover={onHover}
+            />
             <RegionLabel {...common} />
           </group>
         )
@@ -211,10 +221,11 @@ function RegionVolume({
   reducedMotion,
   onFocus,
   onHover,
-}: RegionCommon & Pick<MapSceneProps, "onFocus" | "onHover"> & { value: RegionValue | undefined }) {
+  neutral,
+}: RegionCommon & Pick<MapSceneProps, "onFocus" | "onHover"> & { value: RegionValue | undefined; neutral: boolean }) {
   const count = value ? Math.max(1, Math.round((value.magnitude * MAX_H) / LAYER_GAP)) : 1
-  const color = useMemo(() => new Color(value ? dataColor(value.category) : LINE_DIM), [value])
-  const layers = useMemo(() => buildLayers(region, count, color, !!value), [region, count, color, value])
+  const color = useMemo(() => new Color(value && !neutral ? dataColor(value.category) : LINE_DIM), [value, neutral])
+  const layers = useMemo(() => buildLayers(region, count, color, !neutral), [region, count, color, neutral])
   // 포인터 판정용 보이지 않는 기둥. 층 사이 빈 곳을 가리켜도 지역이 잡히게 한다.
   const hit = useMemo(
     () => new ExtrudeGeometry(region.shapes, { depth: 1, bevelEnabled: false, curveSegments: 1 }),
@@ -226,7 +237,7 @@ function RegionVolume({
     for (const r of region.outlines) for (let i = 0; i < r.length - 1; i++) pts.push(r[i], r[i + 1])
     return pts
   }, [region.outlines])
-  const topColor = useMemo(() => color.clone().lerp(new Color(INK), value ? 0.5 : 0.2), [color, value])
+  const topColor = useMemo(() => color.clone().lerp(new Color(INK), neutral ? 0.2 : 0.5), [color, neutral])
 
   const hitColumn = useRef<Group>(null)
   const lineMat = useRef<LineBasicMaterial>(null)
@@ -254,7 +265,7 @@ function RegionVolume({
     layers.fills.setDrawRange(0, shown * layers.fillStride)
 
     if (base.current) base.current.opacity = dimmed ? OPACITY.faint.value : OPACITY.context.value
-    const o = focused || hovered ? 1 : dimmed ? 0.22 : value ? 0.85 : 0.4
+    const o = focused || hovered ? 1 : dimmed ? 0.22 : neutral ? 0.6 : 0.85
     if (lineMat.current) lineMat.current.opacity = o
     if (fillMat.current) fillMat.current.opacity = o * (focused || hovered ? 0.7 : 0.5)
 
@@ -289,7 +300,7 @@ function RegionVolume({
           points={topPoints}
           segments
           color={topColor}
-          lineWidth={focused || hovered ? 2.4 : 1.8}
+          lineWidth={focused || hovered ? 2.4 : neutral ? 1.2 : 1.8}
           transparent
           opacity={0}
           depthWrite={false}
@@ -324,9 +335,9 @@ function RegionVolume({
  * 면은 맨 위 층만 진하게, 나머지는 아주 옅게 채운다.
  * 층 순서대로 이어 붙였으므로 drawRange 로 아래 층부터 보이게 할 수 있다.
  */
-function buildLayers(region: ProjectedRegion, count: number, color: Color, hasValue: boolean) {
+function buildLayers(region: ProjectedRegion, count: number, color: Color, colored: boolean) {
   const scene = new Color(SCENE)
-  const top = color.clone().lerp(new Color(INK), hasValue ? 0.3 : 0.1)
+  const top = color.clone().lerp(new Color(INK), colored ? 0.3 : 0.1)
   const c = new Color()
 
   // 외곽선 층
@@ -349,14 +360,15 @@ function buildLayers(region: ProjectedRegion, count: number, color: Color, hasVa
   for (let k = 0; k < count; k++) {
     const y = (k + 1) * LAYER_GAP
     const isTop = k === count - 1
-    const a = isTop ? 1 : 0.22 + 0.5 * ((k + 1) / count) ** 1.5
+    const a = (isTop ? 1 : 0.22 + 0.5 * ((k + 1) / count) ** 1.5) * (colored ? 1 : 0.7)
     c.copy(scene).lerp(top, a)
     for (let v = 0; v < lineStride; v++) {
       const o = (k * lineStride + v) * 3
       lp.set([ring[v * 2], y, ring[v * 2 + 1]], o)
       lc.set([c.r, c.g, c.b], o)
     }
-    c.copy(scene).lerp(color, isTop ? 0.55 : 0.12)
+    // 중립 지역은 면을 거의 채우지 않아 색이 있는 지역보다 뒤로 물러나 보이게 한다
+    c.copy(scene).lerp(color, colored ? (isTop ? 0.7 : 0.14) : isTop ? 0.16 : 0.04)
     for (let v = 0; v < sp.count; v++) {
       const o = (k * sp.count + v) * 3
       fp.set([sp.getX(v), y, -sp.getY(v)], o)

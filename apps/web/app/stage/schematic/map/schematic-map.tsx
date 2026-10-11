@@ -21,6 +21,8 @@ const VIEW_LABEL: Record<MapView, string> = {
 export type SchematicMapProps = {
   title: string
   values: Record<string, RegionValue>
+  /** 색으로 표시할 지역 코드. 없으면 값이 있는 모든 지역. 나머지는 높이만 두고 중립색으로 그린다 */
+  colored?: string[]
   legend: { category: number; label: string }[]
   source: MapSource
   /** 선택한 지역 코드 */
@@ -35,7 +37,7 @@ export type SchematicMapProps = {
  * - 화면 고정 주석: 제목, 보기 전환, 범례와 출처, 카메라 방위·기울기·거리, 가리킨 지역.
  * 스테이지 상태와 분리된 컴포넌트다. 값과 선택 상태는 속성으로 받는다.
  */
-export function SchematicMap({ title, values, legend, source, focus, onFocus, className }: SchematicMapProps) {
+export function SchematicMap({ title, values, colored, legend, source, focus, onFocus, className }: SchematicMapProps) {
   const reducedMotion = useReducedMotion()
   const [mounted, setMounted] = useState(false)
   const [hovered, setHovered] = useState<{ code: string; name: string } | null>(null)
@@ -58,6 +60,7 @@ export function SchematicMap({ title, values, legend, source, focus, onFocus, cl
           <Suspense fallback={null}>
             <MapScene
               values={values}
+              colored={colored}
               source={source}
               focus={focus}
               hovered={hovered?.code ?? null}
