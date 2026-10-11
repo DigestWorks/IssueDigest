@@ -601,3 +601,19 @@ def test_failed_payload_rejects_coerced_retryable_and_unknown_error_codes():
     ]:
         with pytest.raises(ValidationError):
             ex.RunEvent.model_validate(event(run, 2, "run.failed", **fields))
+
+
+@pytest.mark.parametrize("alias_name,minimum", [("NonemptyIds", 1), ("MultipleIds", 2)])
+def test_constrained_id_aliases_preserve_runtime_cardinality_and_uniqueness(alias_name, minimum):
+    from issuedigest_domain import contract_values
+    from pydantic import TypeAdapter
+
+    adapter = TypeAdapter(getattr(contract_values, alias_name))
+    valid = tuple(UUID(uid()) for _ in range(minimum))
+    assert adapter.validate_python(valid) == valid
+    assert adapter.validate_json(json.dumps([str(identity) for identity in valid])) == valid
+    for invalid in [valid[:-1], (valid[0], valid[0])]:
+        with pytest.raises(ValidationError):
+            adapter.validate_python(invalid)
+        with pytest.raises(ValidationError):
+            adapter.validate_json(json.dumps([str(identity) for identity in invalid]))

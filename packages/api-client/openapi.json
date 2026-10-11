@@ -44,7 +44,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Attempt Ids",
             "type": "array"
           },
@@ -571,7 +571,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -590,7 +590,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 2,
+            "minItems": 2,
             "title": "Observation Ids",
             "type": "array"
           },
@@ -1048,7 +1048,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -1057,7 +1057,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 2,
+            "minItems": 2,
             "title": "Claim Ids",
             "type": "array"
           },
@@ -1455,7 +1455,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -1604,7 +1604,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -1623,7 +1623,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Relation Ids",
             "type": "array"
           },
@@ -2228,7 +2228,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Attempt Ids",
             "type": "array"
           },
@@ -3192,7 +3192,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -3201,7 +3201,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Claim Ids",
             "type": "array"
           },
@@ -3567,7 +3567,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Citation Ids",
             "type": "array"
           },
@@ -3576,7 +3576,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Claim Ids",
             "type": "array"
           },
@@ -3800,7 +3800,7 @@
               "format": "uuid4",
               "type": "string"
             },
-            "minLength": 1,
+            "minItems": 1,
             "title": "Pricing Snapshot Ids",
             "type": "array"
           },

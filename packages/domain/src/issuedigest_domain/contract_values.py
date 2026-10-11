@@ -27,8 +27,12 @@ MAX_SAFE_INT = 2**53 - 1
 SafeCount = Annotated[int, Field(strict=True, ge=0, le=MAX_SAFE_INT)]
 SafePositive = Annotated[int, Field(strict=True, ge=1, le=MAX_SAFE_INT)]
 UniqueIds = Annotated[tuple[UUID4, ...], AfterValidator(lambda ids: unique_ids(ids))]
-NonemptyIds = Annotated[UniqueIds, Field(min_length=1)]
-MultipleIds = Annotated[UniqueIds, Field(min_length=2)]
+NonemptyIds = Annotated[
+    tuple[UUID4, ...], Field(min_length=1), AfterValidator(lambda ids: unique_ids(ids))
+]
+MultipleIds = Annotated[
+    tuple[UUID4, ...], Field(min_length=2), AfterValidator(lambda ids: unique_ids(ids))
+]
 
 
 def unique_ids(ids: tuple[UUID, ...]) -> tuple[UUID, ...]:

@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts`, 선행 Draft PR #5 위·미병합. 제공된 Run/Event/Canvas/Usage 모델, 입력 해시·재전송·이력 재생·화면 근거/승격·월 예산 판정, 전체 참조와 실제 OpenAPI→생성 TS 공개 타입을 구현했다. focused 270개·전체 Python 656개/JS 60개와 lint·타입·SPA 빌드·계약 drift 검사를 통과했다. 독립 리뷰·Draft PR·Sites·사용자 폴더 연결은 진행 중이다. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 기존 Sites v20은 두 번째 부분 계약까지의 공개 사본이며 이번 요약 반영 대기다.
+작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts`, 선행 Draft PR #5 위·미병합. 제공된 Run/Event/Canvas/Usage 모델, 입력 해시·재전송·이력 재생·화면 근거/승격·월 예산 판정, 전체 참조와 실제 OpenAPI→생성 TS 공개 타입을 구현했다. 리뷰 보완 후 focused 286개·전체 Python 672개/JS 60개와 lint·타입·SPA 빌드·계약 drift 검사를 통과했다. 독립 리뷰·Draft PR·Sites·사용자 폴더 연결은 진행 중이다. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 기존 Sites v20은 두 번째 부분 계약까지의 공개 사본이며 이번 요약 반영 대기다.
 
 ## 2026-10-11 · 실행·이벤트·화면·사용량 부분 계약
 
@@ -23,7 +23,8 @@
 - 입력 자료 순서와 원문 질문·실행 버전을 SHA-256에 고정하고 실제 입력 동등성으로 제출 reuse/conflict를 판정한다. 연속 seq 이력을 fold하여 취소/미확인/완료 경합·늦은 모듈을 거부하고 실패/취소의 base 화면과 비용 확인을 보존한다.
 - Canvas는 허용 모듈/액션·선택 원문/인용 합집합·주장/관계/관측 존재·차트의 알려진 같은 조건·부모/expected ID를 검사한다. CallAttempt는 상태별 시각/결과와 prefix별 유료 적격성을 기록한다. 이 함수들은 실행·권한·서버 저장 인증이 아니다.
 - Usage는 서울 완전한 달·월 전체 운영비 10만 원·다른 비용·정밀 정수 금액·unknown hold·각 retry 합계·실제 초과비용과 정산을 검사한다. 전체 bundle은 모듈 발표/성공 revision·attempt/reconciliation·가격/예약/entry를 연결한다. 제공된 다른 run의 정상 historical revision도 검사하며 최소 ancestor 목록을 선택하지 않는다.
-- 검증: 순수 알고리즘 일곱 개 각각 callable scaffold에 대한 실제 assertion RED를 확인하고 focused GREEN과 실제 schema 등록/기존 component 동일·collision/입력 불변·생성 TS compile 소비자를 확인했다. 상세 명령/출력·self-review는 ignored `.superpowers/sdd/execution-contracts/task-1-report.md`와 evidence에 보존한다. 최종 `npm run check` 1회 통과: Python 656개·JS 60개, Ruff/format/mypy·ESLint·양쪽 TS 타입·SPA 생산 빌드·생성 계약 drift 통과. 유료 적격 cursor는 실제 dispatch 직전 권한 재확인·물리적 취소 경합 보장의 증거가 아니며 worker/DB 처리는 후속이다.
+- 검증: 순수 알고리즘 일곱 개 각각 callable scaffold에 대한 실제 assertion RED를 확인하고 focused GREEN과 실제 schema 등록/기존 component 동일·collision/입력 불변·생성 TS compile 소비자를 확인했다. 상세 명령/출력·self-review는 ignored `.superpowers/sdd/execution-contracts/task-1-report.md`와 evidence에 보존한다. 초기 `npm run check` 1회 통과: Python 656개·JS 60개, Ruff/format/mypy·ESLint·양쪽 TS 타입·SPA 생산 빌드·생성 계약 drift 통과. 유료 적격 cursor는 실제 dispatch 직전 권한 재확인·물리적 취소 경합 보장의 증거가 아니며 worker/DB 처리는 후속이다.
+- 리뷰 보완 1차: 실제 OpenAPI의 ID 배열에 문자열 `minLength`가 생성되는 P2를 확인했다. 공통 tuple 길이 제약을 AfterValidator보다 먼저 적용하여 `minItems`를 생성하고 runtime cardinality/uniqueness를 보존했다. 실제 앱의 14개 배열 assertion RED 후 focused 286개·전체 `npm run check` 1회(Python 672개·JS 60개, lint/타입/SPA 빌드/계약 drift) 통과. OpenAPI/TS를 재생성했으며 TS 결과는 동일하다. 수정 부분 독립 재리뷰 대기다.
 - 인계 대기: 독립 작업·전체 변경 리뷰, Draft PR, Sites v20 이후 공개 요약, 사용자 폴더 연결은 controller가 담당한다. 결합 완료 checkbox를 닫지 않았다. 신규 의존성·외부/유료 호출·비공개/운영 자료·실행기·저장소·SSE/제품 API·UI/AI 구현은 없다.
 
 ## 2026-10-11 · 개체·주장·관계·비교 조건 계약

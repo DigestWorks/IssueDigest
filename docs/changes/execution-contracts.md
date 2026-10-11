@@ -80,4 +80,7 @@
 순수 알고리즘별 assertion RED와 focused GREEN, 결과 자체 모순·strict/UTC/JSON 왕복·실제 schema/compile 소비자 검증을 로컬 SDD evidence/report에 보존한다. 독립 리뷰·Draft PR·Sites·사용자 폴더 연결 전까지 Task 1 checkbox는 pending이다. 실제 실행·저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료다.
 
 
-최종 검증: focused 270개, 전체 `npm run check` 1회 통과(Python 656개·JS 60개, lint/format/mypy·TS 타입·SPA 생산 빌드·생성 계약 drift). 제공된 유료 `authorized_after_seq` prefix가 적격이어야 하며 명시된 시각 부등식을 검사한다. 적격 cursor는 실제 dispatch 직전의 새 권한 확인 증거가 아니고, 단조 증가하지 않는 이벤트 시각으로 물리적 취소 경합을 추정하지 않는다. 실제 worker/DB의 dispatch 직전 취소/예산 강제는 후속이다.
+초기 구현 검증: focused 270개, 전체 `npm run check` 1회 통과(Python 656개·JS 60개, lint/format/mypy·TS 타입·SPA 생산 빌드·생성 계약 drift). 제공된 유료 `authorized_after_seq` prefix가 적격이어야 하며 명시된 시각 부등식을 검사한다. 적격 cursor는 실제 dispatch 직전의 새 권한 확인 증거가 아니고, 단조 증가하지 않는 이벤트 시각으로 물리적 취소 경합을 추정하지 않는다. 실제 worker/DB의 dispatch 직전 취소/예산 강제는 후속이다.
+
+
+리뷰 보완 1차: 공통 NonemptyIds/MultipleIds의 tuple 길이 제약이 AfterValidator 뒤에 적용되어 실제 OpenAPI 배열에 문자열 `minLength`가 생성된 P2를 보완했다. 길이를 tuple에 먼저 적용하여 올바른 `minItems`를 생성하며 runtime uniqueness/cardinality는 유지한다. 실제 API의 영향받는 14개 필드에서 assertion RED를 확인한 뒤 focused 286개·전체 `npm run check` 1회(Python 672개·JS 60개, lint/format/타입/SPA 빌드/계약 drift)를 통과했다. OpenAPI/TS를 실제 경로로 재생성했으며 현재 생성기의 TS 결과는 동일하다. 수정 부분 독립 재리뷰·나머지 인계는 pending이다.

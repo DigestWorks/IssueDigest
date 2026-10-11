@@ -224,3 +224,30 @@ def test_execution_schema_collision_does_not_mutate_input(name):
     with pytest.raises(ValueError, match=name):
         contracts.add_evidence_schemas(original)
     assert original == {"components": {"schemas": {name: {"type": "string"}}}, "paths": {}}
+
+
+@pytest.mark.parametrize(
+    "model,field,minimum",
+    [
+        ("EvidenceModule", "citation_ids", 1),
+        ("SummaryModule", "citation_ids", 1),
+        ("ComparisonModule", "citation_ids", 1),
+        ("TimelineModule", "citation_ids", 1),
+        ("GraphModule", "citation_ids", 1),
+        ("ChartModule", "citation_ids", 1),
+        ("SummaryModule", "claim_ids", 1),
+        ("ComparisonModule", "claim_ids", 2),
+        ("TimelineModule", "claim_ids", 1),
+        ("GraphModule", "relation_ids", 1),
+        ("ChartModule", "observation_ids", 2),
+        ("AwaitingReconciliationPayload", "attempt_ids", 1),
+        ("ReconciliationResolvedPayload", "attempt_ids", 1),
+        ("UsageReservation", "pricing_snapshot_ids", 1),
+    ],
+)
+def test_actual_execution_schema_preserves_minimum_id_array_cardinality(model, field, minimum):
+    schema = TestClient(main.app).get("/openapi.json").json()
+    array = schema["components"]["schemas"][model]["properties"][field]
+    assert array["type"] == "array"
+    assert array.get("minItems") == minimum, "actual OpenAPI loses minimum array cardinality"
+    assert "minLength" not in array, "array constraints must not use the string length keyword"
