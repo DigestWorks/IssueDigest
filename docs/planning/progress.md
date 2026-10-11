@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts` · [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6), base `feat/research-contracts` · 미병합. 순수 모델/함수·전체 참조·실제 OpenAPI→생성 TS 공개 타입을 구현했다. 작업 리뷰에서 배열 최소 개수의 OpenAPI 표현 P2를 보완하고 수정 부분·전체 변경 리뷰까지 통과했다. 컨트롤러 최종 전체 검사: Python 672개·JS 60개, lint/format/mypy·양쪽 TS·SPA 빌드·계약 drift 통과. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 사용자 폴더 연결과 Sites v20 이후 공개 요약 갱신은 진행 중이다. 다음은 DB·검색·실행기·인증 판단과 실제 저장·전달 연결이다.
+작업: [실행·이벤트·화면·사용량 부분 계약](../changes/execution-contracts.md) · P1/R4~R6. 담당: Codex. 브랜치: `feat/execution-contracts` · [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6), base `feat/research-contracts` · 미병합. 순수 모델/함수·전체 참조·실제 OpenAPI→생성 TS 공개 타입을 구현했다. 작업 리뷰에서 배열 최소 개수의 OpenAPI 표현 P2를 보완하고 수정 부분·전체 변경 리뷰까지 통과했다. 컨트롤러 최종 전체 검사: Python 672개·JS 60개, lint/format/mypy·양쪽 TS·SPA 빌드·계약 drift 통과. 실제 저장·SSE·동시 예산·인증·공급자 호출·renderer/AI·전체 P1은 미완료. 사용자 폴더 `/data/lawdigest/IssueDigest`를 새 브랜치로 연결했고 실제 API OpenAPI=생성 계약·새 모델/배열 최소 개수·기존 두 경로 및 웹 HTTP 200을 확인했다. Sites v20 이후 공개 요약 게시는 대기 중이다. 다음은 DB·검색·실행기·인증 판단과 실제 저장·전달 연결이다.
 
 ## 2026-10-12 · 실행 계약 검토·인계
 
@@ -133,3 +133,9 @@
 - Sites v15 source: `a96fae750ac020212d239e3d69344718cd6c3f02`, deployment `appgdep_6acb5724c784819184713ada7b2a8a8a`, 상태 `succeeded`.
 - Vercel: 배포 목록 0개, `paused=true`, Git 연결 없음. 대표 주소와 두 과거 배포 주소는 HTTP 404 `DEPLOYMENT_NOT_FOUND`.
 - 화면: 1366×1000·390×844에서 문서 가로 넘침 없음, 내부 메뉴 이동 확인, 콘솔 오류 0건. 문서 링크·보존 원문·계획 사본 일치 확인.
+
+
+## 2026-10-12 · 사용자 폴더 연결·게시 준비
+
+- 사용자 폴더 `/data/lawdigest/IssueDigest`의 깨끗한 상태를 확인하고 `feat/execution-contracts`를 연결했다. 격리 구현 폴더는 같은 커밋에 detached로 보존했다. 기존에 이 작업이 실행한 API 프로세스만 중지하고 새 브랜치의 통합 개발 실행을 기동했다. 실제 `/openapi.json` HTTP 200과 생성 JSON의 정확한 일치, RunHistory/RunExecutionBundle/CanvasBundle/UsageBook/BudgetAssessment 및 차트 minItems2·기존 HTTP 두 경로를 확인했다. 웹 HTTP 200. 새로운 제품 화면/AI 실행 검증은 아니다.
+- 검토된 구현 `e2255d7`의 [GitHub CI #38150424568](https://github.com/DigestWorks/IssueDigest/actions/runs/38150424568) 성공. Docs-only 인계 커밋 뒤의 최종 HEAD CI는 마지막에 다시 확인한다. Sites의 이전 v20 기록을 보존하고 새 공개 요약·docs 사본 게시를 준비 중이다. 결합 체크는 게시 성공 후 처리한다.
