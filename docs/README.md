@@ -45,4 +45,9 @@ Sites 반영 상태:
 
 원문 식별/버전과 파싱 표현을 분리한 첫 계약 및 정확한 인용 anchor 검증을 구현했습니다. [Python 도메인](../packages/domain/README.md)과 [생성 웹 타입·Unicode 변환](../packages/api-client/README.md)에 실제 공개 모델과 검증 경계를 기록합니다. API OpenAPI components로 연결하며 제품 HTTP 경로를 추가하지 않습니다. 완료 증거와 리뷰·Sites 대기는 [진행 기록](planning/progress.md), 후속 범위는 [작업 목록](planning/tasks.md)에서 관리합니다.
 
-이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage가 남아 있습니다.
+이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, Run/Event/Canvas/Usage가 남아 있습니다.
+
+
+## 두 번째 개체·주장·관계·비교 조건 계약
+
+[작업 명세](changes/research-contracts.md)의 실행 모델·묶음 참조 검증·보수적 조건 판정을 구현했습니다. [도메인](../packages/domain/README.md), [생성 타입](../packages/api-client/README.md)에 실제 공개 계약과 한계를 기록합니다. 관계 어휘와 비교 정책은 제한된 v1이며 제공된 근거·검토·조건을 검사합니다. 주장 진실, 조사 동등성, 합산·완전 분포, 인증된 검토·실제 저장·Neo4j 투영은 후속입니다. 독립 리뷰·PR·Sites의 완료 여부는 [진행 기록](planning/progress.md)에서 관리합니다. [제품 계약 조사](research/product-contracts.md)는 당시의 조사·제안 기록으로 보존합니다.

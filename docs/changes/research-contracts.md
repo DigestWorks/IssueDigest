@@ -1,6 +1,6 @@
 # 개체·주장·관계·비교 조건 계약
 
-상태: 구현 중 · 2026-10-11 한국 시간. 기준 `ef62666`, 선행 PR #4. 다음 작업 진행 요청으로 승인된 계약 구현의 두 번째 묶음이다.
+상태: 실행 코드 구현 · 독립 리뷰/PR/Sites 대기 · 2026-10-11 한국 시간. 기준 `ef62666`, 선행 PR #4. 다음 작업 진행 요청으로 승인된 계약 구현의 두 번째 묶음이다.
 
 ## 목표와 경계
 
@@ -78,3 +78,8 @@
 관련 원본은 위 Global Constraints와 C1~C4, `docs/research/product-contracts.md`의 개체·주장·관계 부분이다. 기존 공개 EvidenceBundle 타입/Unicode helper/상태 API는 보존한다. `packages/domain/src/issuedigest_domain/`에 역할별 파일과 공개 exports, `packages/domain/tests/`에 의미 있는 동작 테스트를 추가한다. API contracts/테스트와 api-client 생성 파일/public exports/README를 확장한다. 새 TS 런타임 기능은 없다. docs/README, planning/tasks/progress에서 두 번째 부분 계약과 미완료 경계를 기록한다. controller가 Sites·GitHub·사용자 폴더 연결을 담당한다.
 
 환경: Node24.21.0/npm11.19.0 (`PATH=/home/xinics/.nvm/versions/node/v24.21.0/bin:$PATH`), uv0.11.4/잠긴 Python3.13.12. 설치된 의존성을 사용한다. test-driven-development를 따른다. 기능별 실제 RED→GREEN, focused tests, 전체 check는 커밋 전1회, self-review/커밋/상세 보고서. 리뷰/게시 gate 전에 결합 checkbox를 무리하게 완료 처리하지 않는다.
+
+
+## 구현 인계
+
+역할별 Python 불변 모델·참조 검사와 비교 함수, 실제 OpenAPI components·생성 TypeScript/public aliases를 구현했다. 기존 HTTP paths·원문/인용·상태·웹 기능과 선행 계약 버전은 유지했다. 합성 자료만 사용했고 종속성·DB·추출·AI·그래프·UI를 추가하지 않았다. C1~C4 결합 체크박스는 controller의 독립 리뷰·PR·Sites 게시 전까지 대기로 유지한다. 실행 검증 결과·남은 단계는 [진행 기록](../planning/progress.md)에 기록한다. 제품 계약 조사·과거 제안은 보존한다.

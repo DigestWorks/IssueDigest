@@ -71,6 +71,8 @@ npm run check
 
 Python 도메인 모델과 FastAPI OpenAPI가 계약 원본입니다. 응답 모델이나 API 경로를 바꾸면 `npm run contract:generate`를 실행하고 `packages/api-client/openapi.json`과 `src/schema.d.ts`를 함께 검토·커밋합니다. `contract:check`는 임시 폴더에서 다시 생성해 두 파일을 비교하며 차이가 있으면 실패합니다. 생성 파일은 직접 수정하지 않습니다. GitHub Actions는 같은 설치·검증 절차를 수행합니다.
 
+원문·파싱·인용에 이어 개체·주장·제한된 관계·관측·비교 조건의 두 번째 부분 계약을 구현했습니다. 실제 OpenAPI components와 생성 웹 타입으로 연결하며 제품 HTTP 경로는 추가하지 않습니다. [도메인 README](packages/domain/README.md)에 참조·수치·검토·비교의 검증 경계를 기록합니다. 인용 존재나 조건 일치는 주장 진실·합산 가능성·저장·권한 구현을 보장하지 않습니다.
+
 React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, Pydantic **2.14.0**를 고정했습니다. TypeScript **5.9.3**은 현재 OpenAPI 생성기의 `^5.x`와 린트 도구의 `<6.1.0` 지원 범위를 함께 만족하는 최신 5.x 안정 버전입니다. 강제 peer 의존성 우회는 사용하지 않습니다. [프레임워크 SPA 안내](https://reactrouter.com/how-to/spa), [OpenAPI 생성기](https://openapi-ts.dev/introduction)를 기준으로 구성하고 패키지 메타데이터로 호환성을 확인했습니다.
 
 ## 생산 연결과 현재 제한

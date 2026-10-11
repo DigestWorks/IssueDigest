@@ -85,6 +85,198 @@ export interface components {
              */
             support_status: "not_evaluated";
         };
+        /** Claim */
+        Claim: {
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "source_assertion" | "observation" | "inference";
+            /** Citation Ids */
+            citation_ids: string[];
+            /**
+             * Claim Id
+             * Format: uuid4
+             */
+            claim_id: string;
+            /** @default null */
+            derivation: components["schemas"]["DerivationRecord"] | null;
+            /**
+             * Raw Event Time Text
+             * @default null
+             */
+            raw_event_time_text: string | null;
+            /**
+             * Speaker Entity Id
+             * @default null
+             */
+            speaker_entity_id: string | null;
+            /**
+             * Subject Entity Ids
+             * @default []
+             */
+            subject_entity_ids: string[];
+            /** Text */
+            text: string;
+            /** @default null */
+            valid_period: components["schemas"]["DateInterval"] | null;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** ClaimReference */
+        ClaimReference: {
+            /**
+             * Claim Id
+             * Format: uuid4
+             */
+            claim_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "claim";
+        };
+        /** ComparisonAssessment */
+        ComparisonAssessment: {
+            /**
+             * Aggregation Status
+             * @default not_evaluated
+             * @constant
+             */
+            aggregation_status: "not_evaluated";
+            /** Observation Ids */
+            observation_ids: string[];
+            /**
+             * Policy Version
+             * @default issuedigest-comparison-v1
+             * @constant
+             */
+            policy_version: "issuedigest-comparison-v1";
+            /** Reasons */
+            reasons: components["schemas"]["ComparisonReason"][];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "same_context" | "different_context" | "insufficient_context";
+        };
+        /** ComparisonContext */
+        ComparisonContext: {
+            /**
+             * Denominator
+             * @default null
+             */
+            denominator: string | null;
+            /**
+             * Dimensions
+             * @default []
+             */
+            dimensions: components["schemas"]["Dimension"][];
+            /**
+             * Geography
+             * @default null
+             */
+            geography: string | null;
+            /**
+             * Methodology
+             * @default null
+             */
+            methodology: string | null;
+            /** Metric */
+            metric: string;
+            /** @default null */
+            period: components["schemas"]["DateInterval"] | null;
+            /**
+             * Population
+             * @default null
+             */
+            population: string | null;
+            /**
+             * Question
+             * @default null
+             */
+            question: string | null;
+            /**
+             * Sample Size
+             * @default null
+             */
+            sample_size: number | null;
+            /**
+             * Series Id
+             * @default null
+             */
+            series_id: string | null;
+            /**
+             * Unit
+             * @default null
+             */
+            unit: string | null;
+            /**
+             * Weighting
+             * @default null
+             */
+            weighting: string | null;
+        };
+        /** ComparisonReason */
+        ComparisonReason: {
+            /**
+             * Field
+             * @enum {string}
+             */
+            field: "metric" | "unit" | "period" | "population" | "geography" | "question" | "methodology" | "sample_size" | "weighting" | "denominator" | "series_id" | "dimensions" | "value";
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "different" | "missing";
+            /** Observation Ids */
+            observation_ids: string[];
+        };
+        /** DateInterval */
+        DateInterval: {
+            /**
+             * End Date
+             * Format: date
+             */
+            end_date: string;
+            /**
+             * Start Date
+             * Format: date
+             */
+            start_date: string;
+        };
+        /** DerivationRecord */
+        DerivationRecord: {
+            /** Method */
+            method: string;
+            /** Method Version */
+            method_version: string;
+            /** Rationale */
+            rationale: string;
+        };
+        /** Dimension */
+        Dimension: {
+            /** Key */
+            key: string;
+            /** Value */
+            value: string;
+        };
+        /** DocumentReference */
+        DocumentReference: {
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "document";
+        };
         /** DocumentVersion */
         DocumentVersion: {
             /**
@@ -112,6 +304,58 @@ export interface components {
              */
             version_id: string;
         };
+        /** Entity */
+        Entity: {
+            /**
+             * Aliases
+             * @default []
+             */
+            aliases: string[];
+            /**
+             * Entity Id
+             * Format: uuid4
+             */
+            entity_id: string;
+            /** @default null */
+            identity_review: components["schemas"]["IdentityReview"] | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "person" | "organization" | "bill" | "policy" | "issue" | "place";
+            /** Name */
+            name: string;
+            /**
+             * Raw Validity Text
+             * @default null
+             */
+            raw_validity_text: string | null;
+            /**
+             * Source Identities
+             * @default []
+             */
+            source_identities: components["schemas"]["SourceIdentity"][];
+            /** @default null */
+            valid_period: components["schemas"]["DateInterval"] | null;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** EntityReference */
+        EntityReference: {
+            /**
+             * Entity Id
+             * Format: uuid4
+             */
+            entity_id: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "entity";
+        };
         /** EvidenceBundle */
         EvidenceBundle: {
             /** Citations */
@@ -125,6 +369,39 @@ export interface components {
              */
             schema_version: 1;
             version: components["schemas"]["DocumentVersion"];
+        };
+        /** IdentityReview */
+        IdentityReview: {
+            /**
+             * Assessment
+             * @enum {string}
+             */
+            assessment: "confirmed" | "ambiguous";
+            /** Citation Ids */
+            citation_ids: string[];
+            /** Method */
+            method: string;
+            /** Method Version */
+            method_version: string;
+            /** Rationale */
+            rationale: string;
+            /**
+             * Review Id
+             * Format: uuid4
+             */
+            review_id: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            /** Reviewer Id */
+            reviewer_id: string;
+            /**
+             * Reviewer Kind
+             * @enum {string}
+             */
+            reviewer_kind: "human" | "automated";
         };
         /** Liveness */
         Liveness: {
@@ -147,6 +424,47 @@ export interface components {
             y0: number;
             /** Y1 */
             y1: number;
+        };
+        /** Observation */
+        Observation: {
+            /** Citation Ids */
+            citation_ids: string[];
+            context: components["schemas"]["ComparisonContext"];
+            /**
+             * Missing Reason
+             * @default null
+             */
+            missing_reason: ("not_reported" | "unreadable" | "not_applicable" | "withheld") | null;
+            /**
+             * Observation Id
+             * Format: uuid4
+             */
+            observation_id: string;
+            /**
+             * Raw Period
+             * @default null
+             */
+            raw_period: string | null;
+            /**
+             * Raw Value
+             * @default null
+             */
+            raw_value: string | null;
+            /**
+             * Subject Entity Id
+             * @default null
+             */
+            subject_entity_id: string | null;
+            /**
+             * Value
+             * @default null
+             */
+            value: string | null;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
         };
         /** PageSpan */
         PageSpan: {
@@ -222,6 +540,84 @@ export interface components {
              */
             suffix: string | null;
         };
+        /** Relation */
+        Relation: {
+            /**
+             * Basis
+             * @enum {string}
+             */
+            basis: "source_assertion" | "observation" | "inference";
+            /** Citation Ids */
+            citation_ids: string[];
+            /** @default null */
+            derivation: components["schemas"]["DerivationRecord"] | null;
+            /**
+             * Ontology Version
+             * @default issuedigest-relations-v1
+             * @constant
+             */
+            ontology_version: "issuedigest-relations-v1";
+            /**
+             * Predicate
+             * @enum {string}
+             */
+            predicate: "introduced_by" | "reviewed_by" | "alternative_to" | "supports" | "contradicts" | "mentions";
+            /**
+             * Relation Id
+             * Format: uuid4
+             */
+            relation_id: string;
+            /** Source */
+            source: components["schemas"]["EntityReference"] | components["schemas"]["ClaimReference"] | components["schemas"]["DocumentReference"];
+            /** Target */
+            target: components["schemas"]["EntityReference"] | components["schemas"]["ClaimReference"] | components["schemas"]["DocumentReference"];
+            /** @default null */
+            valid_period: components["schemas"]["DateInterval"] | null;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** RelationReference */
+        RelationReference: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            kind: "relation";
+            /**
+             * Relation Id
+             * Format: uuid4
+             */
+            relation_id: string;
+        };
+        /** ResearchBundle */
+        ResearchBundle: {
+            /** Claims */
+            claims: components["schemas"]["Claim"][];
+            /** Entities */
+            entities: components["schemas"]["Entity"][];
+            /** Evidence */
+            evidence: components["schemas"]["EvidenceBundle"][];
+            /** Observations */
+            observations: components["schemas"]["Observation"][];
+            /** Relations */
+            relations: components["schemas"]["Relation"][];
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /** Support Reviews */
+            support_reviews: components["schemas"]["SupportReview"][];
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
         /** ServiceStatus */
         ServiceStatus: {
             /**
@@ -266,6 +662,55 @@ export interface components {
              * Format: uuid4
              */
             workspace_id: string;
+        };
+        /** SourceIdentity */
+        SourceIdentity: {
+            /** Namespace */
+            namespace: string;
+            /** Provider */
+            provider: string;
+            /** Value */
+            value: string;
+        };
+        /** SupportReview */
+        SupportReview: {
+            /**
+             * Assessment
+             * @enum {string}
+             */
+            assessment: "supported" | "contradicted" | "insufficient";
+            /** Citation Ids */
+            citation_ids: string[];
+            /** Method */
+            method: string;
+            /** Method Version */
+            method_version: string;
+            /** Rationale */
+            rationale: string;
+            /**
+             * Review Id
+             * Format: uuid4
+             */
+            review_id: string;
+            /**
+             * Reviewed At
+             * Format: date-time
+             */
+            reviewed_at: string;
+            /** Reviewer Id */
+            reviewer_id: string;
+            /**
+             * Reviewer Kind
+             * @enum {string}
+             */
+            reviewer_kind: "human" | "automated";
+            /**
+             * Scope
+             * @enum {string}
+             */
+            scope: "attribution" | "content" | "relation";
+            /** Target */
+            target: components["schemas"]["ClaimReference"] | components["schemas"]["RelationReference"];
         };
         /** TableCell */
         TableCell: {

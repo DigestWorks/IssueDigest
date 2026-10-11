@@ -33,3 +33,6 @@ npm run contract:check
 ```
 
 테스트는 실제 FastAPI 앱을 사용해 응답·서버 UUID·404·500·OpenAPI 모델을 검증합니다. 현재 Starlette의 TestClient가 지원하는 `httpx2`를 개발 의존성으로 사용합니다. 실행 API는 외부 서비스나 유료 호출을 필요로 하지 않습니다. 키·비밀 설정·공급자 자격 증명은 추후 서버에서만 처리합니다.
+
+
+원문·인용과 개체·주장·관계·관측·비교 조건의 도메인 전송 모델을 OpenAPI components로 등록합니다. `ResearchBundle`, `ComparisonAssessment`와 의존 모델을 기존 models_json_schema 호출에 함께 등록하며 이름 충돌을 거부합니다. 실제 `/openapi.json`과 export 결과가 일치하고 태그 union 참조가 해석됩니다. HTTP 경로는 위 두 개 그대로이며 연구 자료 생성/조회·저장·인증 API는 아직 없습니다.
