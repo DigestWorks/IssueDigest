@@ -1,0 +1,93 @@
+{
+  "synthetic": true,
+  "description": "Synthetic Unicode fixture only; no collected document.",
+  "text": " 앞😀한éé 뒤 ",
+  "cases": [
+    {
+      "selector": {
+        "kind": "text",
+        "start": 2,
+        "end": 7,
+        "quote": "😀한éé",
+        "prefix": " 앞",
+        "suffix": " 뒤 "
+      },
+      "utf16_range": {
+        "start": 2,
+        "end": 8
+      }
+    },
+    {
+      "selector": {
+        "kind": "pdf",
+        "page_number": 1,
+        "start": 0,
+        "end": 2,
+        "quote": " 앞",
+        "prefix": null,
+        "suffix": null,
+        "regions": []
+      },
+      "utf16_range": {
+        "start": 0,
+        "end": 2
+      }
+    },
+    {
+      "selector": {
+        "kind": "text",
+        "start": 7,
+        "end": 10,
+        "quote": " 뒤 ",
+        "prefix": null,
+        "suffix": null
+      },
+      "utf16_range": {
+        "start": 8,
+        "end": 11
+      }
+    },
+    {
+      "selector": {
+        "kind": "text",
+        "start": 4,
+        "end": 5,
+        "quote": "e",
+        "prefix": null,
+        "suffix": null
+      },
+      "utf16_range": {
+        "start": 5,
+        "end": 6
+      }
+    },
+    {
+      "selector": {
+        "kind": "text",
+        "start": 5,
+        "end": 6,
+        "quote": "́",
+        "prefix": null,
+        "suffix": null
+      },
+      "utf16_range": {
+        "start": 6,
+        "end": 7
+      }
+    },
+    {
+      "selector": {
+        "kind": "text",
+        "start": 6,
+        "end": 7,
+        "quote": "é",
+        "prefix": "é",
+        "suffix": null
+      },
+      "utf16_range": {
+        "start": 7,
+        "end": 8
+      }
+    }
+  ]
+}

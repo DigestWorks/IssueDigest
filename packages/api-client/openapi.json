@@ -1,6 +1,162 @@
 {
   "components": {
     "schemas": {
+      "Citation": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "format": "uuid4",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "document_version_id": {
+            "format": "uuid4",
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "representation_id": {
+            "format": "uuid4",
+            "title": "Representation Id",
+            "type": "string"
+          },
+          "selector": {
+            "discriminator": {
+              "mapping": {
+                "pdf": "#/components/schemas/PdfQuoteSelector",
+                "table_cell": "#/components/schemas/TableCellSelector",
+                "text": "#/components/schemas/TextQuoteSelector"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TextQuoteSelector"
+              },
+              {
+                "$ref": "#/components/schemas/PdfQuoteSelector"
+              },
+              {
+                "$ref": "#/components/schemas/TableCellSelector"
+              }
+            ],
+            "title": "Selector"
+          }
+        },
+        "required": [
+          "citation_id",
+          "document_version_id",
+          "representation_id",
+          "selector"
+        ],
+        "title": "Citation",
+        "type": "object"
+      },
+      "CitationAnchorValidation": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_status": {
+            "const": "matched",
+            "default": "matched",
+            "title": "Anchor Status",
+            "type": "string"
+          },
+          "citation_id": {
+            "format": "uuid4",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "support_status": {
+            "const": "not_evaluated",
+            "default": "not_evaluated",
+            "title": "Support Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "citation_id"
+        ],
+        "title": "CitationAnchorValidation",
+        "type": "object"
+      },
+      "DocumentVersion": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "media_type": {
+            "title": "Media Type",
+            "type": "string"
+          },
+          "raw_object_id": {
+            "format": "uuid4",
+            "title": "Raw Object Id",
+            "type": "string"
+          },
+          "raw_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Raw Sha256",
+            "type": "string"
+          },
+          "version_id": {
+            "format": "uuid4",
+            "title": "Version Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "version_id",
+          "document_id",
+          "raw_object_id",
+          "raw_sha256",
+          "media_type",
+          "collected_at"
+        ],
+        "title": "DocumentVersion",
+        "type": "object"
+      },
+      "EvidenceBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "citations": {
+            "items": {
+              "$ref": "#/components/schemas/Citation"
+            },
+            "title": "Citations",
+            "type": "array"
+          },
+          "document": {
+            "$ref": "#/components/schemas/SourceDocument"
+          },
+          "representation": {
+            "$ref": "#/components/schemas/ParsedRepresentation"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "version": {
+            "$ref": "#/components/schemas/DocumentVersion"
+          }
+        },
+        "required": [
+          "document",
+          "version",
+          "representation",
+          "citations"
+        ],
+        "title": "EvidenceBundle",
+        "type": "object"
+      },
       "Liveness": {
         "additionalProperties": false,
         "properties": {
@@ -14,6 +170,227 @@
           "status"
         ],
         "title": "Liveness",
+        "type": "object"
+      },
+      "NormalizedBox": {
+        "additionalProperties": false,
+        "description": "Coordinates after crop/rotation, measured from displayed page top-left.",
+        "properties": {
+          "x0": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X0",
+            "type": "number"
+          },
+          "x1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "X1",
+            "type": "number"
+          },
+          "y0": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y0",
+            "type": "number"
+          },
+          "y1": {
+            "maximum": 1,
+            "minimum": 0,
+            "title": "Y1",
+            "type": "number"
+          }
+        },
+        "required": [
+          "x0",
+          "y0",
+          "x1",
+          "y1"
+        ],
+        "title": "NormalizedBox",
+        "type": "object"
+      },
+      "PageSpan": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "minimum": 1,
+            "title": "End",
+            "type": "integer"
+          },
+          "page_number": {
+            "minimum": 1,
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "page_number",
+          "start",
+          "end"
+        ],
+        "title": "PageSpan",
+        "type": "object"
+      },
+      "ParsedRepresentation": {
+        "additionalProperties": false,
+        "properties": {
+          "document_version_id": {
+            "format": "uuid4",
+            "title": "Document Version Id",
+            "type": "string"
+          },
+          "normalization_profile": {
+            "title": "Normalization Profile",
+            "type": "string"
+          },
+          "pages": {
+            "items": {
+              "$ref": "#/components/schemas/PageSpan"
+            },
+            "title": "Pages",
+            "type": "array"
+          },
+          "parser_name": {
+            "title": "Parser Name",
+            "type": "string"
+          },
+          "parser_version": {
+            "title": "Parser Version",
+            "type": "string"
+          },
+          "representation_id": {
+            "format": "uuid4",
+            "title": "Representation Id",
+            "type": "string"
+          },
+          "tables": {
+            "items": {
+              "$ref": "#/components/schemas/ParsedTable"
+            },
+            "title": "Tables",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "text_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Text Sha256",
+            "type": "string"
+          }
+        },
+        "required": [
+          "representation_id",
+          "document_version_id",
+          "parser_name",
+          "parser_version",
+          "normalization_profile",
+          "text",
+          "text_sha256",
+          "pages",
+          "tables"
+        ],
+        "title": "ParsedRepresentation",
+        "type": "object"
+      },
+      "ParsedTable": {
+        "additionalProperties": false,
+        "properties": {
+          "cells": {
+            "items": {
+              "$ref": "#/components/schemas/TableCell"
+            },
+            "title": "Cells",
+            "type": "array"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "table_id",
+          "cells"
+        ],
+        "title": "ParsedTable",
+        "type": "object"
+      },
+      "PdfQuoteSelector": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "minimum": 1,
+            "title": "End",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "pdf",
+            "default": "pdf",
+            "title": "Kind",
+            "type": "string"
+          },
+          "page_number": {
+            "minimum": 1,
+            "title": "Page Number",
+            "type": "integer"
+          },
+          "prefix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Prefix"
+          },
+          "quote": {
+            "minLength": 1,
+            "title": "Quote",
+            "type": "string"
+          },
+          "regions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/NormalizedBox"
+            },
+            "title": "Regions",
+            "type": "array"
+          },
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Suffix"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "quote",
+          "page_number"
+        ],
+        "title": "PdfQuoteSelector",
         "type": "object"
       },
       "ServiceStatus": {
@@ -41,6 +418,257 @@
           "status"
         ],
         "title": "ServiceStatus",
+        "type": "object"
+      },
+      "SourceDocument": {
+        "additionalProperties": false,
+        "properties": {
+          "canonical_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Canonical Url"
+          },
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "bill",
+              "legal_text",
+              "government_document",
+              "news",
+              "poll",
+              "statistics",
+              "petition",
+              "other"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "workspace_id",
+          "provider",
+          "source_id",
+          "source_kind"
+        ],
+        "title": "SourceDocument",
+        "type": "object"
+      },
+      "TableCell": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "methodology": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Methodology"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Period"
+          },
+          "population": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Population"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Question"
+          },
+          "sample_size": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sample Size"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit"
+          },
+          "weighting": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Weighting"
+          }
+        },
+        "required": [
+          "cell_id",
+          "text"
+        ],
+        "title": "TableCell",
+        "type": "object"
+      },
+      "TableCellSelector": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "title": "Cell Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "table_cell",
+            "default": "table_cell",
+            "title": "Kind",
+            "type": "string"
+          },
+          "quote": {
+            "title": "Quote",
+            "type": "string"
+          },
+          "table_id": {
+            "title": "Table Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "table_id",
+          "cell_id",
+          "quote"
+        ],
+        "title": "TableCellSelector",
+        "type": "object"
+      },
+      "TextQuoteSelector": {
+        "additionalProperties": false,
+        "properties": {
+          "end": {
+            "minimum": 1,
+            "title": "End",
+            "type": "integer"
+          },
+          "kind": {
+            "const": "text",
+            "default": "text",
+            "title": "Kind",
+            "type": "string"
+          },
+          "prefix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Prefix"
+          },
+          "quote": {
+            "minLength": 1,
+            "title": "Quote",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "suffix": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Suffix"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "quote"
+        ],
+        "title": "TextQuoteSelector",
         "type": "object"
       }
     }

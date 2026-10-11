@@ -1,11 +1,11 @@
 # 진행 기록
 
-2026-10-11 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-11 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반과 첫 원문·파싱·인용 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 워커·제품 계약·DB·검색·실행기·인증은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 첫 원문·파싱·인용 부분 계약 구현. 워커·나머지 제품 계약·DB·검색·실행기·인증은 미완료 |
 | P2 실제 근거 | 미착수 | 첫 이슈·원문·읽기 스냅샷·데이터 API 접근 필요 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 미착수 | 근거 검색·도구·복구·UI 명세 계약 필요 |
@@ -15,7 +15,18 @@
 
 ## 현재 작업
 
-작업: [제품 계약 조사](../research/product-contracts.md) · P1. 담당: Codex. 브랜치: `docs/product-contract-research` · [PR #3](https://github.com/DigestWorks/IssueDigest/pull/3). 범위: 기존 코드·공식 문서 기반 원문/인용/관계·Run/Event·Canvas·Usage 설계와 검증 계획. 조사·문서 정리 완료, 계약 코드·제품 API·엔진 실측은 미착수. 기존 서버·자료 접근 전에도 계약 구현 준비 가능. 다음: 원문·파싱·인용부터 계약 모델·검증 규칙 구현. Sites v18 공개 요약 반영 완료. 구현 전 설계 제안 상태를 유지한다.
+작업: 첫 원문·파싱·인용 계약 · P1/R2/R3. 담당: Codex 구현자·컨트롤러. 브랜치: `feat/source-evidence-contracts` · PR은 컨트롤러 후속. 범위: 불변 Python 원문/파싱/인용 모델·정확한 anchor 검증과 실제 OpenAPI→생성 TS 타입·Unicode 변환. 구현 및 focused 검증 완료; 전체 검증 결과는 아래 기록. 독립 task/branch 리뷰는 컨트롤러 후속이다. 원문 저장·실제 parser·권한·주장 지지·다른 제품 계약은 미완료. 남은 입력: 지금 서버·키 추가 작업 불필요. 다음: 독립 리뷰와 후속 계약 묶음. Sites: v18 유지, 이번 부분 계약 요약 반영 대기(컨트롤러 담당).
+
+## 2026-10-11 · 첫 원문·파싱·인용 계약
+
+- 원문 문서/버전과 파싱 표현을 분리하고 모든 내부/원문 객체 ID를 UUID4, 해시는 소문자 SHA-256, 수집 시각은 시간대 필수·UTC 직렬화로 검증한다. 원문 bytes를 받지 않으므로 raw hash는 형식만 검사한다.
+- 중첩 frozen 모델·tuple, JSON 왕복·extra 거부, strict 오프셋/페이지/표본/유한 PDF 좌표를 구현했다. 원문/표현/인용 ID 연결, 페이지 범위·표/셀·인용 중복과 정확한 quote/context를 검증한다. 파서 버전별 표현·인용의 공존은 계약 테스트이며 DB 중복 제거 증거가 아니다.
+- 빈 표·빈 셀·좌표 없는 PDF를 유지하고 통계 조건은 null을 채우거나 합산하지 않는다. `validate_citation` 결과는 anchor `matched`와 support `not_evaluated`를 구분한다. Python 검증 생략 construction/copy는 입력 경로로 사용하지 않도록 패키지 README에 기록했다.
+- FastAPI OpenAPI components에 모델을 등록하고 기존 두 HTTP paths와 상태·요청 ID를 유지했다. 충돌 시 오류를 내며 `/openapi.json`과 export 스크립트가 같다. OpenAPI/TS 타입을 생성하고 웹 클라이언트에서 공개한다.
+- `getCitationUtf16Range`는 Python code point→JS UTF-16 범위를 변환하며 quote/context 오류를 거부한다. 공통 합성 UTF-8 fixture로 한글·BMP 밖 이모지·결합 문자·NFC/NFD·선행/후행 공백을 검사한다. grapheme 분할·PDF 렌더링은 범위 밖이다.
+- 검증: focused Python domain 140개, API 포함 150개 및 TS 인용 변환 40개 통과. 전체 `npm run check` 1회 통과: Python 150개·TS 60개, Ruff/mypy/ESLint·양쪽 타입·생산 SPA 빌드·생성 계약 drift 검사 통과. RED/GREEN 상세는 로컬 SDD `task-1-report.md`에 보존한다. 새 종속성·외부 호출·운영/비공개 자료 사용 없음.
+- 후속: 출처 연/월/일 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/원문 저장, 주장/관계·비교 조건, Run/Event/Canvas/Usage·저장·권한 검증. 전체 P1과 제품 기능은 미완료.
+- 검토/게시: 독립 task review·branch review, PR 및 Sites 반영은 컨트롤러 후속. Sites 현재 v18, 이번 부분 완료 요약은 반영 대기. 기존 v17/v18 이력은 보존한다.
 
 ## 2026-10-11 · 제품 계약 조사
 
@@ -65,7 +76,7 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v17 공개 게시 성공. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v18 공개 게시 성공. 첫 원문·파싱·인용 계약 요약은 반영 대기. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
 - 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1·#2는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목

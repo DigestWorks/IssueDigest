@@ -57,3 +57,18 @@ export async function getStatus({ timeoutMs = 5000 }: { timeoutMs?: number } = {
     clearTimeout(timer);
   }
 }
+
+export { getCitationUtf16Range } from './citations';
+export type SourceDocument = components['schemas']['SourceDocument'];
+export type DocumentVersion = components['schemas']['DocumentVersion'];
+export type ParsedRepresentation = components['schemas']['ParsedRepresentation'];
+export type PageSpan = components['schemas']['PageSpan'];
+export type ParsedTable = components['schemas']['ParsedTable'];
+export type TableCell = components['schemas']['TableCell'];
+export type TextQuoteSelector = components['schemas']['TextQuoteSelector'];
+export type PdfQuoteSelector = components['schemas']['PdfQuoteSelector'];
+export type NormalizedBox = components['schemas']['NormalizedBox'];
+export type TableCellSelector = components['schemas']['TableCellSelector'];
+export type Citation = components['schemas']['Citation'];
+export type CitationAnchorValidation = components['schemas']['CitationAnchorValidation'];
+export type EvidenceBundle = components['schemas']['EvidenceBundle'];
