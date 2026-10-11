@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [개발 실행 기반](../changes/development-foundation.md) · P1 일부. 담당: Codex. 브랜치: `feat/development-foundation` · [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2). 범위: React Router 웹·FastAPI API·상태 계약·의존성 고정·검증 CI. 구현과 자동 검증은 통과했으며 실제 HTTP·데스크톱·모바일·API 중단·재시도 스모크를 통과했다. 구현·검증 및 명세·코드 품질 검토 통과. PR 검토 대기다. 기준 DB·검색·실행기·인증·운영 배포는 이번 변경 밖이다. Sites 반영 대기.
+작업: [개발 실행 기반](../changes/development-foundation.md) · P1 일부. 담당: Codex. 브랜치: `feat/development-foundation` · [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2). 범위: React Router 웹·FastAPI API·상태 계약·의존성 고정·검증 CI. 구현과 자동 검증은 통과했으며 실제 HTTP·데스크톱·모바일·API 중단·재시도 스모크를 통과했다. 구현·검증 및 명세·코드 품질 검토 통과. PR 검토 대기다. 기준 DB·검색·실행기·인증·운영 배포는 이번 변경 밖이다. Sites v17 공개 요약 반영 완료. 전체 변경 리뷰와 요청 ID 보존 보완의 재검토까지 통과했다. 남은 리뷰 지적은 없다.
 
 ## 2026-10-11 · 웹·API 개발 실행 기반
 
@@ -27,9 +27,9 @@
 - 자동 검증: `npm run check` 통과. Python Ruff·mypy·pytest, TypeScript ESLint·타입·Vitest, 생산 SPA 빌드와 계약 변경 검사. 같은 절차의 [GitHub Actions 실행 #38133178226](https://github.com/DigestWorks/IssueDigest/actions/runs/38133178226)이 기반 코드 커밋 `d132583`에서 성공했다. 원격에서도 테스트 27개·lint·타입·생산 빌드·계약 검사를 통과했다.
 - 실제 스모크: 컨트롤러 확인 완료. API 직접 연결과 웹 프록시의 두 엔드포인트에 정확한 JSON/UUID v4, 404에 UUID v4, 웹 HTTP 200을 확인했다. 데스크톱 1366×900·모바일 390×844에서 가로 넘침 없이 hydration을 확인했다. 실제 응답 지연 때 접수 안내·확인 중 비활성 버튼, API 중단 때 실패·재시도, 복구 후 재시도 성공을 확인했다. `npm run dev`로 두 서버 기동, Ctrl+C 후 두 포트 해제도 확인했다. favicon 404는 로컬 SVG로 수정했고 새 브라우저 콘솔 오류·경고는 각 0건이다. 생산 빌드의 `build/client`도 QA용 정적 미리보기에서 hydration·실제 동일 출처 상태 요청·콘솔 오류 없음으로 확인했다. 이는 빌드 검증이며 운영 배포는 아니다. 브라우저 산출물은 로컬 `output/issuedigest-foundation`에만 보관하고 커밋하지 않는다.
 - 범위 밖: 기준 DB·검색·실행기·인증 결정, 워커·자료 수집·AI·권한·저장·운영 배포. 기존 P1 미완료 항목과 계획 Draft PR #1의 검토 이력을 유지한다.
-- 검토 후속: 통합 개발 실행기의 프로세스 종료 지원·검증 범위를 Linux로 문서화하고 Windows는 두 앱의 별도 터미널 실행·종료를 안내했다. 앱 코드는 변경하지 않았다.
-- 다음 행동: [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2) 검토, Sites 요약 반영. 운영 서버 설치·유료 외부 호출은 수행하지 않는다.
-- Sites: 이번 개발 기반 요약 반영 대기. 최신 원본은 저장소 문서다.
+- 검토 후속: 명세·코드 품질 검토와 전체 변경 리뷰를 통과했다. 본문 수신 시간 초과 때 이미 받은 서버 요청 ID를 보존하도록 `bae8e89`에서 수정했다. 기존 회귀 테스트에 ID 검증을 추가하여 1개 실패·19개 통과의 RED 후 전체 27개 테스트·검사를 통과했으며, 수정 범위 재검토에서 지적 해결과 새 문제 없음이 확인됐다. 통합 개발 실행기의 프로세스 종료 지원·검증 범위를 Linux로 문서화하고 Windows는 두 앱의 별도 터미널 실행·종료를 안내했다. 앱 코드는 변경하지 않았다.
+- 다음 행동: [PR #2](https://github.com/DigestWorks/IssueDigest/pull/2) 검토와 자료·인용·실행 계약 정의. 운영 서버 설치·유료 외부 호출은 수행하지 않는다.
+- Sites: v17 공개 게시 성공. 웹·API 개발 기반 완료와 전체 P1·제품 기능 미완료를 구분했다. 공개 문서 사본은 `dbbce9a` 시점이며 최신 원본은 저장소 문서다.
 
 ## 2026-10-11 · 모노레포 구현 준비
 
@@ -54,8 +54,8 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). v15에서 계획 허브 공개 게시 성공. 이후 이 게시 완료 기록을 같은 페이지에 동기화한다.
-- 구현 시작: 로컬 폴더·협업 문서 준비 완료. 웹·API·상태 계약·개발 검증은 현재 개발 기반 작업에서 구현하고 자동 검증했다. 실제 스모크 결과와 검토는 해당 작업 기록에 이어서 남긴다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v17 공개 게시 성공. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1·#2는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
 
@@ -67,6 +67,8 @@
 유료 외부 호출이나 운영 서버 설치를 시작한 것으로 표시하지 않는다.
 
 ## 게시 검증 증거
+
+- Sites v17 source: `721cf362a2d61a7aa2a7bb6013e18a04857ff700`, deployment `appgdep_6acb6a2969d08191b6f8999e42beb5a4`, 상태 `succeeded` (2026-10-11 10:51 UTC). 기존 공개 설정을 유지했다. 1366×900·390×844에서 가로 넘침 없음·내부 링크 정상·콘솔 오류/경고 0건을 확인했다. 아래 v15 증거는 이전 게시 기록이다.
 
 - Sites v15 source: `a96fae750ac020212d239e3d69344718cd6c3f02`, deployment `appgdep_6acb5724c784819184713ada7b2a8a8a`, 상태 `succeeded`.
 - Vercel: 배포 목록 0개, `paused=true`, Git 연결 없음. 대표 주소와 두 과거 배포 주소는 HTTP 404 `DEPLOYMENT_NOT_FOUND`.
