@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-작업: [제품 계약 조사](../research/product-contracts.md) · P1. 담당: Codex. 브랜치: `docs/product-contract-research`. 범위: 기존 코드·공식 문서 기반 원문/인용/관계·Run/Event·Canvas·Usage 설계와 검증 계획. 조사·문서 정리 완료, 계약 코드·제품 API·엔진 실측은 미착수. 기존 서버·자료 접근 전에도 계약 구현 준비 가능. 다음: 계약 모델과 검증 규칙 구현 범위 확정. Sites 요약 반영 대기.
+작업: [제품 계약 조사](../research/product-contracts.md) · P1. 담당: Codex. 브랜치: `docs/product-contract-research` · [PR #3](https://github.com/DigestWorks/IssueDigest/pull/3). 범위: 기존 코드·공식 문서 기반 원문/인용/관계·Run/Event·Canvas·Usage 설계와 검증 계획. 조사·문서 정리 완료, 계약 코드·제품 API·엔진 실측은 미착수. 기존 서버·자료 접근 전에도 계약 구현 준비 가능. 다음: 원문·파싱·인용부터 계약 모델·검증 규칙 구현. Sites v18 공개 요약 반영 완료. 구현 전 설계 제안 상태를 유지한다.
 
 ## 2026-10-11 · 제품 계약 조사
 
@@ -26,7 +26,7 @@
 - 조사 완료는 계약 모델/API·저장·권한·AI/화면 구현 완료가 아니다. PostgreSQL·검색·DBOS/Temporal·json-render를 채택하지 않았다.
 - 검증: 상대 문서 링크·고정 코드 근거·문서 상태 구분·변경 공백 확인. 런타임 코드를 바꾸지 않았으므로 로컬 전체 테스트를 반복하지 않는다.
 - 사용자 입력: 지금 서버·키 추가 작업 불필요. 실제 평가 자료 단계 전에 첫 이슈·질문·원문 범위를 함께 선정한다.
-- 게시: 조사 Draft PR 작성과 Sites 요약 반영 대기.
+- 게시: [Draft PR #3](https://github.com/DigestWorks/IssueDigest/pull/3) 작성·연결. base는 개발 기반 PR #2의 브랜치이며 병합하지 않았다. 문서 커밋 `8988f33`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38134714271) 성공. Sites v18 공개 배포 성공, 네 영역으로 요약하고 설계 제안/제품 미구현 상태를 표시했다. 공개 사본 기준은 `8988f33`이며 최신 상태는 저장소 원본이다.
 
 ## 2026-10-11 · 웹·API 개발 실행 기반
 
@@ -78,6 +78,8 @@
 유료 외부 호출이나 운영 서버 설치를 시작한 것으로 표시하지 않는다.
 
 ## 게시 검증 증거
+
+- Sites v18 source: `02565938f167a9a6c0c5203b5bfdf6569640e8f6`, deployment `appgdep_6acb6fc608108191b1f9a302100aed7b`, 상태 `succeeded`. 기존 공개 설정 유지. 1366×900·390×844에서 가로 넘침 없음, 새 요약 4행·전체 내부 링크 정상, 콘솔 오류/경고 0건 확인.
 
 - Sites v17 source: `721cf362a2d61a7aa2a7bb6013e18a04857ff700`, deployment `appgdep_6acb6a2969d08191b6f8999e42beb5a4`, 상태 `succeeded` (2026-10-11 10:51 UTC). 기존 공개 설정을 유지했다. 1366×900·390×844에서 가로 넘침 없음·내부 링크 정상·콘솔 오류/경고 0건을 확인했다. 아래 v15 증거는 이전 게시 기록이다.
 
