@@ -78,6 +78,453 @@
         "title": "CitationAnchorValidation",
         "type": "object"
       },
+      "Claim": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "enum": [
+              "source_assertion",
+              "observation",
+              "inference"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "claim_id": {
+            "format": "uuid4",
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "derivation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DerivationRecord"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "raw_event_time_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Raw Event Time Text"
+          },
+          "speaker_entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Speaker Entity Id"
+          },
+          "subject_entity_ids": {
+            "default": [],
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "title": "Subject Entity Ids",
+            "type": "array"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "valid_period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DateInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "claim_id",
+          "workspace_id",
+          "text",
+          "basis",
+          "citation_ids"
+        ],
+        "title": "Claim",
+        "type": "object"
+      },
+      "ClaimReference": {
+        "additionalProperties": false,
+        "properties": {
+          "claim_id": {
+            "format": "uuid4",
+            "title": "Claim Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "claim",
+            "default": "claim",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "claim_id"
+        ],
+        "title": "ClaimReference",
+        "type": "object"
+      },
+      "ComparisonAssessment": {
+        "additionalProperties": false,
+        "properties": {
+          "aggregation_status": {
+            "const": "not_evaluated",
+            "default": "not_evaluated",
+            "title": "Aggregation Status",
+            "type": "string"
+          },
+          "observation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 2,
+            "title": "Observation Ids",
+            "type": "array"
+          },
+          "policy_version": {
+            "const": "issuedigest-comparison-v1",
+            "default": "issuedigest-comparison-v1",
+            "title": "Policy Version",
+            "type": "string"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/ComparisonReason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "same_context",
+              "different_context",
+              "insufficient_context"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_ids",
+          "status",
+          "reasons"
+        ],
+        "title": "ComparisonAssessment",
+        "type": "object"
+      },
+      "ComparisonContext": {
+        "additionalProperties": false,
+        "properties": {
+          "denominator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Denominator"
+          },
+          "dimensions": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/Dimension"
+            },
+            "title": "Dimensions",
+            "type": "array"
+          },
+          "geography": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Geography"
+          },
+          "methodology": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Methodology"
+          },
+          "metric": {
+            "title": "Metric",
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DateInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "population": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Population"
+          },
+          "question": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Question"
+          },
+          "sample_size": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Sample Size"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Series Id"
+          },
+          "unit": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Unit"
+          },
+          "weighting": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Weighting"
+          }
+        },
+        "required": [
+          "metric"
+        ],
+        "title": "ComparisonContext",
+        "type": "object"
+      },
+      "ComparisonReason": {
+        "additionalProperties": false,
+        "properties": {
+          "field": {
+            "enum": [
+              "metric",
+              "unit",
+              "period",
+              "population",
+              "geography",
+              "question",
+              "methodology",
+              "sample_size",
+              "weighting",
+              "denominator",
+              "series_id",
+              "dimensions",
+              "value"
+            ],
+            "title": "Field",
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "different",
+              "missing"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "observation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Observation Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "field",
+          "kind",
+          "observation_ids"
+        ],
+        "title": "ComparisonReason",
+        "type": "object"
+      },
+      "DateInterval": {
+        "additionalProperties": false,
+        "properties": {
+          "end_date": {
+            "format": "date",
+            "title": "End Date",
+            "type": "string"
+          },
+          "start_date": {
+            "format": "date",
+            "title": "Start Date",
+            "type": "string"
+          }
+        },
+        "required": [
+          "start_date",
+          "end_date"
+        ],
+        "title": "DateInterval",
+        "type": "object"
+      },
+      "DerivationRecord": {
+        "additionalProperties": false,
+        "properties": {
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "method_version": {
+            "title": "Method Version",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          }
+        },
+        "required": [
+          "method",
+          "method_version",
+          "rationale"
+        ],
+        "title": "DerivationRecord",
+        "type": "object"
+      },
+      "Dimension": {
+        "additionalProperties": false,
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key",
+          "value"
+        ],
+        "title": "Dimension",
+        "type": "object"
+      },
+      "DocumentReference": {
+        "additionalProperties": false,
+        "properties": {
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "document",
+            "default": "document",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id"
+        ],
+        "title": "DocumentReference",
+        "type": "object"
+      },
       "DocumentVersion": {
         "additionalProperties": false,
         "properties": {
@@ -122,6 +569,116 @@
         "title": "DocumentVersion",
         "type": "object"
       },
+      "Entity": {
+        "additionalProperties": false,
+        "properties": {
+          "aliases": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Aliases",
+            "type": "array"
+          },
+          "entity_id": {
+            "format": "uuid4",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "identity_review": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/IdentityReview"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "enum": [
+              "person",
+              "organization",
+              "bill",
+              "policy",
+              "issue",
+              "place"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "name": {
+            "title": "Name",
+            "type": "string"
+          },
+          "raw_validity_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Raw Validity Text"
+          },
+          "source_identities": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SourceIdentity"
+            },
+            "title": "Source Identities",
+            "type": "array"
+          },
+          "valid_period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DateInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_id",
+          "workspace_id",
+          "kind",
+          "name"
+        ],
+        "title": "Entity",
+        "type": "object"
+      },
+      "EntityReference": {
+        "additionalProperties": false,
+        "properties": {
+          "entity_id": {
+            "format": "uuid4",
+            "title": "Entity Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "entity",
+            "default": "entity",
+            "title": "Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "entity_id"
+        ],
+        "title": "EntityReference",
+        "type": "object"
+      },
       "EvidenceBundle": {
         "additionalProperties": false,
         "properties": {
@@ -155,6 +712,75 @@
           "citations"
         ],
         "title": "EvidenceBundle",
+        "type": "object"
+      },
+      "IdentityReview": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment": {
+            "enum": [
+              "confirmed",
+              "ambiguous"
+            ],
+            "title": "Assessment",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "method_version": {
+            "title": "Method Version",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "review_id": {
+            "format": "uuid4",
+            "title": "Review Id",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "reviewer_kind": {
+            "enum": [
+              "human",
+              "automated"
+            ],
+            "title": "Reviewer Kind",
+            "type": "string"
+          }
+        },
+        "required": [
+          "review_id",
+          "reviewer_kind",
+          "reviewer_id",
+          "method",
+          "method_version",
+          "reviewed_at",
+          "rationale",
+          "citation_ids",
+          "assessment"
+        ],
+        "title": "IdentityReview",
         "type": "object"
       },
       "Liveness": {
@@ -208,6 +834,109 @@
           "y1"
         ],
         "title": "NormalizedBox",
+        "type": "object"
+      },
+      "Observation": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "context": {
+            "$ref": "#/components/schemas/ComparisonContext"
+          },
+          "missing_reason": {
+            "anyOf": [
+              {
+                "enum": [
+                  "not_reported",
+                  "unreadable",
+                  "not_applicable",
+                  "withheld"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Missing Reason"
+          },
+          "observation_id": {
+            "format": "uuid4",
+            "title": "Observation Id",
+            "type": "string"
+          },
+          "raw_period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Raw Period"
+          },
+          "raw_value": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Raw Value"
+          },
+          "subject_entity_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Subject Entity Id"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "maxLength": 128,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Value"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "observation_id",
+          "workspace_id",
+          "context",
+          "citation_ids"
+        ],
+        "title": "Observation",
         "type": "object"
       },
       "PageSpan": {
@@ -393,6 +1122,224 @@
         "title": "PdfQuoteSelector",
         "type": "object"
       },
+      "Relation": {
+        "additionalProperties": false,
+        "properties": {
+          "basis": {
+            "enum": [
+              "source_assertion",
+              "observation",
+              "inference"
+            ],
+            "title": "Basis",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "derivation": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DerivationRecord"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ontology_version": {
+            "const": "issuedigest-relations-v1",
+            "default": "issuedigest-relations-v1",
+            "title": "Ontology Version",
+            "type": "string"
+          },
+          "predicate": {
+            "enum": [
+              "introduced_by",
+              "reviewed_by",
+              "alternative_to",
+              "supports",
+              "contradicts",
+              "mentions"
+            ],
+            "title": "Predicate",
+            "type": "string"
+          },
+          "relation_id": {
+            "format": "uuid4",
+            "title": "Relation Id",
+            "type": "string"
+          },
+          "source": {
+            "discriminator": {
+              "mapping": {
+                "claim": "#/components/schemas/ClaimReference",
+                "document": "#/components/schemas/DocumentReference",
+                "entity": "#/components/schemas/EntityReference"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EntityReference"
+              },
+              {
+                "$ref": "#/components/schemas/ClaimReference"
+              },
+              {
+                "$ref": "#/components/schemas/DocumentReference"
+              }
+            ],
+            "title": "Source"
+          },
+          "target": {
+            "discriminator": {
+              "mapping": {
+                "claim": "#/components/schemas/ClaimReference",
+                "document": "#/components/schemas/DocumentReference",
+                "entity": "#/components/schemas/EntityReference"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/EntityReference"
+              },
+              {
+                "$ref": "#/components/schemas/ClaimReference"
+              },
+              {
+                "$ref": "#/components/schemas/DocumentReference"
+              }
+            ],
+            "title": "Target"
+          },
+          "valid_period": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DateInterval"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "relation_id",
+          "workspace_id",
+          "predicate",
+          "source",
+          "target",
+          "basis",
+          "citation_ids"
+        ],
+        "title": "Relation",
+        "type": "object"
+      },
+      "RelationReference": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "const": "relation",
+            "default": "relation",
+            "title": "Kind",
+            "type": "string"
+          },
+          "relation_id": {
+            "format": "uuid4",
+            "title": "Relation Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "relation_id"
+        ],
+        "title": "RelationReference",
+        "type": "object"
+      },
+      "ResearchBundle": {
+        "additionalProperties": false,
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/Claim"
+            },
+            "title": "Claims",
+            "type": "array"
+          },
+          "entities": {
+            "items": {
+              "$ref": "#/components/schemas/Entity"
+            },
+            "title": "Entities",
+            "type": "array"
+          },
+          "evidence": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceBundle"
+            },
+            "title": "Evidence",
+            "type": "array"
+          },
+          "observations": {
+            "items": {
+              "$ref": "#/components/schemas/Observation"
+            },
+            "title": "Observations",
+            "type": "array"
+          },
+          "relations": {
+            "items": {
+              "$ref": "#/components/schemas/Relation"
+            },
+            "title": "Relations",
+            "type": "array"
+          },
+          "schema_version": {
+            "const": 1,
+            "default": 1,
+            "title": "Schema Version",
+            "type": "integer"
+          },
+          "support_reviews": {
+            "items": {
+              "$ref": "#/components/schemas/SupportReview"
+            },
+            "title": "Support Reviews",
+            "type": "array"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "evidence",
+          "entities",
+          "claims",
+          "relations",
+          "observations",
+          "support_reviews"
+        ],
+        "title": "ResearchBundle",
+        "type": "object"
+      },
       "ServiceStatus": {
         "additionalProperties": false,
         "properties": {
@@ -478,6 +1425,129 @@
           "source_kind"
         ],
         "title": "SourceDocument",
+        "type": "object"
+      },
+      "SourceIdentity": {
+        "additionalProperties": false,
+        "properties": {
+          "namespace": {
+            "title": "Namespace",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "provider",
+          "namespace",
+          "value"
+        ],
+        "title": "SourceIdentity",
+        "type": "object"
+      },
+      "SupportReview": {
+        "additionalProperties": false,
+        "properties": {
+          "assessment": {
+            "enum": [
+              "supported",
+              "contradicted",
+              "insufficient"
+            ],
+            "title": "Assessment",
+            "type": "string"
+          },
+          "citation_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Citation Ids",
+            "type": "array"
+          },
+          "method": {
+            "title": "Method",
+            "type": "string"
+          },
+          "method_version": {
+            "title": "Method Version",
+            "type": "string"
+          },
+          "rationale": {
+            "title": "Rationale",
+            "type": "string"
+          },
+          "review_id": {
+            "format": "uuid4",
+            "title": "Review Id",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "format": "date-time",
+            "title": "Reviewed At",
+            "type": "string"
+          },
+          "reviewer_id": {
+            "title": "Reviewer Id",
+            "type": "string"
+          },
+          "reviewer_kind": {
+            "enum": [
+              "human",
+              "automated"
+            ],
+            "title": "Reviewer Kind",
+            "type": "string"
+          },
+          "scope": {
+            "enum": [
+              "attribution",
+              "content",
+              "relation"
+            ],
+            "title": "Scope",
+            "type": "string"
+          },
+          "target": {
+            "discriminator": {
+              "mapping": {
+                "claim": "#/components/schemas/ClaimReference",
+                "relation": "#/components/schemas/RelationReference"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/ClaimReference"
+              },
+              {
+                "$ref": "#/components/schemas/RelationReference"
+              }
+            ],
+            "title": "Target"
+          }
+        },
+        "required": [
+          "review_id",
+          "reviewer_kind",
+          "reviewer_id",
+          "method",
+          "method_version",
+          "reviewed_at",
+          "rationale",
+          "citation_ids",
+          "target",
+          "scope",
+          "assessment"
+        ],
+        "title": "SupportReview",
         "type": "object"
       },
       "TableCell": {

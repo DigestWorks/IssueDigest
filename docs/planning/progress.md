@@ -1,11 +1,11 @@
 # 진행 기록
 
-2026-10-11 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반과 첫 원문·파싱·인용 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-11 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 첫 원문·파싱·인용 부분 계약 구현. 워커·나머지 제품 계약·DB·검색·실행기·인증은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 첫 원문·파싱·인용과 두 번째 개체·주장·관계·비교 조건 부분 계약 구현. 워커·나머지 제품 계약·DB·검색·실행기·인증은 미완료 |
 | P2 실제 근거 | 미착수 | 첫 이슈·원문·읽기 스냅샷·데이터 API 접근 필요 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 미착수 | 근거 검색·도구·복구·UI 명세 계약 필요 |
@@ -15,7 +15,19 @@
 
 ## 현재 작업
 
-작업: [첫 원문·파싱·인용 계약](../changes/source-evidence-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/source-evidence-contracts` · [Draft PR #4](https://github.com/DigestWorks/IssueDigest/pull/4), base `docs/product-contract-research`, 미병합. 불변 모델·정확한 위치 검증·실제 OpenAPI→생성 TS·Unicode 변환을 구현했다. 독립 작업 리뷰와 전체 변경 리뷰에서 지적 없음. 컨트롤러가 작업 공간과 사용자 폴더에서 전체 검사를 확인했다. 원문 저장·실제 파서·권한·주장 지지·나머지 계약은 미완료. 지금 서버·키 추가 작업은 불필요하다. 다음: 주장·관계·비교 조건 계약. Sites v19 공개 게시 완료. 구현·미구현 범위와 PR/검증을 요약하고 v18 조사안을 보존했다.
+작업: [개체·주장·관계·비교 조건 계약](../changes/research-contracts.md) · P1/R2/R3. 담당: Codex. 브랜치: `feat/research-contracts` · [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), 선행 PR #4 위·미병합. 개체/주장/검토·제한된 관계·기간/관측·비교 정책·ResearchBundle 참조와 OpenAPI→생성 TS 타입 구현, 독립 작업/전체 변경 리뷰 및 비교 결과 모순 보완 후 수정 부분 리뷰 통과. 최종 전체 검사: Python 393개·JS 60개, lint/타입/SPA 빌드/계약 drift 통과. 실제 저장·추출·권한·인증된 검토·AI·Neo4j·제품 경로/UI와 전체 P1은 미완료. 사용자 폴더 `/data/lawdigest/IssueDigest`에 브랜치를 연결했다. 실제 API의 OpenAPI와 생성 계약 일치·새 모델·기존 두 경로 및 웹 HTTP 200을 확인했다. Sites v20 공개 요약 게시 완료. 다음은 Run/Event/Canvas/Usage 실행·화면·사용량 계약과 그 복구 검증이다.
+
+## 2026-10-11 · 개체·주장·관계·비교 조건 계약
+
+- 동일 이름의 독립 개체와 미해결/미검토를 보존하고 외부 identity 3항 키 충돌을 거부한다. 근거 있는 원문 주장/관측/추론 입력과 inference에만 필요한 가공 기록을 구분한다. 검토는 UTC 시각·방법/버전·인용과 귀속/내용/관계 범위를 기록하며 실제 인증 행위·주장 진실을 보장하지 않는다.
+- `issuedigest-relations-v1`의 6종 방향/양 끝 종류와 제공 객체 존재를 검사한다. 근거 없는/미등록 인과/자기 관계·다른 공간·없는 endpoint를 거부한다. mentions는 source 문서 버전의 인용만 허용한다. 자동 역관계·그래프 투영은 없다.
+- 정확한 Python date/JSON YYYY-MM-DD 기간·strict 양의 표본 크기·최대128자 정밀 ASCII 소수 문자열과 원문/결측을 보존한다. 비교는 모든 조건과 value 결측을 순서대로 보고하고 different를 missing보다 우선한다. 같은 조건의 다른 값·순서만 다른 차원은 same_context이며 합산/분포는 not_evaluated다. 결과 ID·사유·status 모순도 거부한다.
+- ResearchBundle의 전체 공간·문서/버전 일치·고유 인용/표현/검토 ID·typed 참조·검토 citation subset을 검증한다. 같은 문서/버전의 다른 파싱 표현은 허용한다. 검증 대상은 제공된 묶음이며 저장소 전체 unique enforcement는 아니다.
+- 실제 OpenAPI components를 단일 등록 경로로 확장하고 생성 TS와 공개 aliases/compile 소비자를 갱신했다. 기존 HTTP 두 경로·상태/원문/인용·웹 UI를 보존했다. 종속성·외부/유료 호출·비공개/운영 자료 사용 없음.
+- 초기 구현 검증: focused 새 계약+API 228개 통과, Ruff/mypy·공개 생성 타입 소비자 통과. 전체 `npm run check` 1회 통과: Python 380개·JS 60개, Ruff/format/mypy·ESLint·양쪽 타입 검사·SPA 생산 빌드·생성 계약 drift 검사 통과. RED/GREEN·수정 파일·self-review는 로컬 SDD `research-contracts/task-1-report.md`에 보존한다.
+- 인계: 독립 작업 리뷰 통과. 전체 변경 리뷰의 P2 지적(같은 항목의 결측/다름 ID 겹침과 필수 항목의 결측 사유)을 `e902cb4`에서 보완했다. JSON 회귀 RED 8개 실패·정상 5개 통과 후 GREEN 107개, 수정 부분 재리뷰 지적 없음. 컨트롤러 최종 전체 검사도 393 Python + 60 JS 통과. 초기 비교 알고리즘만의 독립 RED 증거 범위는 제한적이며 이를 뒤늦게 충족했다고 주장하지 않는다. 현재 동작 테스트·코드 리뷰로 구현을 검증했다. 사용자 폴더 연결·실제 API 계약 및 웹 기동 확인 완료. Sites v20 공개 게시와 사용자 폴더 연결까지 확인하여 C1~C4 결합 완료를 체크했다. 나머지 P1·출처 시간 정밀도·재수집·내용 비교 fingerprint·Run/Event/Canvas/Usage·실제 자료/추출/저장/권한·AI·Neo4j는 미완료.
+
+- 게시: [Draft PR #5](https://github.com/DigestWorks/IssueDigest/pull/5), base `feat/source-evidence-contracts`, 구현 `d82a8f1` + 보완 `e902cb4`. 보완 커밋의 [GitHub CI #38144301870](https://github.com/DigestWorks/IssueDigest/actions/runs/38144301870) 성공. Sites v20 공개 게시 성공. 사본 기준 `06dda30` 이후 상태는 저장소 원본에서 확인한다. 앱의 자동 PR 첨부·사이트 열기 요청이 응답하지 않아 직접 URL로 공유한다.
 
 ## 2026-10-11 · 첫 원문·파싱·인용 계약
 
@@ -77,8 +89,8 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v19 공개 게시 성공. 첫 원문·파싱·인용 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
-- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#4는 Draft이며 병합하지 않았다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v20 공개 게시 성공. 원문·파싱·인용과 개체·주장·관계·비교 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#5는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
 
@@ -90,6 +102,10 @@
 유료 외부 호출이나 운영 서버 설치를 시작한 것으로 표시하지 않는다.
 
 ## 게시 검증 증거
+
+- Sites v20 source: `d5ee646d64f65fa2dbc262d08a478dbc788e155a`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c69a26fc4d788191a2c2b21dc7ceafc9`, deployment `appgdep_6acb93b276408191ba940bc1a5681c61`, 상태 `succeeded` (2026-10-11 22:48:50 한국 시간). 기존 공개 설정 유지. 1366×900·390×844에서 가로 넘침 없음, 제품 계약 4행·최종 테스트 수·PR #5·이전 v19 보존 링크 정상, 현재/보존 문서 로컬 파일 링크·anchor 정상, 콘솔 오류/경고 0건. 사본 기준 `06dda300bb5171e5f41cf94e24338aa26f682d61`; 최신 기록은 저장소 원본이다.
+- 최종 실행 코드 `e902cb4`: 구현자·컨트롤러 전체 검사 각각 통과(393 Python + 60 JS), 독립 작업·전체 변경·지적 보완 후 수정 부분 리뷰 통과. [코드 CI #38144301870](https://github.com/DigestWorks/IssueDigest/actions/runs/38144301870) 성공. 이후 변경은 문서·게시 기록만이다.
+- 사용자 폴더 `/data/lawdigest/IssueDigest`의 `feat/research-contracts`: 실제 API `/openapi.json`과 생성 계약이 동일하고 ResearchBundle/ComparisonAssessment 등 새 모델과 기존 두 HTTP 경로만 존재, 웹 HTTP 200 확인. 개발 서버 5173/8000은 로컬 확인용이며 운영 배포가 아니다. 별도 작업 공간의 리뷰/RED·GREEN 기록은 PR 병합 전까지 보존한다.
 
 - Sites v19 source: `36ece7df45854a5db46d1c9690641a3d5bfd09d9`, deployment `appgdep_6acb7b68bcb08191a9b187bc7327f92e`, 상태 `succeeded` (2026-10-11 12:05 UTC). 기존 공개 설정 유지. 로컬 1366×900·390×844에서 새 계약 요약·내부 anchor와 보존 파일 링크 정상, 가로 넘침 없음, 콘솔 오류/경고 0건. v18 이전 조사안을 별도 보존했다. 저장소 원본/공개 사본 기준을 구분했다.
 - 원격 검증: 구현 `9271a0a` CI #38137640138, 검토/PR 문서 `63f88fe` CI #38137818441 성공. 제품 구현 코드는 독립 작업/전체 리뷰 이후 변경하지 않았다.
