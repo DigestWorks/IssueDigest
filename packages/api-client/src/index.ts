@@ -27,10 +27,11 @@ function isStatus(value: unknown): value is ServiceStatus {
 export async function getStatus({ timeoutMs = 5000 }: { timeoutMs?: number } = {}): Promise<StatusResult> {
   const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
+  let requestId: string | undefined;
   const deadline = new Promise<never>((_resolve, reject) => {
     timer = setTimeout(() => {
       controller.abort();
-      reject(new ConnectionError('timeout'));
+      reject(new ConnectionError('timeout', requestId));
     }, timeoutMs);
   });
   const request = async (): Promise<StatusResult> => {
@@ -38,7 +39,7 @@ export async function getStatus({ timeoutMs = 5000 }: { timeoutMs?: number } = {
       signal: controller.signal, credentials: 'same-origin', headers: { Accept: 'application/json' },
     });
     const header = response.headers.get('X-Request-ID');
-    const requestId = header && uuid.test(header) ? header : undefined;
+    requestId = header && uuid.test(header) ? header : undefined;
     if (!response.ok) throw new ConnectionError('http', requestId);
     if (!requestId) throw new ConnectionError('invalid-response');
     let data: unknown;
@@ -51,7 +52,7 @@ export async function getStatus({ timeoutMs = 5000 }: { timeoutMs?: number } = {
     return await Promise.race([request(), deadline]);
   } catch (error) {
     if (error instanceof ConnectionError) throw error;
-    throw new ConnectionError(controller.signal.aborted ? 'timeout' : 'network');
+    throw new ConnectionError(controller.signal.aborted ? 'timeout' : 'network', requestId);
   } finally {
     clearTimeout(timer);
   }

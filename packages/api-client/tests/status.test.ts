@@ -49,11 +49,11 @@ describe('versioned API status boundary', () => {
     await vi.advanceTimersByTimeAsync(50);
     expect(await result).toMatchObject({ kind: 'timeout' });
   });
-  it('includes reading the response body in the timeout', async () => {
+  it('preserves the server request ID when reading the response body times out', async () => {
     vi.useFakeTimers();
     vi.stubGlobal('fetch', async () => new Response(new ReadableStream({ start() { /* stalled body */ } }), { headers: { 'X-Request-ID': requestId } }));
     const result = getStatus({ timeoutMs: 50 }).then(() => ({ kind: 'unexpected-success' }), (error: unknown) => error);
     await vi.advanceTimersByTimeAsync(50);
-    expect(await result).toMatchObject({ kind: 'timeout' });
+    expect(await result).toMatchObject({ kind: 'timeout', requestId });
   });
 });
