@@ -33,7 +33,7 @@ export type SchematicMapProps = {
 
 /**
  * 도면 양식 3D 인터랙티브 지도(서울 자치구).
- * - 회전(왼쪽 드래그), 이동(오른쪽 드래그), 확대·축소(휠), 지역 선택(클릭), 선택 해제(Esc).
+ * - 회전(왼쪽 드래그), 이동(오른쪽 드래그), 확대·축소(휠), 지역 선택(지역 클릭), 선택 해제(배경 클릭, Esc).
  * - 화면 고정 주석: 제목, 보기 전환, 범례와 출처, 카메라 방위·기울기·거리, 가리킨 지역.
  * 스테이지 상태와 분리된 컴포넌트다. 값과 선택 상태는 속성으로 받는다.
  */
@@ -147,7 +147,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
           <div className="flex flex-col items-end gap-1.5 font-mono text-[10px] tracking-[0.12em] tabular-nums">
             <span style={{ opacity: hovered ? 1 : 0, color: ACCENT }}>{hovered ? `가리킴 ${hovered.code} ${hovered.name}` : " "}</span>
             <span ref={readout} style={{ opacity: op("related") }} />
-            <span style={{ opacity: op("context") }}>드래그 회전 · 오른쪽 드래그 이동 · 휠 확대 · 클릭 선택 · Esc 해제</span>
+            <span style={{ opacity: op("context") }}>드래그 회전 · 오른쪽 드래그 이동 · 휠 확대 · 지역 클릭 선택 · 배경 클릭·Esc 해제</span>
           </div>
         </div>
       </div>

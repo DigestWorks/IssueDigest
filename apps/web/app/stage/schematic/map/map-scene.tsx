@@ -52,6 +52,8 @@ export type MapSceneProps = {
 const MAP_SIZE = 16
 const BASE_H = 0.1
 const MAX_H = 1.8
+/** 누른 곳과 뗀 곳이 이 거리(px)보다 멀면 클릭이 아니라 끌기로 본다 */
+const DRAG_PX = 4
 /** 홀로그램 층 간격(장면 단위). 높이는 이 간격의 층 수로 나타낸다 */
 const LAYER_GAP = 0.18
 /** 선택한 지역의 층 간격 배율. 선택하면 층 사이가 벌어져 묶음이 위로 늘어난다 */
@@ -91,8 +93,15 @@ const VIEWS: Record<MapView, { position: [number, number, number]; target: [numb
  * schematic-map.tsx 가 브라우저에서만 불러온다.
  */
 export default function MapScene(props: MapSceneProps) {
+  // 배경 클릭으로 선택을 푼다. 회전·이동하려고 끈 경우는 클릭으로 보지 않는다.
+  const down = useRef<{ x: number; y: number } | null>(null)
   return (
     <Canvas
+      onPointerDown={(e) => (down.current = { x: e.clientX, y: e.clientY })}
+      onPointerMissed={(e) => {
+        const d = down.current
+        if (d && Math.hypot(e.clientX - d.x, e.clientY - d.y) <= DRAG_PX) props.onFocus(null)
+      }}
       dpr={[1, 2]}
       camera={{ position: [0, 30, 30], fov: 36, near: 0.1, far: 200 }}
       gl={{ antialias: true, toneMapping: NoToneMapping }}
@@ -277,8 +286,8 @@ function RegionVolume({
   const select = (e: ThreeEvent<MouseEvent>) => {
     e.stopPropagation()
     // 회전하려고 끈 경우는 선택으로 보지 않는다
-    if (e.delta > 4) return
-    onFocus(focused ? null : region.code)
+    if (e.delta > DRAG_PX) return
+    onFocus(region.code)
   }
 
   return (
