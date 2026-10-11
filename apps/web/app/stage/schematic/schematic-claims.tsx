@@ -1,5 +1,6 @@
 import { motion } from "motion/react"
 
+import { dataColor } from "~/design/palette"
 import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
 import { useStage } from "../store"
@@ -9,7 +10,7 @@ type ClaimsData = Extract<Panel, { kind: "claims" }>
 
 /**
  * 도면 양식 주장 비교.
- * 입장 머리는 짧은 굵은 막대로 표시한다. 첫 입장은 주황, 둘째 입장은 흰색이다.
+ * 입장 머리는 그 입장의 데이터 색으로 짧은 굵은 막대를 그린다.
  * 주장마다 근거 사각점과 꺾인 지시선으로 인용 위치를 잇는다.
  * 주장을 선택하면 스테이지 초점이 근거 기록으로 옮겨진다.
  */
@@ -28,7 +29,7 @@ export function SchematicClaims({ panel, index, animate }: { panel: ClaimsData; 
             <div className="flex flex-col gap-1.5 pb-2">
               <motion.span
                 className="h-[3px] w-5 origin-left"
-                style={{ background: si === 0 ? ACCENT : INK, opacity: si === 0 ? 1 : op("related") }}
+                style={{ background: dataColor(side.category) }}
                 initial={animate ? { scaleX: 0 } : false}
                 animate={{ scaleX: 1 }}
                 transition={{ delay: s(reveal.line(si)), duration: s(MOTION.line.duration), ease: EASE_OUT }}

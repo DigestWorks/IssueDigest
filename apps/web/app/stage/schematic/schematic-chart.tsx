@@ -1,8 +1,9 @@
 import { motion } from "motion/react"
 
+import { dataColor } from "~/design/palette"
 import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
-import { ACCENT, ACCENT_TEXT, INK, op, reveal, SchematicFrame } from "./primitives"
+import { INK, op, reveal, SchematicFrame } from "./primitives"
 
 type ChartData = Extract<Panel, { kind: "chart" }>
 
@@ -14,14 +15,10 @@ const fmt = new Intl.NumberFormat("ko-KR", { notation: "compact", maximumFractio
 /**
  * 도면 양식 선 차트.
  * 축 상자 없이 기준선과 짧은 눈금, 옅은 점선 격자, 오른쪽 끝 수치 주석으로 구성한다.
- * 계열은 흰색과 불투명도로 그리고, 강조할 첫 계열만 주황으로 그린다(세 번째 계열부터 점선).
+ * 계열 색은 데이터 색(series.category)이다. 같은 범주는 지도·범례·주장 비교에서도 같은 색이다.
+ * 주황은 선택·초점에만 쓰므로 계열에 쓰지 않는다. 첫 계열만 선을 굵게 그린다.
  * 등장은 점 → 선 → 글자 순서다.
  */
-function seriesStyle(i: number) {
-  if (i === 0) return { color: ACCENT, opacity: 1, dash: undefined }
-  if (i === 1) return { color: INK, opacity: op("related"), dash: undefined }
-  return { color: INK, opacity: op("related"), dash: "3 3" }
-}
 
 export function SchematicChart({ panel, index, animate }: { panel: ChartData; index: number; animate: boolean }) {
   const s = (ms: number) => (animate ? ms / 1000 : 0)
@@ -89,7 +86,8 @@ export function SchematicChart({ panel, index, animate }: { panel: ChartData; in
 
         {/* 계열: 점 → 선 → 끝 수치 */}
         {panel.series.map((sr, si) => {
-          const { color, opacity, dash } = seriesStyle(si)
+          const color = dataColor(sr.category)
+          const opacity = si === 0 ? 1 : op("related") + 0.2
           const pts = panel.rows.map((r, i) => [x(i), y(Number(r[sr.key]))] as const)
           const d = pts.map(([px, py], i) => `${i ? "L" : "M"}${px},${py}`).join(" ")
           const [lx, ly] = pts.at(-1)!
@@ -102,7 +100,6 @@ export function SchematicChart({ panel, index, animate }: { panel: ChartData; in
                 fill="none"
                 style={{ stroke: color }}
                 opacity={opacity}
-                strokeDasharray={dash}
                 strokeWidth={si === 0 ? 1.5 : 1}
                 initial={animate ? { pathLength: 0 } : false}
                 animate={{ pathLength: 1 }}
@@ -136,7 +133,7 @@ export function SchematicChart({ panel, index, animate }: { panel: ChartData; in
                   stroke="currentColor"
                   opacity={op("context")}
                 />
-                <text x={lx + 24} y={ey + 1} className="text-[14px] font-light tabular-nums" style={{ fill: si === 0 ? ACCENT_TEXT : INK }}>
+                <text x={lx + 24} y={ey + 1} className="text-[14px] font-light tabular-nums" style={{ fill: color }}>
                   {fmt.format(value)}
                 </text>
                 <text x={lx + 24} y={ey + 12} className="text-[9px] tracking-[0.12em]" style={{ fill: INK }} opacity={op("related")}>
