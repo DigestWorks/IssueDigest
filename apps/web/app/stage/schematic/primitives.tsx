@@ -1,12 +1,12 @@
-import type { CSSProperties, ReactNode } from "react"
+import { createContext, useContext, type CSSProperties, type ReactNode } from "react"
 import { motion } from "motion/react"
 
-import { EASE_OUT, MOTION, OPACITY, schematicVars } from "~/design/tokens"
+import { EASE_OUT, MOTION, OPACITY, schematicVars, type SchematicMode } from "~/design/tokens"
 
 /**
  * 도면 양식 패널의 기본 요소(The Division UI 스타일 가이드 양식).
  * - 닫힌 상자 대신 가는 선(1px), 틀 밖으로 연장되는 보조선, L자 꺾쇠, 작은 사각점으로 틀을 만든다.
- * - 글자는 따뜻한 흰색, 강조는 주황(--sch-accent) 하나만 쓴다.
+ * - 글자는 글자색(--sch-ink), 강조는 주황(--sch-accent, 주황 글자는 --sch-accent-text) 하나만 쓴다.
  * - 선과 글자의 위계는 OPACITY 네 단계로 만든다.
  * 색 값은 SchematicTheme 이 CSS 변수로 내려준다.
  */
@@ -14,6 +14,8 @@ import { EASE_OUT, MOTION, OPACITY, schematicVars } from "~/design/tokens"
 export const op = (step: keyof typeof OPACITY) => OPACITY[step].value
 export const INK = "var(--sch-ink)"
 export const ACCENT = "var(--sch-accent)"
+/** 주황 글자. 밝은 모드에서는 대비를 위해 선·점보다 어두운 주황이다 */
+export const ACCENT_TEXT = "var(--sch-accent-text)"
 const sec = (ms: number, animate: boolean) => (animate ? ms / 1000 : 0)
 
 /** 등장 시각(ms). 점 → 선 → 글자 순서를 패널 안에서 맞춘다. */
@@ -23,12 +25,36 @@ export const reveal = {
   text: (i = 0) => MOTION.point.duration + MOTION.line.duration + MOTION.stagger.duration * i,
 }
 
-/** 테마 변수를 내려주는 감싸개 */
-export function SchematicTheme({ children, className, style }: { children: ReactNode; className?: string; style?: CSSProperties }) {
+const ModeContext = createContext<SchematicMode>("dark")
+
+/** 가장 가까운 SchematicTheme 의 모드 */
+export const useSchematicMode = () => useContext(ModeContext)
+
+/** 색 변수 없이 모드만 내려준다. 안쪽 SchematicTheme(mode 미지정)가 이 모드를 따른다 */
+export function SchematicModeProvider({ mode, children }: { mode: SchematicMode; children: ReactNode }) {
+  return <ModeContext.Provider value={mode}>{children}</ModeContext.Provider>
+}
+
+/** 테마 변수를 내려주는 감싸개. mode 를 주지 않으면 바깥 SchematicTheme 의 모드를 따른다(없으면 어두운 모드). */
+export function SchematicTheme({
+  children,
+  className,
+  style,
+  mode,
+}: {
+  children: ReactNode
+  className?: string
+  style?: CSSProperties
+  mode?: SchematicMode
+}) {
+  const outer = useContext(ModeContext)
+  const m = mode ?? outer
   return (
-    <div className={className} style={{ ...schematicVars, color: INK, ...style }}>
-      {children}
-    </div>
+    <ModeContext.Provider value={m}>
+      <div className={className} style={{ ...schematicVars(m), color: INK, ...style }}>
+        {children}
+      </div>
+    </ModeContext.Provider>
   )
 }
 

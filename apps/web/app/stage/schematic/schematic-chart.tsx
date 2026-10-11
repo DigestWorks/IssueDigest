@@ -2,7 +2,7 @@ import { motion } from "motion/react"
 
 import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
-import { ACCENT, INK, op, reveal, SchematicFrame } from "./primitives"
+import { ACCENT, ACCENT_TEXT, INK, op, reveal, SchematicFrame } from "./primitives"
 
 type ChartData = Extract<Panel, { kind: "chart" }>
 
@@ -136,7 +136,7 @@ export function SchematicChart({ panel, index, animate }: { panel: ChartData; in
                   stroke="currentColor"
                   opacity={op("context")}
                 />
-                <text x={lx + 24} y={ey + 1} className="text-[14px] font-light tabular-nums" style={{ fill: si === 0 ? ACCENT : INK }}>
+                <text x={lx + 24} y={ey + 1} className="text-[14px] font-light tabular-nums" style={{ fill: si === 0 ? ACCENT_TEXT : INK }}>
                   {fmt.format(value)}
                 </text>
                 <text x={lx + 24} y={ey + 12} className="text-[9px] tracking-[0.12em]" style={{ fill: INK }} opacity={op("related")}>

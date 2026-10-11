@@ -3,12 +3,12 @@ import { motion } from "motion/react"
 
 import { Button } from "~/components/ui/button"
 import { DATA_CATEGORICAL, dataColor, oklchToHex } from "~/design/palette"
-import { EASE_OUT, MAX_TEXT_TILT_DEG, MOTION, OPACITY, SCHEMATIC_THEME, TYPE_ROLES } from "~/design/tokens"
+import { EASE_OUT, MAX_TEXT_TILT_DEG, MOTION, OPACITY, SCHEMATIC_THEMES, TYPE_ROLES } from "~/design/tokens"
 import { useReducedMotion } from "~/design/use-reduced-motion"
 import { GlyphIcon } from "~/stage/graph/glyph-icon"
 import type { Panel } from "~/stage/events"
 import { NODE_GLYPH, NODE_TYPE_LABEL, NODE_TYPES } from "~/stage/graph/glyphs"
-import { SchematicTheme } from "~/stage/schematic/primitives"
+import { SchematicTheme, useSchematicMode } from "~/stage/schematic/primitives"
 import { SchematicMap, type SchematicMapProps } from "~/stage/schematic/map/schematic-map"
 import { SchematicPanel } from "~/stage/schematic/schematic-panel"
 import { useStage } from "~/stage/store"
@@ -255,6 +255,7 @@ export function MotionSpecimen() {
  */
 export function SchematicPanelSpecimen({ panels }: { panels: Panel[] }) {
   const reduced = useReducedMotion()
+  const theme = SCHEMATIC_THEMES[useSchematicMode()]
   const [run, setRun] = useState(0)
   const setFocus = useStage((s) => s.setFocus)
   useEffect(() => setFocus({ kind: "node", id: "mt1" }), [setFocus])
@@ -268,7 +269,7 @@ export function SchematicPanelSpecimen({ panels }: { panels: Panel[] }) {
       <SchematicTheme
         className="relative overflow-hidden px-10 py-12"
         style={{
-          background: `radial-gradient(120% 90% at 30% 20%, #1b2127 0%, ${SCHEMATIC_THEME.scene} 70%)`,
+          background: `radial-gradient(120% 90% at 30% 20%, ${theme.glow} 0%, ${theme.scene} 70%)`,
         }}
       >
         <div key={run} className="grid grid-cols-1 gap-x-16 gap-y-14 md:grid-cols-2">

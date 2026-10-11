@@ -170,6 +170,7 @@ export const CHAPTERS: Chapter[] = [
       { title: "지역 이름", rule: "카메라가 높으면 윗면에 눕고, 낮으면 윗면 위에 선다. 카메라 방위를 따라 돌아 바로 읽히는 방향을 유지한다.", status: "부분", where: "map-scene.tsx 의 RegionLabel, scene/view-angle.ts" },
       { title: "방위 고리", rule: "지도 둘레에 5° 눈금, 30° 마다 각도, 동서남북 문자가 있는 고리를 둔다.", status: "부분", where: "map-scene.tsx 의 Compass" },
       { title: "조작과 화면 고정 주석", rule: "회전·이동·확대를 지원한다. 지역을 클릭하면 선택하고, 배경을 클릭하거나 Esc 를 누르면 해제한다. 누른 곳과 뗀 곳이 4px 보다 멀면 끌기로 보고 선택을 바꾸지 않는다. 화면 모서리에 제목, 보기 전환(전체·위에서·낮게), 범례와 출처, 카메라 방위·기울기·거리, 가리킨 지역을 둔다.", status: "부분", where: "stage/schematic/map/schematic-map.tsx" },
+      { title: "색 모드", rule: "패널과 지도는 어두운 모드(기본)와 밝은 모드를 갖는다. 밝은 모드는 흰 장면 값(바탕 #ffffff, 글자 #111111)을 쓰고, 주황은 흰 바탕 대비를 위해 선·점 #E06C00, 글자 #B35900 으로 어둡게 바꾼다.", status: "부분", where: "design/tokens.ts 의 SCHEMATIC_THEMES, /style 의 모드 전환. 스테이지는 어두운 모드 고정" },
       { title: "등장", rule: "틀과 방위 고리 → 지역 바닥 외곽선 → 층이 아래부터 하나씩 쌓임 → 이름 순서로 나타난다.", status: "부분", where: "map-scene.tsx 의 T" },
     ],
   },

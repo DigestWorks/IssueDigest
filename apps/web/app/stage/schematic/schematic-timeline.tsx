@@ -3,7 +3,7 @@ import { motion } from "motion/react"
 import { EASE_OUT, MOTION } from "~/design/tokens"
 import type { Panel } from "../events"
 import { useStage } from "../store"
-import { ACCENT, INK, op, reveal, SchematicFrame, SquarePoint } from "./primitives"
+import { ACCENT, ACCENT_TEXT, INK, op, reveal, SchematicFrame, SquarePoint } from "./primitives"
 
 type TimelineData = Extract<Panel, { kind: "timeline" }>
 
@@ -61,7 +61,7 @@ export function SchematicTimeline({ panel, index, animate }: { panel: TimelineDa
                   animate={{ opacity: 1 }}
                   transition={{ delay: s(reveal.text(i)), duration: s(MOTION.text.duration) }}
                 >
-                  <span className="font-mono text-[10px] tracking-[0.04em] tabular-nums" style={{ color: active ? ACCENT : INK, opacity: active ? 1 : op("related") }}>
+                  <span className="font-mono text-[10px] tracking-[0.04em] tabular-nums" style={{ color: active ? ACCENT_TEXT : INK, opacity: active ? 1 : op("related") }}>
                     {item.date}
                   </span>
                   <span

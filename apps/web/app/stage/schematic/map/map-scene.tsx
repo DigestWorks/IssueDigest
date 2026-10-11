@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react"
+import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react"
 import { CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
 import {
@@ -17,7 +17,7 @@ import {
 } from "three"
 
 import { dataColor } from "~/design/palette"
-import { OPACITY, SCHEMATIC_THEME } from "~/design/tokens"
+import { OPACITY, type SchematicPalette } from "~/design/tokens"
 import type { RegionValue } from "../../events"
 import {
   fitProjection,
@@ -44,6 +44,8 @@ export type MapSceneProps = {
   onHover: (region: { code: string; name: string } | null) => void
   /** 보기 전환 요청. n 이 바뀔 때마다 카메라를 그 보기로 옮긴다 */
   view: { name: MapView; n: number }
+  /** 장면 색(SCHEMATIC_THEMES 의 한 모드) */
+  theme: SchematicPalette
   /** 카메라 방위·기울기·거리를 적을 DOM 요소 */
   readout: RefObject<HTMLSpanElement | null>
   reducedMotion: boolean
@@ -64,11 +66,13 @@ const FOCUS_SPREAD = 1.5
 const FOCUS_RISE_MAX = 0.6
 
 const LEADER = 2.6
-const INK = SCHEMATIC_THEME.ink
-const ACCENT = SCHEMATIC_THEME.accent
-const SCENE = SCHEMATIC_THEME.scene
-/** 색으로 표시하지 않는 지역(값이 없는 지역 포함)의 중립색 */
-const LINE_DIM = "#8b9598"
+/** 장면 색(모드별). Canvas 안에서 제공하므로 R3F 의 컨텍스트 연결 여부와 관계없이 읽힌다 */
+const ThemeContext = createContext<SchematicPalette | null>(null)
+const useTheme = () => {
+  const t = useContext(ThemeContext)
+  if (!t) throw new Error("MapScene 밖에서 지도 테마를 읽었습니다")
+  return t
+}
 
 /** 등장 시각(ms, 경계 데이터를 받은 시점 기준). 틀 → 외곽선 → 면 → 글자 순서다. */
 const T = {
@@ -110,24 +114,26 @@ export default function MapScene(props: MapSceneProps) {
       camera={{ position: [0, 30, 30], fov: 36, near: 0.1, far: 200 }}
       gl={{ antialias: true, toneMapping: NoToneMapping }}
     >
-      <color attach="background" args={[SCENE]} />
-      <fog attach="fog" args={[SCENE, 30, 70]} />
+      <color attach="background" args={[props.theme.scene]} />
+      <fog attach="fog" args={[props.theme.scene, 30, 70]} />
       {/* 모든 재질이 조명을 받지 않는 MeshBasic·LineBasic 이므로 조명을 두지 않는다 */}
       <Grid
         position-y={-0.005}
         args={[120, 120]}
         cellSize={1}
         cellThickness={0.5}
-        cellColor="#141a1e"
+        cellColor={props.theme.grid}
         sectionSize={4}
         sectionThickness={0.8}
-        sectionColor="#1e262b"
+        sectionColor={props.theme.gridSection}
         fadeDistance={48}
         fadeStrength={1.4}
         infiniteGrid
       />
-      <MapContent {...props} />
-      <MapCamera {...props} />
+      <ThemeContext.Provider value={props.theme}>
+        <MapContent {...props} />
+        <MapCamera {...props} />
+      </ThemeContext.Provider>
     </Canvas>
   )
 }
@@ -236,9 +242,10 @@ function RegionVolume({
   onHover,
   neutral,
 }: RegionCommon & Pick<MapSceneProps, "onFocus" | "onHover"> & { value: RegionValue | undefined; neutral: boolean }) {
+  const th = useTheme()
   const count = value ? Math.max(1, Math.round((value.magnitude * MAX_H) / LAYER_GAP)) : 1
-  const color = useMemo(() => new Color(value && !neutral ? dataColor(value.category) : LINE_DIM), [value, neutral])
-  const layers = useMemo(() => buildLayers(region, count, color, !neutral), [region, count, color, neutral])
+  const color = useMemo(() => new Color(value && !neutral ? dataColor(value.category) : th.neutral), [value, neutral, th])
+  const layers = useMemo(() => buildLayers(region, count, color, !neutral, th), [region, count, color, neutral, th])
   // 포인터 판정용 보이지 않는 기둥. 층 사이 빈 곳을 가리켜도 지역이 잡히게 한다.
   const hit = useMemo(
     () => new ExtrudeGeometry(region.shapes, { depth: 1, bevelEnabled: false, curveSegments: 1 }),
@@ -250,7 +257,7 @@ function RegionVolume({
     for (const r of region.outlines) for (let i = 0; i < r.length - 1; i++) pts.push(r[i], r[i + 1])
     return pts
   }, [region.outlines])
-  const topColor = useMemo(() => color.clone().lerp(new Color(INK), neutral ? 0.2 : 0.5), [color, neutral])
+  const topColor = useMemo(() => color.clone().lerp(new Color(th.ink), neutral ? 0.2 : 0.5), [color, neutral, th])
 
   const hitColumn = useRef<Group>(null)
   const lineMat = useRef<LineBasicMaterial>(null)
@@ -298,7 +305,7 @@ function RegionVolume({
   return (
     <group>
       <lineSegments geometry={outline} position-y={0.004}>
-        <lineBasicMaterial ref={base} color={INK} transparent opacity={0} depthWrite={false} />
+        <lineBasicMaterial ref={base} color={th.ink} transparent opacity={0} depthWrite={false} />
       </lineSegments>
       <group ref={stack}>
         <lineSegments geometry={layers.lines}>
@@ -349,9 +356,9 @@ function RegionVolume({
  * 면은 맨 위 층만 진하게, 나머지는 아주 옅게 채운다.
  * 층 순서대로 이어 붙였으므로 drawRange 로 아래 층부터 보이게 할 수 있다.
  */
-function buildLayers(region: ProjectedRegion, count: number, color: Color, colored: boolean) {
-  const scene = new Color(SCENE)
-  const top = color.clone().lerp(new Color(INK), colored ? 0.3 : 0.1)
+function buildLayers(region: ProjectedRegion, count: number, color: Color, colored: boolean, th: SchematicPalette) {
+  const scene = new Color(th.scene)
+  const top = color.clone().lerp(new Color(th.ink), colored ? 0.3 : 0.1)
   const c = new Color()
 
   // 외곽선 층
@@ -407,6 +414,7 @@ function buildLayers(region: ProjectedRegion, count: number, color: Color, color
  * 카메라 방위를 따라 돌아 글자가 바로 읽히는 방향을 유지한다. 선택한 지역은 주석이 이름을 대신한다.
  */
 function RegionLabel({ region, order, t0, focused, dimmed, hovered, heights, reducedMotion }: RegionCommon) {
+  const th = useTheme()
   const group = useRef<Group>(null)
   const text = useRef<TextLike | null>(null)
   const up = useRef(0)
@@ -432,7 +440,7 @@ function RegionLabel({ region, order, t0, focused, dimmed, hovered, heights, red
         font={hovered ? FONT_MEDIUM : FONT_LIGHT}
         fontSize={fontSize}
         letterSpacing={0.08}
-        color={INK}
+        color={th.ink}
         fillOpacity={0}
         anchorX="center"
         anchorY="middle"
@@ -461,6 +469,7 @@ function FocusMarker({
   heights: Map<string, number>
   reducedMotion: boolean
 }) {
+  const th = useTheme()
   const at = useMemo(() => performance.now(), [])
   // 중심 기준 좌표로 만들어 확대 표시를 중심에서 확대할 수 있게 한다
   const trace = useMemo(() => outlineGeometry(region.outlines, region.centroid), [region])
@@ -505,25 +514,25 @@ function FocusMarker({
     <group position={[x, 0, z]}>
       <group ref={top}>
         <lineSegments geometry={trace} renderOrder={6}>
-          <lineBasicMaterial color={ACCENT} transparent depthTest={false} />
+          <lineBasicMaterial color={th.accent} transparent depthTest={false} />
         </lineSegments>
       </group>
       <lineSegments geometry={trace} position-y={0.008}>
-        <lineBasicMaterial color={ACCENT} transparent opacity={OPACITY.related.value} />
+        <lineBasicMaterial color={th.accent} transparent opacity={OPACITY.related.value} />
       </lineSegments>
       <group ref={pulse}>
         <lineSegments geometry={pulseGeo}>
-          <lineBasicMaterial ref={pulseMat} color={ACCENT} transparent opacity={0} depthWrite={false} />
+          <lineBasicMaterial ref={pulseMat} color={th.accent} transparent opacity={0} depthWrite={false} />
         </lineSegments>
       </group>
       <group ref={leader}>
         <lineSegments geometry={leaderGeo} renderOrder={6}>
-          <lineBasicMaterial color={ACCENT} transparent depthTest={false} />
+          <lineBasicMaterial color={th.accent} transparent depthTest={false} />
         </lineSegments>
         {/* 지시선 아래 끝: 윗면의 작은 사각점 */}
         <mesh rotation-x={-Math.PI / 2} renderOrder={6}>
           <planeGeometry args={[0.14, 0.14]} />
-          <meshBasicMaterial ref={foot} color={ACCENT} transparent opacity={0} depthTest={false} />
+          <meshBasicMaterial ref={foot} color={th.accent} transparent opacity={0} depthTest={false} />
         </mesh>
       </group>
       <group ref={callout}>
@@ -551,6 +560,7 @@ function MapFrame({
   t0: number
   reducedMotion: boolean
 }) {
+  const th = useTheme()
   const built = useMemo(() => buildFrame(collection, regions), [collection, regions])
   const texts = useRef<(TextLike | null)[]>([])
 
@@ -566,10 +576,10 @@ function MapFrame({
   return (
     <group position-y={0.003}>
       <lineSegments geometry={built.strong}>
-        <lineBasicMaterial color={INK} transparent opacity={OPACITY.related.value} />
+        <lineBasicMaterial color={th.ink} transparent opacity={OPACITY.related.value} />
       </lineSegments>
       <lineSegments geometry={built.faint}>
-        <lineBasicMaterial color={INK} transparent opacity={OPACITY.context.value} />
+        <lineBasicMaterial color={th.ink} transparent opacity={OPACITY.context.value} />
       </lineSegments>
       {built.labels.map((l, i) => (
         <Text
@@ -580,7 +590,7 @@ function MapFrame({
           rotation-x={-Math.PI / 2}
           fontSize={l.size}
           letterSpacing={0.08}
-          color={INK}
+          color={th.ink}
           fillOpacity={0}
           anchorX={l.anchorX}
           anchorY="middle"
@@ -678,6 +688,7 @@ function buildFrame(collection: RegionCollection, regions: ProjectedRegion[]) {
 
 /** 방위 고리: 5° 눈금, 30° 마다 각도, 동서남북 문자. 원과 눈금이 한 바퀴 돌며 그려진다. */
 function Compass({ radius, t0, reducedMotion }: { radius: number; t0: number; reducedMotion: boolean }) {
+  const th = useTheme()
   const { circle, minor, major, degrees } = useMemo(() => {
     const c: number[] = []
     const n = 256
@@ -724,13 +735,13 @@ function Compass({ radius, t0, reducedMotion }: { radius: number; t0: number; re
   return (
     <group position-y={0.002}>
       <lineSegments geometry={circle}>
-        <lineBasicMaterial color={INK} transparent opacity={OPACITY.context.value} />
+        <lineBasicMaterial color={th.ink} transparent opacity={OPACITY.context.value} />
       </lineSegments>
       <lineSegments geometry={minor}>
-        <lineBasicMaterial color={INK} transparent opacity={OPACITY.faint.value * 2} />
+        <lineBasicMaterial color={th.ink} transparent opacity={OPACITY.faint.value * 2} />
       </lineSegments>
       <lineSegments geometry={major}>
-        <lineBasicMaterial color={INK} transparent opacity={OPACITY.related.value} />
+        <lineBasicMaterial color={th.ink} transparent opacity={OPACITY.related.value} />
       </lineSegments>
       {all.map((l, i) => (
         <Text
@@ -741,7 +752,7 @@ function Compass({ radius, t0, reducedMotion }: { radius: number; t0: number; re
           rotation={[-Math.PI / 2, 0, -l.angle]}
           fontSize={l.size}
           letterSpacing={0.06}
-          color={INK}
+          color={th.ink}
           fillOpacity={0}
           anchorX="center"
           anchorY="middle"

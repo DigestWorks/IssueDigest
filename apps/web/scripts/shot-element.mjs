@@ -6,7 +6,8 @@ const p = await b.newPage({ viewport: { width: 1440, height: 900 }, deviceScaleF
 const logs = []
 p.on("pageerror", (e) => logs.push(e.message))
 p.on("console", (m) => m.type() === "error" && logs.push(m.text()))
-await p.goto(url, { waitUntil: "networkidle" })
+// /style 은 지도 견본을 넣은 뒤 networkidle 에 도달하지 않아 30초 제한에 걸린다(원인 미확인). load 후 대기한다
+await p.goto(url, { waitUntil: "load" })
 await p.locator(selector).scrollIntoViewIfNeeded()
 await p.waitForTimeout(Number(waitMs))
 await p.locator(selector).screenshot({ path: out })

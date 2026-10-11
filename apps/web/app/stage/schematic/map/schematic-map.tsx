@@ -2,11 +2,11 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react"
 import { motion } from "motion/react"
 
 import { dataColor } from "~/design/palette"
-import { EASE_OUT } from "~/design/tokens"
+import { EASE_OUT, SCHEMATIC_THEMES, type SchematicMode } from "~/design/tokens"
 import { useReducedMotion } from "~/design/use-reduced-motion"
 import { cn } from "~/lib/utils"
 import type { RegionValue } from "../../events"
-import { ACCENT, INK, op, Rule, SchematicTheme, SquarePoint } from "../primitives"
+import { ACCENT, ACCENT_TEXT, INK, op, Rule, SchematicTheme, SquarePoint, useSchematicMode } from "../primitives"
 import type { MapSource, MapView } from "./map-scene"
 
 // three.js 는 브라우저 전용이다. SPA 빌드가 라우트를 미리 렌더하므로 마운트 후에만 불러온다.
@@ -28,6 +28,8 @@ export type SchematicMapProps = {
   /** 선택한 지역 코드 */
   focus: string | null
   onFocus: (code: string | null) => void
+  /** 색 모드. 주지 않으면 바깥 SchematicTheme 의 모드(없으면 어두운 모드) */
+  mode?: SchematicMode
   className?: string
 }
 
@@ -37,7 +39,9 @@ export type SchematicMapProps = {
  * - 화면 고정 주석: 제목, 보기 전환, 범례와 출처, 카메라 방위·기울기·거리, 가리킨 지역.
  * 스테이지 상태와 분리된 컴포넌트다. 값과 선택 상태는 속성으로 받는다.
  */
-export function SchematicMap({ title, values, colored, legend, source, focus, onFocus, className }: SchematicMapProps) {
+export function SchematicMap({ title, values, colored, legend, source, focus, onFocus, mode, className }: SchematicMapProps) {
+  const outer = useSchematicMode()
+  const m = mode ?? outer
   const reducedMotion = useReducedMotion()
   const [mounted, setMounted] = useState(false)
   const [hovered, setHovered] = useState<{ code: string; name: string } | null>(null)
@@ -54,13 +58,14 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
   const count = Object.keys(values).length
 
   return (
-    <SchematicTheme className={cn("relative overflow-hidden select-none", className)} style={{ background: "var(--sch-scene)" }}>
+    <SchematicTheme mode={m} className={cn("relative overflow-hidden select-none", className)} style={{ background: "var(--sch-scene)" }}>
       <div className="absolute inset-0">
         {mounted ? (
           <Suspense fallback={null}>
             <MapScene
               values={values}
               colored={colored}
+              theme={SCHEMATIC_THEMES[m]}
               source={source}
               focus={focus}
               hovered={hovered?.code ?? null}
@@ -145,7 +150,7 @@ export function SchematicMap({ title, values, colored, legend, source, focus, on
 
           {/* 카메라와 가리킨 지역 */}
           <div className="flex flex-col items-end gap-1.5 font-mono text-[10px] tracking-[0.12em] tabular-nums">
-            <span style={{ opacity: hovered ? 1 : 0, color: ACCENT }}>{hovered ? `가리킴 ${hovered.code} ${hovered.name}` : " "}</span>
+            <span style={{ opacity: hovered ? 1 : 0, color: ACCENT_TEXT }}>{hovered ? `가리킴 ${hovered.code} ${hovered.name}` : " "}</span>
             <span ref={readout} style={{ opacity: op("related") }} />
             <span style={{ opacity: op("context") }}>드래그 회전 · 오른쪽 드래그 이동 · 휠 확대 · 지역 클릭 선택 · 배경 클릭·Esc 해제</span>
           </div>
