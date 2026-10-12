@@ -25,7 +25,7 @@
 
 ## Task 1 · 저장 패키지·마이그레이션·실제 DB 검증
 
-- [ ] 아래 전체 수용 조건을 구현하고 검증한다. 구현자가 완료 시 이 항목을 체크한다.
+- [x] 아래 전체 수용 조건을 구현하고 검증한다. 구현자가 완료 시 이 항목을 체크한다.
 
 `packages/storage`의 uv 멤버와 `issuedigest_storage` typed Python 패키지를 만든다. SQLAlchemy 2.1.4, Alembic 1.20.0, psycopg[binary] 3.3.6을 정확히 고정하고 uv.lock을 갱신한다. 기존 domain을 workspace 의존성으로 사용한다. 최소 공개 API는 `create_storage_engine(database_url)`, `EvidenceRepository(engine)`와 위 save/load, `StorageConflict`, `StorageCorruption`이다. 불변 객체용 독립 테이블, 스냅샷의 정확한 인용 연결·순서, outbox, FK·unique·버전 메타데이터를 Alembic 최초 revision으로 구성한다. SQLAlchemy metadata.create_all을 앱/테스트의 마이그레이션 대용으로 사용하지 않는다.
 
