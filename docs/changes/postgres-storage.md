@@ -20,7 +20,7 @@
 4. `(workspace_id, provider, source_id)`는 문서 identity에 대해 유일하다. 원문 내용 해시의 같음만으로 버전을 합치지는 않는다. 외부 수집에서 ID·내용 fingerprint를 재사용하는 정규화/중복 제거 정책은 후속이다.
 5. 정규화한 계약 JSON은 JSONB payload에 저장하고 ID/공간/부모 참조는 관계형 열로 둔다. payload와 열의 일치는 저장·읽기 양쪽에서 검사한다. UTC·UUID·Unicode 정규화는 기존 도메인 직렬화를 따른다. DB가 표현할 수 없는 문자열은 쓰기를 실패시키며 일부 행이 남지 않는다.
 6. 한 트랜잭션이 문서·버전·표현·인용·스냅샷 및 `evidence.snapshot_saved.v1` outbox 행을 함께 저장한다. 스냅샷당 outbox 한 행만 남긴다. payload는 공간·snapshot/문서/버전/표현 ID를 참조하며 원문 내용은 넣지 않는다. 최초 event ID는 snapshot ID를 사용한다. outbox 조회/소비·재시도·그래프 투영은 이 작업에 포함하지 않는다.
-7. 동시에 같은 스냅샷을 제출해도 하나만 생성한다. 실패·충돌은 해당 쓰기 전체를 rollback한다. 동일 객체 ID의 서로 다른 내용이 동시 제출되어도 기존 객체를 덮어쓰지 않는다. DBOS를 도입하기 전 SQLAlchemy 트랜잭션이 앱 저장·outbox의 기준이다.
+7. 동시에 같은 스냅샷을 제출해도 하나만 생성한다. 호출자가 AUTOCOMMIT Engine을 전달해도 저장은 명시적인 트랜잭션으로 처리한다. commit 이전의 실패·충돌은 해당 쓰기 전체를 rollback한다. commit 응답 중 연결이 끊겨 완료 여부를 확인할 수 없으면 미저장으로 단정하지 않고 같은 snapshot ID로 조회·재시도해 확인한다. 동일 객체 ID의 서로 다른 내용이 동시 제출되어도 기존 객체를 덮어쓰지 않는다. DBOS를 도입하기 전 SQLAlchemy 트랜잭션이 앱 저장·outbox의 기준이다.
 8. Alembic upgrade는 새 DB에 적용하고 재실행 가능하다. downgrade→upgrade도 합성 DB에서 검증한다. DB 초기화는 앱 import/startup에서 수행하지 않는다. 연결 URL은 명시적으로 전달하고 PostgreSQL+psycopg만 받으며 실제 엔진도 PostgreSQL인지 검사한다.
 
 ## Task 1 · 저장 패키지·마이그레이션·실제 DB 검증
