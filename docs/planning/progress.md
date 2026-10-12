@@ -15,12 +15,13 @@
 
 ## 현재 작업
 
-- 작업: D011 확정·[PostgreSQL 근거 스냅샷 저장 기반](../changes/postgres-storage.md), P1/R2 일부.
-- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/postgres-storage`; 구현 검증 기준 `aaf810a`.
-- 상태: 코드·마이그레이션·실제 PostgreSQL 검증·독립 작업/전체 및 수정 범위 리뷰 완료. Draft PR #8·GitHub CI·원격 ARM 검증·웹/API 재확인·Sites 게시·사용자 폴더 인계 완료.
-- 미구현: 제품 HTTP/API·권한·원문 파일/파서·수집 ID 중복 처리·검색/pgvector·Neo4j·PydanticAI/DBOS worker·outbox 소비·운영 DB 배치.
-- 남은 입력: 서버 전용 자원·월 분담 비용·전용 DB/외부 백업·기존 수집 데이터·첫 이슈/평가 자료·인증 공급자. [연결 준비](../../infra/postgresql.md)에 확인할 항목 기록.
-- Sites: v24 공개 배포 완료, D011·저장 구현 결과 반영. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
+- 작업: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부.
+- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/canvas-renderer`.
+- 상태: 명세·범위 확정, 기존 CanvasBundle의 여섯 모듈을 소비하는 내부 UI 패키지 구현 시작.
+- 범위: 근거 카드·요약·비교표·타임라인·관계·실제 bar, 안전한 참조·표시 상태·등록 액션 콜백. 개발 앱에 합성 결과를 채우지 않는다.
+- 미구현: 실제 자료/제품 API·로그인·AI/DBOS·SSE·action host·운영 DB·검색. 기존 저장 기반 PR #8 완료 상태는 아래 이력에 보존한다.
+- 남은 입력: 동료에게 전용 DB·기존 데이터·자원/비용·외부 백업 확인 요청 전달 완료(사용자 확인). 답변 대기 중에도 이번 UI 작업 진행 가능.
+- Sites: v24 유지, 이번 렌더러 검증 결과 반영 대기. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
 
 ## 2026-10-12 · 엔진 확정·첫 PostgreSQL 저장
 
