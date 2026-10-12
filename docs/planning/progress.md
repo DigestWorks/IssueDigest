@@ -15,9 +15,9 @@
 
 ## 현재 작업
 
-- 작업: 서버 세션·보호 근거 조회의 전체 변경 리뷰·Draft PR·Sites·개발 앱 인계 마무리.
-- 담당/브랜치: controller + 독립 리뷰 · `feat/session-evidence-api` (선행 PR #9 위).
-- 구현/검증: `ed44370`, 실제 PG 포함 Python778+JS134=912·HTTP19회·독립 작업/보완 리뷰 통과. 전체 변경 리뷰와 게시/인계는 진행 중.
+- 작업: 서버 세션·보호 근거 조회 구현/리뷰·Draft PR·서버 인계 완료. Sites·현재 폴더 인계 마무리 후 실행/화면 저장 준비.
+- 담당/브랜치/PR: controller · `feat/session-evidence-api` · [Draft PR #10](https://github.com/DigestWorks/IssueDigest/pull/10), 선행 PR #9 위. 병합 전.
+- 구현/검증: `ed44370`, 실제 PG 포함 Python778+JS134=912·HTTP19회·독립 작업/보완/전체 리뷰 통과. 검토 기록 `193eed8`의 GitHub CI 통과. ARM 웹134개·실제 기본 앱/프록시 검증 완료.
 - 경계: 실제 로그인 공급자·초대·운영 DB·원문 파일·앱 자료 화면·AI·실행 저장/스트림은 후속. 기본 앱은 자료 반환을 거부한다.
 - 대기: 동료에게 보낸 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 답변. 운영 자료 변경·유료 호출 없음.
 - Sites: v25 유지, 이번 검증 결과 공개 요약 반영 대기.
@@ -28,8 +28,10 @@
 - 데이터 경계: 같은 DB transaction에서 세션·활성 사용자·회원 권한을 먼저 확인하고 기존 근거 무결성 로더를 사용한다. 토큰 원문은 DB에 저장하지 않는다. 권한 없는 요청에 자료 내용을 반환하지 않고 모든 보호 응답에 no-store/새 request ID를 넣는다. 401/404/422/503 JSON과 기존200을 canonical OpenAPI/생성 TS로 연결한다.
 - 검증: controller가 `ed44370`에서 실제 전용 PostgreSQL18.6 포함 전체 npm run check exit0 확인. Python778·JS134=912개, skip0; lint/format·mypy·TS·SPA·drift 통과. 기존 migration0001↔0002의 근거 보존·해시 저장·활동/만료·폐기·권한 회수·workspace 격리·동시 조회 검증. 초기 callable RED와 동시 요청/오류 모델 보완의 실제 assertion RED/GREEN 증거 보존.
 - HTTP: 실제 확인용 Uvicorn 서버에서19회 요청. 두 회원의 동일 근거/인용 순서·같은 세션 동시200, 익명/형식 오류/Bearer/폐기/비활성/절대·idle 만료401, 미가입/다른 공간/없는 자료404, 미구성503. 보호 응답16회 모두 no-store/고유 서버 UUID, 실제 OpenAPI/export 동일. 내부 합성 세션만 쓰고 서버 스레드 종료.
-- 리뷰: 독립 작업 리뷰에서 동시 같은 세션의 RR serialization503 및 오류 JSON 생성 계약 누락을 지적했다. 전체 transaction 40001 재시도(총3회)와 정상 오류 모델/생성 TS로 수정해 독립 수정 범위 재검토 통과. 재시도마다 권한/무결성을 새로 확인하며 소진/다른 DB 장애는 고정503이다. ignored 보고서의 denied-retry 테스트 설명 과장을 실제 테스트 내용으로 정정했다. 전체 변경 리뷰는 후속 게이트다.
-- 운영: 실제 로그인·공급자 검증·초대·제품 화면·운영 DB·원문 bytes·AI·SSE·전체P1은 미완료. 공유 DB·운영 자료·서버관리자 설정을 바꾸지 않았다. PR·Sites·현재 폴더/서버 인계는 검토 후 갱신한다. 미병합 리뷰 증거는 격리 폴더에 보존한다.
+- 리뷰: 독립 작업 리뷰에서 동시 같은 세션의 RR serialization503 및 오류 JSON 생성 계약 누락을 지적했다. 전체 transaction 40001 재시도(총3회)와 정상 오류 모델/생성 TS로 수정해 독립 수정 범위 재검토 통과. 재시도마다 권한/무결성을 새로 확인하며 소진/다른 DB 장애는 고정503이다. ignored 보고서의 denied-retry 테스트 설명 과장을 실제 테스트 내용으로 정정했다. 전체 변경 `04e2efa..193eed8` 독립 리뷰도 지적0으로 통과했다.
+- 게시: [Draft PR #10](https://github.com/DigestWorks/IssueDigest/pull/10) 생성·앱 첨부 완료. [검토 기준193eed8의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38223884082) 성공.
+- 서버: 사용자 전용 ARM64 worktree를 `193eed8`로 fast-forward, locked 설치·웹134개/lint/TS/SPA/drift 통과. 원격 Python 전체나 운영 DB 검사를 수행한 것으로 표시하지 않는다. 기존 reload 부모가 새 storage 패키지 경로를 반영하지 못해 사용자 전용 API 창만 다시 시작했고, 직접/API 프록시10회에서 OpenAPI/export 동일·200상태·401/503 fail-closed/no-store/request ID 확인. 첫 인계는 로컬 로그 폴더가 없어 중단됐고 폴더 준비 후 재검증했다. 공유 서비스/관리자 설정 변경 없음.
+- 운영: 실제 로그인·공급자 검증·초대·제품 화면·운영 DB·원문 bytes·AI·SSE·전체P1은 미완료. 공유 DB·운영 자료·서버관리자 설정을 바꾸지 않았다. Sites·현재 폴더 인계 및 최종 문서 커밋의 서버 동기화는 아래 게시 증거로 갱신한다. 미병합 리뷰 증거는 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 검증된 생성 화면 React 렌더러
 

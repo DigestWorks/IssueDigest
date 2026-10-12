@@ -47,6 +47,6 @@ controller의 실제 PostgreSQL 포함 전체 npm run check, 독립 작업/전�
 - 구현 `73f8684`, 동시 조회·오류 계약 보완 `ed44370`. issuer/subject는 각각 1~256 Unicode 문자이며 원문을 보존한다. 해시 세션, 신뢰된 내부 발급/권한 관리와 보호 조회를 구현했다.
 - 같은 세션의 동시 조회에서 PostgreSQL 40001이 발생하면 전체 권한·무결성·활동 갱신 트랜잭션을 새로 시도한다. 총3회로 제한하며 소진·그 밖의 DB 오류는 고정503이다. 이미 읽은 자료/권한을 재사용하지 않는다. 실제 DB 겹침·재시도 도중 권한 회수·무결성 변경 및 한도 검증 통과.
 - 401/404/422/503의 고정 JSON을 실제 FastAPI 응답 모델→OpenAPI→생성 TS에 연결했다. 422는 UUID4 오류 위치/종류만 남기고 입력/context는 반영하지 않는다. 기존 canonical EvidenceBundle/이름 충돌 검증은 보존했다.
-- controller가 `ed44370`에서 실제 전용 PostgreSQL18.6을 포함한 전체 검사 exit0: Python778+JS134=912, skip0; lint/format·mypy·TS·SPA·계약 drift 통과. 독립 작업 리뷰의 두 지적을 수정하고 재검토 통과했다. 전체 변경 리뷰·PR·Sites·인계 상태는 진행 기록을 따른다.
+- controller가 `ed44370`에서 실제 전용 PostgreSQL18.6을 포함한 전체 검사 exit0: Python778+JS134=912, skip0; lint/format·mypy·TS·SPA·계약 drift 통과. 독립 작업 리뷰의 두 지적을 수정하고 재검토 통과했다. 전체 변경 리뷰도 지적0으로 통과했다. PR·Sites·인계 상태는 진행 기록을 따른다.
 - 실제 Uvicorn HTTP19회에서 두 회원의 정확한 동일 근거/인용 순서, 같은 세션 동시 조회200, 익명/형식 오류/폐기/비활성/절대·idle 만료401, 미가입/다른 공간/없는 자료404, 미구성 backend503을 확인했다. 보호 응답16회 모두 no-store/서버 UUID ID. HTTP OpenAPI와 export 동일. 내부 합성 DB/세션만 사용했고 확인용 서버 스레드를 종료했다.
 - 실제 공급자 로그인·초대·앱 화면·운영 DB·기존 운영 자료·AI는 연결하지 않았다. 기본 앱은 외부 연결 없이 기동하고 보호 GET은 인증·구성이 없으면 자료를 반환하지 않는다.
