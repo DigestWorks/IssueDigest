@@ -15,7 +15,7 @@
 
 ## 현재 작업
 
-- 작업: 관리자 제공 전용 DB·기존 수집 자산의 읽기 조사와 D012 서비스 도메인 반영. 문서 작업이며 앱 코드·설정 형식·DB 스키마 변경은 없다.
+- 작업: 전용 DB·기존 자산 조사, D012 도메인·문서·Draft PR·Sites 반영 완료. 다음은 읽기 연결기·원문 대응·앱 DB 연결의 구현 준비. 앱 코드·설정 형식·DB 스키마 변경은 없다.
 - 담당/브랜치/PR: controller · `docs/server-data-inventory` · [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11), 선행 PR #10 위. 병합 전.
 - 검증: 실제 PostgreSQL18.6·CREATE 권한·빈 public·vector 미준비, 기존 28테이블 정확 COUNT/기간/상태, 파일 건수·JSON 구조·PDF 헤더·원문 파일명 대응 확인. [실측 기록](../research/server-data-inventory.md)을 따른다.
 - 다음: 읽기 연결기·원문 파일/인용 연결을 설계하고, 전용 DB 대상·백업/런타임 권한 확인 후 앱 연결을 별도 구현한다. 첫 이슈·실제 자료 선별과 실행/화면 결과 저장·복구도 후속이다.
@@ -31,7 +31,7 @@
 - 검증/공개: 문서 링크·기준 숫자·접속 세부정보 제외를 검사한다. 앱 코드·DB/수집 서비스·운영 데이터 변경 없음. 문서-only이므로 spec-driven 전체 구현 절차와 코드 테스트를 반복하지 않는다.
 - 게시: [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11) 생성. 앱 첨부를 요청했으나 응답은 미확인이다. 변경 문서9개 상대 링크54개·공개 접속정보 제외·주요 집계값·git diff --check 통과. [사본 기준333f63e CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38227033348) 성공. 기존 PR #10과 그 검토·테스트 증거를 보존한다.
 - Sites: [v27 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 성공. source `60fa91853bcb28c46ea36174de70774ccb3bb2a4`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_5fcc117ac53881919ff4ca475789c41c`, deployment `appgdep_6acca1f9b3ac819199c9f83621765992` native succeeded·URL 확인. 사본 기준 `333f63e`; 이전 v26 보존. HTML12개·로컬 링크/anchor142개·manifest·공개 접속정보 제외 통과. 정적 문서 내용만 바꿨고 이번 변경의 브라우저 화면 검사는 수행하지 않았다.
-- 인계: 현재 폴더는 docs/server-data-inventory의 문서 변경을 포함한다. 서버 사용자 전용 worktree는 같은 마지막 문서 커밋으로 fast-forward한다. 앱 실행 코드가 같으므로 프로세스/의존성/서비스를 변경하지 않는다. 실제 동기화 결과는 마지막 확인에서 기록한다.
+- 인계: 현재 폴더와 서버 사용자 전용 worktree를 게시 기록91a41d8까지 동기화하고 깨끗한 상태를 확인했다. 기존 코드와 동일하므로 앱 프로세스·의존성·서비스 변경 없음. 이 인계 기록을 포함한 마지막 문서 커밋도 fast-forward하며 결과는 최종 응답 기준 확인한다. 사이트 탭 열기를 요청했으나 앱 응답은 미확인이다. 마지막 문서 커밋의 CI 결과는 PR에서 확인한다.
 
 ## 2026-10-12 · 서버 세션·회원 권한·첫 근거 조회 API
 
