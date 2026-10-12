@@ -18,7 +18,7 @@
 2. `load(workspace_id, snapshot_id) -> EvidenceBundle | None`은 해당 공간의 자료만 읽고 모르는 ID/다른 공간은 None이다. 재검증 실패·저장 객체/관계/내용 해시 불일치는 StorageCorruption으로 거부하며 원문 내용·DB URL을 오류에 출력하지 않는다.
 3. SourceDocument, DocumentVersion, ParsedRepresentation, Citation은 각각 ID 기준 불변 객체다. 동일 ID·동일 내용은 재사용하고 다른 내용은 충돌이다. 전역 ID와 workspace 및 부모 참조는 FK/unique로 묶는다. 같은 표현에서 새 citation을 추가할 때 새 snapshot_id로 저장할 수 있다. 기존 스냅샷의 citation 목록은 변하지 않는다.
 4. `(workspace_id, provider, source_id)`는 문서 identity에 대해 유일하다. 원문 내용 해시의 같음만으로 버전을 합치지는 않는다. 외부 수집에서 ID·내용 fingerprint를 재사용하는 정규화/중복 제거 정책은 후속이다.
-5. 정규화한 계약 JSON은 JSONB payload에 저장하고 ID/공간/부모 참조는 관계형 열로 둔다. payload와 열의 일치는 저장·읽기 양쪽에서 검사한다. UTC·UUID·Unicode 정규화는 기존 도메인 직렬화를 따른다. DB가 표현할 수 없는 문자열은 쓰기를 실패시키며 일부 행이 남지 않는다.
+5. JSONB가 수치상 같은 -0.0을 0.0으로 표현하더라도 유효한 PDF 좌표의 저장·재열람·동일 ID 재시도가 실패하지 않아야 한다. 내용 해시는 이 표현 차이를 정규화하며 도메인 계약은 변경하지 않는다. 정규화한 계약 JSON은 JSONB payload에 저장하고 ID/공간/부모 참조는 관계형 열로 둔다. payload와 열의 일치는 저장·읽기 양쪽에서 검사한다. UTC·UUID·Unicode 정규화는 기존 도메인 직렬화를 따른다. DB가 표현할 수 없는 문자열은 쓰기를 실패시키며 일부 행이 남지 않는다.
 6. 한 트랜잭션이 문서·버전·표현·인용·스냅샷 및 `evidence.snapshot_saved.v1` outbox 행을 함께 저장한다. 스냅샷당 outbox 한 행만 남긴다. payload는 공간·snapshot/문서/버전/표현 ID를 참조하며 원문 내용은 넣지 않는다. 최초 event ID는 snapshot ID를 사용한다. outbox 조회/소비·재시도·그래프 투영은 이 작업에 포함하지 않는다.
 7. 동시에 같은 스냅샷을 제출해도 하나만 생성한다. 호출자가 AUTOCOMMIT Engine을 전달해도 저장은 명시적인 트랜잭션으로 처리한다. commit 이전의 실패·충돌은 해당 쓰기 전체를 rollback한다. commit 응답 중 연결이 끊겨 완료 여부를 확인할 수 없으면 미저장으로 단정하지 않고 같은 snapshot ID로 조회·재시도해 확인한다. 동일 객체 ID의 서로 다른 내용이 동시 제출되어도 기존 객체를 덮어쓰지 않는다. DBOS를 도입하기 전 SQLAlchemy 트랜잭션이 앱 저장·outbox의 기준이다.
 8. Alembic upgrade는 새 DB에 적용하고 재실행 가능하다. downgrade→upgrade도 합성 DB에서 검증한다. DB 초기화는 앱 import/startup에서 수행하지 않는다. 연결 URL은 명시적으로 전달하고 PostgreSQL+psycopg만 받으며 실제 엔진도 PostgreSQL인지 검사한다.
@@ -52,3 +52,5 @@ TDD: 실행 가능한 실제 PostgreSQL 테스트를 먼저 쓰고 의미 있는
 - 선택된 pgvector·PydanticAI·DBOS의 설치는 해당 검색/worker 구현에서 한다. 이번 저장에 쓰지 않는 의존성을 먼저 추가하지 않으며, 호환성 문제가 생기면 그 단계에서 버전을 조정한다.
 - 미병합 PR 검토가 끝날 때까지 ignored 리뷰 기록을 보존한다. 불필요한 보존이면 로컬 scratch 정리만 필요하다.
 - rollback 보장은 commit 전 실패에 적용한다. commit 응답을 잃으면 같은 ID로 결과를 확인한다. 이 판단이 달라지면 호출자의 오류·재확인 처리를 수정해야 한다.
+
+- JSONB의 signed zero 표현 차이는 같은 좌표 값으로 정규화해 내용 해시를 계산한다. 유효한 PDF 자료를 저장하기 위한 처리이며, 다른 의미의 값이었다면 저장 fingerprint 정책을 개정해야 한다.
