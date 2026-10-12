@@ -20,7 +20,7 @@
 - 검증: 실제 PostgreSQL18.6·CREATE 권한·빈 public·vector 미준비, 기존 28테이블 정확 COUNT/기간/상태, 파일 건수·JSON 구조·PDF 헤더·원문 파일명 대응 확인. [실측 기록](../research/server-data-inventory.md)을 따른다.
 - 다음: 읽기 연결기·원문 파일/인용 연결을 설계하고, 전용 DB 대상·백업/런타임 권한 확인 후 앱 연결을 별도 구현한다. 첫 이슈·실제 자료 선별과 실행/화면 결과 저장·복구도 후속이다.
 - 대기: pgvector 패키지·외부 백업/복원·전용 자원/월 분담 비용·런타임 계정 분리·인증 공급자·도메인 연결. 전용 DB 제공과 자료 조회 접근은 해결했다.
-- Sites: v26 보존 후 새 실측 요약 게시 준비. 아래 기존 게시 증거는 이전 상태다.
+- Sites: v27 공개 게시 성공. 전용 DB·실측 데이터·원문 품질·남은 조건·새 도메인 반영, v26 보존. 아래 게시 증거를 확인한다.
 
 ## 2026-10-12 · 전용 DB·기존 수집 자산 조사
 
@@ -29,7 +29,9 @@
 - 파일/상태/코드는 읽기 조사만 했다. 여론조사 PDF774개 중23개에 헤더 없음, 파싱 자료의 basename 누락/충돌을 확인했다. 폴더의 PDF 수를 검증된 고유 원문 수로 기록하지 않는다. 종료 이벤트·READY·수정 시각을 현재 수집 성공으로 간주하지 않는다.
 - D012: 사용자 확정 서비스 도메인 issuedigest.projects.ai.kr. 조사 컴퓨터의 DNS 조회는 이름 해석 실패. DNS/TLS/프록시/콜백·공개 앱 배포는 수행하지 않았다. 계획 Sites 주소를 변경하지 않는다.
 - 검증/공개: 문서 링크·기준 숫자·접속 세부정보 제외를 검사한다. 앱 코드·DB/수집 서비스·운영 데이터 변경 없음. 문서-only이므로 spec-driven 전체 구현 절차와 코드 테스트를 반복하지 않는다.
-- 게시: [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11) 생성. 앱 첨부를 요청했으나 응답은 미확인이다. 변경 문서9개 상대 링크54개·공개 접속정보 제외·주요 집계값·git diff --check 통과. Sites 게시 증거는 성공 후 추가한다. 기존 PR #10과 그 검토·테스트 증거를 보존한다.
+- 게시: [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11) 생성. 앱 첨부를 요청했으나 응답은 미확인이다. 변경 문서9개 상대 링크54개·공개 접속정보 제외·주요 집계값·git diff --check 통과. [사본 기준333f63e CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38227033348) 성공. 기존 PR #10과 그 검토·테스트 증거를 보존한다.
+- Sites: [v27 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 성공. source `60fa91853bcb28c46ea36174de70774ccb3bb2a4`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_5fcc117ac53881919ff4ca475789c41c`, deployment `appgdep_6acca1f9b3ac819199c9f83621765992` native succeeded·URL 확인. 사본 기준 `333f63e`; 이전 v26 보존. HTML12개·로컬 링크/anchor142개·manifest·공개 접속정보 제외 통과. 정적 문서 내용만 바꿨고 이번 변경의 브라우저 화면 검사는 수행하지 않았다.
+- 인계: 현재 폴더는 docs/server-data-inventory의 문서 변경을 포함한다. 서버 사용자 전용 worktree는 같은 마지막 문서 커밋으로 fast-forward한다. 앱 실행 코드가 같으므로 프로세스/의존성/서비스를 변경하지 않는다. 실제 동기화 결과는 마지막 확인에서 기록한다.
 
 ## 2026-10-12 · 서버 세션·회원 권한·첫 근거 조회 API
 
