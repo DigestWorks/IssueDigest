@@ -1,0 +1,8 @@
+{
+  "name": "@issuedigest/ui", "private": true, "version": "0.0.0", "type": "module",
+  "exports": {".": "./src/index.ts", "./styles.css": "./src/styles.css"},
+  "scripts": {"typecheck": "tsc --noEmit"},
+  "dependencies": {"@issuedigest/api-client": "0.0.0"},
+  "peerDependencies": {"react": "19.3.0"},
+  "devDependencies": {"react": "19.3.0"}
+}

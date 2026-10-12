@@ -1,0 +1,565 @@
+{
+  "research": {
+    "schema_version": 1,
+    "workspace_id": "00000000-0000-4000-8000-000000000001",
+    "evidence": [
+      {
+        "schema_version": 1,
+        "document": {
+          "document_id": "00000000-0000-4000-8000-000000000002",
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "provider": "synthetic-test",
+          "source_id": "합성 문서 A",
+          "source_kind": "other",
+          "canonical_url": null
+        },
+        "version": {
+          "version_id": "00000000-0000-4000-8000-000000000003",
+          "document_id": "00000000-0000-4000-8000-000000000002",
+          "raw_object_id": "00000000-0000-4000-8000-000000000005",
+          "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "media_type": "application/pdf",
+          "collected_at": "2026-01-01T00:00:00Z"
+        },
+        "representation": {
+          "representation_id": "00000000-0000-4000-8000-000000000004",
+          "document_version_id": "00000000-0000-4000-8000-000000000003",
+          "parser_name": "synthetic-test",
+          "parser_version": "1",
+          "normalization_profile": "identity",
+          "text": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+          "text_sha256": "a755043a71869cb45c1f90d1a1421f8cecb06265d063eea1986ec2004eb6d913",
+          "pages": [
+            {
+              "page_number": 1,
+              "start": 0,
+              "end": 38
+            }
+          ],
+          "tables": [
+            {
+              "table_id": "synthetic-table",
+              "cells": [
+                {
+                  "cell_id": "synthetic-cell",
+                  "text": "합성 표 인용",
+                  "unit": null,
+                  "period": null,
+                  "question": null,
+                  "population": null,
+                  "methodology": null,
+                  "sample_size": null,
+                  "weighting": null
+                }
+              ]
+            }
+          ]
+        },
+        "citations": [
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000006",
+            "document_version_id": "00000000-0000-4000-8000-000000000003",
+            "representation_id": "00000000-0000-4000-8000-000000000004",
+            "selector": {
+              "start": 0,
+              "end": 38,
+              "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+              "prefix": null,
+              "suffix": null,
+              "kind": "text"
+            }
+          },
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000007",
+            "document_version_id": "00000000-0000-4000-8000-000000000003",
+            "representation_id": "00000000-0000-4000-8000-000000000004",
+            "selector": {
+              "start": 0,
+              "end": 38,
+              "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+              "prefix": null,
+              "suffix": null,
+              "kind": "pdf",
+              "page_number": 1,
+              "regions": []
+            }
+          },
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000008",
+            "document_version_id": "00000000-0000-4000-8000-000000000003",
+            "representation_id": "00000000-0000-4000-8000-000000000004",
+            "selector": {
+              "kind": "table_cell",
+              "table_id": "synthetic-table",
+              "cell_id": "synthetic-cell",
+              "quote": "합성 표 인용"
+            }
+          }
+        ]
+      },
+      {
+        "schema_version": 1,
+        "document": {
+          "document_id": "00000000-0000-4000-8000-000000000009",
+          "workspace_id": "00000000-0000-4000-8000-000000000001",
+          "provider": "synthetic-test",
+          "source_id": "선택하지 않은 합성 문서 B",
+          "source_kind": "other",
+          "canonical_url": null
+        },
+        "version": {
+          "version_id": "00000000-0000-4000-8000-000000000010",
+          "document_id": "00000000-0000-4000-8000-000000000009",
+          "raw_object_id": "00000000-0000-4000-8000-000000000012",
+          "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "media_type": "application/pdf",
+          "collected_at": "2026-01-01T00:00:00Z"
+        },
+        "representation": {
+          "representation_id": "00000000-0000-4000-8000-000000000011",
+          "document_version_id": "00000000-0000-4000-8000-000000000010",
+          "parser_name": "synthetic-test",
+          "parser_version": "1",
+          "normalization_profile": "identity",
+          "text": "합성 테스트 전용: 선택하지 않은 합성 문서 B. 실제 조사·AI 결과가 아닙니다.",
+          "text_sha256": "cb8d30329c397fb6212b8d257d0645f6b89191c2a86c3edd96b5135f284ed0ec",
+          "pages": [
+            {
+              "page_number": 1,
+              "start": 0,
+              "end": 46
+            }
+          ],
+          "tables": [
+            {
+              "table_id": "synthetic-table",
+              "cells": [
+                {
+                  "cell_id": "synthetic-cell",
+                  "text": "합성 표 인용",
+                  "unit": null,
+                  "period": null,
+                  "question": null,
+                  "population": null,
+                  "methodology": null,
+                  "sample_size": null,
+                  "weighting": null
+                }
+              ]
+            }
+          ]
+        },
+        "citations": [
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000013",
+            "document_version_id": "00000000-0000-4000-8000-000000000010",
+            "representation_id": "00000000-0000-4000-8000-000000000011",
+            "selector": {
+              "start": 0,
+              "end": 46,
+              "quote": "합성 테스트 전용: 선택하지 않은 합성 문서 B. 실제 조사·AI 결과가 아닙니다.",
+              "prefix": null,
+              "suffix": null,
+              "kind": "text"
+            }
+          },
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000014",
+            "document_version_id": "00000000-0000-4000-8000-000000000010",
+            "representation_id": "00000000-0000-4000-8000-000000000011",
+            "selector": {
+              "start": 0,
+              "end": 46,
+              "quote": "합성 테스트 전용: 선택하지 않은 합성 문서 B. 실제 조사·AI 결과가 아닙니다.",
+              "prefix": null,
+              "suffix": null,
+              "kind": "pdf",
+              "page_number": 1,
+              "regions": []
+            }
+          },
+          {
+            "citation_id": "00000000-0000-4000-8000-000000000015",
+            "document_version_id": "00000000-0000-4000-8000-000000000010",
+            "representation_id": "00000000-0000-4000-8000-000000000011",
+            "selector": {
+              "kind": "table_cell",
+              "table_id": "synthetic-table",
+              "cell_id": "synthetic-cell",
+              "quote": "합성 표 인용"
+            }
+          }
+        ]
+      }
+    ],
+    "entities": [
+      {
+        "entity_id": "00000000-0000-4000-8000-000000000016",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "kind": "organization",
+        "name": "합성 주체 A",
+        "aliases": [],
+        "source_identities": [],
+        "valid_period": null,
+        "raw_validity_text": null,
+        "identity_review": null
+      },
+      {
+        "entity_id": "00000000-0000-4000-8000-000000000017",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "kind": "organization",
+        "name": "합성 주체 B",
+        "aliases": [],
+        "source_identities": [],
+        "valid_period": null,
+        "raw_validity_text": null,
+        "identity_review": null
+      }
+    ],
+    "claims": [
+      {
+        "claim_id": "00000000-0000-4000-8000-000000000018",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "text": "합성 주장: 나중 구간",
+        "basis": "source_assertion",
+        "speaker_entity_id": "00000000-0000-4000-8000-000000000016",
+        "subject_entity_ids": [],
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000006"
+        ],
+        "valid_period": {
+          "start_date": "2026-03-01",
+          "end_date": "2026-03-31"
+        },
+        "raw_event_time_text": null,
+        "derivation": null
+      },
+      {
+        "claim_id": "00000000-0000-4000-8000-000000000019",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "text": "합성 관측: 앞선 구간",
+        "basis": "observation",
+        "speaker_entity_id": "00000000-0000-4000-8000-000000000017",
+        "subject_entity_ids": [],
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000007"
+        ],
+        "valid_period": {
+          "start_date": "2026-01-01",
+          "end_date": "2026-01-31"
+        },
+        "raw_event_time_text": null,
+        "derivation": null
+      },
+      {
+        "claim_id": "00000000-0000-4000-8000-000000000020",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "text": "합성 추론: 중간 구간",
+        "basis": "inference",
+        "speaker_entity_id": "00000000-0000-4000-8000-000000000016",
+        "subject_entity_ids": [],
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000008"
+        ],
+        "valid_period": {
+          "start_date": "2026-02-01",
+          "end_date": "2026-02-28"
+        },
+        "raw_event_time_text": null,
+        "derivation": {
+          "method": "synthetic-test",
+          "method_version": "1",
+          "rationale": "합성 추론 표시 시험"
+        }
+      }
+    ],
+    "relations": [
+      {
+        "relation_id": "00000000-0000-4000-8000-000000000021",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "ontology_version": "issuedigest-relations-v1",
+        "predicate": "supports",
+        "source": {
+          "kind": "claim",
+          "claim_id": "00000000-0000-4000-8000-000000000018"
+        },
+        "target": {
+          "kind": "claim",
+          "claim_id": "00000000-0000-4000-8000-000000000019"
+        },
+        "basis": "source_assertion",
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000006"
+        ],
+        "valid_period": null,
+        "derivation": null
+      }
+    ],
+    "observations": [
+      {
+        "observation_id": "00000000-0000-4000-8000-000000000022",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "subject_entity_id": "00000000-0000-4000-8000-000000000016",
+        "raw_value": "-25.000000000000000001",
+        "value": "-25.000000000000000001",
+        "missing_reason": null,
+        "raw_period": null,
+        "context": {
+          "metric": "합성 측정",
+          "unit": "합성 단위",
+          "population": "합성 모집단",
+          "geography": "합성 지역",
+          "question": "합성 질문",
+          "methodology": "합성 방법",
+          "weighting": "합성 가중",
+          "denominator": "합성 분모",
+          "series_id": "synthetic-series",
+          "period": {
+            "start_date": "2026-01-01",
+            "end_date": "2026-01-31"
+          },
+          "sample_size": 100,
+          "dimensions": [
+            {
+              "key": "합성 분류",
+              "value": "A"
+            }
+          ]
+        },
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000006"
+        ]
+      },
+      {
+        "observation_id": "00000000-0000-4000-8000-000000000023",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "subject_entity_id": "00000000-0000-4000-8000-000000000017",
+        "raw_value": "0",
+        "value": "0",
+        "missing_reason": null,
+        "raw_period": null,
+        "context": {
+          "metric": "합성 측정",
+          "unit": "합성 단위",
+          "population": "합성 모집단",
+          "geography": "합성 지역",
+          "question": "합성 질문",
+          "methodology": "합성 방법",
+          "weighting": "합성 가중",
+          "denominator": "합성 분모",
+          "series_id": "synthetic-series",
+          "period": {
+            "start_date": "2026-01-01",
+            "end_date": "2026-01-31"
+          },
+          "sample_size": 100,
+          "dimensions": [
+            {
+              "key": "합성 분류",
+              "value": "A"
+            }
+          ]
+        },
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000006"
+        ]
+      },
+      {
+        "observation_id": "00000000-0000-4000-8000-000000000024",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "subject_entity_id": "00000000-0000-4000-8000-000000000016",
+        "raw_value": "50.000000000000000002",
+        "value": "50.000000000000000002",
+        "missing_reason": null,
+        "raw_period": null,
+        "context": {
+          "metric": "합성 측정",
+          "unit": "합성 단위",
+          "population": "합성 모집단",
+          "geography": "합성 지역",
+          "question": "합성 질문",
+          "methodology": "합성 방법",
+          "weighting": "합성 가중",
+          "denominator": "합성 분모",
+          "series_id": "synthetic-series",
+          "period": {
+            "start_date": "2026-01-01",
+            "end_date": "2026-01-31"
+          },
+          "sample_size": 100,
+          "dimensions": [
+            {
+              "key": "합성 분류",
+              "value": "A"
+            }
+          ]
+        },
+        "citation_ids": [
+          "00000000-0000-4000-8000-000000000006"
+        ]
+      }
+    ],
+    "support_reviews": []
+  },
+  "revision": {
+    "schema_version": 1,
+    "revision_id": "00000000-0000-4000-8000-000000000031",
+    "workspace_id": "00000000-0000-4000-8000-000000000001",
+    "run_id": "00000000-0000-4000-8000-000000000032",
+    "revision_number": 1,
+    "parent_revision_id": null,
+    "selected_version_ids": [
+      "00000000-0000-4000-8000-000000000003"
+    ],
+    "draft": {
+      "schema_version": 1,
+      "draft_id": "00000000-0000-4000-8000-000000000033",
+      "outcome": "answer",
+      "modules": [
+        {
+          "module_id": "00000000-0000-4000-8000-000000000025",
+          "title": "합성 근거",
+          "span": "half",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000007",
+            "00000000-0000-4000-8000-000000000008"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            },
+            {
+              "kind": "select_document",
+              "document_id": "00000000-0000-4000-8000-000000000002"
+            },
+            {
+              "kind": "ask_question",
+              "question": "합성 후속 질문?"
+            },
+            {
+              "kind": "sort",
+              "field": "title",
+              "direction": "asc"
+            },
+            {
+              "kind": "sort",
+              "field": "source_date",
+              "direction": "desc"
+            }
+          ],
+          "kind": "evidence"
+        },
+        {
+          "module_id": "00000000-0000-4000-8000-000000000026",
+          "title": "합성 요약",
+          "span": "half",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000007",
+            "00000000-0000-4000-8000-000000000008"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            }
+          ],
+          "kind": "summary",
+          "claim_ids": [
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020"
+          ]
+        },
+        {
+          "module_id": "00000000-0000-4000-8000-000000000027",
+          "title": "합성 비교",
+          "span": "full",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000007",
+            "00000000-0000-4000-8000-000000000008"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            }
+          ],
+          "kind": "comparison",
+          "claim_ids": [
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020"
+          ]
+        },
+        {
+          "module_id": "00000000-0000-4000-8000-000000000028",
+          "title": "합성 타임라인",
+          "span": "half",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006",
+            "00000000-0000-4000-8000-000000000007",
+            "00000000-0000-4000-8000-000000000008"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            }
+          ],
+          "kind": "timeline",
+          "claim_ids": [
+            "00000000-0000-4000-8000-000000000018",
+            "00000000-0000-4000-8000-000000000019",
+            "00000000-0000-4000-8000-000000000020"
+          ]
+        },
+        {
+          "module_id": "00000000-0000-4000-8000-000000000029",
+          "title": "합성 관계",
+          "span": "half",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            }
+          ],
+          "kind": "graph",
+          "relation_ids": [
+            "00000000-0000-4000-8000-000000000021"
+          ]
+        },
+        {
+          "module_id": "00000000-0000-4000-8000-000000000030",
+          "title": "합성 수치",
+          "span": "full",
+          "citation_ids": [
+            "00000000-0000-4000-8000-000000000006"
+          ],
+          "actions": [
+            {
+              "kind": "open_evidence",
+              "citation_id": "00000000-0000-4000-8000-000000000006"
+            }
+          ],
+          "kind": "chart",
+          "observation_ids": [
+            "00000000-0000-4000-8000-000000000022",
+            "00000000-0000-4000-8000-000000000023",
+            "00000000-0000-4000-8000-000000000024"
+          ],
+          "chart_type": "bar"
+        }
+      ],
+      "message": null
+    },
+    "validated_at": "2026-10-01T00:00:00Z",
+    "validation_policy": "issuedigest-canvas-v1"
+  }
+}

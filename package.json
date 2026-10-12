@@ -1,6 +1,6 @@
 {
   "name": "issuedigest", "private": true, "version": "0.0.0", "type": "module",
-  "workspaces": ["apps/web", "packages/api-client"],
+  "workspaces": ["apps/web", "packages/api-client", "packages/ui"],
   "engines": {"node": "24.21.0", "npm": "11.19.0"},
   "packageManager": "npm@11.19.0",
   "scripts": {
