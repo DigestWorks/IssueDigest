@@ -92,11 +92,11 @@
 
 투영은 사건 ID·문서 버전으로 멱등 처리한다. 검색·그래프를 각각의 기준 저장소로 직접 수정하지 않는다. 원문 버전과 색인 버전의 차이를 추적하며 갱신 실패를 복구한다.
 
-## 실행기·검색 결정 실험
+## 확정 엔진의 검색·복구 품질 검증
 
-1. DBOS/PostgreSQL과 Temporal은 같은 수집·모델·도구 흐름으로 중단 후 재개, 도구 중복, 버전 변경, 스트리밍/재접속, 메모리·운영비를 비교한다. 후보 실행기를 두 개 동시에 생산 운영하지 않는다.
-2. PostgreSQL/pgvector의 한국어 어휘·정확 ID 결합과 OpenSearch/Nori를 같은 실제 질문·기대 근거로 비교한다. 특정 법안명·동명이인·문항 조건·날짜 필터를 포함한다.
-3. 검색·작업 실행은 이 실험으로 생산 목표 엔진을 확정한 뒤 첫 제품에서도 같은 엔진을 쓴다. 임시 엔진으로 제품 기능을 만든 뒤 갈아엎는 계획이 아니다.
+1. D011의 PydanticAI/DBOS + PostgreSQL로 수집·모델·도구의 중단 후 재개, 중복, 버전 변경, 스트리밍/재접속, 메모리·운영비를 검증한다. 별도 후보 실행기를 병행 구현하지 않는다.
+2. PostgreSQL/pgvector의 정확 ID·한국어 어휘·벡터 결합을 같은 실제 질문·기대 근거로 검증한다. 특정 법안명·동명이인·문항 조건·날짜 필터를 포함한다.
+3. 선택된 엔진을 첫 저장 구현부터 운영까지 사용한다. 품질 미달 시 분석·인덱스·정책을 개선하고 엔진 변경이 필요하면 새 결정에 근거와 이관 영향을 남긴다.
 4. PydanticAI의 DBOS 통합은 workflow 안에서 실행해야 내구성이 생긴다. 도구·이벤트·모델 호출의 저장 경계를 확인하고 현재 문서에 맞는 통합을 버전 고정한다. deprecated wrapper를 새 코드의 기본으로 쓰지 않는다.
 
 참고: [pgvector 하이브리드 검색](https://github.com/pgvector/pgvector#hybrid-search), [PydanticAI DBOS 통합](https://pydantic.dev/docs/ai/capabilities/durable_execution/dbos/), [DBOS workflow](https://docs.dbos.dev/python/tutorials/workflow-tutorial), [Neo4j 운영 요구사항](https://neo4j.com/docs/operations-manual/current/installation/requirements/).
