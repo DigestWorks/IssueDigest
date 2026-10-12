@@ -12,6 +12,7 @@ DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입�
 - [작업 목록](docs/planning/tasks.md)
 - [진행 기록](docs/planning/progress.md)
 - [이전 기록·재사용 자산](docs/planning/archive.md)
+- [개발 서버 안내·확인 기록](infra/development-server.md)
 - [공유 계획 사이트](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)
 
 이전 와이어프레임은 별도 비공개 저장소의 코드로 보존하며 배포를 종료했습니다. 계획 문서는 서비스 기능의 구현 완료를 뜻하지 않습니다.

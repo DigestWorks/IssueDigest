@@ -14,6 +14,7 @@
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
 | [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
+| [개발 서버 안내](../infra/development-server.md) | 비공개 접속 정보·확인한 자원·도구 차이·원격 실행 준비 |
 
 ## 작업 흐름
 
