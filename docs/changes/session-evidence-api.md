@@ -13,7 +13,7 @@
 
 ## Task 1 · 세션 저장에서 보호 HTTP 조회까지
 
-- [ ] 아래 수용 조건을 구현·검증한다. 구현자가 완료 시 체크한다.
+- [x] 아래 수용 조건 구현·검증. 독립 작업 리뷰 지적 보완·수정 범위 재검토 통과; 게시/인계는 진행 기록을 따른다.
 
 1. `packages/storage`에 내부 인증 저장소와 auth_users/auth_workspace_memberships/auth_sessions 테이블 및 순차 Alembic migration을 추가한다. 사용자는 UUID4와 정확한 issuer/subject pair로 식별한다. 같은 pair를 다른 UUID로, 같은 UUID를 다른 pair로 바꾸면 충돌한다. 서로 다른 issuer의 같은 subject는 별개이며 이메일/공백 정규화로 합치지 않는다. 값은 nonempty·NUL 없음·길이 제한을 검증하고 그 원문을 보존한다. 사용자 enabled, membership active와 viewer/editor/owner 역할을 저장한다. 존재하지 않는 사용자 참조·미지원 역할·잘못된 UUID는 거부한다. 기존 근거 저장·기존 migration과 이미 저장한 스냅샷은 보존한다. 이 단계의 membership workspace UUID는 기존 근거의 namespace이며 workspace 생성/초대 관리 전체 기능이 아니다.
 2. 공개하지 않은 내부 메서드로 검증된 외부 identity를 등록하고 회원 권한을 부여/회수하며 세션을 발급/폐기할 수 있다. 이 메서드 자체는 공급자 토큰 검증/초대 승인을 수행하지 않는다. caller가 신뢰되는 OIDC 연결기/관리자 경계여야 한다는 조건을 문서화한다. 비활성/없는 사용자에게 세션을 발급하지 않는다. 토큰은 secrets.token_urlsafe(32)의 256bit 임의 값이며 DB에는 SHA-256 해시만 저장한다. 원문은 발급 결과에서만 돌려주고 repr/log에 포함하지 않는다. 재발급은 다른 토큰을 만든다. 폐기는 idempotent하며 새 요청부터 효력이 있다.
@@ -41,3 +41,12 @@ controller의 실제 PostgreSQL 포함 전체 npm run check, 독립 작업/전�
 - [OWASP Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html): 임의 세션 ID·서버 저장·idle/absolute 만료·폐기·cookie 보호. 위 시간은 프로젝트의 초기 정책이며 표준의 필수 고정값이라고 주장하지 않는다.
 - [MDN Set-Cookie](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Set-Cookie): __Host-의 Secure·Path=/·Domain 없음 및 HttpOnly/SameSite.
 - [FastAPI 추가 응답](https://fastapi.tiangolo.com/advanced/additional-responses/): 실제 응답과 OpenAPI의 일치. 수동 schema 복제가 아니라 기존 canonical model/ref를 사용한다.
+
+## 구현·검증 결과
+
+- 구현 `73f8684`, 동시 조회·오류 계약 보완 `ed44370`. issuer/subject는 각각 1~256 Unicode 문자이며 원문을 보존한다. 해시 세션, 신뢰된 내부 발급/권한 관리와 보호 조회를 구현했다.
+- 같은 세션의 동시 조회에서 PostgreSQL 40001이 발생하면 전체 권한·무결성·활동 갱신 트랜잭션을 새로 시도한다. 총3회로 제한하며 소진·그 밖의 DB 오류는 고정503이다. 이미 읽은 자료/권한을 재사용하지 않는다. 실제 DB 겹침·재시도 도중 권한 회수·무결성 변경 및 한도 검증 통과.
+- 401/404/422/503의 고정 JSON을 실제 FastAPI 응답 모델→OpenAPI→생성 TS에 연결했다. 422는 UUID4 오류 위치/종류만 남기고 입력/context는 반영하지 않는다. 기존 canonical EvidenceBundle/이름 충돌 검증은 보존했다.
+- controller가 `ed44370`에서 실제 전용 PostgreSQL18.6을 포함한 전체 검사 exit0: Python778+JS134=912, skip0; lint/format·mypy·TS·SPA·계약 drift 통과. 독립 작업 리뷰의 두 지적을 수정하고 재검토 통과했다. 전체 변경 리뷰·PR·Sites·인계 상태는 진행 기록을 따른다.
+- 실제 Uvicorn HTTP19회에서 두 회원의 정확한 동일 근거/인용 순서, 같은 세션 동시 조회200, 익명/형식 오류/폐기/비활성/절대·idle 만료401, 미가입/다른 공간/없는 자료404, 미구성 backend503을 확인했다. 보호 응답16회 모두 no-store/서버 UUID ID. HTTP OpenAPI와 export 동일. 내부 합성 DB/세션만 사용했고 확인용 서버 스레드를 종료했다.
+- 실제 공급자 로그인·초대·앱 화면·운영 DB·기존 운영 자료·AI는 연결하지 않았다. 기본 앱은 외부 연결 없이 기동하고 보호 GET은 인증·구성이 없으면 자료를 반환하지 않는다.
