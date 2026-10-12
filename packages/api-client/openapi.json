@@ -1383,6 +1383,21 @@
         "title": "EntityReference",
         "type": "object"
       },
+      "EvidenceAuthenticationError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "Authentication required",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "EvidenceAuthenticationError",
+        "type": "object"
+      },
       "EvidenceBundle": {
         "additionalProperties": false,
         "properties": {
@@ -1491,6 +1506,94 @@
           "kind"
         ],
         "title": "EvidenceModule",
+        "type": "object"
+      },
+      "EvidenceNotFoundError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "Evidence not found",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "EvidenceNotFoundError",
+        "type": "object"
+      },
+      "EvidencePathValidationDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "loc": {
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "const": "path",
+                "type": "string"
+              },
+              {
+                "enum": [
+                  "workspace_id",
+                  "snapshot_id"
+                ],
+                "type": "string"
+              }
+            ],
+            "title": "Loc",
+            "type": "array"
+          },
+          "msg": {
+            "const": "Invalid UUID4 path parameter",
+            "title": "Msg",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "loc",
+          "msg"
+        ],
+        "title": "EvidencePathValidationDetail",
+        "type": "object"
+      },
+      "EvidencePathValidationError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/EvidencePathValidationDetail"
+            },
+            "minItems": 1,
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "EvidencePathValidationError",
+        "type": "object"
+      },
+      "EvidenceUnavailableError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "Evidence service unavailable",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "EvidenceUnavailableError",
         "type": "object"
       },
       "ExecutionVersions": {
@@ -3874,6 +3977,13 @@
         "title": "UsageReservation",
         "type": "object"
       }
+    },
+    "securitySchemes": {
+      "SessionCookie": {
+        "in": "cookie",
+        "name": "__Host-issuedigest_session",
+        "type": "apiKey"
+      }
     }
   },
   "info": {
@@ -3909,9 +4019,169 @@
         "summary": "Status"
       }
     },
+    "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}": {
+      "get": {
+        "operationId": "load_evidence_api_v1_workspaces__workspace_id__evidence__snapshot_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "snapshot_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Snapshot Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceBundle"
+                }
+              }
+            },
+            "description": "Validated immutable evidence",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceAuthenticationError"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceNotFoundError"
+                }
+              }
+            },
+            "description": "Evidence not found",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidencePathValidationError"
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceUnavailableError"
+                }
+              }
+            },
+            "description": "Evidence service unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Load Evidence"
+      }
+    },
     "/health/live": {
       "get": {
-        "description": "The API process responds; database and execution-engine readiness are not checked.",
+        "description": "The process responds; database and execution-engine readiness are not checked.",
         "operationId": "liveness_health_live_get",
         "responses": {
           "200": {

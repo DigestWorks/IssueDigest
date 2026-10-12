@@ -21,6 +21,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Load Evidence */
+        get: operations["load_evidence_api_v1_workspaces__workspace_id__evidence__snapshot_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -30,7 +47,7 @@ export interface paths {
         };
         /**
          * Liveness
-         * @description The API process responds; database and execution-engine readiness are not checked.
+         * @description The process responds; database and execution-engine readiness are not checked.
          */
         get: operations["liveness_health_live_get"];
         put?: never;
@@ -626,6 +643,14 @@ export interface components {
              */
             kind: "entity";
         };
+        /** EvidenceAuthenticationError */
+        EvidenceAuthenticationError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Authentication required";
+        };
         /** EvidenceBundle */
         EvidenceBundle: {
             /** Citations */
@@ -663,6 +688,42 @@ export interface components {
             span: "half" | "full";
             /** Title */
             title: string;
+        };
+        /** EvidenceNotFoundError */
+        EvidenceNotFoundError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Evidence not found";
+        };
+        /** EvidencePathValidationDetail */
+        EvidencePathValidationDetail: {
+            /** Loc */
+            loc: [
+                "path",
+                "workspace_id" | "snapshot_id"
+            ];
+            /**
+             * Msg
+             * @constant
+             */
+            msg: "Invalid UUID4 path parameter";
+            /** Type */
+            type: string;
+        };
+        /** EvidencePathValidationError */
+        EvidencePathValidationError: {
+            /** Detail */
+            detail: components["schemas"]["EvidencePathValidationDetail"][];
+        };
+        /** EvidenceUnavailableError */
+        EvidenceUnavailableError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Evidence service unavailable";
         };
         /** ExecutionVersions */
         ExecutionVersions: {
@@ -1629,6 +1690,80 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ServiceStatus"];
+                };
+            };
+        };
+    };
+    load_evidence_api_v1_workspaces__workspace_id__evidence__snapshot_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                snapshot_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated immutable evidence */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceBundle"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Evidence not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceNotFoundError"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidencePathValidationError"];
+                };
+            };
+            /** @description Evidence service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceUnavailableError"];
                 };
             };
         };

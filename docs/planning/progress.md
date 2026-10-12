@@ -5,7 +5,7 @@
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. 제품 API·이벤트 전달·워커·운영 DB·검색·인증은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. 실제 로그인·초대·나머지 제품 API·이벤트·워커·운영 DB·검색은 미완료 |
 | P2 실제 근거 | 미착수 | 첫 이슈·원문·읽기 스냅샷·데이터 API 접근 필요 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
@@ -15,10 +15,25 @@
 
 ## 현재 작업
 
-- 완료: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부. [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) (base PR #8, 미병합), `feat/canvas-renderer`.
-- 다음: 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 동료 답변 확인. 제품 API·권한·실행 저장·실제 AI/화면 host 연결을 이어간다.
-- 대기 범위: 실제 자료 반입·운영 DB 설치·공존 서비스·비용/백업은 아직 미확인이다. 현재 코드의 실행·화면·검색·에이전트 전체 구현으로 표시하지 않는다.
-- Sites: v25 공개 반영 완료. 현재 폴더와 개발 서버의 개인 worktree는 같은 기능 브랜치의 기록을 따른다. 새 유료 호출·운영 데이터 변경 없음.
+- 작업: 서버 세션·보호 근거 조회의 구현·검증·리뷰·Draft PR·Sites·현재 폴더/개발 서버 인계 완료. 다음은 실행 이벤트·화면 결과의 실제 저장·복구 경계 준비.
+- 담당/브랜치/PR: controller · `feat/session-evidence-api` · [Draft PR #10](https://github.com/DigestWorks/IssueDigest/pull/10), 선행 PR #9 위. 병합 전.
+- 구현/검증: `ed44370`, 실제 PG 포함 Python778+JS134=912·HTTP19회·독립 작업/보완/전체 리뷰 통과. 검토 기록 `193eed8`의 GitHub CI 통과. ARM 웹134개·실제 기본 앱/프록시 검증 완료.
+- 경계: 실제 로그인 공급자·초대·운영 DB·원문 파일·앱 자료 화면·AI·실행 저장/스트림은 후속. 기본 앱은 자료 반환을 거부한다.
+- 대기: 동료에게 보낸 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 답변. 운영 자료 변경·유료 호출 없음.
+- Sites: v26 공개 배포 성공. 구현·검증·PR·후속 경계 요약, 이전v25 보존. 아래 게시 증거를 확인한다.
+
+## 2026-10-12 · 서버 세션·회원 권한·첫 근거 조회 API
+
+- 구현 `73f8684`, 보완 `ed44370`: 실제 PostgreSQL identity/membership/hash-only session 저장과 한 cookie-only 보호 GET. 신뢰된 내부 등록/발급·폐기/회원 권한 관리, secure cookie helper, 외부 연결 없는 기본 app factory를 구현했다. 절대8시간·idle30분은 초기 정책이며 공급자 검증/로그인·초대 승인 기능이 아니다.
+- 데이터 경계: 같은 DB transaction에서 세션·활성 사용자·회원 권한을 먼저 확인하고 기존 근거 무결성 로더를 사용한다. 토큰 원문은 DB에 저장하지 않는다. 권한 없는 요청에 자료 내용을 반환하지 않고 모든 보호 응답에 no-store/새 request ID를 넣는다. 401/404/422/503 JSON과 기존200을 canonical OpenAPI/생성 TS로 연결한다.
+- 검증: controller가 `ed44370`에서 실제 전용 PostgreSQL18.6 포함 전체 npm run check exit0 확인. Python778·JS134=912개, skip0; lint/format·mypy·TS·SPA·drift 통과. 기존 migration0001↔0002의 근거 보존·해시 저장·활동/만료·폐기·권한 회수·workspace 격리·동시 조회 검증. 초기 callable RED와 동시 요청/오류 모델 보완의 실제 assertion RED/GREEN 증거 보존.
+- HTTP: 실제 확인용 Uvicorn 서버에서19회 요청. 두 회원의 동일 근거/인용 순서·같은 세션 동시200, 익명/형식 오류/Bearer/폐기/비활성/절대·idle 만료401, 미가입/다른 공간/없는 자료404, 미구성503. 보호 응답16회 모두 no-store/고유 서버 UUID, 실제 OpenAPI/export 동일. 내부 합성 세션만 쓰고 서버 스레드 종료.
+- 리뷰: 독립 작업 리뷰에서 동시 같은 세션의 RR serialization503 및 오류 JSON 생성 계약 누락을 지적했다. 전체 transaction 40001 재시도(총3회)와 정상 오류 모델/생성 TS로 수정해 독립 수정 범위 재검토 통과. 재시도마다 권한/무결성을 새로 확인하며 소진/다른 DB 장애는 고정503이다. ignored 보고서의 denied-retry 테스트 설명 과장을 실제 테스트 내용으로 정정했다. 전체 변경 `04e2efa..193eed8` 독립 리뷰도 지적0으로 통과했다.
+- 게시: [Draft PR #10](https://github.com/DigestWorks/IssueDigest/pull/10) 생성·앱 첨부 완료. [검토 기준193eed8의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38223884082) 성공.
+- 서버: 사용자 전용 ARM64 worktree를 `193eed8`로 fast-forward, locked 설치·웹134개/lint/TS/SPA/drift 통과. 원격 Python 전체나 운영 DB 검사를 수행한 것으로 표시하지 않는다. 기존 reload 부모가 새 storage 패키지 경로를 반영하지 못해 사용자 전용 API 창만 다시 시작했고, 직접/API 프록시10회에서 OpenAPI/export 동일·200상태·401/503 fail-closed/no-store/request ID 확인. 첫 인계는 로컬 로그 폴더가 없어 중단됐고 폴더 준비 후 재검증했다. 공유 서비스/관리자 설정 변경 없음.
+- 현재 폴더: `feat/session-evidence-api`에 연결하고 locked npm/uv 설치, 기본 앱 import/OpenAPI/export 일치 확인. 기존 SSH 개발 연결을 통해 직접/API 프록시10회200/401/503·no-store/서버 UUID와 웹200 재확인. 서버와 현재 폴더의 마지막 문서 커밋도 동기화한다.
+- Sites: v26 공개 배포 성공(`appgdep_6acc9c45c0d481918af07dd7ce9cc7c7`), saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ee3f5e57031c8191a67ea492b977c08f`, source `104c525440823de2757ea26edf39d0a453d46839`. 사본 기준 `80b56e0`; 그 이후 게시/인계 상태는 저장소 원본을 따른다. 이전v25 보존, HTML11개의 로컬 링크/anchor124개·manifest·공개 개인정보 제외 검사 통과. native succeeded URL 확인·사이트 탭 열기 요청 접수. 렌더러/제품 웹 UI를 변경하지 않았다.
+- 운영: 실제 로그인·공급자 검증·초대·제품 화면·운영 DB·원문 bytes·AI·SSE·전체P1은 미완료. 공유 DB·운영 자료·서버관리자 설정을 바꾸지 않았다. 공개 요약·현재 폴더 연결을 완료했다. 최종 문서 커밋의 서버 동기화와 CI는 마지막 인계 확인에서 검증한다. 미병합 리뷰 증거는 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 검증된 생성 화면 React 렌더러
 

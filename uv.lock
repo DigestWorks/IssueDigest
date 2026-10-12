@@ -206,6 +206,7 @@ source = { editable = "apps/api" }
 dependencies = [
     { name = "fastapi" },
     { name = "issuedigest-domain" },
+    { name = "issuedigest-storage" },
     { name = "uvicorn" },
 ]
 
@@ -213,6 +214,7 @@ dependencies = [
 requires-dist = [
     { name = "fastapi", specifier = "==0.143.0" },
     { name = "issuedigest-domain", editable = "packages/domain" },
+    { name = "issuedigest-storage", editable = "packages/storage" },
     { name = "uvicorn", specifier = "==0.54.0" },
 ]
 
