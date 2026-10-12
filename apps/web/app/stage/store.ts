@@ -13,6 +13,9 @@ import {
 
 export type FocusTarget = { kind: "node" | "region"; id: string }
 
+/** 탐색 순서의 한 단계. 조사 기록과 그래프의 단계 번호가 읽는다 */
+export type TrailStep = FocusTarget & { label: string }
+
 export type StageState = {
   status: StageStatus
   statusNote?: string
@@ -20,11 +23,14 @@ export type StageState = {
   edges: (GraphEdge & { addedAt: number })[]
   traversal: { path: string[]; startedAt: number } | null
   focus: FocusTarget | null
+  /** 에이전트가 초점을 옮긴 순서(graph.focus, map.focus). 같은 대상은 한 번만 적는다 */
+  trail: TrailStep[]
   map: { title: string; shownAt: number } | null
   choropleth: {
     values: Record<string, RegionValue>
     legend: { category: number; label: string }[]
     source: Source
+    highlight?: string[]
     appliedAt: number
   } | null
   panels: { id: string; panel: Panel; addedAt: number }[]
@@ -36,6 +42,7 @@ export const initialStageState: StageState = {
   edges: [],
   traversal: null,
   focus: null,
+  trail: [],
   map: null,
   choropleth: null,
   panels: [],
@@ -58,8 +65,14 @@ export function reduceStage(state: StageState, event: StageEvent, now: number): 
       if (state.edges.some((e) => e.id === edge.id)) return state
       return { ...state, edges: [...state.edges, { ...edge, addedAt: now }] }
     }
-    case "graph.focus":
-      return { ...state, focus: { kind: "node", id: event.nodeId } }
+    case "graph.focus": {
+      const label = state.nodes.find((n) => n.id === event.nodeId)?.label ?? event.nodeId
+      return {
+        ...state,
+        focus: { kind: "node", id: event.nodeId },
+        trail: addTrail(state.trail, { kind: "node", id: event.nodeId, label }),
+      }
+    }
     case "graph.traverse":
       return { ...state, traversal: { path: event.path, startedAt: now } }
     case "map.show":
@@ -71,13 +84,16 @@ export function reduceStage(state: StageState, event: StageEvent, now: number): 
           values: event.values,
           legend: event.legend,
           source: event.source,
+          highlight: event.highlight,
           appliedAt: now,
         },
       }
     case "map.focus":
+      if (!event.regionId) return { ...state, focus: null }
       return {
         ...state,
-        focus: event.regionId ? { kind: "region", id: event.regionId } : null,
+        focus: { kind: "region", id: event.regionId },
+        trail: addTrail(state.trail, { kind: "region", id: event.regionId, label: event.label ?? event.regionId }),
       }
     case "panel.add":
       if (state.panels.some((p) => p.id === event.id)) return state
@@ -85,6 +101,10 @@ export function reduceStage(state: StageState, event: StageEvent, now: number): 
     case "claim.focus":
       return { ...state, focus: event.target }
   }
+}
+
+function addTrail(trail: TrailStep[], step: TrailStep) {
+  return trail.some((t) => t.kind === step.kind && t.id === step.id) ? trail : [...trail, step]
 }
 
 type StageStore = StageState & {

@@ -1,10 +1,10 @@
-import type { StageEvent } from "../events"
+import type { StageEventInput } from "../events"
 import type { Scenario } from "./types"
 
 type PlayHandlers = {
   /** 지금까지 누적된 답변 텍스트 */
   onText: (text: string) => void
-  onEvent: (event: StageEvent) => void
+  onEvent: (event: StageEventInput) => void
   signal?: AbortSignal
   /** true 이면 지연 없이 재생한다(동작 줄이기 설정, 테스트) */
   immediate?: boolean

@@ -1,4 +1,4 @@
-import type { RegionValue, StageEvent } from "../events"
+import type { RegionValue, StageEventInput } from "../events"
 import { sampleSource, type Scenario, type ScenarioStep } from "./types"
 
 /**
@@ -6,6 +6,12 @@ import { sampleSource, type Scenario, type ScenarioStep } from "./types"
  * 후보 이름과 수치는 모두 가상이다. 지역 코드는 통계청 2013 센서스용
  * 행정구역 코드(서울 자치구)이며, 지도 경계 파일의 code 속성과 같다.
  */
+
+/** 지도 견본(/style, /map)에서 색으로 표시할 도심 자치구: 종로·중·용산·성동·동대문·서대문 */
+export const CENTRAL_GU = ["11010", "11020", "11030", "11040", "11060", "11130"]
+
+/** 샘플 답이 「후보 B 가 앞선다」고 말하는 동남권 5개 구(서초·강남·송파·강동·용산). 메인 스테이지에서 색으로 표시한다 */
+export const SOUTHEAST_GU = ["11220", "11230", "11240", "11250", "11030"]
 
 export const SEOUL_GU: Record<string, string> = {
   "11010": "종로구",
@@ -45,7 +51,7 @@ const CANDIDATES = [
 function sampleValue(code: string): RegionValue {
   let h = 0
   for (const ch of code) h = (h * 31 + ch.charCodeAt(0)) >>> 0
-  const southEast = ["11220", "11230", "11240", "11250", "11030"].includes(code)
+  const southEast = SOUTHEAST_GU.includes(code)
   // 후보 A(0)가 다수 구에서 앞서고, 동남권 5개 구는 후보 B(1)가 앞선다
   const lead = southEast ? 1 : h % 5 === 0 ? 2 : 0
   const margin = 0.15 + ((h >>> 3) % 70) / 100
@@ -59,7 +65,7 @@ function sampleValue(code: string): RegionValue {
 
 function buildSteps(): ScenarioStep[] {
   const steps: ScenarioStep[] = []
-  const ev = (at: number, event: StageEvent) => steps.push({ at, event })
+  const ev = (at: number, event: StageEventInput) => steps.push({ at, event })
   const values = Object.fromEntries(Object.keys(SEOUL_GU).map((c) => [c, sampleValue(c)]))
   const source = sampleSource("가상 여론조사", "자치구별 응답")
 
@@ -72,9 +78,10 @@ function buildSteps(): ScenarioStep[] {
     values,
     legend: CANDIDATES.map(({ label, category }) => ({ category, label })),
     source,
+    highlight: SOUTHEAST_GU,
   })
-  ev(3800, { type: "map.focus", regionId: "11230" })
-  ev(5200, { type: "map.focus", regionId: "11110" })
+  ev(3800, { type: "map.focus", regionId: "11230", label: SEOUL_GU["11230"] })
+  ev(5200, { type: "map.focus", regionId: "11110", label: SEOUL_GU["11110"] })
   steps.push({
     at: 5600,
     text:
@@ -148,8 +155,6 @@ export const electionMapScenario: Scenario = {
   steps: buildSteps(),
 }
 
-/** 지도 견본과 지도 페이지에서 색으로 표시할 도심 자치구: 종로·중·용산·성동·동대문·서대문 */
-export const CENTRAL_GU = ["11010", "11020", "11030", "11040", "11060", "11130"]
 
 /** 시나리오의 map.show·map.choropleth 이벤트에서 꺼낸 지도 표시 값(지도 견본과 지도 페이지가 함께 쓴다) */
 export function electionMapSample() {

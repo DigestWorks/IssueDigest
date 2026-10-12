@@ -1,4 +1,4 @@
-import type { GraphNode, StageEvent } from "../events"
+import type { GraphNode, StageEventInput } from "../events"
 import { sampleSource, type Scenario, type ScenarioStep } from "./types"
 
 /**
@@ -74,6 +74,12 @@ const edges: [string, string, string][] = [
   ["issue", "r2", "지역"],
 ]
 
+/**
+ * 모델이 추론한 관계(점선). 주장과 통계 사이의 「근거」, 이슈·통계와 지역 사이의 「지역」은
+ * 원천 문서에 직접 적힌 연결이 아니라 탐색 중에 이어 붙인 관계로 둔다(샘플).
+ */
+const INFERRED = new Set(["근거", "지역"])
+
 const byId = new Map(nodes.map((n) => [n.id, n]))
 
 /** 탐색 순서. 각 단계에서 노드를 추가하고, 이미 있는 노드와의 엣지를 잇는다. */
@@ -91,7 +97,7 @@ const exploration: { ids: string[]; focus: string; path?: string[] }[] = [
 function buildSteps(): ScenarioStep[] {
   const steps: ScenarioStep[] = []
   const present = new Set<string>()
-  const ev = (at: number, event: StageEvent) => steps.push({ at, event })
+  const ev = (at: number, event: StageEventInput) => steps.push({ at, event })
 
   ev(0, { type: "stage.reset" })
   ev(0, { type: "stage.status", status: "exploring", note: "온톨로지 탐색 중" })
@@ -106,7 +112,10 @@ function buildSteps(): ScenarioStep[] {
       present.add(id)
       for (const [s, d, label] of edges) {
         if ((s === id || d === id) && present.has(s) && present.has(d)) {
-          ev(t + 60, { type: "graph.edge.add", edge: { id: `${s}-${d}`, source: s, target: d, label } })
+          ev(t + 60, {
+            type: "graph.edge.add",
+            edge: { id: `${s}-${d}`, source: s, target: d, label, basis: INFERRED.has(label) ? "inferred" : "explicit" },
+          })
         }
       }
       t += 140

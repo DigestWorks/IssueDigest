@@ -25,7 +25,8 @@ describe("샘플 시나리오", () => {
     await playScenario(SCENARIOS[0], {
       immediate: true,
       onText: (t) => (text = t),
-      onEvent: (e) => (state = reduceStage(state, e, 0)),
+      // 실제 스테이지와 같이 검증·기본값 채우기를 거친 이벤트를 리듀서에 넣는다
+      onEvent: (e) => (state = reduceStage(state, StageEvent.parse(e), 0)),
     })
     expect(state.nodes.length).toBeGreaterThan(20)
     expect(state.edges.length).toBeGreaterThan(20)

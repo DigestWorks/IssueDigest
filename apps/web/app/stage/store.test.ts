@@ -13,13 +13,31 @@ const run = (events: StageEvent[]) =>
   events.reduce((s, e, i) => reduceStage(s, e, i), initialStageState)
 
 describe("reduceStage", () => {
+  it("탐색 순서(trail)는 초점 이벤트 순서대로 한 번씩 쌓이고 초기화로 비워진다", () => {
+    let s = run([node("a"), node("b"), { type: "graph.focus", nodeId: "a" }, { type: "graph.focus", nodeId: "b" }])
+    s = reduceStage(s, { type: "graph.focus", nodeId: "a" }, 5)
+    s = reduceStage(s, { type: "map.focus", regionId: "11030", label: "용산구" }, 6)
+    expect(s.trail.map((t) => `${t.kind}:${t.id}:${t.label}`)).toEqual(["node:a:a", "node:b:b", "region:11030:용산구"])
+    s = reduceStage(s, { type: "map.focus", regionId: null }, 7)
+    expect(s.focus).toBeNull()
+    expect(s.trail).toHaveLength(3)
+    expect(reduceStage(s, { type: "stage.reset" }, 8).trail).toEqual([])
+  })
+
+  it("엣지 근거 종류는 생략하면 명시(explicit)다", () => {
+    const e = parseStageEvent({ type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b" } })
+    expect(e?.type === "graph.edge.add" && e.edge.basis).toBe("explicit")
+    const f = parseStageEvent({ type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b", basis: "inferred" } })
+    expect(f?.type === "graph.edge.add" && f.edge.basis).toBe("inferred")
+  })
+
   it("노드와 엣지를 추가하고 중복은 무시한다", () => {
     const s = run([
       node("a"),
       node("b"),
       node("a"),
-      { type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b" } },
-      { type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b" } },
+      { type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b", basis: "explicit" } },
+      { type: "graph.edge.add", edge: { id: "ab", source: "a", target: "b", basis: "explicit" } },
     ])
     expect(s.nodes.map((n) => n.id)).toEqual(["a", "b"])
     expect(s.edges).toHaveLength(1)
@@ -27,7 +45,7 @@ describe("reduceStage", () => {
   })
 
   it("양 끝 노드가 없는 엣지는 버린다", () => {
-    const s = run([node("a"), { type: "graph.edge.add", edge: { id: "ax", source: "a", target: "x" } }])
+    const s = run([node("a"), { type: "graph.edge.add", edge: { id: "ax", source: "a", target: "x", basis: "explicit" } }])
     expect(s.edges).toHaveLength(0)
   })
 
