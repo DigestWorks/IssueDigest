@@ -28,16 +28,31 @@ class StorageCorruption(StorageError):
     """Stored evidence, integrity hash, or relational references are inconsistent."""
 
 
+def _canonical_json(value: Any) -> Any:
+    """Match JSONB's numeric zero sign without changing strings or other values."""
+    if isinstance(value, dict):
+        return {key: _canonical_json(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_canonical_json(item) for item in value]
+    if isinstance(value, float) and value == 0.0:
+        return 0.0
+    return value
+
+
 def _digest(payload: object) -> str:
     return sha256(
         json.dumps(
-            payload, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+            _canonical_json(payload),
+            sort_keys=True,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            allow_nan=False,
         ).encode("utf-8")
     ).hexdigest()
 
 
 def _payload(model: BaseModel) -> dict[str, Any]:
-    result: dict[str, Any] = json.loads(model.model_dump_json())
+    result: dict[str, Any] = _canonical_json(json.loads(model.model_dump_json()))
     return result
 
 

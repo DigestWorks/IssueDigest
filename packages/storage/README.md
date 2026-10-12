@@ -50,7 +50,10 @@ finally:
 목록·tuple 순서는 바뀌지 않습니다.
 
 계약 JSON을 입구·출구에서 재검증하고 JSONB payload·내용 SHA-256·관계형 ID/공간/부모
-참조를 대조합니다. 복합 FK와 unique 제약은 workspace·문서·버전·표현·인용 사슬과
+참조를 대조합니다. JSONB가 숫자 0의 부호를 보존하지 않으므로 저장 payload와 해시 입력에서
+수치상 같은 `-0.0`·`0.0`을 `0.0`으로 정규화합니다. PDF 좌표의 같은 ID 재전송에도 같은
+규칙을 적용하며 문자열·실제 좌표값·인용 순서는 그대로 보존합니다. 도메인 계약은 바꾸지 않습니다.
+복합 FK와 unique 제약은 workspace·문서·버전·표현·인용 사슬과
 스냅샷의 인용 연결을 묶습니다. `StorageCorruption`은 잘못된 payload·해시·관계를
 거부합니다. `load`는 다른 workspace와 모르는 ID에 `None`을 반환합니다.
 workspace 필터는 인증 또는 멤버십 검증을 대신하지 않습니다.

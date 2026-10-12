@@ -598,3 +598,37 @@ def test_autocommit_engine_save_is_atomic_on_outbox_failure(engine):
         "outbox": 1,
     }
     assert repository.load(bundle.document.workspace_id, snapshot) == bundle
+
+
+@pytest.mark.parametrize("negative_first", [True, False])
+def test_pdf_signed_zero_round_trip_and_opposite_sign_retry(engine, negative_first):
+    api = storage()
+    data = bundle_data()
+    zero = -0.0 if negative_first else 0.0
+    data["citations"][1]["selector"]["regions"] = [{"x0": zero, "y0": zero, "x1": 0.5, "y1": 0.75}]
+    # Numeric normalization must leave text containing a minus sign untouched.
+    data["representation"]["tables"][0]["cells"][0]["unit"] = "-0.0"
+    bundle = EvidenceBundle.model_validate(data)
+    repository = api.EvidenceRepository(engine)
+    snapshot = uuid4()
+    assert repository.save(snapshot, bundle) is True
+    before = counts(engine)
+    loaded = api.EvidenceRepository(engine).load(bundle.document.workspace_id, snapshot)
+    assert loaded == bundle
+    assert loaded.model_dump(mode="json") == bundle.model_dump(mode="json")
+    assert loaded.representation.tables[0].cells[0].unit == "-0.0"
+    opposite = deepcopy(data)
+    opposite["citations"][1]["selector"]["regions"][0].update(
+        {
+            "x0": 0.0 if negative_first else -0.0,
+            "y0": 0.0 if negative_first else -0.0,
+        }
+    )
+    assert repository.save(snapshot, EvidenceBundle.model_validate(opposite)) is False
+    assert counts(engine) == before
+    changed = deepcopy(opposite)
+    changed["citations"][1]["selector"]["regions"][0]["x1"] = 0.6
+    with pytest.raises(api.StorageConflict):
+        repository.save(snapshot, EvidenceBundle.model_validate(changed))
+    assert counts(engine) == before
+    assert repository.load(bundle.document.workspace_id, snapshot) == loaded
