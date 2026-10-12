@@ -24,6 +24,8 @@ date: 2026-10-12
 | `apps/web/app/stage/events.ts`, `store.ts`, `store.test.ts` | `GraphEdge.basis`, `trail` |
 | `apps/web/app/stage/scenarios/ontology.ts` | 추론 관계 표시 |
 | `apps/web/app/design/guide.ts`, `docs/design/style-guide.md` | 적용 결과 반영, 그래프 규칙 |
+| `apps/web/scripts/shot-main.mjs` (신규) | 메인 화면에 질문을 보내고 시각별 스크린샷 |
+| `apps/web/package.json` | 쓰이지 않게 된 UI 의존성 제거(@base-ui/react, @shadcn/react, class-variance-authority, lucide-react) |
 
 ## 작업 순서
 

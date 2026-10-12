@@ -4,7 +4,7 @@
  * 규칙을 바꾸거나 구현 상태가 바뀌면 이 파일을 함께 고친다.
  *
  * 상태: 구현 = 해당 규칙이 다루는 화면에 적용됨, 부분 = 일부 화면에만 적용됨, 미구현 = 아직 없음.
- * 제품 전체에 걸친 규칙은 지도·패널에만 적용되고 홈 스테이지(온톨로지 그래프, 채팅)에는 아직 적용되지 않았으므로 「부분」이다.
+ * 2026-10-12 메인 화면(/)을 이 규칙으로 다시 만들었다(app/main).
  */
 
 export type RuleStatus = "구현" | "부분" | "미구현"
@@ -33,8 +33,6 @@ export type RetiredRule = {
   replacedBy?: string
 }
 
-const HOME = "홈 스테이지 미적용"
-
 export const IDENTITY = {
   name: "출처가 붙은 조사 기록",
   statement:
@@ -55,9 +53,9 @@ export const CHAPTERS: Chapter[] = [
     summary: "모든 장이 따르는 기준",
     rules: [
       { title: "잘 보여주기", rule: "답은 글보다 시각 기록으로 전달한다. 채팅 답변은 요약과 출처만 짧게 쓰고 내용은 스테이지에서 보여 준다.", status: "구현", where: "stage/scenarios/*" },
-      { title: "색 원칙", rule: "데이터 색은 답과 관련된 부분에만 쓰고, 나머지 데이터는 중립색으로 그린다. 주황은 선택·초점에만 쓴다. 바탕·선·글자는 글자색과 불투명도 단계로 만든다.", status: "부분", where: `지도(colored), 패널. ${HOME}` },
-      { title: "측정 기록", rule: "표시에는 측정 정보를 함께 적는다. 지도는 경위도 눈금·축척·경계 자료 출처, 패널과 주석은 출처 줄, 화면 고정 주석은 카메라 방위·기울기·거리를 적는다.", status: "부분", where: `stage/schematic/map/*, stage/schematic/*. ${HOME}` },
-      { title: "출처 있는 답", rule: "근거가 없는 질문에는 답을 유보하고, 유보 상태를 채팅과 스테이지에 함께 표시한다.", status: "구현", where: "stage/hud/stage-hud.tsx" },
+      { title: "색 원칙", rule: "데이터 색은 답과 관련된 부분에만 쓰고, 나머지 데이터는 중립색으로 그린다. 주황은 선택·초점에만 쓴다. 바탕·선·글자는 글자색과 불투명도 단계로 만든다.", status: "구현", where: "지도(colored·highlight), 그래프(색 없음, 초점 주황), 패널(데이터 색 계열)" },
+      { title: "측정 기록", rule: "표시에는 측정 정보를 함께 적는다. 지도는 경위도 눈금·축척·경계 자료 출처, 패널과 주석은 출처 줄, 화면 고정 주석은 카메라 방위·기울기·거리를 적는다.", status: "구현", where: "stage/schematic/map/*, stage/schematic/*, main/stage/main-stage.tsx" },
+      { title: "출처 있는 답", rule: "근거가 없는 질문에는 답을 유보하고, 유보 상태를 채팅과 스테이지에 함께 표시한다.", status: "구현", where: "main/stage/main-stage.tsx(근거 부족 틀), main/log/research-log.tsx(답 상태·출처)" },
       { title: "판독성 우선", rule: "효과가 글자와 수치를 가리면 효과를 줄인다. 주석과 화면 고정 주석(DOM)은 아웃포커스·색수차를 받지 않는다.", status: "부분", where: "지도의 3D 지역 이름은 아웃포커스에 함께 흐려짐" },
     ],
   },
@@ -67,7 +65,7 @@ export const CHAPTERS: Chapter[] = [
     title: "장면",
     summary: "바탕, 바닥, 격자, 거리 감쇠",
     rules: [
-      { title: "기본 모드", rule: "어두운 모드가 기본이다. 밝은 모드는 전환해서 쓴다. 두 모드의 바탕·글자·주황·격자 값은 SCHEMATIC_THEMES 한 곳에서 정한다.", status: "부분", where: `design/tokens.ts 의 SCHEMATIC_THEMES, /style·/map 전환. ${HOME}(흰 배경)` },
+      { title: "기본 모드", rule: "어두운 모드가 기본이다. 밝은 모드는 전환해서 쓴다. 두 모드의 바탕·글자·주황·격자 값은 SCHEMATIC_THEMES 한 곳에서 정한다.", status: "구현", where: "design/tokens.ts 의 SCHEMATIC_THEMES, / · /style · /map 의 다크·라이트 전환" },
       { title: "바닥 조명", rule: "지도 중심 바닥을 원형으로 밝히고(반지름 9까지 중앙색, 30에서 바깥색) 바깥은 어둡게 둔다. 광원 물체 없이 바닥 밝기만 바꾼다. 회전하면 밝은 원의 원근이 바뀌어 공간감을 준다.", status: "구현", where: "design/tokens.ts 의 FLOOR, map-scene.tsx 의 SpotFloor" },
       { title: "격자", rule: "격자는 옅은 선이고 지도 중심에서 멀어질수록 옅어져 바닥 조명 범위 안에만 보인다.", status: "구현", where: "map-scene.tsx 의 Grid(fadeFrom=0)" },
       { title: "거리 감쇠", rule: "카메라에서 멀어질수록 바닥 조명 바깥색(backdrop)으로 흐려진다. 화면 위아래 가장자리는 같은 색으로 어둡게 해 화면 고정 주석을 읽게 한다.", status: "구현", where: "map-scene.tsx 의 fog, schematic-map.tsx 의 가장자리 그라디언트" },
@@ -79,11 +77,11 @@ export const CHAPTERS: Chapter[] = [
     title: "선과 주석",
     summary: "가는 선, 불투명도 단계, 측정 주석",
     rules: [
-      { title: "불투명도 단계", rule: "선과 글자의 위계는 초점 100%, 관련 66%, 맥락 33%, 배경 11% 네 단계로 만든다.", status: "부분", where: `design/tokens.ts 의 OPACITY, 지도·패널. ${HOME}` },
+      { title: "불투명도 단계", rule: "선과 글자의 위계는 초점 100%, 관련 66%, 맥락 33%, 배경 11% 네 단계로 만든다.", status: "구현", where: "design/tokens.ts 의 OPACITY, 지도·그래프·패널·조사 기록" },
       { title: "맨 위 선 강조", rule: "층 묶음은 맨 위 층 외곽선만 굵고 밝게(1.8px, 가리키거나 선택하면 2.4px, 중립 지역 1.2px) 그린다. 나머지 선은 1px 이다.", status: "구현", where: "map-scene.tsx 의 RegionVolume(drei Line)" },
       { title: "측정 주석", rule: "지도 범위는 모서리 꺾쇠로 두르고, 경도·위도 눈금(0.05° 간격, 0.1° 마다 수치), 5 km 축척 막대, 경계 자료 출처를 지면에 적는다.", status: "구현", where: "map-scene.tsx 의 MapFrame" },
       { title: "지시선과 주석", rule: "값은 꺾인 지시선 또는 수직 지시선 끝의 주석으로 붙인다. 주석은 왼쪽 세로선과 위쪽 연장선으로 틀을 만들고, 코드 | 단위, 이름, 값, 출처 순서로 쌓는다.", status: "구현", where: "region-callout.tsx, schematic-chart.tsx" },
-      { title: "명시와 추론", rule: "원천 데이터에 명시된 관계는 실선, 모델이 추론한 관계는 점선으로 그린다.", status: "미구현", where: "GraphEdge 에 근거 종류(basis) 필드 추가 필요" },
+      { title: "명시와 추론", rule: "원천 데이터에 명시된 관계는 실선, 모델이 추론한 관계는 점선으로 그린다.", status: "구현", where: "stage/events.ts 의 GraphEdge.basis, main/stage/graph-hologram.tsx(lineDashedMaterial)" },
     ],
   },
   {
@@ -169,24 +167,48 @@ export const CHAPTERS: Chapter[] = [
     ],
   },
   {
-    id: "motion",
+    id: "graph",
     number: 11,
+    title: "그래프",
+    summary: "온톨로지 탐색 홀로그램",
+    rules: [
+      { title: "노드", rule: "노드는 바닥 위에 정사각 판을 층 간격으로 쌓은 묶음이다. 판 크기와 층 수는 유형별로 다르고(이슈 7층 · 의원 3층 등), 맨 위 판 외곽선을 강조한다. 유형은 색이나 모양이 아니라 이름 아래 보조 글자로 적는다.", status: "구현", where: "main/stage/graph-hologram.tsx 의 NODE_SHAPE·NodeHologram" },
+      { title: "색과 위계", rule: "그래프에는 데이터 색을 쓰지 않는다. 탐색 경로 위 노드·관계는 초점 단계, 나머지는 맥락 단계로 그리고, 다른 노드를 선택하면 경로 밖 노드는 옅어진다. 초점 노드만 주황이다.", status: "구현", where: "graph-hologram.tsx" },
+      { title: "관계", rule: "관계는 바닥 높이의 1px 선이다. 명시 관계는 실선, 추론 관계는 점선이다. 등장할 때 출발 노드에서 도착 노드로 그려진다.", status: "구현", where: "graph-hologram.tsx(명시·추론·경로 세 묶음 형상)" },
+      { title: "탐색 경로와 단계 번호", rule: "에이전트가 지나간 경로는 초점 단계의 선으로 단계마다 차례로 한 번 그려지고, 그리는 동안 끝에 사각점이 붙는다. 초점을 옮긴 순서는 노드 이름 아래와 조사 기록에 단계 번호(01, 02 …)로 남는다.", status: "구현", where: "stage/store.ts 의 trail, graph-hologram.tsx, main/log/research-log.tsx" },
+      { title: "배치와 선택", rule: "노드는 바닥 평면 위에서 힘 기반으로 배치되고 바닥 조명 범위(반지름 9.5) 안에 머문다. 선택하면 층 간격이 벌어지고, 주황 수직 지시선 끝에 단계 번호 | 유형, 이름, 설명, 출처 주석이 붙는다.", status: "구현", where: "graph-hologram.tsx(d3-force-3d 2차원), stage/schematic/callout.tsx" },
+    ],
+  },
+  {
+    id: "log",
+    number: 12,
+    title: "조사 기록",
+    summary: "메인 화면 왼쪽 대화 열",
+    rules: [
+      { title: "구성", rule: "질문마다 「질문 | 번호」와 질문, 「답 | 상태」와 흘러나오는 답, 탐색 단계, 출처를 위에서 아래로 쌓는다. 지난 질문은 옅게 두고 그 시점의 탐색 단계와 출처를 고정해 남긴다.", status: "구현", where: "main/log/research-log.tsx, use-conversation.ts" },
+      { title: "탐색 단계", rule: "단계는 번호, 사각점, 대상 이름, 종류(노드·지역)로 적는다. 진행 중인 질문의 단계를 선택하면 스테이지 초점이 그 대상으로 옮겨지고, 선택된 단계는 주황 번호와 꺾쇠 사각점으로 표시한다.", status: "구현", where: "research-log.tsx 의 TurnEntry" },
+      { title: "입력과 제안 질문", rule: "입력줄은 밑줄 한 줄이고 Enter 로 보낸다. 빈 상태에는 제안 질문을 사각점 버튼으로, 질문 뒤에는 입력줄 아래에 옅은 글자로 둔다. 새 질문은 진행 중인 재생을 멈춘다.", status: "구현", where: "research-log.tsx, use-conversation.ts" },
+    ],
+  },
+  {
+    id: "motion",
+    number: 13,
     title: "모션",
     summary: "등장 순서와 선택 표시",
     rules: [
-      { title: "등장 순서", rule: "기록은 점 → 선 → 글자 순서로 나타난다. 선은 출발점에서 도착점으로 그려진다.", status: "부분", where: `design/tokens.ts 의 MOTION, 패널. ${HOME}(노드와 글자가 함께 등장)` },
+      { title: "등장 순서", rule: "기록은 점 → 선 → 글자 순서로 나타난다. 선은 출발점에서 도착점으로 그려진다.", status: "구현", where: "design/tokens.ts 의 MOTION, 패널, main/stage/graph-hologram.tsx(판 → 관계 → 이름)" },
       { title: "지도 등장", rule: "지도 홀로그램이 가운데에서 펼쳐진다. 지도 전체가 가로 배율 0.3 에서 1 로 커지고, 바닥의 고리가 퍼지며 고리가 닿는 지역부터(중심 거리 순) 바닥 외곽선이 그려진 뒤, 포개져 있던 층이 아래에서 위로 펼쳐진다. 지역 이름과 지도 틀이 마지막이다. 전체 약 1.3초다.", status: "구현", where: "design/tokens.ts 의 MAP_MOTION, map-scene.tsx" },
-      { title: "한 번만 재생", rule: "등장과 선택 표시는 한 번만 재생한다. 계속 반복되는 움직임은 진행 중 상태 표시에만 쓴다.", status: "부분", where: `map-scene.tsx, stage-hud.tsx. ${HOME}(그래프 초점 고리의 크기가 계속 반복해서 바뀜)` },
+      { title: "한 번만 재생", rule: "등장과 선택 표시는 한 번만 재생한다. 계속 반복되는 움직임은 진행 중 상태 표시에만 쓴다.", status: "구현", where: "map-scene.tsx, main/stage/graph-hologram.tsx(탐색 경로 한 번), 진행 중 상태 사각점만 반복" },
       { title: "동작 줄이기", rule: "운영체제의 동작 줄이기 설정이 켜지면 모든 등장과 카메라 이동을 즉시 전환으로 바꾼다.", status: "구현", where: "design/use-reduced-motion.ts" },
     ],
   },
   {
     id: "interaction",
-    number: 12,
+    number: 14,
     title: "조작",
     summary: "선택, 해제, 카메라",
     rules: [
-      { title: "선택과 해제", rule: "대상을 클릭하면 선택한다. 배경을 클릭하거나 Esc 를 누르면 해제한다. 누른 곳과 뗀 곳이 4px 보다 멀면 끌기로 보고 선택을 바꾸지 않는다.", status: "부분", where: `map-scene.tsx(DRAG_PX), schematic-map.tsx. ${HOME}` },
+      { title: "선택과 해제", rule: "대상을 클릭하면 선택한다. 배경을 클릭하거나 Esc 를 누르면 해제한다. 누른 곳과 뗀 곳이 4px 보다 멀면 끌기로 보고 선택을 바꾸지 않는다.", status: "구현", where: "scene/draw.ts 의 DRAG_PX, schematic-map.tsx, main/stage/stage-scene.tsx·main-stage.tsx" },
       { title: "카메라", rule: "왼쪽 끌기로 회전, 오른쪽 끌기로 이동, 휠로 확대·축소한다. 화면 고정 주석에 방위·기울기·거리를 적는다.", status: "구현", where: "map-scene.tsx 의 MapCamera" },
       { title: "가리킴", rule: "가리킨 대상은 선과 면을 밝히고, 화면 고정 주석에 코드와 이름을 주황 글자로 적는다.", status: "구현", where: "map-scene.tsx(hovered), schematic-map.tsx" },
     ],
@@ -203,7 +225,7 @@ export const RETIRED: RetiredRule[] = [
   { rule: "색수차와 글리치는 쓰지 않는다", reason: "지도의 홀로그램 표현으로 색수차를 허용했다. 글리치는 계속 쓰지 않는다.", replacedBy: "효과 · 화면 색수차" },
   { rule: "층을 아래에서 위로 반복해서 지나가는 주사선", reason: "화면이 산만하다는 피드백으로 삭제했다.", replacedBy: "모션 · 한 번만 재생" },
   { rule: "빛무리가 퍼지며 홀로그램으로 바뀌는 지도 등장", reason: "빛 표현 품질이 기대에 못 미쳐 되돌렸다.", replacedBy: "모션 · 지도 등장" },
-  { rule: "그래프 노드는 무광·무채색 평면 기호이고 유형은 모양으로 구분한다", reason: "홈 스테이지 적용 때 새 색 원칙과 부피 규칙으로 다시 정한다. 현재 홈 스테이지는 이 규칙으로 그려져 있다." },
+  { rule: "그래프 노드는 무광·무채색 평면 기호이고 유형은 모양으로 구분한다", reason: "메인 화면을 다시 만들면서(2026-10-12) 노드를 판 층 묶음으로, 유형을 보조 글자로 바꿨다.", replacedBy: "그래프 · 노드" },
 ]
 
 export function statusCounts() {
