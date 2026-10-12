@@ -5,7 +5,7 @@
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. 실제 저장·이벤트 전달·워커·DB·검색·실행기·인증은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. 제품 API·이벤트 전달·워커·운영 DB·검색·인증은 미완료 |
 | P2 실제 근거 | 미착수 | 첫 이슈·원문·읽기 스냅샷·데이터 API 접근 필요 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 미착수 | 근거 검색·도구·복구·UI 명세 계약 필요 |
@@ -15,9 +15,21 @@
 
 ## 현재 작업
 
-현재 진행 중인 구현 작업은 없다. 개발 서버 사용자 전용 환경·ARM 전체 검사·웹/API·SSH 터널·브라우저·tmux 종료/재시작 검증을 완료하고 [Draft PR #7](https://github.com/DigestWorks/IssueDigest/pull/7)과 Sites v23에 인계했다. 사용자 폴더는 `docs/development-server-access`, 서버 작업 브랜치는 `codex/jaesin-development`다. 개발 앱·터널은 실행 상태로 유지하며 제품 코드·계약·공유 시스템 도구 변경은 없다. 전체 P1과 제품 기능은 미완료.
+- 작업: D011 확정·[PostgreSQL 근거 스냅샷 저장 기반](../changes/postgres-storage.md), P1/R2 일부.
+- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/postgres-storage`; 구현 검증 기준 `aaf810a`.
+- 상태: 코드·마이그레이션·실제 PostgreSQL 검증·독립 작업/전체 및 수정 범위 리뷰 완료. Draft PR #8·GitHub CI·원격 ARM 검증·웹/API 재확인·Sites 게시·사용자 폴더 인계 완료.
+- 미구현: 제품 HTTP/API·권한·원문 파일/파서·수집 ID 중복 처리·검색/pgvector·Neo4j·PydanticAI/DBOS worker·outbox 소비·운영 DB 배치.
+- 남은 입력: 서버 전용 자원·월 분담 비용·전용 DB/외부 백업·기존 수집 데이터·첫 이슈/평가 자료·인증 공급자. [연결 준비](../../infra/postgresql.md)에 확인할 항목 기록.
+- Sites: v24 공개 배포 완료, D011·저장 구현 결과 반영. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
 
-다음 예정: 관리자와 자원 배정·월 비용·DB/백업 배치를 확인하고 A001~A003의 기준 DB·검색·실행기 및 인증 판단과 실제 저장·이벤트 전달 연결 범위를 정리한다. 개발 환경·원격 전체 검사·웹/API·SSH 터널 검증은 완료했다. 개발 서버 SSH·기초 자원은 확인했으며 운영 배정·비용·기존 수집 데이터 현황은 대기 중이다. 첫 이슈·실제 평가 자료와 남은 스택 선택은 미정. 새 유료 자원·API 키 설정은 아직 필요하지 않다.
+## 2026-10-12 · 엔진 확정·첫 PostgreSQL 저장
+
+- D011: 사용자 선택 PostgreSQL·pgvector·PydanticAI/DBOS 확정. A001~A003 추천/대안은 당시 비교 이력으로 대체 관계를 보존했다. [공식 근거·호환 범위·검증 기준](../research/engine-selection.md)에 선택과 실측을 구분했다.
+- 구현: typed storage uv 패키지, SQLAlchemy2.1.4/Alembic1.20.0/psycopg3.3.6 고정. 문서·버전·표현·인용의 전역 불변 ID·공간/부모 FK, 스냅샷 인용 순서·내용 해시·동일 ID 재전송, 원자적 초기 outbox와 최초 마이그레이션.
+- 실제 DB 검증: 새 전용 로컬 PostgreSQL18.6 합성 DB에서 저장39개, 전체Python711+JS60·lint/타입/SPA/계약 drift 통과. controller가 최종 `aaf810a`에서 동일 전체 명령을 직접 실행하고 exit0 확인. DB 미설정은 수동 로컬 통합 검사 skip이며 CI는 명시적 전용 서비스/URL·미설정 실패로 필수 실행한다.
+- 리뷰: 독립 작업 리뷰의 AUTOCOMMIT 원자성·commit 응답 불확실 안내 수정, 전체 리뷰의 PDF signed-zero JSONB 정규화 수정. 각각 실제 DB RED/GREEN 및 범위 재검토 통과. 최종 잔여 지적 없음. 유실 commit 응답을 실제 장애로 주입하는 검증은 수행하지 않았으며 같은 ID 재확인 정책을 문서화했다.
+- 운영 경계: PostgreSQL 연결 준비 항목 작성. 개발 서버 DB 설치·공유 서비스/기존 운영 데이터 변경·공급자 유료 호출 없음. 파일 원문 참조는 실제 파일 보존·해시 대조 완료가 아니다. workspace 필터는 로그인/멤버십 검증이 아니다. 검색·복구·월10만 원 실측과 전체P1은 미완료.
+- 게시/인계: [Draft PR #8](https://github.com/DigestWorks/IssueDigest/pull/8)을 PR #7 브랜치 위에 게시·앱 첨부했다. `def2244`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38195790846) 통과. 개발 서버의 개인 worktree를 같은 기준으로 동기화하고 ARM64 의존성·전체 검사 Python711+JS60·lint/타입/SPA/drift 통과. 서버에는 DB를 설치하지 않았으며 SSH 임시 역방향 연결로 로컬 전용 PostgreSQL18.6을 사용했다. 검증 후 임시 연결 종료, 기존 웹/API 직접·프록시 HTTP200·요청 ID 재확인. Sites v24 공개 배포 성공(`appgdep_6acc46d38e988191b16c6446fa9e5b26`), 이전v23 보존. 사이트 문서 사본은 `4b68ec7` 기준이며 이후 게시 기록은 저장소 원본을 확인한다. 사용자 폴더도 `feat/postgres-storage`로 연결하고 locked 설치·storage import를 확인했다. 리뷰 증거는 기존 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 개발 서버 환경·실행 검증
 

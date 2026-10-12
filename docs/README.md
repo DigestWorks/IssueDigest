@@ -12,8 +12,10 @@
 | [작업 목록](planning/tasks.md) | 해야 할 일과 검증된 완료 항목 |
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
+| [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
 | [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
 | [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
+| [PostgreSQL 연결 준비](../infra/postgresql.md) | 관리자에게 확인할 자원·비용·전용 DB·외부 백업 |
 | [개발 서버 안내](../infra/development-server.md) | 사용자 전용 환경·실행 방법·기초 자원·실제 검증·남은 확인 |
 
 ## 작업 흐름
@@ -57,3 +59,7 @@ Sites 반영 상태:
 ## 세 번째 실행·화면·사용량 부분 계약
 
 [작업 명세](changes/execution-contracts.md)의 불변 모델과 순수 입력 해시·재전송 판정·순번 이력 재생·화면 근거/승격·월 예산 및 전체 참조 검증을 구현했습니다. 실제 OpenAPI components와 생성 TS 공개 타입으로 연결합니다. 제공된 객체 검증과 운영 실행·저장·SSE·동시 예산·인증·공급자 호출·렌더러를 구분합니다. 독립 리뷰·Draft PR·Sites v20 이후 요약·사용자 폴더 연결은 [진행 기록](planning/progress.md)에 따라 마무리합니다. 전체 P1은 미완료입니다.
+
+## PostgreSQL 원문·인용 저장 기반
+
+[작업 명세](changes/postgres-storage.md)에서 불변 객체·스냅샷·원자적 outbox와 마이그레이션을 구현한다. [엔진 선택 기록](research/engine-selection.md)은 선택과 품질 검증을 구분한다. 실제 구현·리뷰·검증 결과는 진행 기록을 확인한다. 저장 패키지 내부 workspace 범위는 인증·멤버십 구현이 아니며 원문 bytes·검색·worker·운영 연결은 후속이다.

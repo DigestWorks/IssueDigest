@@ -101,6 +101,6 @@ ssh -N -i /path/to/private-key \
 
 1. 관리자와 전용 자원·공존 서비스·월 분담 비용·외부 백업·DB 운영 권한 확인.
 2. 기존 수집/AI 서버와 이 개발 서버의 관계, 원문 위치·건수·기간·최근 성공·실행 커밋 확인.
-3. 실제 자료·질문과 월10만 원 한도를 기준으로 A001~A003, A005~A006의 DB·검색·실행기·배치·인증을 판단.
+3. D011의 PostgreSQL·pgvector·PydanticAI/DBOS를 사용한다. A005~A006의 배치·인증은 대기하며 [PostgreSQL 연결 준비](postgresql.md)의 자원·비용·전용 DB·외부 백업을 확인한다.
 
 최신 상태는 [진행 기록](../docs/planning/progress.md), 선택은 [결정 기록](../docs/planning/decisions.md)을 따른다.

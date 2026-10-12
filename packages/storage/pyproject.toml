@@ -1,0 +1,17 @@
+[project]
+name = "issuedigest-storage"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "issuedigest-domain",
+  "sqlalchemy==2.1.4",
+  "alembic==1.20.0",
+  "psycopg[binary]==3.3.6",
+]
+
+[tool.uv.sources]
+issuedigest-domain = { workspace = true }
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
