@@ -15,13 +15,22 @@
 
 ## 현재 작업
 
-현재 진행 중인 구현 작업은 없다. 세 번째 실행·화면·사용량 부분 계약은 아래 2026-10-12 기록과 [Draft PR #6](https://github.com/DigestWorks/IssueDigest/pull/6)에 인계했다. 사용자 폴더는 `feat/execution-contracts`다. 전체 P1과 제품 기능은 미완료.
+현재 작업: 개발 서버 환경·전체 검사·웹/API·SSH 터널 검증을 완료하고 기존 Draft PR #7과 Sites에 인계한다. 담당 controller, 로컬 `docs/development-server-access`, 서버 `codex/jaesin-development`. 제품 코드·계약·공유 시스템 설정은 변경하지 않는다. 실행·화면·사용량 계약은 Draft PR #6, 서버 접속 안내는 Draft PR #7에 인계한 상태다. 전체 P1과 제품 기능은 미완료. Sites 반영 대기.
 
-다음 예정: 개발 서버의 사용자 전용 고정 도구·최신 코드 worktree를 준비하고 원격 검사를 거친다. 이후 A001~A003의 기준 DB·검색·실행기 및 인증 판단과 실제 저장·이벤트 전달 연결 범위를 정리한다. 개발 서버 SSH·기초 자원은 확인했으며 운영 배정·비용·기존 수집 데이터 현황은 대기 중이다. 첫 이슈·실제 평가 자료와 남은 스택 선택은 미정. 새 유료 자원·API 키 설정은 아직 필요하지 않다.
+다음 예정: 관리자와 자원 배정·월 비용·DB/백업 배치를 확인하고 A001~A003의 기준 DB·검색·실행기 및 인증 판단과 실제 저장·이벤트 전달 연결 범위를 정리한다. 개발 환경·원격 전체 검사·웹/API·SSH 터널 검증은 완료했다. 개발 서버 SSH·기초 자원은 확인했으며 운영 배정·비용·기존 수집 데이터 현황은 대기 중이다. 첫 이슈·실제 평가 자료와 남은 스택 선택은 미정. 새 유료 자원·API 키 설정은 아직 필요하지 않다.
+
+## 2026-10-12 · 개발 서버 환경·실행 검증
+
+- 담당/브랜치: controller · `docs/development-server-access`; 서버 `codex/jaesin-development`, 검증 기준 `806e22e`. 사용자 승인 범위에서 도구·worktree·의존성·웹/API를 준비했다. 제품 코드·공개 계약·고정 버전·lockfile 변경 없음.
+- 사용자 전용 Node24.21.0/npm11.19.0/uv0.11.4/Python3.13.12 설치 및 PATH 선택 파일 구성. 공유 시스템 도구·기존 사용자 uv 보존. npm/uv lockfile 설치 성공, ARM64 전체 검사 Python672+JS60·lint·타입·SPA 빌드·계약 drift 통과.
+- 서버 main은 깨끗한 초기 커밋으로 보존하고 중첩 worktree는 로컬 exclude로 제외했다. 지정 웹15173/API18090은 loopback에만 바인딩. SSH 터널 직접/프록시 HTTP200·JSON·UUID v4·실제 OpenAPI 일치 확인. 브라우저 실제 연결 성공·1366/390 가로 넘침 없음·콘솔 오류/경고0. tmux 종료 후 두 포트 해제·재시작 성공, 앱과 터널 실행 상태 유지.
+- 저장소가 PUBLIC임을 GitHub에서 확인해 이전 비공개 표기를 정정했다. 공개 최신 문서에서 접속 주소·계정·키 경로를 제거하고 저장소 밖 개인 설정에 보관한다. 이전 커밋/PR에 접속 메타데이터는 남으며 키 본문·인증값은 커밋하지 않았다. 저장소 가시성·Git 이력은 변경하지 않았다.
+- 미검증: 운영 배치·DB/수집/AI·앱 인증, 실제 데이터·서버 전용 자원·월 비용·서버 개인 push 권한. 관리자 설치·공유 서비스·운영 데이터 변경 없음. 개발 실행을 전체 P1이나 운영 배포 완료로 표시하지 않는다.
+- 다음: 서버 자원·비용·기존 데이터 확인 및 DB·검색·실행기·배치·인증 판단. 새 유료 자원/API 키 설정은 아직 필요 없다. 문서 PR·Sites 반영 대기.
 
 ## 2026-10-12 · 개발 서버 접속·준비 상태 확인
 
-- 담당/브랜치: controller · `docs/development-server-access`. 서버 안내와 SSH 읽기 확인을 [비공개 서버 기록](https://github.com/DigestWorks/IssueDigest/blob/docs/development-server-access/infra/development-server.md)에 정리했다. 코드·공개 계약·의존성 변경 없음.
+- 담당/브랜치: controller · `docs/development-server-access`. 서버 안내와 SSH 읽기 확인을 [서버 확인 기록](https://github.com/DigestWorks/IssueDigest/blob/docs/development-server-access/infra/development-server.md)에 정리했다. 코드·공개 계약·의존성 변경 없음.
 - 사용자 요청으로 키를 저장소 밖 SSH 전용 경로로 옮기고 권한 600을 적용했다. 키 내용·인증값은 기록/커밋하지 않았다. SSH 접속과 안내 파일·기초 자원·도구·Git 상태·포트 확인 완료.
 - ARM64·4 CPU, 메모리 약 23.4GiB(가용 12.9GiB), 디스크 여유 약 39GiB. 순간 관측값이며 전용 할당·월 비용을 뜻하지 않는다. 개발 포트 15173/18090은 listener 없음, Docker 소켓 관리 권한 없음.
 - 도구 버전이 고정 기준과 다르며 uv는 사용자 경로에 설치되어 있으나 비대화 SSH PATH에는 없다. 시스템 설치·환경 수정·Git fetch/checkout·의존성 설치·앱 기동·DB·운영 서비스 변경은 수행하지 않았다.
