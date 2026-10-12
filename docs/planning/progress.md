@@ -16,14 +16,15 @@
 ## 현재 작업
 
 - 작업: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부.
-- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/canvas-renderer`.
+- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/canvas-renderer` · [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) (base PR #8, 미병합).
 - 상태: 기존 CanvasBundle의 여섯 모듈을 소비하는 내부 UI 패키지 구현, 독립 작업·전체 변경 리뷰와 수정 범위 재검토 통과.
 - 범위: 근거 카드·요약·비교표·타임라인·관계·실제 bar, 안전한 참조·표시 상태·등록 액션 콜백. 개발 앱에 합성 결과를 채우지 않는다.
 - 미구현: 실제 자료/제품 API·로그인·AI/DBOS·SSE·action host·운영 DB·검색. 기존 저장 기반 PR #8 완료 상태는 아래 이력에 보존한다.
 - 남은 입력: 동료에게 전용 DB·기존 데이터·자원/비용·외부 백업 확인 요청 전달 완료(사용자 확인). 답변 대기 중에도 이번 UI 작업 진행 가능.
 - 검증: `068cb1f`에서 controller의 실제 PostgreSQL18.6 포함 전체 검사 Python712·JS134(UI74), lint/format·타입·SPA 빌드·계약 drift 통과. 같은 합성 JSON을 Python 계약과 React가 소비한다. 실제 브라우저1366/390 가로 넘침 없음, 여섯 모듈·명세 구성 변화·빈/자료 부족 상태·Enter 근거 ID·콘솔 오류/경고0 확인.
 - 서버: 사용자 전용 worktree `cdaaec8`에서 locked 설치·웹 lint/타입·JS134·SPA·계약 drift 통과, 기존 웹/API 개발 세션 유지. 이번 작업에서 원격 Python/DB 검사를 실행한 것으로 표시하지 않는다.
-- Sites: v24 유지, Draft PR·이번 검증 결과 반영과 사용자 폴더 연결 대기. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
+- 게시: Draft PR #9 생성·앱 첨부 완료. 개발 서버 직접/프록시 HTTP200·요청 ID와 로컬 연결을 확인했다.
+- Sites: v24 유지, 이번 검증 결과 반영과 사용자 폴더 연결 대기. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
 
 ## 2026-10-12 · 엔진 확정·첫 PostgreSQL 저장
 
