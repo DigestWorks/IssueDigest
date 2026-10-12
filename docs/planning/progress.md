@@ -16,7 +16,7 @@
 ## 현재 작업
 
 - 작업: 관리자 제공 전용 DB·기존 수집 자산의 읽기 조사와 D012 서비스 도메인 반영. 문서 작업이며 앱 코드·설정 형식·DB 스키마 변경은 없다.
-- 담당/브랜치/PR: controller · `docs/server-data-inventory` · Draft PR 준비, 선행 PR #10 위. 병합 전.
+- 담당/브랜치/PR: controller · `docs/server-data-inventory` · [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11), 선행 PR #10 위. 병합 전.
 - 검증: 실제 PostgreSQL18.6·CREATE 권한·빈 public·vector 미준비, 기존 28테이블 정확 COUNT/기간/상태, 파일 건수·JSON 구조·PDF 헤더·원문 파일명 대응 확인. [실측 기록](../research/server-data-inventory.md)을 따른다.
 - 다음: 읽기 연결기·원문 파일/인용 연결을 설계하고, 전용 DB 대상·백업/런타임 권한 확인 후 앱 연결을 별도 구현한다. 첫 이슈·실제 자료 선별과 실행/화면 결과 저장·복구도 후속이다.
 - 대기: pgvector 패키지·외부 백업/복원·전용 자원/월 분담 비용·런타임 계정 분리·인증 공급자·도메인 연결. 전용 DB 제공과 자료 조회 접근은 해결했다.
@@ -29,7 +29,7 @@
 - 파일/상태/코드는 읽기 조사만 했다. 여론조사 PDF774개 중23개에 헤더 없음, 파싱 자료의 basename 누락/충돌을 확인했다. 폴더의 PDF 수를 검증된 고유 원문 수로 기록하지 않는다. 종료 이벤트·READY·수정 시각을 현재 수집 성공으로 간주하지 않는다.
 - D012: 사용자 확정 서비스 도메인 issuedigest.projects.ai.kr. 조사 컴퓨터의 DNS 조회는 이름 해석 실패. DNS/TLS/프록시/콜백·공개 앱 배포는 수행하지 않았다. 계획 Sites 주소를 변경하지 않는다.
 - 검증/공개: 문서 링크·기준 숫자·접속 세부정보 제외를 검사한다. 앱 코드·DB/수집 서비스·운영 데이터 변경 없음. 문서-only이므로 spec-driven 전체 구현 절차와 코드 테스트를 반복하지 않는다.
-- 게시: Draft PR와 Sites 성공 증거를 이 항목에 추가한다. 기존 PR #10과 그 검토·테스트 증거를 보존한다.
+- 게시: [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11) 생성. 앱 첨부를 요청했으나 응답은 미확인이다. 변경 문서9개 상대 링크54개·공개 접속정보 제외·주요 집계값·git diff --check 통과. Sites 게시 증거는 성공 후 추가한다. 기존 PR #10과 그 검토·테스트 증거를 보존한다.
 
 ## 2026-10-12 · 서버 세션·회원 권한·첫 근거 조회 API
 
