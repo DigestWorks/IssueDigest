@@ -69,6 +69,10 @@ npm run dev
 npm run check
 ```
 
+재사용 생성 화면 렌더러 `@issuedigest/ui`의 사용법과 표시 검증 경계는
+[UI 패키지 안내](packages/ui/README.md)에 있다. 이 패키지는 서버 검증 자료를
+받아 여섯 모듈을 렌더링하며 개발 앱의 빈 자료 화면에는 연결하지 않는다.
+
 이 명령은 Python lint·format·타입·테스트, TypeScript lint·타입·테스트, SPA 생산 빌드, 계약 변경 검사를 순서대로 실행합니다. 각 단계도 루트에서 `npm run lint:python`, `npm run typecheck:python`, `npm run test:python`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run contract:check`로 실행할 수 있습니다. Python 도구 직접 실행은 `uv run ruff check .`, `uv run mypy`, `uv run pytest`입니다.
 
 실제 PostgreSQL 18.6 저장 통합 테스트는 전용 로컬 `issuedigest_test` 데이터베이스의
