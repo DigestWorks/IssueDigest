@@ -17,10 +17,10 @@
 
 - 작업: D011 확정·[PostgreSQL 근거 스냅샷 저장 기반](../changes/postgres-storage.md), P1/R2 일부.
 - 담당/브랜치: controller + 독립 구현/리뷰 · `feat/postgres-storage`; 구현 검증 기준 `aaf810a`.
-- 상태: 코드·마이그레이션·실제 PostgreSQL 검증·독립 작업/전체 및 수정 범위 리뷰 완료. Draft PR #8·GitHub CI·원격 ARM 검증·웹/API 재확인 완료. Sites 인계 진행 중.
+- 상태: 코드·마이그레이션·실제 PostgreSQL 검증·독립 작업/전체 및 수정 범위 리뷰 완료. Draft PR #8·GitHub CI·원격 ARM 검증·웹/API 재확인·Sites 게시·사용자 폴더 인계 완료.
 - 미구현: 제품 HTTP/API·권한·원문 파일/파서·수집 ID 중복 처리·검색/pgvector·Neo4j·PydanticAI/DBOS worker·outbox 소비·운영 DB 배치.
 - 남은 입력: 서버 전용 자원·월 분담 비용·전용 DB/외부 백업·기존 수집 데이터·첫 이슈/평가 자료·인증 공급자. [연결 준비](../../infra/postgresql.md)에 확인할 항목 기록.
-- Sites: v23 유지, D011·저장 구현 결과 반영 대기. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
+- Sites: v24 공개 배포 완료, D011·저장 구현 결과 반영. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
 
 ## 2026-10-12 · 엔진 확정·첫 PostgreSQL 저장
 
@@ -29,7 +29,7 @@
 - 실제 DB 검증: 새 전용 로컬 PostgreSQL18.6 합성 DB에서 저장39개, 전체Python711+JS60·lint/타입/SPA/계약 drift 통과. controller가 최종 `aaf810a`에서 동일 전체 명령을 직접 실행하고 exit0 확인. DB 미설정은 수동 로컬 통합 검사 skip이며 CI는 명시적 전용 서비스/URL·미설정 실패로 필수 실행한다.
 - 리뷰: 독립 작업 리뷰의 AUTOCOMMIT 원자성·commit 응답 불확실 안내 수정, 전체 리뷰의 PDF signed-zero JSONB 정규화 수정. 각각 실제 DB RED/GREEN 및 범위 재검토 통과. 최종 잔여 지적 없음. 유실 commit 응답을 실제 장애로 주입하는 검증은 수행하지 않았으며 같은 ID 재확인 정책을 문서화했다.
 - 운영 경계: PostgreSQL 연결 준비 항목 작성. 개발 서버 DB 설치·공유 서비스/기존 운영 데이터 변경·공급자 유료 호출 없음. 파일 원문 참조는 실제 파일 보존·해시 대조 완료가 아니다. workspace 필터는 로그인/멤버십 검증이 아니다. 검색·복구·월10만 원 실측과 전체P1은 미완료.
-- 게시/인계: [Draft PR #8](https://github.com/DigestWorks/IssueDigest/pull/8)을 PR #7 브랜치 위에 게시·앱 첨부했다. `def2244`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38195790846) 통과. 개발 서버의 개인 worktree를 같은 기준으로 동기화하고 ARM64 의존성·전체 검사 Python711+JS60·lint/타입/SPA/drift 통과. 서버에는 DB를 설치하지 않았으며 SSH 임시 역방향 연결로 로컬 전용 PostgreSQL18.6을 사용했다. 검증 후 임시 연결 종료, 기존 웹/API 직접·프록시 HTTP200·요청 ID 재확인. Sites 갱신 진행 중이며 이전v23을 archive로 보존한다.
+- 게시/인계: [Draft PR #8](https://github.com/DigestWorks/IssueDigest/pull/8)을 PR #7 브랜치 위에 게시·앱 첨부했다. `def2244`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38195790846) 통과. 개발 서버의 개인 worktree를 같은 기준으로 동기화하고 ARM64 의존성·전체 검사 Python711+JS60·lint/타입/SPA/drift 통과. 서버에는 DB를 설치하지 않았으며 SSH 임시 역방향 연결로 로컬 전용 PostgreSQL18.6을 사용했다. 검증 후 임시 연결 종료, 기존 웹/API 직접·프록시 HTTP200·요청 ID 재확인. Sites v24 공개 배포 성공(`appgdep_6acc46d38e988191b16c6446fa9e5b26`), 이전v23 보존. 사이트 문서 사본은 `4b68ec7` 기준이며 이후 게시 기록은 저장소 원본을 확인한다. 사용자 폴더도 `feat/postgres-storage`로 연결하고 locked 설치·storage import를 확인했다. 리뷰 증거는 기존 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 개발 서버 환경·실행 검증
 
