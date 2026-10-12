@@ -5,7 +5,7 @@ import type { CanvasAction, CanvasBundle } from '@issuedigest/api-client';
 import fixture from '../../../tests/fixtures/canvas-synthetic.json';
 import { CanvasView } from '../src';
 
-// Python-normalized fixture checked directly against the generated public type.
+// Python validates this shared fixture; the assertion gives the React consumer the generated type.
 const typedFixture: CanvasBundle = fixture as CanvasBundle;
 function data(): CanvasBundle { return structuredClone(typedFixture); }
 const unknown = '00000000-0000-4000-8000-999999999999';
