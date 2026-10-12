@@ -552,3 +552,49 @@ def test_database_constraints_prevent_cross_workspace_and_cross_parent_links(eng
                 connection.execute(text(query), params)
     assert counts(engine) == before
     assert repository.load(first.document.workspace_id, snapshot) == first
+
+
+def test_autocommit_engine_save_is_atomic_on_outbox_failure(engine):
+    api = storage()
+    from sqlalchemy import text
+
+    supplied = engine.execution_options(isolation_level="AUTOCOMMIT")
+    repository = api.EvidenceRepository(supplied)
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot = uuid4()
+    with engine.begin() as connection:
+        connection.execute(
+            text("ALTER TABLE outbox ADD CONSTRAINT synthetic_failure CHECK (false)")
+        )
+    try:
+        with pytest.raises(api.StorageError):
+            repository.save(snapshot, bundle)
+        # The outbox is last: every object, snapshot and citation membership must roll back.
+        assert counts(engine) == {
+            "source_documents": 0,
+            "document_versions": 0,
+            "parsed_representations": 0,
+            "citations": 0,
+            "evidence_snapshots": 0,
+            "snapshot_citations": 0,
+            "outbox": 0,
+        }
+        assert repository.load(bundle.document.workspace_id, snapshot) is None
+    finally:
+        with engine.begin() as connection:
+            connection.execute(text("ALTER TABLE outbox DROP CONSTRAINT synthetic_failure"))
+    # Keep the supplied AUTOCOMMIT engine: a normal write and same-ID retry still work.
+    assert repository.save(snapshot, bundle) is True
+    before = counts(engine)
+    assert repository.save(snapshot, bundle) is False
+    assert counts(engine) == before
+    assert before == {
+        "source_documents": 1,
+        "document_versions": 1,
+        "parsed_representations": 1,
+        "citations": 3,
+        "evidence_snapshots": 1,
+        "snapshot_citations": 3,
+        "outbox": 1,
+    }
+    assert repository.load(bundle.document.workspace_id, snapshot) == bundle

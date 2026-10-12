@@ -59,7 +59,12 @@ workspace 필터는 인증 또는 멤버십 검증을 대신하지 않습니다.
 `evidence.snapshot_saved.v1` outbox 한 행을 저장합니다. 최초 event ID는 snapshot ID이며
 payload에는 workspace·snapshot·문서·버전·표현 ID만 포함합니다. 동일 재전송은 추가
 outbox를 만들지 않습니다. 동시 같은 ID 제출은 하나만 생성하고 다른 내용은 충돌합니다.
-DB 쓰기 실패는 전체를 rollback하고 원문·DB URL을 담지 않은 `StorageError`를 반환합니다.
+호출자가 AUTOCOMMIT 엔진을 전달해도 저장 연결은 READ COMMITTED를 명시한 뒤 트랜잭션을
+시작합니다. commit 이전의 실패·충돌은 해당 쓰기 전체를 rollback합니다.
+DB 오류는 원문·DB URL을 담지 않은 `StorageError`를 반환합니다. commit 응답 중 연결이
+끊기면 서버의 저장 완료 여부가 불확실할 수 있습니다. 이 경우 미저장으로 단정하지 않고
+같은 snapshot ID와 같은 내용으로 재시도하거나 해당 workspace에서 `load`해 확인합니다.
+재시도 결과 False는 동일 스냅샷이 이미 저장되어 있음을 뜻하며 추가 outbox는 만들지 않습니다.
 연결 구성·연결 확인 실패는 비밀 설정을 담지 않은 `ValueError`입니다.
 
 원문 bytes·객체 저장소·파서·검색/pgvector 인덱스·Neo4j·인증·DBOS/PydanticAI 실행·SSE는

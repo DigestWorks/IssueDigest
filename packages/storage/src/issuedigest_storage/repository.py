@@ -17,7 +17,7 @@ from .engine import verify_engine
 
 
 class StorageError(RuntimeError):
-    """Sanitized database failure; the transaction did not commit."""
+    """Sanitized DB failure; a lost commit response can leave save outcome unknown."""
 
 
 class StorageConflict(StorageError):
@@ -153,53 +153,59 @@ class EvidenceRepository:
         }
         payload = _payload(validated)
         try:
-            with self._engine.begin() as connection:
-                for table, identity, values in records:
-                    self._ensure(connection, table, identity, values)
-                created = self._ensure(
-                    connection,
-                    schema.evidence_snapshots,
-                    "snapshot_id",
-                    {
-                        **chain,
-                        "snapshot_id": snapshot_id,
-                        "schema_version": validated.schema_version,
-                        "payload": payload,
-                        "content_sha256": _digest(payload),
-                    },
-                )
-                if not created:
-                    # A retry must not silently accept damaged stored snapshot relationships.
-                    self._load(connection, chain["workspace_id"], snapshot_id)
-                    return False
-                if validated.citations:
+            with self._engine.connect().execution_options(
+                isolation_level="READ COMMITTED"
+            ) as connection:
+                with connection.begin():
+                    for table, identity, values in records:
+                        self._ensure(connection, table, identity, values)
+                    created = self._ensure(
+                        connection,
+                        schema.evidence_snapshots,
+                        "snapshot_id",
+                        {
+                            **chain,
+                            "snapshot_id": snapshot_id,
+                            "schema_version": validated.schema_version,
+                            "payload": payload,
+                            "content_sha256": _digest(payload),
+                        },
+                    )
+                    if not created:
+                        # A retry must not silently accept damaged stored snapshot relationships.
+                        self._load(connection, chain["workspace_id"], snapshot_id)
+                        return False
+                    if validated.citations:
+                        connection.execute(
+                            insert(schema.snapshot_citations),
+                            [
+                                {
+                                    **chain,
+                                    "snapshot_id": snapshot_id,
+                                    "ordinal": ordinal,
+                                    "citation_id": citation.citation_id,
+                                }
+                                for ordinal, citation in enumerate(validated.citations)
+                            ],
+                        )
+                    references = {
+                        key: str(value)
+                        for key, value in {**chain, "snapshot_id": snapshot_id}.items()
+                    }
                     connection.execute(
-                        insert(schema.snapshot_citations),
-                        [
-                            {
-                                **chain,
-                                "snapshot_id": snapshot_id,
-                                "ordinal": ordinal,
-                                "citation_id": citation.citation_id,
-                            }
-                            for ordinal, citation in enumerate(validated.citations)
-                        ],
+                        insert(schema.outbox).values(
+                            **chain,
+                            snapshot_id=snapshot_id,
+                            event_id=snapshot_id,
+                            event_type="evidence.snapshot_saved.v1",
+                            payload=references,
+                        )
                     )
-                references = {
-                    key: str(value) for key, value in {**chain, "snapshot_id": snapshot_id}.items()
-                }
-                connection.execute(
-                    insert(schema.outbox).values(
-                        **chain,
-                        snapshot_id=snapshot_id,
-                        event_id=snapshot_id,
-                        event_type="evidence.snapshot_saved.v1",
-                        payload=references,
-                    )
-                )
-                return True
+                    return True
         except SQLAlchemyError:
-            raise StorageError("Unable to save evidence snapshot") from None
+            raise StorageError(
+                "Evidence snapshot save could not be confirmed; check or retry the same snapshot ID"
+            ) from None
 
     @staticmethod
     def _load(
