@@ -14,6 +14,7 @@ from issuedigest_domain.status import Liveness, ServiceStatus
 from issuedigest_storage import EvidenceAccessRepository
 
 from .contracts import add_evidence_schemas
+from .errors import EvidencePathValidationError
 from .evidence import evidence_router
 
 
@@ -47,9 +48,8 @@ def create_app(access_repository: EvidenceAccessRepository | None = None) -> Iss
     async def validation_error(request: Request, exception: RequestValidationError) -> Response:
         if not _protected_path(request.url.path):
             return await request_validation_exception_handler(request, exception)
-        return JSONResponse(
-            status_code=422,
-            content={
+        validated = EvidencePathValidationError.model_validate(
+            {
                 "detail": [
                     {
                         "type": error["type"],
@@ -58,8 +58,9 @@ def create_app(access_repository: EvidenceAccessRepository | None = None) -> Iss
                     }
                     for error in exception.errors()
                 ]
-            },
+            }
         )
+        return JSONResponse(status_code=422, content=validated.model_dump(mode="json"))
 
     @application.middleware("http")
     async def request_id(

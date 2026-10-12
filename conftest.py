@@ -114,3 +114,85 @@ def engine(migrated):
             )
         )
     return migrated
+
+
+def overlapping_session_reads(engine, first_call, second_call, after_conflict=None):
+    """Hold the first real session row lock until PostgreSQL proves the second is blocked."""
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event
+    from time import monotonic
+
+    from sqlalchemy import event, text
+
+    first_locked, second_started, release_first = Event(), Event(), Event()
+    pids = {}
+    conflicts = []
+
+    def is_session_lock(statement):
+        return "SELECT auth_sessions.token_sha256" in statement and "FOR UPDATE" in statement
+
+    def before_execute(conn, cursor, statement, parameters, context, executemany):
+        if not is_session_lock(statement):
+            return
+        pid = conn.connection.driver_connection.info.backend_pid
+        if "first" not in pids:
+            pids["first"] = pid
+        elif pid != pids["first"]:
+            pids.setdefault("second", pid)
+            second_started.set()
+
+    def after_execute(conn, cursor, statement, parameters, context, executemany):
+        if is_session_lock(
+            statement
+        ) and conn.connection.driver_connection.info.backend_pid == pids.get("first"):
+            first_locked.set()
+            assert release_first.wait(timeout=10), "overlap coordinator did not release first read"
+
+    def on_error(context):
+        if (
+            context.connection is not None
+            and context.connection.connection.driver_connection.info.backend_pid
+            == pids.get("second")
+            and getattr(context.original_exception, "sqlstate", None) == "40001"
+        ):
+            conflicts.append(True)
+            if after_conflict is not None:
+                after_conflict()
+
+    def run(call):
+        try:
+            value = call()
+            return "ok", value
+        except Exception as error:
+            return type(error).__name__, None
+
+    listeners = [
+        ("before_cursor_execute", before_execute),
+        ("after_cursor_execute", after_execute),
+        ("handle_error", on_error),
+    ]
+    for name, callback in listeners:
+        event.listen(engine, name, callback)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as executor:
+            first = executor.submit(run, first_call)
+            try:
+                assert first_locked.wait(timeout=5), "first session lock was not acquired"
+                second = executor.submit(run, second_call)
+                assert second_started.wait(timeout=5), "second session read did not start"
+                # Observer connection only inspects wait state; both worker reads remain real.
+                deadline = monotonic() + 5
+                with engine.connect() as observer:
+                    while pids["first"] not in observer.scalar(
+                        text("SELECT pg_blocking_pids(:pid)"), {"pid": pids["second"]}
+                    ):
+                        assert monotonic() < deadline, "second read did not block on first lock"
+                        Event().wait(0.01)
+                release_first.set()
+                results = [first.result(timeout=5), second.result(timeout=5)]
+            finally:
+                release_first.set()
+        return results, len(conflicts)
+    finally:
+        for name, callback in listeners:
+            event.remove(engine, name, callback)

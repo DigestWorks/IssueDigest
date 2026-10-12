@@ -262,3 +262,93 @@ def test_absent_and_malformed_cookies_do_not_open_configured_database(engine):
         assert checkouts == []
     finally:
         event.remove(engine, "checkout", checkout)
+
+
+def test_overlapping_same_cookie_http_reads_both_succeed(engine):
+    from conftest import overlapping_session_reads
+
+    client, bundle, snapshot, *_, issued = setup_http(engine)
+    second_client = TestClient(create_app(EvidenceAccessRepository(engine)))
+    second_client.cookies.set(SESSION_COOKIE, issued.token)
+
+    def load(client):
+        return client.get(path(bundle.document.workspace_id, snapshot))
+
+    # TestClient executes the sync handler on its own thread. Coordinate by actual
+    # PostgreSQL session locks rather than Python worker identity for HTTP calls.
+    results, conflicts = overlapping_session_reads(
+        engine, lambda: load(client), lambda: load(second_client)
+    )
+    assert conflicts == 1
+    assert [status for status, _ in results] == ["ok", "ok"]
+    for _, response in results:
+        checked(response, 200)
+        assert response.json() == bundle.model_dump(mode="json")
+
+
+@pytest.mark.parametrize("status", ["401", "404", "422", "503"])
+def test_protected_error_responses_document_actual_json_detail_bodies(status):
+    schema = TestClient(create_app()).get("/openapi.json").json()
+    operation = schema["paths"]["/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}"]["get"]
+    assert "application/json" in operation["responses"][status].get("content", {})
+    names = {
+        "401": "EvidenceAuthenticationError",
+        "404": "EvidenceNotFoundError",
+        "422": "EvidencePathValidationError",
+        "503": "EvidenceUnavailableError",
+    }
+    assert operation["responses"][status]["content"]["application/json"]["schema"] == {
+        "$ref": f"#/components/schemas/{names[status]}"
+    }
+    model = schema["components"]["schemas"][names[status]]
+    assert model["required"] == ["detail"]
+    assert model["additionalProperties"] is False
+    if status != "422":
+        expected = {
+            "401": "Authentication required",
+            "404": "Evidence not found",
+            "503": "Evidence service unavailable",
+        }
+        assert model["properties"]["detail"]["const"] == expected[status]
+    else:
+        assert model["properties"]["detail"]["minItems"] == 1
+        validation = schema["components"]["schemas"]["EvidencePathValidationDetail"]
+        assert set(validation["required"]) == {"type", "loc", "msg"}
+        assert set(validation["properties"]) == {"type", "loc", "msg"}
+
+
+@pytest.mark.parametrize("sqlstate, attempts_expected", [("40001", 3), ("23514", 1)])
+def test_exhausted_or_nonretryable_database_failures_keep_fixed_private_http_error(
+    engine, caplog, sqlstate, attempts_expected
+):
+    from sqlalchemy import event
+
+    client, bundle, snapshot, *_, issued = setup_http(engine)
+    attempts = []
+
+    def force_database_failure(conn, cursor, statement, parameters, context, executemany):
+        if "SELECT auth_sessions.token_sha256" in statement and "FOR UPDATE" in statement:
+            attempts.append(True)
+            cursor.execute(
+                "DO $$ BEGIN RAISE EXCEPTION 'synthetic private retry failure' "
+                f"USING ERRCODE='{sqlstate}'; END $$"
+            )
+
+    event.listen(engine, "before_cursor_execute", force_database_failure)
+    try:
+        with caplog.at_level(logging.WARNING):
+            response = client.get(path(bundle.document.workspace_id, snapshot))
+        checked(response, 503)
+        assert response.json() == {"detail": "Evidence service unavailable"}
+        assert len(attempts) == attempts_expected
+        private_content_hidden = all(
+            item not in response.text and item not in caplog.text
+            for item in [
+                issued.token,
+                bundle.representation.text,
+                "synthetic private retry failure",
+            ]
+        )
+        assert private_content_hidden
+    finally:
+        event.remove(engine, "before_cursor_execute", force_database_failure)

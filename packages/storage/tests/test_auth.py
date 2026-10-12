@@ -319,3 +319,79 @@ def test_successful_read_just_inside_idle_boundary_is_permitted(engine):
             )
         )
     assert access.load_evidence(issued.token, bundle.document.workspace_id, snapshot) == bundle
+
+
+def test_overlapping_same_session_reads_both_return_verified_evidence(engine):
+    from conftest import overlapping_session_reads
+
+    bundle, snapshot, user, _, sessions, access = setup_access(engine)
+    issued = sessions.issue_session(user)
+
+    def load():
+        return access.load_evidence(issued.token, bundle.document.workspace_id, snapshot)
+
+    results, conflicts = overlapping_session_reads(engine, load, load)
+    assert conflicts == 1
+    assert [status for status, _ in results] == ["ok", "ok"]
+    assert all(value == bundle for _, value in results)
+
+
+@pytest.mark.parametrize("change", ["revoked", "disabled", "membership", "corruption"])
+def test_overlap_retry_rechecks_authority_and_integrity_in_fresh_transaction(engine, change):
+    from conftest import overlapping_session_reads
+
+    bundle, snapshot, user, identities, sessions, access = setup_access(engine)
+    issued = sessions.issue_session(user)
+
+    def load():
+        return access.load_evidence(issued.token, bundle.document.workspace_id, snapshot)
+
+    def change_after_conflict():
+        if change == "revoked":
+            sessions.revoke_session(issued.token)
+        elif change == "disabled":
+            identities.set_enabled(user, False)
+        elif change == "membership":
+            identities.set_membership(user, bundle.document.workspace_id, "viewer", False)
+        else:
+            with engine.begin() as conn:
+                conn.execute(
+                    text("UPDATE evidence_snapshots SET content_sha256=:h"), {"h": "f" * 64}
+                )
+
+    results, conflicts = overlapping_session_reads(engine, load, load, change_after_conflict)
+    assert conflicts == 1
+    assert results[0][0] == "ok"
+    expected = {
+        "revoked": "AuthenticationDenied",
+        "disabled": "AuthenticationDenied",
+        "membership": "ok",
+        "corruption": "StorageCorruption",
+    }[change]
+    assert results[1][0] == expected
+    assert results[1][1] is None
+
+
+def test_serialization_retry_is_bounded_and_failure_is_sanitized(engine):
+    from sqlalchemy import event
+
+    bundle, snapshot, user, _, sessions, access = setup_access(engine)
+    issued = sessions.issue_session(user)
+    attempts = []
+
+    def force_serialization_failure(conn, cursor, statement, parameters, context, executemany):
+        if "SELECT auth_sessions.token_sha256" in statement and "FOR UPDATE" in statement:
+            attempts.append(True)
+            cursor.execute(
+                "DO $$ BEGIN RAISE EXCEPTION 'synthetic private failure' "
+                "USING ERRCODE='40001'; END $$"
+            )
+
+    event.listen(engine, "before_cursor_execute", force_serialization_failure)
+    try:
+        with pytest.raises(StorageError) as caught:
+            access.load_evidence(issued.token, bundle.document.workspace_id, snapshot)
+        assert len(attempts) == 3
+        assert str(caught.value) == "Unable to load protected evidence"
+    finally:
+        event.remove(engine, "before_cursor_execute", force_serialization_failure)

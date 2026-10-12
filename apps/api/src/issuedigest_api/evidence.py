@@ -11,6 +11,12 @@ from issuedigest_storage.sessions import valid_session_token
 from pydantic import UUID4, ValidationError
 
 from .cookies import SESSION_COOKIE
+from .errors import (
+    EvidenceAuthenticationError,
+    EvidenceNotFoundError,
+    EvidencePathValidationError,
+    EvidenceUnavailableError,
+)
 
 EVIDENCE_PATH = "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}"
 COOKIE_AUTH = APIKeyCookie(name=SESSION_COOKIE, scheme_name="SessionCookie", auto_error=False)
@@ -31,6 +37,14 @@ PROTECTED_RESPONSES: dict[int | str, dict[str, Any]] = {
         (503, "Evidence service unavailable"),
     ]
 }
+for code, model in [
+    (401, EvidenceAuthenticationError),
+    (404, EvidenceNotFoundError),
+    (422, EvidencePathValidationError),
+    (503, EvidenceUnavailableError),
+]:
+    PROTECTED_RESPONSES[code]["model"] = model
+
 PROTECTED_RESPONSES[200]["content"] = {
     "application/json": {"schema": {"$ref": "#/components/schemas/EvidenceBundle"}}
 }

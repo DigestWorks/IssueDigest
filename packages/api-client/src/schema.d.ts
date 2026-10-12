@@ -643,6 +643,14 @@ export interface components {
              */
             kind: "entity";
         };
+        /** EvidenceAuthenticationError */
+        EvidenceAuthenticationError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Authentication required";
+        };
         /** EvidenceBundle */
         EvidenceBundle: {
             /** Citations */
@@ -680,6 +688,42 @@ export interface components {
             span: "half" | "full";
             /** Title */
             title: string;
+        };
+        /** EvidenceNotFoundError */
+        EvidenceNotFoundError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Evidence not found";
+        };
+        /** EvidencePathValidationDetail */
+        EvidencePathValidationDetail: {
+            /** Loc */
+            loc: [
+                "path",
+                "workspace_id" | "snapshot_id"
+            ];
+            /**
+             * Msg
+             * @constant
+             */
+            msg: "Invalid UUID4 path parameter";
+            /** Type */
+            type: string;
+        };
+        /** EvidencePathValidationError */
+        EvidencePathValidationError: {
+            /** Detail */
+            detail: components["schemas"]["EvidencePathValidationDetail"][];
+        };
+        /** EvidenceUnavailableError */
+        EvidenceUnavailableError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Evidence service unavailable";
         };
         /** ExecutionVersions */
         ExecutionVersions: {
@@ -1682,7 +1726,9 @@ export interface operations {
                     "X-Request-ID"?: string;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
             };
             /** @description Evidence not found */
             404: {
@@ -1692,7 +1738,9 @@ export interface operations {
                     "X-Request-ID"?: string;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EvidenceNotFoundError"];
+                };
             };
             /** @description Validation Error */
             422: {
@@ -1702,7 +1750,9 @@ export interface operations {
                     "X-Request-ID"?: string;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EvidencePathValidationError"];
+                };
             };
             /** @description Evidence service unavailable */
             503: {
@@ -1712,7 +1762,9 @@ export interface operations {
                     "X-Request-ID"?: string;
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": components["schemas"]["EvidenceUnavailableError"];
+                };
             };
         };
     };
