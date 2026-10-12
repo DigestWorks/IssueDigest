@@ -15,7 +15,7 @@
 
 ## Task 1 · 여섯 모듈·근거 액션·화면 상태
 
-- [ ] 아래 수용 조건을 구현·검증한다. 구현자가 완료 시 체크한다.
+- [x] 아래 수용 조건을 구현·검증한다. 구현자가 완료 시 체크한다.
 
 1. `@issuedigest/ui` private npm workspace의 `CanvasView`와 props 타입을 export한다. props는 `bundle: CanvasBundle | null`, optional `onAction(action: CanvasAction): void`다. CSS는 명시적인 별도 export이며 `id-canvas` 범위에서만 스타일링한다. API-client의 생성 공개 타입을 사용하고 도메인/생성 타입을 복사하지 않는다.
 2. 순서·span을 따른 의미 있는 section/headings, 화면 버전 표시, null 빈 상태, 근거 부족/추가 질문 상태를 제공한다. 불명확·거절·미완성 출력/모르는 계약 버전·모듈·액션·깨진 표시 참조는 전체 화면의 안전한 안내로 거부하고 일부 정상 모듈만 먼저 유출하지 않는다. 번들/배열을 수정하지 않는다.
