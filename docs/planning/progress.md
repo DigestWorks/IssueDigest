@@ -15,10 +15,12 @@
 
 ## 현재 작업
 
-- 완료: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부. [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) (base PR #8, 미병합), `feat/canvas-renderer`.
-- 다음: 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 동료 답변 확인. 제품 API·권한·실행 저장·실제 AI/화면 host 연결을 이어간다.
-- 대기 범위: 실제 자료 반입·운영 DB 설치·공존 서비스·비용/백업은 아직 미확인이다. 현재 코드의 실행·화면·검색·에이전트 전체 구현으로 표시하지 않는다.
-- Sites: v25 공개 반영 완료. 현재 폴더와 개발 서버의 개인 worktree는 같은 기능 브랜치의 기록을 따른다. 새 유료 호출·운영 데이터 변경 없음.
+- 작업: [서버 세션·작업 공간 권한·근거 조회 API](../changes/session-evidence-api.md), R1/R2 일부.
+- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/session-evidence-api` (선행 PR #9 위).
+- 범위: 실제 PostgreSQL의 해시 세션·만료/폐기·회원 권한과 한 보호 GET API, canonical OpenAPI/생성 TS 연결.
+- 경계: 기본 앱은 미구성 상태에서 자료 반환을 거부한다. 로그인 공급자/화면·공개 세션 발급·초대 UI·원문 파일·AI·실행 저장/스트림·운영 DB는 후속이다.
+- 대기: 동료에게 전달한 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 답변. 이 작업은 전용 합성 로컬 DB에서 독립 진행한다.
+- Sites: v25 유지, 이번 구현·검증 결과 반영 대기. 운영 서비스/데이터 변경·유료 호출 없음.
 
 ## 2026-10-12 · 검증된 생성 화면 React 렌더러
 
