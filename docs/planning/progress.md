@@ -15,16 +15,21 @@
 
 ## 현재 작업
 
-- 작업: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부.
-- 담당/브랜치: controller + 독립 구현/리뷰 · `feat/canvas-renderer` · [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) (base PR #8, 미병합).
-- 상태: 기존 CanvasBundle의 여섯 모듈을 소비하는 내부 UI 패키지 구현, 독립 작업·전체 변경 리뷰와 수정 범위 재검토 통과.
-- 범위: 근거 카드·요약·비교표·타임라인·관계·실제 bar, 안전한 참조·표시 상태·등록 액션 콜백. 개발 앱에 합성 결과를 채우지 않는다.
-- 미구현: 실제 자료/제품 API·로그인·AI/DBOS·SSE·action host·운영 DB·검색. 기존 저장 기반 PR #8 완료 상태는 아래 이력에 보존한다.
-- 남은 입력: 동료에게 전용 DB·기존 데이터·자원/비용·외부 백업 확인 요청 전달 완료(사용자 확인). 답변 대기 중에도 이번 UI 작업 진행 가능.
-- 검증: `068cb1f`에서 controller의 실제 PostgreSQL18.6 포함 전체 검사 Python712·JS134(UI74), lint/format·타입·SPA 빌드·계약 drift 통과. 같은 합성 JSON을 Python 계약과 React가 소비한다. 실제 브라우저1366/390 가로 넘침 없음, 여섯 모듈·명세 구성 변화·빈/자료 부족 상태·Enter 근거 ID·콘솔 오류/경고0 확인.
-- 서버: 사용자 전용 worktree `cdaaec8`에서 locked 설치·웹 lint/타입·JS134·SPA·계약 drift 통과, 기존 웹/API 개발 세션 유지. 이번 작업에서 원격 Python/DB 검사를 실행한 것으로 표시하지 않는다.
-- 게시: Draft PR #9 생성·앱 첨부 완료. 개발 서버 직접/프록시 HTTP200·요청 ID와 로컬 연결을 확인했다.
-- Sites: v24 유지, 이번 검증 결과 반영과 사용자 폴더 연결 대기. 운영 DB 설치·기존 데이터 변경·새 유료 호출 없음.
+- 완료: [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md), P4/R4·R5 일부. [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) (base PR #8, 미병합), `feat/canvas-renderer`.
+- 다음: 전용 DB·기존 데이터·자원/비용·외부 백업 요청의 동료 답변 확인. 제품 API·권한·실행 저장·실제 AI/화면 host 연결을 이어간다.
+- 대기 범위: 실제 자료 반입·운영 DB 설치·공존 서비스·비용/백업은 아직 미확인이다. 현재 코드의 실행·화면·검색·에이전트 전체 구현으로 표시하지 않는다.
+- Sites: v25 공개 반영 완료. 현재 폴더와 개발 서버의 개인 worktree는 같은 기능 브랜치의 기록을 따른다. 새 유료 호출·운영 데이터 변경 없음.
+
+## 2026-10-12 · 검증된 생성 화면 React 렌더러
+
+- 구현 `a0f52b7` + 스타일 격리 보완 `068cb1f`: `@issuedigest/ui`의 CanvasView가 기존 생성 공개 타입/CanvasBundle을 소비한다. 근거·요약·주장 비교·날짜 구간·실제 방향 관계·정확 소수 수치 bar/표를 명세 순서·span으로 표시한다. 선택 근거·workspace·typed 참조·비교 조건·액션을 준비한 후 표시하며 깨진 화면은 부분 내용 없이 거부한다.
+- 경계: null 빈 상태·근거 부족·추가 질문을 구분한다. 근거 열기·문서 선택·후속 질문·정렬은 등록 값의 콜백만 전달한다. 실제 API/AI·원문/액션 실행·로그인·SSE·취소·화면 저장·운영 DB는 미연결이다. 선택하지 않은 관계 endpoint는 표시하지 않는다. 문서 제목은 기존 계약에 없어 실제 source_id를 사용한다.
+- 검증: controller가 `068cb1f`에서 전용 로컬 PostgreSQL18.6을 포함한 전체 `npm run check` exit0 확인. Python712개(저장39개 포함, skip 없음)·JS134개(UI74개), lint/format·타입·SPA 빌드·계약 drift 통과. 공유 합성 JSON을 기존 Python 계약과 생성 타입을 사용하는 React 테스트가 소비한다. 초기 실제 assertion RED63개, 스타일 containment RED3개 후 GREEN 증거 보존.
+- 브라우저: 합성 자료의 내부 QA 화면에서1366/390 가로 넘침 없음·여섯 모듈·명세 구성 변화·빈/자료 부족·Enter 및 실제 Tab+Space의 정확 인용 ID·바깥/안쪽 스타일 격리·콘솔 오류/경고0 확인. 합성 결과를 제품 앱에 연결하거나 AI 생성 결과로 표시하지 않았다. 내부 QA 서버·브라우저와 전용 테스트 DB는 검사 후 종료했다.
+- 리뷰: 독립 작업 리뷰의 CSS 범위 지적을 수정하고 재검토 통과. 전체 변경 리뷰의 fixture 주석·검증 기준 SHA 지적을 `cdaaec8`에서 정정하고 한 번의 수정 범위 재검토로 종료했다. 잔여 지적 없음. ignored 리뷰/검증 기록은 미병합 PR 검토가 끝날 때까지 격리 폴더에 보존한다.
+- 게시: [Draft PR #9](https://github.com/DigestWorks/IssueDigest/pull/9) 생성·앱 첨부 완료. `83b7b7e`의 [GitHub CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38218480943) 성공. 최종 게시 메타데이터는 문서만 변경한다.
+- 서버/폴더: ARM64의 사용자 전용 worktree `cdaaec8`에서 locked 설치·웹 lint/타입·JS134·SPA·계약 drift 통과. 원격 Python/운영 DB 검사를 실행한 것으로 표시하지 않는다. 기존 tmux 웹/API 유지, 직접/프록시 및 로컬 연결 HTTP200·요청 ID 확인. 현재 사용자 폴더를 `feat/canvas-renderer`에 연결하고 locked 설치·UI export/CSS 경로를 확인했다. 마지막 문서 커밋도 개발 서버에 동기화한다.
+- Sites: v25 공개 배포 성공(`appgdep_6acc8dfe53d08191a7267f919c17ff40`), 이전v24 보존. 사이트 source `078f41465efdbf919a737d2a8e69e2bd1dde2a27`, 저장소 문서 사본 기준 `83b7b7e`. 이후 게시 기록은 저장소 원본을 확인한다. 공개 요약의 로컬 링크·상태·건수·접속 세부정보 제외 검사 통과, 사이트 탭 열기 요청 접수.
 
 ## 2026-10-12 · 엔진 확정·첫 PostgreSQL 저장
 
