@@ -27,6 +27,7 @@ pnpm build
 
 - [제품 기획](docs/planning/2026-10-11-issuedigest-plan.md)
 - [서버·데이터 연결 계획](docs/planning/2026-10-12-server-data-plan.md)
+- [기존 수집 데이터 접근](infra/legacy-data/README.md)
 - [PoC 기술 검토](docs/research/2026-10-11-poc-feasibility.md)
 - [스타일 가이드](docs/design/style-guide.md)
 - [3D 지도 컨셉](docs/design/3d-map-concept.md)

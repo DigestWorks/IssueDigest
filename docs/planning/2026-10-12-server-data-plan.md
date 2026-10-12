@@ -16,7 +16,7 @@ IssueDigest는 독립 프로젝트로 개발하며, 전용 DB를 구성하고 �
 
 ## 기존 데이터 접근
 
-LawDigest 코드·DB·원문은 재사용 가능성을 확인할 자료로 다룬다. 개발 계정에는 비밀 설정을 제외한 코드 열람본, 원문 파일 읽기 권한, 기존 DB의 SELECT 전용 계정을 제공한다. 데이터 종류·건수·수집 상태는 접근을 확보한 뒤 개발자가 직접 확인한다.
+LawDigest 코드·DB·원문은 재사용 가능성을 확인할 자료로 다룬다. 2026-10-12 개발 계정에 비밀 설정을 제외한 코드 열람본, 원문 파일 읽기 권한, 기존 DB의 SELECT 전용 계정을 제공했다. 데이터 종류·건수·수집 상태는 개발자가 직접 확인한다. [기존 수집 데이터 접근 안내](../../infra/legacy-data/README.md)에 실제 접속·파일 경로와 권한 범위를 기록했다.
 
 2026-10-12 Oracle 서버 `140.245.74.246`에서 확인한 위치는 다음과 같다. 파일 경로의 존재를 확인했으며, 운영 파이프라인과의 연결은 추가 확인이 필요하다.
 
@@ -25,11 +25,13 @@ LawDigest 코드·DB·원문은 재사용 가능성을 확인할 자료로 다�
 | 기존 백엔드 | `/home/ubuntu/project/Lawdigest/services/backend` |
 | 기존 AI 코드 | `/home/ubuntu/project/Lawdigest/services/ai` |
 | 기존 수집 코드 | `/home/ubuntu/project/Lawdigest/services/data` |
-| 기존 DB | `lawdigest-mysql` 컨테이너, 호스트 포트 `3306` |
+| 기존 수집 DB | `mysql` 컨테이너의 `lawDB`, 호스트 포트 `2835` |
 | 원문·가공 파일 후보 | `/home/ubuntu/project/data_job/data` |
 | 수집 산출물 후보 | `/home/ubuntu/project/Lawdigest/services/data/output` |
 
-확인 당시 `DigestWorks_Jaesin` 계정은 관련 프로젝트 디렉터리에 접근할 수 없었다. 기존 코드·원문 읽기 권한과 LawDigest DB 조회 계정 제공은 후속 작업이다.
+`DigestWorks_Jaesin`의 열람 경로는 `/srv/issuedigest/reference`이다. 코드·수집 상태는 스냅샷이며, 원문·산출물은 읽기 전용 마운트로 제공한다. DB 조회는 `~/.local/bin/issuedigest-legacy-db`로 시작한다.
+
+수집 설정을 재확인한 결과 실제 수집 DB는 `lawDB:2835`였다. 앞서 확인한 `lawdigest-mysql:3306`의 `cloneOfLaw`는 테이블이 없었다. 사용자·인증 테이블은 권한 범위에서 제외했다.
 
 ## 자원과 비용
 
