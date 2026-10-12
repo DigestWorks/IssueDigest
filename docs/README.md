@@ -63,3 +63,7 @@ Sites 반영 상태:
 ## PostgreSQL 원문·인용 저장 기반
 
 [작업 명세](changes/postgres-storage.md)에서 불변 객체·스냅샷·원자적 outbox와 마이그레이션을 구현한다. [엔진 선택 기록](research/engine-selection.md)은 선택과 품질 검증을 구분한다. 실제 구현·리뷰·검증 결과는 진행 기록을 확인한다. 저장 패키지 내부 workspace 범위는 인증·멤버십 구현이 아니며 원문 bytes·검색·worker·운영 연결은 후속이다.
+
+## 검증된 생성 화면 렌더러
+
+[작업 명세](changes/canvas-renderer.md)에 따라 기존 CanvasBundle을 소비하는 React UI 패키지를 구성한다. 화면 표시와 실제 AI 생성·API 소비·액션 처리·권한을 구분하며 검증 결과는 진행 기록에 남긴다. 합성 자료는 테스트·내부 QA 전용이다.
