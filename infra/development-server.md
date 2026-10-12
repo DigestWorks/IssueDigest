@@ -99,8 +99,8 @@ ssh -N -i /path/to/private-key \
 
 ## 다음 확인
 
-1. 관리자와 전용 자원·공존 서비스·월 분담 비용·외부 백업·DB 운영 권한 확인.
-2. 기존 수집/AI 서버와 이 개발 서버의 관계, 원문 위치·건수·기간·최근 성공·실행 커밋 확인.
-3. D011의 PostgreSQL·pgvector·PydanticAI/DBOS를 사용한다. A005~A006의 배치·인증은 대기하며 [PostgreSQL 연결 준비](postgresql.md)의 자원·비용·전용 DB·외부 백업을 확인한다.
+1. 관리자와 전용 자원·공존 서비스·월 분담 비용·외부 백업·런타임 계정 분리 확인.
+2. 전용 PostgreSQL18.6·기존 28테이블·원문 경로·기간·스냅샷은 [실측](../docs/research/server-data-inventory.md)에서 확인했다. 현재 수집 성공·누락·운영 실행 커밋·원문의 정확한 대응은 후속이다.
+3. D011의 PostgreSQL·pgvector·PydanticAI/DBOS를 사용한다. pgvector 패키지는 미준비다. A005~A006의 배치·인증과 D012 도메인 연결은 대기하며 [PostgreSQL 연결 준비](postgresql.md)의 남은 조건을 확인한다.
 
 최신 상태는 [진행 기록](../docs/planning/progress.md), 선택은 [결정 기록](../docs/planning/decisions.md)을 따른다.

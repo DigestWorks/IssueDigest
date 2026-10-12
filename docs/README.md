@@ -14,6 +14,7 @@
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
 | [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
+| [전용 DB·수집 자산 실측](research/server-data-inventory.md) | 실제 건수·기간·원문 품질·pgvector 준비 상태·첫 이관 경계 |
 | [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
 | [PostgreSQL 연결 준비](../infra/postgresql.md) | 관리자에게 확인할 자원·비용·전용 DB·외부 백업 |
 | [개발 서버 안내](../infra/development-server.md) | 사용자 전용 환경·실행 방법·기초 자원·실제 검증·남은 확인 |
