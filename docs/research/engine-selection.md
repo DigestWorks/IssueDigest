@@ -21,6 +21,8 @@
 
 pgvector 공식 README는 **0.8.7**을 안내한다. 해당 extension·embedding 차원·인덱스·ARM 이미지의 실제 조합은 검색 구현 때 고정·검증한다. 이번 저장 패키지는 벡터 열/검색을 구현하지 않는다. PydanticAI/DBOS도 실행 연결 때 필요한 배포 버전·호환성·운영 메타데이터를 고정한다. 선택된 엔진과 아직 설치하지 않은 기능을 구분한다.
 
+현시점 배포 메타데이터는 DBOS3.2.0에 SQLAlchemy>=2.0.43·psycopg[binary]>=3.1, PydanticAI-slim2.55.0에 Pydantic>=2.12·DBOS extra>=2.10.0을 요구한다. 이번 고정 버전은 이 선언 범위를 만족한다. 이는 실제 worker 통합·재시도/복구 검증의 통과가 아니다. [DBOS 배포](https://pypi.org/project/dbos/3.2.0/), [PydanticAI-slim 배포](https://pypi.org/project/pydantic-ai-slim/2.55.0/).
+
 ## 검색에서 빠뜨리지 않을 조건
 
 한국어 형태소 분석이 PostgreSQL 기본 설정이나 벡터 검색에서 자동 해결된다고 가정하지 않는다. 정확 번호·이름과 한국어 어휘 검색을 별도 경로로 만들고 의미 검색과 합친다. `pg_trgm`은 문자열 유사도·부분 일치 도구이며 형태소 분석기의 대체라는 근거는 없다. [PostgreSQL 사전](https://www.postgresql.org/docs/18/textsearch-dictionaries.html), [pg_trgm](https://www.postgresql.org/docs/18/pgtrgm.html).
