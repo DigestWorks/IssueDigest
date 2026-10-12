@@ -19,7 +19,7 @@ uv run --package issuedigest-storage alembic -c packages/storage/alembic.ini upg
 uv run --package issuedigest-storage alembic -c packages/storage/alembic.ini current
 ```
 
-최초 revision은 `0001_evidence_snapshots`입니다. `alembic_version`으로 적용 상태를
+최초 revision은 `0001_evidence_snapshots`이며 다음 `0002_auth_sessions`가 내부 사용자·멤버십·해시 세션 테이블만 추가합니다. `alembic_version`으로 적용 상태를
 관리하며 재실행해도 테이블을 다시 생성하지 않습니다. 데이터가 있는 DB에서 downgrade는
 저장 테이블을 삭제하므로 아래 테스트의 전용 합성 DB에서만 검증합니다.
 SQLAlchemy `metadata.create_all`은 마이그레이션 대용으로 사용하지 않습니다.
@@ -70,25 +70,21 @@ DB 오류는 원문·DB URL을 담지 않은 `StorageError`를 반환합니다. 
 재시도 결과 False는 동일 스냅샷이 이미 저장되어 있음을 뜻하며 추가 outbox는 만들지 않습니다.
 연결 구성·연결 확인 실패는 비밀 설정을 담지 않은 `ValueError`입니다.
 
-원문 bytes·객체 저장소·파서·검색/pgvector 인덱스·Neo4j·인증·DBOS/PydanticAI 실행·SSE는
+원문 bytes·객체 저장소·파서·검색/pgvector 인덱스·Neo4j·로그인 공급자·DBOS/PydanticAI 실행·SSE는
 후속입니다. 원문 객체 ID·해시는 참조이며 파일 존재나 원문 해시 대조를 보장하지 않습니다.
-공개 HTTP 저장/조회, outbox 조회/소비·재시도·투영 API는 제공하지 않습니다.
+공개 HTTP 저장, outbox 조회/소비·재시도·투영 API는 제공하지 않습니다. API 앱의 보호 GET은 이 패키지의 내부 접근 경계를 사용합니다.
 
 ## 합성 PostgreSQL 테스트
 
-새 전용 로컬 컨테이너만 생성합니다. 아래 계정은 합성 테스트 전용 공개 값입니다.
-컨테이너는 localhost에만 바인딩되며 기존 DB·컨테이너를 변경하지 않습니다.
+기존 공유 DB와 분리된 PostgreSQL 18.6 전용 loopback 합성 DB를 준비하고,
+DB 이름은 `issuedigest_test`로 지정합니다. 인증값과 연결 URL은 로컬 비밀 설정에서
+`ISSUEDIGEST_TEST_DATABASE_URL` 환경 변수로 공급하며 문서·로그·버전 관리에 기록하지 않습니다.
+기존 DB·계정·자료를 테스트 대상으로 사용하지 않습니다.
 
 ```sh
-docker run --name issuedigest-storage-test --rm -d \
-  -e POSTGRES_USER=issuedigest_test -e POSTGRES_PASSWORD=issuedigest_test \
-  -e POSTGRES_DB=issuedigest_test -p 127.0.0.1:55432:5432 postgres:18.6
-export ISSUEDIGEST_TEST_DATABASE_URL='postgresql+psycopg://issuedigest_test:issuedigest_test@127.0.0.1:55432/issuedigest_test'
-# pg_isready가 성공한 뒤 실행
-uv run pytest packages/storage/tests
+# 전용 합성 DB가 준비되고 ISSUEDIGEST_TEST_DATABASE_URL이 설정된 뒤 실행
+uv run pytest packages/storage/tests apps/api/tests
 npm run check
-# 이 명령으로 만든 전용 컨테이너만 종료
-docker stop issuedigest-storage-test
 ```
 
 fixture는 localhost/127.0.0.1·DB 이름 `issuedigest_test`·psycopg와 URL query override 없음으로
@@ -101,3 +97,42 @@ skip합니다. CI는 PostgreSQL **18.6** service와 URL을 제공하고 URL 누�
 실제 DB round trip(text/PDF/table·한국어/emoji·UTC·인용 순서), workspace 격리,
 버전/표현 추가, 불변 ID/identity 충돌, 모델 검증 우회, 저장 손상, FK 제약,
 중간/outbox 실패 rollback, 독립 connection 동시 쓰기, 마이그레이션 재실행을 검사합니다.
+
+
+## 공급자와 독립된 내부 세션/접근
+
+`IdentityRepository.register_identity(user_id, issuer, subject)`는 UUID4와 정확한 외부
+issuer/subject pair를 원자적으로 등록합니다. 동일 pair/UUID 재등록만 idempotent하며
+서로 다른 issuer의 같은 subject는 별개입니다. 이메일로 병합하거나 공백을 정규화하지 않습니다.
+issuer와 subject는 각각 1~256 문자, NUL 없음이며 원문을 보존합니다. 이 한도는 PostgreSQL의
+유일 pair 인덱스에 최대 UTF-8 문자열도 저장하도록 선택했습니다.
+`set_enabled(user_id, enabled)`와 `set_membership(user_id, workspace_id, role, active=True)`로
+사용자 활성과 viewer/editor/owner 멤버십을 내부에서 관리합니다. workspace UUID는 기존 근거
+namespace이며 전체 workspace 생성/초대 관리가 아닙니다. 존재하지 않는 사용자 참조,
+미지원 역할·잘못된 UUID·boolean 이외 상태값은 거부합니다.
+
+이 메서드를 호출하는 코드가 신뢰된 OIDC 연결기/관리자 경계여야 합니다. 이 패키지는
+공급자 토큰 검증, 초대 승인, 사용자 비밀번호 처리를 수행하지 않습니다. 공개 HTTP 등록/발급/
+멤버십 수정·테스트 로그인 경로는 없습니다. 외부 요청의 사용자 ID·이메일은 신뢰 증거가 아닙니다.
+
+`SessionRepository.issue_session(user_id, lifetime_seconds=28800)`는 활성 사용자에게만
+`secrets.token_urlsafe(32)`의 256bit 임의 토큰을 발급합니다. DB에는 SHA-256 해시만 저장하며
+원문은 `IssuedSession.token` 발급 결과에서만 반환합니다. repr에는 원문이 없고 로깅하지 않습니다.
+재발급은 별도 토큰이며 `revoke_session(token)`은 idempotent입니다. 수명은 정수 1~28,800초
+(bool 거부), 기본/최대 8시간입니다. DB의 timezone-aware 서버 시각으로 발급하며 반환 만료는 UTC입니다.
+
+`EvidenceAccessRepository.load_evidence(token, workspace_id, snapshot_id)`는 매 요청마다
+DB에서 세션·사용자 활성·해당 공간의 active 멤버십을 확인하고 같은 Connection/transaction으로
+기존 근거 integrity 로더를 호출합니다. 허용되지 않은 호출은 payload를 읽지 않습니다.
+없는/만료/폐기/비활성 세션은 `AuthenticationDenied`, 미가입/다른 공간/없는 자료는 `None`,
+DB 장애/저장 훼손은 원문·토큰·DB 설정을 포함하지 않는 `StorageError`입니다.
+권한을 메모리에 캐시하지 않습니다. 성공한 허용 조회만 마지막 활동을 갱신하며 절대 만료를
+연장하지 않습니다. 절대 만료 시각 또는 마지막 성공 조회 후 1,800초와 같은 시각도 거부합니다.
+폐기/비활성/멤버십 회수는 다음 요청에서 확인합니다. 이미 시작한 응답을 소급 회수하지 않습니다.
+
+인증 테이블은 기존 근거에 FK를 소급 추가하지 않습니다. `0001`→head와 `0002`→`0001`에서
+기존 근거·스냅샷·인용 순서를 보존하며 `0002` downgrade는 인증 테이블만 삭제합니다.
+테스트 fixture는 루트 `conftest.py`를 공유하여 migration/reset을 충돌 없이 수행합니다.
+실제 DB identity 충돌/동시 등록·hash-only 저장·수명/idle·활동 갱신·폐기/비활성/멤버십 회수,
+두 회원의 동일 스냅샷 조회·workspace 격리·역할/FK·AUTOCOMMIT 경계·HTTP 오류 비노출을 검사합니다.
+로그인 공급자, 운영 DB, 앱 로그인/자료 화면은 후속이며 이 단계만으로 운영 로그인이 완료되지 않습니다.

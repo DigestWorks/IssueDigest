@@ -3,7 +3,10 @@
 import os
 
 from alembic import context
-from issuedigest_storage import create_storage_engine
+from issuedigest_storage import (
+    auth_schema,  # noqa: F401
+    create_storage_engine,
+)
 from issuedigest_storage.schema import metadata
 
 url = context.config.attributes.get("database_url") or os.environ.get("ISSUEDIGEST_DATABASE_URL")

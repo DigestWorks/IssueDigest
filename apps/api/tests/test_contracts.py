@@ -21,9 +21,13 @@ def walk_references(value):
             yield from walk_references(child)
 
 
-def test_evidence_components_resolve_without_adding_http_paths():
+def test_evidence_components_resolve_with_canonical_protected_http_path():
     schema = TestClient(main.app).get("/openapi.json").json()
-    assert set(schema["paths"]) == {"/health/live", "/api/v1/status"}
+    assert set(schema["paths"]) == {
+        "/health/live",
+        "/api/v1/status",
+        "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+    }
     schemas = schema["components"]["schemas"]
     assert "EvidenceBundle" in schemas
     assert "CitationAnchorValidation" in schemas
@@ -51,10 +55,14 @@ def test_component_collision_fails_without_mutating_input():
     assert original == {"components": {"schemas": {"Citation": {"type": "string"}}}, "paths": {}}
 
 
-def test_research_and_comparison_components_resolve_discriminators_without_new_paths():
+def test_research_and_comparison_components_preserve_discriminators():
     schema = TestClient(main.app).get("/openapi.json").json()
     schemas = schema["components"]["schemas"]
-    assert set(schema["paths"]) == {"/health/live", "/api/v1/status"}
+    assert set(schema["paths"]) == {
+        "/health/live",
+        "/api/v1/status",
+        "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+    }
     names = {
         "ResearchBundle",
         "SourceIdentity",
@@ -146,7 +154,11 @@ def test_execution_components_registered_public_and_legacy_unchanged():
     schema = TestClient(main.app).get("/openapi.json").json()
     schemas = schema["components"]["schemas"]
     assert EXECUTION_MODELS <= schemas.keys()
-    assert set(schema["paths"]) == {"/health/live", "/api/v1/status"}
+    assert set(schema["paths"]) == {
+        "/health/live",
+        "/api/v1/status",
+        "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+    }
     _, legacy = models_json_schema(
         [
             (domain.EvidenceBundle, "validation"),
