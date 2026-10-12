@@ -48,7 +48,7 @@ Sites 반영 상태:
 
 원문 식별/버전과 파싱 표현을 분리한 첫 계약 및 정확한 인용 anchor 검증을 구현했습니다. [Python 도메인](../packages/domain/README.md)과 [생성 웹 타입·Unicode 변환](../packages/api-client/README.md)에 실제 공개 모델과 검증 경계를 기록합니다. API OpenAPI components로 연결하며 제품 HTTP 경로를 추가하지 않습니다. 완료 증거와 리뷰·Sites 대기는 [진행 기록](planning/progress.md), 후속 범위는 [작업 목록](planning/tasks.md)에서 관리합니다.
 
-이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, 실행 이벤트 저장·SSE·화면 렌더러·사용량 집계·권한이 남아 있습니다.
+이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, 실행 이벤트 저장·SSE·렌더러의 제품 연결·사용량 집계·권한이 남아 있습니다.
 
 
 ## 두 번째 개체·주장·관계·비교 조건 계약
@@ -58,7 +58,7 @@ Sites 반영 상태:
 
 ## 세 번째 실행·화면·사용량 부분 계약
 
-[작업 명세](changes/execution-contracts.md)의 불변 모델과 순수 입력 해시·재전송 판정·순번 이력 재생·화면 근거/승격·월 예산 및 전체 참조 검증을 구현했습니다. 실제 OpenAPI components와 생성 TS 공개 타입으로 연결합니다. 제공된 객체 검증과 운영 실행·저장·SSE·동시 예산·인증·공급자 호출·렌더러를 구분합니다. 독립 리뷰·Draft PR·Sites v20 이후 요약·사용자 폴더 연결은 [진행 기록](planning/progress.md)에 따라 마무리합니다. 전체 P1은 미완료입니다.
+[작업 명세](changes/execution-contracts.md)의 불변 모델과 순수 입력 해시·재전송 판정·순번 이력 재생·화면 근거/승격·월 예산 및 전체 참조 검증을 구현했습니다. 실제 OpenAPI components와 생성 TS 공개 타입으로 연결합니다. 제공된 객체 검증과 운영 실행·저장·SSE·동시 예산·인증·공급자 호출을 구분합니다. 렌더러 구현은 아래 별도 작업입니다. 독립 리뷰·Draft PR·Sites v20 이후 요약·사용자 폴더 연결은 [진행 기록](planning/progress.md)에 따라 마무리합니다. 전체 P1은 미완료입니다.
 
 ## PostgreSQL 원문·인용 저장 기반
 
@@ -66,4 +66,4 @@ Sites 반영 상태:
 
 ## 검증된 생성 화면 렌더러
 
-[작업 명세](changes/canvas-renderer.md)에 따라 기존 CanvasBundle을 소비하는 React UI 패키지를 구성한다. 화면 표시와 실제 AI 생성·API 소비·액션 처리·권한을 구분하며 검증 결과는 진행 기록에 남긴다. 합성 자료는 테스트·내부 QA 전용이다.
+[작업 명세](changes/canvas-renderer.md)에 따라 기존 CanvasBundle을 소비하는 React UI 패키지를 구현했다. 화면 표시와 실제 AI 생성·API 소비·액션 처리·권한을 구분하며 검증 결과는 진행 기록에 남긴다. 합성 자료는 테스트·내부 QA 전용이다.

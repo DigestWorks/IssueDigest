@@ -1,6 +1,6 @@
 # IssueDigest
 
-DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 현재 React Router 웹·FastAPI API·상태 계약·개발 검증 기반을 구성했습니다. 내부 PostgreSQL 근거 스냅샷 저장 기반을 구현했으며, 제품의 자료 수집·조사·운영 연결과 전체 P1은 아직 미완료입니다.
+DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 현재 React Router 웹·FastAPI API·상태 계약·개발 검증 기반을 구성했습니다. 내부 PostgreSQL 근거 스냅샷 저장 기반과 생성 화면 React 렌더러를 구현했으며, 제품의 자료 수집·조사·운영 연결과 전체 P1은 아직 미완료입니다.
 
 첫 사용자는 우리 둘이며, 실제 원자료에서 근거·관계·변화를 찾아 질문에 맞는 화면으로 탐색합니다. 프론트는 React Router, 백엔드는 Python/FastAPI, 그래프는 Neo4j를 사용합니다. 기준 저장소는 PostgreSQL이며, 검색·AI 실행 도구는 D011에 따라 단계적으로 연결합니다. 운영 배치는 검토 중입니다.
 
@@ -85,7 +85,7 @@ npm run check
 
 Python 도메인 모델과 FastAPI OpenAPI가 계약 원본입니다. 응답 모델이나 API 경로를 바꾸면 `npm run contract:generate`를 실행하고 `packages/api-client/openapi.json`과 `src/schema.d.ts`를 함께 검토·커밋합니다. `contract:check`는 임시 폴더에서 다시 생성해 두 파일을 비교하며 차이가 있으면 실패합니다. 생성 파일은 직접 수정하지 않습니다. GitHub Actions는 같은 설치·검증 절차를 수행합니다.
 
-원문·파싱·인용과 개체·주장·제한된 관계·관측·비교 조건에 이어 Run/Event/Canvas/Usage의 세 번째 부분 계약을 구현했습니다. 제공된 이력 재생·화면 근거·호출 및 월 예산 참조를 순수 함수와 불변 모델로 검사하며 독립 리뷰·게시·사용자 폴더 연결은 진행 중입니다. 실제 OpenAPI components와 생성 웹 타입으로 연결하며 제품 HTTP 경로는 추가하지 않습니다. [도메인 README](packages/domain/README.md)에 참조·수치·검토·비교의 검증 경계를 기록합니다. 인용 존재나 조건 일치는 주장 진실·합산 가능성·저장·권한 구현을 보장하지 않습니다.
+원문·파싱·인용과 개체·주장·제한된 관계·관측·비교 조건에 이어 Run/Event/Canvas/Usage의 세 번째 부분 계약을 구현했습니다. 제공된 이력 재생·화면 근거·호출 및 월 예산 참조를 순수 함수와 불변 모델로 검사합니다. 검증과 게시 이력은 진행 기록에서 확인합니다. 실제 OpenAPI components와 생성 웹 타입으로 연결하며 제품 HTTP 경로는 추가하지 않습니다. [도메인 README](packages/domain/README.md)에 참조·수치·검토·비교의 검증 경계를 기록합니다. 인용 존재나 조건 일치는 주장 진실·합산 가능성·저장·권한 구현을 보장하지 않습니다.
 
 React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, Pydantic **2.14.0**를 고정했습니다. TypeScript **5.9.3**은 현재 OpenAPI 생성기의 `^5.x`와 린트 도구의 `<6.1.0` 지원 범위를 함께 만족하는 최신 5.x 안정 버전입니다. 강제 peer 의존성 우회는 사용하지 않습니다. [프레임워크 SPA 안내](https://reactrouter.com/how-to/spa), [OpenAPI 생성기](https://openapi-ts.dev/introduction)를 기준으로 구성하고 패키지 메타데이터로 호환성을 확인했습니다.
 
