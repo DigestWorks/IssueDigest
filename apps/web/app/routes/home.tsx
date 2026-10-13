@@ -1,4 +1,6 @@
-import { useState } from 'react';
+import { useState, type FormEvent } from 'react';
+import { useNavigate } from 'react-router';
+import '../evidence/reader.css';
 import { ConnectionError, getStatus } from '@issuedigest/api-client';
 
 type State = 'idle' | 'pending' | 'success' | 'failure';
@@ -7,8 +9,28 @@ const labels: Record<State, string> = {
 };
 
 export default function Home() {
+  const navigate = useNavigate();
+  const [evidenceLink, setEvidenceLink] = useState('');
+  const [linkError, setLinkError] = useState('');
   const [state, setState] = useState<State>('idle');
   const [reason, setReason] = useState('');
+
+  function openEvidence(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    const value = evidenceLink.trim();
+    const uuid = '[\\da-f]{8}-[\\da-f]{4}-4[\\da-f]{3}-[89ab][\\da-f]{3}-[\\da-f]{12}';
+    try {
+      if ((!value.startsWith('/') && !/^https?:\/\//i.test(value)) || value.startsWith('//') || /[?#\\\s]/.test(value)) throw new Error();
+      const url = new URL(value, window.location.origin);
+      const rawPath = value.startsWith('/') ? value : value.replace(/^https?:\/\/[^/]+/i, '');
+      const authority = /^https?:\/\/([^/?#]*)/i.exec(value)?.[1];
+      if (url.origin !== window.location.origin || url.username || url.password || authority?.includes('@') || rawPath !== url.pathname || !new RegExp(`^/workspaces/${uuid}/evidence/${uuid}$`, 'i').test(url.pathname)) throw new Error();
+      setLinkError('');
+      void navigate(url.pathname);
+    } catch {
+      setLinkError('같은 사이트의 올바른 근거 링크를 입력해 주세요.');
+    }
+  }
 
   async function checkConnection() {
     setState('pending');
@@ -49,6 +71,15 @@ export default function Home() {
           </div>
           <button type="button" onClick={() => void checkConnection()} disabled={state === 'pending'}>{labels[state]}</button>
         </section>
+        <form className="evidence-link-form" onSubmit={openEvidence}>
+          <label htmlFor="evidence-link">근거 링크</label>
+          <div className="evidence-link-fields">
+            <input id="evidence-link" type="text" value={evidenceLink} onChange={event => { setEvidenceLink(event.target.value); setLinkError(''); }} aria-describedby={linkError ? 'evidence-link-note evidence-link-error' : 'evidence-link-note'} aria-invalid={Boolean(linkError)} />
+            <button type="submit">근거 링크 열기</button>
+          </div>
+          <p id="evidence-link-note">저장된 근거 링크로 원문과 인용을 읽습니다. 자료 접근에는 로그인과 작업 공간 권한이 필요합니다.</p>
+          {linkError && <p id="evidence-link-error" role="alert">{linkError}</p>}
+        </form>
       </main>
       <footer>DigestWorks <span>자료와 근거를 차분히 살펴보는 곳</span></footer>
     </div>
