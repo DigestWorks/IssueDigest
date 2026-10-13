@@ -151,6 +151,9 @@ activemq-data/
 
 # Environments
 .env
+.env.*
+!.env.example
+!.env.*.example
 .envrc
 .venv
 env/
@@ -158,6 +161,15 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Web workspace and local deployment artifacts
+node_modules/
+.react-router/
+.vercel/
+playwright-report/
+test-results/
+*.tsbuildinfo
+.DS_Store
 
 # Spyder project settings
 .spyderproject
