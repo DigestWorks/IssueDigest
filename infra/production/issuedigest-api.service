@@ -1,0 +1,25 @@
+[Unit]
+Description=IssueDigest API
+After=network.target
+ConditionPathExists=/srv/issuedigest/current/apps/api/src/issuedigest_api/main.py
+
+[Service]
+Type=simple
+User=issuedigest-deploy
+Group=issuedigest-devs
+WorkingDirectory=/srv/issuedigest/current
+EnvironmentFile=-/srv/issuedigest/shared/application.env
+Environment=UV_NO_CACHE=1
+ExecStart=/opt/issuedigest-tools/uv run --offline --no-sync --package issuedigest-api uvicorn issuedigest_api.main:app --host 127.0.0.1 --port 18190 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+UMask=0027
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=read-only
+ReadWritePaths=/srv/issuedigest/shared
+
+[Install]
+WantedBy=multi-user.target

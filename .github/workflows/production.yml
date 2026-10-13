@@ -1,0 +1,126 @@
+name: Production deployment
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: issuedigest-production
+  cancel-in-progress: false
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.application.outputs.ready }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - id: application
+        name: Check whether main contains the application
+        run: |
+          if [[ ! -f package.json && ! -d apps ]]; then
+            echo 'ready=false' >> "$GITHUB_OUTPUT"
+            echo 'main에 앱이 없어 배포를 대기합니다. 앱 병합 후 검증과 배포를 실행합니다.' >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          for file in package.json package-lock.json pyproject.toml uv.lock .nvmrc .python-version apps/web/package.json apps/api/src/issuedigest_api/main.py; do
+            test -s "$file" || { echo "Missing required application file: $file" >&2; exit 1; }
+          done
+          echo 'ready=true' >> "$GITHUB_OUTPUT"
+  verify:
+    needs: readiness
+    if: needs.readiness.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:18.6
+        env:
+          POSTGRES_USER: issuedigest_test
+          POSTGRES_PASSWORD: issuedigest_test
+          POSTGRES_DB: issuedigest_test
+        ports:
+          - '127.0.0.1:5432:5432'
+        options: >-
+          --health-cmd "pg_isready -U issuedigest_test -d issuedigest_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      ISSUEDIGEST_TEST_DATABASE_URL: postgresql+psycopg://issuedigest_test:issuedigest_test@127.0.0.1:5432/issuedigest_test
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Use pinned npm
+        run: npm install --global npm@11.19.0
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          version: '0.11.4'
+          enable-cache: true
+      - name: Install pinned Python
+        run: uv python install 3.13.12
+      - name: Install workspaces from lockfiles
+        run: |
+          npm ci
+          npm run setup
+      - name: Check Python, TypeScript, tests, build and contract
+        run: npm run check
+  deploy:
+    needs: [readiness, verify]
+    if: github.ref == 'refs/heads/main' && needs.readiness.outputs.ready == 'true' && needs.verify.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: https://issuedigest.projects.ai.kr
+    steps:
+      - name: Deploy the verified main commit
+        env:
+          DEPLOY_HOST: ${{ secrets.ISSUEDIGEST_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.ISSUEDIGEST_DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.ISSUEDIGEST_DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.ISSUEDIGEST_DEPLOY_KNOWN_HOSTS }}
+          DEPLOY_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/issuedigest-deploy-key"
+          hosts="$RUNNER_TEMP/issuedigest-known-hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$hosts"
+          ssh -i "$key" -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o ConnectTimeout=15 "$DEPLOY_USER@$DEPLOY_HOST" "deploy $DEPLOY_SHA"
+      - name: Confirm public web and API
+        run: |
+          curl --fail --silent --show-error --retry 3 https://issuedigest.projects.ai.kr/ -o /dev/null
+          curl --fail --silent --show-error https://issuedigest.projects.ai.kr/health/live
+          curl --fail --silent --show-error https://issuedigest.projects.ai.kr/api/v1/status
+  host-check:
+    needs: readiness
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && needs.readiness.outputs.ready == 'false'
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify deployment SSH connection without publishing an application
+        env:
+          DEPLOY_HOST: ${{ secrets.ISSUEDIGEST_DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.ISSUEDIGEST_DEPLOY_USER }}
+          DEPLOY_KEY: ${{ secrets.ISSUEDIGEST_DEPLOY_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.ISSUEDIGEST_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          key="$RUNNER_TEMP/issuedigest-deploy-key"
+          hosts="$RUNNER_TEMP/issuedigest-known-hosts"
+          trap 'rm -f "$key" "$hosts"' EXIT
+          printf '%s\n' "$DEPLOY_KEY" > "$key"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$hosts"
+          ssh -i "$key" -o BatchMode=yes -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$hosts" \
+            -o ConnectTimeout=15 "$DEPLOY_USER@$DEPLOY_HOST" check
+          echo 'SSH 연결과 서버 도구만 확인했습니다. 앱은 아직 배포하지 않았습니다.' >> "$GITHUB_STEP_SUMMARY"
