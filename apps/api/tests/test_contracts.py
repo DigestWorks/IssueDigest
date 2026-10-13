@@ -27,6 +27,11 @@ def test_evidence_components_resolve_with_canonical_protected_http_path():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     schemas = schema["components"]["schemas"]
     assert "EvidenceBundle" in schemas
@@ -62,6 +67,11 @@ def test_research_and_comparison_components_preserve_discriminators():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     names = {
         "ResearchBundle",
@@ -158,6 +168,11 @@ def test_execution_components_registered_public_and_legacy_unchanged():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     _, legacy = models_json_schema(
         [

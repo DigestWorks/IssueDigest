@@ -34,7 +34,7 @@ TDD 합성 실PG: fresh/upgrade/reupgrade/downgrade 데이터보존, state/cooki
 
 ## Task 2: Google OAuth·세션·자료 HTTP와 명시 runtime
 
-- [ ] OAuth 공급자/HTTP/runtime·생성 계약·테스트 구현.
+- [x] OAuth 공급자/HTTP/runtime·생성 계약·테스트 구현.
 
 API runtime dependency에 `httpx2==2.13.1`, `google-auth==2.62.0`, `cryptography==50.0.2`를 추가하고 uv.lock 고정한다. 2026-10-13 PyPI공식metadata현재version확인. 공식근거: https://developers.google.com/identity/openid-connect/reference , https://developers.google.com/identity/sign-in/web/backend-auth , https://google-auth.readthedocs.io/en/latest/reference/google.oauth2.id_token.html , https://github.com/pydantic/httpx2 . 원문유료API/Google메일·Drive권한없음.
 

@@ -11,11 +11,13 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from issuedigest_domain.status import Liveness, ServiceStatus
-from issuedigest_storage import EvidenceAccessRepository
+from issuedigest_storage import EvidenceAccessRepository, WorkspaceAccessRepository
 
+from .auth import AuthService, auth_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
 from .evidence import evidence_router
+from .workspace_catalog import catalog_router
 
 
 class IssueDigestAPI(FastAPI):
@@ -36,11 +38,23 @@ REQUEST_ID_RESPONSE: dict[int | str, dict[str, Any]] = {
 }
 
 
+def _auth_path(path: str) -> bool:
+    return path == "/api/v1/auth" or path.startswith("/api/v1/auth/")
+
+
 def _protected_path(path: str) -> bool:
-    return re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence/[^/]+/?", path) is not None
+    return (
+        _auth_path(path)
+        or re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence(?:/[^/]+)?/?", path) is not None
+    )
 
 
-def create_app(access_repository: EvidenceAccessRepository | None = None) -> IssueDigestAPI:
+def create_app(
+    access_repository: EvidenceAccessRepository | None = None,
+    *,
+    auth_service: AuthService | None = None,
+    workspace_repository: WorkspaceAccessRepository | None = None,
+) -> IssueDigestAPI:
     """Configure only from trusted server code; the default protected route fails closed."""
     application = IssueDigestAPI(title="IssueDigest API", version="v1")
 
@@ -54,7 +68,9 @@ def create_app(access_repository: EvidenceAccessRepository | None = None) -> Iss
                     {
                         "type": error["type"],
                         "loc": error["loc"],
-                        "msg": "Invalid UUID4 path parameter",
+                        "msg": "Invalid UUID4 path parameter"
+                        if error["loc"][0] == "path"
+                        else "Invalid catalog limit",
                     }
                     for error in exception.errors()
                 ]
@@ -76,11 +92,16 @@ def create_app(access_repository: EvidenceAccessRepository | None = None) -> Iss
             response = JSONResponse(
                 status_code=503 if protected else 500,
                 content={
-                    "detail": "Evidence service unavailable"
+                    "detail": "Authentication service unavailable"
+                    if _auth_path(request.url.path)
+                    else "Evidence service unavailable"
                     if protected
                     else "Internal server error"
                 },
             )
+        if _auth_path(request.url.path) and response.status_code in {307, 308}:
+            # Automatic slash redirects otherwise copy sensitive callback queries to Location.
+            response = JSONResponse(status_code=404, content={"detail": "Not Found"})
         response.headers["X-Request-ID"] = identifier
         if protected:
             response.headers["Cache-Control"] = "no-store"
@@ -95,6 +116,8 @@ def create_app(access_repository: EvidenceAccessRepository | None = None) -> Iss
     async def status() -> ServiceStatus:
         return ServiceStatus(service="issuedigest-api", api_version="v1", status="ok")
 
+    application.include_router(auth_router(auth_service, workspace_repository))
+    application.include_router(catalog_router(workspace_repository))
     application.include_router(evidence_router(access_repository))
     return application
 
