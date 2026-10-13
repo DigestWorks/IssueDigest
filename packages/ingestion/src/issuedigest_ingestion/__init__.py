@@ -9,6 +9,12 @@ from .pdf import (
     locate_pdf_quote,
     to_pdf_representation,
 )
+from .quotes import (
+    PdfQuoteSearchLimits,
+    PdfQuoteSearchResult,
+    find_pdf_quote_candidates,
+    resolve_pdf_quote,
+)
 
 __all__ = [
     "AuditError",
@@ -17,6 +23,10 @@ __all__ = [
     "audit_poll_files",
     "PdfExtraction",
     "PdfLimits",
+    "PdfQuoteSearchLimits",
+    "PdfQuoteSearchResult",
+    "find_pdf_quote_candidates",
+    "resolve_pdf_quote",
     "extract_pdf_text",
     "locate_pdf_quote",
     "to_pdf_representation",
