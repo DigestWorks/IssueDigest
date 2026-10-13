@@ -3,8 +3,8 @@ import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { protectedDevelopmentEnvironment } from './dev-environment.mjs';
 
-export function launchWebDevelopment(environment = process.env) {
-  const child = spawn('react-router', ['dev', '--host', '127.0.0.1'], {
+export function launchWebDevelopment(environment = process.env, args = []) {
+  const child = spawn('react-router', ['dev', '--host', '127.0.0.1', ...args], {
     stdio: 'inherit', shell: process.platform === 'win32',
     env: protectedDevelopmentEnvironment(environment),
   });
@@ -26,5 +26,5 @@ export function launchWebDevelopment(environment = process.env) {
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  launchWebDevelopment();
+  launchWebDevelopment(process.env, process.argv.slice(2));
 }
