@@ -34,4 +34,4 @@ Worktree: 현재 격리된 `feat/evidence-reader`. Task brief에 전역 제약�
 
 - [x] 전용 loopback 합성 PostgreSQL 전체 검사·독립 작업/전체 리뷰.
 - [x] 실제 합성 FastAPI→Vite→브라우저에서 보호 GET·원문/인용·오류·1366/390·키보드 확인. fixture session은 QA 전용 HTTPS browser cookie로만 주입하고 공개 API에 발급 route를 만들지 않는다. 실제 수집 자료·운영 DB는 사용하지 않는다.
-- [ ] 선행 PR #14 위 Draft PR·Sites 요약/배포 유예·이전 기록 보존·개발 worktree 인계. main/실제 앱 게시 없음.
+- [x] 선행 PR #14 위 Draft PR·Sites 요약/배포 유예·이전 기록 보존·개발 worktree 인계. main/실제 앱 게시 없음.
