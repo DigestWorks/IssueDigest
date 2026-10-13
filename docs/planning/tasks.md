@@ -12,6 +12,8 @@
 
 ## P1 · 계약·생산 목표 엔진·기반
 
+- [x] [보호 근거 읽기 화면](../changes/evidence-reader.md): 실제 보호 GET·자료 링크 진입·원문/페이지/인용·취소/로딩/오류·합성 HTTP/브라우저·리뷰 검증. 로그인·실제 자료 이관·AI와 첫 공개 판정은 별도. D013에 따라 개발 중 공개 앱 배포 유예.
+
 - [x] 원격 저장소와 동일한 `IssueDigest` 로컬 폴더·Git 연결 확인, apps/packages/infra/tests 디렉터리 책임 정리.
 - [x] 사람·에이전트 공통 `AGENTS.md`와 문서 안내 작성. Linear 없이 결정·작업·진행 문서를 협업 원본으로 지정.
 - [x] A001~A003 → D011: PostgreSQL·pgvector·PydanticAI/DBOS 사용자 선택 확정, 공식 근거·비교 이력 기록.

@@ -21,7 +21,22 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업
+## 현재 작업 · 저장 근거 읽기 화면
+
+- 작업/관련 단계: [보호 근거 읽기 화면](../changes/evidence-reader.md), R1/R2/R4의 웹/API 소비 부분. 사용자 D013에 따라 공개 앱 배포 유예.
+- 담당/브랜치: controller·implementer, `feat/evidence-reader` · [Draft PR #15](https://github.com/DigestWorks/IssueDigest/pull/15), 선행 #14 위·미병합. 별도 격리 worktree이며 main·공용 배포 checkout은 유지한다.
+- 상태: 구현eec0136·리뷰 보완7c13ae8. 같은 출처 보호 GET 소비·display validation·취소/전체 deadline·안전한 오류, 링크 진입·원문/페이지/표/정확 인용 위치 화면 구현. 독립 작업 리뷰의 P2 두 건(페이지 없는 표의 원문 복귀·긴 원문 강조 위치 이동)을 assertion RED3개 후 수정하고 scoped 재리뷰에서 모두 해결·새 지적 없음. 독립 전체 변경 리뷰 승인·Critical/Important/Minor0. 리뷰는 실제 로그인·전체 schema/semantic·운영 감사·실제 이슈 코퍼스/AI/정책 결론·PDF 이미지/전표 재구성·규모/전체 접근성 매트릭스·게시/인계를 완료했다고 판단하지 않았다. 기존 명세·후속 요구사항의 범위와 일치하며 새로운 예외/지적은 없다.
+- 검증: 초기 client 실제 namespace assertion RED54개·UI 실제 렌더/폼 RED30개·호환성/키보드/표 선택 RED 보존, 최종 focused103개. controller 최종 전용 loopback 합성 PostgreSQL18.6 포함 전체 Python1,127+JS233=1,360개, skip0·lint/format/mypy/TS/SPA/contract 검사 통과. runtime/서버 계약·generated 타입·의존성/lockfile·운영 DB 변경 없음.
+- 실제 브라우저: 합성 PostgreSQL→기존 FastAPI 보호 GET→개인 HTTPS Vite→브라우저. JSON200/no-store, Home 링크 진입·두 fixture 사용자 동일 bundle·비로그인/다른 공간 차단·PDF/text 강조·키보드 표 선택·선택 시 추가 GET 없음, 1366/390·가로 넘침 없음·화면 직접 확인. 긴 합성 원문450문단 뒤쪽 text/PDF 인용은 두 크기에서 최초/반복 선택 후 실제 mark가 viewport 안에 보임. pages=[]·table-only에서도 원문 복귀 확인. JavaScript page 예외0·예상401/404 resource 메시지 외 console 오류0.
+- 기록: 원래 assertion RED·QA 실패 로그를 보존했다. 최초 브라우저 journey는 실제 문구와 다른 retry locator를 기다려 실패했으며 DOM 확인 후 QA locator만 수정해 통과했다. 긴 원문 첫 시도는 브라우저 세션이 없어 실행되지 않았고 재개 후 검증했다. 이를 생산 코드 RED라고 주장하지 않는다. fixture/세션·QA 포트/키·이미지는 ignored 개인 영역만 사용하며 공개 앱에 추가하지 않았다.
+- 첫 이슈: 사용자 위임에 따라 최근 시사를 검색해 [지방국립대 등록금 지원](../research/first-issue.md)의 대상·재원·형평성을 선정(D014). 대표 질문5개와 원문/보도5개 시작 목록. 실제 코퍼스/평가셋·기사 이용·정부안/확정·인과 검토는 후속이며 이번 합성 UI QA를 이 이슈 자료의 평가로 간주하지 않는다.
+- 범위: 같은 출처 보호 GET 소비, 안전한 자료 링크 진입, 원문/페이지/인용 위치와 접근/로딩/오류 상태. 실제 로그인 발급·자료 이관·운영 DB·AI 생성은 후속. 자료/토큰을 브라우저 저장소나 공개 기록에 남기지 않는다.
+- 다음 행동: 선정 이슈의 공식 원문·이용/버전·근거 대응 확보와 실제 자료 등록·로그인/AI 연결을 단계적으로 진행한다. 이 읽기 부분은 구현/리뷰/검사/PR/Sites/개발 인계를 마쳤고 전체 최소 제품·운영 준비는 후속이다. 실제 앱 배포·main 병합 없음.
+- Sites: v33 공개 게시 완료. 배포 유예·첫 이슈 선정·읽기 구현과 기존 v32 보존을 반영했다. 문서 요약의 브라우저 화면 검사는 반복하지 않았다.
+- 게시 증거: Sites source `daf4768e150388d4e7ec031108c8eeae8204826c`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_e00da3bb61a88191a01a7659e314ab45`, deployment `appgdep_6acdefc525a88191aee950652bf0a308` native succeeded·URL 확인, 공개 설정 유지. 사본 기준cc97c87·HTML18개/로컬 링크·anchor274개/manifest/공개 접속정보 제외·문서7개/상대 링크58개 통과. [cc97c87 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38370950027) 성공. PR #15 앱 첨부 완료.
+- 개발 인계: 현재 폴더 `feat/evidence-reader`·서버 개인 worktree의 같은 origin 추적·cc97c87/깨끗함 확인. ARM 타입/웹233개 통과, 개발 웹과 자료 route200·상태JSON200·비로그인 보호GET401 확인. 이번 마지막 문서 기록도 fast-forward하고 동일 HEAD·깨끗함을 확인한다. 리뷰 worktree는 detached로 검증 증거를 보존한다. 운영 서비스·DB·공용 checkout·배포 설정은 유지한다.
+
+## 이전 작업 · PDF 인용 후보
 
 - 작업: [PDF 인용 후보·문맥 선택](../changes/pdf-quote-candidates.md), R2/P2의 다음 부분 구현. 반복 문항의 정확 위치 후보와 페이지/인접 문맥 조건의 유일 선택을 구현한다.
 - 담당/브랜치/PR: controller/implementer · `feat/pdf-quote-candidates` · [Draft PR #14](https://github.com/DigestWorks/IssueDigest/pull/14) · 선행 #13 위·미병합.

@@ -126,3 +126,6 @@ export type CanvasModule = components['schemas']['ModuleReadyPayload']['module']
 export type CanvasAction = EvidenceModule['actions'][number];
 export type RunEventPayload = RunEvent['payload'];
 export type MoneyMicrowon = BudgetAssessment['used_microwon'];
+
+export { getEvidence, EvidenceError } from './evidence';
+export type { EvidenceFailure, EvidenceOptions, EvidenceResult } from './evidence';
