@@ -3,6 +3,7 @@
 import re
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from ipaddress import IPv4Address
 from typing import Self, TypeGuard
 from urllib.parse import urlsplit
 
@@ -50,6 +51,20 @@ class AuthConfig:
                 is None
                 or (parsed.port is not None and not 1 <= parsed.port <= 65535)
             ):
+                raise ValueError
+            host = parsed.hostname
+            assert host is not None
+            # WHATWG interprets a numeric final label as IPv4, including legacy hex/octal
+            # and shortened forms. Accept only its unambiguous dotted-decimal spelling.
+            final_label = host.rsplit(".", 1)[-1]
+            if final_label.isdecimal() or re.fullmatch(r"0x[0-9a-f]*", final_label):
+                if str(IPv4Address(host)) != host:
+                    raise ValueError
+            port = parsed.port
+            canonical = "https://" + host
+            if port is not None and port != 443:
+                canonical += ":" + str(port)
+            if self.public_origin != canonical:
                 raise ValueError
             if not visible_ascii(self.client_id, 256) or not visible_ascii(self.client_secret, 512):
                 raise ValueError

@@ -85,3 +85,31 @@ def test_default_factory_never_reads_environment_or_connects(monkeypatch):
     with TestClient(main.create_app()) as client:
         assert client.get("/health/live").status_code == 200
         assert client.post("/api/v1/auth/google/start").status_code == 503
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://example.test:443",
+        "https://EXAMPLE.test",
+        "https://example.test:08443",
+        "https://127.1",
+        "https://127.0.0.01",
+        "https://0x7f000001",
+        "https://example.1",
+    ],
+)
+def test_noncanonical_origin_rejected_before_storage_creation(monkeypatch, origin):
+    module = runtime()
+    for key, value in values(ISSUEDIGEST_PUBLIC_ORIGIN=origin).items():
+        monkeypatch.setenv(key, value)
+    attempted = []
+
+    def unexpected_connection(_):
+        attempted.append(True)
+        raise AssertionError("storage should not be reached")
+
+    monkeypatch.setattr(module, "create_storage_engine", unexpected_connection)
+    with pytest.raises(RuntimeConfigurationError, match="^Invalid runtime configuration$"):
+        module.create_configured_app()
+    assert attempted == []

@@ -56,7 +56,7 @@ def test_unconfigured_routes_fail_closed_and_callback_is_fixed(caplog):
     assert "PRIVATE" not in caplog.text
 
 
-def setup(engine, signing):
+def setup(engine, signing, *, config=CONFIG):
     auth = importlib.import_module("issuedigest_api.auth")
     google = importlib.import_module("issuedigest_api.google_oauth")
     repo = OAuthRepository(engine)
@@ -78,10 +78,10 @@ def setup(engine, signing):
         return httpx2.Response(200, json={"synthetic-key": signing[1]})
 
     service = auth.AuthService(
-        CONFIG,
+        config,
         repo,
         SessionRepository(engine),
-        google.GoogleOAuthProvider(CONFIG, transport=httpx2.MockTransport(transport)),
+        google.GoogleOAuthProvider(config, transport=httpx2.MockTransport(transport)),
     )
     client = TestClient(
         create_app(
@@ -89,7 +89,7 @@ def setup(engine, signing):
             auth_service=service,
             workspace_repository=WorkspaceAccessRepository(engine),
         ),
-        base_url=ORIGIN,
+        base_url=config.public_origin,
     )
     return client, repo, bundle, snapshot, user, pending, requests
 
@@ -379,3 +379,16 @@ def test_auth_trailing_slash_never_reflects_callback_secrets():
 
 def test_auth_root_also_has_protected_error_headers():
     checked(TestClient(create_app()).get("/api/v1/auth?secret=PRIVATE"), 404)
+
+
+def test_canonical_localhost_origin_works_for_start_and_logout(engine, signing):
+    from dataclasses import replace
+
+    config = replace(CONFIG, public_origin="https://localhost:16173")
+    client, _, _, _, _, _, _ = setup(engine, signing, config=config)
+    headers = {"Origin": config.public_origin, "Sec-Fetch-Site": "same-origin"}
+    response = client.post("/api/v1/auth/google/start", headers=headers, follow_redirects=False)
+    checked(response, 303)
+    query = parse_qs(urlsplit(response.headers["location"]).query)
+    assert query["redirect_uri"] == ["https://localhost:16173/api/v1/auth/google/callback"]
+    checked(client.post("/api/v1/auth/logout", headers=headers), 204)

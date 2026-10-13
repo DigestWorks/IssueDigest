@@ -56,3 +56,47 @@ def test_required_values_are_explicit(key):
     del environment[key]
     with pytest.raises(configuration().RuntimeConfigurationError):
         configuration().AuthConfig.from_environment(environment)
+
+
+NONCANONICAL_ORIGINS = [
+    "https://example.test:443",
+    "https://EXAMPLE.test",
+    "https://example.test:08443",
+    "https://localhost:016173",
+    "https://127.1",
+    "https://127.0.0.01",
+    "https://0x7f000001",
+    "https://0X7F000001",
+    "https://2130706433",
+    "https://0177.0.0.1",
+    "https://127.0.0.0x1",
+    "https://example.1",
+    "https://example.09",
+    "https://example.0x1",
+    "https://example.0x",
+]
+
+
+@pytest.mark.parametrize("origin", NONCANONICAL_ORIGINS)
+def test_noncanonical_browser_origins_fail_at_configuration(origin):
+    with pytest.raises(configuration().RuntimeConfigurationError) as caught:
+        configuration().AuthConfig.from_environment(values(ISSUEDIGEST_PUBLIC_ORIGIN=origin))
+    assert str(caught.value) == "Invalid runtime configuration"
+
+
+@pytest.mark.parametrize(
+    "origin",
+    [
+        "https://example.test",
+        "https://example.test:8443",
+        "https://localhost:16173",
+        "https://127.0.0.1",
+        "https://127.0.0.1:16173",
+        "https://example.123a",
+        "https://example.0xg",
+    ],
+)
+def test_canonical_origins_preserve_exact_registered_callback(origin):
+    config = configuration().AuthConfig.from_environment(values(ISSUEDIGEST_PUBLIC_ORIGIN=origin))
+    assert config.public_origin == origin
+    assert config.callback_url == origin + "/api/v1/auth/google/callback"
