@@ -1,6 +1,6 @@
 # 웹 API 클라이언트·생성 타입
 
-npm workspace의 비공개 TypeScript 소스 패키지입니다. 웹이 `@issuedigest/api-client`를 가져와 같은 출처의 상태 확인과 보호 근거 GET을 호출합니다. 별도 게시·번들·서버 앱은 없습니다.
+npm workspace의 비공개 TypeScript 소스 패키지입니다. 웹이 `@issuedigest/api-client`를 가져와 같은 출처의 상태 확인, 보호 세션·자료 목록·근거 GET과 로그아웃 POST를 호출합니다. 별도 게시·번들·서버 앱은 없습니다.
 
 Python 도메인 모델과 FastAPI OpenAPI가 계약의 원본입니다. `openapi.json`과 `src/schema.d.ts`는 생성 산출물이며 버전 관리합니다. `getStatus`는 생성 타입을 사용하고 응답을 런타임에도 검사합니다. 생성 스키마의 리터럴이나 필수 필드가 바뀌면 클라이언트의 타입 검사도 재검토를 요구합니다.
 
@@ -56,7 +56,7 @@ npm test
 - text와 PDF selector의 정확한 quote, prefix, suffix와 Unicode 범위. PDF는 실제 페이지 경계와 정상화된 region 범위를 확인합니다.
 - table_cell selector는 등록된 표와 셀을 참조하며 quote가 전체 cell text와 정확히 일치해야 합니다. 공백과 빈 셀 내용을 변형하지 않습니다.
 
-이 검증은 JSON을 타입 cast만으로 성공 처리하지 않으며 화면이 사용하는 메타데이터를 모두 확인합니다. 서버의 전체 Pydantic 스키마를 재구현하지 않습니다. 사용하지 않는 선택적 table 연구 메타데이터, 추가 필드, 원문 해시의 실제 재계산은 이 경계의 검증 대상이 아닙니다. 인증, 멤버십, 저장된 원문의 진위와 무결성, 의미적 주장 지지는 서버와 별도 검토의 책임입니다. 인증 연결이나 공개 배포를 추가하지 않습니다.
+이 검증은 JSON을 타입 cast만으로 성공 처리하지 않으며 화면이 사용하는 메타데이터를 모두 확인합니다. 서버의 전체 Pydantic 스키마를 재구현하지 않습니다. 사용하지 않는 선택적 table 연구 메타데이터, 추가 필드, 원문 해시의 실제 재계산은 이 경계의 검증 대상이 아닙니다. 인증, 멤버십, 저장된 원문의 진위와 무결성, 의미적 주장 지지는 서버와 별도 검토의 책임입니다. 공개 배포는 별도입니다.
 
 집중 검사는 저장소 루트에서 실행합니다.
 
@@ -65,3 +65,13 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 ```
 
 합성 `tests/fixtures/canvas-synthetic.json`을 테스트에만 사용합니다. 정상 Unicode 변형은 text hash를 재계산합니다. HTTP 실패, 잘못된 헤더와 JSON, 교차 workspace, 참조·페이지·표·인용 오류, 취소, 헤더 및 본문 timeout을 확인합니다. 전체 서버 및 실제 합성 PostgreSQL 결합 검증은 Controller가 별도로 수행합니다.
+
+## 보호 세션·자료 목록·로그아웃
+
+`getSession(options?)`와 `getEvidenceCatalog(workspaceId, options?)`는 생성된 `SessionInfo`·`EvidenceCatalog` 타입의 `{ data, requestId }`를 반환합니다. 세션은 `/api/v1/auth/session`, 목록은 `/api/v1/workspaces/{workspace_id}/evidence?limit=50`에 GET합니다. `logout(options?)`는 `/api/v1/auth/logout`에 POST하고 검증된 204에서 `{ requestId }`를 반환합니다. Origin은 브라우저가 설정합니다. 토큰·가짜 CSRF·사용자 identity를 JS에서 전송하지 않습니다.
+
+세 경계는 relative URL·same-origin credentials·no-store, 기본 10초 헤더/본문 deadline, 외부 AbortSignal과 요청별 정리를 사용합니다. `AuthError`·`CatalogError`의 고정 kind는 `timeout`, `aborted`, `unauthorized`, `not-found`, `unavailable`, `malformed`, `network`입니다. HTTP 오류 본문이나 원시 예외를 노출하지 않고 유효한 UUID4 요청 ID만 보존합니다. 잘못된 ID나 양의 안전 정수가 아닌 timeout은 요청 전에 `malformed`로 거부합니다.
+
+성공 GET은 JSON media type·no-store·요청 UUID와 표시 계약을 검증합니다. 세션은 schema 1·사용자/작업 공간 UUID4·viewer/editor/owner·최대 100개·고유한 UUID 오름차순 멤버십을 요구합니다. 목록은 같은 workspace·schema 1·최대 50개·고유 snapshot·문서 UUID4·NonBlank 공급처/출처·원문 종류·credential 없는 HTTP(S) URL·실제 UTC ISO 수집 시각·최대 160 Unicode code point excerpt·안전한 음이 아닌 정수 인용 수·strict bool을 요구합니다. 이 두 모델의 추가 필드도 거부합니다. 서버의 권한·자료 진위·권리·주장 지지 검증을 대체하지 않습니다.
+
+`packages/api-client/tests/auth-catalog.test.ts`는 합성 응답으로 잘못된 계약·본문/헤더 timeout·취소·안전 오류를 검사합니다. 실제 공급자 로그인·DB 연결·운영 설정은 이 검사의 범위가 아닙니다.

@@ -1,5 +1,6 @@
 """Public domain contracts; no application or storage dependencies."""
 
+from .auth import EvidenceCatalog, EvidenceSummary, SessionInfo, WorkspaceMembership
 from .canvas import CanvasBundle, CanvasDraft, CanvasRevision, promote_revision
 from .canvas_modules import (
     AskQuestionAction,
@@ -88,6 +89,10 @@ from .usage import (
 )
 
 __all__ = [
+    "EvidenceCatalog",
+    "EvidenceSummary",
+    "SessionInfo",
+    "WorkspaceMembership",
     "CanvasBundle",
     "CanvasDraft",
     "CanvasRevision",

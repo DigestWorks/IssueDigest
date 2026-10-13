@@ -12,6 +12,8 @@
 
 ## P1 · 계약·생산 목표 엔진·기반
 
+- [x] [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md): 명시 초대·고정 identity·서버 세션·현재 권한·자료 목록과 로그인/로그아웃·원문 읽기 구현. 최종 코드 CI 전체1,813개·독립 작업/전체/수정 및 개발 포트 보완 리뷰·합성 두 계정 HTTPS 브라우저 검증 통과. 실제 Google 로그인·기존 앱 DB 설정/권한·공동 자료 이관·공개 앱은 후속.
+
 - [x] [보호 근거 읽기 화면](../changes/evidence-reader.md): 실제 보호 GET·자료 링크 진입·원문/페이지/인용·취소/로딩/오류·합성 HTTP/브라우저·리뷰 검증. 로그인·실제 자료 이관·AI와 첫 공개 판정은 별도. D013에 따라 개발 중 공개 앱 배포 유예.
 
 - [x] 원격 저장소와 동일한 `IssueDigest` 로컬 폴더·Git 연결 확인, apps/packages/infra/tests 디렉터리 책임 정리.

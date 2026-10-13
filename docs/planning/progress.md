@@ -5,7 +5,7 @@
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. 실제 로그인·초대·나머지 제품 API·이벤트·워커·운영 DB·검색은 미완료 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 실제 계정/공동 DB·나머지 API·이벤트·워커·검색은 미완료 |
 | P2 실제 근거 | 첫 이슈 선정·공식 HTML1건 검증 · 이관 미착수 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 이관은 후속 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
@@ -21,7 +21,19 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 공식 정책 HTML 원문 준비
+## 현재 작업 · Google 로그인·공동 조사 자료 진입
+
+- 작업: [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md), R1/R2·D015. 명시 초대·Google 고정 identity·서버 세션·현재 권한과 공동 자료 목록을 연결했다.
+- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · [Draft PR #17](https://github.com/DigestWorks/IssueDigest/pull/17), 선행 공식 HTML #16 위의 격리 worktree. 최종 CI·게시·개발 인계를 아래 결과로 기록한다.
+- 상태: 저장·공급자/HTTP/runtime·웹 세 작업의 독립 검토와 전체 변경 리뷰 승인. 주소의 비표준 표기로 정상 로그인이 차단되는 문제를 startup 거부로 보완했다. 전체 리뷰의 정렬/한도 테스트·OpenAPI 경계값 세 보완을 한 번의 수정 범위로 반영하고 scoped 재검토에서 모두 해결·새 지적 없음으로 승인받았다.
+- 검증: 코어 코드 `e61d531`에서 controller 전체 Python1,491+JS320=1,811개·정적/빌드/계약 통과, skip/warning 없음. 인계 중 발견한 개발 포트 전달 오류를 `29a152d`에서 TDD·독립 리뷰로 수정했다. controller 웹322개·lint/타입/SPA/계약과 최종 코드 CI 전체 Python1,491+JS322=1,813개가 통과했다. 별도 실제 PostgreSQL·DDL 금지 앱 역할·개인 HTTPS·브라우저에서 합성 서명/두 계정의 로그인→자료 목록→원문/인용→로그아웃, 미초대 차단·실패 로그인 시 기존 세션 유지 확인. 데스크톱1366/모바일390에서 가로 넘침 없음·page error0. 브라우저의 이동 중/bfcache 보류 실험은 완료하지 못했으며 해당 동작은 컴포넌트 테스트 범위로 남긴다. 실제 외부 Google 로그인으로 표현하지 않는다.
+- 남은 입력: Google 클라이언트 JSON 필수 항목·개발 callback 일치/개인 보관600 확인. 실제 Google 로그인·테스트 사용자 등록 여부·기존 앱 전용 DB 계정의 비밀 설정/필요 테이블 권한·두 번째 Google 계정은 미확인. 앱 접속 설정은 최신 개인 서버 조회에서도 없거나 읽을 수 없다. 승인 계정은 저장소 밖 미등록 기록만 있으며 공동 DB를 변경하지 않았다.
+- 다음: 기존 앱 계정의 비밀 설정을 받아 역할/대상·백업 조건을 확인한 뒤 새 공유 공간·명시 초대·검증한 공식 원문을 이관한다. 실제 Google 로그인은 사용자가 확인한다. 스키마 변경용 계정을 앱 실행에 사용하지 않는다.
+- 인계: 사용자 폴더를 `feat/google-oauth-workspace`로 연결하고 고정 의존성을 설치했다. 격리 검토 폴더는 해당 코드의 detached 상태로 보존한다. 개인 서버 worktree도 같은 코드·upstream으로 연결했다. ARM Google/설정/runtime103개 통과·공동 DB 미사용에 따른 조건부 PostgreSQL1개 skip, launcher13개·mypy54/웹 타입/SPA/계약 확인. 지정 개인 웹/API의 헬스·상태·로그인 화면200 및 API 계약 일치를 확인했다. 기본 미설정 runtime을 유지하며 실제 OAuth/공동 DB를 연결했다고 표시하지 않는다. 소유 합성 DB/볼륨·브라우저·QA API/웹은 정리했다.
+- CI: [최종 코드29a152d · 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38402405745). 작업/전체/수정 및 실행 포트 보완 리뷰 모두 승인. 후속 문서 커밋의 exact-head 결과는 PR에서 확인한다.
+- Sites: v35 공개 게시 성공·v34 보존, source `3648837847e5c1b3d87dfa9294c27d0e00435153`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2d7136cfed788191b8db582803e0b301`, deployment `appgdep_6ace29a304e481919c5beaa7ac6cd541`. 서버 포트 보완·최종 인계/1,813개 CI 결과를 [v36](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#google-oauth)에 게시했다. source `bffe1117e1759197d42f80d327f38c505b55205a`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_40148f188db08191a3d05c5dd9f8f75f`, deployment `appgdep_6ace2f6a61a08191a457f2c32f876211` native succeeded/public. v35도 보존했으며 사본 기준2911619·HTML21/로컬링크·anchor358/manifest/공개 비밀값 제외 검사를 통과했다. 계획 문서의 새 브라우저 화면 검사는 수행하지 않았다. 현재 원본의 이후 게시 기록과 사본 기준을 구분한다. 공개 앱·main 병합은 D013에 따라 유예한다.
+
+## 이전 작업 · 공식 정책 HTML 원문 준비
 
 - 작업: [공식 정책 HTML 원문·인용 준비](../changes/official-html-evidence.md), R2/P2. 첫 이슈 정부 자료의 본문·발행일·출처표시 조건을 실제 원문과 대조한다.
 - 담당/브랜치: controller·implementer, `feat/official-html-evidence` · [Draft PR #16](https://github.com/DigestWorks/IssueDigest/pull/16); 선행 근거 읽기 #15 위, main 미병합.

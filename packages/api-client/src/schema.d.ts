@@ -4,6 +4,74 @@
  */
 
 export interface paths {
+    "/api/v1/auth/google/callback": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Callback */
+        get: operations["callback_api_v1_auth_google_callback_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/google/start": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start */
+        post: operations["start_api_v1_auth_google_start_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout */
+        post: operations["logout_api_v1_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Session */
+        get: operations["session_api_v1_auth_session_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status": {
         parameters: {
             query?: never;
@@ -13,6 +81,23 @@ export interface paths {
         };
         /** Status */
         get: operations["status_api_v1_status_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/evidence": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Catalog */
+        get: operations["catalog_api_v1_workspaces__workspace_id__evidence_get"];
         put?: never;
         post?: never;
         delete?: never;
@@ -79,6 +164,14 @@ export interface components {
             kind: "ask_question";
             /** Question */
             question: string;
+        };
+        /** AuthUnavailableError */
+        AuthUnavailableError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Authentication service unavailable";
         };
         /** AwaitingReconciliationPayload */
         AwaitingReconciliationPayload: {
@@ -665,6 +758,24 @@ export interface components {
             schema_version: 1;
             version: components["schemas"]["DocumentVersion"];
         };
+        /** EvidenceCatalog */
+        EvidenceCatalog: {
+            /** Has More */
+            has_more: boolean;
+            /** Items */
+            items: components["schemas"]["EvidenceSummary"][];
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
         /** EvidenceModule */
         EvidenceModule: {
             /** Actions */
@@ -701,14 +812,14 @@ export interface components {
         EvidencePathValidationDetail: {
             /** Loc */
             loc: [
-                "path",
-                "workspace_id" | "snapshot_id"
+                "path" | "query",
+                "workspace_id" | "snapshot_id" | "limit"
             ];
             /**
              * Msg
-             * @constant
+             * @enum {string}
              */
-            msg: "Invalid UUID4 path parameter";
+            msg: "Invalid UUID4 path parameter" | "Invalid catalog limit";
             /** Type */
             type: string;
         };
@@ -716,6 +827,42 @@ export interface components {
         EvidencePathValidationError: {
             /** Detail */
             detail: components["schemas"]["EvidencePathValidationDetail"][];
+        };
+        /** EvidenceSummary */
+        EvidenceSummary: {
+            /**
+             * Canonical Url
+             * @default null
+             */
+            canonical_url: string | null;
+            /** Citation Count */
+            citation_count: number;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /** Excerpt */
+            excerpt: string;
+            /** Provider */
+            provider: string;
+            /**
+             * Snapshot Id
+             * Format: uuid4
+             */
+            snapshot_id: string;
+            /** Source Id */
+            source_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other";
         };
         /** EvidenceUnavailableError */
         EvidenceUnavailableError: {
@@ -912,6 +1059,14 @@ export interface components {
              * @enum {string}
              */
             kind: "open_evidence";
+        };
+        /** OriginDeniedError */
+        OriginDeniedError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Request origin denied";
         };
         /** PageSpan */
         PageSpan: {
@@ -1302,6 +1457,22 @@ export interface components {
              */
             status: "ok";
         };
+        /** SessionInfo */
+        SessionInfo: {
+            /** Memberships */
+            memberships: components["schemas"]["WorkspaceMembership"][];
+            /**
+             * Schema Version
+             * @default 1
+             * @constant
+             */
+            schema_version: 1;
+            /**
+             * User Id
+             * Format: uuid4
+             */
+            user_id: string;
+        };
         /** SortAction */
         SortAction: {
             /**
@@ -1663,6 +1834,19 @@ export interface components {
              */
             workspace_id: string;
         };
+        /** WorkspaceMembership */
+        WorkspaceMembership: {
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "viewer" | "editor" | "owner";
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
     };
     responses: never;
     parameters: never;
@@ -1672,6 +1856,206 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    callback_api_v1_auth_google_callback_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fixed success or login error */
+            303: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Fixed server destination */
+                    Location?: string;
+                    "Referrer-Policy"?: "no-referrer";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+        };
+    };
+    start_api_v1_auth_google_start_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Google authorization or fixed login error */
+            303: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Fixed server destination */
+                    Location?: string;
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": unknown;
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Request origin denied */
+            403: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginDeniedError"];
+                };
+            };
+            /** @description Authentication service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthUnavailableError"];
+                };
+            };
+        };
+    };
+    logout_api_v1_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Request origin denied */
+            403: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginDeniedError"];
+                };
+            };
+            /** @description Authentication service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthUnavailableError"];
+                };
+            };
+        };
+    };
+    session_api_v1_auth_session_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SessionInfo"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Request origin denied */
+            403: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginDeniedError"];
+                };
+            };
+            /** @description Authentication service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthUnavailableError"];
+                };
+            };
+        };
+    };
     status_api_v1_status_get: {
         parameters: {
             query?: never;
@@ -1690,6 +2074,81 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ServiceStatus"];
+                };
+            };
+        };
+    };
+    catalog_api_v1_workspaces__workspace_id__evidence_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated immutable evidence */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceCatalog"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Evidence not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceNotFoundError"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidencePathValidationError"];
+                };
+            };
+            /** @description Evidence service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceUnavailableError"];
                 };
             };
         };

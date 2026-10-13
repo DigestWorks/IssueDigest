@@ -27,6 +27,11 @@ def test_evidence_components_resolve_with_canonical_protected_http_path():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     schemas = schema["components"]["schemas"]
     assert "EvidenceBundle" in schemas
@@ -46,6 +51,19 @@ def test_http_and_export_script_produce_identical_contract(tmp_path):
     assert json.loads(output.read_text()) == TestClient(main.app).get("/openapi.json").json()
 
 
+def test_catalog_limit_publishes_standard_integer_bounds():
+    schema = TestClient(main.app).get("/openapi.json").json()
+    operation = schema["paths"]["/api/v1/workspaces/{workspace_id}/evidence"]["get"]
+    limit = next(parameter for parameter in operation["parameters"] if parameter["name"] == "limit")
+    assert limit["in"] == "query"
+    assert limit["required"] is False
+    assert limit["schema"]["type"] == "integer"
+    assert limit["schema"]["minimum"] == 1
+    assert limit["schema"]["maximum"] == 50
+    assert limit["schema"]["default"] == 20
+    assert "ge" not in limit["schema"] and "le" not in limit["schema"]
+
+
 def test_component_collision_fails_without_mutating_input():
     from issuedigest_api import contracts
 
@@ -62,6 +80,11 @@ def test_research_and_comparison_components_preserve_discriminators():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     names = {
         "ResearchBundle",
@@ -158,6 +181,11 @@ def test_execution_components_registered_public_and_legacy_unchanged():
         "/health/live",
         "/api/v1/status",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
+        "/api/v1/workspaces/{workspace_id}/evidence",
+        "/api/v1/auth/google/start",
+        "/api/v1/auth/google/callback",
+        "/api/v1/auth/session",
+        "/api/v1/auth/logout",
     }
     _, legacy = models_json_schema(
         [

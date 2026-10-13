@@ -6,7 +6,7 @@
   "scripts": {
     "setup": "uv sync --locked --all-packages",
     "dev": "node scripts/dev.mjs",
-    "dev:api": "uv run --package issuedigest-api uvicorn issuedigest_api.main:app --reload --host 127.0.0.1 --port 8000",
+    "dev:api": "node scripts/dev.mjs --api-only",
     "dev:web": "npm run dev --workspace @issuedigest/web",
     "lint": "eslint .",
     "lint:python": "uv run ruff check . && uv run ruff format --check .",

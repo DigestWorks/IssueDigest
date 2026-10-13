@@ -32,10 +32,11 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
     <div className="workspace evidence-workspace">
       <header className="brand"><Link to="/" className="reader-brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest</Link><span className="brand-caption">저장된 근거 읽기</span></header>
       <main className="reader-main">
+        <Link to="/" className="action-link">작업 공간으로</Link>
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}
         {state.kind === 'failure' && <>
           <h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">{messages[state.error.kind]}</p>
-          {state.error.kind === 'authentication' && <p className="reader-note">로그인 연결은 아직 제공되지 않습니다. 접근 가능한 세션이 준비되면 다시 읽어 주세요.</p>}
+          {state.error.kind === 'authentication' && <p className="reader-note"><Link to="/login" className="action-link">로그인</Link> 후 작업 공간에서 자료를 다시 열어 주세요.</p>}
           {state.error.kind !== 'invalid-link' && <button type="button" onClick={retry}>다시 읽기</button>}
           {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
         </>}

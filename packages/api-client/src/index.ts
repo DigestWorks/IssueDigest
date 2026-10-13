@@ -129,3 +129,7 @@ export type MoneyMicrowon = BudgetAssessment['used_microwon'];
 
 export { getEvidence, EvidenceError } from './evidence';
 export type { EvidenceFailure, EvidenceOptions, EvidenceResult } from './evidence';
+export { getSession, logout, AuthError } from './auth';
+export type { SessionInfo, WorkspaceMembership, AuthFailure, AuthOptions } from './auth';
+export { getEvidenceCatalog, CatalogError } from './catalog';
+export type { EvidenceCatalog, EvidenceSummary, CatalogFailure, CatalogOptions } from './catalog';

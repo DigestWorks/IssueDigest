@@ -42,6 +42,18 @@ def _validate_source_url(value: object) -> object:
 SourceUrl = Annotated[AnyHttpUrl, BeforeValidator(_validate_source_url)]
 
 
+SourceKind = Literal[
+    "bill",
+    "legal_text",
+    "government_document",
+    "news",
+    "poll",
+    "statistics",
+    "petition",
+    "other",
+]
+
+
 class SourceDocument(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
 
@@ -49,16 +61,7 @@ class SourceDocument(BaseModel):
     workspace_id: UUID4
     provider: NonBlank
     source_id: NonBlank
-    source_kind: Literal[
-        "bill",
-        "legal_text",
-        "government_document",
-        "news",
-        "poll",
-        "statistics",
-        "petition",
-        "other",
-    ]
+    source_kind: SourceKind
     canonical_url: SourceUrl | None = None
 
     @field_validator("canonical_url")
