@@ -16,8 +16,8 @@
 ## 현재 작업
 
 - 작업: [PDF 인용 후보·문맥 선택](../changes/pdf-quote-candidates.md), R2/P2의 다음 부분 구현. 반복 문항의 정확 위치 후보와 페이지/인접 문맥 조건의 유일 선택을 구현한다.
-- 담당/브랜치/PR: controller/implementer · `feat/pdf-quote-candidates` · 선행 Draft PR #13 위, 새 PR 준비 중.
-- 상태: 구현·독립 작업 리뷰·controller 전체 검사·실제 후보 대조 완료, 독립 전체 변경 리뷰 승인·게시 대기. 표/응답 수치·원문 진위·올바른 근거 위치의 의미 판단·제품 화면/운영 DB 연결은 별도다.
+- 담당/브랜치/PR: controller/implementer · `feat/pdf-quote-candidates` · [Draft PR #14](https://github.com/DigestWorks/IssueDigest/pull/14) · 선행 #13 위·미병합.
+- 상태: 구현·독립 작업 리뷰·controller 전체 검사·실제 후보 대조 완료, 독립 전체 변경 리뷰 승인·Draft PR #14 게시/앱 첨부 완료, Sites 대기. 표/응답 수치·원문 진위·올바른 근거 위치의 의미 판단·제품 화면/운영 DB 연결은 별도다.
 - 검증: 같은 비무작위6개에서35문항/87정확 위치,35문항 모두 여러 페이지·4문항은 같은 페이지에서도 반복한다. 각 문항에 유일한 페이지/80자 문맥 매치가 있지만 적합한 조사/표의 위치라는 판단은 하지 않았다. 신규106개·전체Python1,127+JS134=1,261개 및 타입/빌드/계약 검사 통과. 새API의 실제87후보/페이지+문맥round-trip을 검증했다. 제품자동선택/올바른조사·표판정은 하지 않았다.
 - 관리자 요청: 실제 전달은 pgvector만, 완료. 별도 DB 로그인 계정 존재 확인. 다른 미전달 제안은 현재 개발의 선행 조건이 아니며 [필요 시점](../../infra/administrator-request.md)에 확인한다. 추가 권한/키/외부 요청 없이 진행한다.
 - 다음: 전체 변경 리뷰·PR·Sites·인계를 마무리하고 자료/근거의 실제 조회·선택 흐름에 연결한다. 첫 제품 이슈·자료 이용 조건·표/수치 검증은 별도다. 실제 원문/문맥은 공개하지 않는다.
@@ -32,7 +32,7 @@
 - 실제 대조: 같은 비무작위 소표본6개/35문항, 추출은 PDF당 wall15초로 제한했다. 새API가 정확 위치87개를 반환했고87개 모두 기존 validate_citation의 anchor matched/support not_evaluated를 통과했다. 기본 문항만 요청하면35개 모두 quote_ambiguous, 후보의 페이지로만 제한하면75회 matched/12회 ambiguous였다. 후보별 명시 페이지+앞뒤 원문 문맥으로87회 모두 동일 위치 round-trip 통과, 각35문항에 하나 이상의 유효 round-trip이 있었다. 반환 후보1개로 제한한35회도 총수/has_more를 유지했다.
 - 해석 경계: 모든 후보를 QA 조건으로 대조했으며 적합한 조사/표 위치를 고르거나 제품에서 자동 선택하지 않았다. 테스트용 caller UUID는 저장된 문서 버전이 아니다. 위치 일치·선택 가능성과 원문 진위·조사/표 대응·응답 수치·주장 지지를 구분한다. 전체225개 품질로 일반화하지 않는다.
 - 보호: 실제 문항/문맥·텍스트·경로·해시·UUID는 개인 환경 밖으로 내보내지 않고 집계만 기록했다. operating DB·원문·공유 서비스·DNS·모델 호출/새 의존성 변경 없음. 추가 관리자 요청 없음. 테스트 migration은 명시적인 전용 로컬 합성DB에만 실행했다.
-- 게시: 선행 Draft PR #13 위 새PR·Sites 게시/최종 인계 대기. 실제 제품 화면/운영 DB 배포는 수행하지 않았다.
+- 게시: [Draft PR #14](https://github.com/DigestWorks/IssueDigest/pull/14) 생성·앱 첨부 완료, 선행 #13 위·미병합. [46a9d20 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38342927912) 진행 중, Sites 게시/최종 인계 대기. 실제 제품 화면/운영 DB 배포는 수행하지 않았다.
 
 ## 2026-10-13 · pgvector 완료·관리자 요청 정정
 
