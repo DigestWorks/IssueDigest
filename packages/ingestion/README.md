@@ -182,13 +182,19 @@ Unicode 정규화·trim·OCR·표 구조·좌표를 적용하지 않는다. 페�
 
 ```python
 from issuedigest_ingestion import (
-    PdfLimits, extract_pdf_text, locate_pdf_quote, to_pdf_representation,
+    PdfLimits,
+    extract_pdf_text,
+    locate_pdf_quote,
+    to_pdf_representation,
 )
 
-extraction = extract_pdf_text(data_root, "pdfs/relative.pdf", expected_sha256,
-                              limits=PdfLimits(max_pages=200))
+extraction = extract_pdf_text(
+    data_root, "pdfs/relative.pdf", expected_sha256, limits=PdfLimits(max_pages=200)
+)
 representation = to_pdf_representation(
-    extraction, document_version_id=document_version_id, representation_id=representation_id,
+    extraction,
+    document_version_id=document_version_id,
+    representation_id=representation_id,
 )
 selector = locate_pdf_quote(representation, quote, page_number=page_number)
 ```
