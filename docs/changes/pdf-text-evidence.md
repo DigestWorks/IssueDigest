@@ -32,10 +32,10 @@ CLI: `issuedigest-ingestion inspect-pdf --data-root PATH --pdf-path pdfs/relativ
 
 ### 작업 항목
 
-- [ ] 명시 입력·snapshot·자식 한도·파싱·부모 결과 검증과 불변 결과/한도 구현.
-- [ ] 기존 계약 어댑터·정확한 유일 quote 선택과 실제 anchor 검증 테스트 구현.
-- [ ] inspect-pdf 집계/개인 출력·기존 CLI 회귀와 문서·고정 의존성 구성.
-- [ ] 합성 assertion RED/GREEN·새 테스트·타입/린트·전체 검증 보고서와 구현 commit.
+- [x] 명시 입력·snapshot·자식 한도·파싱·부모 결과 검증과 불변 결과/한도 구현.
+- [x] 기존 계약 어댑터·정확한 유일 quote 선택과 실제 anchor 검증 테스트 구현.
+- [x] inspect-pdf 집계/개인 출력·기존 CLI 회귀와 문서·고정 의존성 구성.
+- [x] 합성 assertion RED/GREEN·새 테스트·타입/린트·전체 검증 보고서와 구현 commit.
 
 ## 컨트롤러 결합
 

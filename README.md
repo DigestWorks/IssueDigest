@@ -27,7 +27,7 @@ apps/
 packages/
   domain/                 Python 응답 모델·계약 원본
   storage/                PostgreSQL 불변 EvidenceBundle 스냅샷·outbox
-  ingestion/              읽기 전용 여론조사 JSON·PDF 원문 후보 사전 검사
+  ingestion/              읽기 전용 원문 후보 검사·PDF 페이지 텍스트·정확 인용 준비
   api-client/             생성 OpenAPI·TypeScript 타입·HTTP 클라이언트
   connectors/             데이터 수집 연결기
   agents/                 에이전트·도구·결과 검증
@@ -64,8 +64,8 @@ npm run dev
 - 웹의 **연결 확인**은 실제 `/api/v1/status` 응답을 검사합니다. API 프로세스의 응답 여부만 확인하며 DB·작업 엔진의 준비 상태를 뜻하지 않습니다.
 - 기본 포트가 이미 사용 중이면 해당 프로세스를 정리하거나 API의 별도 포트를 지정하고 웹의 개발용 `API_PROXY_TARGET`을 맞춥니다. 자세한 명령은 [웹 README](apps/web/README.md)에 있습니다.
 
-원문 후보를 검사하는 독립 도구의 입력·명령·집계/상세 출력과 검증 경계는
-[원문 후보 검사 패키지 안내](packages/ingestion/README.md)에 있습니다.
+원문 후보 검사와 제한된 PDF 텍스트 추출·정확 인용 준비의 입력·명령·집계/상세 출력과 검증 경계는
+[원문 검사 패키지 안내](packages/ingestion/README.md)에 있습니다.
 
 ## 검증과 계약
 

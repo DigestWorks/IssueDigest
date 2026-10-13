@@ -1,9 +1,11 @@
-# IssueDigest 원문 후보 사전 검사
+# IssueDigest 원문 후보 검사·PDF 페이지 텍스트
 
-`issuedigest-ingestion`은 표준 라이브러리만 사용하는 독립 Python 패키지다.
+`issuedigest-ingestion`은 읽기 전용 Python 도구다. 후보 검사는 표준 라이브러리를,
+PDF 추출은 고정 `pypdf==6.20.1`과 기존 workspace domain 계약을 사용한다.
 명시한 data root의 `parsed/`와 `pdfs/`를 재귀적으로 읽고, 여론조사 JSON과 PDF의
 **검증되지 않은 파일 연결 후보**를 보고한다. DB·네트워크·모델을 호출하지 않으며,
-EvidenceBundle·인용·이관 데이터를 만들지 않는다. 기존 API/도메인 계약과 독립이다.
+`audit-polls`는 EvidenceBundle·인용·이관 데이터를 만들지 않는다.
+`inspect-pdf`의 추출과 아래 인용 어댑터는 기존 API/도메인 계약을 변경하지 않는다.
 
 ## 실행
 
@@ -147,3 +149,118 @@ npm run check
 테스트는 임시 디렉터리의 합성 JSON/PDF·symlink·FIFO만 사용한다. 실제 원문을 Git에
 추가하지 않는다. 전체 PostgreSQL 통합 검증의 전용 합성 DB 설정은 루트/저장 패키지
 README를 따른다. 이 패키지의 검사 자체는 DB에 연결하지 않는다.
+
+## 명시 PDF 추출과 정확 인용 준비
+
+```sh
+uv run --package issuedigest-ingestion issuedigest-ingestion inspect-pdf \
+  --data-root "$DATA_ROOT" --pdf-path "pdfs/relative.pdf" --expected-sha256 "$EXPECTED_SHA256"
+```
+
+이 명령은 `parsed/`를 요구하지 않는다. 명시한 root의 `pdfs/` 아래 일반 파일만 읽는다.
+root를 포함한 경로 구성 요소를 descriptor로 열어 symlink를 거부한다. `pdf_path`는 상대
+POSIX 경로여야 하며 절대 경로·빈 구성 요소·`.`·`..`·NUL·역슬래시·특수 파일을 거부한다.
+`expected_sha256`은 정확한 소문자 hex64자이며 필수다. 64KiB 이하 청크로 전체 해시와
+크기를 확인하고 익명 임시 파일에 복사한다. 읽기 전후 device/inode·파일 종류·크기·mtime·ctime과
+현재 경로를 대조한다. 해시 불일치·변경·첫1,024바이트 내 헤더 없음은 파싱 전에 실패한다.
+부모는 전체 원문 PDF를 메모리에 적재하지 않고 파서는 확인한 snapshot만 읽는다.
+읽기 완료 후 원본이 변경되어도 결과는 확인한 snapshot에 대응하며 최신 원본 상태를 보장하지 않는다.
+
+Linux의 별도 Python 자식에서 자원 한도를 적용한 뒤 pypdf를 import한다. shell 없이 명시 FD만
+전달하고 stdout/stderr·로그·경고는 버린다. wall timeout에서는 자신이 시작한 자식만 kill·회수한다.
+성공·실패에 FD와 익명 임시 파일을 정리하고 자동 재시도하지 않는다. 자원 한도는 프로세스의
+비용을 제한한다. OS sandbox나 파서의 모든 취약점에 대한 격리 보장은 아니다.
+
+`strict=True`, `extraction_mode="plain"`으로 페이지 순서대로 추출한다. pypdf6.20.1의
+생성자는 `password=None`이어도 빈 비밀번호를 시도하므로, 고정 버전의 암호화 처리 hook을
+덮어쓴 reader로 비밀번호 검증 전에 거부한다. 빈 비밀번호로 열리는 PDF도 거부한다.
+Unicode 정규화·trim·OCR·표 구조·좌표를 적용하지 않는다. 페이지 구분자는 정확히 `\n\f\n`이다.
+빈/공백뿐인 페이지의 실제1-based 번호를 `empty_pages`에 남기고 그 텍스트도 보존한다.
+비어 있지 않은 페이지의 `PageSpan.start/end`는 최종 텍스트의 Python code-point 범위다.
+부모는 자식 JSON의 키·타입·parser 메타데이터·페이지별 텍스트 재결합·해시·페이지 번호와 구간을
+다시 검증한다. 실패하거나 한도를 넘은 부분 텍스트는 완료 결과로 반환하지 않는다.
+
+```python
+from issuedigest_ingestion import (
+    PdfLimits, extract_pdf_text, locate_pdf_quote, to_pdf_representation,
+)
+
+extraction = extract_pdf_text(data_root, "pdfs/relative.pdf", expected_sha256,
+                              limits=PdfLimits(max_pages=200))
+representation = to_pdf_representation(
+    extraction, document_version_id=document_version_id, representation_id=representation_id,
+)
+selector = locate_pdf_quote(representation, quote, page_number=page_number)
+```
+
+`PdfExtraction`과 `PdfLimits`는 frozen dataclass다. 추출 결과는 `text`, `pages`(불변 PageSpan
+모델 tuple), `empty_pages`(정수 tuple), `page_count`, `raw_sha256`, `raw_bytes`, `text_sha256`,
+`parser_name="pypdf"`, `parser_version="6.20.1"`, `normalization_profile="pypdf-plain-v1"`를 담는다.
+어댑터는 호출자가 지정한 UUID4로 기존 `ParsedRepresentation`을 만들고 `tables=()`를 사용한다.
+새 SourceDocument·DocumentVersion·EvidenceBundle·위치 좌표는 만들지 않는다.
+UUID/representation 검증 실패는 기존 domain의 `ValidationError`를 따른다.
+
+인용은 정확한 문자열이 지정한 페이지 또는 전체 텍스트에서 유일할 때만 허용한다.
+겹치는 반복 매치도 중복이다. 전체 범위에서는 페이지 경계를 걸친 두 번째 매치도 중복으로 거부한다.
+유일한 매치가 한 PageSpan 안에 있어야 `PdfQuoteSelector`를 반환하며 `regions=()`다.
+`page_number`를 지정하면 해당 비어 있지 않은 PageSpan 안에서만 찾는다. 존재하지 않는 PageSpan
+번호(빈 페이지 포함)는 거부한다. 문자열을 NFC/NFD로 바꾸거나 공백을 제거하지 않는다.
+기존 `validate_citation`은 정확한 anchor `matched`를 검증하고 support는 `not_evaluated`로 남긴다.
+정확한 텍스트 매치는 원문 진위·조사 대응·AI 수치/주장의 지지·표 의미를 증명하지 않는다.
+
+## PDF 출력·한도·고정 오류
+
+`inspect-pdf` 완료 stdout에는 다음 JSON 한 개만 출력한다(exit0).
+
+```json
+{"format_version":"issuedigest-pdf-text-summary-v1","status":"completed","page_count":3,"empty_page_count":1,"text_characters":31,"raw_bytes":2500,"source_verification":"not_evaluated"}
+```
+
+숫자는 예시다. 해시·텍스트·경로·원문 URL·등록번호·UUID는 공개 출력에 없다.
+실패는 exit2와 같은 format_version의 `status="failed"`, `error="고정코드"`만 출력한다.
+
+상세는 `--private-manifest "$PRIVATE_DIRECTORY/new-pdf-text.json"`으로만 저장한다.
+기존 안전한 저장기를 사용해 root 밖 새 mode600 파일을 exclusive 생성한다. 덮어쓰기·symlink·
+root 내부를 거부하고 저장 실패에서는 completed를 출력하지 않는다. 상세 형식은
+`issuedigest-pdf-text-manifest-v1`이며 `summary`와 위 `extraction` 필드를 담는다.
+페이지는 `page_number/start/end` 객체 목록으로 직렬화한다. 원문 bytes는 복제하지 않는다.
+상세 텍스트·해시·경로는 Git·PR·Sites에 게시하지 않는다.
+
+| CLI 옵션 / PdfLimits 필드 | 기본값 |
+| --- | --- |
+| `--max-pdf-bytes` / `max_pdf_bytes` | 134,217,728 (128MiB) |
+| `--max-pages` / `max_pages` | 200 |
+| `--max-text-characters` / `max_text_characters` | 1,000,000 code points (페이지 구분자 포함) |
+| `--timeout-seconds` / `timeout_seconds` | wall30초 |
+| 라이브러리만: `cpu_seconds` | CPU30초 |
+| 라이브러리만: `max_address_space_bytes` | 536,870,912 (512MiB) |
+| 라이브러리만: `max_output_bytes` | 16,777,216 (16MiB, 내부 자식 JSON) |
+
+모든 한도는 양의 정수만 허용한다. bool·0·음수·문자열·실수는 거부한다.
+자식 JSON에는 검증을 위한 페이지별 텍스트와 결합 텍스트가 있어 텍스트 자체보다 크다.
+출력 한도도 별도로 적용하며 큰 Unicode 결과는 텍스트 한도 이전에 출력 한도를 넘을 수 있다.
+
+| 고정 오류 | 의미 |
+| --- | --- |
+| `invalid_arguments`, `invalid_limits` | CLI 인자 또는 양의 정수 한도 오류 |
+| `unsupported_platform` | Linux 이외 플랫폼 |
+| `invalid_data_root` | root를 안전하게 열 수 없음 |
+| `invalid_pdf_path`, `invalid_expected_sha256` | 입력 경로/기대 해시 형식 오류 |
+| `pdf_read_failed` | 파일·디렉터리·symlink·특수 파일·임시 파일 읽기/쓰기 실패 |
+| `pdf_changed`, `pdf_hash_mismatch`, `pdf_invalid_header` | snapshot 변경·기대 해시 불일치·헤더 없음 |
+| `pdf_byte_limit_exceeded`, `pdf_page_limit_exceeded`, `pdf_text_limit_exceeded`, `pdf_output_limit_exceeded` | 해당 한도 초과 |
+| `pdf_encrypted`, `no_extractable_text` | 암호화 또는 모든 페이지가 빈/공백 텍스트 |
+| `pdf_parse_failed`, `pdf_invalid_unicode` | 손상/파서 실패 또는 유효 UTF-8로 인코딩 불가 |
+| `pdf_timeout`, `pdf_worker_failed` | wall timeout 또는 자식 실행/종료 실패 (CPU/메모리 종료 포함) |
+| `pdf_invalid_result` | 자식 프로토콜·타입·해시·페이지·메타데이터 검증 실패 |
+| `manifest_failed` | 개인 상세 저장 실패 |
+| `invalid_quote`, `invalid_page_number` | 빈/공백/유효 UTF-8이 아닌 인용 또는 대상 PageSpan 번호 오류 |
+| `quote_not_found`, `quote_ambiguous`, `quote_crosses_page` | 정확 매치 없음·여러 매치·한 페이지 밖 매치 |
+
+원본 예외·경로·PDF 내용은 고정 오류에 포함하지 않는다. 메모리 부족이 파서 내부 예외로
+처리되면 `pdf_parse_failed`, import/OS 종료로 처리되면 `pdf_worker_failed`일 수 있다.
+
+새 합성 검증은 실제 최소 PDF의 다중/빈 페이지·한글·BMP 밖 emoji·결합 문자·공백과
+실제 subprocess·hash/경로/변경·암호화·페이지/텍스트/출력 한도·CPU/메모리·timeout·회수·
+프로토콜 위조·공개 출력 프라이버시·개인 파일 저장·기존 audit-polls 회귀를 검사한다.
+PDF fixture 생성에는 새 의존성을 추가하지 않는다. 실제 자료의 품질·OCR·표·좌표는 미검증이다.
