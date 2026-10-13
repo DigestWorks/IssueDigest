@@ -2,10 +2,13 @@
 
 import argparse
 import json
+import sys
+from dataclasses import asdict
 from typing import Never
 
-from .audit import Limits, audit_poll_files
+from .audit import AuditResult, Limits, audit_poll_files
 from .errors import AuditError
+from .pdf import SUMMARY_FORMAT, PdfLimits, extract_pdf_text
 from .reports import save_private_manifest
 
 
@@ -25,19 +28,64 @@ def main(argv: list[str] | None = None) -> int:
     audit.add_argument("--max-json-bytes", type=int, default=8 * 1024 * 1024)
     audit.add_argument("--max-pdf-bytes", type=int, default=128 * 1024 * 1024)
     audit.add_argument("--max-total-bytes", type=int, default=2 * 1024 * 1024 * 1024)
+    inspect = commands.add_parser("inspect-pdf", help="Extract unevaluated local PDF text")
+    inspect.add_argument("--data-root", required=True)
+    inspect.add_argument("--pdf-path", required=True)
+    inspect.add_argument("--expected-sha256", required=True)
+    inspect.add_argument("--private-manifest")
+    inspect.add_argument("--max-pdf-bytes", type=int, default=128 * 1024 * 1024)
+    inspect.add_argument("--max-pages", type=int, default=200)
+    inspect.add_argument("--max-text-characters", type=int, default=1_000_000)
+    inspect.add_argument("--timeout-seconds", type=int, default=30)
+    arguments = sys.argv[1:] if argv is None else argv
+    format_version = (
+        SUMMARY_FORMAT if arguments[:1] == ["inspect-pdf"] else "issuedigest-ingestion-summary-v1"
+    )
     code = 0
     try:
         args = parser.parse_args(argv)
-        limits = Limits(
-            args.max_files, args.max_json_bytes, args.max_pdf_bytes, args.max_total_bytes
-        )
-        result = audit_poll_files(args.data_root, limits=limits)
+        if args.command == "inspect-pdf":
+            extraction = extract_pdf_text(
+                args.data_root,
+                args.pdf_path,
+                args.expected_sha256,
+                limits=PdfLimits(
+                    max_pdf_bytes=args.max_pdf_bytes,
+                    max_pages=args.max_pages,
+                    max_text_characters=args.max_text_characters,
+                    timeout_seconds=args.timeout_seconds,
+                ),
+            )
+            summary = {
+                "format_version": SUMMARY_FORMAT,
+                "status": "completed",
+                "page_count": extraction.page_count,
+                "empty_page_count": len(extraction.empty_pages),
+                "text_characters": len(extraction.text),
+                "raw_bytes": extraction.raw_bytes,
+                "source_verification": "not_evaluated",
+            }
+            details = asdict(extraction)
+            details["pages"] = [page.model_dump() for page in extraction.pages]
+            result = AuditResult(
+                summary,
+                {
+                    "format_version": "issuedigest-pdf-text-manifest-v1",
+                    "summary": summary,
+                    "extraction": details,
+                },
+            )
+        else:
+            limits = Limits(
+                args.max_files, args.max_json_bytes, args.max_pdf_bytes, args.max_total_bytes
+            )
+            result = audit_poll_files(args.data_root, limits=limits)
         if args.private_manifest is not None:
             save_private_manifest(result, args.data_root, args.private_manifest)
         response = result.summary
     except AuditError as error:
         response = {
-            "format_version": "issuedigest-ingestion-summary-v1",
+            "format_version": format_version,
             "status": "failed",
             "error": str(error),
         }

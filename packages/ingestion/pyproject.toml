@@ -2,7 +2,10 @@
 name = "issuedigest-ingestion"
 version = "0.0.0"
 requires-python = ">=3.13,<3.14"
-dependencies = []
+dependencies = ["issuedigest-domain", "pypdf==6.20.1"]
+
+[tool.uv.sources]
+issuedigest-domain = { workspace = true }
 
 [project.scripts]
 issuedigest-ingestion = "issuedigest_ingestion.cli:main"

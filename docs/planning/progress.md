@@ -6,7 +6,7 @@
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. 실제 로그인·초대·나머지 제품 API·이벤트·워커·운영 DB·검색은 미완료 |
-| P2 실제 근거 | 자산 조사·파일 사전 검사 구현 · 이관 미착수 | 읽기 전용 원문 후보·해시·격리 구현. 첫 이슈·자료 선별·정확한 원문 대응·인용·이관은 후속 |
+| P2 실제 근거 | 자산 조사·PDF 추출/인용 위치 구현 · 이관 미착수 | 원문 후보·해시·격리와 제한된 페이지 텍스트 추출 구현. 실제6개 추출, 기존35문항은 반복 매치로 자동 인용 보류. 첫 이슈·정확한 조사 대응·표·이관은 후속 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
@@ -15,12 +15,36 @@
 
 ## 현재 작업
 
-- 작업: [읽기 전용 원문 후보 연결기](../changes/source-intake.md). 기존 여론조사 JSON·PDF를 검사하고 안전한 집계·선택적 개인 manifest를 만든다. 실제 원문 대조/인용/DB 이관은 별도다.
-- 담당/브랜치/PR: controller/implementer · `feat/source-intake` · [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12), 선행 PR #11 위. 병합 전.
-- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. 최종 `1a6f71d`에서 controller가 실제 합성 PostgreSQL18.6 포함 전체 Python888+JS134=1,022개·린트/타입/SPA/계약 drift exit0 확인. 신규110개, 독립 작업·전체 변경·보완 재검토 통과. 실제 서버 dry-run: JSON840개 중 후보225·격리384·미지원231. Sites v28 공개 게시 완료. 마지막 문서의 폴더 인계는 최종 확인에서 검증한다.
-- 관리자 요청: [전달 문서](../../infra/administrator-request.md). pgvector 패키지/확장, 앱 계정, 외부 백업 접근/정책, 자원/분담 비용, 도메인 연결. 전체 관리자/기존 DB 쓰기 권한을 요청하지 않는다.
-- 다음: 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 마지막 문서 커밋을 현재 폴더/서버에 맞추고 확인한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
-- Sites: v28 공개 게시 성공. v27 기록 보존, 구현·검증 결과/관리자 요청 반영. 사본 기준baf4b18이며 게시 이후 원본 기록을 따른다.
+- 작업: [PDF 페이지 텍스트·정확 인용 준비](../changes/pdf-text-evidence.md), R2/P2의 다음 부분 구현. 기대 해시로 묶은 PDF 복사본·제한된 파서·기존 계약 어댑터·유일한 정확 인용 위치를 구현했다.
+- 담당/브랜치/PR: controller/implementer · `feat/pdf-text-evidence` · [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) · 선행 #12 위, 미병합.
+- 상태: 구현·독립 작업/전체 변경 리뷰·controller 전체 검증·실제 소표본 대조·Draft PR #13 게시/앱 첨부·Sites v29 공개 게시 완료. 첫 이슈·표 구조·OCR·좌표·원문 동일성·운영 DB 이관은 별도다.
+- 검증: 전체 Python1,021+JS134=1,155개 및 타입·빌드·생성 계약 통과. 실제 PDF6개/92페이지 추출. 기존35문항 모두 여러 위치에 반복되어 자동 인용 확정을 거부했다. 별도 페이지 텍스트 인용 확인6개는 성공했지만 기존35문항의 검증이 아니다.
+- 관리자 요청: **pgvector만 전달·완료**. 직접vector0.8.7·거리 연산과 별도 프로젝트 로그인 계정 존재를 확인했다. [기존 나머지 제안](../../infra/administrator-request.md)은 미전달이며 개발의 선행 조건이 아니다. 실사용 전 백업/권한·비용/접근 준비를 단계별로 확인한다.
+- 다음: 첫 이슈·이용 조건을 확정하고, 문항·페이지·표/응답 수치의 대응 규칙과 평가 자료를 준비한다. 반복 매치를 첫 위치로 임의 선택하지 않는다.
+- Sites: v30 공개 게시 완료, v29를 보존했다. pgvector 완료·나머지 제안 미전달과 필요한 시점을 정정했다. PDF 구현/소표본 기록은 유지한다.
+
+## 2026-10-13 · pgvector 완료·관리자 요청 정정
+
+- 사용자 정정: 실제 전달 요청은 pgvector만이다. 이전에 세 항목 전체를 전달/답변 대기로 기록한 것은 잘못된 추정이었다. 앱 계정/백업·운영/도메인은 미전달 제안으로 정정하고 구현 차단 항목에서 제외한다.
+- 동료 보고: PostgreSQL18.6 유지·pgvector0.8.7 설치/활성화, 개발자/앱 계정 연산·HNSW 검색 검증, 재생성 유지용 Dockerfile/Compose/초기화 SQL·이미지 빌드·DB 백업 반영·재시작 없음.
+- 직접 확인: 기존 DB helper의 읽기 전용 transaction에서 server18.6/vector0.8.7/public·L2/코사인 연산 정상, 별도 프로젝트 로그인 계정1개(non-superuser/non-owner/CONNECT), public 앱 테이블0개. 비밀값·계정명은 미출력. 앱 계정 실제 로그인/상속/테이블 권한·HNSW/재생성·백업 복원은 직접 검증하지 않았다.
+- 필요한 시점: 앱 계정은 신규 생성 대신 기존 계정을 앱 연결 때 확인한다. 정기 백업/서버 밖 사본·복원은 보존할 사용자 작업 저장 전에 준비하되 기존 구성 우선이다. 서버 부하는 개발자가 실측, 새 자원은 부족할 때만 요청한다. IssueDigest 실제 부담 비용은 운영 전, DNS/프록시는 두 사용자 앱 제공 시점에 확인한다. 지금 새 서버·유료 저장소·관리자 권한 요청은 없다.
+- 근거·상세: [관리자 요청 상태](../../infra/administrator-request.md). 이번 변경은 문서/읽기 전용 확인이며 운영 DB·앱 코드·권한·백업·DNS·공유 서비스 변경이나 외부 메시지 발송 없음. 검색 기능·한국어 품질·운영 준비 완료로 표시하지 않는다.
+- 게시: 기존 [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13)의 문서와 설명을 갱신했다. [Sites v30](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) native succeeded·공개 설정 유지. source `f6edd927796a800929162402c0000d2314213bdb`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ca6cf7d80f3c8191a36c6419298b8066`, deployment `appgdep_6acd9e30126c8191bacaae370b582ea6`. 사본 기준212bf18·이전v29 보존. 문서5개/상대 링크20개·HTML15개/로컬 링크·anchor202개·수치/공개 접속정보 제외·git diff --check 통과. 문서만 변경하여 코드 전체 테스트·브라우저 화면 검사는 반복하지 않았다. 마지막 게시 기록도 서버 사용자 전용 worktree로 fast-forward하고 깨끗함을 확인한다.
+
+## 2026-10-13 · PDF 페이지 텍스트·정확 인용 준비
+
+- 구현: `c778b80`, 문서 예제 형식 보완 `fce7a41`. pypdf6.20.1 고정, 원본 해시 확인 후 익명 복사본만 제한된 Linux 자식 프로세스에서 파싱한다. 페이지 텍스트·빈 페이지·code-point 구간을 기존 ParsedRepresentation/PdfQuoteSelector 계약에 연결했다. DB/API·생성 타입 변경 없음.
+- 인용: 한 페이지 안의 정확하고 유일한 문자열만 선택한다. 반복·겹침·페이지 경계·파싱/한도 실패를 고정 오류로 거부한다. validate_citation의 anchor matched와 support not_evaluated를 구분한다. 표 구조·좌표·OCR·출처 진위·조사 대응·수치/주장 지지를 추정하지 않는다.
+- 검증: 합성 assertion RED/GREEN과 ingestion243개(신규133개)를 구현했다. controller 첫 전체 검사는 늦게 편집된 README 코드 예제의 형식 오류로 중단됐다. 예제만 보완한 최종 코드에서 전용 합성 PostgreSQL18.6 포함 전체 Python1,021+JS134=1,155개, skip0·린트/format·mypy·TS·SPA·OpenAPI drift exit0. 독립 작업/전체 변경 리뷰는 승인·Critical/Important/Minor 지적0. 범위 밖인 원문/수치/표/OCR·전수 품질·첫 이슈/이용 권리·OS sandbox를 완료로 표시하지 않는다. PR/Sites/인계는 controller가 별도 검증한다.
+- 실제 대조: 2026-10-13 UTC, 서버의 기존 후보225개를 parsed 상대 경로 순으로 정렬하고 서로 다른 PDF 해시의 첫6개를 선택했다. 추출 성공 여부/크기에 따른 재선택 없는 비무작위 소표본이며 전체225개 품질로 일반화하지 않는다. PDF당 wall15초로 제한, 6개 모두 성공·92페이지·빈 페이지0·텍스트94,535 code points. 개인 환경에서 기존 question_text35개를 정확 대조했고 전부 quote_ambiguous였다. 자동 확정 인용0개이며 실패를 성공으로 바꾸거나 fuzzy/공백 정규화를 사용하지 않았다.
+- 별도 위치 확인: 추출한 각 PDF의 첫 비어 있지 않은 페이지에서 최대80 code points를 명시 페이지로 선택한 probe6개는 기존 인용 검증 matched/support not_evaluated를 통과했다. 임시 호출자 UUID만 사용했고 실제 저장된 문서 버전이나 기존35문항의 인용으로 표시하지 않는다.
+- 출력: 실제 installed inspect-pdf도 집계만 반환했고 opt-in 추출 텍스트/메타데이터는 원문·Git 밖 개인 폴더의 새600 파일에 저장했다. 원문·질문·해시·경로·URL·UUID를 공개 기록/Sites에 넣지 않는다. 기존 원문·운영 DB·공유 서비스·DNS 변경이나 모델 호출 없음. 원격 직접 shell CLI 도움말은 venv PATH 미설정으로 exit127이었고 uv run으로 설치된 명령을 실행해 정상 확인했다.
+- 남은 품질: 질문이 반복되는 문서에는 명시적 문항·페이지·표 대응이 필요하다. 원문 진위/조사 대응과 표·응답 수치 검증, 첫 제품 이슈·이용 조건·실제 평가셋은 후속이다. pypdf 업그레이드 시 암호화 사전 거부 hook과 회귀 테스트를 다시 확인해야 하며 resource 한도는 OS sandbox를 대체하지 않는다.
+- 게시: [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) 생성·앱 첨부 완료, 선행 #12 위·미병합. [def67c8의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38338133072) 성공. Sites v29 게시와 현재 폴더/서버 사용자 전용 worktree의 f0c34d6 인계를 확인했다. 실제 제품 앱/운영 DB 배포는 수행하지 않았다.
+- Sites: [v29 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#pdf-evidence) 성공. source `a84ffcec8ae42a2a76edb32fe8db368062f65d77`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_578bd5a013808191b6383ac332013977`, deployment `appgdep_6acd9b12fe548191a4702a9a4e818322` native succeeded·URL 확인. 사본 기준f0c34d6·v28 보존·HTML14개/로컬 링크·anchor181개/manifest/공개 접속정보 제외 통과. 문서6개 상대 링크61개 검사 통과. 원문/개인 추출 상세는 미게시, 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 사이트 탭 열기는 queued 접수다.
+- 인계: 현재 폴더는 feat/pdf-text-evidence, 서버 사용자 전용 worktree는 같은 origin 브랜치를 추적하며 f0c34d6에서 Git 깨끗함·locked 설치·installed inspect-pdf 도움말을 확인했다. 게시 기록을 포함하는 마지막 문서 커밋도 fast-forward하고 최종 응답 전에 같은 HEAD·깨끗함을 확인한다. API/웹 프로세스를 재시작하거나 운영 DB·공유 서비스를 변경하지 않았다. 미병합 리뷰/RED·GREEN 증거는 격리 폴더에 보존한다.
+
 
 ## 2026-10-13 · 관리자 요청·읽기 전용 연결기 준비
 
