@@ -34,6 +34,8 @@
 
 ## P2 · 실제 원문과 수집
 
+- [ ] [PDF 페이지 텍스트·정확 인용 준비](../changes/pdf-text-evidence.md): 기대 해시 snapshot·제한 파싱·기존 계약 어댑터·정확 quote·대표 실제 문항 대조·독립 리뷰/검증/PR/Sites. 원문 동일성·표/OCR·전수 이관은 별도.
+
 - [x] [읽기 전용 원문 후보 연결기](../changes/source-intake.md): 안전한 파일 검사·해시·격리·집계/개인 manifest·실제 파일 dry-run·검증/리뷰/PR/Sites 결합. 후보는 원문/인용 검증 완료가 아님.
 
 - [x] [전용 DB·기존 자산 실측](../research/server-data-inventory.md): PostgreSQL18.6·권한·pgvector 미준비, 허용 28테이블 정확 건수·기간·파일/실행/코드 스냅샷·원문 품질과 남은 확인 기록. 조회만 수행.
