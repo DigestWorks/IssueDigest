@@ -24,12 +24,15 @@
 ## 현재 작업 · 공식 정책 HTML 원문 준비
 
 - 작업: [공식 정책 HTML 원문·인용 준비](../changes/official-html-evidence.md), R2/P2. 첫 이슈 정부 자료의 본문·발행일·출처표시 조건을 실제 원문과 대조한다.
-- 담당/브랜치: controller·implementer, `feat/official-html-evidence`; 선행 근거 읽기 #15 위, main 미병합.
+- 담당/브랜치: controller·implementer, `feat/official-html-evidence` · [Draft PR #16](https://github.com/DigestWorks/IssueDigest/pull/16); 선행 근거 읽기 #15 위, main 미병합.
 - 상태: HTML 제한 추출·메타데이터/이용 조건·기존 표현/인용 어댑터 구현b3febab, 독립 리뷰 P1 caller-ID 오류 노출을 assertion RED11개 후 fixed AuditError로 보완47394b2, scoped 재검토 해결·새 지적0. 실제 정부 원문35문단/3,231자·정확 인용3개·저장 재조회 검증. 서버 개인 공간에도 원문/메타데이터/검증 산출물5개600·디렉터리700/내용 동일로 보존했다. 검증용 workspace/snapshot은 실사용 승인 계정/공간이 아니다. 전체 원문·인용·hash/ID는 공개 기록에 복제하지 않는다.
 - 검증: focused150개·controller 최종 전체 Python1,277+JS233=1,510개 및 정적/빌드/계약 검사 통과. 초기 assertion RED122개와 보완 RED 보존. 실제 정부 원문과 독립 브라우저 DOM 본문 동일·외부 요청43건 차단, 전용 검증 DB 최초 저장/같은 재전송 미생성/동일 재조회·두 fixture 사용자 보호 GET200/no-store·비로그인401/다른 공간404. 최종 코드47394b2에서 전체 검사·실제 원문 재추출/메타데이터/인용/저장 재열람 확인. 독립 전체 변경 리뷰52e0377 승인·Critical/Important/Minor0.
 - 범위: 원문 사진/이미지·캡션·메뉴/AI요약 제외, 이용/파서/정규화 기록. 공동 작업용 DB 적재·실제 로그인·AI·공개 앱은 후속이다. 기존/운영 DB나 공용 서비스를 변경하지 않는다.
 - 다음: Draft PR·Sites·개발 인계 결합을 마친 뒤 실제 작업 공간/로그인·선별 원문 수집·AI 결과 연결로 진행한다. 실제 앱 공개·main 병합은 D013에 따라 유예한다.
-- Sites: 이번 작업 반영 대기. 기존 v33 기록은 보존한다.
+- Sites: v34 공개 게시 완료·v33 보존. 첫 공식 원문/정확 인용·개인 검증 DB/합성 사용자/실제 공동 DB 후속을 구분했다. HTML19개/로컬 링크·anchor301개·manifest/접속정보 제외·공백 검사 통과. 문서 요약 변경의 브라우저 레이아웃 검사는 반복하지 않았다.
+- 게시 증거: source `50aa3605f82c40334cf082d00641c8e666f1b322`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c9da071b39148191b71a6216026e47c0`, deployment `appgdep_6acdfcf7f80c8191a272031d0c74b8a4` native succeeded·URL 확인, 기존 공개 설정 유지. 사본 기준d7f9766. [CI #38377896184](https://github.com/DigestWorks/IssueDigest/actions/runs/38377896184) exact d7f9766 성공. PR #16 앱 첨부 완료.
+- 개발 인계: 현재 폴더와 서버 개인 worktree d7f9766·깨끗함 확인, 서버 origin/feat/official-html-evidence 추적·locked 설치/ARM HTML150개/mypy45개 통과. 원문/산출물5개600 서버 개인 보존·내용 일치 확인. 마지막 게시 기록 커밋도 개인 worktree에 fast-forward한다. 공유 저장소/운영 DB/서비스 변경·main 병합·앱 배포 없음.
+- 정리: 소유한 전용 검증 DB 컨테이너만 전체 ID 대조 후 제거했다. 개인 원문/메타데이터/검증 bundle은 보존하며 실제 서비스 DB 저장 상태로 표현하지 않는다. 자체 오프라인 브라우저 세션은 닫았다. 미병합 검토 worktree/RED·GREEN·리뷰/검증 로그는 보존한다.
 
 ## 이전 작업 · 저장 근거 읽기 화면
 

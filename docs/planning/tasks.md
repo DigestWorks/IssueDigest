@@ -36,7 +36,7 @@
 
 ## P2 · 실제 원문과 수집
 
-- [ ] [공식 정책 HTML 원문·인용 준비](../changes/official-html-evidence.md): 첫 이슈 정부 본문/이용 조건·제한 추출·정확 인용·전용 검증 DB 저장 재열람. 공동 작업 DB·로그인·AI는 별도.
+- [x] [공식 정책 HTML 원문·인용 준비](../changes/official-html-evidence.md): 첫 이슈 정부 본문/이용 조건·제한 추출·정확 인용·전용 검증 DB 저장 재열람. 공동 작업 DB·로그인·AI는 별도.
 
 - [x] [PDF 인용 후보·문맥 선택](../changes/pdf-quote-candidates.md): 정확 후보/앞뒤 문맥·한도/잘린 목록·유일 명시 선택·실제 위치 어댑터·독립 리뷰/전체 검증/PR/Sites. 조사/표의 올바른 후보·수치/주장 지지는 후속.
 
