@@ -332,3 +332,35 @@ def test_empty_url_port_is_invalid_metadata(root: Path) -> None:
     poll(root, source_url="https://nesdc.go.kr:/")
     result = audit_poll_files(root)
     assert result.manifest["polls"][0]["reason"] == "invalid_source_url"
+
+
+@pytest.mark.parametrize(
+    "control",
+    ["\x00", "\x1f", "\x7f", "\x80", "\x9f"],
+    ids=["c0-nul", "c0-unit-separator", "del", "c1-first", "c1-last"],
+)
+def test_source_url_control_characters_quarantine_poll(root: Path, control: str) -> None:
+    poll(root, source_url="https://nesdc.go.kr/poll" + control)
+    (root / "pdfs" / "poll.pdf").write_bytes(PDF)
+    result = audit_poll_files(root)
+    assert result.summary["candidate"] == 0
+    assert result.summary["quarantined"] == 1
+    assert result.manifest["polls"][0]["reason"] == "invalid_source_url"
+
+
+@pytest.mark.parametrize(
+    "url",
+    [
+        "https://nesdc.go.kr/poll",
+        "https://www.nesdc.go.kr:443/poll",
+        "https://nesdc.go.kr/조사",
+        "https://nesdc.go.kr/poll\u00ff",
+    ],
+)
+def test_source_url_noncontrol_characters_preserve_candidate(root: Path, url: str) -> None:
+    poll(root, source_url=url)
+    (root / "pdfs" / "poll.pdf").write_bytes(PDF)
+    result = audit_poll_files(root)
+    assert result.summary["candidate"] == 1
+    assert result.summary["quarantined"] == 0
+    assert result.manifest["polls"][0]["source_url"] == url

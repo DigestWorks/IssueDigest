@@ -7,6 +7,7 @@ from dataclasses import dataclass, fields
 from datetime import UTC, datetime
 from pathlib import Path, PurePosixPath
 from typing import Any
+from unicodedata import category
 from urllib.parse import urlsplit
 
 from .errors import AuditError
@@ -54,7 +55,7 @@ def _metadata(data: dict[str, Any]) -> str | None:
     if not isinstance(registration, str) or not re.fullmatch(r"[0-9]{1,32}", registration):
         return "invalid_registration_number"
     url = data.get("source_url")
-    if not isinstance(url, str) or any(c.isspace() or ord(c) < 32 for c in url):
+    if not isinstance(url, str) or any(c.isspace() or category(c) == "Cc" for c in url):
         return "invalid_source_url"
     try:
         split = urlsplit(url)
