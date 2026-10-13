@@ -1,12 +1,12 @@
 # 진행 기록
 
-2026-10-12 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-13 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. 실제 로그인·초대·나머지 제품 API·이벤트·워커·운영 DB·검색은 미완료 |
-| P2 실제 근거 | 자산 조사 완료 · 이관 미착수 | 전용 DB·28테이블·파일·품질 실측. 첫 이슈·자료 선별·정확한 원문 대응·연결기 필요 |
+| P2 실제 근거 | 자산 조사·파일 사전 검사 구현 · 이관 미착수 | 읽기 전용 원문 후보·해시·격리 구현. 첫 이슈·자료 선별·정확한 원문 대응·인용·이관은 후속 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
@@ -15,12 +15,33 @@
 
 ## 현재 작업
 
-- 작업: 전용 DB·기존 자산 조사, D012 도메인·문서·Draft PR·Sites 반영 완료. 다음은 읽기 연결기·원문 대응·앱 DB 연결의 구현 준비. 앱 코드·설정 형식·DB 스키마 변경은 없다.
-- 담당/브랜치/PR: controller · `docs/server-data-inventory` · [Draft PR #11](https://github.com/DigestWorks/IssueDigest/pull/11), 선행 PR #10 위. 병합 전.
-- 검증: 실제 PostgreSQL18.6·CREATE 권한·빈 public·vector 미준비, 기존 28테이블 정확 COUNT/기간/상태, 파일 건수·JSON 구조·PDF 헤더·원문 파일명 대응 확인. [실측 기록](../research/server-data-inventory.md)을 따른다.
-- 다음: 읽기 연결기·원문 파일/인용 연결을 설계하고, 전용 DB 대상·백업/런타임 권한 확인 후 앱 연결을 별도 구현한다. 첫 이슈·실제 자료 선별과 실행/화면 결과 저장·복구도 후속이다.
-- 대기: pgvector 패키지·외부 백업/복원·전용 자원/월 분담 비용·런타임 계정 분리·인증 공급자·도메인 연결. 전용 DB 제공과 자료 조회 접근은 해결했다.
-- Sites: v27 공개 게시 성공. 전용 DB·실측 데이터·원문 품질·남은 조건·새 도메인 반영, v26 보존. 아래 게시 증거를 확인한다.
+- 작업: [읽기 전용 원문 후보 연결기](../changes/source-intake.md). 기존 여론조사 JSON·PDF를 검사하고 안전한 집계·선택적 개인 manifest를 만든다. 실제 원문 대조/인용/DB 이관은 별도다.
+- 담당/브랜치/PR: controller/implementer · `feat/source-intake` · [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12), 선행 PR #11 위. 병합 전.
+- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. 최종 `1a6f71d`에서 controller가 실제 합성 PostgreSQL18.6 포함 전체 Python888+JS134=1,022개·린트/타입/SPA/계약 drift exit0 확인. 신규110개, 독립 작업·전체 변경·보완 재검토 통과. 실제 서버 dry-run: JSON840개 중 후보225·격리384·미지원231. Sites v28 공개 게시 완료. 마지막 문서의 폴더 인계는 최종 확인에서 검증한다.
+- 관리자 요청: [전달 문서](../../infra/administrator-request.md). pgvector 패키지/확장, 앱 계정, 외부 백업 접근/정책, 자원/분담 비용, 도메인 연결. 전체 관리자/기존 DB 쓰기 권한을 요청하지 않는다.
+- 다음: 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 마지막 문서 커밋을 현재 폴더/서버에 맞추고 확인한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
+- Sites: v28 공개 게시 성공. v27 기록 보존, 구현·검증 결과/관리자 요청 반영. 사본 기준baf4b18이며 게시 이후 원본 기록을 따른다.
+
+## 2026-10-13 · 관리자 요청·읽기 전용 연결기 준비
+
+- 사용자 요청에 따라 관리자가 해야 할 설치/계정/접근 작업만 전달 문서로 좁혔다. 개발자는 자료 연결기·검증과 후속 백업 자동화/배포 설정을 맡는다. 외부 저장소·DNS 공급자·청구 비용은 확인 전이다.
+- 현재 계정의 비대화식 sudo/Docker 관리·DB superuser/CREATEROLE/CREATEDB 권한이 없고, DB 소유자이며 vector 패키지가 없음을 다시 확인했다. pg_dump/pg_restore 사용 가능, 서버 웹 포트는 기존 서비스가 사용 중이다. 접속 세부정보는 공개 기록에 넣지 않는다.
+- 연결기는 parsed/pdf 파일만 명시 경로에서 읽는다. basename 대응은 후보로만 표시하고 누락·다중 후보·헤더 없는 PDF를 격리한다. 개별/전체 읽기 한도·symlink/경로 검증·집계와 개인 상세 결과를 분리한다. 첫 제품 이슈·기존 계약을 변경하지 않는다.
+- 작업 절차: spec-driven-workflow 적용. OpenSpec root null로 해당 단계는 생략, 계획/요구사항을 변경 문서에 작성하고 SDD/TDD·독립 리뷰·실제 PG 포함 전체 검증으로 진행한다. native worktree 도구가 바깥 폴더를 Git 저장소로 인식하지 못해 기존 sibling 격리 방식으로 준비했다. 다른 작업의 리뷰 폴더·기록은 보존한다.
+- baseline: locked Python3.13.12/uv0.11.4·SHA 확인한 Node24.21.0/npm11.19.0·전용 합성 PostgreSQL18.6, 전체 Python778+JS134=912·린트/타입/SPA/계약 drift 통과. 기본 시스템 도구 차이로 첫 npm 설치가 거절돼 고정 도구를 선택했다. 엔진 제약/lockfile 우회는 하지 않았다.
+- 구현: `02d6cc5` 표준 라이브러리 전용 ingestion 패키지. 명시 경로·descriptor 기반 symlink/특수 파일 거부, JSON metadata·basename 다중 후보·PDF 헤더/해시·변경/크기/총 읽기 한도, 집계 전용 stdout·600 exclusive 개인 manifest. 원문/인용 증명·DB 이관을 만들지 않는다.
+- 검증: 실제 assertion RED/GREEN 기록과 신규101개·전체Python879+JS134=1,013개, lint/format·mypy·TS·SPA·계약 drift를 controller가 최종 구현에서 exit0 확인했다. 새 외부 의존성·기존 생성 계약 변경 없음. 독립 작업 리뷰에서 명세/품질 모두 승인, 지적0. 전체 변경 리뷰의 비차단 URL 제어문자 처리 지적1개를 `1a6f71d`에서 Unicode Cc 거부·실제 assertion RED3/GREEN110개로 보완했다. 한 번의 수정 범위 재검토에서 해결·새 문제 없음 확인. 최종 controller 전체Python888+JS134=1,022개와 모든 검증 exit0, skip0. PR #12 생성·앱 첨부 완료, Sites는 대기 중이다.
+
+
+- 실제 검사: 서버 사용자 전용 worktree `02d6cc5`에서 locked 설치 후 2026-10-13 10:37 한국 시간에 완료. 읽은 JSON840개 중 candidate225·quarantined384·unsupported231. 격리 사유: 등록번호 형식8·유효 출처 URL 없음315·다중 PDF 후보49·PDF 누락12. parsed 비JSON1개는 읽지 않았다.
+- PDF:774개를 스트리밍 검사, 헤더 없는23개·정상 PDF의 동일 해시 그룹90개·유효 등록번호 중복 그룹226개. 전체 읽기942,478,095 bytes. 중복 그룹은 문서/조사 건수와 같지 않으며 자동 병합하지 않았다. 헤더/해시/basename 대응은 원문 동일성·인용 정확성의 증명이 아니다.
+- 보완 영향 확인: 개인 manifest의 유효 metadata에 제어문자를 포함한 출처 URL이0개임을 집계로 확인했다. 이전 실제 검사 건수는 `02d6cc5` 관측 결과이며 전체943MB 재검사를 반복하지 않았다.
+- 개인 상세 결과:840개 JSON의 manifest를 원문 경로와 Git 밖 개인 디렉터리의 새600 파일로 저장했다. 공개 stdout은 집계만, 원문·경로·등록번호·URL·해시는 기록하지 않았다. 소스 파일·운영 DB·공유 서비스·DNS 변경 없음. 전체 수집 상태/일관된 스냅샷을 보장하지 않는다.
+
+
+- 게시: [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12) 생성·앱 첨부 완료, 선행 PR #11 위이며 미병합. [baf4b18의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38333517845) 성공. 실제 제품 앱/운영 DB 배포는 수행하지 않았다.
+- Sites: [v28 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 성공. source `d1e95100359480f2e80d35d68bfd2ce8b824a859`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2792cfe7828c81918724c8ad7bc24447`, deployment `appgdep_6acd8d1834288191b467053c8bbcaf21` native succeeded·URL 확인. 사본 기준baf4b18·기존v27 보존·HTML13개/로컬 링크·anchor161개/manifest/공개 접속정보 제외 통과. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 앱 사이트 탭 열기는 queued 접수였다.
+- 인계: 마지막 게시 기록까지 현재 폴더/서버 사용자 전용 worktree를 fast-forward하고 locked 새 ingestion 설치·Git 깨끗함·설치된 CLI를 확인한다. 최종 응답은 이 확인 결과를 기준으로 한다. 기존 웹/API·공유 서비스·운영 DB·수집 원문은 변경하지 않는다. 미병합 작업의 검증/리뷰 증거는 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 전용 DB·기존 수집 자산 조사
 
@@ -172,7 +193,7 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v20 공개 게시 성공. 원문·파싱·인용과 개체·주장·관계·비교 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 초기 계약 단계에서 v20 공개 게시에 성공했다. 이후 게시 버전은 각 날짜의 기록과 현재 작업을 따른다. 원문·파싱·인용과 개체·주장·관계·비교 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
 - 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#5는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목

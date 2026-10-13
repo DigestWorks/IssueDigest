@@ -1,0 +1,12 @@
+[project]
+name = "issuedigest-ingestion"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = []
+
+[project.scripts]
+issuedigest-ingestion = "issuedigest_ingestion.cli:main"
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"
