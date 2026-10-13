@@ -31,7 +31,7 @@
 - 다음: 기존 앱 계정의 비밀 설정을 받아 역할/대상·백업 조건을 확인한 뒤 새 공유 공간·명시 초대·검증한 공식 원문을 이관한다. 실제 Google 로그인은 사용자가 확인한다. 스키마 변경용 계정을 앱 실행에 사용하지 않는다.
 - 인계: 사용자 폴더를 `feat/google-oauth-workspace`로 연결하고 고정 의존성을 설치했다. 격리 검토 폴더는 해당 코드의 detached 상태로 보존한다. 개인 서버 worktree도 같은 코드·upstream으로 연결했다. ARM Google/설정/runtime103개 통과·공동 DB 미사용에 따른 조건부 PostgreSQL1개 skip, launcher13개·mypy54/웹 타입/SPA/계약 확인. 지정 개인 웹/API의 헬스·상태·로그인 화면200 및 API 계약 일치를 확인했다. 기본 미설정 runtime을 유지하며 실제 OAuth/공동 DB를 연결했다고 표시하지 않는다. 소유 합성 DB/볼륨·브라우저·QA API/웹은 정리했다.
 - CI: [최종 코드29a152d · 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38402405745). 작업/전체/수정 및 실행 포트 보완 리뷰 모두 승인. 후속 문서 커밋의 exact-head 결과는 PR에서 확인한다.
-- Sites: v35 공개 게시 성공·v34 보존, source `3648837847e5c1b3d87dfa9294c27d0e00435153`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2d7136cfed788191b8db582803e0b301`, deployment `appgdep_6ace29a304e481919c5beaa7ac6cd541`. 서버 포트 보완/최종 인계 기록은 v36에 반영한다. 공개 앱·main 병합은 D013에 따라 유예한다.
+- Sites: v35 공개 게시 성공·v34 보존, source `3648837847e5c1b3d87dfa9294c27d0e00435153`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2d7136cfed788191b8db582803e0b301`, deployment `appgdep_6ace29a304e481919c5beaa7ac6cd541`. 서버 포트 보완·최종 인계/1,813개 CI 결과를 [v36](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#google-oauth)에 게시했다. source `bffe1117e1759197d42f80d327f38c505b55205a`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_40148f188db08191a3d05c5dd9f8f75f`, deployment `appgdep_6ace2f6a61a08191a457f2c32f876211` native succeeded/public. v35도 보존했으며 사본 기준2911619·HTML21/로컬링크·anchor358/manifest/공개 비밀값 제외 검사를 통과했다. 계획 문서의 새 브라우저 화면 검사는 수행하지 않았다. 현재 원본의 이후 게시 기록과 사본 기준을 구분한다. 공개 앱·main 병합은 D013에 따라 유예한다.
 
 ## 이전 작업 · 공식 정책 HTML 원문 준비
 
