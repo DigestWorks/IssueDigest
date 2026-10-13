@@ -97,4 +97,11 @@ React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, P
 
 `npm run build`의 정적 산출물은 `apps/web/build/client`입니다. 운영에서는 웹 정적 파일을 제공하고 `/api/*`와 `/health/*`를 FastAPI로 전달하는 같은 출처의 리버스 프록시가 필요합니다. 앱 경로는 `index.html`로 연결하되 API·헬스 요청을 HTML로 바꾸면 안 됩니다. Vite 프록시는 개발 서버 설정입니다. 개발 서버나 `vite preview`를 운영 서버로 사용하지 않습니다. 개발 서버의 사용자 전용 환경·웹/API·SSH 터널은 검증했습니다. [서버 안내](infra/development-server.md)에 실행·재접속 방법을 기록하며 운영 배포는 아직 수행하지 않았습니다.
 
-현재 화면에는 자료가 없으며 실제 서비스 연결 확인만 실행할 수 있습니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 워커·Neo4j·자료 수집·검색 인덱스·AI 실행·권한·운영 연결은 아직 없습니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
+웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 워커·Neo4j·자료 수집·검색 인덱스·AI 실행·실제 계정/공동 DB·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
+
+
+## Google 로그인·자료 진입
+
+운영자가 초대한 Google 계정만 로그인할 수 있습니다. Google 서명·state/PKCE/nonce를 확인하고 서버 세션을 발급한 뒤 현재 작업 공간 권한으로 자료 목록·원문/인용을 읽습니다. 이메일·공급자 토큰을 웹 저장소에 보관하지 않습니다. 로그아웃하면 해당 서버 세션을 폐기합니다.
+
+[설정·실행 안내](apps/api/README.md)와 [작업 명세](docs/changes/google-oauth-workspace.md)에 개발용 HTTPS callback, 명시 마이그레이션·초대/자료 등록과 필요한 환경변수를 기록했습니다. 실제 Google 클라이언트 파일은 개인 위치에서 확인했지만 실제 Google 계정 로그인·공동 DB 이관·운영 프록시는 미검증입니다. 테스트의 합성 계정/자료는 실사용 계정/자료가 아닙니다. 공개 앱·main 병합은 D013에 따라 유예합니다.

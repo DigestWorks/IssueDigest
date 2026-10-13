@@ -66,7 +66,8 @@ UI는기존cream/green·2인조사작업공간의차분한스타일유지. AI미
 
 ## Controller 결합·사용자 필요한 설정
 
-- [ ] 작업별/전체독립리뷰와전체검사·실PG→기존API→개인HTTPS→브라우저 합성OAuth journey/반복·권한폐기·viewport/console검증. 외부사용자Google 로그인으로표현하지않음.
-- [ ] 사용자指定Google이메일1개 승인기록은private600파일(두번째미정), 기존GitHub후보identity등록없음, privileged가입API없음. actualDBtarget/빈테이블·기존앱권한/backup/별도비밀설정확인, 명시적migration/승인identity·sharedworkspace/실제source새ID재구성 이관은가능한조건충족시에만, 테스트/운영credentials무단사용없음.
-- [ ] Google Cloud OAuth web application client: 개발 `https://localhost:16173/api/v1/auth/google/callback`, 운영 `https://issuedigest.projects.ai.kr/api/v1/auth/google/callback` 각각설정; GoogleAuthPlatformAudience External/testing의테스트사용자에승인Google계정추가, dataaccessopenid/email만, clientID/secret 서버private600환경만·대화전송없음. 사용자로그인/필요한기존앱계정비밀전달/운영proxy로그는 명시적으로대기표시.
-- [ ] DraftPR(basefeat/official-html-evidence)/앱첨부·Sites기존v34보존/최신요약·로컬/개인서버인계/소유QA자원정리. main·공개앱배포없음.
+- [x] 세 작업/전체 독립 코드 리뷰와 controller 전체 검사. 합성 PostgreSQL→DDL 금지 앱 역할→실제 API→개인 HTTPS→브라우저에서 두 계정 로그인·같은 자료 읽기·로그아웃/차단·미초대/기존 세션 유지와 desktop/mobile/console 확인. 이동 중/bfcache의 보류 브라우저 실험은 미완료이며 컴포넌트 검증과 구분한다.
+- [x] 사용자 지정 Google 계정 한 개의 승인 기록을 private600 파일에 보관, 두 번째 미정. 기존 GitHub 후보 identity 등록 없음. 클라이언트 JSON의 필수 항목·개발 callback 일치·private600 확인. 비밀값/계정정보 Git·PR·Sites 게시 없음.
+- [ ] 실제 공동 DB target/백업·앱 역할/테이블 권한/별도 비밀 설정 확인과 명시적 migration·승인 초대/sharedworkspace·검증한 공식 source의 새 ID 재구성 이관. 실제 DB는 테스트/reset 대상으로 사용하지 않는다. 기존 앱 계정 비밀 설정 미제공으로 대기.
+- [ ] 실제 Google 계정 로그인·Audience External/testing 테스트 사용자/공급자 화면 검증. 개발 callback `https://localhost:16173/api/v1/auth/google/callback`. 공개용은 배포 준비 때 별도 등록/운영 프록시의 query/cookie 로그를 확인. 현재 합성 서명/provider 테스트로 실제 로그인 완료를 주장하지 않는다.
+- [ ] Draft PR(basefeat/official-html-evidence)/앱 첨부·Sites v35/이전 v34 보존·로컬/개인 서버 인계·소유 QA 자원 정리. main·공개 앱 배포 없음.

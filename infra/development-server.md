@@ -63,7 +63,7 @@ uv --version
 ```sh
 # API 터미널
 uv run --package issuedigest-api uvicorn issuedigest_api.main:app \
-  --reload --host 127.0.0.1 --port 18090
+  --reload --host 127.0.0.1 --port 18090 --no-access-log
 
 # 웹 터미널
 API_PROXY_TARGET=http://127.0.0.1:18090 \
@@ -104,3 +104,10 @@ ssh -N -i /path/to/private-key \
 3. D011의 PostgreSQL·pgvector·PydanticAI/DBOS를 사용한다. pgvector 패키지는 미준비다. A005~A006의 배치·인증과 D012 도메인 연결은 대기하며 [PostgreSQL 연결 준비](postgresql.md)의 남은 조건을 확인한다.
 
 최신 상태는 [진행 기록](../docs/planning/progress.md), 선택은 [결정 기록](../docs/planning/decisions.md)을 따른다.
+
+
+## Google OAuth 개발 연결 · 2026-10-13
+
+코드는 Google 로그인·명시 초대·서버 세션·공동 자료 목록/읽기를 지원한다. 이 서버의 기본 개인 개발 세션은 미설정 앱으로 유지하며 실제 OAuth·공동 DB를 연결했다고 표시하지 않는다. 기존 앱 계정의 비밀 설정이 아직 읽히지 않으므로 개발자의 DDL 계정으로 앱을 실행하지 않는다. 필요한 환경변수·HTTPS·등록된 callback·명시 마이그레이션/초대 준비는 [API 안내](../apps/api/README.md)를 따른다.
+
+실제 callback의 code/state가 개발 로그에 남지 않도록 API 실행에는 `--no-access-log`를 사용하고 웹은 지원되는 npm 개발 실행 경로를 쓴다. 설정된 OAuth runtime은 별도 opt-in이다. 운영 Nginx 로그·HTTPS/라우팅은 공개 OAuth 전에 별도 확인해야 하며, 개발 프록시 검증으로 운영 설정을 인증하지 않는다. main·공용 checkout·운영 서비스 변경이나 첫 앱 게시를 수행하지 않는다.

@@ -22,3 +22,10 @@
 권한 분리 근거: [PostgreSQL privileges](https://www.postgresql.org/docs/18/ddl-priv.html). 백업 방식·복원 근거: [PostgreSQL SQL dump](https://www.postgresql.org/docs/18/backup-dump.html). 이 제품에 필요한 시점·구성은 위의 설계 판단이며 지금 세 요청을 모두 보내야 한다는 결론이 아니다.
 
 관리자에게 추가 메시지를 보내지 않는다. 접속값·키는 계정 전용 비밀 설정에 두고, 운영 DB 마이그레이션·권한 변경·새 백업/유료 서비스·DNS 변경도 실행하지 않았다. 다음은 개발자가 수행할 자료/인용·검색 구현과 준비된 앱 계정의 연결 확인이다.
+
+
+## Google 로그인의 실제 DB 연결 · 현재 대기
+
+구현·합성 검증은 완료했으며 기존 앱 계정의 접속 설정만 다음 연결 조건이다. 개인 서버의 `~/.config/issuedigest/application-database.env`를 아직 읽을 수 없다. 동료가 다른 개인 위치에 준비했다면 위치를 확인하고, 없다면 기존 앱 계정의 `ISSUEDIGEST_DATABASE_URL`을 저장소 밖 권한600 파일로 전달받는다. 접속값은 대화·Git·PR·Sites에 게시하지 않는다. 새 계정 생성이나 sudo/Docker 권한 확대는 요청하지 않는다. 전달/준비 완료로 간주하지 않는다.
+
+개발자는 설정을 받은 뒤 실제 대상·앱 역할/상속·스키마 권한 부재와 필요한 테이블 권한을 확인한다. 백업 조건·승인 공유 공간·초대/원문 이관을 준비하고 실제 Google 계정 로그인은 사용자와 검증한다. 앱 runtime에는 개발자 스키마 변경 계정을 사용하지 않는다.
