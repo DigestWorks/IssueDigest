@@ -471,7 +471,9 @@ URL·이미지를 가져오거나 JS·외부 본문 속 지시를 실행하지 �
 
 어댑터는 caller UUID4로 기존 `ParsedRepresentation`을 만들며 `pages=tables=()`다.
 텍스트·해시·파서 식별자를 옮기고 새 ID·문서 버전·페이지·표는 만들지 않는다.
-잘못된 UUID4는 기존 domain `ValidationError`를 따른다.
+UUID4는 기존 domain이 검증한다. 어댑터는 그 `ValidationError`를 고정
+`AuditError("policy_html_invalid_representation")`로 바꾸며 원래 오류의 표시를 숨긴다.
+잘못된 caller ID를 오류·경고에 포함하지 않는다.
 
 `locate_policy_html_quote`는 기존 domain과 해당 파서/정규화 계약을 다시 검증한다.
 검증 우회로 만든 잘못된 객체도 거부한다. exact substring과 Unicode code-point 위치만 사용한다.
@@ -495,7 +497,7 @@ code points의 실제 인접 문자열이며, 인접 문맥이 없으면 `None`�
 | `policy_html_byte_limit_exceeded`, `policy_html_text_limit_exceeded`, `policy_html_depth_limit_exceeded` | 원문·본문·깊이 한도 초과 |
 | `policy_html_invalid_structure`, `policy_html_empty_text` | 모호함·잘림·미지원 본문 또는 추출할 텍스트 없음 |
 | `policy_html_invalid_metadata`, `policy_html_invalid_license` | 제목·날짜·부처명 또는 명시 라이선스 검증 실패 |
-| `policy_html_invalid_result`, `policy_html_invalid_representation` | 결과 또는 표현 계약 재검증 실패 |
+| `policy_html_invalid_result`, `policy_html_invalid_representation` | 결과·caller UUID4·표현 계약 검증 실패 |
 | `invalid_quote`, `invalid_quote_start` | 빈/공백/잘못된 Unicode 인용 또는 잘못된 위치 |
 | `quote_not_found`, `quote_ambiguous` | 정확 일치 없음 또는 여러 위치 |
 

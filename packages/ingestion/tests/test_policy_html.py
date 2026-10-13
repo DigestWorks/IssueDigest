@@ -9,7 +9,6 @@ import issuedigest_ingestion as ingestion
 import pytest
 from issuedigest_domain.citations import Citation, validate_citation
 from issuedigest_domain.sources import ParsedRepresentation
-from pydantic import ValidationError
 
 URL = "https://www.korea.kr/news/policyNewsView.do?newsId=123456789"
 NOTICE = "이 자료는 텍스트에 한하여 공공누리 제1유형(출처표시)의 조건에 따라 이용할 수 있습니다."
@@ -309,10 +308,40 @@ def test_adapter_preserves_contract_and_unicode_quote_support_boundary():
     )
     status = validate_citation(citation, rep)
     assert (status.anchor_status, status.support_status) == ("matched", "not_evaluated")
-    with pytest.raises(ValidationError):
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
         api("to_policy_html_representation")(
             extract(), representation_id=UUID(int=1), document_version_id=VERSION
         )
+
+
+@pytest.mark.parametrize("field", ["representation_id", "document_version_id"])
+@pytest.mark.parametrize("caller_id", ["PRIVATE_CALLER_ID", "", UUID(int=1), None, True])
+def test_adapter_identity_failures_display_fixed_errors_without_input_or_context(
+    field, caller_id, capsys
+):
+    import traceback
+    import warnings
+
+    identities = {"representation_id": REPRESENTATION, "document_version_id": VERSION}
+    identities[field] = caller_id
+    with warnings.catch_warnings(record=True) as emitted:
+        warnings.simplefilter("always")
+        with pytest.raises(Exception) as raised:
+            api("to_policy_html_representation")(extract(), **identities)
+    error = raised.value
+    assert type(error) is ingestion.AuditError
+    assert str(error) == "policy_html_invalid_representation"
+    assert repr(error) == "AuditError('policy_html_invalid_representation')"
+    assert error.__cause__ is None
+    assert error.__suppress_context__ is True
+    displayed = "".join(traceback.format_exception(error))
+    assert "PRIVATE_CALLER_ID" not in displayed
+    assert "ValidationError" not in displayed
+    assert "During handling of the above exception" not in displayed
+    assert "00000000-0000-0000-0000-000000000001" not in displayed
+    assert emitted == []
+    captured = capsys.readouterr()
+    assert (captured.out, captured.err) == ("", "")
 
 
 @pytest.mark.parametrize(

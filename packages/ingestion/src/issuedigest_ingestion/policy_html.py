@@ -251,17 +251,20 @@ def to_policy_html_representation(
     if type(extraction) is not PolicyHtmlExtraction:
         raise AuditError("policy_html_invalid_result")
     extraction.__post_init__()
-    return ParsedRepresentation(
-        representation_id=representation_id,
-        document_version_id=document_version_id,
-        parser_name=extraction.parser_name,
-        parser_version=extraction.parser_version,
-        normalization_profile=extraction.normalization_profile,
-        text=extraction.text,
-        text_sha256=extraction.text_sha256,
-        pages=(),
-        tables=(),
-    )
+    try:
+        return ParsedRepresentation(
+            representation_id=representation_id,
+            document_version_id=document_version_id,
+            parser_name=extraction.parser_name,
+            parser_version=extraction.parser_version,
+            normalization_profile=extraction.normalization_profile,
+            text=extraction.text,
+            text_sha256=extraction.text_sha256,
+            pages=(),
+            tables=(),
+        )
+    except ValidationError:
+        raise AuditError("policy_html_invalid_representation") from None
 
 
 def locate_policy_html_quote(
