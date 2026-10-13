@@ -1,10 +1,10 @@
 # GitHub OAuth와 공동 조사 자료 진입
 
-2026-10-13. 사용자는 OAuth 로그인을 선택하고 두 GitHub 계정을 지정했다. 제안한 GitHub를 첫 제공자로 사용한다. R1/R2·D013의 최소 제품 준비를 이어간다. OpenSpec root=null이므로 xinics:spec-driven-workflow의 SDD/TDD/독립 리뷰를 적용한다.
+2026-10-13. 사용자는 OAuth 로그인을 선택하고 두 GitHub 계정을 지정했다. GitHub는 첫 제공자 제안이며 사용자 질문에 따라 제공자 선택을 다시 확인 중이다. Task1 공통 저장/세션/권한을 먼저 구현하고 Task2 제공자 연동은 선택 후 확정한다. R1/R2·D013의 최소 제품 준비를 이어간다. OpenSpec root=null이므로 xinics:spec-driven-workflow의 SDD/TDD/독립 리뷰를 적용한다.
 
 ## Global Constraints
 
-- 비밀번호 로그인·자동 가입 없이, 운영자가 등록한 GitHub 고정 계정ID와 활성 작업 공간 멤버십으로 허용한다. 사용자가 지정한 실제 계정/ID·workspace/snapshot·원문·세션·OAuth 비밀/코드/state/verifier·DB 접속값은 Git/PR/Sites/로그에 게시하지 않는다. 테스트는 합성 데이터/공급자이며 실제 외부 계정을 자동 승인하지 않는다.
+- 비밀번호 로그인·자동 가입 없이, 운영자가 등록한 검증된 제공자 issuer/subject와 활성 작업 공간 멤버십으로 허용한다. GitHub를 선택하면 고정 계정ID를 사용한다. 사용자가 지정한 실제 계정/ID·workspace/snapshot·원문·세션·OAuth 비밀/코드/state/verifier·DB 접속값은 Git/PR/Sites/로그에 게시하지 않는다. 테스트는 합성 데이터/공급자이며 실제 외부 계정을 자동 승인하지 않는다.
 - 기존 EvidenceBundle과 Cookie-only 보호 GET·불변 저장·인용 의미는 유지한다. 모델/유료 API·기존 MySQL·기존 수집 파일·main·공용 서비스·운영 설정을 변경하지 않는다. 공개 앱은 D013에 따라 유예하고 계획 Sites만 갱신한다.
 - DB 테스트는 새 소유 loopback PostgreSQL18.6/issuedigest_test만 사용한다. 실제 전용 공동 DB는 테스트/reset/downgrade 대상으로 사용하지 않는다. 실제 이관은 대상/백업/권한과 새 승인 workspace를 확인한 후 명시적으로 준비한다. runtime에 스키마 변경 계정을 사용하지 않는다. 비밀 설정 미제공이면 실제 연결은 미완료로 남기되 구현·합성 E2E·문서는 마친다.
 - OAuth는 state+브라우저 바인딩+PKCE S256·10분 단일 사용, 서버 token 교환·매회 GET /user 확인, 승인 identity/멤버십 재검증 후 서버 세션을 발급한다. GitHub 토큰은 응답/브라우저 저장소/DB에 보관하지 않는다. 세션은 기존 Secure/HttpOnly/SameSite=Lax/Path=/·__Host 쿠키와 hash-only DB·절대8시간/idle30분을 따른다.
@@ -22,7 +22,7 @@
 `OAuthRepository(engine)` API:
 - `begin_login() -> PendingLogin`: state/browser_token/verifier를 각각 secrets.token_urlsafe(32)로 생성, 반환 frozen dataclass의 state/browser_token/code_challenge(sha256 verifier ASCII의 unpadded base64url S256)는 repr=False. DB에는 state/cookie hash와 단기 PKCE verifier·DB clock 기반600초 expiry만 저장. expired rows 정리, 활성200개 상한을 트랜잭션 advisory lock key741031로 직렬화하여 count+insert 동시 초과 방지. cap/DB실패는 fixed StorageError. raw secrets를 SQLAlchemy 오류 문자열로 내보내지 않는다.
 - `consume_login(state:str,browser_token:str) -> str`: 기존 canonical43token 검증, 양쪽hash/expiry 일치할 때만 DELETE RETURNING으로 한 번 verifier 반환. mismatch/누락/만료/재전송은 AuthenticationDenied, 다른 브라우저의 유효 state를 지우지 않음. verifier 반환도 canonical 검증, corruption/DB실패는 고정 StorageError. provider 호출 전에 소비하며 실패는 새 start로 복구한다.
-- `issue_authorized_session(subject:str,previous_token:str|None=None) -> IssuedSession`: subject는 canonical 양의 십진 ID(최대2^63-1), issuer 고정 `https://github.com`. 이미 승인된 enabled identity + 활성 membership>=1만 허용, 미등록 identity/멤버십 생성·재활성화 없음. 1트랜잭션에서 이전 유효형식 세션 row를 먼저 잠그고 새 user/membership을 잠그며, 새 세션 insert와 이전 보유 쿠키 세션 revocation을 원자 처리한다. 기존 lifetime/idle/hash-only 방식 유지. 실패 시 새 세션/이전 폐기 둘 다 반영하지 않음. enabled/멤버십 동시 폐기와 세션 refresh의 lock 순서/DB 충돌을 검증한다.
+- `issue_authorized_session(issuer:str,subject:str,previous_token:str|None=None) -> IssuedSession`: issuer/subject는 기존 IdentityRepository와 같은 nonblank str 최대256, trusted 제공자 검증 결과만 호출자가 전달한다. HTTP 입력의 issuer/subject를 전달하지 않는다. 제공자별 subject 형식은 Task2에서 검증한다. 이미 승인된 enabled identity + 활성 membership>=1만 허용, 미등록 identity/멤버십 생성·재활성화 없음. 1트랜잭션에서 이전 유효형식 세션 row를 먼저 잠그고 새 user/membership을 잠그며, 새 세션 insert와 이전 보유 쿠키 세션 revocation을 원자 처리한다. 기존 lifetime/idle/hash-only 방식 유지. 실패 시 새 세션/이전 폐기 둘 다 반영하지 않음. enabled/멤버십 동시 폐기와 세션 refresh의 lock 순서/DB 충돌을 검증한다.
 
 `WorkspaceAccessRepository(engine)` API:
 - `get_session(token:str) -> SessionInfo`: 기존 세션/사용자 enabled/idle/absolute/revoked를 1 RR 트랜잭션에서 현재session→user→membership 순서로 재검증·필요 row lock, 활성 membership 정렬 반환(없으면 빈 배열). 유효 읽기만 activity 갱신. membership100개 초과/DBcorruption은 failclosed고정 StorageError. 기존 EvidenceAccess와동일 SQLSTATE40001 bounded2retry.
