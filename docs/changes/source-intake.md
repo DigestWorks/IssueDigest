@@ -8,7 +8,7 @@
 
 명시적으로 전달한 data root의 `parsed/`, `pdfs/`만 읽는다. 이전 경로·DB·SSH·외부 URL을 하드코딩하거나 자동 접속하지 않는다. 데이터 root와 필수 두 디렉터리가 없거나 디렉터리 탐색이 실패하면 검사가 완료됐다고 표시하지 않는다. symlink·특수 파일은 읽지 않는다. 입력 JSON의 경로는 파일 접근 지시가 아니고 원문 basename 대조에만 사용한다. 경로 탈출·절대 경로·NUL·역슬래시를 거부한다.
 
-여론조사 객체는 ASCII 숫자 문자열 registration_number(1~32문자)와 `https://www.nesdc.go.kr/` 또는 `https://nesdc.go.kr/` 출처를 요구한다. 공백·bool·숫자 자동 변환이나 URL 자격 증명·비표준 포트를 허용하지 않는다. 다른 JSON 형식은 별도 unsupported로 분류한다. 원문 basename이 정확히 한 파일 후보를 가리킬 때만 PDF 헤더·크기·SHA-256 검사를 통과한 **candidate**를 만든다. 여러 경로에서 같은 파일명이 발견되면 첫 파일을 선택하지 않고 ambiguous로 격리한다. basename이 같다는 사실은 원문 동일성 검증이 아니다.
+메타데이터 필드는 `registration_number`, `source_url`, `pdf_path`이며 별칭을 만들지 않는다. 여론조사 객체는 ASCII 숫자 문자열 registration_number(1~32문자)와 `https://www.nesdc.go.kr/` 또는 `https://nesdc.go.kr/` 출처를 요구한다. 공백·bool·숫자 자동 변환이나 URL 자격 증명·비표준 포트를 허용하지 않는다. 다른 JSON 형식은 별도 unsupported로 분류한다. 원문 basename이 정확히 한 파일 후보를 가리킬 때만 PDF 헤더·크기·SHA-256 검사를 통과한 **candidate**를 만든다. 여러 경로에서 같은 파일명이 발견되면 첫 파일을 선택하지 않고 ambiguous로 격리한다. basename이 같다는 사실은 원문 동일성 검증이 아니다.
 
 PDF는 첫 1,024바이트 안의 `%PDF-`와 전체 bytes의 SHA-256/크기를 확인한다. 형식 헤더는 파싱 성공·실제 원문·인용 품질 검증이 아니다. 읽는 동안 파일 identity/크기/수정 시각이 바뀌면 후보로 사용하지 않는다. 전체 PDF bytes를 메모리에 한꺼번에 적재하지 않고 해시를 계산한다. 같은 내용 해시 그룹·중복 조사 등록번호를 보고하되 서로 다른 출처/문서를 자동 병합하지 않는다. candidate로 분류해도 EvidenceBundle/인용을 만들거나 DB에 저장하지 않는다.
 
@@ -28,11 +28,11 @@ PDF는 첫 1,024바이트 안의 `%PDF-`와 전체 bytes의 SHA-256/크기를 �
 
 ### 구현 항목
 
-- [ ] `packages/ingestion`에 독립 Python 패키지 `issuedigest-ingestion`/`issuedigest_ingestion`을 만든다. 새 외부 의존성은 추가하지 않는다. 표준 라이브러리로 검사/보고서/CLI를 책임별로 분리한다.
-- [ ] 위 요구사항을 그대로 구현한다. 라이브러리 `audit_poll_files(data_root, limits=...)`와 `issuedigest-ingestion audit-polls --data-root PATH [--private-manifest PATH]` CLI를 제공한다. 공개 summary와 상세 manifest를 분리하고 v1 형식·고정 상태/사유를 README에 기록한다.
-- [ ] uv workspace/lockfile·pytest discovery·mypy 대상에 추가한다. 기존 코드/생성 계약은 변경하지 않는다. `output/` 검증 산출물을 Git에서 제외한다.
-- [ ] 실제 assertion RED를 먼저 확인하고 최소 구현→GREEN/TDD를 지킨다. 합성 임시 파일로 정상 후보와 hand-derived SHA, 없거나 같은 basename인 PDF, 헤더 없는 PDF, 부적절한 metadata/URL/path, JSON decode·크기/개수/전체 읽기 한도, symlink/특수 파일, 파일 변경, 중복 해시/등록번호, CLI 집계의 비공개 정보 제외·exit2, 상세 파일 권한·덮어쓰기/소스 내부/실패 시 잔여 방지를 검사한다.
-- [ ] 패키지 README에 실제 명령·반환/격리·한도·관측 시각·품질 한계·후속 원문 대조/인용 경계를 기록한다. 전체 Python·JS 테스트/린트/타입/빌드/계약 검사 후 commit과 보고서를 남긴다.
+- [x] `packages/ingestion`에 독립 Python 패키지 `issuedigest-ingestion`/`issuedigest_ingestion`을 만든다. 새 외부 의존성은 추가하지 않는다. 표준 라이브러리로 검사/보고서/CLI를 책임별로 분리한다.
+- [x] 위 요구사항을 그대로 구현한다. 라이브러리 `audit_poll_files(data_root, limits=...)`와 `issuedigest-ingestion audit-polls --data-root PATH [--private-manifest PATH]` CLI를 제공한다. 공개 summary와 상세 manifest를 분리하고 v1 형식·고정 상태/사유를 README에 기록한다.
+- [x] uv workspace/lockfile·pytest discovery·mypy 대상에 추가한다. 기존 코드/생성 계약은 변경하지 않는다. `output/` 검증 산출물을 Git에서 제외한다.
+- [x] 실제 assertion RED를 먼저 확인하고 최소 구현→GREEN/TDD를 지킨다. 합성 임시 파일로 정상 후보와 hand-derived SHA, 없거나 같은 basename인 PDF, 헤더 없는 PDF, 부적절한 metadata/URL/path, JSON decode·크기/개수/전체 읽기 한도, symlink/특수 파일, 파일 변경, 중복 해시/등록번호, CLI 집계의 비공개 정보 제외·exit2, 상세 파일 권한·덮어쓰기/소스 내부/실패 시 잔여 방지를 검사한다.
+- [x] 패키지 README에 실제 명령·반환/격리·한도·관측 시각·품질 한계·후속 원문 대조/인용 경계를 기록한다. 전체 Python·JS 테스트/린트/타입/빌드/계약 검사 후 commit과 보고서를 남긴다.
 
 ## 결합·검증·게시
 
