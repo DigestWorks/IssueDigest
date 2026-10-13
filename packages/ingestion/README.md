@@ -270,3 +270,83 @@ root 내부를 거부하고 저장 실패에서는 completed를 출력하지 않
 실제 subprocess·hash/경로/변경·암호화·페이지/텍스트/출력 한도·CPU/메모리·timeout·회수·
 프로토콜 위조·공개 출력 프라이버시·개인 파일 저장·기존 audit-polls 회귀를 검사한다.
 PDF fixture 생성에는 새 의존성을 추가하지 않는다. 실제 자료의 품질·OCR·표·좌표는 미검증이다.
+
+## 제한된 인용 후보 검색·정확 문맥 선택
+
+이미 검증한 caller-owned `ParsedRepresentation`에 `find_pdf_quote_candidates`를 호출하면
+정확히 겹치는 모든 일치를 원문 code-point offset 순으로 집계한다. 자동으로 첫 후보를
+선택하거나 문자열을 정규화·trim·유사 검색·순위화하지 않는다. 없는 문자열은 빈 성공 결과다.
+`page_number`를 지정하면 해당 `PageSpan` 안의 quote만 조사하며 실제 페이지 번호를 유지한다.
+빈 페이지 등 존재하지 않는 PageSpan 번호는 `invalid_page_number`다.
+
+```python
+from issuedigest_domain.citations import Citation, validate_citation
+from issuedigest_ingestion import (
+    PdfQuoteSearchLimits,
+    find_pdf_quote_candidates,
+    resolve_pdf_quote,
+)
+
+# representation과 quote는 호출자가 준비한 검증된 모델과 정확한 문자열이다.
+result = find_pdf_quote_candidates(
+    representation, quote, limits=PdfQuoteSearchLimits(max_candidates=20)
+)
+# 후보를 대조한 호출자가 페이지와 인접 문맥을 명시한다. 자동 선택은 제공하지 않는다.
+selector = resolve_pdf_quote(
+    representation,
+    quote,
+    page_number=selected_page_number,
+    prefix=selected_prefix,
+    suffix=selected_suffix,
+)
+citation = Citation(
+    citation_id=citation_id,
+    document_version_id=representation.document_version_id,
+    representation_id=representation.representation_id,
+    selector=selector,
+)
+anchor = validate_citation(citation, representation)
+```
+
+`PdfQuoteSearchResult`는 frozen dataclass다. 원본 `representation_id`, `document_version_id`,
+`text_sha256`, 불변 selector tuple인 `candidates`, `occurrence_count`, `candidate_count`,
+`cross_page_match_count`, `has_more`를 제공한다. `occurrence_count`는 지정 페이지 또는 전체
+범위의 정확 일치 총수다. `candidate_count`는 한 PageSpan 안의 quote 총수이고,
+`cross_page_match_count`는 어떤 PageSpan에도 완전히 들어가지 않는 일치 수다. 페이지 밖 gap의
+일치도 이 수에 포함된다. `has_more`는 반환 수가 `candidate_count`보다 작을 때만 참이다.
+반환 한도에 도달해도 끝까지 집계하며, 한도 실패는 완료된 부분 결과를 반환하지 않는다.
+각 후보의 `prefix`/`suffix`는 페이지 안에서만 자른 앞뒤 최대 문맥이고 공백도 그대로 남긴다.
+빈 문맥·0자 설정은 `None`, `regions=()`이며 좌표를 추측하지 않는다.
+
+`resolve_pdf_quote`는 지정 페이지와 supplied `prefix`/`suffix`의 정확 인접 일치로 유일성을
+검사한다. 문맥은 각각 `None` 또는 비어 있지 않은 유효 UTF-8 문자열이며 최대200 code points다.
+공백 문맥도 유효하다. 반환 selector에는 제공한 문맥만 그대로 넣으며 미제공 문맥은 `None`이다.
+조건 일치가 없으면 `quote_not_found`, 여러 개면 `quote_ambiguous`, 단일 일치의 quote 또는
+제공 문맥이 한 PageSpan 밖이면 `quote_crosses_page`다. quote가 페이지를 가로지르거나,
+문맥이 다른 페이지·gap을 침범해도 정확 인접 일치가 있으면 유일성 수에서 제외하지 않는다.
+지정 페이지에서도 인접 문맥의 최대200자 대조는 페이지 밖 텍스트를 확인할 수 있지만,
+그 경우 selector를 생성하지 않는다. 후보 반환 한도로 유일성을 추론하지 않는다.
+
+| `PdfQuoteSearchLimits` 필드 | 기본값 | 허용 범위 |
+| --- | --- | --- |
+| `max_text_characters` | 1,000,000 | 양의 정수; 전체 검색은 전체 text, 페이지 지정은 해당 PageSpan 길이 |
+| `max_occurrences` | 10,000 | 양의 정수; 지정 범위의 문맥 필터 적용 전 raw quote 일치 수 |
+| `max_candidates` | 100 | 1..1000; 후보 검색 반환 수만 제한 |
+| `context_characters` | 80 | 0..200; 후보 preview의 각 앞뒤 길이 |
+
+한도 객체도 frozen dataclass이며 모든 값은 exact `int`다. bool·문자열·실수·범위 밖 값이나
+잘못된 한도 인자는 `invalid_quote_search_limits`다. text 범위 초과는
+`quote_search_text_limit_exceeded`, raw 일치 수 초과는 `quote_search_occurrence_limit_exceeded`다.
+resolver는 `max_candidates`와 preview 길이로 선택을 제한하지 않으며 scan/occurrence 한도를
+끝까지 적용한다. 잘못된 문맥은 `invalid_quote_context`, 인용·페이지 오류는 기존
+`invalid_quote`/`invalid_page_number` 의미를 유지한다. 오류는 고정 코드만 담으며
+text·quote·context·경로·ID를 포함하지 않는다. 기존 `locate_pdf_quote`와 CLI는 그대로다.
+
+이 API는 기존 domain 검증을 통과한 caller-owned 모델을 소비한다. `model_construct`나
+`model_copy(update=...)` 등 검증 우회로 만든 모델을 검증된 입력으로 취급하지 않는다.
+이 모듈이 representation의 해시·페이지 계약을 새로 검증하는 신뢰 경계는 아니다.
+선택 후 소비자는 위 예시처럼 기존 `validate_citation`을 호출해야 한다. `matched`는 정확한
+위치 확인이고 support는 `not_evaluated`다. 검색·선택은 SourceDocument·DocumentVersion·
+EvidenceBundle을 만들지 않으며 원문 진위·조사/표 대응·수치/주장 지지·geometry·OCR·제품 권한을
+평가하지 않는다. 실제 후보의 quote·문맥·해시·UUID와 상세 결과는 개인 환경에만 보관하며
+Git·PR·Sites에 게시하지 않는다. DB·네트워크·모델 호출이나 자동 원문 가져오기는 없다.

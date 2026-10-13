@@ -7,6 +7,7 @@ import issuedigest_ingestion as ingestion
 import pytest
 from issuedigest_domain.citations import Citation, validate_citation
 from issuedigest_ingestion import AuditError
+from issuedigest_ingestion.filesystem import identity
 from pdf_fixtures import source
 
 
@@ -18,7 +19,7 @@ def api(name: str):
 
 def test_real_pdf_preserves_unicode_offsets_empty_pages_and_source(tmp_path: Path) -> None:
     root, file, digest = source(tmp_path, [" 한글😀e\u0301 repeat ", "", "repeat tail"])
-    before = file.read_bytes(), file.stat()
+    before = file.read_bytes(), identity(file.stat())
     result = api("extract_pdf_text")(root, "pdfs/PRIVATE.pdf", digest)
     assert result.text == " 한글😀e\u0301 repeat \n\f\n\n\f\nrepeat tail"
     assert result.page_count == 3
@@ -30,7 +31,7 @@ def test_real_pdf_preserves_unicode_offsets_empty_pages_and_source(tmp_path: Pat
     assert result.parser_name == "pypdf"
     assert result.parser_version == "6.20.1"
     assert result.normalization_profile == "pypdf-plain-v1"
-    assert (file.read_bytes(), file.stat()) == before
+    assert (file.read_bytes(), identity(file.stat())) == before
     with pytest.raises(FrozenInstanceError):
         result.text = "changed"
 

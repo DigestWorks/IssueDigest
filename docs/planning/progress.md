@@ -6,22 +6,44 @@
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. 실제 로그인·초대·나머지 제품 API·이벤트·워커·운영 DB·검색은 미완료 |
-| P2 실제 근거 | 자산 조사·PDF 추출/인용 위치 구현 · 이관 미착수 | 원문 후보·해시·격리와 제한된 페이지 텍스트 추출 구현. 실제6개 추출, 기존35문항은 반복 매치로 자동 인용 보류. 첫 이슈·정확한 조사 대응·표·이관은 후속 |
+| P2 실제 근거 | 자산 조사·PDF 후보/문맥 선택 구현 · 이관 미착수 | 실제6개/35문항/87위치 후보·명시 문맥의 정확 위치 검증. 적합한 조사/표 근거의 판단·첫 이슈·표/수치·이관은 후속 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
 | P6 운영 검증 | 미착수 | 기존 서버 상세·배치·실측·백업 복원 필요 |
 | 이전 와이어프레임 | 코드 보존 · 배포 종료 | Vercel 배포 14개 삭제, Git 자동 배포 연결 해제 |
 
+## 2026-10-13 · 공개 배포 인수인계
+
+- 동료 보고: 공용 checkout·릴리스 개발 그룹 쓰기, main 자동 검사/배포·제한된 배포 SSH, 별도 운영 API 서비스 준비. 개발 브랜치·기존 DB·자료는 변경하지 않음.
+- 직접 확인: DNS 정상, 서버와 외부에서 인증서 검증을 유지한 HTTPS `/` HTTP503. 외부 `/health/live`·`/api/v1/status` HTTP502, 운영 API inactive·현재 릴리스 없음. TLS 대기라는 전달 문서보다 HTTPS 연결이 진행됐지만 앱은 아직 게시되지 않았다.
+- 최신 main `6d0884e`의 workflow·배포 스크립트·서비스·웹 설정을 읽었다. 개발 코드와의 읽기 전용 병합 미리보기에서 충돌 표시 없음. 통합 커밋·통합 후 검사·main 병합·첫 배포·복구는 아직 수행하지 않았다. 앱 화면은 빈 자료/연결 확인이며 실제 자료·AI·로그인·운영 DB는 후속이다.
+- 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
+- Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
+
 ## 현재 작업
 
-- 작업: [PDF 페이지 텍스트·정확 인용 준비](../changes/pdf-text-evidence.md), R2/P2의 다음 부분 구현. 기대 해시로 묶은 PDF 복사본·제한된 파서·기존 계약 어댑터·유일한 정확 인용 위치를 구현했다.
-- 담당/브랜치/PR: controller/implementer · `feat/pdf-text-evidence` · [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) · 선행 #12 위, 미병합.
-- 상태: 구현·독립 작업/전체 변경 리뷰·controller 전체 검증·실제 소표본 대조·Draft PR #13 게시/앱 첨부·Sites v29 공개 게시 완료. 첫 이슈·표 구조·OCR·좌표·원문 동일성·운영 DB 이관은 별도다.
-- 검증: 전체 Python1,021+JS134=1,155개 및 타입·빌드·생성 계약 통과. 실제 PDF6개/92페이지 추출. 기존35문항 모두 여러 위치에 반복되어 자동 인용 확정을 거부했다. 별도 페이지 텍스트 인용 확인6개는 성공했지만 기존35문항의 검증이 아니다.
-- 관리자 요청: **pgvector만 전달·완료**. 직접vector0.8.7·거리 연산과 별도 프로젝트 로그인 계정 존재를 확인했다. [기존 나머지 제안](../../infra/administrator-request.md)은 미전달이며 개발의 선행 조건이 아니다. 실사용 전 백업/권한·비용/접근 준비를 단계별로 확인한다.
-- 다음: 첫 이슈·이용 조건을 확정하고, 문항·페이지·표/응답 수치의 대응 규칙과 평가 자료를 준비한다. 반복 매치를 첫 위치로 임의 선택하지 않는다.
-- Sites: v30 공개 게시 완료, v29를 보존했다. pgvector 완료·나머지 제안 미전달과 필요한 시점을 정정했다. PDF 구현/소표본 기록은 유지한다.
+- 작업: [PDF 인용 후보·문맥 선택](../changes/pdf-quote-candidates.md), R2/P2의 다음 부분 구현. 반복 문항의 정확 위치 후보와 페이지/인접 문맥 조건의 유일 선택을 구현한다.
+- 담당/브랜치/PR: controller/implementer · `feat/pdf-quote-candidates` · [Draft PR #14](https://github.com/DigestWorks/IssueDigest/pull/14) · 선행 #13 위·미병합.
+- 상태: 구현·독립 작업 리뷰·controller 전체 검사·실제 후보 대조 완료, 독립 전체 변경 리뷰 승인·Draft PR #14 게시/앱 첨부·Sites v31 공개 게시 완료. 표/응답 수치·원문 진위·올바른 근거 위치의 의미 판단·제품 화면/운영 DB 연결은 별도다.
+- 검증: 같은 비무작위6개에서35문항/87정확 위치,35문항 모두 여러 페이지·4문항은 같은 페이지에서도 반복한다. 각 문항에 유일한 페이지/80자 문맥 매치가 있지만 적합한 조사/표의 위치라는 판단은 하지 않았다. 신규106개·전체Python1,127+JS134=1,261개 및 타입/빌드/계약 검사 통과. 새API의 실제87후보/페이지+문맥round-trip을 검증했다. 제품자동선택/올바른조사·표판정은 하지 않았다.
+- 관리자 요청: 실제 전달은 pgvector만, 완료. 별도 DB 로그인 계정 존재 확인. 다른 미전달 제안은 현재 개발의 선행 조건이 아니며 [필요 시점](../../infra/administrator-request.md)에 확인한다. 추가 권한/키/외부 요청 없이 진행한다.
+- 다음: 전체 변경 리뷰·PR·Sites·인계를 마무리하고 자료/근거의 실제 조회·선택 흐름에 연결한다. 첫 제품 이슈·자료 이용 조건·표/수치 검증은 별도다. 실제 원문/문맥은 공개하지 않는다.
+- Sites: v31 공개 게시 완료, v30을 보존했다. 후보/명시 선택의 위치 검증과 조사/표 의미·제품 화면 연결 후속을 구분했다.
+
+## 2026-10-13 · PDF 인용 후보·문맥 선택
+
+- 구현: af1bd39·작업 체크리스트/명세 cc38d23. 별도 quotes 모듈의 불변 검색 한도/결과·정확 후보 목록·페이지/인접 문맥 resolver를 추가했다. 기존 추출/locator/CLI·도메인/API·생성 타입·의존성은 유지했다. 후보에는 caller 문서/표현 ID·텍스트 해시와 정확한 페이지/문자 위치가 연결된다.
+- 동작: 겹치는 매치·페이지 경계·문맥의 페이지 침범도 유일성 판정에서 누락하지 않는다. 기본 text1,000,000자·raw occurrence10,000개·반환 후보100개·앞뒤80자 preview이며 반환 후보 제한 뒤에도 전체 건수를 세고 has_more를 표시한다. 실패/잘린 목록으로 유일성을 추정하거나 첫 위치를 자동 선택하지 않는다. 명시 페이지 요청은 그 PageSpan 길이에 text 한도를 적용한다.
+- 검증: 합성 assertion RED43개/교정된 resolver RED55개 후 신규106개 GREEN, ingestion349개. worker/controller 각각 최종 코드에서 전용 합성 PostgreSQL18.6 포함 전체 Python1,127+JS134=1,261개, skip0·린트/format·mypy·TS·SPA·OpenAPI drift exit0. README 예제도 합성 유효 모델/선택 조건과 실제 인용 검증으로 실행했다. 독립 작업/전체 변경 리뷰 승인·Critical/Important/Minor 지적0. 기존 명세의 유효 모델 입력·미평가 의미/권한·운영 제외와 전사 로그 한계를 유지하며 PR/Sites/인계는 controller가 별도 확인한다.
+- 기존 회귀: 원본 보존 테스트가 전체 stat의 atime(읽기 접근 시각)까지 비교하여 초 경계에서 실패했다. 읽기 후에도 bytes·dev/ino/mode/size/mtime_ns/ctime_ns를 비교하도록 이 assertion만 정정했다. PDF 생산 코드는 변경하지 않았다. 원래 전체 실패 로그는 덮어써졌고 관측 실패의 명시적 전사 발췌만 남아 있음을 보고서에 기록했다. 해당 테스트·ingestion·전체 gate는 정정 후 통과했다.
+- 실제 대조: 같은 비무작위 소표본6개/35문항, 추출은 PDF당 wall15초로 제한했다. 새API가 정확 위치87개를 반환했고87개 모두 기존 validate_citation의 anchor matched/support not_evaluated를 통과했다. 기본 문항만 요청하면35개 모두 quote_ambiguous, 후보의 페이지로만 제한하면75회 matched/12회 ambiguous였다. 후보별 명시 페이지+앞뒤 원문 문맥으로87회 모두 동일 위치 round-trip 통과, 각35문항에 하나 이상의 유효 round-trip이 있었다. 반환 후보1개로 제한한35회도 총수/has_more를 유지했다.
+- 해석 경계: 모든 후보를 QA 조건으로 대조했으며 적합한 조사/표 위치를 고르거나 제품에서 자동 선택하지 않았다. 테스트용 caller UUID는 저장된 문서 버전이 아니다. 위치 일치·선택 가능성과 원문 진위·조사/표 대응·응답 수치·주장 지지를 구분한다. 전체225개 품질로 일반화하지 않는다.
+- 보호: 실제 문항/문맥·텍스트·경로·해시·UUID는 개인 환경 밖으로 내보내지 않고 집계만 기록했다. operating DB·원문·공유 서비스·DNS·모델 호출/새 의존성 변경 없음. 추가 관리자 요청 없음. 테스트 migration은 명시적인 전용 로컬 합성DB에만 실행했다.
+- 게시: [Draft PR #14](https://github.com/DigestWorks/IssueDigest/pull/14) 생성·앱 첨부 완료, 선행 #13 위·미병합. [46a9d20 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38342927912) 성공. Sites v31 게시와 현재 폴더/서버 사용자 전용 worktree의 867f2df 인계를 확인했다. 실제 제품 화면/운영 DB 배포는 수행하지 않았다.
+- Sites: [v31 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#quote-candidates) native succeeded·URL 확인, 공개 설정 유지. source `b9828cc9e0143db890d9fcb742a2876859904a52`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_f818301f172c819194d781e919ca2920`, deployment `appgdep_6acda94ad80c8191a864aebadc8d8efd`. 사본 기준867f2df·이전v30 보존·HTML16개/로컬 링크·anchor224개/manifest/공개 접속정보 제외·문서6개/상대 링크64개·git diff --check 통과. 실제 원문/문항/문맥·개별ID/해시는 미게시. 문서 변경의 브라우저 화면 검사는 수행하지 않았고 사이트 탭 열기는 queued 접수다.
+- 인계: 현재 폴더 feat/pdf-quote-candidates·서버 사용자 worktree 같은 origin 브랜치 추적. 867f2df에서 locked 설치·실제 finder/resolver import·Git 깨끗함을 확인했다. 게시 기록까지 포함하는 마지막 문서 커밋도 fast-forward하고 최종 응답 전에 같은 HEAD/깨끗함을 확인한다. 앱 프로세스 재시작·운영 데이터/공유 서비스 변경 없음. 미병합 리뷰/RED·GREEN 증거는 격리 폴더에 보존한다.
+
 
 ## 2026-10-13 · pgvector 완료·관리자 요청 정정
 

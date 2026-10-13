@@ -34,6 +34,8 @@
 
 ## P2 · 실제 원문과 수집
 
+- [x] [PDF 인용 후보·문맥 선택](../changes/pdf-quote-candidates.md): 정확 후보/앞뒤 문맥·한도/잘린 목록·유일 명시 선택·실제 위치 어댑터·독립 리뷰/전체 검증/PR/Sites. 조사/표의 올바른 후보·수치/주장 지지는 후속.
+
 - [x] [PDF 페이지 텍스트·정확 인용 준비](../changes/pdf-text-evidence.md): 기대 해시 snapshot·제한 파싱·기존 계약 어댑터·정확 quote·대표 실제 문항 대조·독립 리뷰/검증/PR/Sites. 원문 동일성·표/OCR·전수 이관은 별도.
 
 - [x] [읽기 전용 원문 후보 연결기](../changes/source-intake.md): 안전한 파일 검사·해시·격리·집계/개인 manifest·실제 파일 dry-run·검증/리뷰/PR/Sites 결합. 후보는 원문/인용 검증 완료가 아님.
