@@ -1,4 +1,4 @@
-# IssueDigest 원문 후보 검사·PDF 페이지 텍스트
+# IssueDigest 원문 후보 검사·PDF·공식 정책 HTML
 
 `issuedigest-ingestion`은 읽기 전용 Python 도구다. 후보 검사는 표준 라이브러리를,
 PDF 추출은 고정 `pypdf==6.20.1`과 기존 workspace domain 계약을 사용한다.
@@ -350,3 +350,166 @@ text·quote·context·경로·ID를 포함하지 않는다. 기존 `locate_pdf_q
 EvidenceBundle을 만들지 않으며 원문 진위·조사/표 대응·수치/주장 지지·geometry·OCR·제품 권한을
 평가하지 않는다. 실제 후보의 quote·문맥·해시·UUID와 상세 결과는 개인 환경에만 보관하며
 Git·PR·Sites에 게시하지 않는다. DB·네트워크·모델 호출이나 자동 원문 가져오기는 없다.
+
+## 공식 정책 HTML 추출과 정확 인용
+
+`extract_policy_html`은 호출자가 확보한 대한민국 정책브리핑 정책뉴스 HTML `bytes`만
+해석한다. 현재 관측한 템플릿과 정확히
+`https://www.korea.kr/news/policyNewsView.do?newsId=<9자리 ASCII 숫자>` 형식만 지원한다.
+자격증명·port·다른 호스트·추가 query·fragment·공백·역슬래시·인코딩 우회는 거부한다.
+유일한 HTML head의 `og:url`은 지정 URL과 정확히 같아야 한다.
+
+다음 예시는 기사 원문이 아닌 합성 데이터다. 저장소 루트에서
+`uv run --package issuedigest-ingestion python`으로 실행할 수 있다.
+UUID4는 예시 호출자가 지정한다. 함수는 파일을 읽거나 저장하지 않는다.
+
+```python
+from hashlib import sha256
+from uuid import UUID
+
+from issuedigest_domain.citations import Citation, validate_citation
+from issuedigest_ingestion import (
+    PolicyHtmlLimits,
+    extract_policy_html,
+    locate_policy_html_quote,
+    to_policy_html_representation,
+)
+
+url = "https://www.korea.kr/news/policyNewsView.do?newsId=123456789"
+notice = "이 자료는 텍스트에 한하여 공공누리 제1유형(출처표시)의 조건에 따라 이용할 수 있습니다."
+raw = f"""<!doctype html><html><head>
+<meta property="og:url" content="{url}"></head><body>
+<div class="view_title"><h1>합성 정책</h1></div>
+<div class="variety"><div class="info">2026.10.01
+<a class="gotosite">합성부</a></div></div>
+<div class="view_cont"><p>한글😀 <strong>합성 인용</strong></p></div>
+<div class="kogl_wrap"><div class="type"><span>{notice}</span></div>
+<div class="info">제3자 사진은 별도 허가가 필요합니다.</div></div>
+</body></html>""".encode("utf-8")
+
+# 합성 예시에서만 같은 bytes로 기대 해시를 계산한다.
+# 실제 호출자는 별도로 확보·대조한 원문 해시를 전달한다.
+extraction = extract_policy_html(
+    raw,
+    expected_sha256=sha256(raw).hexdigest(),
+    canonical_url=url,
+    limits=PolicyHtmlLimits(),
+)
+representation = to_policy_html_representation(
+    extraction,
+    representation_id=UUID("22222222-2222-4222-8222-222222222222"),
+    document_version_id=UUID("11111111-1111-4111-8111-111111111111"),
+)
+selector = locate_policy_html_quote(representation, quote="😀 합성 인용")
+citation = Citation(
+    citation_id=UUID("33333333-3333-4333-8333-333333333333"),
+    representation_id=representation.representation_id,
+    document_version_id=representation.document_version_id,
+    selector=selector,
+)
+anchor = validate_citation(citation, representation)
+assert extraction.text == "한글😀 합성 인용"
+assert (selector.start, selector.end) == (2, 9)
+assert (anchor.anchor_status, anchor.support_status) == ("matched", "not_evaluated")
+```
+
+`raw`는 exact `bytes`이며 UTF-8 strict로 해석한다(BOM 허용). 기대 SHA-256은 소문자
+hex64자여야 하고 원문 전체 bytes의 해시와 같아야 한다. 문자열·`bytearray`·빈 원문·
+잘못된 UTF-8·한도 초과 입력은 거부한다. 줄바꿈이나 BOM은 해시 전에 바꾸지 않는다.
+
+메타데이터는 유일한 `div.view_title h1` 제목, `div.variety div.info` 안의 실제
+`YYYY.MM.DD` 날짜와 `a.gotosite` 부처명이다. 툴팁은 부처명에 포함하지 않는다.
+발행일은 `date`이며 `og:published_time`에서 시각이나 시간대를 추정하지 않는다.
+누락·중복·빈 제목/부처명·잘못된 날짜는 거부한다.
+
+라이선스는 유일한 `div.kogl_wrap` 안의 `div.type` 직계 `span`에서 확인한다.
+inline markup과 HTML 공백을 정규화한 뒤 아래 문장과 정확히 같아야 한다.
+별도 `div.info`의 사진 권리 안내·정책 링크는 `license_notice`에 포함하지 않는다.
+안내 중복이나 wrapper에 명시된 다른 공공누리 제2~4유형은 거부한다.
+문구나 구조가 바뀌면 템플릿 대조와 명시적인 파서 버전 변경이 필요하다.
+
+> 이 자료는 텍스트에 한하여 공공누리 제1유형(출처표시)의 조건에 따라 이용할 수 있습니다.
+
+`license_url`은 `https://www.kogl.or.kr/info/license.do`다. URL을 방문하지 않는다.
+안내는 텍스트 이용 조건이며 사진·외부 이미지·첨부물의 사용 권한으로 확대하지 않는다.
+호출자는 부처명·대한민국 정책브리핑·제목·발행일·URL을 담은 `attribution`으로 출처를 표시한다.
+
+## 정책 HTML 정규화·지원 구조·한도
+
+유일한 `div.view_cont` 안의 `p`를 원래 순서로 추출한다.
+inline 태그의 text/entity와 Unicode는 보존하며 NFC/NFD 정규화를 하지 않는다.
+CRLF/CR을 LF로 해석하고 일반 HTML 연속 공백은 문단 안에서 한 space로 바꾼다.
+`br`만 명시적인 newline을 만들며 각 줄의 양끝 공백을 제거한다.
+빈 문단은 버리고 비어 있지 않은 문단은 `\n\n`으로 연결한다.
+정규화 식별자는 `korea-policy-paragraphs-v1`이다.
+
+본문의 `script/style/noscript/template/iframe`, `figure/figcaption`, `imageWrap`·`tooltip`
+class subtree와 `img`의 alt는 제외한다. 제목·날짜·메뉴·본문 밖 AI 요약도 섞지 않는다.
+URL·이미지를 가져오거나 JS·외부 본문 속 지시를 실행하지 않는다.
+`p` 안에서는 일반 HTML inline 태그(a/span/strong/br/img와 문자 서식 태그)를 지원한다.
+표·목록·중첩 문단·문단 안 블록/미지원 태그·`p` 밖의 의미 있는 텍스트는 거부한다.
+공백과 문단만 담는 wrapper는 허용한다. 선택한 본문·메타데이터 subtree가 잘렸거나
+모호하게 닫히면 거부한다. 페이지 밖 무관한 HTML 오류를 브라우저 보안 검증처럼 판정하지 않는다.
+
+| `PolicyHtmlLimits` 필드 | 기본값 | 허용 최대 |
+| --- | --- | --- |
+| `max_raw_bytes` | 2MiB = 2,097,152 | 8MiB = 8,388,608 |
+| `max_text_characters` | 100,000 Unicode code points | 1,000,000 |
+| `max_depth` | HTML 중첩 128 | 256 |
+
+한도는 bool·실수를 제외한 양의 exact `int`다. `None`은 기본 한도를 선택한다.
+과대 원문·본문·깊이는 잘라 성공시키지 않는다. 추출 결과는 메모리에 있고 프로세스 격리는 없다.
+
+`PolicyHtmlExtraction`과 `PolicyHtmlLimits`는 frozen dataclass다. 결과는 `source_id`(9자리 뉴스 ID),
+`canonical_url`, `title`, `publisher`, `publication_date`, `attribution`, `license_notice`,
+`license_url`, `text`, `raw_sha256`, `raw_bytes`(원문 byte 수), `text_sha256`을 담는다.
+파서 식별자는 `parser_name="korea-policy-html"`, `parser_version="1"`이다.
+결과의 `limits`에는 적용한 불변 한도를 보존한다.
+결과 생성과 어댑터 경계는 타입·URL/ID 대응·출처표시·라이선스·정규화·텍스트 해시·한도를 검증한다.
+원문 bytes는 결과에 복제하지 않으므로, 직접 생성한 결과의 원문 해시는 형식만 검증할 수 있다.
+원문 bytes와 해시의 일치는 `extract_policy_html` 호출에서 검증한다.
+
+어댑터는 caller UUID4로 기존 `ParsedRepresentation`을 만들며 `pages=tables=()`다.
+텍스트·해시·파서 식별자를 옮기고 새 ID·문서 버전·페이지·표는 만들지 않는다.
+잘못된 UUID4는 기존 domain `ValidationError`를 따른다.
+
+`locate_policy_html_quote`는 기존 domain과 해당 파서/정규화 계약을 다시 검증한다.
+검증 우회로 만든 잘못된 객체도 거부한다. exact substring과 Unicode code-point 위치만 사용한다.
+`start`가 없으면 유일한 일치에서만 성공한다. 겹치는 일치도 중복으로 센다.
+명시한 `start`는 음수가 아닌 exact `int`이며 그 위치에 quote가 정확히 있어야 한다.
+자동으로 위치나 문자열을 보정하지 않는다. 반환 `TextQuoteSelector.prefix/suffix`는 각 최대80
+code points의 실제 인접 문자열이며, 인접 문맥이 없으면 `None`이다.
+호출자는 기존 `validate_citation`을 사용한다. 위치의 `matched`와 주장의 `not_evaluated`를 구분한다.
+
+## 정책 HTML 고정 오류와 사용 경계
+
+`AuditError`는 다음 고정 코드만 담는다. 원문·URL·경로·quote·ID나 원본 예외를 공개 출력에 넣지 않는다.
+
+| 고정 오류 | 의미 |
+| --- | --- |
+| `invalid_policy_html_raw`, `policy_html_empty_raw` | exact bytes가 아니거나 빈 원문 |
+| `invalid_expected_sha256`, `policy_html_hash_mismatch` | 기대 해시 형식 또는 원문 해시 불일치 |
+| `invalid_policy_html_url`, `policy_html_url_mismatch` | 지원 URL 형식 오류 또는 head og:url 불일치 |
+| `invalid_policy_html_limits` | 잘못된 한도 타입·값·객체 |
+| `policy_html_invalid_utf8` | strict UTF-8 디코딩 실패 |
+| `policy_html_byte_limit_exceeded`, `policy_html_text_limit_exceeded`, `policy_html_depth_limit_exceeded` | 원문·본문·깊이 한도 초과 |
+| `policy_html_invalid_structure`, `policy_html_empty_text` | 모호함·잘림·미지원 본문 또는 추출할 텍스트 없음 |
+| `policy_html_invalid_metadata`, `policy_html_invalid_license` | 제목·날짜·부처명 또는 명시 라이선스 검증 실패 |
+| `policy_html_invalid_result`, `policy_html_invalid_representation` | 결과 또는 표현 계약 재검증 실패 |
+| `invalid_quote`, `invalid_quote_start` | 빈/공백/잘못된 Unicode 인용 또는 잘못된 위치 |
+| `quote_not_found`, `quote_ambiguous` | 정확 일치 없음 또는 여러 위치 |
+
+URL·hash·HTML 메타데이터 검증은 출처 진위 인증이 아니다. 호출자는 수집 경로·수집 시각과
+별도로 확보한 원문 해시를 대조하고 기록한다. 발행일을 수집 시각으로 취급하지 않는다.
+원문 HTML은 개인 저장소의 mode600 파일로 별도 보관하고 파싱 텍스트와 구분한다.
+실제 원문·상세 인용·해시·UUID를 Git·PR·Sites에 복제하지 않는다.
+위치 일치는 정책 확정·인과관계·AI 주장 지지를 판정하지 않는다.
+
+이 기능은 내부 Python 라이브러리다. HTML용 CLI·HTTP 경로·DB 저장·인증·AI 생성에는
+연결하지 않았다. 기존 PDF/인용/CLI 동작은 유지한다. 한 공식 원문의 검증을 전체 코퍼스나
+평가셋 완료로 표현하지 않는다. 합성 회귀 검증은 다음 명령으로 실행한다.
+
+```sh
+uv run pytest packages/ingestion/tests/test_policy_html.py
+uv run pytest packages/ingestion/tests packages/domain/tests
+```

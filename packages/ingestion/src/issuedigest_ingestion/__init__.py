@@ -9,6 +9,13 @@ from .pdf import (
     locate_pdf_quote,
     to_pdf_representation,
 )
+from .policy_html import (
+    PolicyHtmlExtraction,
+    PolicyHtmlLimits,
+    extract_policy_html,
+    locate_policy_html_quote,
+    to_policy_html_representation,
+)
 from .quotes import (
     PdfQuoteSearchLimits,
     PdfQuoteSearchResult,
@@ -30,4 +37,9 @@ __all__ = [
     "extract_pdf_text",
     "locate_pdf_quote",
     "to_pdf_representation",
+    "PolicyHtmlExtraction",
+    "PolicyHtmlLimits",
+    "extract_policy_html",
+    "locate_policy_html_quote",
+    "to_policy_html_representation",
 ]
