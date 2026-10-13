@@ -70,7 +70,10 @@ it('shows precise empty states and an unregistered source link', async () => {
 });
 it.each([[401, '로그인이 필요합니다.'], [404, '자료가 없거나 접근 권한이 없습니다.'], [503, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.'], [500, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.']])('shows safe HTTP %s state and support details only', async (status, message) => {
   vi.stubGlobal('fetch', async () => response({ detail: 'PRIVATE' }, status as number)); mount();
-  expect(await screen.findByText(message as string)).toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument(); expect(screen.queryByRole('link', { name: /로그인/ })).not.toBeInTheDocument();
+  expect(await screen.findByText(message as string)).toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
+  if (status === 401) expect(screen.getByRole('link', { name: '로그인' })).toHaveAttribute('href', '/login');
+  else expect(screen.queryByRole('link', { name: '로그인' })).not.toBeInTheDocument();
+  expect(screen.getByRole('link', { name: '작업 공간으로' })).toHaveAttribute('href', '/');
   expect(screen.getByText(requestId).closest('details')).toBeInTheDocument();
 });
 it('retries through a cleared loading state and then a real response', async () => {

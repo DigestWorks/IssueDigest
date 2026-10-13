@@ -56,7 +56,7 @@ TDD: MockTransport로 요청PKCE/credentials위치·scope/endpoint/Google서명/
 
 ## Task 3: 로그인·작업 공간 자료 목록과 근거 읽기 여정
 
-- [ ] 웹 client·로그인/홈/읽기 동작·회귀 구현.
+- [x] 웹 client·로그인/홈/읽기 동작·회귀 구현.
 
 packages/api-client 새 auth.ts/catalog.ts: getSession/getEvidenceCatalog/logout typed함수·고정AuthError/CatalogError. sameorigin credential/no-store·deadline10초headers/body·AbortSignal/lateignore/requestIdUUID보존·에러노출안전. SessionInfo/Catalog 실제 schema1·UUID4/역할/unique정렬/한도/ISO실제UTC·NonBlank/안전HTTPcanonicalURL·160Unicodeexcerpt/int/bool/같은workspace 등 표시 계약검증. token/fixture/browserstorage사용없음; POSTlogout Origin은browser자동header(CSRFtoken가짜생성없음). timeout/aborted/unauthorized/notfound/unavailable/malformed/network 분리. 기존 원문client와validation 원칙 재사용가능한 작은privatehelpers만공유하고 광범위리팩터는없음.
 
