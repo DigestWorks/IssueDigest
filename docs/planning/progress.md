@@ -25,7 +25,7 @@
 
 - 작업/관련 단계: [보호 근거 읽기 화면](../changes/evidence-reader.md), R1/R2/R4의 웹/API 소비 부분. 사용자 D013에 따라 공개 앱 배포 유예.
 - 담당/브랜치: controller·implementer, `feat/evidence-reader` · 선행 #14 위. 별도 격리 worktree이며 main·공용 배포 checkout은 유지한다.
-- 상태: 구현eec0136·리뷰 보완7c13ae8. 같은 출처 보호 GET 소비·display validation·취소/전체 deadline·안전한 오류, 링크 진입·원문/페이지/표/정확 인용 위치 화면 구현. 독립 작업 리뷰의 P2 두 건(페이지 없는 표의 원문 복귀·긴 원문 강조 위치 이동)을 assertion RED3개 후 수정하고 scoped 재리뷰에서 모두 해결·새 지적 없음. 전체 변경 리뷰는 진행 중.
+- 상태: 구현eec0136·리뷰 보완7c13ae8. 같은 출처 보호 GET 소비·display validation·취소/전체 deadline·안전한 오류, 링크 진입·원문/페이지/표/정확 인용 위치 화면 구현. 독립 작업 리뷰의 P2 두 건(페이지 없는 표의 원문 복귀·긴 원문 강조 위치 이동)을 assertion RED3개 후 수정하고 scoped 재리뷰에서 모두 해결·새 지적 없음. 독립 전체 변경 리뷰 승인·Critical/Important/Minor0. 리뷰는 실제 로그인·전체 schema/semantic·운영 감사·실제 이슈 코퍼스/AI/정책 결론·PDF 이미지/전표 재구성·규모/전체 접근성 매트릭스·게시/인계를 완료했다고 판단하지 않았다. 기존 명세·후속 요구사항의 범위와 일치하며 새로운 예외/지적은 없다.
 - 검증: 초기 client 실제 namespace assertion RED54개·UI 실제 렌더/폼 RED30개·호환성/키보드/표 선택 RED 보존, 최종 focused103개. controller 최종 전용 loopback 합성 PostgreSQL18.6 포함 전체 Python1,127+JS233=1,360개, skip0·lint/format/mypy/TS/SPA/contract 검사 통과. runtime/서버 계약·generated 타입·의존성/lockfile·운영 DB 변경 없음.
 - 실제 브라우저: 합성 PostgreSQL→기존 FastAPI 보호 GET→개인 HTTPS Vite→브라우저. JSON200/no-store, Home 링크 진입·두 fixture 사용자 동일 bundle·비로그인/다른 공간 차단·PDF/text 강조·키보드 표 선택·선택 시 추가 GET 없음, 1366/390·가로 넘침 없음·화면 직접 확인. 긴 합성 원문450문단 뒤쪽 text/PDF 인용은 두 크기에서 최초/반복 선택 후 실제 mark가 viewport 안에 보임. pages=[]·table-only에서도 원문 복귀 확인. JavaScript page 예외0·예상401/404 resource 메시지 외 console 오류0.
 - 기록: 원래 assertion RED·QA 실패 로그를 보존했다. 최초 브라우저 journey는 실제 문구와 다른 retry locator를 기다려 실패했으며 DOM 확인 후 QA locator만 수정해 통과했다. 긴 원문 첫 시도는 브라우저 세션이 없어 실행되지 않았고 재개 후 검증했다. 이를 생산 코드 RED라고 주장하지 않는다. fixture/세션·QA 포트/키·이미지는 ignored 개인 영역만 사용하며 공개 앱에 추가하지 않았다.
