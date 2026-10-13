@@ -24,7 +24,7 @@
 ## 현재 작업 · Google 로그인·공동 조사 자료 진입
 
 - 작업: [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md), R1/R2·D015. 명시 초대·Google 고정 identity·서버 세션·현재 권한과 공동 자료 목록을 연결했다.
-- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · 선행 공식 HTML #16 위의 격리 worktree. Draft PR·최종 게시/인계는 아래 결과로 갱신한다.
+- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · [Draft PR #17](https://github.com/DigestWorks/IssueDigest/pull/17), 선행 공식 HTML #16 위의 격리 worktree. 최종 게시/인계는 아래 결과로 갱신한다.
 - 상태: 저장·공급자/HTTP/runtime·웹 세 작업의 독립 검토와 전체 변경 리뷰 승인. 주소의 비표준 표기로 정상 로그인이 차단되는 문제를 startup 거부로 보완했다. 전체 리뷰의 정렬/한도 테스트·OpenAPI 경계값 세 보완을 한 번의 수정 범위로 반영하고 scoped 재검토에서 모두 해결·새 지적 없음으로 승인받았다.
 - 검증: 최종 코드 `e61d531`에서 controller 전체 Python1,491+JS320=1,811개 및 lint/타입/SPA/계약 통과, skip/warning 없음. 보완 전 `8cac1b4`에서도 1,795개를 통과했다. 별도 실제 PostgreSQL·DDL 금지 앱 역할·개인 HTTPS·브라우저에서 합성 서명/두 계정의 로그인→자료 목록→원문/인용→로그아웃, 미초대 차단·실패 로그인 시 기존 세션 유지 확인. 데스크톱1366/모바일390에서 가로 넘침 없음·page error0. 브라우저의 이동 중/bfcache 보류 실험은 완료하지 못했으며 해당 동작은 컴포넌트 테스트 범위로 남긴다. 실제 외부 Google 로그인으로 표현하지 않는다.
 - 남은 입력: Google 클라이언트 JSON 필수 항목·개발 callback 일치/개인 보관600 확인. 실제 Google 로그인·테스트 사용자 등록 여부·기존 앱 전용 DB 계정의 비밀 설정/필요 테이블 권한·두 번째 Google 계정은 미확인. 앱 접속 설정은 최신 개인 서버 조회에서도 없거나 읽을 수 없다. 승인 계정은 저장소 밖 미등록 기록만 있으며 공동 DB를 변경하지 않았다.
