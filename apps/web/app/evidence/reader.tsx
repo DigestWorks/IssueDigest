@@ -54,6 +54,7 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState<number | null>(null);
   const original = useRef<HTMLDivElement>(null);
+  const highlightedQuote = useRef<HTMLElement>(null);
   const focusOriginal = useRef(false);
   const { document, version, representation, citations } = data;
   const selected = citations.find(citation => citation.citation_id === selectedId);
@@ -71,8 +72,8 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
   function choose(citation: Citation) {
     const destinationPage = citation.selector.kind === 'pdf' ? citation.selector.page_number : null;
     if (selectedId === citation.citation_id && pageNumber === destinationPage) {
-      original.current?.focus();
-      original.current?.scrollIntoView?.({ block: 'nearest' });
+      original.current?.focus({ preventScroll: true });
+      (highlightedQuote.current ?? original.current)?.scrollIntoView?.({ block: 'nearest' });
     } else {
       setSelectedId(citation.citation_id);
       setPageNumber(destinationPage);
@@ -81,7 +82,11 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
     }
   }
   useEffect(() => {
-    if (focusOriginal.current) { original.current?.focus(); original.current?.scrollIntoView?.({ block: 'nearest' }); focusOriginal.current = false; }
+    if (focusOriginal.current) {
+      original.current?.focus({ preventScroll: true });
+      (highlightedQuote.current ?? original.current)?.scrollIntoView?.({ block: 'nearest' });
+      focusOriginal.current = false;
+    }
   }, [selectedId, pageNumber]);
   function choosePage(number: number | null) {
     if (selectedId === null && pageNumber === number) {
@@ -102,12 +107,12 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
     <div className="reading-layout">
       <section className="original-pane" aria-labelledby="original-title">
         <h2 id="original-title">파싱된 원문</h2>
-        {representation.pages.length > 0 && <nav className="page-navigation" aria-label="원문 페이지">
+        <nav className="page-navigation" aria-label="원문 페이지">
           <button type="button" aria-pressed={pageNumber === null && !cell} onClick={() => choosePage(null)}>전체 텍스트</button>
           {representation.pages.map(page => <button key={page.page_number} type="button" aria-pressed={pageNumber === page.page_number} onClick={() => choosePage(page.page_number)}>{page.page_number}쪽</button>)}
-        </nav>}
+        </nav>
         <div ref={original} tabIndex={-1} className="original-text" aria-label={cell ? '선택한 표 셀' : '원문 텍스트'}>
-          {cell && selector?.kind === 'table_cell' ? <><p className="cell-location">표 {selector.table_id} · 셀 {selector.cell_id}</p><p><mark>{cell.text}</mark></p></> : text.length === 0 ? <p className="reader-note">{representation.text.length === 0 ? '파싱된 텍스트가 비어 있습니다.' : '이 페이지의 텍스트가 비어 있습니다.'}</p> : <p>{highlight ? <>{text.slice(0, highlight.start)}<mark>{text.slice(highlight.start, highlight.end)}</mark>{text.slice(highlight.end)}</> : text}</p>}
+          {cell && selector?.kind === 'table_cell' ? <><p className="cell-location">표 {selector.table_id} · 셀 {selector.cell_id}</p><p><mark ref={highlightedQuote}>{cell.text}</mark></p></> : text.length === 0 ? <p className="reader-note">{representation.text.length === 0 ? '파싱된 텍스트가 비어 있습니다.' : '이 페이지의 텍스트가 비어 있습니다.'}</p> : <p>{highlight ? <>{text.slice(0, highlight.start)}<mark ref={highlightedQuote}>{text.slice(highlight.start, highlight.end)}</mark>{text.slice(highlight.end)}</> : text}</p>}
         </div>
       </section>
       <section className="citations-pane" aria-labelledby="citations-title">

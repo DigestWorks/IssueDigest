@@ -140,3 +140,38 @@ it('keeps a timeout retry loading when the preceding ignored request arrives lat
   await act(async () => completions[0](response())); expect(screen.getByRole('status')).toHaveTextContent('읽는 중'); expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument();
   await act(async () => completions[1](response())); expect(screen.getByRole('heading', { name: '합성 문서 A' })).toBeInTheDocument();
 });
+
+it('restores full text after table-only citation selection without pages or another GET', async () => {
+  const body = fixture(); body.representation.pages = []; body.citations = [body.citations[2]];
+  const fetch = vi.fn(async () => response(body)); vi.stubGlobal('fetch', fetch); mount();
+  const citation = await screen.findByRole('button', { name: /인용 1 · 표 셀/ }); const user = userEvent.setup();
+  await user.click(citation); expect(screen.getByLabelText('선택한 표 셀')).toHaveTextContent('합성 표 인용');
+  const fullText = screen.queryByRole('button', { name: '전체 텍스트' });
+  expect(fullText).toBeInTheDocument();
+  await user.click(fullText!);
+  expect(screen.getByLabelText('원문 텍스트')).toHaveTextContent(body.representation.text);
+  expect(screen.queryByLabelText('선택한 표 셀')).not.toBeInTheDocument();
+  expect(citation).toHaveAttribute('aria-pressed', 'false'); expect(fullText).toHaveAttribute('aria-pressed', 'true');
+  expect(fetch).toHaveBeenCalledTimes(1);
+});
+it.each(['initial', 'repeated'])('scrolls the actual late highlighted quote on %s selection while keeping original focus', async phase => {
+  const body = fixture(); const prefix = '먼 합성 원문.\n'.repeat(200); const quote = '끝😀인용';
+  body.representation.text = prefix + quote; body.representation.pages = []; body.citations = [body.citations[0]];
+  body.representation.text_sha256 = createHash('sha256').update(body.representation.text).digest('hex');
+  body.citations[0].selector = { kind: 'text', start: Array.from(prefix).length, end: Array.from(prefix + quote).length, quote, prefix: null, suffix: null };
+  // JSDOM has no layout/scroll implementation. Observe the native DOM boundary;
+  // the controller browser check separately verifies actual viewport positioning.
+  const targets: HTMLElement[] = [];
+  const descriptor = Object.getOwnPropertyDescriptor(HTMLElement.prototype, 'scrollIntoView');
+  Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: function (this: HTMLElement) { targets.push(this); } });
+  try {
+    vi.stubGlobal('fetch', async () => response(body)); mount(); const user = userEvent.setup();
+    const button = await screen.findByRole('button', { name: /인용 1 · 텍스트/ }); await user.click(button);
+    if (phase === 'repeated') { targets.length = 0; button.focus(); await user.keyboard('{Enter}'); }
+    const mark = document.querySelector('mark'); expect(mark).toHaveTextContent(quote);
+    expect(screen.getByLabelText('원문 텍스트')).toHaveFocus(); expect(targets.at(-1)).toBe(mark);
+  } finally {
+    if (descriptor) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', descriptor);
+    else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
+  }
+});
