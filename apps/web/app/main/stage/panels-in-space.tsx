@@ -1,16 +1,15 @@
 import { useRef } from "react"
-import { Html } from "@react-three/drei"
+import { Html, type CameraControls } from "@react-three/drei"
 import { useFrame, useThree } from "@react-three/fiber"
 import { motion } from "motion/react"
 import { MathUtils, type Group } from "three"
-import type { CameraControls } from "@react-three/drei"
 
-import { EASE_OUT, MOTION } from "~/design/tokens"
-import type { Panel } from "../events"
-import { uprightAmount } from "../scene/view-angle"
-import { useStage } from "../store"
-import { SchematicTheme } from "../schematic/primitives"
-import { SchematicPanel } from "../schematic/schematic-panel"
+import { EASE_OUT, MOTION, type SchematicMode } from "~/design/tokens"
+import type { Panel } from "~/stage/events"
+import { uprightAmount } from "~/stage/scene/view-angle"
+import { SchematicTheme } from "~/stage/schematic/primitives"
+import { SchematicPanel } from "~/stage/schematic/schematic-panel"
+import { useStage } from "~/stage/store"
 
 /** 패널 가로 폭(px). Html transform 의 distanceFactor 와 함께 장면 크기를 정한다. */
 const PANEL_WIDTH = 360
@@ -21,34 +20,25 @@ const PANEL_WORLD_WIDTH = (PANEL_WIDTH * DISTANCE_FACTOR) / 400
 const PANEL_WORLD_HEIGHT = 5.2
 const GAP = 0.6
 /** 지도·그래프가 차지하는 반지름 */
-const CONTENT_RADIUS = 8
+const CONTENT_RADIUS = 9.5
 /** 세운 상태: 장면 중심에서 카메라 반대쪽으로 패널 줄까지의 거리 */
-const BEYOND = 10
+const BEYOND = 11
 /** 패널 줄을 카메라 기준 오른쪽으로 옮기는 거리. 카메라 focal offset 과 맞춘다 */
 export const PANEL_SHIFT_RIGHT = 3
 
 /**
  * 결과 패널을 3D 공간에 띄운다.
- * - 카메라가 수직에 가까우면 패널을 지면(지도 평면)에 눕힌다.
- * - 카메라가 낮으면 패널을 지면 위에 세운다.
+ * - 카메라가 수직에 가까우면 패널을 바닥에 눕혀 지도·그래프 오른쪽에 위아래로 늘어놓는다.
+ * - 카메라가 낮으면 지도·그래프 너머에 세워 좌우로 늘어놓는다. 두 배치는 기울기와 같은 비율로 잇는다.
  * - 패널은 카메라 방위각을 따라 돌아, 회전해도 글자가 바로 읽히는 방향을 유지한다.
- * - 눕힌 상태에서는 지도(그래프) 오른쪽에 위아래로 늘어놓고, 세운 상태에서는 지도 너머에
- *   좌우로 나란히 놓는다. 두 배치는 기울기와 같은 비율로 보간한다.
  * 패널의 아래 가장자리 가운데가 기준점이며, 눕힐 때와 세울 때 모두 이 선을 축으로 접힌다.
  */
-export function PanelLayer({ reducedMotion }: { reducedMotion: boolean }) {
+export function PanelsInSpace({ mode, reducedMotion }: { mode: SchematicMode; reducedMotion: boolean }) {
   const panels = useStage((s) => s.panels)
-
   return (
     <group>
       {panels.map(({ id, panel }, i) => (
-        <PanelInSpace
-          key={id}
-          index={i}
-          count={panels.length}
-          panel={panel}
-          reducedMotion={reducedMotion}
-        />
+        <PanelInSpace key={id} index={i} count={panels.length} panel={panel} mode={mode} reducedMotion={reducedMotion} />
       ))}
     </group>
   )
@@ -58,11 +48,13 @@ function PanelInSpace({
   index,
   count,
   panel,
+  mode,
   reducedMotion,
 }: {
   index: number
   count: number
   panel: Panel
+  mode: SchematicMode
   reducedMotion: boolean
 }) {
   const root = useRef<Group>(null)
@@ -72,17 +64,14 @@ function PanelInSpace({
   const controls = useThree((s) => s.controls) as CameraControls | null
 
   const centered = index - (count - 1) / 2
-  // 눕힌 배치: 오른쪽에 위아래로. 기준점이 아래 가장자리이므로 반 칸 내린다.
   const flatRight = CONTENT_RADIUS + PANEL_WORLD_WIDTH / 2 + 0.8
   const flatFar = centered * (PANEL_WORLD_HEIGHT + GAP) - PANEL_WORLD_HEIGHT / 2
-  // 세운 배치: 지도 너머에 좌우로
   const uprightRight = centered * (PANEL_WORLD_WIDTH + GAP) + PANEL_SHIFT_RIGHT
   const uprightFar = BEYOND
 
   useFrame((_, delta) => {
     if (!controls || !root.current || !yaw.current || !tilt.current) return
-    const polar = controls.polarAngle
-    const target = uprightAmount(polar)
+    const target = uprightAmount(controls.polarAngle)
     upright.current = reducedMotion ? target : MathUtils.damp(upright.current, target, 6, delta)
     const t = upright.current
 
@@ -98,9 +87,7 @@ function PanelInSpace({
       p.x = MathUtils.damp(p.x, x, 5, delta)
       p.z = MathUtils.damp(p.z, z, 5, delta)
     }
-    // 방위각: 카메라 쪽을 향하게 돈다
-    yaw.current.rotation.y = controls.azimuthAngle
-    // 기울기: 눕힘(-90°)과 세움(0°) 사이
+    yaw.current.rotation.y = az
     tilt.current.rotation.x = MathUtils.lerp(-Math.PI / 2, 0, t)
   })
 
@@ -108,17 +95,16 @@ function PanelInSpace({
     <group ref={root} position={[0, 0.02, -BEYOND]}>
       <group ref={yaw}>
         <group ref={tilt}>
-          <Html transform distanceFactor={DISTANCE_FACTOR} zIndexRange={[20, 0]} style={{ pointerEvents: "auto" }}>
+          <Html transform distanceFactor={DISTANCE_FACTOR} zIndexRange={[12, 11]} style={{ pointerEvents: "auto" }}>
             {/* 아래 가장자리 가운데를 기준점에 맞춘다 */}
             <div style={{ width: PANEL_WIDTH, transform: "translate(0, -50%)" }}>
-              {/* filter 를 쓰면 패널 바탕의 backdrop-filter 가 장면을 흐리지 못하므로 위치와 불투명도만 바꾼다.
-                  패널 안의 점 → 선 → 글자 등장은 SchematicPanel 에 구현되어 있다. */}
+              {/* filter 를 쓰면 패널 바탕의 backdrop-filter 가 장면을 흐리지 못하므로 위치와 불투명도만 바꾼다 */}
               <motion.div
                 initial={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: reducedMotion ? 0 : MOTION.panel.duration / 1000, ease: EASE_OUT }}
               >
-                <SchematicTheme>
+                <SchematicTheme mode={mode}>
                   <SchematicPanel panel={panel} index={index + 1} animate={!reducedMotion} />
                 </SchematicTheme>
               </motion.div>

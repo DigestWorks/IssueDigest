@@ -1,8 +1,6 @@
-import { createContext, useContext, useEffect, useMemo, useRef, useState, type RefObject } from "react"
-import { CameraControls, Grid, Html, Line, Text } from "@react-three/drei"
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react"
+import { CameraControls, Html, Line, Text } from "@react-three/drei"
 import { Canvas, useFrame, useThree, type ThreeEvent } from "@react-three/fiber"
-import { ChromaticAberration, DepthOfField, EffectComposer } from "@react-three/postprocessing"
-import type { DepthOfFieldEffect } from "postprocessing"
 import {
   AdditiveBlending,
   BufferGeometry,
@@ -23,7 +21,7 @@ import {
 } from "three"
 
 import { dataColor } from "~/design/palette"
-import { FLOOR, HOLOGRAM, MAP_EFFECTS, MAP_MOTION, OPACITY, type SchematicPalette } from "~/design/tokens"
+import { HOLOGRAM, MAP_MOTION, OPACITY, type SchematicPalette } from "~/design/tokens"
 import type { RegionValue } from "../../events"
 import {
   fitProjection,
@@ -34,6 +32,20 @@ import {
 } from "../../map/geo"
 import { FONT_LIGHT, FONT_MEDIUM } from "../../scene/fonts"
 import { uprightAmount } from "../../scene/view-angle"
+import { SceneBackdrop } from "../scene/backdrop"
+import {
+  DRAG_PX,
+  easeOutCubic,
+  fringeMaterialProps,
+  lineGeometry,
+  outlineGeometry,
+  progress,
+  setDrawProgress,
+  type TextLike,
+} from "../scene/draw"
+import { SceneEffects } from "../scene/effects"
+import { focusPoints } from "../scene/registry"
+import { isDarkTheme, ThemeContext, useTheme } from "../scene/theme"
 import { RegionCallout } from "./region-callout"
 
 export type MapView = "overview" | "top" | "low"
@@ -63,56 +75,11 @@ const BASE_H = 0.1
 const MAX_H = HOLOGRAM.maxHeight
 const FRINGE = HOLOGRAM.fringe
 
-/**
- * 색 번짐 사본용 선 재질. 꼭짓점을 화면 가로 방향으로 uShift(화면 픽셀)만큼 옮긴다.
- * 장면 좌표가 아니라 화면 픽셀로 옮기므로 카메라 각도·거리와 관계없이 빨강은 왼쪽, 청록은 오른쪽에 같은 폭으로 생긴다.
- * 세로로 놓인 선에는 양옆에 색이 갈라지고, 가로로 놓인 선은 사본이 겹쳐 색이 거의 생기지 않는다(실제 색수차와 같은 모양).
- */
-function fringeMaterialProps(color: string, shift: number, blending: typeof AdditiveBlending | typeof NormalBlending) {
-  return {
-    uniforms: {
-      uColor: { value: new Color(color) },
-      uOpacity: { value: 0 },
-      uShift: { value: shift },
-      uRes: { value: new Vector2(1, 1) },
-    },
-    transparent: true,
-    depthWrite: false,
-    blending,
-    vertexShader: `
-      uniform float uShift;
-      uniform vec2 uRes;
-      void main() {
-        vec4 p = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-        p.x += uShift * 2.0 / uRes.x * p.w;
-        gl_Position = p;
-      }
-    `,
-    fragmentShader: `
-      uniform vec3 uColor;
-      uniform float uOpacity;
-      void main() {
-        gl_FragColor = vec4(uColor, uOpacity);
-        #include <colorspace_fragment>
-      }
-    `,
-  }
-}
-/** 누른 곳과 뗀 곳이 이 거리(px)보다 멀면 클릭이 아니라 끌기로 본다 */
-const DRAG_PX = 4
 const LAYER_GAP = HOLOGRAM.layerGap
 const FOCUS_SPREAD = HOLOGRAM.focusSpread
 const FOCUS_RISE_MAX = HOLOGRAM.focusRiseMax
 
 const LEADER = 2.6
-/** 장면 색(모드별). Canvas 안에서 제공하므로 R3F 의 컨텍스트 연결 여부와 관계없이 읽힌다 */
-const ThemeContext = createContext<SchematicPalette | null>(null)
-const useTheme = () => {
-  const t = useContext(ThemeContext)
-  if (!t) throw new Error("MapScene 밖에서 지도 테마를 읽었습니다")
-  return t
-}
-
 /** 등장 시각. 값과 설명은 design/tokens.ts 의 MAP_MOTION */
 const T = MAP_MOTION
 
@@ -144,123 +111,28 @@ export default function MapScene(props: MapSceneProps) {
       camera={{ position: [0, 30, 30], fov: 36, near: 0.1, far: 200 }}
       gl={{ antialias: true, toneMapping: NoToneMapping }}
     >
-      <color attach="background" args={[props.theme.backdrop]} />
-      <fog attach="fog" args={[props.theme.backdrop, 34, 75]} />
-      <SpotFloor center={props.theme.scene} edge={props.theme.backdrop} />
-      {/* 모든 재질이 조명을 받지 않는 MeshBasic·LineBasic 이므로 조명을 두지 않는다 */}
-      <Grid
-        position-y={-0.005}
-        args={[120, 120]}
-        cellSize={1}
-        cellThickness={0.5}
-        cellColor={props.theme.grid}
-        sectionSize={4}
-        sectionThickness={0.8}
-        sectionColor={props.theme.gridSection}
-        // 격자는 카메라가 아니라 지도 중심(원점)에서 멀어질수록 옅어져 바닥 조명 범위 안에만 보인다
-        fadeFrom={0}
-        fadeDistance={26}
-        fadeStrength={1.6}
-        infiniteGrid
-      />
+      <SceneBackdrop theme={props.theme} />
       <ThemeContext.Provider value={props.theme}>
-        <MapContent {...props} />
+        <MapHologram {...props} />
         <MapCamera {...props} />
       </ThemeContext.Provider>
-      <MapEffects focus={props.focus} />
+      <SceneEffects
+        target={(out) => {
+          const p = props.focus ? focusPoints.region.get(props.focus) : undefined
+          return p ? out.copy(p) : null
+        }}
+      />
     </Canvas>
   )
 }
 
-/**
- * 후처리: 아웃포커스와 색수차(홀로그램 표현, 2026-10-11 민재 요청).
- * - 아웃포커스: 선택 지역(없으면 지도 중심)에 초점을 맞춘다. 흐림 정도는 초점 거리와의 차이에 따라
- *   0 에서 FOCUS_RANGE(장면 단위)까지 smoothstep 으로 커진다(postprocessing 6.39 CircleOfConfusionMaterial).
- *   선택 주석과 화면 고정 주석은 DOM 이라 흐려지지 않는다.
- * - 색수차: 화면 가장자리로 갈수록 빨강·파랑 성분이 어긋난다(radialModulation).
- * 설정은 @react-three/postprocessing 3.x 의 DepthOfField·ChromaticAberration 속성을 따른다.
- */
-const FOCUS_RANGE = MAP_EFFECTS.focusRange
-const CA_OFFSET = new Vector2(...MAP_EFFECTS.caOffset)
-const MAP_CENTER = new Vector3(0, 0.6, 0)
+export type MapHologramProps = Pick<
+  MapSceneProps,
+  "values" | "colored" | "source" | "focus" | "hovered" | "onFocus" | "onHover" | "reducedMotion"
+>
 
-function MapEffects({ focus }: { focus: string | null }) {
-  const dof = useRef<DepthOfFieldEffect>(null)
-  const target = useRef(MAP_CENTER.clone())
-  const goal = useRef(new Vector3())
-
-  useFrame((_, delta) => {
-    const c = focus ? focusCentroids.get(focus) : undefined
-    goal.current.copy(c ?? MAP_CENTER).setY(0.6)
-    target.current.lerp(goal.current, 1 - Math.exp(-delta * 4))
-    dof.current?.target?.copy(target.current)
-  })
-
-  return (
-    <EffectComposer multisampling={4}>
-      {/* 흐림 계산을 화면 해상도 그대로 한다. 낮은 해상도(예: 세로 540px)로 계산해 늘리면
-          선 가장자리에서 흐림 경계가 계단처럼 보인다 */}
-      <DepthOfField ref={dof} target={MAP_CENTER} focusRange={FOCUS_RANGE} bokehScale={MAP_EFFECTS.bokehScale} resolutionScale={1} />
-      <ChromaticAberration offset={CA_OFFSET} radialModulation modulationOffset={MAP_EFFECTS.caModulationOffset} />
-    </EffectComposer>
-  )
-}
-
-const FLOOR_SIZE = FLOOR.size
-/** 바닥 조명 범위. 값과 설명은 design/tokens.ts 의 FLOOR */
-const SPOT = FLOOR
-
-/**
- * 바닥 조명. 지도 중심을 비추는 원형 밝기 분포를 바닥면에 직접 칠한다(광원 물체는 두지 않는다).
- * 회전하면 원근에 따라 밝은 원이 타원으로 바뀌어 바닥면의 방향과 깊이를 읽게 한다.
- * 8비트 출력에서 생기는 밝기 계단은 화면 좌표 잡음(±0.5/255)으로 흩는다.
- * 불투명 바닥이므로 깊이를 기록한다. 아웃포커스는 지도 영역의 깊이를 이 바닥에서 읽는다.
- */
-function SpotFloor({ center, edge }: { center: string; edge: string }) {
-  const uniforms = useMemo(
-    () => ({
-      uCenter: { value: new Color(center) },
-      uEdge: { value: new Color(edge) },
-      uInner: { value: SPOT.inner / (FLOOR_SIZE / 2) },
-      uOuter: { value: SPOT.outer / (FLOOR_SIZE / 2) },
-    }),
-    [center, edge]
-  )
-  return (
-    <mesh rotation-x={-Math.PI / 2} position-y={-0.02} renderOrder={-1}>
-      <planeGeometry args={[FLOOR_SIZE, FLOOR_SIZE]} />
-      <shaderMaterial
-        key={center + edge}
-        uniforms={uniforms}
-        // 층·선은 반투명이라 깊이를 쓰지 않는다. 아웃포커스가 읽는 깊이는 이 바닥이 채운다.
-        vertexShader={`
-          varying vec2 vUv;
-          void main() {
-            vUv = uv;
-            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-          }
-        `}
-        fragmentShader={`
-          uniform vec3 uCenter;
-          uniform vec3 uEdge;
-          uniform float uInner;
-          uniform float uOuter;
-          varying vec2 vUv;
-          float rand(vec2 co) { return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453); }
-          void main() {
-            float d = distance(vUv, vec2(0.5)) * 2.0;
-            float t = smoothstep(uInner, uOuter, d);
-            gl_FragColor = vec4(mix(uCenter, uEdge, t), 1.0);
-            #include <colorspace_fragment>
-            gl_FragColor.rgb += (rand(gl_FragCoord.xy) - 0.5) / 255.0;
-          }
-        `}
-      />
-    </mesh>
-  )
-}
-
-function MapContent({ values, colored, source, focus, hovered, onFocus, onHover, reducedMotion }: MapSceneProps) {
+/** 지도 홀로그램(지역 층·이름·틀·방위 고리·선택 표시). 지도 페이지와 메인 스테이지가 같은 장면 안에 둔다. */
+export function MapHologram({ values, colored, source, focus, hovered, onFocus, onHover, reducedMotion }: MapHologramProps) {
   const colorSet = useMemo(() => (colored ? new Set(colored) : null), [colored])
   const [data, setData] = useState<{ collection: RegionCollection; regions: ProjectedRegion[]; t0: number } | null>(null)
   const heights = useRef(new Map<string, number>())
@@ -279,7 +151,7 @@ function MapContent({ values, colored, source, focus, hovered, onFocus, onHover,
 
   useEffect(() => {
     if (!data) return
-    for (const r of data.regions) focusCentroids.set(r.code, r.centroid)
+    for (const r of data.regions) focusPoints.region.set(r.code, r.centroid)
   }, [data])
 
   // 지도 중심에서 가장 먼 지역 중심까지의 거리. 퍼지는 고리가 이 거리에 닿을 때 마지막 지역이 나타난다.
@@ -448,7 +320,7 @@ function RegionVolume({
   const fringeMats = useRef<(ShaderMaterial | null)[]>([])
   const res = useMemo(() => new Vector2(), [])
   const dpr = useThree((st) => st.viewport.dpr)
-  const dark = useMemo(() => new Color(th.scene).getHSL({ h: 0, s: 0, l: 0 }).l < 0.5, [th])
+  const dark = useMemo(() => isDarkTheme(th), [th])
   const fringeProps = useMemo(
     () =>
       (["#ff2d55", "#00d8ff"] as const).map((c, i) =>
@@ -982,7 +854,7 @@ function MapCamera({ view, focus, readout, reducedMotion }: MapSceneProps) {
     if (!c || !focus) return
     // 지역 높이가 정해진 뒤 읽도록 한 프레임 미룬다
     const id = requestAnimationFrame(() => {
-      const p = focusCentroids.get(focus)
+      const p = focusPoints.region.get(focus)
       if (!p) return
       const from = c.camera.position.clone().sub(c.getTarget(new Vector3())).normalize().multiplyScalar(21)
       void c.setLookAt(p.x + from.x, from.y + 0.8, p.z + from.z, p.x, 0.8, p.z, animate)
@@ -1016,37 +888,3 @@ function MapCamera({ view, focus, readout, reducedMotion }: MapSceneProps) {
   )
 }
 
-/** troika Text 메시 중 매 프레임 바꾸는 속성. 색·불투명도 변경은 sync() 없이 다음 렌더에 반영된다. */
-type TextLike = { fillOpacity: number }
-
-/** 지역 중심(지면 좌표). 카메라 이동이 읽는다. */
-const focusCentroids = new Map<string, Vector3>()
-
-function outlineGeometry(rings: Vector3[][], origin?: Vector3) {
-  const pts: number[] = []
-  const ox = origin?.x ?? 0
-  const oz = origin?.z ?? 0
-  for (const ring of rings)
-    for (let i = 0; i < ring.length - 1; i++)
-      pts.push(ring[i].x - ox, 0, ring[i].z - oz, ring[i + 1].x - ox, 0, ring[i + 1].z - oz)
-  return lineGeometry(pts)
-}
-
-function lineGeometry(pts: number[]) {
-  const g = new BufferGeometry()
-  g.setAttribute("position", new Float32BufferAttribute(pts, 3))
-  return g
-}
-
-/** 선분 묶음을 앞에서부터 t 비율만큼 그린다(선이 출발점에서 도착점으로 그려지는 등장) */
-function setDrawProgress(g: BufferGeometry, t: number) {
-  const n = g.getAttribute("position").count
-  g.setDrawRange(0, Math.floor((n * t) / 2) * 2)
-}
-
-function progress(now: number, start: number, ms: number, reduced: boolean) {
-  if (reduced) return 1
-  return Math.min(1, Math.max(0, (now - start) / ms))
-}
-
-const easeOutCubic = (t: number) => 1 - (1 - t) ** 3

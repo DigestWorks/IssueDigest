@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { NODE_TYPES } from "./graph/glyphs"
+import { NODE_TYPES } from "./node-types"
 
 /**
  * 시각화 스테이지가 받는 이벤트.
@@ -31,6 +31,8 @@ export const GraphEdge = z.object({
   source: z.string(),
   target: z.string(),
   label: z.string().optional(),
+  /** 근거 종류: 원천 데이터에 명시된 관계(실선) 또는 모델이 추론한 관계(점선) */
+  basis: z.enum(["explicit", "inferred"]).default("explicit"),
 })
 
 export const RegionValue = z.object({
@@ -102,8 +104,11 @@ export const StageEvent = z.discriminatedUnion("type", [
     values: z.record(z.string(), RegionValue),
     legend: z.array(z.object({ category: z.number().int(), label: z.string() })),
     source: Source,
+    /** 데이터 색으로 표시할(답과 관련된) 지역 코드. 없으면 값이 있는 모든 지역 */
+    highlight: z.array(z.string()).optional(),
   }),
-  z.object({ type: z.literal("map.focus"), regionId: z.string().nullable() }),
+  /** label 은 조사 기록에 적는 지역 이름 */
+  z.object({ type: z.literal("map.focus"), regionId: z.string().nullable(), label: z.string().optional() }),
   z.object({
     type: z.literal("panel.add"),
     id: z.string(),
@@ -123,6 +128,8 @@ export type Claim = z.infer<typeof Claim>
 export type Panel = z.infer<typeof Panel>
 export type StageStatus = z.infer<typeof StageStatus>
 export type StageEvent = z.infer<typeof StageEvent>
+/** 이벤트를 보내는 쪽이 쓰는 형식(기본값이 있는 필드는 생략할 수 있다) */
+export type StageEventInput = z.input<typeof StageEvent>
 
 /** 검증에 실패한 이벤트는 버리고 경고를 남긴다. */
 export function parseStageEvent(input: unknown): StageEvent | null {

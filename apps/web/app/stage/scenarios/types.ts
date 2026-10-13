@@ -1,9 +1,9 @@
-import type { StageEvent } from "../events"
+import type { StageEventInput } from "../events"
 
 /** 시나리오 한 단계. at 은 시나리오 시작부터의 시간(ms)이다. */
 export type ScenarioStep =
   | { at: number; text: string }
-  | { at: number; event: StageEvent }
+  | { at: number; event: StageEventInput }
 
 export type Scenario = {
   id: string
