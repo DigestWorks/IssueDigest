@@ -34,7 +34,7 @@
 
 ## P2 · 실제 원문과 수집
 
-- [ ] [읽기 전용 원문 후보 연결기](../changes/source-intake.md): 안전한 파일 검사·해시·격리·집계/개인 manifest·실제 파일 dry-run·검증/리뷰/PR/Sites 결합. 후보는 원문/인용 검증 완료가 아님.
+- [x] [읽기 전용 원문 후보 연결기](../changes/source-intake.md): 안전한 파일 검사·해시·격리·집계/개인 manifest·실제 파일 dry-run·검증/리뷰/PR/Sites 결합. 후보는 원문/인용 검증 완료가 아님.
 
 - [x] [전용 DB·기존 자산 실측](../research/server-data-inventory.md): PostgreSQL18.6·권한·pgvector 미준비, 허용 28테이블 정확 건수·기간·파일/실행/코드 스냅샷·원문 품질과 남은 확인 기록. 조회만 수행.
 - [ ] 읽기 추출 기준·현재 수집 성공·누락 범위·운영 실행 커밋·원문의 정확한 대응 확인. 파일 basename·수정 시각·READY 상태를 원문 품질/수집 성공으로 취급하지 않음.

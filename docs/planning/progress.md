@@ -17,10 +17,10 @@
 
 - 작업: [읽기 전용 원문 후보 연결기](../changes/source-intake.md). 기존 여론조사 JSON·PDF를 검사하고 안전한 집계·선택적 개인 manifest를 만든다. 실제 원문 대조/인용/DB 이관은 별도다.
 - 담당/브랜치/PR: controller/implementer · `feat/source-intake` · [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12), 선행 PR #11 위. 병합 전.
-- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. 최종 `1a6f71d`에서 controller가 실제 합성 PostgreSQL18.6 포함 전체 Python888+JS134=1,022개·린트/타입/SPA/계약 drift exit0 확인. 신규110개, 독립 작업·전체 변경·보완 재검토 통과. 실제 서버 dry-run: JSON840개 중 후보225·격리384·미지원231. Sites·인계는 대기 중이다.
+- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. 최종 `1a6f71d`에서 controller가 실제 합성 PostgreSQL18.6 포함 전체 Python888+JS134=1,022개·린트/타입/SPA/계약 drift exit0 확인. 신규110개, 독립 작업·전체 변경·보완 재검토 통과. 실제 서버 dry-run: JSON840개 중 후보225·격리384·미지원231. Sites v28 공개 게시 완료. 마지막 문서의 폴더 인계는 최종 확인에서 검증한다.
 - 관리자 요청: [전달 문서](../../infra/administrator-request.md). pgvector 패키지/확장, 앱 계정, 외부 백업 접근/정책, 자원/분담 비용, 도메인 연결. 전체 관리자/기존 DB 쓰기 권한을 요청하지 않는다.
-- 다음: Sites 게시·폴더 인계를 마친다. 이후 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
-- Sites: v27 기록 보존 후 구현·검증 결과/관리자 요청을 반영한다. 아직 새 게시 미완료다.
+- 다음: 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 마지막 문서 커밋을 현재 폴더/서버에 맞추고 확인한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
+- Sites: v28 공개 게시 성공. v27 기록 보존, 구현·검증 결과/관리자 요청 반영. 사본 기준baf4b18이며 게시 이후 원본 기록을 따른다.
 
 ## 2026-10-13 · 관리자 요청·읽기 전용 연결기 준비
 
@@ -37,6 +37,11 @@
 - PDF:774개를 스트리밍 검사, 헤더 없는23개·정상 PDF의 동일 해시 그룹90개·유효 등록번호 중복 그룹226개. 전체 읽기942,478,095 bytes. 중복 그룹은 문서/조사 건수와 같지 않으며 자동 병합하지 않았다. 헤더/해시/basename 대응은 원문 동일성·인용 정확성의 증명이 아니다.
 - 보완 영향 확인: 개인 manifest의 유효 metadata에 제어문자를 포함한 출처 URL이0개임을 집계로 확인했다. 이전 실제 검사 건수는 `02d6cc5` 관측 결과이며 전체943MB 재검사를 반복하지 않았다.
 - 개인 상세 결과:840개 JSON의 manifest를 원문 경로와 Git 밖 개인 디렉터리의 새600 파일로 저장했다. 공개 stdout은 집계만, 원문·경로·등록번호·URL·해시는 기록하지 않았다. 소스 파일·운영 DB·공유 서비스·DNS 변경 없음. 전체 수집 상태/일관된 스냅샷을 보장하지 않는다.
+
+
+- 게시: [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12) 생성·앱 첨부 완료, 선행 PR #11 위이며 미병합. [baf4b18의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38333517845) 성공. 실제 제품 앱/운영 DB 배포는 수행하지 않았다.
+- Sites: [v28 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 성공. source `d1e95100359480f2e80d35d68bfd2ce8b824a859`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2792cfe7828c81918724c8ad7bc24447`, deployment `appgdep_6acd8d1834288191b467053c8bbcaf21` native succeeded·URL 확인. 사본 기준baf4b18·기존v27 보존·HTML13개/로컬 링크·anchor161개/manifest/공개 접속정보 제외 통과. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 앱 사이트 탭 열기는 queued 접수였다.
+- 인계: 마지막 게시 기록까지 현재 폴더/서버 사용자 전용 worktree를 fast-forward하고 locked 새 ingestion 설치·Git 깨끗함·설치된 CLI를 확인한다. 최종 응답은 이 확인 결과를 기준으로 한다. 기존 웹/API·공유 서비스·운영 DB·수집 원문은 변경하지 않는다. 미병합 작업의 검증/리뷰 증거는 격리 폴더에 보존한다.
 
 ## 2026-10-12 · 전용 DB·기존 수집 자산 조사
 
