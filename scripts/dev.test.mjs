@@ -32,3 +32,15 @@ describe('development process selection', () => {
     stop(0);
   });
 });
+
+it('removes sensitive Vite debug namespaces only in the child environment', () => {
+  spawn.mockReset();
+  spawn.mockImplementation(() => new EventEmitter());
+  const environment = { DEBUG: 'vite:*,app:*,other,-app:secret', SYNTHETIC_SETTING: 'kept' };
+  const stop = launchDevelopment(environment);
+  const options = spawn.mock.calls[1][2];
+  expect(options.env?.DEBUG).toBe('vite:*,app:*,other,-app:secret,-vite:proxy,-vite:time');
+  expect(options.env?.SYNTHETIC_SETTING).toBe('kept');
+  expect(environment.DEBUG).toBe('vite:*,app:*,other,-app:secret');
+  stop(0);
+});

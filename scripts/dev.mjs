@@ -1,6 +1,7 @@
 import { spawn } from 'node:child_process';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { protectedDevelopmentEnvironment } from './dev-environment.mjs';
 
 // Each process group includes its reload children, so stopping dev closes both apps.
 export function launchDevelopment(environment = process.env, apiOnly = false) {
@@ -13,6 +14,7 @@ export function launchDevelopment(environment = process.env, apiOnly = false) {
   ];
   const commands = [['uv', apiArgs], ...(apiOnly ? [] : [['npm', ['run', 'dev:web']]])];
   const children = commands.map(([command, args]) => spawn(command, args, {
+    env: protectedDevelopmentEnvironment(environment),
     stdio: 'inherit', detached: process.platform !== 'win32', shell: process.platform === 'win32',
   }));
   let stopping = false;

@@ -52,7 +52,7 @@ start/logout은 설정 origin과 정확히 일치하는 Origin 헤더가 필요�
 
 Google HTTP는 고정 endpoint, TLS 검증, 환경 proxy 무시, redirect 금지와 각 동작 5초/전체 교환 15초 제한을 사용합니다. decoded 응답 64KiB와 ID token 16KiB를 제한하고 strict JSON/중복 key/JWT 형식을 확인합니다. 고정 인증서를 비동기로 받은 뒤 inline transport로 google-auth SDK에 전달하여 추가 네트워크 호출을 허용하지 않습니다. scope는 `openid email`이며 메일·Drive·profile·avatar·유료 API를 요청하지 않습니다. 의존성은 [httpx2 2.13.1](https://pypi.org/project/httpx2/2.13.1/), [google-auth 2.62.0](https://pypi.org/project/google-auth/2.62.0/), [cryptography 50.0.2](https://pypi.org/project/cryptography/50.0.2/)로 고정합니다.
 
-상태 응답은 프로세스가 응답한다는 뜻이며 DB·Google·작업 엔진 준비 완료를 뜻하지 않습니다. 개발 실행과 안내는 `--no-access-log`를 사용합니다. 기존 운영 프록시/Nginx 로그 설정은 변경하지 않았으며 공개 OAuth 전에 callback query·cookie가 기록되지 않는지 별도 확인해야 합니다.
+상태 응답은 프로세스가 응답한다는 뜻이며 DB·Google·작업 엔진 준비 완료를 뜻하지 않습니다. 개발 실행과 안내는 `--no-access-log`를 사용합니다. Vite의 `/api` proxy 실패 로그도 URL·callback query·error stack/object 대신 고정 메시지만 남기며 다른 빌드·경고·health 진단은 유지합니다. 지원하는 `npm run dev`/`dev:api`/`dev:web`와 웹 workspace의 `npm run dev`는 query를 직접 기록하는 `vite:proxy`·`vite:time` DEBUG namespace만 자식 환경에서 제외하며 다른 namespace는 보존합니다. 임의의 직접 Vite 실행이나 운영자의 별도 설정은 이 실행 경로의 보장 밖입니다. 기존 운영 프록시/Nginx 로그 설정은 변경하지 않았으며 공개 OAuth 전에 callback query·cookie가 기록되지 않는지 별도 확인해야 합니다.
 
 ## 검증과 계약
 
