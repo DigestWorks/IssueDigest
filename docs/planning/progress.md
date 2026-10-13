@@ -16,10 +16,10 @@
 ## 현재 작업
 
 - 작업: [읽기 전용 원문 후보 연결기](../changes/source-intake.md). 기존 여론조사 JSON·PDF를 검사하고 안전한 집계·선택적 개인 manifest를 만든다. 실제 원문 대조/인용/DB 이관은 별도다.
-- 담당/브랜치/PR: controller/implementer · `feat/source-intake` · Draft PR 준비, 선행 PR #11 위. 병합 전.
-- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. controller가 실제 합성 PostgreSQL18.6 포함 전체 Python879+JS134=1,013개·린트/타입/SPA/계약 drift exit0 확인. 독립 작업 리뷰 지적0, 실제 서버 dry-run 완료: JSON840개 중 후보225·격리384·미지원231. 전체 변경 리뷰·PR/Sites는 대기 중이다.
+- 담당/브랜치/PR: controller/implementer · `feat/source-intake` · [Draft PR #12](https://github.com/DigestWorks/IssueDigest/pull/12), 선행 PR #11 위. 병합 전.
+- 구현/검증: `02d6cc5`에서 원문 후보 검사·집계 CLI·선택적 개인 manifest 구현. 최종 `1a6f71d`에서 controller가 실제 합성 PostgreSQL18.6 포함 전체 Python888+JS134=1,022개·린트/타입/SPA/계약 drift exit0 확인. 신규110개, 독립 작업·전체 변경·보완 재검토 통과. 실제 서버 dry-run: JSON840개 중 후보225·격리384·미지원231. Sites·인계는 대기 중이다.
 - 관리자 요청: [전달 문서](../../infra/administrator-request.md). pgvector 패키지/확장, 앱 계정, 외부 백업 접근/정책, 자원/분담 비용, 도메인 연결. 전체 관리자/기존 DB 쓰기 권한을 요청하지 않는다.
-- 다음: 전체 변경 리뷰와 PR/Sites 게시·폴더 인계를 마친다. 이후 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
+- 다음: Sites 게시·폴더 인계를 마친다. 이후 후보225건의 정확한 원문 대응·자료 선별·인용 위치를 검증한다. 기본 API·운영 DB·수집 서비스·DNS는 변경하지 않는다.
 - Sites: v27 기록 보존 후 구현·검증 결과/관리자 요청을 반영한다. 아직 새 게시 미완료다.
 
 ## 2026-10-13 · 관리자 요청·읽기 전용 연결기 준비
@@ -30,11 +30,12 @@
 - 작업 절차: spec-driven-workflow 적용. OpenSpec root null로 해당 단계는 생략, 계획/요구사항을 변경 문서에 작성하고 SDD/TDD·독립 리뷰·실제 PG 포함 전체 검증으로 진행한다. native worktree 도구가 바깥 폴더를 Git 저장소로 인식하지 못해 기존 sibling 격리 방식으로 준비했다. 다른 작업의 리뷰 폴더·기록은 보존한다.
 - baseline: locked Python3.13.12/uv0.11.4·SHA 확인한 Node24.21.0/npm11.19.0·전용 합성 PostgreSQL18.6, 전체 Python778+JS134=912·린트/타입/SPA/계약 drift 통과. 기본 시스템 도구 차이로 첫 npm 설치가 거절돼 고정 도구를 선택했다. 엔진 제약/lockfile 우회는 하지 않았다.
 - 구현: `02d6cc5` 표준 라이브러리 전용 ingestion 패키지. 명시 경로·descriptor 기반 symlink/특수 파일 거부, JSON metadata·basename 다중 후보·PDF 헤더/해시·변경/크기/총 읽기 한도, 집계 전용 stdout·600 exclusive 개인 manifest. 원문/인용 증명·DB 이관을 만들지 않는다.
-- 검증: 실제 assertion RED/GREEN 기록과 신규101개·전체Python879+JS134=1,013개, lint/format·mypy·TS·SPA·계약 drift를 controller가 최종 구현에서 exit0 확인했다. 새 외부 의존성·기존 생성 계약 변경 없음. 독립 작업 리뷰에서 명세/품질 모두 승인, 지적0. 전체 변경 리뷰·PR/Sites 완료 증거는 확인 후 추가한다.
+- 검증: 실제 assertion RED/GREEN 기록과 신규101개·전체Python879+JS134=1,013개, lint/format·mypy·TS·SPA·계약 drift를 controller가 최종 구현에서 exit0 확인했다. 새 외부 의존성·기존 생성 계약 변경 없음. 독립 작업 리뷰에서 명세/품질 모두 승인, 지적0. 전체 변경 리뷰의 비차단 URL 제어문자 처리 지적1개를 `1a6f71d`에서 Unicode Cc 거부·실제 assertion RED3/GREEN110개로 보완했다. 한 번의 수정 범위 재검토에서 해결·새 문제 없음 확인. 최종 controller 전체Python888+JS134=1,022개와 모든 검증 exit0, skip0. PR #12 생성·앱 첨부 완료, Sites는 대기 중이다.
 
 
 - 실제 검사: 서버 사용자 전용 worktree `02d6cc5`에서 locked 설치 후 2026-10-13 10:37 한국 시간에 완료. 읽은 JSON840개 중 candidate225·quarantined384·unsupported231. 격리 사유: 등록번호 형식8·유효 출처 URL 없음315·다중 PDF 후보49·PDF 누락12. parsed 비JSON1개는 읽지 않았다.
 - PDF:774개를 스트리밍 검사, 헤더 없는23개·정상 PDF의 동일 해시 그룹90개·유효 등록번호 중복 그룹226개. 전체 읽기942,478,095 bytes. 중복 그룹은 문서/조사 건수와 같지 않으며 자동 병합하지 않았다. 헤더/해시/basename 대응은 원문 동일성·인용 정확성의 증명이 아니다.
+- 보완 영향 확인: 개인 manifest의 유효 metadata에 제어문자를 포함한 출처 URL이0개임을 집계로 확인했다. 이전 실제 검사 건수는 `02d6cc5` 관측 결과이며 전체943MB 재검사를 반복하지 않았다.
 - 개인 상세 결과:840개 JSON의 manifest를 원문 경로와 Git 밖 개인 디렉터리의 새600 파일로 저장했다. 공개 stdout은 집계만, 원문·경로·등록번호·URL·해시는 기록하지 않았다. 소스 파일·운영 DB·공유 서비스·DNS 변경 없음. 전체 수집 상태/일관된 스냅샷을 보장하지 않는다.
 
 ## 2026-10-12 · 전용 DB·기존 수집 자산 조사
@@ -187,7 +188,7 @@
 ## 게시·검토
 
 - 계획 PR: [#1 · 구현 계획과 결정·진행 기록](https://github.com/DigestWorks/IssueDigest/pull/1) · Draft, 병합 전.
-- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 현재 v20 공개 게시 성공. 원문·파싱·인용과 개체·주장·관계·비교 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
+- Sites: [IssueDigest 구현 계획](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/). 초기 계약 단계에서 v20 공개 게시에 성공했다. 이후 게시 버전은 각 날짜의 기록과 현재 작업을 따른다. 원문·파싱·인용과 개체·주장·관계·비교 계약·검증·PR 요약을 반영했다. 계획·개발 기반 상태와 저장소 문서·PR 검토 경로를 반영했다.
 - 구현 시작: 로컬 폴더·협업 문서와 웹·API·상태 계약·개발 검증 기반 완료. 실제 스모크 결과·코드 검토는 개발 기반 작업에 기록한다. PR #1~#5는 Draft이며 병합하지 않았다.
 
 ## 서버 정보를 기다리지 않고 진행 가능한 항목
