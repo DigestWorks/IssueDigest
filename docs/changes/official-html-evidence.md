@@ -12,7 +12,7 @@
 
 ## Task 1: 공식 정책 HTML 추출·기존 근거 계약 어댑터
 
-- [ ] 아래 라이브러리·회귀 테스트·패키지 사용 문서 구현.
+- [x] 아래 라이브러리·회귀 테스트·패키지 사용 문서 구현.
 
 ### 공개 내부 인터페이스
 
@@ -38,6 +38,6 @@
 ## Controller 결합 검증·인계
 
 - [ ] 독립 task review와 전체 branch review, 지적 수정·재검토.
-- [ ] 확보한 실제 정부 원문의 title/date/publisher/license/body 제외 영역·파싱 한도 확인. 원문 파일600 개인 보관, 수집 시각·URL·hash와 이용 기록 별도 보존.
-- [ ] 기존 EvidenceBundle/Citation 구성→전용 검증 PostgreSQL 저장/동일 재전송→조회/원문/인용 재검증. 실제 원문 기반이지만 공동 작업 DB/로그인이나 AI 생성 완료는 아니다.
+- [x] 확보한 실제 정부 원문의 title/date/publisher/license/body 제외 영역·파싱 한도 확인. 원문 파일600 개인 보관, 수집 시각·URL·hash와 이용 기록 별도 보존.
+- [x] 기존 EvidenceBundle/Citation 구성→전용 검증 PostgreSQL 저장/동일 재전송→조회/원문/인용 재검증. 실제 원문 기반이지만 공동 작업 DB/로그인이나 AI 생성 완료는 아니다.
 - [ ] 전체 검사·문서 링크·Draft PR/앱 첨부·Sites 요약/기존 기록 보존·현재 폴더/서버 개인 worktree 인계. 실제 앱 공개/main 병합 없음.
