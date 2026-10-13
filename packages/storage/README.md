@@ -19,7 +19,8 @@ uv run --package issuedigest-storage alembic -c packages/storage/alembic.ini upg
 uv run --package issuedigest-storage alembic -c packages/storage/alembic.ini current
 ```
 
-최초 revision은 `0001_evidence_snapshots`이며 다음 `0002_auth_sessions`가 내부 사용자·멤버십·해시 세션 테이블만 추가합니다. `alembic_version`으로 적용 상태를
+최초 revision은 `0001_evidence_snapshots`이며 다음 `0002_auth_sessions`가 내부 사용자·멤버십·해시 세션 테이블을,
+`0003_oauth_identity`가 단기 OAuth 상태·명시 초대 테이블을 추가합니다. `alembic_version`으로 적용 상태를
 관리하며 재실행해도 테이블을 다시 생성하지 않습니다. 데이터가 있는 DB에서 downgrade는
 저장 테이블을 삭제하므로 아래 테스트의 전용 합성 DB에서만 검증합니다.
 SQLAlchemy `metadata.create_all`은 마이그레이션 대용으로 사용하지 않습니다.
@@ -112,7 +113,8 @@ namespace이며 전체 workspace 생성/초대 관리가 아닙니다. 존재하
 미지원 역할·잘못된 UUID·boolean 이외 상태값은 거부합니다.
 
 이 메서드를 호출하는 코드가 신뢰된 OIDC 연결기/관리자 경계여야 합니다. 이 패키지는
-공급자 토큰 검증, 초대 승인, 사용자 비밀번호 처리를 수행하지 않습니다. 공개 HTTP 등록/발급/
+공급자 토큰 검증과 사용자 비밀번호 처리를 수행하지 않습니다.
+초대 승인은 아래 운영자 전용 메서드를 명시적으로 호출해야 합니다. 공개 HTTP 등록/발급/
 멤버십 수정·테스트 로그인 경로는 없습니다. 외부 요청의 사용자 ID·이메일은 신뢰 증거가 아닙니다.
 
 `SessionRepository.issue_session(user_id, lifetime_seconds=28800)`는 활성 사용자에게만
@@ -136,3 +138,53 @@ DB 장애/저장 훼손은 원문·토큰·DB 설정을 포함하지 않는 `Sto
 실제 DB identity 충돌/동시 등록·hash-only 저장·수명/idle·활동 갱신·폐기/비활성/멤버십 회수,
 두 회원의 동일 스냅샷 조회·workspace 격리·역할/FK·AUTOCOMMIT 경계·HTTP 오류 비노출을 검사합니다.
 로그인 공급자, 운영 DB, 앱 로그인/자료 화면은 후속이며 이 단계만으로 운영 로그인이 완료되지 않습니다.
+
+
+## OAuth 상태·명시 초대·작업 공간 목록
+
+`OAuthRepository`는 서버 내부의 검증된 제공자 결과와 운영자가 명시적으로 승인한
+초대만 처리합니다. HTTP 입력의 issuer/subject/email/권한을 그대로 전달하면 안 됩니다.
+이 계층은 Google 서명이나 이메일 권위를 검증하지 않습니다. 제공자 연결기가 먼저
+서명·issuer·audience·유효기간·nonce와 이메일 권위를 확인해야 합니다.
+
+운영자는 `register_invite(issuer, email, user_id, workspace_id, role)`로 승인 이메일과
+예약 UUID4, 승인한 공간·역할을 개인 DB에 등록합니다. 같은 내용은 최초 True/재호출 False,
+내용 변경은 `StorageConflict`입니다. ASCII 이메일은 소문자로 비교하지만 dot/plus 별칭을
+합치지 않습니다. 실제 계정·공간·세션·DB 비밀은 문서나 버전 관리에 기록하지 않습니다.
+공개 가입/초대 등록 API는 없으며 실제 사용자나 공동 자료의 등록은 별도 준비 작업입니다.
+
+`resolve_invited_identity(issuer, subject, email, authoritative_email)`는 미등록 subject의
+최초 로그인에서만 권위 있는 검증 이메일과 활성·미사용 초대를 확인합니다. 사용자·승인
+멤버십·고정 subject 바인딩은 한 트랜잭션으로 생성하며 동시 동일 로그인도 하나로 수렴합니다.
+다른 subject는 같은 초대를 재사용할 수 없습니다. 이후 로그인은 정확한 issuer/subject와
+활성 사용자만 사용하고 이메일 변경으로 사용자 ID나 권한을 바꾸지 않습니다. 폐기된 사용자와
+멤버십을 재활성화하지 않습니다. `set_invite_enabled`는 미사용 초대의 이후 바인딩을 막으며
+이미 발급한 사용자·멤버십·세션을 소급 폐기하지 않습니다. 기존 `set_enabled`,
+`set_membership(..., active=False)`, `revoke_session`으로 각각 관리합니다.
+
+`begin_login()`은 브라우저별 state/token 해시와 단기 PKCE verifier/nonce를 서버 DB에
+10분 동안 저장합니다. PKCE는 S256이며 활성 흐름은 트랜잭션 잠금으로 최대 200개입니다.
+`consume_login(state, browser_token)`은 양쪽 해시·만료를 확인한 뒤 한 번만 소비합니다.
+다른 브라우저의 잘못된 요청은 유효 흐름을 삭제하지 않습니다. 제공자 호출 전에 소비하므로
+실패 후 새 로그인 시작이 필요합니다. 반환 객체의 비밀은 repr에서 숨기고 로그에 기록하지 않습니다.
+Google ID/access/refresh 토큰은 이 저장 계층에 전달하거나 저장하지 않습니다.
+
+`issue_authorized_session(issuer, subject, previous_token=None)`은 등록된 활성 사용자와
+활성 멤버십이 있는 경우에만 기존 8시간/idle 30분의 해시 세션을 발급합니다. 이전 보유 쿠키의
+세션 잠금 → 사용자 → 멤버십 순서로 확인하며 새 세션 저장과 이전 세션 폐기를 함께 commit합니다.
+실패하면 둘 다 rollback합니다. 등록·권한 생성은 이 메서드가 수행하지 않습니다.
+
+`WorkspaceAccessRepository.get_session(token)`은 세션·사용자·활성 멤버십을 같은
+REPEATABLE READ 트랜잭션에서 잠그고 공간 UUID 문자열순으로 반환합니다. 멤버십은 최대 100개이며
+넘치거나 훼손된 값은 응답 전체를 거부합니다. 멤버십이 없어도 유효 세션은 빈 목록을 반환합니다.
+`list_evidence(token, workspace_id, limit=20)`은 해당 활성 멤버에게만 최신 생성 시각순,
+같은 시각이면 snapshot UUID순으로 최대 50개와 `has_more`를 반환합니다. 비회원은 None,
+자료가 없는 회원은 빈 catalog입니다. 각 반환 스냅샷의 기존 불변 로더를 같은 트랜잭션에서
+재검증하고 실제 metadata·본문 첫 160 Unicode codepoint·인용 수만 요약합니다. 제목·주장·사진을
+추정하지 않으며 원문 이용 권리나 주장 지지를 보장하지 않습니다. 부모·참조·payload가 훼손되면
+부분 응답 없이 전체를 거부합니다. 유효 session/허용 catalog 조회만 activity를 갱신합니다.
+동시 갱신의 SQLSTATE 40001은 트랜잭션 전체를 최대 두 번 재시도하여 권한을 다시 확인합니다.
+
+`0003` downgrade는 신규 OAuth/초대 테이블만 제거하고 기존 사용자·세션·근거를 보존합니다.
+테스트는 새 전용 loopback 합성 PostgreSQL에 한정합니다. 실제 공동 DB의 downgrade/reset,
+운영 설정 변경, Google 계정 승인이나 외부 로그인은 이 구현의 검증 범위가 아닙니다.

@@ -13,7 +13,7 @@
 
 ## Task 1: OAuth 상태·승인 세션·작업 공간 조회 저장
 
-- [ ] 저장/계약/마이그레이션·테스트 구현.
+- [x] 저장/계약/마이그레이션·테스트 구현.
 
 도메인 `packages/domain/src/issuedigest_domain/auth.py`에 extra=forbid/frozen 모델을 추가하고 export한다: `WorkspaceMembership(workspace_id:UUID4, role:Literal[viewer,editor,owner])`, `SessionInfo(schema_version:Literal[1]=1,user_id:UUID4,memberships:tuple[WorkspaceMembership,...])`(최대100·workspace 중복 금지·UUID문자열 오름차순), `EvidenceSummary(snapshot_id,document_id:UUID4,provider,source_id:NonBlank,source_kind:SourceDocument 기존 enum,canonical_url:SourceUrl|None,collected_at:AwareDatetime UTC,excerpt:str 최대160codepoints,citation_count:strict nonnegative int)`, `EvidenceCatalog(schema_version1,workspace_id:UUID4,items:tuple[EvidenceSummary,...] 최대50·snapshot 중복 금지,has_more:strict bool)`. 원문 제목/주장·사진을 추정하지 않는다.
 
