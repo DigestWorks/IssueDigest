@@ -1,0 +1,11 @@
+[Unit]
+Description=Retry IssueDigest HTTPS setup after DNS propagation
+
+[Timer]
+OnCalendar=hourly
+RandomizedDelaySec=60
+Persistent=true
+Unit=issuedigest-tls.service
+
+[Install]
+WantedBy=timers.target

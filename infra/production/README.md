@@ -21,7 +21,7 @@
 
 후보가 통과하면 `current`를 원자적으로 전환하고 API 서비스를 재시작한다. 웹·API 공개 상태 확인이 실패하면 이전 링크를 복원하고 서비스를 재시작한다. 첫 배포 실패는 링크를 해제하고 서비스를 중지한다. API 재시작 중 짧은 요청 실패가 있을 수 있으며 무중단 배포를 보장하지 않는다.
 
-웹은 `apps/web/build/client`를 nginx가 제공하고 앱 경로는 `index.html`로 연결한다. API·헬스 경로는 FastAPI에 전달하며 HTML로 대체하지 않는다. 앱 병합 전 웹은 HTTP503, API는 연결할 서비스가 없으므로 HTTP502를 반환한다. HTTPS 인증서는 기존 webroot·갱신 훅을 사용한다.
+웹은 `apps/web/build/client`를 nginx가 제공하고 앱 경로는 `index.html`로 연결한다. API·헬스 경로는 FastAPI에 전달하며 HTML로 대체하지 않는다. 앱 병합 전 웹은 HTTP503, API는 연결할 서비스가 없으므로 HTTP502를 반환한다. HTTPS 인증서는 기존 webroot·갱신 훅을 사용한다. 초기 인증서가 없으면 `issuedigest-tls.timer`가 시간마다 발급을 재시도한다. 성공하면 HTTPS 설정을 적용하고 초기 발급 타이머를 중지한다. 이후 갱신은 기존 certbot이 담당한다. 인증서 발급 전에는 HTTP503을 유지하며 앱 배포의 공개 HTTPS 검사는 실패한다.
 
 기본 API는 외부 DB 없이 시작하고 보호된 자료 조회는 거부한다. `/health/live`는 프로세스 생존만 확인한다. DB·로그인·자료 수집·검색·에이전트 실행 완료를 뜻하지 않는다. 후속 앱 구성이 환경 설정을 요구하면 `shared/application.env`를 관리자와 배포 계정만 읽을 수 있게 작성하고 후보 실행에도 동일한 설정이 적용되는지 확인해야 한다.
 
@@ -30,3 +30,12 @@
 기준은 개발 브랜치의 `README.md` 운영 정적 파일 계약, 기존 `verify.yml` 검사 명령, 실제 FastAPI의 `/health/live`와 `/api/v1/status`이다. 개발 브랜치를 병합하거나 내용을 변경하지 않았다.
 
 [GitHub workflow 문법](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax), [배포 제어](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/control-deployments)를 기준으로 main 필터·동시 실행 제한·production 환경을 구성했다. 운영 DB 마이그레이션, 인증, 자료 연결은 별도 검증 대상이다.
+
+## 준비 검증 기록 (2026-10-13)
+
+- 공용 저장소의 그룹 읽기 허용·쓰기 거부·shared 열람 거부를 실제 개발 계정에서 확인했다.
+- `actionlint`·`bash -n`·`nginx -t`·systemd 설정 검사 통과. SSH 임의 명령 거부와 읽기 전용 `check`를 확인했다.
+- 실제 개발 브랜치의 별도 사본으로 고정 도구·locked 설치·정적 빌드·offline API 실행을 확인했다. 로컬 nginx의 웹200·SPA 경로200·API/health JSON200·없는 API JSON404를 확인했다. 읽기 전용 파일 시스템 등 운영 서비스 제한을 적용한 임시 systemd 서비스에서도 health200을 확인한 뒤 중지했다. 사본은 공개 앱에 연결하지 않았다.
+- `main` 준비 커밋의 push 워크플로에서 readiness 성공과 앱 검사·배포 건너뛰기를 확인했다. 수동 실행은 서버 SSH 연결 검증용이다.
+- 권한 있는 DNS 서버4개와 Google·Cloudflare 조회는 서버 A 레코드를 반환했다. 인증기관은 발급 시 DNS NXDOMAIN을 반환해 초기 TLS가 대기 중이다. 타이머를 준비했으며 발급 성공을 미리 완료로 표시하지 않는다.
+- 실제 앱 main 병합·공개 앱 배포·장애 후 이전 릴리스 복구는 아직 실행하지 않았다. DB·개발 브랜치·기존 수집/참조 서비스는 변경하지 않았다. Sites 요약은 반영 대기다.
