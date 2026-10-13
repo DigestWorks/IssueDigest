@@ -26,12 +26,12 @@ Worktree: 현재 격리된 `feat/evidence-reader`. Task brief에 전역 제약�
 5. TDD: client+component+Home 새 동작의 실제 assertion RED를 먼저 보존하고 최소 구현 후 GREEN. 기존 합성 Canvas fixture 또는 검증된 새로운 작은 synthetic EvidenceBundle만 테스트에 사용한다. 200의 불완전/교차 workspace/버전/reference/인용/URL·Unicode·PDF page/table mismatch, 401/404/503/HTTP·malformed headers/body, fetch/body timeout, 이미/중간 취소, invalid inputs와 fetch 없음, 실제 렌더 인용 선택/페이지 이동/표·빈 인용, loading·retry·route change 중 late response·unmount, unsafe HTML·외부 링크·Home 링크 형식/실제 navigation을 검증한다. 인증 fixture·운영 자료를 production 앱에 추가하지 않는다. focused files를 분리한다. README에 진입 경로·인증 미연결·서버 도메인 검증과 display validation의 경계·배포 유예를 기록한다.
 6. 최종 focused tests·JS lint/typecheck/build/contract check를 실행하고 본인 diff self-review, report와 commit. Controller가 실제 합성 PostgreSQL 포함 전체 검사·독립 task/final 리뷰·개발용 실제 API/브라우저 QA·Draft PR·Sites·사용자 폴더/서버 worktree 인계를 담당한다. 체크는 구현 항목만 완료하고 controller 결합 항목은 남겨 둔다.
 
-- [ ] 보호 GET 클라이언트·display validation·취소/오류 구현.
-- [ ] 실제 읽기 화면·근거 링크 진입·상태/Unicode/키보드 구현.
-- [ ] assertion RED/GREEN·회귀·문서/자체 검사·commit.
+- [x] 보호 GET 클라이언트·display validation·취소/오류 구현.
+- [x] 실제 읽기 화면·근거 링크 진입·상태/Unicode/키보드 구현.
+- [x] assertion RED/GREEN·회귀·문서/자체 검사·commit.
 
 ## Controller 결합
 
 - [ ] 전용 loopback 합성 PostgreSQL 전체 검사·독립 작업/전체 리뷰.
-- [ ] 실제 합성 FastAPI→Vite→브라우저에서 보호 GET·원문/인용·오류·1366/390·키보드 확인. fixture session은 QA 전용 HTTPS browser cookie로만 주입하고 공개 API에 발급 route를 만들지 않는다. 실제 수집 자료·운영 DB는 사용하지 않는다.
+- [x] 실제 합성 FastAPI→Vite→브라우저에서 보호 GET·원문/인용·오류·1366/390·키보드 확인. fixture session은 QA 전용 HTTPS browser cookie로만 주입하고 공개 API에 발급 route를 만들지 않는다. 실제 수집 자료·운영 DB는 사용하지 않는다.
 - [ ] 선행 PR #14 위 Draft PR·Sites 요약/배포 유예·이전 기록 보존·개발 worktree 인계. main/실제 앱 게시 없음.

@@ -13,6 +13,7 @@
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
+| [첫 검증 이슈](research/first-issue.md) | 최근 시사 선정·대표 질문·출처와 자료/평가 경계 |
 | [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
 | [전용 DB·수집 자산 실측](research/server-data-inventory.md) | 실제 건수·기간·원문 품질·pgvector 준비 상태·첫 이관 경계 |
 | [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
@@ -81,3 +82,7 @@ Sites 반영 상태:
 ## 반복 PDF 문항의 후보·문맥 선택
 
 [작업 명세](changes/pdf-quote-candidates.md)에 따라 기존 추출/인용 계약을 소비하는 제한된 후보 검색과 정확 문맥 선택을 구현한다. 위치 round-trip 검증과 적합한 조사/표 근거의 의미 판단을 구분하며 완료/실측/남은 조건은 진행 기록을 따른다.
+
+## 저장 근거 읽기 화면
+
+[작업 명세](changes/evidence-reader.md)에 따라 기존 보호 GET을 소비하는 원문·페이지·인용 읽기 화면과 안전한 링크 진입을 구현한다. display validation과 서버 도메인/권한 검증을 구분한다. 실제 로그인·자료 이관·AI와 공개 배포는 후속이며 진행 기록에 검증 범위를 남긴다.
