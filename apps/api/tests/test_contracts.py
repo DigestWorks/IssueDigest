@@ -51,6 +51,19 @@ def test_http_and_export_script_produce_identical_contract(tmp_path):
     assert json.loads(output.read_text()) == TestClient(main.app).get("/openapi.json").json()
 
 
+def test_catalog_limit_publishes_standard_integer_bounds():
+    schema = TestClient(main.app).get("/openapi.json").json()
+    operation = schema["paths"]["/api/v1/workspaces/{workspace_id}/evidence"]["get"]
+    limit = next(parameter for parameter in operation["parameters"] if parameter["name"] == "limit")
+    assert limit["in"] == "query"
+    assert limit["required"] is False
+    assert limit["schema"]["type"] == "integer"
+    assert limit["schema"]["minimum"] == 1
+    assert limit["schema"]["maximum"] == 50
+    assert limit["schema"]["default"] == 20
+    assert "ge" not in limit["schema"] and "le" not in limit["schema"]
+
+
 def test_component_collision_fails_without_mutating_input():
     from issuedigest_api import contracts
 

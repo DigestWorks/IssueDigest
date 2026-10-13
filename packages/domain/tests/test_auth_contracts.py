@@ -1,6 +1,6 @@
 """Workspace browsing contracts are immutable and fail closed."""
 
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import issuedigest_domain as domain
 import pytest
@@ -19,13 +19,31 @@ def test_memberships_are_unique_sorted_bounded_and_frozen():
     rows = tuple(membership(workspace_id=x, role="viewer") for x in ids)
     info = session(user_id=uuid4(), memberships=rows)
     assert info.memberships == rows
-    for invalid in [rows[::-1], (rows[0], rows[0]), rows * 51]:
+    for invalid in [rows[::-1], (rows[0], rows[0])]:
         with pytest.raises(ValidationError):
             session(user_id=uuid4(), memberships=invalid)
     with pytest.raises(ValidationError):
         info.user_id = uuid4()
     with pytest.raises(ValidationError):
         session(user_id=uuid4(), memberships=(), schema_version=True)
+
+
+@pytest.mark.parametrize("count", [100, 101])
+def test_membership_count_boundary_with_unique_sorted_workspaces(count):
+    rows = tuple(
+        contract("WorkspaceMembership")(
+            workspace_id=UUID(f"00000000-0000-4000-8000-{index:012x}"), role="viewer"
+        )
+        for index in range(1, count + 1)
+    )
+    if count == 100:
+        assert contract("SessionInfo")(user_id=uuid4(), memberships=rows).memberships == rows
+    else:
+        with pytest.raises(ValidationError) as rejected:
+            contract("SessionInfo")(user_id=uuid4(), memberships=rows)
+        assert [(error["loc"], error["type"]) for error in rejected.value.errors()] == [
+            (("memberships",), "too_long")
+        ]
 
 
 def test_catalog_summary_strict_values_and_limits():
@@ -53,8 +71,33 @@ def test_catalog_summary_strict_values_and_limits():
     ]:
         with pytest.raises(ValidationError):
             summary(**(values | {field: invalid}))
-    for items in [(item, item), (item,) * 51]:
-        with pytest.raises(ValidationError):
-            catalog(workspace_id=uuid4(), items=items, has_more=False)
+    with pytest.raises(ValidationError):
+        catalog(workspace_id=uuid4(), items=(item, item), has_more=False)
     with pytest.raises(ValidationError):
         catalog(workspace_id=uuid4(), items=(), has_more=1)
+
+
+@pytest.mark.parametrize("count", [50, 51])
+def test_catalog_count_boundary_with_unique_snapshots(count):
+    items = tuple(
+        contract("EvidenceSummary")(
+            snapshot_id=UUID(f"00000000-0000-4000-8000-{index:012x}"),
+            document_id=uuid4(),
+            provider="synthetic",
+            source_id="source",
+            source_kind="other",
+            collected_at="2026-10-12T00:00:00Z",
+            excerpt="",
+            citation_count=0,
+        )
+        for index in range(1, count + 1)
+    )
+    if count == 50:
+        result = contract("EvidenceCatalog")(workspace_id=uuid4(), items=items, has_more=False)
+        assert result.items == items
+    else:
+        with pytest.raises(ValidationError) as rejected:
+            contract("EvidenceCatalog")(workspace_id=uuid4(), items=items, has_more=False)
+        assert [(error["loc"], error["type"]) for error in rejected.value.errors()] == [
+            (("items",), "too_long")
+        ]

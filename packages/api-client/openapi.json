@@ -4603,8 +4603,8 @@
             "required": false,
             "schema": {
               "default": 20,
-              "ge": 1,
-              "le": 50,
+              "maximum": 50,
+              "minimum": 1,
               "title": "Limit",
               "type": "integer"
             }

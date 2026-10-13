@@ -35,7 +35,7 @@ def catalog_router(repository: WorkspaceAccessRepository | None) -> APIRouter:
         request: Request,
         workspace_id: UUID4,
         token: Annotated[str | None, Security(COOKIE_AUTH)],
-        limit: Annotated[int, BeforeValidator(_parse_limit), Query(ge=1, le=50)] = 20,
+        limit: Annotated[int, Query(ge=1, le=50), BeforeValidator(_parse_limit)] = 20,
     ) -> Response:
         if len(request.query_params.getlist("limit")) > 1:
             raise HTTPException(

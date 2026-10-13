@@ -244,12 +244,34 @@ def test_session_replacement_failure_preserves_previous_and_success_revokes(engi
     checked(client.get("/api/v1/auth/session"), 401)
 
 
-@pytest.mark.parametrize("limit", ["0", "51", "1.0", "01", "true", "PRIVATE"])
+@pytest.mark.parametrize(
+    "limit", ["0", "51", "1.0", "01", "+1", " 1", "1 ", "1e1", "20\n", "", "true", "PRIVATE"]
+)
 def test_catalog_limit_is_strict_and_validation_private(limit):
     client = TestClient(create_app())
     response = client.get(f"/api/v1/workspaces/{uuid4()}/evidence", params={"limit": limit})
     checked(response, 422)
     assert "PRIVATE" not in response.text and "input" not in response.text
+
+
+@pytest.mark.parametrize("limit", ["1", "50"])
+def test_catalog_limit_accepts_both_boundaries(engine, signing, limit):
+    client, _, bundle, snapshot, _, pending, _ = setup(engine, signing)
+    assert callback(client, start(client, pending)).headers["location"] == "/"
+    response = client.get(
+        f"/api/v1/workspaces/{bundle.document.workspace_id}/evidence", params={"limit": limit}
+    )
+    checked(response, 200)
+    assert [item["snapshot_id"] for item in response.json()["items"]] == [str(snapshot)]
+
+
+def test_catalog_limit_rejects_duplicate_parameters():
+    client = TestClient(create_app())
+    response = client.get(
+        f"/api/v1/workspaces/{uuid4()}/evidence", params=[("limit", "1"), ("limit", "50")]
+    )
+    checked(response, 422)
+    assert "input" not in response.text
 
 
 def test_membership_revocation_empty_catalog_and_nonmember(engine, signing):

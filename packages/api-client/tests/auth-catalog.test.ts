@@ -8,6 +8,9 @@ const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store
 const session = () => ({ schema_version: 1, user_id: other, memberships: [{ workspace_id: workspace, role: 'viewer' }] });
 const catalog = () => ({ schema_version: 1, workspace_id: workspace, items: [{ snapshot_id: other, document_id: other, provider: '합성 공급처', source_id: 'synthetic-source', source_kind: 'other', canonical_url: 'https://example.test/source', collected_at: '2026-10-13T00:00:00Z', excerpt: '😀'.repeat(160), citation_count: 0 }], has_more: false });
 const response = (data: unknown) => new Response(JSON.stringify(data), { headers });
+const uniqueId = (index: number) => `00000000-0000-4000-8000-${index.toString(16).padStart(12, '0')}`;
+const memberships = (count: number) => Array.from({ length: count }, (_, index) => ({ workspace_id: uniqueId(index + 1), role: 'viewer' }));
+const summaries = (count: number) => Array.from({ length: count }, (_, index) => ({ ...catalog().items[0], snapshot_id: uniqueId(index + 1) }));
 afterEach(() => { vi.unstubAllGlobals(); vi.useRealTimers(); });
 
 it('returns typed validated session and catalog using cookie-only no-store requests', async () => {
@@ -25,7 +28,7 @@ it('logs out by POST without client tokens or an invented Origin header', async 
 const sessionCorruptions: [string, (data: ReturnType<typeof session>) => void][] = [
   ['schema', d => { d.schema_version = 2; }], ['user', d => { d.user_id = 'bad'; }], ['role', d => { d.memberships[0].role = 'admin'; }],
   ['duplicate workspace', d => { d.memberships.push(d.memberships[0]); }], ['sorting', d => { d.memberships.unshift({ workspace_id: other, role: 'owner' }); }],
-  ['limit', d => { d.memberships = Array.from({ length: 101 }, () => d.memberships[0]); }], ['unknown field', d => { Object.assign(d, { token: 'private' }); }],
+  ['limit', d => { d.memberships = memberships(101); }], ['unknown field', d => { Object.assign(d, { token: 'private' }); }],
 ];
 it.each(sessionCorruptions)('rejects malformed session: %s', async (_name, corrupt) => {
   const data = session(); corrupt(data); vi.stubGlobal('fetch', async () => response(data));
@@ -33,7 +36,7 @@ it.each(sessionCorruptions)('rejects malformed session: %s', async (_name, corru
 });
 const catalogCorruptions: [string, (data: ReturnType<typeof catalog>) => void][] = [
   ['workspace', d => { d.workspace_id = other; }], ['schema', d => { d.schema_version = 2; }], ['duplicate snapshot', d => { d.items.push(d.items[0]); }],
-  ['limit', d => { d.items = Array.from({ length: 51 }, () => d.items[0]); }], ['blank provider', d => { d.items[0].provider = ' '; }], ['blank source', d => { d.items[0].source_id = ''; }],
+  ['limit', d => { d.items = summaries(51); }], ['blank provider', d => { d.items[0].provider = ' '; }], ['blank source', d => { d.items[0].source_id = ''; }],
   ['UUID', d => { d.items[0].document_id = 'bad'; }], ['kind', d => { d.items[0].source_kind = 'unknown'; }],
   ['URL script', d => { d.items[0].canonical_url = 'javascript:alert(1)'; }], ['URL credentials', d => { d.items[0].canonical_url = 'https://@example.test/source'; }],
   ['URL whitespace', d => { d.items[0].canonical_url = ' https://example.test/source'; }], ['URL backslash', d => { d.items[0].canonical_url = 'https://example.test\\evil'; }],
@@ -50,6 +53,16 @@ it('accepts no memberships, empty catalog, null source URL and UTC offset zero',
   vi.stubGlobal('fetch', async () => response({ ...catalog(), items: [] })); expect((await client.getEvidenceCatalog(workspace)).data.items).toEqual([]);
   const data = catalog(); Object.assign(data.items[0], { canonical_url: null, collected_at: '2024-02-29T12:59:59.123456+00:00' });
   vi.stubGlobal('fetch', async () => response(data)); expect((await client.getEvidenceCatalog(workspace)).data.items[0].canonical_url).toBeNull();
+});
+it('accepts exactly 100 unique sorted memberships', async () => {
+  const data = { ...session(), memberships: memberships(100) };
+  vi.stubGlobal('fetch', async () => response(data));
+  expect(await client.getSession()).toEqual({ data, requestId });
+});
+it('accepts exactly 50 unique catalog snapshots', async () => {
+  const data = { ...catalog(), items: summaries(50) };
+  vi.stubGlobal('fetch', async () => response(data));
+  expect(await client.getEvidenceCatalog(workspace)).toEqual({ data, requestId });
 });
 const calls = [() => client.getSession(), () => client.getEvidenceCatalog(workspace), () => client.logout()];
 it.each(calls)('sanitizes errors and preserves only valid request UUIDs (%#)', async call => {

@@ -174,20 +174,37 @@ def test_workspace_session_and_catalog_sorting_has_more_unicode_and_isolation(en
     assert access.get_session(token).memberships[0].workspace_id == space
     assert access.list_evidence(token, uuid4()) is None
     assert access.list_evidence(token, space).items == ()
-    snapshots = sorted([uuid4(), uuid4(), uuid4()], key=str)
+    snapshots = sorted([uuid4() for _ in range(4)], key=str)
     for snap in snapshots:
         data = bundle_data()
         data["document"]["workspace_id"] = str(space)
         bundle = EvidenceBundle.model_validate(data)
         storage.EvidenceRepository(engine).save(snap, bundle)
     with engine.begin() as conn:
-        conn.execute(text("UPDATE evidence_snapshots SET created_at='2026-10-12T00:00:00Z'"))
+        conn.execute(
+            text(
+                "UPDATE evidence_snapshots SET created_at=:created_at WHERE snapshot_id=:snapshot"
+            ),
+            [
+                {"snapshot": snapshots[0], "created_at": "2026-10-10T00:00:00Z"},
+                {"snapshot": snapshots[1], "created_at": "2026-10-11T00:00:00Z"},
+                {"snapshot": snapshots[2], "created_at": "2026-10-11T00:00:00Z"},
+                {"snapshot": snapshots[3], "created_at": "2026-10-12T00:00:00Z"},
+            ],
+        )
     result = access.list_evidence(token, space, 2)
-    assert [item.snapshot_id for item in result.items] == snapshots[:2]
+    assert [item.snapshot_id for item in result.items] == [snapshots[3], snapshots[1]]
     assert result.has_more is True
     assert result.items[0].excerpt == bundle.representation.text
     assert result.items[0].citation_count == 3
-    assert access.list_evidence(token, space, 3).has_more is False
+    complete = access.list_evidence(token, space, 4)
+    assert [item.snapshot_id for item in complete.items] == [
+        snapshots[3],
+        snapshots[1],
+        snapshots[2],
+        snapshots[0],
+    ]
+    assert complete.has_more is False
     with engine.begin() as conn:
         conn.execute(text("UPDATE evidence_snapshots SET content_sha256=:h"), {"h": "b" * 64})
     with pytest.raises(storage.StorageError):
