@@ -10,7 +10,7 @@
 
 ## Global Constraints
 
-- No operating/source writes, database migrations, runtime network/model calls, new dependencies, API/generated-type changes, or automatic imports.
+- No operating/source writes or operating database migrations, runtime network/model calls, new dependencies, API/generated-type changes, or automatic imports.
 - Consume validated ParsedRepresentation and existing PdfQuoteSelector/Citation contracts; preserve existing extract_pdf_text, locate_pdf_quote and CLI behavior.
 - Match exact Unicode/code-point strings, including overlapping occurrences; never normalize, trim, fuzzy-match, rank, or silently select the first candidate.
 - Bound text scanning, examined occurrences, returned candidates and preview contexts; a search-limit failure never publishes completed partial results or a unique selection.
