@@ -21,7 +21,17 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 공식 정책 HTML 원문 준비
+## 현재 작업 · Google 로그인·공동 조사 자료 진입
+
+- 작업: [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md), R1/R2·D015. 명시 초대와 고정 Google identity, 서버 세션·현재 권한·공동 자료 목록을 연결한다.
+- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · 선행 공식 HTML #16 위의 격리 worktree. PR은 독립 검토 후 작성한다.
+- 상태: 저장/계약 구현의 합성 PostgreSQL 검증을 마치고 독립 작업 검토를 준비 중이다. Google OAuth 공급자·HTTP·화면은 후속 작업이다. 실제 로그인·공동 DB 연결은 완료로 표시하지 않는다.
+- 검증: 신규 저장/도메인 focused60개, 전체 Python1,337개와 Python 정적 검사 통과 보고. controller 검토·최종 전체 검사와 실제 브라우저 검증은 후속이다. 이전 기준 전체1,510개는 Python1,277개+JS233개의 합계다.
+- 남은 입력: Google 클라이언트 JSON은 개인 설정 위치에서 필수 항목·개발 callback 일치/권한600을 확인했다. 실제 Google 로그인은 미검증이며 테스트 사용자 등록 여부·앱 전용 DB 계정의 개인 접속 설정/필요 테이블 권한·두 번째 Google 계정은 확인이 필요하다. 첫 승인 계정 정보는 저장소 밖에만 보관하며 미등록 상태다. 공유 DB는 앱 테이블이 없음을 읽기로 확인했고 변경하지 않았다.
+- 다음: 저장 독립 검토 후 OAuth/HTTP와 웹 연결을 이어간다. 실제 전용 DB 이관은 대상·백업·앱 권한·새 승인 공간을 확인한 후 준비한다. 스키마 변경용 계정을 앱 실행에 사용하지 않는다.
+- Sites: 반영 대기. 공개 앱·main 병합은 D013에 따라 유예한다.
+
+## 이전 작업 · 공식 정책 HTML 원문 준비
 
 - 작업: [공식 정책 HTML 원문·인용 준비](../changes/official-html-evidence.md), R2/P2. 첫 이슈 정부 자료의 본문·발행일·출처표시 조건을 실제 원문과 대조한다.
 - 담당/브랜치: controller·implementer, `feat/official-html-evidence` · [Draft PR #16](https://github.com/DigestWorks/IssueDigest/pull/16); 선행 근거 읽기 #15 위, main 미병합.
