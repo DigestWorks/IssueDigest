@@ -18,7 +18,8 @@
 - 동료 보고: 공용 checkout·릴리스 개발 그룹 쓰기, main 자동 검사/배포·제한된 배포 SSH, 별도 운영 API 서비스 준비. 개발 브랜치·기존 DB·자료는 변경하지 않음.
 - 직접 확인: DNS 정상, 서버와 외부에서 인증서 검증을 유지한 HTTPS `/` HTTP503. 외부 `/health/live`·`/api/v1/status` HTTP502, 운영 API inactive·현재 릴리스 없음. TLS 대기라는 전달 문서보다 HTTPS 연결이 진행됐지만 앱은 아직 게시되지 않았다.
 - 최신 main `6d0884e`의 workflow·배포 스크립트·서비스·웹 설정을 읽었다. 개발 코드와의 읽기 전용 병합 미리보기에서 충돌 표시 없음. 통합 커밋·통합 후 검사·main 병합·첫 배포·복구는 아직 수행하지 않았다. 앱 화면은 빈 자료/연결 확인이며 실제 자료·AI·로그인·운영 DB는 후속이다.
-- 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. Sites 반영 준비 중. 코드 전체 테스트는 반복하지 않고 문서 링크·내용·공개 접속정보 제외를 확인한다.
+- 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
+- Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
 ## 현재 작업
 
