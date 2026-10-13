@@ -37,7 +37,15 @@
 
 ## Controller 결합 검증·인계
 
-- [ ] 독립 task review와 전체 branch review, 지적 수정·재검토.
+- [x] 독립 task review와 전체 branch review, 지적 수정·재검토.
 - [x] 확보한 실제 정부 원문의 title/date/publisher/license/body 제외 영역·파싱 한도 확인. 원문 파일600 개인 보관, 수집 시각·URL·hash와 이용 기록 별도 보존.
 - [x] 기존 EvidenceBundle/Citation 구성→전용 검증 PostgreSQL 저장/동일 재전송→조회/원문/인용 재검증. 실제 원문 기반이지만 공동 작업 DB/로그인이나 AI 생성 완료는 아니다.
 - [ ] 전체 검사·문서 링크·Draft PR/앱 첨부·Sites 요약/기존 기록 보존·현재 폴더/서버 개인 worktree 인계. 실제 앱 공개/main 병합 없음.
+
+## 검증·검토 기록
+
+- 구현b3febab·오류 보호 보완47394b2. 초기 실제 assertion RED122개·사진 권리 안내 분리/본문 정규화/메타데이터 영역/오류 경계 RED 보존. 최종 HTML focused150개. caller-ID raw ValidationError 노출 P1을 RED11개 후 fixed AuditError로 수정, scoped 재리뷰 해결·새 지적0.
+- Controller 최종 코드 전체 Python1,277+JS233=1,510개, skip0·lint/110개format/mypy45개·TS/SPA/OpenAPI drift 통과. 독립 전체 변경 리뷰52e0377 승인·Critical/Important/Minor0.
+- 실제 교육부 원문1건/35문단/3,231자·정확 인용3개, 독립 Chromium DOM 동일·JavaScript/외부요청43건 차단, 원문/메타데이터/산출물5개600 보존. 전용 검증 PG 저장/같은snapshot 재전송 중복 미생성/동일 재조회, 기존 보호GET 두 fixture 사용자200/no-store·비로그인401/다른 공간404. 최종 코드 재추출·메타데이터·인용·저장 동일성 확인.
+- 서버 개인 공간에도 보존 파일5개600·디렉터리700/내용 동일 확인. 검증용 workspace/snapshot은 실제 공동 작업 공간 ID가 아니며 승인 사용자/운영 코퍼스로 자동 이관하지 않는다. 기존 수집/공용 DB·운영 서비스·main 변경 없음.
+- 리뷰 판단 경계: 한 정부 템플릿의 본문·표시 오류·위치 계약 검증이다. 다른 출처/템플릿·출처 진위·범용HTML/브라우저보안·매체/모델/공개 권리·OCR/표/이미지·시간대 추정·변경/정정 버전·정책 확정/인과/수치/주장 지지·전체 코퍼스/평가·실제 인증/공동 DB/AI/운영·규모/격리/Python sandbox·새UI/전체접근성을 판정하지 않았다. 모두 명시된 후속/기존 제약이며 새로운 예외·미해결 지적은 없다. PR/Sites/인계 체크는 실제 수행 후 닫고 앱 공개는 유예한다.
