@@ -24,12 +24,14 @@
 ## 현재 작업 · Google 로그인·공동 조사 자료 진입
 
 - 작업: [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md), R1/R2·D015. 명시 초대·Google 고정 identity·서버 세션·현재 권한과 공동 자료 목록을 연결했다.
-- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · [Draft PR #17](https://github.com/DigestWorks/IssueDigest/pull/17), 선행 공식 HTML #16 위의 격리 worktree. 최종 게시/인계는 아래 결과로 갱신한다.
+- 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · [Draft PR #17](https://github.com/DigestWorks/IssueDigest/pull/17), 선행 공식 HTML #16 위의 격리 worktree. 최종 CI·게시·개발 인계를 아래 결과로 기록한다.
 - 상태: 저장·공급자/HTTP/runtime·웹 세 작업의 독립 검토와 전체 변경 리뷰 승인. 주소의 비표준 표기로 정상 로그인이 차단되는 문제를 startup 거부로 보완했다. 전체 리뷰의 정렬/한도 테스트·OpenAPI 경계값 세 보완을 한 번의 수정 범위로 반영하고 scoped 재검토에서 모두 해결·새 지적 없음으로 승인받았다.
-- 검증: 최종 코드 `e61d531`에서 controller 전체 Python1,491+JS320=1,811개 및 lint/타입/SPA/계약 통과, skip/warning 없음. 보완 전 `8cac1b4`에서도 1,795개를 통과했다. 별도 실제 PostgreSQL·DDL 금지 앱 역할·개인 HTTPS·브라우저에서 합성 서명/두 계정의 로그인→자료 목록→원문/인용→로그아웃, 미초대 차단·실패 로그인 시 기존 세션 유지 확인. 데스크톱1366/모바일390에서 가로 넘침 없음·page error0. 브라우저의 이동 중/bfcache 보류 실험은 완료하지 못했으며 해당 동작은 컴포넌트 테스트 범위로 남긴다. 실제 외부 Google 로그인으로 표현하지 않는다.
+- 검증: 코어 코드 `e61d531`에서 controller 전체 Python1,491+JS320=1,811개·정적/빌드/계약 통과, skip/warning 없음. 인계 중 발견한 개발 포트 전달 오류를 `29a152d`에서 TDD·독립 리뷰로 수정했다. controller 웹322개·lint/타입/SPA/계약과 최종 코드 CI 전체 Python1,491+JS322=1,813개가 통과했다. 별도 실제 PostgreSQL·DDL 금지 앱 역할·개인 HTTPS·브라우저에서 합성 서명/두 계정의 로그인→자료 목록→원문/인용→로그아웃, 미초대 차단·실패 로그인 시 기존 세션 유지 확인. 데스크톱1366/모바일390에서 가로 넘침 없음·page error0. 브라우저의 이동 중/bfcache 보류 실험은 완료하지 못했으며 해당 동작은 컴포넌트 테스트 범위로 남긴다. 실제 외부 Google 로그인으로 표현하지 않는다.
 - 남은 입력: Google 클라이언트 JSON 필수 항목·개발 callback 일치/개인 보관600 확인. 실제 Google 로그인·테스트 사용자 등록 여부·기존 앱 전용 DB 계정의 비밀 설정/필요 테이블 권한·두 번째 Google 계정은 미확인. 앱 접속 설정은 최신 개인 서버 조회에서도 없거나 읽을 수 없다. 승인 계정은 저장소 밖 미등록 기록만 있으며 공동 DB를 변경하지 않았다.
 - 다음: 기존 앱 계정의 비밀 설정을 받아 역할/대상·백업 조건을 확인한 뒤 새 공유 공간·명시 초대·검증한 공식 원문을 이관한다. 실제 Google 로그인은 사용자가 확인한다. 스키마 변경용 계정을 앱 실행에 사용하지 않는다.
-- Sites: v35 반영 준비·이전 v34 보존. 공개 앱·main 병합은 D013에 따라 유예한다.
+- 인계: 사용자 폴더를 `feat/google-oauth-workspace`로 연결하고 고정 의존성을 설치했다. 격리 검토 폴더는 해당 코드의 detached 상태로 보존한다. 개인 서버 worktree도 같은 코드·upstream으로 연결했다. ARM Google/설정/runtime103개 통과·공동 DB 미사용에 따른 조건부 PostgreSQL1개 skip, launcher13개·mypy54/웹 타입/SPA/계약 확인. 지정 개인 웹/API의 헬스·상태·로그인 화면200 및 API 계약 일치를 확인했다. 기본 미설정 runtime을 유지하며 실제 OAuth/공동 DB를 연결했다고 표시하지 않는다. 소유 합성 DB/볼륨·브라우저·QA API/웹은 정리했다.
+- CI: [최종 코드29a152d · 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38402405745). 작업/전체/수정 및 실행 포트 보완 리뷰 모두 승인. 후속 문서 커밋의 exact-head 결과는 PR에서 확인한다.
+- Sites: v35 공개 게시 성공·v34 보존, source `3648837847e5c1b3d87dfa9294c27d0e00435153`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2d7136cfed788191b8db582803e0b301`, deployment `appgdep_6ace29a304e481919c5beaa7ac6cd541`. 서버 포트 보완/최종 인계 기록은 v36에 반영한다. 공개 앱·main 병합은 D013에 따라 유예한다.
 
 ## 이전 작업 · 공식 정책 HTML 원문 준비
 

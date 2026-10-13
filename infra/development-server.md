@@ -111,3 +111,10 @@ ssh -N -i /path/to/private-key \
 코드는 Google 로그인·명시 초대·서버 세션·공동 자료 목록/읽기를 지원한다. 이 서버의 기본 개인 개발 세션은 미설정 앱으로 유지하며 실제 OAuth·공동 DB를 연결했다고 표시하지 않는다. 기존 앱 계정의 비밀 설정이 아직 읽히지 않으므로 개발자의 DDL 계정으로 앱을 실행하지 않는다. 필요한 환경변수·HTTPS·등록된 callback·명시 마이그레이션/초대 준비는 [API 안내](../apps/api/README.md)를 따른다.
 
 실제 callback의 code/state가 개발 로그에 남지 않도록 API 실행에는 `--no-access-log`를 사용하고 웹은 지원되는 npm 개발 실행 경로를 쓴다. 설정된 OAuth runtime은 별도 opt-in이다. 운영 Nginx 로그·HTTPS/라우팅은 공개 OAuth 전에 별도 확인해야 하며, 개발 프록시 검증으로 운영 설정을 인증하지 않는다. main·공용 checkout·운영 서비스 변경이나 첫 앱 게시를 수행하지 않는다.
+
+
+## 최신 인계 검증 · Google 로그인 코드
+
+`29a152d`의 Google 로그인·자료 목록 코드를 개인 worktree로 fast-forward하고 upstream을 `origin/feat/google-oauth-workspace`로 연결했다. 고정 의존성 설치와 ARM Google 서명/설정/runtime103개·개발 launcher13개, 타입·SPA·계약을 확인했다. 실제 공동 DB를 테스트하지 않아 조건부 PostgreSQL1개는 skip이다. controller와 코드 CI의 별도 합성 PostgreSQL 전체 검증과 구분한다.
+
+기존 API reloader의 자식이 종료된 상태에서 포트만 유지해 응답하지 않았으며, UID·개인 cwd·명령·그룹을 확인한 해당 개발 프로세스만 재시작했다. 웹 wrapper의 CLI 인수 누락은 TDD와 독립 리뷰로 보완했다. 실제 15173/18090의 헬스·상태와 로그인 화면200, API OpenAPI의 저장 계약 일치를 확인했다. API는 access log 없이 실행하고 웹은 지원 wrapper를 사용한다. 기본 미설정 runtime을 유지하며 실제 Google 계정·공동 DB·운영 서비스는 연결하지 않았다. 공유 checkout·main·공개 앱은 변경하지 않았다.
