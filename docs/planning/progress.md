@@ -17,11 +17,11 @@
 
 - 작업: [PDF 페이지 텍스트·정확 인용 준비](../changes/pdf-text-evidence.md), R2/P2의 다음 부분 구현. 기대 해시로 묶은 PDF 복사본·제한된 파서·기존 계약 어댑터·유일한 정확 인용 위치를 구현했다.
 - 담당/브랜치/PR: controller/implementer · `feat/pdf-text-evidence` · [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) · 선행 #12 위, 미병합.
-- 상태: 구현·독립 작업/전체 변경 리뷰·controller 전체 검증·실제 소표본 대조·Draft PR #13 게시/앱 첨부 완료. Sites 게시 대기. 첫 이슈·표 구조·OCR·좌표·원문 동일성·운영 DB 이관은 별도다.
+- 상태: 구현·독립 작업/전체 변경 리뷰·controller 전체 검증·실제 소표본 대조·Draft PR #13 게시/앱 첨부·Sites v29 공개 게시 완료. 첫 이슈·표 구조·OCR·좌표·원문 동일성·운영 DB 이관은 별도다.
 - 검증: 전체 Python1,021+JS134=1,155개 및 타입·빌드·생성 계약 통과. 실제 PDF6개/92페이지 추출. 기존35문항 모두 여러 위치에 반복되어 자동 인용 확정을 거부했다. 별도 페이지 텍스트 인용 확인6개는 성공했지만 기존35문항의 검증이 아니다.
 - 관리자 요청: 사용자 전달 완료, [요청3항목](../../infra/administrator-request.md)의 답변 대기. 이 작업에는 추가 서버 권한·키가 필요하지 않다.
 - 다음: 첫 이슈·이용 조건을 확정하고, 문항·페이지·표/응답 수치의 대응 규칙과 평가 자료를 준비한다. 반복 매치를 첫 위치로 임의 선택하지 않는다.
-- Sites: v28 보존, 이번 구현·실측·남은 조건 반영 준비 중.
+- Sites: v29 공개 게시 완료, v28을 별도 보존했다. 구현·실측·인용 보류와 남은 조건을 구분했다.
 
 ## 2026-10-13 · PDF 페이지 텍스트·정확 인용 준비
 
@@ -32,7 +32,10 @@
 - 별도 위치 확인: 추출한 각 PDF의 첫 비어 있지 않은 페이지에서 최대80 code points를 명시 페이지로 선택한 probe6개는 기존 인용 검증 matched/support not_evaluated를 통과했다. 임시 호출자 UUID만 사용했고 실제 저장된 문서 버전이나 기존35문항의 인용으로 표시하지 않는다.
 - 출력: 실제 installed inspect-pdf도 집계만 반환했고 opt-in 추출 텍스트/메타데이터는 원문·Git 밖 개인 폴더의 새600 파일에 저장했다. 원문·질문·해시·경로·URL·UUID를 공개 기록/Sites에 넣지 않는다. 기존 원문·운영 DB·공유 서비스·DNS 변경이나 모델 호출 없음. 원격 직접 shell CLI 도움말은 venv PATH 미설정으로 exit127이었고 uv run으로 설치된 명령을 실행해 정상 확인했다.
 - 남은 품질: 질문이 반복되는 문서에는 명시적 문항·페이지·표 대응이 필요하다. 원문 진위/조사 대응과 표·응답 수치 검증, 첫 제품 이슈·이용 조건·실제 평가셋은 후속이다. pypdf 업그레이드 시 암호화 사전 거부 hook과 회귀 테스트를 다시 확인해야 하며 resource 한도는 OS sandbox를 대체하지 않는다.
-- 게시: [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) 생성·앱 첨부 완료, 선행 #12 위·미병합. [def67c8의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38338133072)는 진행 중이며 Sites 게시·현재 폴더/서버 최종 인계는 대기 중이다. 실제 제품 앱/운영 DB 배포는 수행하지 않았다.
+- 게시: [Draft PR #13](https://github.com/DigestWorks/IssueDigest/pull/13) 생성·앱 첨부 완료, 선행 #12 위·미병합. [def67c8의 CI](https://github.com/DigestWorks/IssueDigest/actions/runs/38338133072) 성공. Sites v29 게시와 현재 폴더/서버 사용자 전용 worktree의 f0c34d6 인계를 확인했다. 실제 제품 앱/운영 DB 배포는 수행하지 않았다.
+- Sites: [v29 공개 게시](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#pdf-evidence) 성공. source `a84ffcec8ae42a2a76edb32fe8db368062f65d77`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_578bd5a013808191b6383ac332013977`, deployment `appgdep_6acd9b12fe548191a4702a9a4e818322` native succeeded·URL 확인. 사본 기준f0c34d6·v28 보존·HTML14개/로컬 링크·anchor181개/manifest/공개 접속정보 제외 통과. 문서6개 상대 링크61개 검사 통과. 원문/개인 추출 상세는 미게시, 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 사이트 탭 열기는 queued 접수다.
+- 인계: 현재 폴더는 feat/pdf-text-evidence, 서버 사용자 전용 worktree는 같은 origin 브랜치를 추적하며 f0c34d6에서 Git 깨끗함·locked 설치·installed inspect-pdf 도움말을 확인했다. 게시 기록을 포함하는 마지막 문서 커밋도 fast-forward하고 최종 응답 전에 같은 HEAD·깨끗함을 확인한다. API/웹 프로세스를 재시작하거나 운영 DB·공유 서비스를 변경하지 않았다. 미병합 리뷰/RED·GREEN 증거는 격리 폴더에 보존한다.
+
 
 ## 2026-10-13 · 관리자 요청·읽기 전용 연결기 준비
 
