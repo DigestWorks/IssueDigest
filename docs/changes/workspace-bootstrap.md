@@ -37,7 +37,7 @@ TDD는 새 `packages/storage/tests/test_provision_transactions.py`에서 소유 
 - [x] 작업/전체 독립 리뷰·전체 Python/JS/lint/타입/SPA/계약 검사와 합성 운영자 CLI→기존 실제 Google SDK/권한 API→자료 목록/원문 조회 결합 검증.
 - [x] 기존 private 실제 정부 원문과 승인 계정 기록을 확인하고, 새 공유 공간/자료/인용/초대 예약 ID의 개인 등록 계획을 mode600으로 준비. 기존 검증 namespace를 실사용 계정으로 간주하지 않는다. 원문/인용 위치와 이용조건은 다시 대조하며 모델 입력 처리의 완료를 주장하지 않는다.
 - [ ] 외부 연결 복구 후 기존 앱 DB 계정의 개인 설정·대상·필요 권한·백업 조건 확인, explicit migration/plan 검사/적용과 실제 Google 로그인(사용자) 검증. 서버·외부 연결이 없으면 이 항목을 대기로 남기고 실제 적용 완료로 표시하지 않는다.
-- [ ] 코드·진행/작업/필요 입력 문서·Draft PR(basefeat/google-oauth-workspace)·Sites 이전 기록 보존/요약 갱신·소유 자원 정리/개발 인계. 외부 게시/동기화 실패는 미게시로 기록하고 코드/검토 증거를 보존한다.
+- [x] 코드·진행/작업/필요 입력 문서·Draft PR(basefeat/google-oauth-workspace)·Sites 이전 기록 보존/요약 갱신·소유 자원 정리/개발 인계. 외부 게시/동기화 실패는 미게시로 기록하고 코드/검토 증거를 보존한다.
 
 ## 검증 결과 · 2026-10-14
 
