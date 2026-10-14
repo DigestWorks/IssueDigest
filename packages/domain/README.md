@@ -91,7 +91,9 @@ projection = build_search_projection(bundle)  # 검증된 불변 EvidenceBundle
 ```
 
 `literal-ngrams-v1`은 512자 본문 단위와 63자 중첩을 사용합니다. PDF는 기존 실제 `PageSpan`
-안에서만 분할하고 page 번호를 보존하며 좌표를 추정하지 않습니다. `application/pdf`의
+안에서만 분할하고 page 번호를 보존하며 좌표를 추정하지 않습니다. PDF 판정은 정확한
+`application/pdf` media type을 사용합니다. 일반 본문은 PageSpan metadata가 있어도 전체 본문을
+TextQuoteSelector로 분할하며 span 사이의 텍스트도 포함합니다. `application/pdf`의
 비어 있지 않은 본문에 PageSpan이 없으면 고정 입력 오류로 거부합니다. 빈 PDF 본문의 온전한
 셀은 페이지를 주장하지 않고 투영할 수 있습니다. 실제 페이지가 없는 PDF 텍스트는 PageSpan을
 제공하는 재파싱 후 투영합니다. 1~2,048자 표 셀은 전체
@@ -109,6 +111,8 @@ ASCII A~Z만 소문자로 비교합니다. Unicode 정규화·형태소 분석·
 `EvidenceSearchResult`는 `hits`, 필터 범위의 `SearchCoverage`, `scanned_candidates`, `truncated`를
 반환합니다. hit는 원 workspace/snapshot/document/version/representation과 출처 metadata,
 정확한 selector, `matched_terms`, `anchor_status="matched"`, `support_status="not_evaluated"`를
-갖습니다. Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. 빈 결과에서도 전체·투영·
+갖습니다. hit의 provider/source_id는 canonical SourceDocument의 NonBlank 계약을 그대로
+보존하며 1,024자를 넘는 값도 자르지 않습니다. query 필터 한도는 반환 metadata 한도가 아닙니다.
+Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. 빈 결과에서도 전체·투영·
 미투영 snapshot 수와 제외 셀 수를 확인해야 하며, 문자 일치는 주장 지지·관련성·의미 검색 품질을
 뜻하지 않습니다.

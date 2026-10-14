@@ -24,7 +24,7 @@ from .citations import (
     validate_selector,
 )
 from .evidence import EvidenceBundle
-from .sources import SourceKind, SourceUrl
+from .sources import NonBlank, SourceKind, SourceUrl
 
 PROFILE: Literal["literal-ngrams-v1"] = "literal-ngrams-v1"
 StrictCount = Annotated[int, Field(strict=True, ge=0)]
@@ -164,17 +164,21 @@ class SearchProjection(_Model):
     skipped_large_cells: Annotated[int, Field(strict=True, ge=0, le=20000)]
 
 
+def _is_pdf(bundle: EvidenceBundle) -> bool:
+    return bundle.version.media_type == "application/pdf"
+
+
 def _preflight(bundle: EvidenceBundle) -> None:
     rep = bundle.representation
     if not isinstance(rep.text, str) or len(rep.text) > 1_000_000 or len(rep.tables) > 1000:
         raise ValueError("Invalid search projection input")
-    if bundle.version.media_type == "application/pdf" and rep.text and not rep.pages:
+    if _is_pdf(bundle) and rep.text and not rep.pages:
         raise ValueError("Invalid search projection input")
     cells = sum(len(t.cells) for t in rep.tables)
     if cells > 20_000:
         raise ValueError("Invalid search projection input")
     _bound_graph(bundle)
-    spans = [(p.start, p.end) for p in rep.pages] if rep.pages else [(0, len(rep.text))]
+    spans = [(p.start, p.end) for p in rep.pages] if _is_pdf(bundle) else [(0, len(rep.text))]
     units = total = 0
     for start, end in spans:
         if type(start) is not int or type(end) is not int or not 0 <= start <= end <= len(rep.text):
@@ -219,7 +223,7 @@ def build_search_projection(bundle: EvidenceBundle) -> SearchProjection:
 
         spans = (
             [(p.start, p.end, p.page_number) for p in rep.pages]
-            if rep.pages
+            if _is_pdf(validated)
             else [(0, len(rep.text), None)]
         )
         for start, end, page in spans:
@@ -261,8 +265,8 @@ class EvidenceSearchHit(_Model):
     document_id: UUID4
     version_id: UUID4
     representation_id: UUID4
-    provider: FilterText
-    source_id: FilterText
+    provider: NonBlank
+    source_id: NonBlank
     source_kind: SourceKind
     canonical_url: SourceUrl | None = None
     collected_at: AwareDatetime

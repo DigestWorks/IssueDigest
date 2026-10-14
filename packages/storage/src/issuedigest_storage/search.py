@@ -225,11 +225,18 @@ def search_evidence(
         .all()
     )
     hits: list[EvidenceSearchHit] = []
-    cache: dict[UUID, tuple[EvidenceBundle, SearchProjection]] = {}
+    current: tuple[UUID, EvidenceBundle, SearchProjection] | None = None
+    bundle: EvidenceBundle | None = None
+    projection: SearchProjection | None = None
     match_count = 0
     for row in rows[:200]:
         snapshot_id = row["snapshot_id"]
-        if snapshot_id not in cache:
+        if current is None or current[0] != snapshot_id:
+            # SQL ordering keeps snapshot groups contiguous. Release the previous full
+            # bundle/projection before loading another; retained hits own only selectors.
+            current = None
+            bundle = None
+            projection = None
             bundle = EvidenceRepository._load(conn, workspace_id, snapshot_id)
             if bundle is None:
                 raise StorageCorruption("Stored search evidence is inconsistent")
@@ -250,8 +257,8 @@ def search_evidence(
             if manifest is None:
                 raise StorageCorruption("Stored search projection is inconsistent")
             _check_manifest(manifest, bundle, snapshot_id, projection)
-            cache[snapshot_id] = (bundle, projection)
-        bundle, projection = cache[snapshot_id]
+            current = (snapshot_id, bundle, projection)
+        _, bundle, projection = current
         ordinal = row["ordinal"]
         if not 0 <= ordinal < len(projection.units) or dict(row) != _unit_values(
             workspace_id, snapshot_id, projection.units[ordinal]

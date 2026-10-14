@@ -349,7 +349,10 @@ membership의 SELECT/잠금 UPDATE 권한과 session 활동 UPDATE, canonical·�
 workspace 필터를 SQL 후보·coverage·canonical reload에 모두 적용합니다. provider/source ID/kind와
 수집 시각 필터는 원 문서/버전에서 얻습니다. 각 조사 후보는 canonical bundle, profile,
 manifest checksum, unit text/checksum/ngrams, 원문 selector와 대조하며 훼손은 고정
-`StorageCorruption`으로 전체 실패합니다. DB 오류는 설정·원문을 담지 않는 `StorageError`입니다.
+`StorageCorruption`으로 전체 실패합니다. SQL 순서에서 같은 snapshot의 후보는 연속하므로
+현재 snapshot의 canonical bundle·projection만 보존하고 다음 snapshot 전에 이전 전체 객체를
+해제합니다. 이미 반환할 hit의 정확한 selector는 보존합니다. 반환 provider/source_id는 canonical
+SourceDocument 문자열 전체를 보존하고 query 필터 한도(1,024자)로 자르거나 거부하지 않습니다. DB 오류는 설정·원문을 담지 않는 `StorageError`입니다.
 
 수집 시각 desc·snapshot ID·unit ordinal 순으로 최대200개 후보(+1로 잘림 확인)를 조사하고,
 실제 문자열 AND로 순서·반복 ngram 오탐을 제거합니다. 최대20개 hit를 반환하고 결과 한도나

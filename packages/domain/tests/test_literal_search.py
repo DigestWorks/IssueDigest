@@ -16,10 +16,12 @@ def search():
     return domain
 
 
-def make_bundle(text="한국어 ABC 😀e\u0301é %_' OR 1=1 --", pages=(), cells=()):
+def make_bundle(
+    text="한국어 ABC 😀e\u0301é %_' OR 1=1 --", pages=(), cells=(), media_type="text/plain"
+):
     data = bundle_data()
     data["citations"] = []
-    data["version"]["media_type"] = "text/plain"
+    data["version"]["media_type"] = media_type
     data["representation"].update(
         text=text,
         text_sha256=sha256(text.encode()).hexdigest(),
@@ -103,6 +105,7 @@ def test_pdf_units_stay_inside_real_pages_and_cells_are_complete():
     api = search()
     bundle = make_bundle(
         "첫째둘째",
+        media_type="application/pdf",
         pages=({"page_number": 7, "start": 0, "end": 2}, {"page_number": 9, "start": 2, "end": 4}),
         cells=(
             {"cell_id": "c", "text": "표 전체 😀"},
@@ -233,3 +236,71 @@ def test_empty_pdf_body_can_index_complete_cells_without_page_claims():
     assert projection.units[0].selector == TableCellSelector(
         table_id="t", cell_id="c", quote="온전한 셀"
     )
+
+
+@pytest.mark.parametrize("field", ["provider", "source_id"])
+def test_hit_preserves_long_valid_canonical_source_metadata(field):
+    api = search()
+    bundle = make_bundle("찾을 본문")
+    original = "canonical-" + ("x" * 1025)
+    bundle = bundle.model_copy(
+        update={"document": bundle.document.model_copy(update={field: original})}
+    )
+    selector = api.build_search_projection(bundle).units[0].selector
+    from uuid import uuid4
+
+    from pydantic import ValidationError
+
+    try:
+        hit = api.EvidenceSearchHit(
+            workspace_id=bundle.document.workspace_id,
+            snapshot_id=uuid4(),
+            document_id=bundle.document.document_id,
+            version_id=bundle.version.version_id,
+            representation_id=bundle.representation.representation_id,
+            provider=bundle.document.provider,
+            source_id=bundle.document.source_id,
+            source_kind=bundle.document.source_kind,
+            collected_at=bundle.version.collected_at,
+            unit_ordinal=0,
+            selector=selector,
+            matched_terms=("본문",),
+        )
+    except ValidationError:
+        hit = None
+    assert hit is not None, "valid canonical source metadata cannot be returned"
+    assert getattr(hit, field) == original
+    with pytest.raises(ValueError):
+        api.EvidenceSearchQuery(terms=("본문",), **{field: original})
+
+
+def test_ordinary_body_with_page_metadata_covers_gaps_as_text():
+    api = search()
+    bundle = make_bundle(
+        "앞😀숨은e\u0301뒤",
+        pages=({"page_number": 3, "start": 0, "end": 1}, {"page_number": 8, "start": 6, "end": 7}),
+    )
+    projection = api.build_search_projection(bundle)
+    assert len(projection.units) == 1
+    assert projection.units[0].selector == api.TextQuoteSelector(
+        start=0, end=7, quote="앞😀숨은e\u0301뒤"
+    )
+    assert api.literal_matches(
+        api.EvidenceSearchQuery(terms=("숨은e\u0301",)), projection.units[0].text
+    )
+
+
+def test_ordinary_page_metadata_does_not_bypass_full_body_admission_limit(monkeypatch):
+    api = search()
+    bundle = make_bundle(
+        "x" * 1_000_000,
+        pages=({"page_number": 1, "start": 0, "end": 1},),
+        cells=tuple({"cell_id": str(i), "text": "x"} for i in range(5000)),
+    )
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("ordinary body exceeded unit bound before serialization")
+
+    monkeypatch.setattr(EvidenceBundle, "model_dump_json", forbidden)
+    with pytest.raises(ValueError, match="Invalid search projection input"):
+        api.build_search_projection(bundle)

@@ -537,3 +537,109 @@ def test_stored_ngram_length_is_bounded_by_postgresql_type(engine):
     with pytest.raises(DBAPIError):
         with engine.begin() as conn:
             conn.execute(text("UPDATE evidence_search_units SET ngrams=ARRAY['abcd']::text[]"))
+
+
+def test_search_releases_prior_snapshot_projection_and_bundle_preserving_hits(engine, monkeypatch):
+    import gc
+    from importlib import import_module
+    from weakref import ref
+
+    body = "한국어" + ("가" * 600)
+    repo, access, bundle, first, _, _, _, token = setup(engine, make_bundle(body))
+    expected = [first]
+    for day in (15, 16):
+        later = make_bundle(
+            body, workspace=bundle.document.workspace_id, collected=f"2026-10-{day}T00:00:00Z"
+        )
+        snapshot = uuid4()
+        repo.save(snapshot, later)
+        expected.append(snapshot)
+    for snapshot in expected:
+        repo.rebuild_projection(bundle.document.workspace_id, snapshot)
+    module = import_module("issuedigest_storage.search")
+    real_build = module.build_search_projection
+    projection_refs, bundle_refs, retained = [], [], []
+
+    def observe_build(canonical):
+        gc.collect()
+        retained.append(
+            (
+                sum(r() is not None for r in projection_refs),
+                sum(r() is not None for r in bundle_refs),
+            )
+        )
+        projection = real_build(canonical)
+        projection_refs.append(ref(projection))
+        bundle_refs.append(ref(canonical))
+        return projection
+
+    monkeypatch.setattr(module, "build_search_projection", observe_build)
+    result = access.search_evidence(
+        token, bundle.document.workspace_id, domain.EvidenceSearchQuery(terms=("한국어",), limit=3)
+    )
+    assert retained == [(0, 0), (0, 0), (0, 0)], (
+        "prior snapshots remain fully retained while scanning"
+    )
+    assert all(r() is None for r in projection_refs + bundle_refs)
+    assert [h.snapshot_id for h in result.hits] == list(reversed(expected))
+    assert all(
+        h.selector == domain.TextQuoteSelector(start=0, end=512, quote="한국어" + "가" * 509)
+        for h in result.hits
+    )
+    assert result.scanned_candidates == 3 and not result.truncated
+    retained.clear()
+    projection_refs.clear()
+    bundle_refs.clear()
+    limited = access.search_evidence(
+        token, bundle.document.workspace_id, domain.EvidenceSearchQuery(terms=("한국어",), limit=1)
+    )
+    assert limited.scanned_candidates == 3 and limited.truncated
+    assert limited.hits == result.hits[:1]
+    assert retained == [(0, 0), (0, 0), (0, 0)]
+
+
+@pytest.mark.parametrize("field", ["provider", "source_id"])
+def test_search_returns_long_canonical_source_metadata_without_narrowing_contract(engine, field):
+    original = "canonical-" + ("x" * 1025)
+    bundle = make_bundle("한국어")
+    bundle = bundle.model_copy(
+        update={"document": bundle.document.model_copy(update={field: original})}
+    )
+    repo, access, bundle, snapshot, _, _, _, token = setup(engine, bundle)
+    assert repo.rebuild_projection(bundle.document.workspace_id, snapshot).status == "rebuilt"
+    try:
+        result = access.search_evidence(
+            token, bundle.document.workspace_id, domain.EvidenceSearchQuery(terms=("한국어",))
+        )
+    except StorageError:
+        result = None
+    assert result is not None, "admitted canonical metadata makes protected search fail"
+    assert len(result.hits) == 1 and getattr(result.hits[0], field) == original
+    assert repo.load(bundle.document.workspace_id, snapshot) == bundle
+
+
+def test_ordinary_page_metadata_gaps_are_searchable_with_text_selectors(engine):
+    from issuedigest_domain import PageSpan
+
+    bundle = make_bundle("앞😀숨은e\u0301뒤")
+    bundle = bundle.model_copy(
+        update={
+            "representation": bundle.representation.model_copy(
+                update={
+                    "pages": (
+                        PageSpan(page_number=3, start=0, end=1),
+                        PageSpan(page_number=8, start=6, end=7),
+                    )
+                }
+            )
+        }
+    )
+    repo, access, bundle, snapshot, _, _, _, token = setup(engine, bundle)
+    repo.rebuild_projection(bundle.document.workspace_id, snapshot)
+    result = access.search_evidence(
+        token, bundle.document.workspace_id, domain.EvidenceSearchQuery(terms=("숨은e\u0301",))
+    )
+    assert len(result.hits) == 1
+    assert result.hits[0].selector == domain.TextQuoteSelector(
+        start=0, end=7, quote="앞😀숨은e\u0301뒤"
+    )
