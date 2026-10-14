@@ -68,6 +68,6 @@ UI는기존cream/green·2인조사작업공간의차분한스타일유지. AI미
 
 - [x] 세 작업/전체 독립 코드 리뷰와 controller 전체 검사. 합성 PostgreSQL→DDL 금지 앱 역할→실제 API→개인 HTTPS→브라우저에서 두 계정 로그인·같은 자료 읽기·로그아웃/차단·미초대/기존 세션 유지와 desktop/mobile/console 확인. 이동 중/bfcache의 보류 브라우저 실험은 미완료이며 컴포넌트 검증과 구분한다.
 - [x] 사용자 지정 Google 계정 한 개의 승인 기록을 private600 파일에 보관, 두 번째 미정. 기존 GitHub 후보 identity 등록 없음. 클라이언트 JSON의 필수 항목·개발 callback 일치·private600 확인. 비밀값/계정정보 Git·PR·Sites 게시 없음.
-- [ ] 실제 공동 DB target/백업·앱 역할/테이블 권한/별도 비밀 설정 확인과 명시적 migration·승인 초대/sharedworkspace·검증한 공식 source의 새 ID 재구성 이관. 실제 DB는 테스트/reset 대상으로 사용하지 않는다. 기존 앱 계정 비밀 설정 미제공으로 대기.
+- [x] 실제 공동 DB/앱 역할·초기 스키마·승인 자료/초대·백업/앱 범위 복원 확인. [실제 DB 적용 기록](shared-database-bootstrap.md)을 따른다. 개발 runtime 연결과 실제 사용자 접속의 제한은 [후속 기록](google-login-runtime.md)을 따른다.
 - [ ] 실제 Google 계정 로그인·Audience External/testing 테스트 사용자/공급자 화면 검증. 개발 callback `https://localhost:16173/api/v1/auth/google/callback`. 공개용은 배포 준비 때 별도 등록/운영 프록시의 query/cookie 로그를 확인. 현재 합성 서명/provider 테스트로 실제 로그인 완료를 주장하지 않는다.
 - [x] Draft PR #17(basefeat/official-html-evidence)/앱 첨부·Sites v35/이전 v34 보존·로컬/개인 서버 인계·소유 QA 자원 정리. 실행 포트 전달 회귀는 별도 단순 보완29a152d·독립 검토/CI/실제 서버 응답으로 확인했다. 최종 인계 요약은 v36에도 게시했다. main·공개 앱 배포 없음.

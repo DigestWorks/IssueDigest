@@ -12,6 +12,9 @@
 
 ## P1 · 계약·생산 목표 엔진·기반
 
+- [x] [Google 개발 runtime 연결](../changes/google-login-runtime.md): 기존 앱 역할/Google 설정·개인 서버 API·HTTPS HTTP/Origin·start/취소flow 확인. 사용자 앱 내 브라우저 인증서/포트 변경 문제로 실제 로그인은 미완료.
+- [ ] 고정HTTPS 개발주소·프록시/인증서·Google callback 준비 후 실제 Google 로그인→공동 자료 목록→원문/인용 열람 검증.
+
 - [x] [공동 개발 DB 초기 적용](../changes/shared-database-bootstrap.md): migration0004/public15테이블·기존 앱 DML/DDL 제한·승인 자료1건/인용3개/초대1건·반복 중복0·검색8단위·전/후 서버 밖 백업과 별도 앱 범위 복원 대조. 실제 Google 로그인/정기 백업·전체 복구/공개 앱은 별도.
 
 - [x] [공동 공간 자료·접근 허용 등록](../changes/workspace-bootstrap.md): 비공개 계획·읽기 대상 검사·자료/초대 원자 등록 CLI·독립 리뷰/전체 검사/합성 연결. 실제 앱 계정·초기 등록/앱 범위 복원은 위 적용 기록에서 확인. 사용자 실제 Google 로그인은 후속.

@@ -21,7 +21,15 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 공동 개발 DB 초기 적용
+## 현재 작업 · 실제 Google 로그인 개발 연결
+
+- 작업: [개발 runtime 연결](../changes/google-login-runtime.md), R1/D015. controller·ops/google-login-runtime, baseops/database-bootstrap/44f7562. 제품 코드/API·스키마·의존성 변경 없음.
+- 결과: 서버 개인 API에 기존 DDL 없는 앱 DB 계정과 승인 Google 설정을 주입했다. head0004·공식 자료1건/인용3개/초대1건 유지. 개인 SSH/HTTPS로 로그인/health200·미인증session401·잘못된Origin403·실제start/취소callback303·PKCE/nonce/cookie/flow 소비를 확인했다. 실제 사용자/세션/회원0이다.
+- 사용자 확인: 자체 서명 인증서 예외를 둔 인증 전 브라우저 QA와 달리 사용자 앱 내 미리보기는 ERR_CERT_AUTHORITY_INVALID로 차단되고 포트도 변경됐다. 실제 Google 로그인·자료 목록/인용 열람은 대기다. 원격localhost 안내를 정정하고 사용자 SSH/인증서 설정 요구를 중단했다. 고정HTTPS 개발주소가 필요하며 설치된 Nginx 설정은 읽기만 가능하고 수정 권한은 없다. runtime 응답을 사용자 접속 완료로 간주하지 않는다.
+- 다음: 고정HTTPS 개발주소·프록시/인증서·등록 callback을 준비한 뒤 사용자 첫 Google 로그인→자료 목록→원문/인용을 확인한다. 현재 공개 앱·운영 서비스·main은 변경하지 않는다. Google Audience/test-user 오류는 실제 제공자 화면을 확인한 뒤 필요한 항목만 안내한다.
+- 문서 검토·Draft PR·Sites는 반영 준비 중이다. 개인 설정/키/계정·원문/개별ID·callback code/state는 공개 기록에서 제외한다.
+
+## 이전 작업 · 공동 개발 DB 초기 적용
 
 - 작업: [공동 DB 적용 기록](../changes/shared-database-bootstrap.md). 기존 명시 migration/승인 등록 도구를 실제 전용 DB에서 실행했다. 담당 controller, `ops/database-bootstrap`·base feat/evidence-search/d700182. 제품 코드 변경 없음.
 - 결과: PG18.6/vector0.8.7 유지, revision0004·public15테이블. 기존 개발/앱 역할 분리·필요 DML/앱 DDL 부재를 실제 검증했고 권한/계정/설정 변경 없음. 승인 공식 자료1건/인용3개/초대1건/outbox1건·검색8단위, 등록/투영 반복에서 중복0·unchanged. 실제 사용자/세션/회원/로그인 flow0이며 승인 초대는 미바인딩 상태다.

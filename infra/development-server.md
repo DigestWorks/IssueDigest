@@ -118,3 +118,9 @@ ssh -N -i /path/to/private-key \
 `29a152d`의 Google 로그인·자료 목록 코드를 개인 worktree로 fast-forward하고 upstream을 `origin/feat/google-oauth-workspace`로 연결했다. 고정 의존성 설치와 ARM Google 서명/설정/runtime103개·개발 launcher13개, 타입·SPA·계약을 확인했다. 실제 공동 DB를 테스트하지 않아 조건부 PostgreSQL1개는 skip이다. controller와 코드 CI의 별도 합성 PostgreSQL 전체 검증과 구분한다.
 
 기존 API reloader의 자식이 종료된 상태에서 포트만 유지해 응답하지 않았으며, UID·개인 cwd·명령·그룹을 확인한 해당 개발 프로세스만 재시작했다. 웹 wrapper의 CLI 인수 누락은 TDD와 독립 리뷰로 보완했다. 실제 15173/18090의 헬스·상태와 로그인 화면200, API OpenAPI의 저장 계약 일치를 확인했다. API는 access log 없이 실행하고 웹은 지원 wrapper를 사용한다. 기본 미설정 runtime을 유지하며 실제 Google 계정·공동 DB·운영 서비스는 연결하지 않았다. 공유 checkout·main·공개 앱은 변경하지 않았다.
+
+## 2026-10-14 · 실제 Google 개발 runtime 연결
+
+기존 개인 tmux API를 `issuedigest_api.runtime:create_configured_app --factory --no-access-log`로 구성했다. 기존 앱 역할과 개인 Google 설정만 사용하며 스키마/권한을 바꾸지 않는다. 개인 웹은 기존15173, API18090의 loopback binding이다. Google용 HTTPS origin은 기존 등록된 `https://localhost:16173`이다. 서버 개인 파일의 명시 loader가 접속 URI를 메모리에서 psycopg 형식으로 정규화한다. 비밀 파일을 제품 코드에서 자동 탐색하지 않는다.
+
+개인 SSH 터널과 개발용 자체 서명 HTTPS bridge에서 인증 전 상태/Origin 방어·start/취소flow를 확인했다. 사용자 앱 내 미리보기에서는 인증서 신뢰가 거부되고 포트가 바뀌므로 실제 Google 로그인에 사용할 수 없었다. 사용자 SSH/인증서 설정 요구는 중단하고 고정 HTTPS 개발 주소와 Google callback을 준비해야 한다. 설치된 Nginx 설정은 읽기 가능하나 개발 계정 쓰기 권한이 없다. 사용자 로그인과 공개 앱 연결은 미완료다. [현재 결과·경계](../docs/changes/google-login-runtime.md)를 따른다.
