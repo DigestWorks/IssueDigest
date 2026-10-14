@@ -25,10 +25,12 @@
 
 - 작업: [HWPX 명세](../changes/hwpx-evidence.md), R2/R3. 첫 이슈의 핵심 첨부를 기존 근거 계약으로 연결한다.
 - 담당/브랜치: controller·implementer, `feat/hwpx-evidence`; 첫 자료 풀 PR #19 위의 격리 worktree. 본문 구역 순서·표/셀 주소·병합·단위 문구를 보존하며 의미를 추정하지 않는다.
-- 상태: 로컬 bytes·기대 해시 기반 HWPX 파서와 기존 계약 어댑터 구현. 본문 구역/표·셀 주소·병합·중첩·단위 문구를 보존한다. 구역과 머리말을 혼동한 실제 파일 경계는 합성 회귀 사례로 보완했다. 독립 작업/전체 변경 리뷰 승인. ZIP64 지원 범위 문구1건을9a3ce66에서 보완하고 재검토에서 해결·새 지적0으로 승인받았다. [Draft PR #20](https://github.com/DigestWorks/IssueDigest/pull/20) 게시·앱 첨부. Sites v39 공개 게시 완료. 개발 인계를 진행한다.
+- 상태: 로컬 bytes·기대 해시 기반 HWPX 파서와 기존 계약 어댑터 구현. 본문 구역/표·셀 주소·병합·중첩·단위 문구를 보존한다. 구역과 머리말을 혼동한 실제 파일 경계는 합성 회귀 사례로 보완했다. 독립 작업/전체 변경 리뷰 승인. ZIP64 지원 범위 문구1건을9a3ce66에서 보완하고 재검토에서 해결·새 지적0으로 승인받았다. [Draft PR #20](https://github.com/DigestWorks/IssueDigest/pull/20) 게시·앱 첨부. Sites v39 공개 게시·개발 인계 완료.
 - 검증: 코드169d109에서 전체 Python1,615+JS322=1,937개·Ruff/format137/mypy57/TS/SPA/계약 통과, skip/warning0. 실제 첨부3개·표34개·셀278개의 XML 구조/범위와 인용281개를 대조했고 전용 검증 DB 저장/재실행/동일 조회·다른 공간 격리 확인. 문서 예제의 포맷 오류는169d109에서 수정한 뒤 전체 검사했다.
 - 한계: CLI/worker·공동 DB·로그인/화면 연결은 후속. 단위/기간은 셀 문구로 보존하며 추정 메타데이터는 넣지 않는다. Q05/Q06의 의미/단위/합산 판정과 검색/AI 평가 실행·적격30~50개 코퍼스는 미완료다.
 - Sites: [v39 HWPX 자료 읽기](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#hwpx-evidence) 공개 게시 native succeeded, v38 보존. source `32a30aeb758b03131a68f90772a99d954543c35e`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a17d6662b7388191b2fbe90456e8a19a`, deployment `appgdep_6acf05011cf081918879fb001244e527`. 사본 기준7724f02·HTML24개/로컬 링크·anchor453개/manifest·실제 비밀값/계정/인용/해시/UUID 제외57파일 통과. 새 브라우저 화면 검사는 수행하지 않았고 열기 요청은 queued였다.
+- 인계: 사용자 폴더와 서버 개인 worktree를 `feat/hwpx-evidence`/origin 추적으로 연결하고 cd45e04 코드·locked 의존성·HWPX 모듈 로딩·깨끗한 Git 상태를 확인했다. 공개/공용 checkout·앱 runtime·DB는 변경하지 않았다.
+- CI: [구현·검토 b4aba72 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38511445562), [PR 링크 포함7724f02 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38511501704). 이후 게시/인계 문서만 바뀐 커밋의 exact-head 결과와 구분한다.
 - 운영 경계: 소유 컨테이너의 전체 ID·이미지·loopback 포트를 대조해 검증용 DB/익명 볼륨을 정리했다. 기존 자료/공동 DB·실제 로그인·AI·main·공개 앱은 변경하지 않는다.
 
 ## 이전 작업 · 첫 이슈 자료 풀·평가 질문
