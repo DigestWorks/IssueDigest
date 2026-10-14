@@ -18,7 +18,7 @@
 - [x] 변경 전 private full/app archive·TOC 검사, 앱 범위의 빈 대상 복원 및 DB 조건/명시 계획 독립 검토.
 - [x] 개발 역할 명시 migration과 실제 앱 권한 점검, 승인 plan offline/check/apply/repeat·canonical 재조회·검색 투영 반복.
 - [x] 변경 후 서버 밖 private full/app archive·별도 소유 DB 복원·근거/초대/투영 대조. 실제 OAuth/세션0·기존 vector 유지 확인.
-- [ ] 실행 결과/조건·다음 행동을 docs/PR/Sites에 기록하고 소유 QA/tunnel/credentials cache 정리·개발 인계. dump 원본/승인 계획/리뷰 기록은 private로 보존한다.
+- [x] 실행 결과/조건·다음 행동을 docs/PR/Sites에 기록하고 소유 QA/tunnel/credentials cache 정리·개발 인계. dump 원본/승인 계획/리뷰 기록은 private로 보존한다.
 
 ## 사용자에게 남는 입력
 

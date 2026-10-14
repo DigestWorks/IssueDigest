@@ -31,7 +31,7 @@
 - 다음: 앱 runtime을 기존 앱 역할/Google 설정으로 연결하고 사용자 실제 로그인→자료 목록→원문·인용 열람을 확인한다. 보호 검색 API/UI·의미 검색/AI·worker는 후속이다. D013 공개 앱 배포 유예를 유지한다.
 - 검토·게시: 독립 결과/문서 검토 C0/I0/M1 후 과거 요청 상태의 시점을 정정하고 재검토 잔여C/I/M0. [Draft PR #23](https://github.com/DigestWorks/IssueDigest/pull/23) basefeat/evidence-search·앱 첨부. 문서 상대 링크82개·diff·공개 파일298개의 비밀값/계정/개별ID/hash 제외 확인. 소유 QA 컨테이너/익명 볼륨 제거·임시 passfile 부재 확인, 개인 백업/계획·리뷰는 보존.
 - Sites: [v43 공동 DB](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#shared-database) native succeeded/public. source `ecfb668fa776a0b287c72086afc2ef83c23b4b21`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_23855b8565a8819184f39a313ac8a38d`, deployment `appgdep_6acf3ac604b88191a1da91d77e585213`. 사본 기준9905a7d·v42 보존, HTML28개/로컬 링크·anchor598개/manifest 통과. 문서 요약만 변경했으며 새 브라우저 화면 검사는 수행하지 않았다.
-- 개발 인계: 사용자 폴더·서버 개인 worktree의 ops/database-bootstrap 연결은 마무리 중이다. 제품 코드/의존성 변경 없음. 실제 앱 runtime·Google 로그인은 다음 작업.
+- 개발 인계: 사용자 폴더·서버 개인 worktree를 ops/database-bootstrap/origin 추적으로 연결하고 같은 a4313b9·깨끗한 Git 상태를 확인했다. 제품 코드/의존성 변경 없음. 실제 앱 runtime·Google 로그인은 다음 작업. [초기 적용 기록9905a7d CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38534024267)을 확인했으며 이후 게시/인계 문서 커밋과 구분한다.
 
 ## 이전 작업 · PostgreSQL 문자 검색 기반
 
