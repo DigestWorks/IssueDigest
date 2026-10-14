@@ -116,7 +116,6 @@ def prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan:
                 continue
             snapshots.append(snapshot)
             by_snapshot[snapshot.snapshot_id] = snapshot
-        _aliases(tuple(snapshots))
         result = ProvisioningPlan(
             schema_version=base.schema_version,
             expected_database=base.expected_database,
@@ -124,7 +123,10 @@ def prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan:
             invites=base.invites,
             snapshots=tuple(snapshots),
         )
+        # Cell requests can expand into repeated large quotes. Bound the assembled
+        # artifact before serializing any derived objects for alias comparison.
         preflight_model(result)
+        _aliases(result.snapshots)
         result = parse_plan(result.model_dump_json(warnings="error"))
         validate_plan(result)
         return result

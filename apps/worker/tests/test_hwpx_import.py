@@ -24,7 +24,7 @@ def api():
     return importlib.import_module("issuedigest_worker")
 
 
-def raw_hwpx(extra=""):
+def raw_hwpx(extra="", cell_extra=""):
     paragraph = "<hp:p><hp:run><hp:t>합성 본문😀" + extra + "</hp:t></hp:run></hp:p>"
     cell = (
         '<hp:tbl rowCnt="1" colCnt="1"><hp:tr><hp:tc>'
@@ -32,6 +32,7 @@ def raw_hwpx(extra=""):
         "<hp:subList><hp:p><hp:run><hp:t>단위: 억원</hp:t></hp:run></hp:p></hp:subList>"
         "</hp:tc></hp:tr></hp:tbl>"
     )
+    cell = cell.replace("단위: 억원", "단위: 억원" + cell_extra)
     section = (
         '<hs:sec xmlns:hs="http://www.hancom.co.kr/hwpml/2011/section" '
         'xmlns:hp="http://www.hancom.co.kr/hwpml/2011/paragraph">'
@@ -706,3 +707,42 @@ def test_forged_url_is_bounded_before_wrapper_string_conversion(inputs, monkeypa
     with pytest.raises(a.PreparationError):
         a.prepare_hwpx_plan(job, base)
     assert attempted == []
+
+
+def test_large_cell_repeated_selectors_reject_before_derived_alias_serialization(
+    inputs, monkeypatch
+):
+    """A tiny job must not expand cell quotes into unbounded alias JSON before output bounds."""
+    from issuedigest_worker import prepare as preparation
+
+    job, base, directory = inputs
+    # Local synthetic ZIP, never an actual attachment/private QA fixture.
+    raw = raw_hwpx(cell_extra="x" * 200_000)
+    private_file(directory / "source.hwpx", raw)
+    source = job["sources"][0]
+    source["version"]["raw_sha256"] = sha256(raw).hexdigest()
+    source["citations"] = [
+        {
+            "kind": "table_cell",
+            "citation_id": str(uuid4()),
+            "table_id": "s0-t0",
+            "cell_id": "s0-t0-r0-c0",
+        }
+        for _ in range(100)
+    ]
+    raw_job = json.dumps(job)
+    assert len(raw_job.encode()) < 20_000
+    validated = api().parse_job(raw_job)
+    original_aliases = preparation._aliases
+    derived_alias_attempts = []
+
+    def guarded_aliases(snapshots):
+        if len(snapshots) > 1:
+            derived_alias_attempts.append(True)
+            raise AssertionError("derived alias serialization before output budget")
+        return original_aliases(snapshots)
+
+    monkeypatch.setattr(preparation, "_aliases", guarded_aliases)
+    with pytest.raises(api().PreparationError):
+        api().prepare_hwpx_plan(validated, parse_plan(json.dumps(base)))
+    assert derived_alias_attempts == []
