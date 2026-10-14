@@ -188,3 +188,116 @@ REPEATABLE READ 트랜잭션에서 잠그고 공간 UUID 문자열순으로 반�
 `0003` downgrade는 신규 OAuth/초대 테이블만 제거하고 기존 사용자·세션·근거를 보존합니다.
 테스트는 새 전용 loopback 합성 PostgreSQL에 한정합니다. 실제 공동 DB의 downgrade/reset,
 운영 설정 변경, Google 계정 승인이나 외부 로그인은 이 구현의 검증 범위가 아닙니다.
+
+## 비공개 작업 공간 등록 CLI
+
+운영자가 승인한 자료·초대 예약을 준비하는 내부 도구입니다. 승인 이메일·예약 UUID4·역할과
+검증된 `EvidenceBundle`을 하나의 개인 JSON 파일에 둡니다. 실제 이메일·원문·ID·연결 설정은
+Git, PR, 공유 문서나 로그에 넣지 않습니다. 아래 예시는 실제 원문이나 계정과 관계없는 고정 합성
+입력이며, `raw_object_id`와 raw hash는 합성 참조입니다. 이 예시의 빈 인용 목록은 실제 자료의
+인용 확인을 대신하지 않습니다.
+
+```json
+{
+  "schema_version": 1,
+  "expected_database": "issuedigest_test",
+  "workspace_id": "00000001-0000-4000-8000-000000000000",
+  "invites": [
+    {
+      "user_id": "00000002-0000-4000-8000-000000000000",
+      "email": "operator@example.test",
+      "role": "viewer"
+    }
+  ],
+  "snapshots": [
+    {
+      "snapshot_id": "00000003-0000-4000-8000-000000000000",
+      "bundle": {
+        "schema_version": 1,
+        "document": {
+          "document_id": "00000004-0000-4000-8000-000000000000",
+          "workspace_id": "00000001-0000-4000-8000-000000000000",
+          "provider": "synthetic",
+          "source_id": "example-1",
+          "source_kind": "other"
+        },
+        "version": {
+          "version_id": "00000005-0000-4000-8000-000000000000",
+          "document_id": "00000004-0000-4000-8000-000000000000",
+          "raw_object_id": "00000006-0000-4000-8000-000000000000",
+          "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "media_type": "text/plain",
+          "collected_at": "2026-10-14T00:00:00Z"
+        },
+        "representation": {
+          "representation_id": "00000007-0000-4000-8000-000000000000",
+          "document_version_id": "00000005-0000-4000-8000-000000000000",
+          "parser_name": "synthetic",
+          "parser_version": "1",
+          "normalization_profile": "identity",
+          "text": "Synthetic source.",
+          "text_sha256": "043e71c9fd6621a93a8141ade39c265e7e6cc7bcfa0a3778a7d67826fe416586",
+          "pages": [],
+          "tables": []
+        },
+        "citations": []
+      }
+    }
+  ]
+}
+```
+
+파일은 현재 사용자 소유의 절대 경로 정규 파일로 준비하고 `chmod 600`으로 제한합니다.
+읽기 전용 `0400`도 허용합니다. 부모 디렉터리·파일 symlink, 특수 파일, 다른 소유자,
+그룹·타인 권한, 최대 8MiB 초과, 잘못된 UTF-8, 중복 JSON key와 비유한 숫자는 거부합니다.
+열어 둔 파일 descriptor에서 한 번 읽으며 기본 실행은 DB·네트워크 연결이나 파일 쓰기가 없습니다.
+`.env`나 다른 설정 파일을 읽지 않으며 URL·쉘 명령·원문 다운로드를 수행하지 않습니다.
+
+```sh
+# 절대 경로는 실행자가 준비한 개인 파일을 가리키는 자리표시자입니다.
+uv run --package issuedigest-storage python -m issuedigest_storage.provision_cli /absolute/private/plan.json
+# DB 모드에서만 명시적 ISSUEDIGEST_DATABASE_URL을 사용합니다.
+uv run --package issuedigest-storage python -m issuedigest_storage.provision_cli /absolute/private/plan.json --check-database
+uv run --package issuedigest-storage python -m issuedigest_storage.provision_cli /absolute/private/plan.json --apply
+```
+
+두 flag는 함께 사용할 수 없으며 축약 flag도 거부합니다. 성공은 집계 JSON과 exit 0,
+인자 오류는 `Invalid provisioning arguments`와 exit 2, 입력·DB·등록 오류는
+`Unable to provision workspace`와 exit 1입니다. 입력 경로·값·예외·이메일·DB URL은 출력하지
+않습니다. 기본 결과는 `schema_version`, `status: validated`, `invites`, `snapshots`만 담습니다.
+DB 검사 결과는 같은 집계와 `status: database_checked`, 적용 결과는 `status: applied`와
+`invites_created`, `invites_unchanged`, `snapshots_created`, `snapshots_unchanged`를 담습니다.
+
+v1 계획은 strict/frozen/extra-forbid이며 초대 1~2명·스냅샷 1~50개를 받습니다.
+`expected_database`는 ASCII 식별자 `[A-Za-z_][A-Za-z0-9_]{0,62}`이고 대소문자까지 정확히
+일치해야 합니다. 모든 예약 ID는 UUID4이며 이메일·사용자·스냅샷 중복과 다른 공간의 bundle을
+거부합니다. ASCII 이메일은 기존 초대 규칙처럼 소문자로만 정규화하고 dot/plus 별칭은 합치지
+않습니다. 역할은 `viewer`, `editor`, `owner`입니다. issuer는 기존 Google 공급자와 같은
+`https://accounts.google.com`으로 고정합니다. 순수 모델 검증은 계정 승인을 판정하지 않습니다.
+
+DB URL은 query 없는 `postgresql+psycopg://.../DATABASE`만 지원합니다. URL database가
+계획과 다르면 연결 전에 거부하고, 실제 `current_database()`·PostgreSQL·트랜잭션 설정과
+기존 public 근거/초대 테이블·필수 열을 연결 안에서 확인합니다. 다른 search_path의 shadow
+테이블도 거부합니다. `--check-database`는 별도 READ COMMITTED read-only 트랜잭션의 SELECT만
+실행하는 대상·스키마 검사이며, 적용이나 runtime에 필요한 권한이 준비되었음을 보장하지
+않습니다. 검사·적용 모두 스키마를 만들거나 마이그레이션하지 않습니다.
+
+`--apply`는 같은 연결의 READ COMMITTED 트랜잭션에서 대상·스키마를 다시 검사하고, 계획의
+스냅샷 순서 다음 초대 순서로 기존 저장 helper를 호출합니다. 성공 commit 후에만 집계를
+반환하며 충돌·DB 오류·권한 부족은 이번 쓰기 전체를 rollback합니다. 동일 계획 재실행은
+스냅샷·outbox·초대를 늘리지 않습니다. 기존 비활성/바인딩 초대·사용자·멤버십·세션 상태를
+바꾸지 않습니다. commit 응답 유실은 실패로 표시하며 저장 여부는 불확실할 수 있습니다.
+새 ID로 다시 만들지 말고 동일 계획으로 재검사·재실행합니다. DB 모드 engine은 성공/실패
+모두 dispose합니다. 엔진 단위 pool 로그 경계가 연결 reset·invalidation·close 오류의
+원문/traceback 출력을 막고, SQLAlchemy가 오류를 내부에서 삼켜도 고정 실패를 반환합니다.
+commit 이후 연결 정리에 실패하면 이미 등록되었을 수 있으므로 같은 계획으로 재확인합니다.
+
+실제 적용 순서는 대상·기존 앱 계정 권한·백업/복원 조건·승인 계정·원문/인용/이용 조건 확인,
+필요한 명시 Alembic migration, 오프라인 검증, 읽기 DB 검사, 명시 적용, 기존 앱 권한 GET과
+사용자 실제 Google 로그인 확인입니다. migration에는 별도 관리 계정을 사용하고 CLI에는
+기존 앱 역할의 필요한 SELECT/INSERT 권한과 초대의 `SELECT FOR UPDATE` 잠금을 위한
+`auth_identity_invites`의 UPDATE 권한(테이블 전체 또는 최소 한 열)을 확인합니다. 이 잠금에
+UPDATE 권한이 필요해도 CLI는 기존 초대·인증 상태를 바꾸지 않습니다. runtime의 기존 인증
+읽기/쓰기 권한은 별도로 유지하며 CLI/runtime에 DDL 권한을 추가하지 않습니다. 등록 CLI는
+사용자·권한·세션을 만들거나 Google을 호출하지 않으며 로그인/자료 접근 준비 완료를 판단하지
+않습니다. 실제 앱 연결 설정·권한·백업/복원 조건·사용자 Google 로그인 확인은 대기 중입니다.

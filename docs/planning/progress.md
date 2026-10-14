@@ -1,12 +1,12 @@
 # 진행 기록
 
-2026-10-13 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-14 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 실제 계정/공동 DB·나머지 API·이벤트·워커·검색은 미완료 |
-| P2 실제 근거 | 첫 이슈 선정·공식 HTML1건 검증 · 이관 미착수 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 이관은 후속 |
+| P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 이관은 후속 |
 | P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
@@ -21,7 +21,20 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · Google 로그인·공동 조사 자료 진입
+## 현재 작업 · 공동 공간의 자료·접근 허용 등록
+
+- 작업/범위: [등록 도구 명세](../changes/workspace-bootstrap.md), R1/R2·D015. 검증한 근거와 승인 계정의 초대를 함께 등록하고, 실패 시 전체 취소·재실행 시 중복 방지를 제공하는 운영자 CLI. 로그인·권한·근거 계약은 유지한다.
+- 담당/브랜치: controller·implementer, `feat/workspace-bootstrap`; 선행 Google OAuth 위의 격리 worktree. 최종 검증·독립 리뷰 완료, [Draft PR #18](https://github.com/DigestWorks/IssueDigest/pull/18) 게시·앱 첨부. main 미병합, Sites·개발 인계 완료.
+- 현재 상태: 자료/초대 Connection helper와 비공개 입력 검증·대상 읽기 검사·명시 등록 CLI를 구현했다. 같은 트랜잭션의 전체 취소·중복 방지·기존 초대 상태 보존을 검증했다. helper·CLI 작업 검토와 수정 재검토, 전체 변경 검토·최종 문서 보완 재검토를 모두 승인받았다. CLI 리뷰의 연결 정리 로그/성공 오판·무호출 테스트 지적2개와 최종 초대 행 잠금 UPDATE 권한 안내를 보완했다. 열린 지적은 없다. 새 HTTP 등록 API·자동 가입·자동 마이그레이션은 추가하지 않는다.
+- 검증: 최종 코드22ede20에서 전체 Python1,597+JS322=1,919개·Ruff/format/mypy56/TS/SPA/계약 통과, skip/warning 없음. 별도 합성 CLI의 검증/읽기/최초 등록/반복→실제 서명 검증 SDK의 고정 MockTransport→두 계정 동일 자료 목록/원문/인용·다른 공간/미초대 차단·로그아웃 결합 검사1개 통과. 이 검사는 실제 Google 네트워크 로그인·브라우저 검사와 다르다. 초기 QA는 미정규화 fixture를 기대값으로 써 실패했고, 기존 EvidenceBundle의 정규화 결과와 비교하도록 QA만 수정해 통과했다.
+- 실제 준비: 캐시의 공식 원문을 기록된 해시·이용 조건·본문·인용3개와 재대조했다. 새 공유 공간의 예약 ID와 승인 계정1개/자료1건의 개인 등록 계획을600으로 보관했다. 새 도구 기본 모드에서 개인 계획의 오프라인 검증도 통과했다. 원문 재수집·실제 DB 등록·계정 바인딩·실제 로그인 완료는 아니다.
+- 서버 확인: 일시적인 SSH/GitHub 연결 실패 후 재접속했다. 전용 PostgreSQL18.6/vector0.8.7·앱 근거/인증 테이블0개, 기존 앱 접속 설정 파일 부재를 읽기 확인했다. 공동 DB·서비스·권한은 변경하지 않았다. 사용자는 기존 앱 접속 설정 위치/전달과 백업 시각·복구 방법을 동료에게 요청하겠다고 답했다. 실제 준비 완료로 간주하지 않는다.
+- 다음 조건: 도구 검증은 완료했다. 실제 앱 계정/대상/필요 권한·백업 조건이 확인되면 명시 스키마 준비·등록과 사용자 실제 로그인으로 이어간다. 두 번째 계정은 미정이며 개발자 DDL 계정을 앱 runtime에 쓰지 않는다. 공개 앱·main 병합은 D013에 따라 유예한다.
+- CI: [ac68478 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38502605190), 구현 코드22ede20·독립 리뷰 및 보완 문서 포함. 이후 게시/인계 기록만 변경한 커밋의 결과와 구분한다.
+- 인계: 현재 폴더를 `feat/workspace-bootstrap`으로 연결하고 locked 의존성/개인 입력의 기본 오프라인 검사1초대/1자료를 확인했다. 서버 개인 worktree도 해당 브랜치 origin 추적·코드를 fast-forward, 프로젝트 전용 환경을 선택한 ARM operator 모듈 로딩·mypy56 통과. 기본 미설정 앱을 유지하며 실제 DB/OAuth runtime에 연결하지 않았다. 테스트 DB의 전체 ID·실제 loopback 할당·이미지를 대조해 소유 컨테이너/익명 볼륨을 제거했다. 미병합 검토 worktree·RED/GREEN/리뷰/결합 증거는 보존한다.
+- Sites: [v37 등록 준비](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#workspace-bootstrap) 공개 게시 native succeeded, v36 보존. source `32bbde3e40d69685888f21bd35fcf0e65d4a1527`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_bd0ac4636b648191a14d906b0fd946fa`, deployment `appgdep_6aceecf9c850819194c66e02f31cd646`. 사본 기준ac68478·HTML22/로컬 링크·anchor388/manifest·실제 비밀값/계정/인용/내부 ID 제외 검사 통과. 문서 갱신의 브라우저 화면 검사는 수행하지 않았고 브라우저 열기 요청은 queued였다. 현재 원본의 이후 게시/인계 기록과 사본 기준을 구분한다.
+
+## 이전 작업 · Google 로그인·공동 조사 자료 진입
 
 - 작업: [Google OAuth·공동 조사 자료 진입](../changes/google-oauth-workspace.md), R1/R2·D015. 명시 초대·Google 고정 identity·서버 세션·현재 권한과 공동 자료 목록을 연결했다.
 - 담당/브랜치: controller·implementer, `feat/google-oauth-workspace` · [Draft PR #17](https://github.com/DigestWorks/IssueDigest/pull/17), 선행 공식 HTML #16 위의 격리 worktree. 최종 CI·게시·개발 인계를 아래 결과로 기록한다.
