@@ -18,6 +18,7 @@ from issuedigest_storage.provisioning import (
 )
 from pydantic import BaseModel
 
+from .bounds import preflight_model
 from .files import read_private
 from .models import HwpxJob, PreparationError, TextCitationRequest, parse_job
 
@@ -45,6 +46,9 @@ def prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan:
     try:
         if not isinstance(job, HwpxJob) or not isinstance(base, ProvisioningPlan):
             raise ValueError("Invalid preparation input")
+        # Check both caller graphs before either full dump or any file access.
+        preflight_model(job)
+        preflight_model(base)
         job = parse_job(job.model_dump_json(warnings="error"))
         base = parse_plan(base.model_dump_json(warnings="error"))
         _aliases(base.snapshots)
@@ -120,6 +124,7 @@ def prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan:
             invites=base.invites,
             snapshots=tuple(snapshots),
         )
+        preflight_model(result)
         result = parse_plan(result.model_dump_json(warnings="error"))
         validate_plan(result)
         return result

@@ -55,7 +55,7 @@ DB URL 검증·초대 상태·원자 등록·outbox·반복 등록 계약은 [�
 
 ## Typed SDK
 
-`parse_job(raw: str | bytes) -> HwpxJob`과 `prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan`을 제공한다. 불변 모델도 매 호출 JSON으로 재검증하므로 `model_construct`/`model_copy` 우회 입력은 거부한다. 오류는 `PreparationError`의 고정 안전 메시지다. 반환 모델은 private 자료이므로 내용·repr·traceback을 공개 로그에 기록하지 않는다.
+`parse_job(raw: str | bytes) -> HwpxJob`과 `prepare_hwpx_plan(job: HwpxJob, base: ProvisioningPlan) -> ProvisioningPlan`을 제공한다. SDK는 전체 직렬화와 파일 읽기 전에 두 입력 모델의 개수·깊이(최대 32)·순환 참조·문자열과 전체 escaped UTF-8 JSON 8 MiB 예산을 검사한다. 공유 객체도 출현마다 바이트를 계산하고, 숫자 필드는 유한 float 또는 64-bit 범위의 int만 직렬화한다. 이어서 불변 모델도 매 호출 JSON으로 재검증하므로 `model_construct`/`model_copy` 우회 입력은 거부한다. 오류는 `PreparationError`의 고정 안전 메시지다. 반환 모델은 private 자료이므로 내용·repr·traceback을 공개 로그에 기록하지 않는다.
 
 ```python
 from issuedigest_storage.provisioning import ProvisioningPlan

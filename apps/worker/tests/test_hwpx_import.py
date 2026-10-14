@@ -591,3 +591,118 @@ def test_cli_directory_fsync_failure_rolls_back_publication(inputs, monkeypatch,
     assert not (inputs[2] / "result.json").exists()
     assert not any(p.name.startswith(".hwpx-") for p in inputs[2].iterdir())
     assert capsys.readouterr().err == "Unable to prepare HWPX plan\n"
+
+
+@pytest.mark.parametrize("root", ["job", "base"])
+@pytest.mark.parametrize("bypass", ["construct", "copy"])
+@pytest.mark.parametrize(
+    "kind", ["root_count", "nested_count", "field_bytes", "shared_bytes", "cycle"]
+)
+def test_forged_input_bounds_before_serialization_and_io(inputs, monkeypatch, root, bypass, kind):
+    """Moving bounds after model_dump_json must fail before any serializer or file read."""
+    from pydantic import BaseModel
+
+    a = api()
+    job = a.parse_job(json.dumps(inputs[0]))
+    base = parse_plan(json.dumps(inputs[1]))
+
+    def forge(model, updates):
+        if bypass == "copy":
+            return model.model_copy(update=updates)
+        return type(model).model_construct(**{**model.__dict__, **updates})
+
+    if root == "job":
+        source = job.sources[0]
+        if kind == "root_count":
+            job = forge(job, {"sources": (source,) * 100})
+        elif kind == "nested_count":
+            source = forge(source, {"citations": (source.citations[0],) * 10_000})
+            job = forge(job, {"sources": (source,)})
+        elif kind == "field_bytes":
+            source = forge(
+                source,
+                {
+                    "document": source.document.model_copy(
+                        update={"provider": "x" * (8 * 1024 * 1024 + 1)}
+                    )
+                },
+            )
+            job = forge(job, {"sources": (source,)})
+        elif kind == "shared_bytes":
+            request = forge(source.citations[0], {"quote": "😀" * 100_000})
+            source = forge(source, {"citations": (request,) * 100})
+            job = forge(job, {"sources": (source,)})
+        else:
+            source = forge(source, {"document": job})
+            object.__setattr__(job, "sources", (source,))
+    else:
+        snapshot = base.snapshots[0]
+        if kind == "root_count":
+            base = forge(base, {"snapshots": (snapshot,) * 100})
+        elif kind == "nested_count":
+            bundle = forge(snapshot.bundle, {"citations": (snapshot.bundle,) * 1_000_000})
+            base = forge(base, {"snapshots": (forge(snapshot, {"bundle": bundle}),)})
+        elif kind == "field_bytes":
+            document = forge(snapshot.bundle.document, {"provider": "x" * (8 * 1024 * 1024 + 1)})
+            bundle = forge(snapshot.bundle, {"document": document})
+            base = forge(base, {"snapshots": (forge(snapshot, {"bundle": bundle}),)})
+        elif kind == "shared_bytes":
+            document = forge(snapshot.bundle.document, {"provider": "x" * 200_000})
+            bundle = forge(snapshot.bundle, {"document": document})
+            base = forge(base, {"snapshots": (forge(snapshot, {"bundle": bundle}),) * 50})
+        else:
+            snapshot = forge(snapshot, {"bundle": base})
+            object.__setattr__(base, "snapshots", (snapshot,))
+
+    serialization_or_io = []
+
+    def forbidden(*args, **kwargs):
+        serialization_or_io.append(True)
+        raise AssertionError("full serialization/file IO before bounds")
+
+    monkeypatch.setattr(BaseModel, "model_dump_json", forbidden)
+    monkeypatch.setattr(os, "open", forbidden)
+    with pytest.raises(a.PreparationError):
+        a.prepare_hwpx_plan(job, base)
+    assert serialization_or_io == []
+
+
+@pytest.mark.parametrize("root", ["job", "base"])
+def test_forged_url_is_bounded_before_wrapper_string_conversion(inputs, monkeypatch, root):
+    from pydantic import AnyHttpUrl, BaseModel
+
+    a = api()
+    job = a.parse_job(json.dumps(inputs[0]))
+    base = parse_plan(json.dumps(inputs[1]))
+    oversized = AnyHttpUrl("https://example.test/" + "x" * (8 * 1024 * 1024))
+    if root == "job":
+        source = job.sources[0]
+        document = source.document.model_copy(update={"canonical_url": oversized})
+        job = job.model_copy(
+            update={"sources": (source.model_copy(update={"document": document}),)}
+        )
+    else:
+        snapshot = base.snapshots[0]
+        document = snapshot.bundle.document.model_copy(update={"canonical_url": oversized})
+        bundle = snapshot.bundle.model_copy(update={"document": document})
+        base = base.model_copy(
+            update={"snapshots": (snapshot.model_copy(update={"bundle": bundle}),)}
+        )
+    attempted = []
+
+    def forbidden(*args, **kwargs):
+        attempted.append(True)
+        raise AssertionError("unbounded serialization")
+
+    original_string = AnyHttpUrl.__str__
+
+    def guarded_string(value):
+        if value._url == oversized._url:
+            return forbidden()
+        return original_string(value)
+
+    monkeypatch.setattr(AnyHttpUrl, "__str__", guarded_string)
+    monkeypatch.setattr(BaseModel, "model_dump_json", forbidden)
+    with pytest.raises(a.PreparationError):
+        a.prepare_hwpx_plan(job, base)
+    assert attempted == []
