@@ -7,7 +7,7 @@ from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import UUID
 
-from sqlalchemy import Engine, delete, func, insert, select, update
+from sqlalchemy import Connection, Engine, delete, func, insert, select, update
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -55,6 +55,16 @@ def _invite_identity(value: str) -> None:
     _identity_value(value)
     if not value.strip():
         raise ValueError("Invalid external identity value")
+
+
+def _validate_invite(issuer: str, email: str, user_id: UUID, workspace_id: UUID, role: str) -> str:
+    _invite_identity(issuer)
+    canonical = _email(email)
+    _uuid4(user_id)
+    _uuid4(workspace_id)
+    if not isinstance(role, str) or role not in {"viewer", "editor", "owner"}:
+        raise ValueError("Unsupported membership role")
+    return canonical
 
 
 class OAuthRepository:
@@ -120,51 +130,65 @@ class OAuthRepository:
         except SQLAlchemyError:
             raise StorageError("Unable to consume login") from None
 
+    @staticmethod
+    def _register_invite(
+        connection: Connection,
+        issuer: str,
+        email: str,
+        user_id: UUID,
+        workspace_id: UUID,
+        role: str,
+    ) -> bool:
+        """Validate and register on a caller-owned READ COMMITTED transaction.
+
+        The caller owns connection, commit, rollback and DB-error sanitization.
+        Existing enabled/bound state is preserved on an identical retry.
+        """
+        canonical = _validate_invite(issuer, email, user_id, workspace_id, role)
+        created = connection.execute(
+            pg_insert(auth_identity_invites)
+            .values(
+                issuer=issuer,
+                email=canonical,
+                user_id=user_id,
+                workspace_id=workspace_id,
+                role=role,
+                enabled=True,
+                bound_subject=None,
+            )
+            .on_conflict_do_nothing()
+            .returning(auth_identity_invites.c.user_id)
+        ).scalar_one_or_none()
+        row = (
+            connection.execute(
+                select(auth_identity_invites)
+                .where(
+                    auth_identity_invites.c.issuer == issuer,
+                    auth_identity_invites.c.email == canonical,
+                )
+                .with_for_update()
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None or (row["user_id"], row["workspace_id"], row["role"]) != (
+            user_id,
+            workspace_id,
+            role,
+        ):
+            raise StorageConflict("Invitation registration conflicts")
+        return created is not None
+
     def register_invite(
         self, issuer: str, email: str, user_id: UUID, workspace_id: UUID, role: str
     ) -> bool:
-        _invite_identity(issuer)
-        canonical = _email(email)
-        _uuid4(user_id)
-        _uuid4(workspace_id)
-        if not isinstance(role, str) or role not in {"viewer", "editor", "owner"}:
-            raise ValueError("Unsupported membership role")
+        canonical = _validate_invite(issuer, email, user_id, workspace_id, role)
         try:
             with self._engine.connect().execution_options(isolation_level="READ COMMITTED") as conn:
                 with conn.begin():
-                    created = conn.execute(
-                        pg_insert(auth_identity_invites)
-                        .values(
-                            issuer=issuer,
-                            email=canonical,
-                            user_id=user_id,
-                            workspace_id=workspace_id,
-                            role=role,
-                            enabled=True,
-                            bound_subject=None,
-                        )
-                        .on_conflict_do_nothing()
-                        .returning(auth_identity_invites.c.user_id)
-                    ).scalar_one_or_none()
-                    row = (
-                        conn.execute(
-                            select(auth_identity_invites)
-                            .where(
-                                auth_identity_invites.c.issuer == issuer,
-                                auth_identity_invites.c.email == canonical,
-                            )
-                            .with_for_update()
-                        )
-                        .mappings()
-                        .one_or_none()
+                    return self._register_invite(
+                        conn, issuer, canonical, user_id, workspace_id, role
                     )
-                    if row is None or (row["user_id"], row["workspace_id"], row["role"]) != (
-                        user_id,
-                        workspace_id,
-                        role,
-                    ):
-                        raise StorageConflict("Invitation registration conflicts")
-                    return created is not None
         except SQLAlchemyError:
             raise StorageError("Unable to register invitation") from None
 

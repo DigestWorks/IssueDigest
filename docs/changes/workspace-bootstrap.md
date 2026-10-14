@@ -12,7 +12,7 @@
 
 ## Task 1: 호출자 트랜잭션에서 재사용하는 자료·초대 저장
 
-- [ ] 저장 내부 helper·회귀 구현/검토.
+- [x] 저장 내부 helper·회귀 구현/검토.
 
 `packages/storage/src/issuedigest_storage/repository.py`의 기존 save SQL과 `oauth.py`의 register_invite SQL을 작은 Connection 기반 내부 helper로 추출한다. 새 operator가 기존 저장 규칙을 복제하지 않고 호출자 트랜잭션에 참여시키기 위한 변경이다. helper는 스스로 engine 연결/commit/rollback을 하지 않는다. 기존 공개 메서드 서명·반환 bool·검증/오류·READ COMMITTED·불변 무결성/재전송·outbox·초대 정규화/충돌/기존 상태 보존은 그대로 유지한다. 공개 메서드의 invalid 입력은 기존처럼 DB 연결 전에 거부한다. helper의 입력 검증/전제와 정확한 typed signature를 보고서에 기록해 Task2가 안전하게 사용하도록 한다. 광범위 리팩터나 스키마/export/새 public API 변경은 없다.
 

@@ -128,6 +128,14 @@ def _values(bundle: EvidenceBundle) -> list[tuple[Table, str, dict[str, Any]]]:
     return records
 
 
+def _validate_bundle(bundle: EvidenceBundle) -> EvidenceBundle:
+    try:
+        validated = EvidenceBundle.model_validate_json(bundle.model_dump_json(warnings=False))
+    except (ValidationError, ValueError, TypeError, AttributeError):
+        raise ValueError("Invalid evidence bundle") from None
+    return validated
+
+
 class EvidenceRepository:
     """Internal persistence; workspace filtering does not establish authorization."""
 
@@ -152,13 +160,14 @@ class EvidenceRepository:
             raise StorageConflict("Immutable evidence ID already has different content")
         return inserted is not None
 
-    def save(self, snapshot_id: UUID, bundle: EvidenceBundle) -> bool:
-        """Return True for a new snapshot, False for an identical normalized retry."""
+    @staticmethod
+    def _save(connection: Connection, snapshot_id: UUID, bundle: EvidenceBundle) -> bool:
+        """Validate and save on a caller-owned READ COMMITTED transaction.
+
+        The caller owns connection, commit, rollback and DB-error sanitization.
+        """
         _uuid4(snapshot_id)
-        try:
-            validated = EvidenceBundle.model_validate_json(bundle.model_dump_json(warnings=False))
-        except (ValidationError, ValueError, TypeError, AttributeError):
-            raise ValueError("Invalid evidence bundle") from None
+        validated = _validate_bundle(bundle)
         records = _values(validated)
         chain = {
             "workspace_id": validated.document.workspace_id,
@@ -167,56 +176,61 @@ class EvidenceRepository:
             "representation_id": validated.representation.representation_id,
         }
         payload = _payload(validated)
+        for table, identity, values in records:
+            EvidenceRepository._ensure(connection, table, identity, values)
+        created = EvidenceRepository._ensure(
+            connection,
+            schema.evidence_snapshots,
+            "snapshot_id",
+            {
+                **chain,
+                "snapshot_id": snapshot_id,
+                "schema_version": validated.schema_version,
+                "payload": payload,
+                "content_sha256": _digest(payload),
+            },
+        )
+        if not created:
+            # A retry must not silently accept damaged stored snapshot relationships.
+            EvidenceRepository._load(connection, chain["workspace_id"], snapshot_id)
+            return False
+        if validated.citations:
+            connection.execute(
+                insert(schema.snapshot_citations),
+                [
+                    {
+                        **chain,
+                        "snapshot_id": snapshot_id,
+                        "ordinal": ordinal,
+                        "citation_id": citation.citation_id,
+                    }
+                    for ordinal, citation in enumerate(validated.citations)
+                ],
+            )
+        references = {
+            key: str(value) for key, value in {**chain, "snapshot_id": snapshot_id}.items()
+        }
+        connection.execute(
+            insert(schema.outbox).values(
+                **chain,
+                snapshot_id=snapshot_id,
+                event_id=snapshot_id,
+                event_type="evidence.snapshot_saved.v1",
+                payload=references,
+            )
+        )
+        return True
+
+    def save(self, snapshot_id: UUID, bundle: EvidenceBundle) -> bool:
+        """Return True for a new snapshot, False for an identical normalized retry."""
+        _uuid4(snapshot_id)
+        validated = _validate_bundle(bundle)
         try:
             with self._engine.connect().execution_options(
                 isolation_level="READ COMMITTED"
             ) as connection:
                 with connection.begin():
-                    for table, identity, values in records:
-                        self._ensure(connection, table, identity, values)
-                    created = self._ensure(
-                        connection,
-                        schema.evidence_snapshots,
-                        "snapshot_id",
-                        {
-                            **chain,
-                            "snapshot_id": snapshot_id,
-                            "schema_version": validated.schema_version,
-                            "payload": payload,
-                            "content_sha256": _digest(payload),
-                        },
-                    )
-                    if not created:
-                        # A retry must not silently accept damaged stored snapshot relationships.
-                        self._load(connection, chain["workspace_id"], snapshot_id)
-                        return False
-                    if validated.citations:
-                        connection.execute(
-                            insert(schema.snapshot_citations),
-                            [
-                                {
-                                    **chain,
-                                    "snapshot_id": snapshot_id,
-                                    "ordinal": ordinal,
-                                    "citation_id": citation.citation_id,
-                                }
-                                for ordinal, citation in enumerate(validated.citations)
-                            ],
-                        )
-                    references = {
-                        key: str(value)
-                        for key, value in {**chain, "snapshot_id": snapshot_id}.items()
-                    }
-                    connection.execute(
-                        insert(schema.outbox).values(
-                            **chain,
-                            snapshot_id=snapshot_id,
-                            event_id=snapshot_id,
-                            event_type="evidence.snapshot_saved.v1",
-                            payload=references,
-                        )
-                    )
-                    return True
+                    return self._save(connection, snapshot_id, validated)
         except SQLAlchemyError:
             raise StorageError(
                 "Evidence snapshot save could not be confirmed; check or retry the same snapshot ID"
