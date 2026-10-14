@@ -23,14 +23,15 @@
 
 ## 현재 작업 · PostgreSQL 문자 검색 기반
 
-- 작업: [저장 근거 검색 명세](../changes/evidence-search.md), R2/R3·D011/D015. 원문 버전과 정확한 문단/페이지/셀 위치를 반환하는 첫 검색 SDK.
+- 작업: [저장 근거 검색 명세](../changes/evidence-search.md), R2/R3·D011/D015. 원문 버전과 정확한 본문 구간/페이지/셀 위치를 반환하는 첫 검색 SDK.
 - 담당/브랜치: controller·implementer, `feat/evidence-search`; HWPX 수집 PR #21 위의 격리 worktree. [Draft PR #22](https://github.com/DigestWorks/IssueDigest/pull/22) 게시·앱 첨부. Sites·개발 인계는 후속 기록한다.
 - 상태: domain 문자 검색/위치 단위, PostgreSQL ARRAY/GIN 후보·명시 투영 재생성, 현재 세션/회원 보호 SDK 구현. 작업 리뷰의 메모리 보관·긴 출처 식별자·일반 문서 페이지 정보 세 항목을 f5e3314에서 assertion RED8개 후 보완했다. 수정 범위 재검토에서 세 항목 해결·새 지적0으로 승인받았다. 독립 전체 변경 리뷰도 Critical/Important/Minor0으로 승인받았다.
 - 검증: 최종 코드f5e3314의 controller 전체 Python1,787+JS322=2,109개, Ruffformat152/mypy67/ESLint/TS/SPA/OpenAPI 통과, skip/warning0. 실제 HWPX3개·문자 검색9건/전체 셀6건을 별도 DDL 금지·원문 UPDATE 없는 앱 역할로 다시 대조, 반환 위치 matched/not_evaluated·반복3회 unchanged·필터/권한/세션 폐기·미색인1건 표시·SQL @>/GIN 확인. 작은 실자료 위치 검사이며20문항 평가·대규모 성능/메모리 실측이 아니다.
 - 범위: 같은 검색 단위에서 literal terms AND·ASCII 대소문자 비교, 출처/수집 시각 필터. 원문은 변경하지 않으며 이전 전체 투영을 후보별로 쌓아두지 않는다. 일반 문서는 전체 본문 TextQuoteSelector, PDF는 실제 PageSpan·셀은 전체 셀. 본문 있는 application/pdf에 페이지 정보가 없으면 재파싱 전 색인하지 않는다. 큰/빈 셀·후보/결과 한도·미투영 자료가 완전성을 제한한다.
 - 후속: 보호 검색 API·화면, pgvector 의미 검색·재순위화·관계 검색·검색/AI20문항 평가·DBOS/outbox 소비. 공동 DB 앱 설정은 아직 없거나 읽을 수 없으며 기존 전달 요청의 응답을 기다린다. 실제 승인 계획/초대·공동 DB·Google 로그인·공유 checkout·운영 서비스·main·공개 앱은 변경하지 않았다.
 - CI: [0fa92fa 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38524891935). 제품 코드f5e3314 이후는 문서 변경이며 실제 전체 검사와 별도로 구분한다.
-- Sites·개발 인계: 반영 대기. 웹/API 화면은 바꾸지 않아 새 브라우저 검사는 수행하지 않았다.
+- Sites: [v41 근거 검색](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#evidence-search) 공개 게시 native succeeded, v40 보존. source `ea23ba32934dbea7cd8c1b1d656ded35a765fdad`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a7cde360ec2481918849e55e66667d45`, deployment `appgdep_6acf290e1be88191b143cdb50b03b006`. 사본 기준f89b1bc·HTML26/로컬 링크·anchor523/manifest·공개 파일289개의 실제 비밀값/계정/인용/내부 ID 제외 검사 통과. SDK와 앱/의미 검색/평가 미완료를 구분했다. 문서 요약 변경의 새 브라우저 화면 검사는 수행하지 않았다.
+- 정리·인계: 소유 검증 컨테이너의 전체 ID·이미지·label·실제 loopback binding 대조 후 해당 컨테이너/익명 볼륨만 제거했다. 미병합 검토 worktree/RED·GREEN·리뷰/개인 근거는 보존한다. 현재 폴더/서버 개인 worktree 코드 인계는 진행 중이다. 웹/API 코드 화면은 바꾸지 않았으며 공동 DB/로그인/서비스/main·공개 앱은 미연결이다.
 
 ## 이전 작업 · HWPX 수집 작업·등록 계획 연결
 
