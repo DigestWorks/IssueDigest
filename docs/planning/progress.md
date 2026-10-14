@@ -24,7 +24,7 @@
 ## 현재 작업 · 공동 공간의 자료·접근 허용 등록
 
 - 작업/범위: [등록 도구 명세](../changes/workspace-bootstrap.md), R1/R2·D015. 검증한 근거와 승인 계정의 초대를 함께 등록하고, 실패 시 전체 취소·재실행 시 중복 방지를 제공하는 운영자 CLI. 로그인·권한·근거 계약은 유지한다.
-- 담당/브랜치: controller·implementer, `feat/workspace-bootstrap`; 선행 Google OAuth 위의 격리 worktree. 최종 검증·독립 리뷰 완료, Draft PR·게시·인계 준비 중이다.
+- 담당/브랜치: controller·implementer, `feat/workspace-bootstrap`; 선행 Google OAuth 위의 격리 worktree. 최종 검증·독립 리뷰 완료, [Draft PR #18](https://github.com/DigestWorks/IssueDigest/pull/18) 게시·앱 첨부. main 미병합, Sites·개발 인계 진행 중이다.
 - 현재 상태: 자료/초대 Connection helper와 비공개 입력 검증·대상 읽기 검사·명시 등록 CLI를 구현했다. 같은 트랜잭션의 전체 취소·중복 방지·기존 초대 상태 보존을 검증했다. helper·CLI 작업 검토와 수정 재검토, 전체 변경 검토·최종 문서 보완 재검토를 모두 승인받았다. CLI 리뷰의 연결 정리 로그/성공 오판·무호출 테스트 지적2개와 최종 초대 행 잠금 UPDATE 권한 안내를 보완했다. 열린 지적은 없다. 새 HTTP 등록 API·자동 가입·자동 마이그레이션은 추가하지 않는다.
 - 검증: 최종 코드22ede20에서 전체 Python1,597+JS322=1,919개·Ruff/format/mypy56/TS/SPA/계약 통과, skip/warning 없음. 별도 합성 CLI의 검증/읽기/최초 등록/반복→실제 서명 검증 SDK의 고정 MockTransport→두 계정 동일 자료 목록/원문/인용·다른 공간/미초대 차단·로그아웃 결합 검사1개 통과. 이 검사는 실제 Google 네트워크 로그인·브라우저 검사와 다르다. 초기 QA는 미정규화 fixture를 기대값으로 써 실패했고, 기존 EvidenceBundle의 정규화 결과와 비교하도록 QA만 수정해 통과했다.
 - 실제 준비: 캐시의 공식 원문을 기록된 해시·이용 조건·본문·인용3개와 재대조했다. 새 공유 공간의 예약 ID와 승인 계정1개/자료1건의 개인 등록 계획을600으로 보관했다. 새 도구 기본 모드에서 개인 계획의 오프라인 검증도 통과했다. 원문 재수집·실제 DB 등록·계정 바인딩·실제 로그인 완료는 아니다.
