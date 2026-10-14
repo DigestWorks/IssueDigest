@@ -20,7 +20,7 @@ TDD는 새 `packages/storage/tests/test_provision_transactions.py`에서 소유 
 
 ## Task 2: 비공개 등록 계획·읽기 검사·명시 적용 CLI
 
-- [ ] 계획/등록/CLI·테스트·사용 안내 구현/검토.
+- [x] 계획/등록/CLI·테스트·사용 안내 구현/검토.
 
 `packages/storage/src/issuedigest_storage/provisioning.py`에 운영 내부 모델/함수를 추가한다. 공개 domain/OpenAPI에 이메일 모델을 추가하지 않는다. strict/frozen/extra-forbid schema_version=1의 `ProvisioningPlan`은 `expected_database`(ASCII identifier1~63, 정확 비교), `workspace_id:UUID4`, `invites`(1~2), `snapshots`(1~50)를 가진다. invite는 예약 user_id:UUID4·ASCII 이메일(기존 _email과 같은 lowercase, dot/plus 병합 없음)·role(viewer/editor/owner), snapshot은 snapshot_id:UUID4·기존 EvidenceBundle이다. invite email/user와 snapshot ID 중복을 금지하고 모든 bundle workspace가 계획과 같아야 한다. 이메일과 ID/내용은 repr에 숨기고 불변 입력의 우회 생성은 저장 경계에서 JSON으로 재검증한다. 실제 계정 승인은 controller의 개인 파일에서 수행하며 모델 검증만으로 사용자 승인을 주장하지 않는다.
 
