@@ -28,7 +28,9 @@
 - 검증: 내부 SPA/login/assets200·없는asset/dotfile404·health200·미인증session401·과거Origin403·새originstart/취소callback303와 callback/PKCE/nonce/보안cookie. 검사 후 승인자료1/인용3/초대1·실제auth user/session/member/flow0·앱DDL 없음. 내부 HTTP Cookie 전달은 TLS 종료 뒤 proxy 동작 검사이며 공개 TLS·사용자 브라우저 로그인 증거가 아니다.
 - 대기: 개발 주소 DNS/TLS/공개 Nginx는 아직 없거나 미검증이다. 사용자는 Google callback 추가 완료를 전달했고 실제 제공자 반환은 외부 HTTPS 후 검증한다. 시스템 Nginx는 읽기만 가능하고 sudo 권한 목록 조회도 허용되지 않아 직접 설치하지 않았다. 관리자에게 기존 서버의 개발 virtual host 연결만 요청한다. 새 자원·DB/권한·sudo 확대·main 병합/운영 앱 배포는 요청하지 않는다.
 - 사용자 입력: 기존 Google OAuth 웹 client에 `https://dev.issuedigest.projects.ai.kr/api/v1/auth/google/callback` 추가 완료 전달. 실제 외부 HTTPS 후 사용자 Google 로그인/자료 목록/원문·인용3개 확인. 비밀값 재발급/대화 공유 없음.
-- 다음: 관리자와 사용자 설정 반영을 받은 뒤 인증서 검증을 유지한 외부 접속과 실제 사용자 여정 확인. 검토·Draft PR·Sites/개발 인계는 마무리 중이다.
+- 다음: 관리자와 사용자 설정 반영을 받은 뒤 인증서 검증을 유지한 외부 접속과 실제 사용자 여정 확인. 독립 운영/문서 검토C/I/M0·상대 링크87개·공개303파일 실제 비밀값/계정/개별ID 제외·diff 검사를 통과했다. [Draft PR #25](https://github.com/DigestWorks/IssueDigest/pull/25) baseops/google-login-runtime·앱 첨부. 제품 코드는 바꾸지 않아 전체 테스트를 수동 반복하지 않았고 서버 정적 빌드와 실제 내부 응답/flow를 새로 검증했다.
+- Sites: [v45 개발 HTTPS](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#development-https) native succeeded/public. source `662b8ca6cc3768fa8ad0742fdf9c86e5de26b923`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_03393bc90128819198b961784da0bf53`, deployment `appgdep_6acf4d9a63dc81918ed642d29174165a`. 사본 기준5d61671·v44 보존·HTML30/로컬 링크anchor677/manifest 통과. 요약 변경의 브라우저 검사는 수행하지 않았다. 사용자 요청대로 Sites를 다시 열거나 탭을 이동하지 않았다.
+- 개발 인계: 개인 nginx/API·자산/비밀 loader를 후속 HTTPS 연결용으로 유지한다. 공용 자원·운영 서비스·실제 Google사용자/세션을 변경하지 않았다. 사용자 폴더/서버 개인 문서 branch 동기화는 마무리 중이다.
 
 ## 이전 작업 · 실제 Google 로그인 개발 연결
 
