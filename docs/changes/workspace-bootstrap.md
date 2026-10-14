@@ -34,7 +34,7 @@ TDD는 새 `packages/storage/tests/test_provision_transactions.py`에서 소유 
 
 ## Controller 결합·실제 연결
 
-- [ ] 작업/전체 독립 리뷰·전체 Python/JS/lint/타입/SPA/계약 검사와 합성 운영자 CLI→기존 실제 Google SDK/권한 API→자료 목록/원문 조회 결합 검증.
+- [x] 작업/전체 독립 리뷰·전체 Python/JS/lint/타입/SPA/계약 검사와 합성 운영자 CLI→기존 실제 Google SDK/권한 API→자료 목록/원문 조회 결합 검증.
 - [x] 기존 private 실제 정부 원문과 승인 계정 기록을 확인하고, 새 공유 공간/자료/인용/초대 예약 ID의 개인 등록 계획을 mode600으로 준비. 기존 검증 namespace를 실사용 계정으로 간주하지 않는다. 원문/인용 위치와 이용조건은 다시 대조하며 모델 입력 처리의 완료를 주장하지 않는다.
 - [ ] 외부 연결 복구 후 기존 앱 DB 계정의 개인 설정·대상·필요 권한·백업 조건 확인, explicit migration/plan 검사/적용과 실제 Google 로그인(사용자) 검증. 서버·외부 연결이 없으면 이 항목을 대기로 남기고 실제 적용 완료로 표시하지 않는다.
 - [ ] 코드·진행/작업/필요 입력 문서·Draft PR(basefeat/google-oauth-workspace)·Sites 이전 기록 보존/요약 갱신·소유 자원 정리/개발 인계. 외부 게시/동기화 실패는 미게시로 기록하고 코드/검토 증거를 보존한다.
@@ -47,3 +47,5 @@ TDD는 새 `packages/storage/tests/test_provision_transactions.py`에서 소유 
 - controller 최종 전체 Python1,597+JS322=1,919개·Ruff/format/mypy56/TS/SPA/계약, 별도 CLI→실제 서명 검증 SDK의 고정 MockTransport→두 합성 사용자/보호 API·자료/인용·차단·로그아웃 결합1개 통과. skip/warning 없음. 실제 Google 네트워크/브라우저 로그인 검증과 다르다. 합성 QA의 초기 미정규화 기대값 오류는 QA만 수정했고 로그를 보존했다.
 - 개인 실제 캐시 원문/출처표시 조건/정확 인용3개를 대조하고 새 공유 공간 예약 ID·승인 계정1개·자료1건의 비공개 계획을600으로 보관했다. 새 CLI 오프라인 검증 통과. 계정 승인 기록은 미등록 상태로 유지하며 실제 이관 완료로 표시하지 않는다.
 - SSH/GitHub 연결 복구 후 전용 PG18.6/vector0.8.7·앱 테이블0개·앱 접속 설정 부재를 읽기 확인했다. 기존 앱 설정과 백업 조건을 받기 전 실제 DB 적용은 대기한다. 공동 DB/운영·권한·main은 변경하지 않았다. 작업 수정 재검토/전체 리뷰·PR/Sites/인계 상태는 진행 기록을 따른다.
+
+- 독립 작업/수정·전체/최종 문서 수정 검토 승인. 전체 리뷰의 초대 잠금 UPDATE 권한 누락은1eea1e3에서 두 안내에 명시했고 scoped 재검토에서 해결·새 지적 없음. 실제 앱 권한/적용 준비를 승인한 것으로 해석하지 않는다.
