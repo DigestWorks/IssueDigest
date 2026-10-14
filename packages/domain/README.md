@@ -72,3 +72,43 @@ Canvas의 네 액션은 원문 열기·자료 선택·질문 제안·정렬입�
 Money는 최대128자의 strict ASCII 정수 문자열이며 1원=1,000,000 microwon입니다. Python int로 합산하여 float/Decimal context 반올림을 사용하지 않습니다. `BudgetAssessment`의 `limit_microwon`, `used_microwon`, `requested_microwon`, `remaining_microwon`, `overrun_microwon`은 모두 같은 단위입니다. 월 상한은 전체 운영비 10만 원이며 `committed_other_cost_microwon`에 서버·DB·저장·세금·같은 키의 외부 비용을 입력합니다. held는 예약과 entry 비용 합의 최댓값, settled는 알려진 실제 비용을 사용합니다. 취소/실패·예약 초과는 비용을 없애지 않습니다. 가격·환율·사용량의 입력은 공급자 확인이나 완전한 청구 내역을 증명하지 않습니다. 실제 요금 변환·외부 지출 집계·동시 예약·원자성은 후속입니다.
 
 `RunExecutionBundle`은 현재 run의 base·revision·module.ready·attempt·usage를 연결합니다. 제공된 같은 공간의 다른 run revision도 부모/번호/근거를 모두 검사하며 ancestor만 포함하는 최소 이력을 선택하지 않습니다. 현재 run의 first revision은 base(없으면 None)를 부모로 하는 한 개까지이며 이후 후보는 현재 run revision을 부모로 합니다. 같은 부모의 후속 후보를 unique 번호로 제한하지 않고 저장 CAS도 구현하지 않습니다. 유료 dispatch는 제공된 `authorized_after_seq` prefix와 시각 부등식으로 검증합니다. 이 적격 cursor는 실제 dispatch 시점에 새 권한 확인을 했다는 증거가 아니며, 단조 증가하지 않는 이벤트 시각에서 물리적 취소 경합 순서를 추정하지 않습니다. 실제 worker/DB가 dispatch 직전 취소·예산 권한을 강제하는 작업은 후속입니다. UsageBook에는 다른 run의 예약도 담을 수 있지만 해당 run의 실행 이력을 인증하지 않습니다. 합성 fixture 검증은 제품 화면·AI 출력·운영 복구 구현의 증거가 아닙니다.
+
+## 저장 근거 문자 검색 SDK 계약
+
+`EvidenceSearchQuery`는 literal term 1~8개(각 1~64 Unicode code points),
+strict 정수 `limit` 1~20을 받습니다. 비공백 term의 앞뒤 공백과 ASCII 비교상 중복은
+거부합니다. `provider`·`source_id`는 정확한 문자열 필터(1~1,024자), `source_kind`는
+기존 출처 종류입니다. 선택적 `collected_from`·`collected_to`는 UTC-aware `datetime`이며
+시작 포함·끝 제외의 증가하는 수집 시각 구간입니다. 발행·시행 시각을 뜻하지 않습니다.
+모델은 frozen/extra-forbid이며 `validate_search_query`가 SDK 진입점에서 construct/copy 입력을
+다시 검사합니다. 새 모델은 HTTP/OpenAPI·웹 계약에 연결하지 않습니다.
+
+```python
+from issuedigest_domain import EvidenceSearchQuery, build_search_projection
+
+query = EvidenceSearchQuery(terms=("등록금", "ABC-123"), limit=10)
+projection = build_search_projection(bundle)  # 검증된 불변 EvidenceBundle
+```
+
+`literal-ngrams-v1`은 512자 본문 단위와 63자 중첩을 사용합니다. PDF는 기존 실제 `PageSpan`
+안에서만 분할하고 page 번호를 보존하며 좌표를 추정하지 않습니다. `application/pdf`의
+비어 있지 않은 본문에 PageSpan이 없으면 고정 입력 오류로 거부합니다. 빈 PDF 본문의 온전한
+셀은 페이지를 주장하지 않고 투영할 수 있습니다. 실제 페이지가 없는 PDF 텍스트는 PageSpan을
+제공하는 재파싱 후 투영합니다. 1~2,048자 표 셀은 전체
+`TableCellSelector`로 추가하고, 빈 셀과 큰 셀의 제외 수를 각각 기록합니다. 큰 셀이 본문에도
+있다면 본문 단위에서 검색될 수 있습니다. `validate_selector`는 기존 인용 검증과 검색 단위가
+공유하는 정확한 텍스트·페이지·셀 anchor 검사입니다.
+
+투영은 전체 직렬화 전에 본문 1,000,000자·표 1,000개·셀 20,000개·단위 6,000개·단위 텍스트
+총 2,000,000자를 검사합니다. 위조 모델 그래프도 500,000노드·깊이32·전체 문자열 12,000,000자와
+컬렉션 한도로 먼저 검사하고 고정 `ValueError`를 반환합니다. 결정적인 단위 순서, selector,
+원문 SHA-256, ASCII 비교용 1·2·3-gram 집합을 만듭니다. 원문 offset은 Unicode code points이며
+ASCII A~Z만 소문자로 비교합니다. Unicode 정규화·형태소 분석·와일드카드 해석은 없습니다.
+모든 term은 같은 검색 단위 안에 있어야 합니다.
+
+`EvidenceSearchResult`는 `hits`, 필터 범위의 `SearchCoverage`, `scanned_candidates`, `truncated`를
+반환합니다. hit는 원 workspace/snapshot/document/version/representation과 출처 metadata,
+정확한 selector, `matched_terms`, `anchor_status="matched"`, `support_status="not_evaluated"`를
+갖습니다. Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. 빈 결과에서도 전체·투영·
+미투영 snapshot 수와 제외 셀 수를 확인해야 하며, 문자 일치는 주장 지지·관련성·의미 검색 품질을
+뜻하지 않습니다.

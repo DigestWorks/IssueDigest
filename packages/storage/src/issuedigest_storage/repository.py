@@ -1,9 +1,11 @@
 """Atomic immutable evidence snapshots and their initial outbox event."""
 
+from __future__ import annotations
+
 import json
 from collections.abc import Mapping
 from hashlib import sha256
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID
 
 from issuedigest_domain import EvidenceBundle
@@ -14,6 +16,9 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from . import schema
 from .engine import verify_engine
+
+if TYPE_CHECKING:
+    from .search import RebuildProjectionResult
 
 
 class StorageError(RuntimeError):
@@ -323,3 +328,18 @@ class EvidenceRepository:
                     return self._load(conn, workspace_id, snapshot_id)
         except SQLAlchemyError:
             raise StorageError("Unable to load evidence snapshot") from None
+
+    def rebuild_projection(
+        self, workspace_id: UUID, snapshot_id: UUID
+    ) -> RebuildProjectionResult | None:
+        """Explicitly replace disposable units atomically under a snapshot advisory lock."""
+        from .search import rebuild_projection
+
+        _uuid4(workspace_id)
+        _uuid4(snapshot_id)
+        try:
+            with self._engine.connect().execution_options(isolation_level="READ COMMITTED") as conn:
+                with conn.begin():
+                    return rebuild_projection(conn, workspace_id, snapshot_id)
+        except SQLAlchemyError:
+            raise StorageError("Unable to rebuild evidence search projection") from None

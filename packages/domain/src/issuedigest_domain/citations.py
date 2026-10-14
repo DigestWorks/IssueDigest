@@ -89,7 +89,17 @@ def validate_citation(
         raise ValueError("citation document_version_id does not match representation")
     if citation.representation_id != representation.representation_id:
         raise ValueError("citation representation_id does not match representation")
-    selector = citation.selector
+    validate_selector(citation.selector, representation)
+    return CitationAnchorValidation(citation_id=citation.citation_id)
+
+
+Selector = Annotated[
+    TextQuoteSelector | PdfQuoteSelector | TableCellSelector, Field(discriminator="kind")
+]
+
+
+def validate_selector(selector: Selector, representation: ParsedRepresentation) -> None:
+    """Check an exact version-bound text, page or complete cell anchor."""
     if isinstance(selector, TableCellSelector):
         table = next((t for t in representation.tables if t.table_id == selector.table_id), None)
         if table is None:
@@ -117,4 +127,3 @@ def validate_citation(
             )
             if page is None or selector.start < page.start or selector.end > page.end:
                 raise ValueError("PDF citation range is outside specified page span")
-    return CitationAnchorValidation(citation_id=citation.citation_id)
