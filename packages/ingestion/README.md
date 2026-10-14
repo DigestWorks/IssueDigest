@@ -525,20 +525,26 @@ uv run pytest packages/ingestion/tests packages/domain/tests
 
 ```python
 from issuedigest_ingestion import (
-    HwpxLimits, extract_hwpx, to_hwpx_representation,
-    locate_hwpx_quote, locate_hwpx_cell,
+    HwpxLimits,
+    extract_hwpx,
+    to_hwpx_representation,
+    locate_hwpx_quote,
+    locate_hwpx_cell,
 )
 
-extraction = extract_hwpx(snapshot_bytes, expected_sha256=expected_sha256,
-                          limits=HwpxLimits(max_sections=32))
+extraction = extract_hwpx(
+    snapshot_bytes, expected_sha256=expected_sha256, limits=HwpxLimits(max_sections=32)
+)
 representation = to_hwpx_representation(
-    extraction, representation_id=representation_id,
+    extraction,
+    representation_id=representation_id,
     document_version_id=document_version_id,
 )
 text_selector = locate_hwpx_quote(representation, quote=exact_quote)
 first_table = representation.tables[0]
 cell_selector = locate_hwpx_cell(
-    representation, table_id=first_table.table_id,
+    representation,
+    table_id=first_table.table_id,
     cell_id=first_table.cells[0].cell_id,
 )
 # 기존 Citation과 validate_citation을 사용한다.
