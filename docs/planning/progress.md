@@ -21,7 +21,18 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 실제 Google 로그인 개발 연결
+## 현재 작업 · 고정 HTTPS 개발 접속 준비
+
+- 작업: [고정 HTTPS 개발 준비](../changes/development-https.md), [관리자 적용/요청](../../infra/development-https.md). controller·ops/development-https·baseops/google-login-runtime/95b7bff. 제품 코드·API/DB 스키마·의존성 변경 없음. Sites는 갱신하되 사용자가 이미 열어 둔 탭을 다시 열거나 이동하지 않는다.
+- 준비: dev.issuedigest.projects.ai.kr의 별도 개발 origin. 개인 정적 빌드12파일/source map0·개인 Nginx loopback18173→기존 개인 API18090, Vite/HMR 외부 노출 없음. 개인 API의 origin과 기존 Google client/app 역할을 연결했다. 설치 Nginx의 미지원 CLI 옵션은 설정 검사에서 발견해 호환 명령으로 검사·기동했고, 시스템 로그/권한 변경 없이 개인 prefix를 사용한다.
+- 검증: 내부 SPA/login/assets200·없는asset/dotfile404·health200·미인증session401·과거Origin403·새originstart/취소callback303와 callback/PKCE/nonce/보안cookie. 검사 후 승인자료1/인용3/초대1·실제auth user/session/member/flow0·앱DDL 없음. 내부 HTTP Cookie 전달은 TLS 종료 뒤 proxy 동작 검사이며 공개 TLS·사용자 브라우저 로그인 증거가 아니다.
+- 대기: 개발 주소 DNS/TLS/공개 Nginx는 아직 없거나 미검증이다. 사용자는 Google callback 추가 완료를 전달했고 실제 제공자 반환은 외부 HTTPS 후 검증한다. 시스템 Nginx는 읽기만 가능하고 sudo 권한 목록 조회도 허용되지 않아 직접 설치하지 않았다. 관리자에게 기존 서버의 개발 virtual host 연결만 요청한다. 새 자원·DB/권한·sudo 확대·main 병합/운영 앱 배포는 요청하지 않는다.
+- 사용자 입력: 기존 Google OAuth 웹 client에 `https://dev.issuedigest.projects.ai.kr/api/v1/auth/google/callback` 추가 완료 전달. 실제 외부 HTTPS 후 사용자 Google 로그인/자료 목록/원문·인용3개 확인. 비밀값 재발급/대화 공유 없음.
+- 다음: 관리자와 사용자 설정 반영을 받은 뒤 인증서 검증을 유지한 외부 접속과 실제 사용자 여정 확인. 독립 운영/문서 검토C/I/M0·상대 링크87개·공개303파일 실제 비밀값/계정/개별ID 제외·diff 검사를 통과했다. [Draft PR #25](https://github.com/DigestWorks/IssueDigest/pull/25) baseops/google-login-runtime·앱 첨부. 제품 코드는 바꾸지 않아 전체 테스트를 수동 반복하지 않았고 서버 정적 빌드와 실제 내부 응답/flow를 새로 검증했다.
+- Sites: [v45 개발 HTTPS](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#development-https) native succeeded/public. source `662b8ca6cc3768fa8ad0742fdf9c86e5de26b923`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_03393bc90128819198b961784da0bf53`, deployment `appgdep_6acf4d9a63dc81918ed642d29174165a`. 사본 기준5d61671·v44 보존·HTML30/로컬 링크anchor677/manifest 통과. 요약 변경의 브라우저 검사는 수행하지 않았다. 사용자 요청대로 Sites를 다시 열거나 탭을 이동하지 않았다.
+- 개발 인계: 개인 nginx/API·자산/비밀 loader를 후속 HTTPS 연결용으로 유지한다. 공용 자원·운영 서비스·실제 Google사용자/세션을 변경하지 않았다. 사용자 폴더/서버 개인 worktree를 ops/development-https/origin 추적으로 연결하고 같은348841f·깨끗한 Git 상태를 확인했다. [기록 기준5d61671 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38543640234)을 확인했으며 이후 게시/인계 문서 커밋과 구분한다.
+
+## 이전 작업 · 실제 Google 로그인 개발 연결
 
 - 작업: [개발 runtime 연결](../changes/google-login-runtime.md), R1/D015. controller·ops/google-login-runtime, baseops/database-bootstrap/44f7562. 제품 코드/API·스키마·의존성 변경 없음.
 - 결과: 서버 개인 API에 기존 DDL 없는 앱 DB 계정과 승인 Google 설정을 주입했다. head0004·공식 자료1건/인용3개/초대1건 유지. 개인 SSH/HTTPS로 로그인/health200·미인증session401·잘못된Origin403·실제start/취소callback303·PKCE/nonce/cookie/flow 소비를 확인했다. 실제 사용자/세션/회원0이다.
