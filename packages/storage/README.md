@@ -279,7 +279,8 @@ DB URL은 query 없는 `postgresql+psycopg://.../DATABASE`만 지원합니다. U
 계획과 다르면 연결 전에 거부하고, 실제 `current_database()`·PostgreSQL·트랜잭션 설정과
 기존 public 근거/초대 테이블·필수 열을 연결 안에서 확인합니다. 다른 search_path의 shadow
 테이블도 거부합니다. `--check-database`는 별도 READ COMMITTED read-only 트랜잭션의 SELECT만
-실행합니다. 검사·적용 모두 스키마를 만들거나 마이그레이션하지 않습니다.
+실행하는 대상·스키마 검사이며, 적용이나 runtime에 필요한 권한이 준비되었음을 보장하지
+않습니다. 검사·적용 모두 스키마를 만들거나 마이그레이션하지 않습니다.
 
 `--apply`는 같은 연결의 READ COMMITTED 트랜잭션에서 대상·스키마를 다시 검사하고, 계획의
 스냅샷 순서 다음 초대 순서로 기존 저장 helper를 호출합니다. 성공 commit 후에만 집계를
@@ -294,6 +295,9 @@ commit 이후 연결 정리에 실패하면 이미 등록되었을 수 있으므
 실제 적용 순서는 대상·기존 앱 계정 권한·백업/복원 조건·승인 계정·원문/인용/이용 조건 확인,
 필요한 명시 Alembic migration, 오프라인 검증, 읽기 DB 검사, 명시 적용, 기존 앱 권한 GET과
 사용자 실제 Google 로그인 확인입니다. migration에는 별도 관리 계정을 사용하고 CLI에는
-기존 앱 역할의 필요한 SELECT/INSERT 권한을 확인합니다. runtime의 기존 인증 읽기/쓰기 권한은
-별도로 유지하며 CLI/runtime에 DDL 권한을 추가하지 않습니다. 등록 CLI는 사용자·권한·세션을
-만들거나 Google을 호출하지 않으며 로그인/자료 접근 준비 완료를 판단하지 않습니다.
+기존 앱 역할의 필요한 SELECT/INSERT 권한과 초대의 `SELECT FOR UPDATE` 잠금을 위한
+`auth_identity_invites`의 UPDATE 권한(테이블 전체 또는 최소 한 열)을 확인합니다. 이 잠금에
+UPDATE 권한이 필요해도 CLI는 기존 초대·인증 상태를 바꾸지 않습니다. runtime의 기존 인증
+읽기/쓰기 권한은 별도로 유지하며 CLI/runtime에 DDL 권한을 추가하지 않습니다. 등록 CLI는
+사용자·권한·세션을 만들거나 Google을 호출하지 않으며 로그인/자료 접근 준비 완료를 판단하지
+않습니다. 실제 앱 연결 설정·권한·백업/복원 조건·사용자 Google 로그인 확인은 대기 중입니다.
