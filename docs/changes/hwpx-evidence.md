@@ -26,9 +26,9 @@
 
 ### Task 1: HWPX 파서·구조·기존 계약 어댑터
 
-- [ ] 합성 fixtures의 TDD: Unicode/구역 spine 순서·문단/표 혼합·행/열/병합·중첩 표·단위 문구·정확 셀/텍스트 인용·잘못된 hash/한도/ZIP/XML/참조/namespace/중복/범위/손상/공개 안전 오류·입력/결과 우회 검증.
-- [ ] 파서·immutable 결과·정규화 버전·표/셀 범위·기존 ParsedRepresentation/정확 인용 어댑터 구현, 패키지 공개 exports.
-- [ ] ingestion README에 실제 함수 사용법·제약·라이선스 외부 확인·미연결 CLI/worker/DB 명시, targeted lint/format/mypy/테스트·작업 리뷰.
+- [x] 합성 fixtures의 TDD: Unicode/구역 spine 순서·문단/표 혼합·행/열/병합·중첩 표·단위 문구·정확 셀/텍스트 인용·잘못된 hash/한도/ZIP/XML/참조/namespace/중복/범위/손상/공개 안전 오류·입력/결과 우회 검증.
+- [x] 파서·immutable 결과·정규화 버전·표/셀 범위·기존 ParsedRepresentation/정확 인용 어댑터 구현, 패키지 공개 exports.
+- [x] ingestion README에 실제 함수 사용법·제약·라이선스 외부 확인·미연결 CLI/worker/DB 명시, targeted lint/format/mypy/테스트·작업 리뷰.
 
 ### Controller 결합·마무리
 
