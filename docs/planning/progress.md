@@ -21,7 +21,17 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 공동 공간의 자료·접근 허용 등록
+## 현재 작업 · 첫 이슈 자료 풀·평가 질문
+
+- 작업/범위: [자료 풀 기록](../research/first-issue-corpus.md)·[출처45개](../research/first-issue-sources.tsv)·[질문20개](../../tests/evaluation/first-issue.md), R2/R3/R4. 기존 지방국립대 등록금 지원 이슈를 유지하고 정부안·기존 제도·관점/확정 근거 부재를 구분한다.
+- 담당/브랜치: controller, `docs/first-issue-corpus`; 선행 등록 도구 위의 격리 worktree. 문서/조사 작업이며 제품 코드·스키마·API·의존성·공동 DB·운영은 변경하지 않는다. [Draft PR #19](https://github.com/DigestWorks/IssueDigest/pull/19) 게시·앱 첨부. Sites v38 공개 게시 완료.
+- 결과: 공식 후보45개, HTTPS 응답 스냅샷38개 개인 보관. 라이선스 표시/100자 이상 텍스트13개 중 재게시1·다른 부처 대조자료1을 제외한 관련11개와 참고 법령 조문3개로 초기 연구 풀14개를 구성했다. 핵심4·배경10, 기존 앱 파서 지원3개. 첨부 안내38자2개와 접근/로봇 규칙 확인 대기7개를 실제 사용 가능한 자료로 세지 않는다. 현재 풀은 정부 자료 중심이며 반대 성명/회의록/확정 자료가 없다.
+- 평가: 답변형15·자료 부족4·합성 지시 공격1, 총20개 질문/필수 근거/기대 화면/판정 기준 정의. 텍스트 위치·앞뒤 문맥 후보26개가 기존 Citation 계약에 일치했다. 지지 판정은 not_evaluated, 실행0·점수 없음. Q05의 목록 구조·Q06의 수치 표는 별도 검증이 필요하다.
+- 검증: 출처45행·응답38개 해시·연구 풀14개/앱 파서3개·문항20개·인용 계약26개·문서 상대 링크78개·개인 권한700/600·공개 파일8개의 실제 비밀값/계정/인용 제외·git diff --check 통과. 제품 코드 변경이 없어 기존 c12e18e의1,919개 CI를 기준으로 삼고 전체 검사를 수동 반복하지 않았다. 검색/AI 평가 실행은0이며 문서 검증과 구분한다.
+- 다음: 핵심 HWPX 본문·표/단위/출처를 생산용 파서에 연결하고, 직접 성명·국회/정확 통계와 재사용 조건을 추가 확인한다. 검토된 실제 코퍼스30~50건과20문항의 검색/AI 실행·품질 점수는 미완료다. 앱 접속 설정/백업·실제 등록/Google 로그인 대기와 독립적으로 진행했다.
+- Sites: [v38 첫 이슈·평가](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#first-issue-evaluation) 공개 게시 native succeeded, v37 보존. source `0842dbe5b3ec55f4790008134c901f1d013133d6`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_17ef7d53d0008191bf13503a89181555`, deployment `appgdep_6acefdd94e388191988ffbecd4a9a103`. 사본 기준c62b3af·HTML23개/로컬 링크·anchor420개/manifest·공개 파일55개의 실제 비밀값/계정/인용 제외 통과. 새 브라우저 화면 검사는 수행하지 않았다. 원문·전체 인용·개별 해시/UUID·실제 계정·접속정보는 공개 기록에 포함하지 않는다.
+
+## 이전 작업 · 공동 공간의 자료·접근 허용 등록
 
 - 작업/범위: [등록 도구 명세](../changes/workspace-bootstrap.md), R1/R2·D015. 검증한 근거와 승인 계정의 초대를 함께 등록하고, 실패 시 전체 취소·재실행 시 중복 방지를 제공하는 운영자 CLI. 로그인·권한·근거 계약은 유지한다.
 - 담당/브랜치: controller·implementer, `feat/workspace-bootstrap`; 선행 Google OAuth 위의 격리 worktree. 최종 검증·독립 리뷰 완료, [Draft PR #18](https://github.com/DigestWorks/IssueDigest/pull/18) 게시·앱 첨부. main 미병합, Sites·개발 인계 완료.
