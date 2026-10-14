@@ -5,8 +5,8 @@
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
-| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 실제 계정/공동 DB·나머지 API·이벤트·워커·검색은 미완료 |
-| P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 이관은 후속 |
+| P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 공동 DB 초기 적용 완료. 실제 로그인·나머지 API·이벤트·워커·검색은 미완료 |
+| P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 승인1건 적용 완료, 나머지 자료 이관은 후속 |
 | P3 검색·관계 | 문자 검색 SDK 구현·검증 · 전체 미완료 | 불변 근거의 본문/페이지/셀 검색·현재 권한·명시 색인 재생성 검증. API/화면·pgvector·재순위화·실제 질문 평가/Neo4j는 후속 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
@@ -21,7 +21,17 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · PostgreSQL 문자 검색 기반
+## 현재 작업 · 공동 개발 DB 초기 적용
+
+- 작업: [공동 DB 적용 기록](../changes/shared-database-bootstrap.md). 기존 명시 migration/승인 등록 도구를 실제 전용 DB에서 실행했다. 담당 controller, `ops/database-bootstrap`·base feat/evidence-search/d700182. 제품 코드 변경 없음.
+- 결과: PG18.6/vector0.8.7 유지, revision0004·public15테이블. 기존 개발/앱 역할 분리·필요 DML/앱 DDL 부재를 실제 검증했고 권한/계정/설정 변경 없음. 승인 공식 자료1건/인용3개/초대1건/outbox1건·검색8단위, 등록/투영 반복에서 중복0·unchanged. 실제 사용자/세션/회원/로그인 flow0이며 승인 초대는 미바인딩 상태다.
+- 복구: 전/후 full+app archive를 서버 밖 개인 경로에 보존하고 앱 범위를 별도 소유 PG18.6에 복원했다. canonical 전체·승인 초대·outbox·검색 투영 대조 통과. vector 바이너리/역할·전체 서버 복구/정기 백업 완료는 아니다. 원문 bytes/승인 입력은 별도 개인 경로에 유지한다.
+- 검증: 서버 실제 CLI offline/check/apply/repeat·권한/기존 vector·앱 범위 복원 성공. 초기 스키마 소유 역할 guard와 복원 후 초대 검증 도구의 가정을 수정한 과정은 상세 기록/private 로그에 보존했다. 제품 코드 기존 전체2,109개/CI d700182 성공을 재사용하며 문서만 변경해 전체 테스트를 반복하지 않는다.
+- 남은 입력: 현재 새 관리자 요청 없음. 첫 실제 Google 브라우저 로그인은 사용자 확인, 두 번째 Google 이메일은 추가 초대 시 필요. 정기 백업/전체 복구·분담 비용은 사용자 작업 저장·첫 공개 전 별도 확인.
+- 다음: 앱 runtime을 기존 앱 역할/Google 설정으로 연결하고 사용자 실제 로그인→자료 목록→원문·인용 열람을 확인한다. 보호 검색 API/UI·의미 검색/AI·worker는 후속이다. D013 공개 앱 배포 유예를 유지한다.
+- 문서 독립 검토·Draft PR·Sites 갱신·소유 검증 자원 정리와 개발 인계는 마무리 중이다.
+
+## 이전 작업 · PostgreSQL 문자 검색 기반
 
 - 작업: [저장 근거 검색 명세](../changes/evidence-search.md), R2/R3·D011/D015. 원문 버전과 정확한 본문 구간/페이지/셀 위치를 반환하는 첫 검색 SDK.
 - 담당/브랜치: controller·implementer, `feat/evidence-search`; HWPX 수집 PR #21 위의 격리 worktree. [Draft PR #22](https://github.com/DigestWorks/IssueDigest/pull/22) 게시·앱 첨부. Sites·개발 인계는 후속 기록한다.
