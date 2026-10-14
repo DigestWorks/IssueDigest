@@ -7,7 +7,7 @@
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 실제 계정/공동 DB·나머지 API·이벤트·워커·검색은 미완료 |
 | P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 이관은 후속 |
-| P3 검색·관계 | 미착수 | 실제 평가 자료·기준 DB 계약 필요 |
+| P3 검색·관계 | 문자 검색 SDK 구현·검증 · 전체 미완료 | 불변 근거의 본문/페이지/셀 검색·현재 권한·명시 색인 재생성 검증. API/화면·pgvector·재순위화·실제 질문 평가/Neo4j는 후속 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
 | P6 운영 검증 | DNS·HTTPS·자동 배포 준비 · 앱 공개 유예 | 서버·전용 DB/pgvector·자료 접근 확인. 최소 제품·비용·권한·운영 연결·별도 복원 검증 후 첫 게시 판단 |
@@ -21,11 +21,21 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · HWPX 수집 작업·등록 계획 연결
+## 현재 작업 · PostgreSQL 문자 검색 기반
+
+- 작업: [저장 근거 검색 명세](../changes/evidence-search.md), R2/R3·D011/D015. 원문 버전과 정확한 문단/페이지/셀 위치를 반환하는 첫 검색 SDK.
+- 담당/브랜치: controller·implementer, `feat/evidence-search`; HWPX 수집 PR #21 위의 격리 worktree. Draft PR·Sites·개발 인계는 검토 후 기록한다.
+- 상태: domain 문자 검색/위치 단위, PostgreSQL ARRAY/GIN 후보·명시 투영 재생성, 현재 세션/회원 보호 SDK 구현. 작업 리뷰의 메모리 보관·긴 출처 식별자·일반 문서 페이지 정보 세 항목을 f5e3314에서 assertion RED8개 후 보완했다. 수정 범위 재검토에서 세 항목 해결·새 지적0으로 승인받았다. 독립 전체 변경 리뷰는 진행 중이다.
+- 검증: 최종 코드f5e3314의 controller 전체 Python1,787+JS322=2,109개, Ruffformat152/mypy67/ESLint/TS/SPA/OpenAPI 통과, skip/warning0. 실제 HWPX3개·문자 검색9건/전체 셀6건을 별도 DDL 금지·원문 UPDATE 없는 앱 역할로 다시 대조, 반환 위치 matched/not_evaluated·반복3회 unchanged·필터/권한/세션 폐기·미색인1건 표시·SQL @>/GIN 확인. 작은 실자료 위치 검사이며20문항 평가·대규모 성능/메모리 실측이 아니다.
+- 범위: 같은 검색 단위에서 literal terms AND·ASCII 대소문자 비교, 출처/수집 시각 필터. 원문은 변경하지 않으며 이전 전체 투영을 후보별로 쌓아두지 않는다. 일반 문서는 전체 본문 TextQuoteSelector, PDF는 실제 PageSpan·셀은 전체 셀. 본문 있는 application/pdf에 페이지 정보가 없으면 재파싱 전 색인하지 않는다. 큰/빈 셀·후보/결과 한도·미투영 자료가 완전성을 제한한다.
+- 후속: 보호 검색 API·화면, pgvector 의미 검색·재순위화·관계 검색·검색/AI20문항 평가·DBOS/outbox 소비. 공동 DB 앱 설정은 아직 없거나 읽을 수 없으며 기존 전달 요청의 응답을 기다린다. 실제 승인 계획/초대·공동 DB·Google 로그인·공유 checkout·운영 서비스·main·공개 앱은 변경하지 않았다.
+- Sites·PR·개발 인계: 결과 확인 후 반영, 현재 대기. 웹/API 화면은 바꾸지 않아 새 브라우저 검사는 수행하지 않았다.
+
+## 이전 작업 · HWPX 수집 작업·등록 계획 연결
 
 - 작업: [수집 작업 명세](../changes/hwpx-import.md), R2/R3·D011/D015. 파일 snapshot을 기존 파서/정확 인용 계약으로 준비하고 승인된 등록 계획에 추가한다.
 - 담당/브랜치: controller·implementer, `feat/hwpx-import`; HWPX 파서 PR #20 위의 격리 worktree.
-- 상태: worker 패키지의 준비 함수·명시 명령 구현 중. 실제 첨부3개/정확 인용9개를 준비해 기존 합성 자료1개/초대2개를 보존하는 계획을 만들고 전용 검증 DB의 기존 CLI 검사/등록/반복/재조회까지 확인했다. 작업 리뷰의 JSON 직렬화 전 한도1건을9511d78/7090d72에서 입력·파생 결과의 구조/바이트 예비 검사로 보완하고 재검토에서 해결·새 지적0을 확인했다. 최종 코드7090d72 전체 Python1,703+JS322=2,025개·format145/mypy63/TS/빌드/계약 통과, skip/warning0. 정상 자료의 출력 byte 동일·기존 CLI 등록/반복/재조회도 다시 확인했다. 독립 전체 변경 리뷰 Critical/Important/Minor0으로 승인. [Draft PR #21](https://github.com/DigestWorks/IssueDigest/pull/21) 게시·앱 첨부. Sites v40 공개 게시·개발 인계 완료. 기본 실행은 비공개 artifact 준비이며 DB 적용은 기존 등록 도구의 명시 실행으로 분리한다. SDK/CLI 준비를 DBOS 런타임·주기 수집 완료로 표시하지 않는다.
+- 상태: worker 패키지의 준비 함수·명시 명령 구현·검증 완료. 실제 첨부3개/정확 인용9개를 준비해 기존 합성 자료1개/초대2개를 보존하는 계획을 만들고 전용 검증 DB의 기존 CLI 검사/등록/반복/재조회까지 확인했다. 작업 리뷰의 JSON 직렬화 전 한도1건을9511d78/7090d72에서 입력·파생 결과의 구조/바이트 예비 검사로 보완하고 재검토에서 해결·새 지적0을 확인했다. 최종 코드7090d72 전체 Python1,703+JS322=2,025개·format145/mypy63/TS/빌드/계약 통과, skip/warning0. 정상 자료의 출력 byte 동일·기존 CLI 등록/반복/재조회도 다시 확인했다. 독립 전체 변경 리뷰 Critical/Important/Minor0으로 승인. [Draft PR #21](https://github.com/DigestWorks/IssueDigest/pull/21) 게시·앱 첨부. Sites v40 공개 게시·개발 인계 완료. 기본 실행은 비공개 artifact 준비이며 DB 적용은 기존 등록 도구의 명시 실행으로 분리한다. SDK/CLI 준비를 DBOS 런타임·주기 수집 완료로 표시하지 않는다.
 - Sites: [v40 HWPX 수집 작업](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#hwpx-import) 공개 게시 native succeeded, v39 보존. source `b15a694fd3279270721e5cbe799d352d48ead68a`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_5a7dc517fc0c819180c94b1c5a7bd612`, deployment `appgdep_6acf1692cc6881919e854f432bff5f61`. 사본 기준d5581e6·HTML25개/로컬 링크·anchor487개/manifest·실제 비밀값/계정/인용/해시/UUID 제외59파일 통과. 새 브라우저 화면 검사는 수행하지 않았고 열기 요청은 queued였다.
 - 인계: 사용자 폴더와 서버 개인 worktree를 `feat/hwpx-import`/origin 추적으로 연결했다. c6806b2에서 같은 코드·깨끗한 Git 상태·locked worker 설치·실제 준비 명령 --help 실행을 확인했다. 공개/공용 checkout·앱 runtime·DB는 변경하지 않았다.
 - CI: [구현/검토38b920e 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38517871947), [PR 링크 포함d5581e6 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38517965438). 이후 게시/인계 문서만 바뀐 커밋의 exact-head 결과와 구분한다.
