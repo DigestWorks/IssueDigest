@@ -21,7 +21,16 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 첫 이슈 자료 풀·평가 질문
+## 현재 작업 · HWPX 본문·표·인용
+
+- 작업: [HWPX 명세](../changes/hwpx-evidence.md), R2/R3. 첫 이슈의 핵심 첨부를 기존 근거 계약으로 연결한다.
+- 담당/브랜치: controller·implementer, `feat/hwpx-evidence`; 첫 자료 풀 PR #19 위의 격리 worktree. 본문 구역 순서·표/셀 주소·병합·단위 문구를 보존하며 의미를 추정하지 않는다.
+- 상태: 로컬 bytes·기대 해시 기반 HWPX 파서와 기존 계약 어댑터 구현. 본문 구역/표·셀 주소·병합·중첩·단위 문구를 보존한다. 구역과 머리말을 혼동한 실제 파일 경계는 합성 회귀 사례로 보완했다. 작업 리뷰 승인·ZIP64 문서 표현 보완1건 기록. 전체 변경 리뷰·PR/Sites·인계는 대기다.
+- 검증: 코드169d109에서 전체 Python1,615+JS322=1,937개·Ruff/format137/mypy57/TS/SPA/계약 통과, skip/warning0. 실제 첨부3개·표34개·셀278개의 XML 구조/범위와 인용281개를 대조했고 전용 검증 DB 저장/재실행/동일 조회·다른 공간 격리 확인. 문서 예제의 포맷 오류는169d109에서 수정한 뒤 전체 검사했다.
+- 한계: CLI/worker·공동 DB·로그인/화면 연결은 후속. 단위/기간은 셀 문구로 보존하며 추정 메타데이터는 넣지 않는다. Q05/Q06의 의미/단위/합산 판정과 검색/AI 평가 실행·적격30~50개 코퍼스는 미완료다.
+- 운영 경계: 기존 자료/공동 DB·실제 로그인·AI·main·공개 앱은 변경하지 않는다.
+
+## 이전 작업 · 첫 이슈 자료 풀·평가 질문
 
 - 작업/범위: [자료 풀 기록](../research/first-issue-corpus.md)·[출처45개](../research/first-issue-sources.tsv)·[질문20개](../../tests/evaluation/first-issue.md), R2/R3/R4. 기존 지방국립대 등록금 지원 이슈를 유지하고 정부안·기존 제도·관점/확정 근거 부재를 구분한다.
 - 담당/브랜치: controller, `docs/first-issue-corpus`; 선행 등록 도구 위의 격리 worktree. 문서/조사 작업이며 제품 코드·스키마·API·의존성·공동 DB·운영은 변경하지 않는다. [Draft PR #19](https://github.com/DigestWorks/IssueDigest/pull/19) 게시·앱 첨부. Sites v38 공개 게시 완료.
