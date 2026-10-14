@@ -611,8 +611,9 @@ ID는 구역/표 등장 순서와 셀 주소로 결정한다(`s0-t0`, `s0-t0-r0-
 ZIP central-directory의 실제 항목 수를 확인한 뒤 ZipFile을 생성한다. 모든 멤버의
 선언된 압축 해제 크기/합계와 경로·중복·암호화·압축 방식을 검사한다. CRC/stream 검사는
 본문이 아닌 멤버도 64KiB 청크로 읽어 수행하며, 본문 XML만 한도 안에서 메모리에 보관한다.
-저장/deflate만 지원하고 ZIP64·분할 ZIP·암호화 ZIP과 META-INF의 encryption-data/encrypted-key를
-거부한다. DTD·ENTITY·processing instruction·외부 XML 참조는 거부한다. XML 노드/깊이는
+저장/deflate만 지원하고 ZIP64 종료 디렉터리 형식·분할 ZIP·암호화 ZIP과 META-INF의
+encryption-data/encrypted-key를 거부한다. ZIP64 로컬 멤버 헤더는 기존 원문/멤버/합계 크기와
+항목 수 한도 및 CRC/stream 검사를 통과하면 허용한다. DTD·ENTITY·processing instruction·외부 XML 참조는 거부한다. XML 노드/깊이는
 트리에 추가하기 전에, 텍스트는 결합하기 전에 검사한다. 격자 한도는 모든 표의
 row_count × column_count 합계이며, 점유 좌표를 만들거나 병합 범위를 순회하기 전에 검사한다.
 미완료·부분·잘린 결과는 성공으로 반환하지 않는다. 프로세스 격리는 제공하지 않는다.
