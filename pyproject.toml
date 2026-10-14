@@ -11,10 +11,10 @@ dev = ["httpx2==2.13.1", "pytest==9.1.1", "ruff==0.17.0", "mypy==2.4.0"]
 required-version = "==0.11.4"
 
 [tool.uv.workspace]
-members = ["apps/api", "packages/domain", "packages/storage", "packages/ingestion"]
+members = ["apps/worker", "apps/api", "packages/domain", "packages/storage", "packages/ingestion"]
 
 [tool.pytest.ini_options]
-testpaths = ["apps/api/tests", "packages/domain/tests", "packages/storage/tests", "packages/ui/tests", "packages/ingestion/tests"]
+testpaths = ["apps/worker/tests", "apps/api/tests", "packages/domain/tests", "packages/storage/tests", "packages/ui/tests", "packages/ingestion/tests"]
 
 [tool.ruff]
 target-version = "py313"
@@ -26,4 +26,4 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-files = ["apps/api/src", "packages/domain/src", "packages/storage/src", "packages/storage/migrations", "scripts/export_openapi.py", "packages/ingestion/src"]
+files = ["apps/worker/src", "apps/api/src", "packages/domain/src", "packages/storage/src", "packages/storage/migrations", "scripts/export_openapi.py", "packages/ingestion/src"]
