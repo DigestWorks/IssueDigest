@@ -1,0 +1,46 @@
+source_id	publication_family	role	title	publisher	published_on	canonical_url	capture_status	reuse_scope	text_status	body_characters	research_pool	application_parser_ready
+S001	S001	context	2027학년도 학자금 지원 제한 대학 발표	교육부	2026-08-24	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=106987&lev=0	captured	KOGL-1-text-only	extracted	6628	true	false
+S002	S002	candidate	"""잠재력에 투자""…25조 늘어난 내년 청년 예산, 사용처 들여다보니 - 2027 예산안 | 정책포커스 | 뉴스 | 대한민국 정책브리핑"	대한민국 정책브리핑		https://www.korea.kr/news/policyFocusView.do?newsId=148972450	capture_failed_or_limit	unconfirmed	unavailable	0	false	false
+S003	S003	candidate	내년에 (2027년) 만 19세~34세 주목 - 정책포커스 | 뉴스 | 대한민국 정책브리핑	대한민국 정책브리핑		https://www.korea.kr/news/policyFocusView.do?newsId=148970871	capture_failed_or_limit	unconfirmed	unavailable	0	false	false
+S004	S004	candidate	청년 예산 언박싱 2027 개최 · 영상	기획예산처		https://www.mpb.go.kr/web/main/bbs/b_0003/2623	robots_or_availability_pending	unconfirmed	unavailable	0	false	false
+S005	S005	core	'서울대 10개 만들기' 본격화…거점 국립대 3곳 신속 선정	교육부	2026-08-05	https://www.korea.kr/news/policyNewsView.do?newsId=148969434	captured	KOGL-1-text-only	extracted	3610	true	true
+S006	S006	candidate	배움과 경험을 쌓아갈 때 '나에게 올 2027년 예산안'	대한민국 정책브리핑	2026-09-07	https://www.korea.kr/multi/visualNewsView.do?newsId=148971392	captured	unconfirmed	unavailable	0	false	false
+S007	S007	context	행정규칙 > 국가장학사업 운영규정 | 국가법령정보센터	법제처 국가법령정보센터		https://www.law.go.kr/LSW/admRulInfoP.do?admRulSeq=2100000273514&chrClsCd=010201	captured	unconfirmed	version-body-selector-and-reuse-scope-review	0	false	false
+S008	S008	candidate	국가장학금Ⅰ유형 안내	한국장학재단		https://www.kosaf.go.kr/ko/scholar.do?pg=scholarship05_12_01_01	captured	unconfirmed	unavailable	0	false	false
+S009	S009	candidate	2026학년도 2학기 국가장학금, 마지막 신청 기회!	교육부	2026-08-14	https://www.korea.kr/multi/visualNewsView.do?newsId=148970090	captured	unconfirmed	unavailable	0	false	false
+S010	S010	candidate	청년의 잠재력에 국가가 투자합니다! 청년 예산 언박싱(UNBOXING) 2027, 청년 성장단계별 종합투자 추진전략 발표	대한민국 정책브리핑	2026-08-28	https://www.korea.kr/briefing/pressReleaseView.do?newsId=156775943	captured	KOGL-1-text-only	extracted	38	false	false
+S011	S011	candidate	학자금 지원구간 개편 FAQ 목록	한국장학재단		https://www.kosaf.go.kr/ko/faq.do?ctgrId1=NODE0000001570&ttab1=7&ttab2=tabitemlistA	captured	unconfirmed	unavailable	0	false	false
+S012	S012	context	슬기로운 대학 생활의 시작! 2026년 맞춤형 국가장학금 지원 기본계획 확정	교육부	2026-02-10	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=105327&lev=0	captured	KOGL-1-text-only	extracted	2287	true	false
+S013	S013	context	깜빡했다면 바로 지금! 국가장학금 1학기 2차 통합 신청	교육부	2026-02-03	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=105272&lev=0	captured	KOGL-1-text-only	extracted	2126	true	false
+S014	S014	candidate	청년 성장 단계별 종합 지원 · 영상	대한민국 정책브리핑		https://www.korea.kr/news/policyFocusView.do?newsId=148972340	capture_failed_or_limit	unconfirmed	unavailable	0	false	false
+S015	S010	candidate	청년의 잠재력에 국가가 투자합니다! 청년 예산 언박싱(UNBOXING) 2027, 「청년 성장단계별 종합투자 추진전략」 발표	대한민국 정책브리핑	2026-08-28	https://www.korea.kr/briefing/pressReleaseView.do?newsId=156775926	captured	KOGL-1-text-only	extracted	38	false	false
+S016	S016	hard_negative	고용부 내년 예산 39조 원…청년 일자리 지원·AI 전환 대응 강화	교육부	2026-09-04	https://www.korea.kr/news/policyNewsView.do?newsId=148971226	captured	KOGL-1-text-only	extracted	2187	false	false
+S017	S017	candidate	제2차 청년정책 기본계획	국무조정실		https://www.opm.go.kr/opm/news/press-release.do?articleNo=160759&attachNo=151321&mode=download	captured	unconfirmed	rights_review_before_extraction	0	false	false
+S018	S018	candidate	2027년 청년정책 주요내용 개요도	KDI 경제교육·정보센터		https://eiec.kdi.re.kr/policy/materialView.do?num=286138&pg=&pp=&topic=O	captured	unconfirmed	unavailable	0	false	false
+S019	S019	context	2026학년도 1학기 학자금대출 1월 5일부터 신청하세요!	교육부	2026-01-04	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=105052&lev=0	captured	KOGL-1-text-only	extracted	3645	true	false
+S020	S042	candidate	'2학기 국가장학금·근로장학금 신청 기간'이 돌아왔다! - 청년정책 | 정책포커스 | 뉴스 | 대한민국 정책브리핑	대한민국 정책브리핑		https://www.korea.kr/news/policyFocusView.do?newsId=148965747	capture_failed_or_limit	unconfirmed	unavailable	0	false	false
+S021	S021	candidate	2026년 2학기 1차 국가장학금 신청 기간 FAQ	정부민원안내콜센터		https://www.110.go.kr/data/counselView.do?curPage=7&num=A01_721027&scCate1=&scCate2=&scIntt=&scText=&scType=	captured	unconfirmed	unavailable	0	false	false
+S022	S022	candidate	[브리핑문] 성장엔진 연계 지역인재 양성방안	대한민국 정책브리핑	2026-04-15	https://www.korea.kr/briefing/speechView.do?newsId=132038716	captured	unconfirmed	extracted-rights-pending	2794	false	false
+S023	S023	candidate	[설명자료] &#39국가장학금 감액 편성 질타&#39 보도에 대해 설명드립니다 - 사실은 이렇습니다 | 브리핑룸 | 대한민국 정책브리핑	대한민국 정책브리핑		https://www.korea.kr/briefing/actuallyView.do?newsId=148959027	captured	KOGL-1-text-only	extraction_or_template_review	0	false	false
+S024	S024	candidate	법령 > 본문 > 지방대학 및 지역균형인재 육성에 관한 법률 | 국가법령정보센터	법제처 국가법령정보센터		https://www.law.go.kr/LSW/lsInfoP.do?lsiSeq=286605	captured	unconfirmed	version-body-selector-and-reuse-scope-review	0	false	false
+S025	S025	candidate	다자녀가구 국가장학금 지원 해설	법제처 국가법령정보센터		https://easylaw.go.kr/CSP/CnpClsMain.laf?ccfNo=4&cciNo=2&cnpClsNo=1&csmSeq=1126&menuType=cnpcls&popMenu=ov	captured	unconfirmed	version-body-selector-and-reuse-scope-review	0	false	false
+S026	S026	candidate	2026년도 예산안 위원회별 분석	국회예산정책처		https://www.nabo.go.kr/board/file/down.do?fid=33318883	capture_failed_or_limit	unconfirmed	unavailable	0	false	false
+S027	S027	core	3세까지 무상교육·보육…지방국립대 신입생 6만 명 등록금 지원	교육부	2026-09-01	https://www.korea.kr/news/policyNewsView.do?newsId=148970980	captured	KOGL-1-text-only	extracted	3231	true	true
+S028	S036	candidate	2027년 교육부 청년 핵심 지원사업 발표 · KDI 목록	KDI 경제교육·정보센터		https://eiec.kdi.re.kr/policy/materialView.do?num=286143	captured	unconfirmed	unavailable	0	false	false
+S029	S029	candidate	2027년 지방 국립대 신입생 전액 장학금 지원 안내	한국장학재단		https://www.kosaf.go.kr/ko/notice.do?mode=view&seqNo=21272	captured	unconfirmed	extracted-rights-pending	919	false	false
+S030	S030	candidate	청년 성장단계별 종합투자 추진전략	기획예산처		https://www.mpb.go.kr/web/main/bbs/b_0001/2629	robots_or_availability_pending	unconfirmed	unavailable	0	false	false
+S031	S031	candidate	[카드뉴스] 2027년 교육부 예산안	교육부	2026-10-02	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=340&boardSeq=107363&lev=0	captured	unconfirmed	unavailable	0	false	false
+S032	S032	candidate	학자금 지원구간 체계 개편 안내	한국장학재단		https://www.kosaf.go.kr/ko/tuition.do?pg=tuition04_09_01&type=tuition	captured	unconfirmed	unavailable	0	false	false
+S033	S033	candidate	2026년 2학기 국가장학금 시행계획 안내	한국장학재단		https://www.kosaf.go.kr/ko/data.do?mode=view&seqNo=21301	captured	unconfirmed	extracted-rights-pending	92	false	false
+S034	S034	core	[설명자료] 지방 사립대 학생에게도 지역인재장학금 뿐만 아니라 국가장학금을 지원합니다	교육부	2026-08-31	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=295&boardSeq=107071&lev=0	captured	KOGL-1-text-only	extracted	973	true	false
+S035	S034	candidate	지방 사립대 지원 설명 정책브리핑	교육부		https://www.korea.kr/briefing/actuallyView.do?newsId=148970869	captured	KOGL-1-text-only	extraction_or_template_review	0	false	false
+S036	S036	core	[보도참고자료]2027년 교육부 청년 핵심 지원사업 발표	교육부	2026-09-01	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=107091&lev=0	captured	KOGL-1-text-only	extracted	5296	true	false
+S037	S037	candidate	2026 교육부 성과	교육부		https://www.korea.kr/news/policyNewsView.do?newsId=148965845	captured	unconfirmed	extraction_or_template_review	0	false	false
+S038	S038	context	교육기본법	법제처 국가법령정보센터		https://law.go.kr/LSW/lsSideInfoP.do?docCls=jo&joBrNo=00&joNo=0028&lsiSeq=285783&urlMode=lsScJoRltInfoR	captured	CopyrightAct7-legal-text-only	research-legal-provision	339	true	false
+S039	S039	context	고등교육법	법제처 국가법령정보센터		https://law.go.kr/lsLinkCommonInfo.do?lsJoLnkSeq=1014343543	captured	CopyrightAct7-legal-text-only	research-legal-provision	165	true	false
+S040	S040	context	한국전통문화대학교 설치법 ( 약칭: 전통문화대학교법 )	법제처 국가법령정보센터		https://www.law.go.kr/lsLinkCommonInfo.do?chrClsCd=010202&lsJoLnkSeq=1033199621	captured	CopyrightAct7-legal-text-only	research-legal-provision	136	true	false
+S041	S041	candidate	한국장학재단 대학별 평균등록금 · 데이터 목록	공공데이터포털		https://www.data.go.kr/data/3071171/fileData.do	captured	unconfirmed	unavailable	0	false	false
+S042	S042	context	신청해 두면 든든한 대학 생활! 2026학년도 2학기 국가장학금 신청	교육부	2026-05-21	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=106238&lev=0	captured	KOGL-1-text-only	extracted	2418	true	false
+S043	S012	mirror	올해 '맞춤형 국가장학금' 총 5조 1161억 원…전년비 1354억 원 ↑	교육부	2026-02-10	https://www.korea.kr/news/policyNewsView.do?newsId=148959345	captured	KOGL-1-text-only	extracted	1761	false	false
+S044	S044	context	2026년 교육기본통계 조사 결과 발표	교육부	2026-08-26	https://www.moe.go.kr/boardCnts/viewRenew.do?boardID=294&boardSeq=107034&lev=0	captured	KOGL-1-text-only	extracted	4660	true	false
+S045	S045	context	대학 국가장학금 신청 개시…8구간 이하 '셋째 이상'엔 전액 지원	교육부	2025-11-20	https://www.korea.kr/news/policyNewsView.do?newsId=148955036	captured	KOGL-1-text-only	extracted	1037	true	true

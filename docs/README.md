@@ -13,6 +13,8 @@
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
+| [첫 자료 풀](research/first-issue-corpus.md) | 공식 후보·원문·이용·연구 추출·앱 파서와 재게시 가족 상태 |
+| [평가 질문20개](../tests/evaluation/first-issue.md) | 질문별 필수 근거·보류·수치/시점·생성 화면의 판정 기준 |
 | [첫 검증 이슈](research/first-issue.md) | 최근 시사 선정·대표 질문·출처와 자료/평가 경계 |
 | [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
 | [전용 DB·수집 자산 실측](research/server-data-inventory.md) | 실제 건수·기간·원문 품질·pgvector 준비 상태·첫 이관 경계 |
