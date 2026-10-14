@@ -148,11 +148,15 @@ def test_invalid_environment_rejected_before_engine(
     else:
         monkeypatch.setenv("ISSUEDIGEST_DATABASE_URL", configuration)
 
+    attempted = []
+
     def forbidden(*args, **kwargs):
+        attempted.append(True)
         raise AssertionError("invalid environment reached engine creation")
 
     monkeypatch.setattr(c, "create_engine", forbidden)
     assert c.main([str(private_plan), mode]) == 1
+    assert attempted == []
     output = capsys.readouterr()
     assert output.out == ""
     assert output.err == "Unable to provision workspace\n"
@@ -250,3 +254,55 @@ def test_exact_size_limit_accepts_valid_private_plan(private_plan, capsys):
     output = capsys.readouterr()
     assert json.loads(output.out)["status"] == "validated"
     assert output.err == ""
+
+
+@pytest.mark.parametrize("mode", ["--apply", "--check-database"])
+@pytest.mark.parametrize("fault", ["close", "reset"])
+def test_underlying_pool_lifecycle_failure_is_silent_fixed_failure(
+    private_plan, engine, monkeypatch, capsys, caplog, mode, fault
+):
+    import logging
+
+    from sqlalchemy.exc import SQLAlchemyError
+
+    c = cli()
+    monkeypatch.setenv("ISSUEDIGEST_DATABASE_URL", engine.url.render_as_string(hide_password=False))
+    monkeypatch.setattr(c, "create_engine", lambda *args, **kwargs: engine)
+    method = "do_close" if fault == "close" else "do_rollback"
+    original = getattr(engine.dialect, method)
+    attempts = []
+    pool = engine.pool
+    previous_logger = pool.logger
+    shared_logger = logging.getLogger("sqlalchemy.pool")
+    shared_state = (
+        shared_logger.level,
+        shared_logger.propagate,
+        list(shared_logger.handlers),
+        list(shared_logger.filters),
+    )
+    detail = f"synthetic-private-{fault}-detail@example.test"
+
+    def fail(connection):
+        original(connection)
+        attempts.append(True)
+        raise SQLAlchemyError(detail)
+
+    monkeypatch.setattr(engine.dialect, method, fail)
+    try:
+        status = c.main([str(private_plan), mode])
+    finally:
+        monkeypatch.setattr(engine.dialect, method, original)
+    output = capsys.readouterr()
+    assert attempts, "actual underlying driver lifecycle operation was not faulted"
+    assert status == 1
+    assert output.out == ""
+    assert output.err == "Unable to provision workspace\n"
+    assert detail not in caplog.text
+    assert not caplog.records
+    assert pool.logger is previous_logger
+    assert (
+        shared_logger.level,
+        shared_logger.propagate,
+        shared_logger.handlers,
+        shared_logger.filters,
+    ) == shared_state

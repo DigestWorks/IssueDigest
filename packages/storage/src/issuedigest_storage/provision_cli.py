@@ -2,6 +2,7 @@
 
 import argparse
 import json
+import logging
 import os
 import stat
 import sys
@@ -30,6 +31,29 @@ class _ArgumentError(ValueError):
 class _Parser(argparse.ArgumentParser):
     def error(self, message: str) -> NoReturn:
         raise _ArgumentError("Invalid provisioning arguments")
+
+
+class _PoolLogger(logging.Logger):
+    """Engine-owned sink: discard private records and remember lifecycle failures."""
+
+    def __init__(self) -> None:
+        # A direct Logger instance has no global registry entry or handlers.
+        super().__init__("workspace-provision-pool")
+        self.failed = False
+
+    def isEnabledFor(self, level: int) -> bool:
+        # Detect failures even when a caller has disabled ordinary logging.
+        return True
+
+    def handle(self, record: logging.LogRecord) -> None:
+        args = record.args if isinstance(record.args, tuple) else ()
+        if (
+            record.levelno >= logging.WARNING
+            or record.exc_info
+            or any(isinstance(arg, BaseException) for arg in args)
+        ):
+            self.failed = True
+        # Never format, propagate or retain input-bearing record/exception details.
 
 
 def _read_plan(path: str) -> ProvisioningPlan:
@@ -95,10 +119,21 @@ def main(argv: Sequence[str] | None = None) -> int:
                 raise ProvisioningError("Explicit database URL required")
             url = validate_database_url(database_url, plan)
             engine = create_engine(url, hide_parameters=True, echo=False, pool_pre_ping=False)
+            pool = engine.pool
+            original_logger = pool.logger
+            lifecycle = _PoolLogger()
+            pool.logger = lifecycle
             try:
-                result = apply_plan(engine, plan) if args.apply else check_database(engine, plan)
+                try:
+                    result = (
+                        apply_plan(engine, plan) if args.apply else check_database(engine, plan)
+                    )
+                finally:
+                    engine.dispose()
+                if lifecycle.failed:
+                    raise ProvisioningError("Unable to complete database operation")
             finally:
-                engine.dispose()
+                pool.logger = original_logger
         print(json.dumps(result, sort_keys=True))
         return 0
     except Exception:

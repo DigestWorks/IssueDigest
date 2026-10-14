@@ -149,7 +149,10 @@ def test_bypassed_models_fail_before_connection(engine, monkeypatch):
     p = api()
     value = plan()
 
+    attempted = []
+
     def forbidden(*args, **kwargs):
+        attempted.append(True)
         raise AssertionError("connection forbidden")
 
     monkeypatch.setattr(engine, "connect", forbidden)
@@ -163,8 +166,10 @@ def test_bypassed_models_fail_before_connection(engine, monkeypatch):
     ):
         with pytest.raises(p.ProvisioningError):
             p.apply_plan(engine, invalid)
+        assert attempted == []
         with pytest.raises(p.ProvisioningError):
             p.check_database(engine, invalid)
+        assert attempted == []
 
 
 def test_url_target_and_dialect_fail_before_connect(monkeypatch):
@@ -179,15 +184,20 @@ def test_url_target_and_dialect_fail_before_connect(monkeypatch):
     ):
         engine = create_engine(url)
 
-        def forbidden(*args, **kwargs):
+        attempted = []
+
+        def forbidden(*args, _attempted=attempted, **kwargs):
+            _attempted.append(True)
             raise AssertionError("connection forbidden")
 
         monkeypatch.setattr(engine, "connect", forbidden)
         try:
             with pytest.raises(p.ProvisioningError):
                 p.check_database(engine, value)
+            assert attempted == []
             with pytest.raises(p.ProvisioningError):
                 p.apply_plan(engine, value)
+            assert attempted == []
         finally:
             engine.dispose()
 

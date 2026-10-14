@@ -287,7 +287,9 @@ DB URL은 query 없는 `postgresql+psycopg://.../DATABASE`만 지원합니다. U
 스냅샷·outbox·초대를 늘리지 않습니다. 기존 비활성/바인딩 초대·사용자·멤버십·세션 상태를
 바꾸지 않습니다. commit 응답 유실은 실패로 표시하며 저장 여부는 불확실할 수 있습니다.
 새 ID로 다시 만들지 말고 동일 계획으로 재검사·재실행합니다. DB 모드 engine은 성공/실패
-모두 dispose합니다.
+모두 dispose합니다. 엔진 단위 pool 로그 경계가 연결 reset·invalidation·close 오류의
+원문/traceback 출력을 막고, SQLAlchemy가 오류를 내부에서 삼켜도 고정 실패를 반환합니다.
+commit 이후 연결 정리에 실패하면 이미 등록되었을 수 있으므로 같은 계획으로 재확인합니다.
 
 실제 적용 순서는 대상·기존 앱 계정 권한·백업/복원 조건·승인 계정·원문/인용/이용 조건 확인,
 필요한 명시 Alembic migration, 오프라인 검증, 읽기 DB 검사, 명시 적용, 기존 앱 권한 GET과
