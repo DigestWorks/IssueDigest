@@ -23,7 +23,7 @@ Sites는 상태 요약을 계속 갱신하지만 사용자가 이미 열어 둔 
 
 - [x] 개인 서버의 고정 빌드·별도 자산 보관, 개인 정적 Nginx의 설정 검사·loopback 웹/SPA/보호 API 응답 확인.
 - [x] 기존 앱 계정/Google client·새 공개 origin과 start/cancel/Origin 거부·자료/초대·세션0 확인.
-- [ ] 관리자 적용 파일/요청 메시지·공식 문서/독립 검토·Draft PR/Sites 기록과 개발 인계.
+- [x] 관리자 적용 파일/요청 메시지·공식 문서/독립 검토·Draft PR/Sites 기록과 개발 인계.
 - [x] 사용자 Google Console callback 추가 완료 전달. 실제 제공자 반환 검증은 외부 HTTPS 후 확인.
 - [ ] 관리자 DNS/TLS/공개 프록시 연결.
 - [ ] 외부 인증서·동일 origin 라우팅·미승인 거부와 실제 사용자 Google 로그인/원문·인용3개 확인.

@@ -30,7 +30,7 @@
 - 사용자 입력: 기존 Google OAuth 웹 client에 `https://dev.issuedigest.projects.ai.kr/api/v1/auth/google/callback` 추가 완료 전달. 실제 외부 HTTPS 후 사용자 Google 로그인/자료 목록/원문·인용3개 확인. 비밀값 재발급/대화 공유 없음.
 - 다음: 관리자와 사용자 설정 반영을 받은 뒤 인증서 검증을 유지한 외부 접속과 실제 사용자 여정 확인. 독립 운영/문서 검토C/I/M0·상대 링크87개·공개303파일 실제 비밀값/계정/개별ID 제외·diff 검사를 통과했다. [Draft PR #25](https://github.com/DigestWorks/IssueDigest/pull/25) baseops/google-login-runtime·앱 첨부. 제품 코드는 바꾸지 않아 전체 테스트를 수동 반복하지 않았고 서버 정적 빌드와 실제 내부 응답/flow를 새로 검증했다.
 - Sites: [v45 개발 HTTPS](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#development-https) native succeeded/public. source `662b8ca6cc3768fa8ad0742fdf9c86e5de26b923`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_03393bc90128819198b961784da0bf53`, deployment `appgdep_6acf4d9a63dc81918ed642d29174165a`. 사본 기준5d61671·v44 보존·HTML30/로컬 링크anchor677/manifest 통과. 요약 변경의 브라우저 검사는 수행하지 않았다. 사용자 요청대로 Sites를 다시 열거나 탭을 이동하지 않았다.
-- 개발 인계: 개인 nginx/API·자산/비밀 loader를 후속 HTTPS 연결용으로 유지한다. 공용 자원·운영 서비스·실제 Google사용자/세션을 변경하지 않았다. 사용자 폴더/서버 개인 문서 branch 동기화는 마무리 중이다.
+- 개발 인계: 개인 nginx/API·자산/비밀 loader를 후속 HTTPS 연결용으로 유지한다. 공용 자원·운영 서비스·실제 Google사용자/세션을 변경하지 않았다. 사용자 폴더/서버 개인 worktree를 ops/development-https/origin 추적으로 연결하고 같은348841f·깨끗한 Git 상태를 확인했다. [기록 기준5d61671 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38543640234)을 확인했으며 이후 게시/인계 문서 커밋과 구분한다.
 
 ## 이전 작업 · 실제 Google 로그인 개발 연결
 
