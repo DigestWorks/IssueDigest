@@ -13,7 +13,8 @@
 ## P1 · 계약·생산 목표 엔진·기반
 
 - [x] [Google 개발 runtime 연결](../changes/google-login-runtime.md): 기존 앱 역할/Google 설정·개인 서버 API·HTTPS HTTP/Origin·start/취소flow 확인. 사용자 앱 내 브라우저 인증서/포트 변경 문제로 실제 로그인은 미완료.
-- [ ] 고정HTTPS 개발주소·프록시/인증서·Google callback 준비 후 실제 Google 로그인→공동 자료 목록→원문/인용 열람 검증.
+- [x] [고정 HTTPS 개발 내부 준비](../changes/development-https.md): 정적12파일·개인loopback Nginx/설정·새origin API·보호/시작·취소flow 확인. 외부 설치·로그인은 별도.
+- [ ] 관리자 개발DNS/TLS/공개Nginx·사용자 Google callback 반영 후 실제 Google 로그인→공동 자료 목록→원문/인용 열람 검증.
 
 - [x] [공동 개발 DB 초기 적용](../changes/shared-database-bootstrap.md): migration0004/public15테이블·기존 앱 DML/DDL 제한·승인 자료1건/인용3개/초대1건·반복 중복0·검색8단위·전/후 서버 밖 백업과 별도 앱 범위 복원 대조. 실제 Google 로그인/정기 백업·전체 복구/공개 앱은 별도.
 

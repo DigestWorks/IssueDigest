@@ -22,6 +22,7 @@
 | [전용 DB·수집 자산 실측](research/server-data-inventory.md) | 실제 건수·기간·원문 품질·pgvector 준비 상태·첫 이관 경계 |
 | [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
 | [PostgreSQL 연결 준비](../infra/postgresql.md) | 관리자에게 확인할 자원·비용·전용 DB·외부 백업 |
+| [개발 HTTPS 인수인계](../infra/development-https.md) | 준비한 내부 upstream·관리자 DNS/TLS/프록시·사용자 Google callback·실제 접속 완료 조건 |
 | [관리자 요청](../infra/administrator-request.md) | 필요한 관리자 작업·접근 정보와 개발자 책임 |
 | [개발 서버 안내](../infra/development-server.md) | 사용자 전용 환경·실행 방법·기초 자원·실제 검증·남은 확인 |
 
