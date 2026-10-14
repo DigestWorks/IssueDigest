@@ -1,0 +1,17 @@
+[project]
+name = "issuedigest-worker"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = ["issuedigest-domain", "issuedigest-ingestion", "issuedigest-storage"]
+
+[tool.uv.sources]
+issuedigest-domain = { workspace = true }
+issuedigest-ingestion = { workspace = true }
+issuedigest-storage = { workspace = true }
+
+[project.scripts]
+issuedigest-prepare-hwpx = "issuedigest_worker.cli:main"
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"

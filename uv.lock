@@ -8,6 +8,7 @@ members = [
     "issuedigest-domain",
     "issuedigest-ingestion",
     "issuedigest-storage",
+    "issuedigest-worker",
     "issuedigest-workspace",
 ]
 
@@ -356,6 +357,23 @@ requires-dist = [
     { name = "issuedigest-domain", editable = "packages/domain" },
     { name = "psycopg", extras = ["binary"], specifier = "==3.3.6" },
     { name = "sqlalchemy", specifier = "==2.1.4" },
+]
+
+[[package]]
+name = "issuedigest-worker"
+version = "0.0.0"
+source = { editable = "apps/worker" }
+dependencies = [
+    { name = "issuedigest-domain" },
+    { name = "issuedigest-ingestion" },
+    { name = "issuedigest-storage" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "issuedigest-domain", editable = "packages/domain" },
+    { name = "issuedigest-ingestion", editable = "packages/ingestion" },
+    { name = "issuedigest-storage", editable = "packages/storage" },
 ]
 
 [[package]]
