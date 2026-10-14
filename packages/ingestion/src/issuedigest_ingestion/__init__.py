@@ -2,6 +2,19 @@
 
 from .audit import AuditResult, Limits, audit_poll_files
 from .errors import AuditError
+from .hwpx import (
+    HwpxCell,
+    HwpxExtraction,
+    HwpxLimits,
+    HwpxSection,
+    HwpxSpan,
+    HwpxTable,
+    HwpxTextSpan,
+    extract_hwpx,
+    locate_hwpx_cell,
+    locate_hwpx_quote,
+    to_hwpx_representation,
+)
 from .pdf import (
     PdfExtraction,
     PdfLimits,
@@ -24,6 +37,17 @@ from .quotes import (
 )
 
 __all__ = [
+    "HwpxLimits",
+    "HwpxExtraction",
+    "HwpxSpan",
+    "HwpxTextSpan",
+    "HwpxSection",
+    "HwpxCell",
+    "HwpxTable",
+    "extract_hwpx",
+    "to_hwpx_representation",
+    "locate_hwpx_quote",
+    "locate_hwpx_cell",
     "AuditError",
     "AuditResult",
     "Limits",

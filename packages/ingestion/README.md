@@ -515,3 +515,122 @@ URL·hash·HTML 메타데이터 검증은 출처 진위 인증이 아니다. 호
 uv run pytest packages/ingestion/tests/test_policy_html.py
 uv run pytest packages/ingestion/tests packages/domain/tests
 ```
+
+## 로컬 HWPX 본문·표·정확 인용
+
+`extract_hwpx`는 별도로 획득한 exact `bytes`와 기대 SHA-256만 받는다. 파일·URL을
+열거나 ZIP을 디스크에 풀지 않는다. 호출자는 원문 게시물의 출처·수집 시각·이용 조건과
+원문 해시를 따로 확보해야 한다. HWPX 확장자·파싱 성공은 첨부 이용 권한의 증명이 아니다.
+이 기능은 Python 라이브러리이며 CLI·worker·HTTP·DB·AI 생성에 연결하지 않았다.
+
+```python
+from issuedigest_ingestion import (
+    HwpxLimits, extract_hwpx, to_hwpx_representation,
+    locate_hwpx_quote, locate_hwpx_cell,
+)
+
+extraction = extract_hwpx(snapshot_bytes, expected_sha256=expected_sha256,
+                          limits=HwpxLimits(max_sections=32))
+representation = to_hwpx_representation(
+    extraction, representation_id=representation_id,
+    document_version_id=document_version_id,
+)
+text_selector = locate_hwpx_quote(representation, quote=exact_quote)
+first_table = representation.tables[0]
+cell_selector = locate_hwpx_cell(
+    representation, table_id=first_table.table_id,
+    cell_id=first_table.cells[0].cell_id,
+)
+# 기존 Citation과 validate_citation을 사용한다.
+# 정확 anchor는 matched, 주장 지지는 not_evaluated다.
+```
+
+위 변수는 호출자가 제공한다. UUID는 exact `UUID` 객체인 UUID4여야 한다. 인용 문자열은
+원문과 정확히 같아야 하며, 반복·겹치는 매치에는 명시 `start`가 필요하다. `start/end`는
+Python Unicode code-point 범위다. 셀 인용은 빈 셀을 포함한 완전한 셀 텍스트를 선택한다.
+다른 파서 표현·변조된 해시·무효 ID·범위·추정 셀 메타데이터는 어댑터 경계에서 거부한다.
+
+정규화는 `hwpx-flow-v1`, 파서는 `hwpx`, 버전은 `1`이다. XML 자체의 표준 줄바꿈 처리
+외에는 Unicode NFC/NFD·trim·공백 정규화를 하지 않는다. 문단의 run/t 문자열과 inline
+`lineBreak`, `tab`, `nbSpace`, `fwSpace`를 보존한다. 비어 있지 않은 본문 조각은 `\n`,
+구역은 `\n\f\n`으로 연결한다. 문단 속 표 앞·뒤 텍스트는 각각 별도 조각으로 남긴다.
+구역은 파일명 정렬이 아니라 `Contents/content.hpf`의 OPF manifest/spine 순서다.
+manifest href는 패키지 루트 경로를 우선 사용하며, 정확한 루트 멤버가 없을 때만
+`Contents/` 상대 경로를 사용한다. `linear="no"` 항목은 본문으로 읽지 않는다.
+`linear`가 생략된 공식 `Contents/header.xml`과 `settings.xml`/`Contents/settings.xml`도
+각각 정확한 head/app namespace·root를 확인해 제외한다. 본문 root는 section namespace의
+`sec`만 지원하며, 문단·표 요소는 paragraph namespace를 요구한다.
+
+`HwpxExtraction`은 frozen dataclass이며 `text`, `raw_sha256`, `raw_bytes`, `text_sha256`,
+`sections`, `spans`, `tables`, 적용한 `limits`와 파서 식별자를 담는다. 모든 컨테이너는 tuple이다.
+`HwpxSection(section_index, member_name, start, end)`는 spine의 실제 본문 구역이다.
+`HwpxTextSpan(start, end, section_index, table_id, cell_id)`는 출력에 한 번만 기록된
+문단/셀 조각이다. 본문 문단의 table/cell IDs는 `None`이다.
+
+`HwpxTable`은 `table_id`, `section_index`, `row_count`, `column_count`,
+`parent_cell_id`, `start/end`, `cells`를 담는다. table 범위는 내부의 중첩 표를 포함하며
+첫 조각 앞 구분자도 포함할 수 있다. `HwpxCell`은 `cell_id`, 0-based `row/column`,
+`row_span/column_span`, 원문 `text`, 소유한 `HwpxSpan(start, end)` tuple을 담는다.
+ID는 구역/표 등장 순서와 셀 주소로 결정한다(`s0-t0`, `s0-t0-r0-c0`). 중첩 표는
+별도 table ID와 `parent_cell_id`를 가진다. 바깥 셀 text/spans는 중첩 표의 셀 텍스트를
+중복 포함하지 않는다. 단위·기간 문구는 셀 원문에 남기며 `TableCell.unit/period`를
+추론해 채우지 않는다. 표 의미·수치 합산·수혜 대상 판정은 후속 검토다.
+
+지원 본문은 `sec` 직계 문단/표, `p/run/t`, run 안의 표·ctrl, 표의 `tr/tc`, 셀의
+유일한 `cellAddr/cellSpan/subList`와 subList 안의 문단/표다. 행의 XML 순서와 cellAddr의
+행 번호가 같고 셀 주소가 행·열 순서여야 한다. 병합 셀은 격자 안에 있어야 하며 중복·빈
+격자 위치를 거부한다. 합법적인 빈/그림 셀은 text `""`, spans `()`로 유지한다.
+레이아웃 속성(sz/pos/margin/cellzone 등)은 텍스트로 읽지 않는다. 그림·도형·수식·차트·
+비디오·각주/미주·shapeComment·머리/꼬리·secPr/colPr·페이지 번호/줄 레이아웃·
+필드/책갈피 제어 subtree는 본문으로 승격하지 않는다. 그 안의 drawText/이미지 문자는
+지원 대상이 아니다. 프리뷰·script·외부 참조를 실행하거나 가져오지 않는다.
+본문의 다른 요소·누락된 필수 구조·다른 namespace는 고정 오류로 거부한다.
+전체 KS X 6101 검증기·페이지 렌더러·OCR·HWP 바이너리 파서는 아니다.
+
+| `HwpxLimits` | 기본값 | 허용 최대 |
+| --- | --- | --- |
+| `max_raw_bytes` | 16MiB | 64MiB |
+| `max_member_bytes` | 8MiB | 16MiB |
+| `max_total_bytes` | 32MiB | 64MiB |
+| `max_members` | 512 | 2,048 |
+| `max_sections` | 64 | 256 |
+| `max_nodes` | 100,000 | 200,000 |
+| `max_depth` | 128 | 256 |
+| `max_text_characters` | 1,000,000 | 1,000,000 |
+| `max_tables` | 1,000 | 2,000 |
+| `max_cells` | 20,000 | 40,000 |
+| `max_grid_slots` | 100,000 | 200,000 |
+
+한도는 bool을 제외한 양의 exact int다. `None`은 기본 한도다. 원문 bytes를 먼저 제한하고
+ZIP central-directory의 실제 항목 수를 확인한 뒤 ZipFile을 생성한다. 모든 멤버의
+선언된 압축 해제 크기/합계와 경로·중복·암호화·압축 방식을 검사한다. CRC/stream 검사는
+본문이 아닌 멤버도 64KiB 청크로 읽어 수행하며, 본문 XML만 한도 안에서 메모리에 보관한다.
+저장/deflate만 지원하고 ZIP64·분할 ZIP·암호화 ZIP과 META-INF의 encryption-data/encrypted-key를
+거부한다. DTD·ENTITY·processing instruction·외부 XML 참조는 거부한다. XML 노드/깊이는
+트리에 추가하기 전에, 텍스트는 결합하기 전에 검사한다. 격자 한도는 모든 표의
+row_count × column_count 합계이며, 점유 좌표를 만들거나 병합 범위를 순회하기 전에 검사한다.
+미완료·부분·잘린 결과는 성공으로 반환하지 않는다. 프로세스 격리는 제공하지 않는다.
+
+추출 결과와 caller 표현을 다시 검증한다. 원문 bytes를 결과에 복제하지 않으므로 직접
+생성한 결과의 raw hash는 형식만 검증한다. 원문 hash 일치는 `extract_hwpx`에서 확인한다.
+기존 ParsedRepresentation에 pages `()`와 표/셀 ID·텍스트만 옮긴다. 실제 페이지 좌표와
+새 문서/버전 ID를 만들지 않는다. 결과의 자체 일관성 검사는 원문 진위나 라이선스 판정이 아니다.
+
+오류는 입력·경로·원문·인용·ID나 원본 예외를 포함하지 않는 고정 `AuditError`다.
+코드는 `hwpx_invalid_raw`, `invalid_expected_sha256`, `hwpx_hash_mismatch`,
+`hwpx_invalid_limits`, `hwpx_invalid_package`, `hwpx_invalid_xml`, `hwpx_invalid_structure`,
+`hwpx_encrypted`, `hwpx_empty_text`, `hwpx_invalid_result`, `hwpx_invalid_representation`,
+`hwpx_invalid_cell_selector`, `hwpx_cell_not_found`, `invalid_quote`, `invalid_quote_start`,
+`quote_not_found`, `quote_ambiguous`와 `hwpx_{raw_byte/member_byte/total_byte/member/section/node/
+ depth/text/table/cell/grid}_limit_exceeded`다. 공개 출력에는 고정 코드/집계만 사용하고
+실제 원문·개별 hash·UUID·전체 인용은 개인 저장소에만 보관한다.
+
+합성 ZIP/XML·Unicode·병합/중첩 표와 악성 입력 회귀 검증:
+
+```sh
+uv run pytest packages/ingestion/tests/test_hwpx.py
+uv run pytest packages/ingestion/tests
+uv run ruff check packages/ingestion/src packages/ingestion/tests/test_hwpx.py
+uv run ruff format --check packages/ingestion/src packages/ingestion/tests/test_hwpx.py
+uv run mypy packages/ingestion/src
+```
