@@ -21,7 +21,14 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · HWPX 본문·표·인용
+## 현재 작업 · HWPX 수집 작업·등록 계획 연결
+
+- 작업: [수집 작업 명세](../changes/hwpx-import.md), R2/R3·D011/D015. 파일 snapshot을 기존 파서/정확 인용 계약으로 준비하고 승인된 등록 계획에 추가한다.
+- 담당/브랜치: controller·implementer, `feat/hwpx-import`; HWPX 파서 PR #20 위의 격리 worktree.
+- 상태: worker 패키지의 준비 함수·명시 명령 구현 중. 실제 첨부3개/정확 인용9개를 준비해 기존 합성 자료1개/초대2개를 보존하는 계획을 만들고 전용 검증 DB의 기존 CLI 검사/등록/반복/재조회까지 확인했다. 작업 리뷰의 JSON 직렬화 전 한도1건을9511d78/7090d72에서 입력·파생 결과의 구조/바이트 예비 검사로 보완하고 재검토에서 해결·새 지적0을 확인했다. 최종 코드7090d72 전체 Python1,703+JS322=2,025개·format145/mypy63/TS/빌드/계약 통과, skip/warning0. 정상 자료의 출력 byte 동일·기존 CLI 등록/반복/재조회도 다시 확인했다. 전체 변경 리뷰·PR/Sites·인계는 대기다. 기본 실행은 비공개 artifact 준비이며 DB 적용은 기존 등록 도구의 명시 실행으로 분리한다. SDK/CLI 준비를 DBOS 런타임·주기 수집 완료로 표시하지 않는다.
+- 실제 연결: 서버 앱 접속 설정은 이번 읽기 확인에서도 부재. 동료에게 이미 전달한 설정/백업 요청은 유지하며 새 확인 질문은 하지 않는다. 공동 DB·실제 초대·Google 로그인·공개 앱은 변경 전이다.
+
+## 이전 작업 · HWPX 본문·표·인용
 
 - 작업: [HWPX 명세](../changes/hwpx-evidence.md), R2/R3. 첫 이슈의 핵심 첨부를 기존 근거 계약으로 연결한다.
 - 담당/브랜치: controller·implementer, `feat/hwpx-evidence`; 첫 자료 풀 PR #19 위의 격리 worktree. 본문 구역 순서·표/셀 주소·병합·단위 문구를 보존하며 의미를 추정하지 않는다.
