@@ -1,6 +1,6 @@
 # PostgreSQL 연결 준비
 
-2026-10-12. 엔진은 PostgreSQL + pgvector로 확정했다(D011). 저장 코드의 통합 검증 대상은 **전용 합성 DB의 PostgreSQL18.6**이다. 관리자가 별도로 제공한 전용 PostgreSQL18.6에 조회 연결·스키마 생성 권한을 확인했다. public 관계 0개, plpgsql만 설치돼 있고 vector는 설치 가능한 확장 목록에도 없다. 앱 연결·마이그레이션은 아직 적용하지 않았다. 월10만 원 상한 달성·전용 자원 배정·외부 백업은 미확인이다. [실측 기록](../docs/research/server-data-inventory.md)을 따른다.
+2026-10-12 당시 기록. 최신 실제 상태는 아래 2026-10-14 적용 결과를 따른다. 엔진은 PostgreSQL + pgvector로 확정했다(D011). 저장 코드의 통합 검증 대상은 **전용 합성 DB의 PostgreSQL18.6**이다. 관리자가 별도로 제공한 전용 PostgreSQL18.6에 조회 연결·스키마 생성 권한을 확인했다. public 관계 0개, plpgsql만 설치돼 있고 vector는 설치 가능한 확장 목록에도 없다. 앱 연결·마이그레이션은 아직 적용하지 않았다. 월10만 원 상한 달성·전용 자원 배정·외부 백업은 미확인이다. [실측 기록](../docs/research/server-data-inventory.md)을 따른다.
 
 ## 관리자에게 확인할 항목
 
@@ -18,3 +18,9 @@
 - pgvector extension·한국어 분석·임베딩 모델·인덱스는 검색 구현에서 버전/차원/품질을 검증하고 적용한다. 이번 마이그레이션에 사용하지 않는 extension을 설치하지 않는다.
 - DBOS system DB와 앱 기준 데이터의 배치·권한은 worker 연결 작업에서 정한다. 두 DB가 자동으로 같은 트랜잭션이 된다고 가정하지 않는다.
 - 합성 전용 테스트 DB의 reset/downgrade 증거를 운영 데이터 복구 검증으로 간주하지 않는다. workspace 필터를 사용자 권한 검증으로 간주하지 않는다.
+
+## 2026-10-14 · 공동 개발 DB 적용 결과
+
+기존 migrations0001~0004를 명시 적용했다. public15테이블(앱14+Alembic), head0004·vector0.8.7 유지. 개발 로그인의 기존 기본 스키마 소유 역할로 변경하고 앱 역할의 필요한 DML·DDL 부재를 확인했다. 권한/계정/비밀 설정 변경 없음. 승인 자료1건/인용3개·Google 초대1건/outbox1건, 문자 검색 투영8단위·반복 unchanged다. 실제 Google 사용자/세션/회원/로그인 flow는0이다.
+
+서버 기본 클라이언트14는 PG18을 덤프할 수 없어 개인 SSH 터널과 고정 PG18.6 클라이언트를 사용했다. 전/후 full archive와 vector extension을 제외한 앱 범위 archive를 서버 밖 개인 경로에 보관했다. 현재 앱에는 vector 타입 의존성이 없으며 별도 소유 PG18.6에 앱 범위를 복원하고 원문·인용/초대/outbox/투영을 대조했다. full archive TOC 검사는 전체 vector 바이너리·역할·서버 복원 완료가 아니다. 정기 백업·보관 정책·비용은 미확인이다. [조건·결과·경계](../docs/changes/shared-database-bootstrap.md)를 따른다.
