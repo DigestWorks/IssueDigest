@@ -6,6 +6,7 @@ from alembic import context
 from issuedigest_storage import (
     auth_schema,  # noqa: F401
     create_storage_engine,
+    search_schema,  # noqa: F401
 )
 from issuedigest_storage.schema import metadata
 

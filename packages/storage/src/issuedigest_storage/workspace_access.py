@@ -4,7 +4,15 @@ from collections.abc import Callable
 from datetime import datetime, timedelta
 from uuid import UUID
 
-from issuedigest_domain import EvidenceCatalog, EvidenceSummary, SessionInfo, WorkspaceMembership
+from issuedigest_domain import (
+    EvidenceCatalog,
+    EvidenceSearchQuery,
+    EvidenceSearchResult,
+    EvidenceSummary,
+    SessionInfo,
+    WorkspaceMembership,
+    validate_search_query,
+)
 from pydantic import ValidationError
 from sqlalchemy import Connection, Engine, func, select, update
 from sqlalchemy.exc import SQLAlchemyError
@@ -179,5 +187,39 @@ class WorkspaceAccessRepository:
             )
             self._refresh(conn, digest)
             return catalog
+
+        return self._transaction(read)
+
+    def search_evidence(
+        self, session_token: str, workspace_id: UUID, query: EvidenceSearchQuery
+    ) -> EvidenceSearchResult | None:
+        """Search exact literal units only under the current locked session authority."""
+        from .search import search_evidence
+
+        _uuid4(workspace_id)
+        validated = validate_search_query(query)
+        digest = token_digest(session_token)
+
+        def read(conn: Connection) -> EvidenceSearchResult | None:
+            user_id = self._authorize(conn, digest)
+            membership = (
+                conn.execute(
+                    select(auth_workspace_memberships)
+                    .where(
+                        auth_workspace_memberships.c.user_id == user_id,
+                        auth_workspace_memberships.c.workspace_id == workspace_id,
+                        auth_workspace_memberships.c.active.is_(True),
+                    )
+                    .with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if membership is None:
+                return None
+            WorkspaceMembership(workspace_id=membership["workspace_id"], role=membership["role"])
+            result = search_evidence(conn, workspace_id, validated)
+            self._refresh(conn, digest)
+            return result
 
         return self._transaction(read)

@@ -71,7 +71,7 @@ DB 오류는 원문·DB URL을 담지 않은 `StorageError`를 반환합니다. 
 재시도 결과 False는 동일 스냅샷이 이미 저장되어 있음을 뜻하며 추가 outbox는 만들지 않습니다.
 연결 구성·연결 확인 실패는 비밀 설정을 담지 않은 `ValueError`입니다.
 
-원문 bytes·객체 저장소·파서·검색/pgvector 인덱스·Neo4j·로그인 공급자·DBOS/PydanticAI 실행·SSE는
+원문 bytes·객체 저장소·파서·pgvector 인덱스·Neo4j·로그인 공급자·DBOS/PydanticAI 실행·SSE는
 후속입니다. 원문 객체 ID·해시는 참조이며 파일 존재나 원문 해시 대조를 보장하지 않습니다.
 공개 HTTP 저장, outbox 조회/소비·재시도·투영 API는 제공하지 않습니다. API 앱의 보호 GET은 이 패키지의 내부 접근 경계를 사용합니다.
 
@@ -301,3 +301,65 @@ UPDATE 권한이 필요해도 CLI는 기존 초대·인증 상태를 바꾸지 �
 읽기/쓰기 권한은 별도로 유지하며 CLI/runtime에 DDL 권한을 추가하지 않습니다. 등록 CLI는
 사용자·권한·세션을 만들거나 Google을 호출하지 않으며 로그인/자료 접근 준비 완료를 판단하지
 않습니다. 실제 앱 연결 설정·권한·백업/복원 조건·사용자 Google 로그인 확인은 대기 중입니다.
+
+## 명시적 문자 검색 투영·보호 SDK
+
+`0004_evidence_search`는 원 근거와 분리된 재생성 가능한 manifest·검색 단위 테이블을
+추가합니다. native `varchar(3)[]` ngram 집합의 GIN 인덱스와 `@>`로 후보를 제한하며 새
+extension·서비스·종속성은 설치하지 않습니다. migration은 위의 명시 Alembic 명령으로 실행합니다.
+import/startup/기존 `save`는 migration이나 검색 투영을 수행하지 않습니다.
+
+```python
+from datetime import UTC, datetime
+from issuedigest_domain import EvidenceSearchQuery
+from issuedigest_storage import EvidenceRepository, WorkspaceAccessRepository
+
+# engine, workspace_id, snapshot_id, session_token은 서버 내부에서 준비합니다.
+rebuilt = EvidenceRepository(engine).rebuild_projection(workspace_id, snapshot_id)
+query = EvidenceSearchQuery(
+    terms=("등록금", "ABC-123"),
+    limit=10,
+    collected_from=datetime(2026, 10, 1, tzinfo=UTC),
+    collected_to=datetime(2026, 11, 1, tzinfo=UTC),
+)
+result = WorkspaceAccessRepository(engine).search_evidence(session_token, workspace_id, query)
+if result is not None:
+    hits = result.hits
+    coverage = result.coverage  # total/indexed/missing_snapshots, skipped_empty/large_cells
+    incomplete = result.truncated or coverage.missing_snapshots > 0
+```
+
+`rebuild_projection`는 canonical `EvidenceRepository._load`를 재사용하고 하나의 READ COMMITTED
+트랜잭션에서 manifest·단위를 교체합니다. 없는/다른 공간의 snapshot은 None, 동일 투영은
+`RebuildProjectionResult.status="unchanged"`, 신규·달라진 투영은 `"rebuilt"`입니다. snapshot UUID의
+결정적인 64-bit digest를 transaction advisory lock 키로 사용해 같은 snapshot 병렬 재생성을
+직렬화합니다. 해시 충돌은 별개 snapshot을 직렬화할 뿐 내용이나 공간을 합치지 않습니다.
+불변 원문 행에는 UPDATE 잠금을 요구하지 않습니다. 실패 시 이전 투영·근거·인용·outbox가
+보존되며, 손상된 검색 단위는 명시 rebuild로 복구할 수 있습니다.
+
+재생성 역할에는 기존 canonical 테이블 SELECT, 두 검색 테이블 SELECT/INSERT/DELETE 및
+`pg_advisory_xact_lock` 실행 권한이 필요합니다. 보호 검색 역할은 기존 auth 세션·사용자·현재
+membership의 SELECT/잠금 UPDATE 권한과 session 활동 UPDATE, canonical·검색 테이블 SELECT를
+사용합니다. SDK가 DDL이나 권한 부여를 실행하지 않습니다. migration/재생성은 내부 관리 경계이며
+공개 HTTP 쓰기·검색 경로는 추가하지 않습니다.
+
+검색은 기존 REPEATABLE READ `_transaction`·`_authorize`·membership 잠금·`_refresh`와 40001
+최대2회 재시도 경계를 사용합니다. 만료/idle/폐기/disabled는 `AuthenticationDenied`, 비회원·다른
+공간은 None입니다. 허용된 빈 검색도 활동을 갱신하고 거부·오류는 갱신하지 않습니다.
+workspace 필터를 SQL 후보·coverage·canonical reload에 모두 적용합니다. provider/source ID/kind와
+수집 시각 필터는 원 문서/버전에서 얻습니다. 각 조사 후보는 canonical bundle, profile,
+manifest checksum, unit text/checksum/ngrams, 원문 selector와 대조하며 훼손은 고정
+`StorageCorruption`으로 전체 실패합니다. SQL 순서에서 같은 snapshot의 후보는 연속하므로
+현재 snapshot의 canonical bundle·projection만 보존하고 다음 snapshot 전에 이전 전체 객체를
+해제합니다. 이미 반환할 hit의 정확한 selector는 보존합니다. 반환 provider/source_id는 canonical
+SourceDocument 문자열 전체를 보존하고 query 필터 한도(1,024자)로 자르거나 거부하지 않습니다. DB 오류는 설정·원문을 담지 않는 `StorageError`입니다.
+
+수집 시각 desc·snapshot ID·unit ordinal 순으로 최대200개 후보(+1로 잘림 확인)를 조사하고,
+실제 문자열 AND로 순서·반복 ngram 오탐을 제거합니다. 최대20개 hit를 반환하고 결과 한도나
+후보 한도로 더 조사할 자료가 있으면 `truncated=True`입니다. `scanned_candidates`는 실제 검사한
+후보 수(최대200)입니다. 저장 PostgreSQL text에는 NUL이 들어갈 수 없으므로 NUL term은
+coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분석·정규화·관련성 점수는 제공하지
+않으며 미투영/제외 셀/잘림이 있는 빈 결과를 모든 자료에 답이 없다는 근거로 쓰면 안 됩니다.
+
+이 단계는 typed SDK와 합성 QA 검증이며 HTTP/UI·자동 outbox 소비·pgvector·AI 답변·전체 검색
+평가20문항은 후속입니다. 실제 공동 DB 적용·설정·백업 확인과 사용자 운영 연결은 별도로 준비합니다.

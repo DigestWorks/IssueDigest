@@ -13,6 +13,7 @@
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
+| [저장 근거 문자 검색](changes/evidence-search.md) | PostgreSQL 색인/재생성·현재 권한·정확 위치와 의미 검색의 경계 |
 | [첫 자료 풀](research/first-issue-corpus.md) | 공식 후보·원문·이용·연구 추출·앱 파서와 재게시 가족 상태 |
 | [평가 질문20개](../tests/evaluation/first-issue.md) | 질문별 필수 근거·보류·수치/시점·생성 화면의 판정 기준 |
 | [첫 검증 이슈](research/first-issue.md) | 최근 시사 선정·대표 질문·출처와 자료/평가 경계 |

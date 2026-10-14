@@ -24,6 +24,7 @@ from .citations import (
     TableCellSelector,
     TextQuoteSelector,
     validate_citation,
+    validate_selector,
 )
 from .contract_values import MoneyMicrowon
 from .evidence import EvidenceBundle
@@ -69,6 +70,19 @@ from .observations import (
 )
 from .relations import Relation
 from .research import ResearchBundle
+from .search import (
+    EvidenceSearchHit,
+    EvidenceSearchQuery,
+    EvidenceSearchResult,
+    SearchCoverage,
+    SearchProjection,
+    SearchUnit,
+    ascii_fold,
+    build_search_projection,
+    literal_matches,
+    literal_ngrams,
+    validate_search_query,
+)
 from .sources import (
     DocumentVersion,
     PageSpan,
@@ -89,6 +103,18 @@ from .usage import (
 )
 
 __all__ = [
+    "EvidenceSearchQuery",
+    "EvidenceSearchHit",
+    "EvidenceSearchResult",
+    "SearchCoverage",
+    "SearchProjection",
+    "SearchUnit",
+    "ascii_fold",
+    "literal_ngrams",
+    "literal_matches",
+    "validate_search_query",
+    "build_search_projection",
+    "validate_selector",
     "EvidenceCatalog",
     "EvidenceSummary",
     "SessionInfo",
