@@ -28,9 +28,9 @@
 
 ### Task 2: 검색 화면·원문 위치 연결
 
-- [ ] TDD 후 현재 home의 로그인/공간 선택 흐름에 분리된 검색 component와 간결한 스타일을 추가한다. 검색 상태·재시도·권한/네트워크 오류·coverage/한도·stale 결과와 취소를 수용 조건대로 구현한다. 설명은 검색 방식과 결과 해석에 필요한 짧은 문구만 둔다.
-- [ ] evidence route/reader와 검색 선택 helper를 연결한다. router state를 신뢰하지 말고 canonical bundle과 ID·정확 selector/page/cell/quote/prefix/suffix를 대조한다. 검증된 검색 위치만 강조·포커스하고 기존 저장 인용 선택/페이지 전환/직접 링크를 보존한다. 일치하지 않는 state는 원문 읽기를 막지 않고 안내한다. 검색 위치를 저장된 인용으로 부르지 않는다.
-- [ ] 합성 UI 테스트로 제출 전 무결과·loading/중복/empty/실패/재시도·공간변경/로그아웃/늦은응답·text/PDF/셀·emoji/결합문자·변조/오래된state·기존인용 선택을 검증한다. 관련 README 갱신, targeted JS/TS/lint·self-review 후 commit하고 report에 RED/GREEN 근거를 기록한다.
+- [x] TDD 후 현재 home의 로그인/공간 선택 흐름에 분리된 검색 component와 간결한 스타일을 추가한다. 검색 상태·재시도·권한/네트워크 오류·coverage/한도·stale 결과와 취소를 수용 조건대로 구현한다. 설명은 검색 방식과 결과 해석에 필요한 짧은 문구만 둔다.
+- [x] evidence route/reader와 검색 선택 helper를 연결한다. router state를 신뢰하지 말고 canonical bundle과 ID·정확 selector/page/cell/quote/prefix/suffix를 대조한다. 검증된 검색 위치만 강조·포커스하고 기존 저장 인용 선택/페이지 전환/직접 링크를 보존한다. 일치하지 않는 state는 원문 읽기를 막지 않고 안내한다. 검색 위치를 저장된 인용으로 부르지 않는다.
+- [x] 합성 UI 테스트로 제출 전 무결과·loading/중복/empty/실패/재시도·공간변경/로그아웃/늦은응답·text/PDF/셀·emoji/결합문자·변조/오래된state·기존인용 선택을 검증한다. 관련 README 갱신, targeted JS/TS/lint·self-review 후 commit하고 report에 RED/GREEN 근거를 기록한다.
 
 ## Controller 검증·인계
 
