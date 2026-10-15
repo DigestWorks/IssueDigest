@@ -5,7 +5,7 @@ import './search.css';
 
 type SearchState = { kind: 'idle' } | { kind: 'loading' } | { kind: 'success'; data: EvidenceSearchResult } | { kind: 'failure'; error: SearchError };
 const errors: Record<SearchFailure, string> = {
-  'invalid-query': '검색어를 확인해 주세요. 공백으로 구분한 1~8개 단어를 입력할 수 있습니다.',
+  'invalid-query': '검색어를 확인해 주세요. 공백으로 구분해 중복 없이 1~8개 단어를 입력해 주세요. 단어당 최대 64자입니다.',
   forbidden: '검색 요청을 확인할 수 없습니다. 화면을 새로고침해 주세요.',
   unauthorized: '로그인이 필요합니다.',
   'not-found': '작업 공간이 없거나 접근 권한이 없습니다.',
