@@ -157,11 +157,14 @@ def build_canvas(
     }
     if not selected or any(bundle.document.workspace_id != workspace_id for bundle in selected):
         raise ValueError("Invalid selected sources")
+    canonical_message = output.message
     if output.outcome != "answer":
         if output.modules or not output.message or not output.message.strip():
             raise ValueError("Insufficient response needs a message")
-    elif not output.modules or output.message is not None:
-        raise ValueError("Answer needs modules")
+    else:
+        if not output.modules or (output.message is not None and output.message.strip()):
+            raise ValueError("Answer needs modules")
+        canonical_message = None
     claims = []
     modules = []
     cited: set[UUID] = set()
@@ -255,7 +258,7 @@ def build_canvas(
                 "draft_id": uuid4(),
                 "outcome": output.outcome,
                 "modules": tuple(modules),
-                "message": output.message,
+                "message": canonical_message,
             },
             "validated_at": datetime.now(UTC),
         },

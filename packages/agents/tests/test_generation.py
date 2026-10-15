@@ -49,6 +49,51 @@ def test_canvas_rejects_unknown_citation_and_accepts_exact_one():
         build_canvas(uuid4(), selected[1].document.workspace_id, (selected,), wrong)
 
 
+@pytest.mark.parametrize("message", ["", " \t "])
+def test_answer_normalizes_only_blank_message_to_canonical_none(message):
+    selected = source()
+    claim = AIClaim(text="합성 근거의 해석", citation_ids=(selected[1].citations[0].citation_id,))
+    module = AIModule(kind="summary", title="요약", claims=(claim,))
+    output = AIOutput(outcome="answer", message=message, modules=(module,))
+    canvas = build_canvas(uuid4(), selected[1].document.workspace_id, (selected,), output)
+    assert canvas.revision.draft.outcome == "answer"
+    assert canvas.revision.draft.message is None
+
+    with pytest.raises(ValueError, match="Answer needs modules"):
+        build_canvas(
+            uuid4(),
+            selected[1].document.workspace_id,
+            (selected,),
+            output.model_copy(update={"message": "내용이 있는 메시지"}),
+        )
+    with pytest.raises(ValueError, match="Answer needs modules"):
+        build_canvas(
+            uuid4(),
+            selected[1].document.workspace_id,
+            (selected,),
+            output.model_copy(update={"modules": ()}),
+        )
+
+
+def test_insufficient_evidence_still_requires_a_nonblank_message():
+    selected = source()
+    for message in (None, "", "  "):
+        with pytest.raises(ValueError, match="Insufficient response needs a message"):
+            build_canvas(
+                uuid4(),
+                selected[1].document.workspace_id,
+                (selected,),
+                AIOutput(outcome="insufficient_evidence", message=message, modules=()),
+            )
+    canvas = build_canvas(
+        uuid4(),
+        selected[1].document.workspace_id,
+        (selected,),
+        AIOutput(outcome="insufficient_evidence", message="인용할 자료가 부족합니다.", modules=()),
+    )
+    assert canvas.revision.draft.message == "인용할 자료가 부족합니다."
+
+
 def test_agent_usage_is_recorded_without_provider_call():
     from issuedigest_agents.research import create_agent, run_agent
     from pydantic_ai.models.test import TestModel
