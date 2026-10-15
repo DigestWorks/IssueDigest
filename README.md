@@ -75,7 +75,7 @@ npm run check
 
 재사용 생성 화면 렌더러 `@issuedigest/ui`의 사용법과 표시 검증 경계는
 [UI 패키지 안내](packages/ui/README.md)에 있다. 이 패키지는 서버 검증 자료를
-받아 여섯 모듈을 렌더링하며 개발 앱의 빈 자료 화면에는 연결하지 않는다.
+받아 여섯 모듈을 렌더링하며 현재 작업 공간 화면에는 아직 연결하지 않는다.
 
 이 명령은 Python lint·format·타입·테스트, TypeScript lint·타입·테스트, SPA 생산 빌드, 계약 변경 검사를 순서대로 실행합니다. 각 단계도 루트에서 `npm run lint:python`, `npm run typecheck:python`, `npm run test:python`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run contract:check`로 실행할 수 있습니다. Python 도구 직접 실행은 `uv run ruff check .`, `uv run mypy`, `uv run pytest`입니다.
 
@@ -97,7 +97,7 @@ React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, P
 
 `npm run build`의 정적 산출물은 `apps/web/build/client`입니다. 운영에서는 웹 정적 파일을 제공하고 `/api/*`와 `/health/*`를 FastAPI로 전달하는 같은 출처의 리버스 프록시가 필요합니다. 앱 경로는 `index.html`로 연결하되 API·헬스 요청을 HTML로 바꾸면 안 됩니다. Vite 프록시는 개발 서버 설정입니다. 개발 서버나 `vite preview`를 운영 서버로 사용하지 않습니다. 개발 서버의 사용자 전용 환경·웹/API·SSH 터널은 검증했습니다. [서버 안내](infra/development-server.md)에 실행·재접속 방법을 기록하며 운영 배포는 아직 수행하지 않았습니다.
 
-웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 워커·Neo4j·자료 수집·검색 인덱스·AI 실행·실제 계정/공동 DB·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
+웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 공동 개발 DB·승인 자료와 Google 로그인·보호 문자 검색을 연결했습니다. 워커·Neo4j·정기 수집·의미 검색·AI 실행·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
 
 
 ## 개발 앱·근거 검색

@@ -35,13 +35,13 @@
 ## Controller 검증·인계
 
 - [x] 각 Task 독립 리뷰와 전체 변경 백지 리뷰, 전체 Python/JS·lint/format/type·SPA·OpenAPI 검증. 합성 브라우저 여정으로 검색→정확 원문 위치·모바일/오류 확인.
-- [ ] DNS/HTTPS 완료(2026-10-15)와 실제 Google 계정 로그인 미확인 상태를 구분해 문서를 갱신한다. Draft PR/앱 첨부·Sites 요약을 갱신하며 기존 탭을 열지 않는다. 개인 개발 앱에 검증 코드 갱신 후 HTTPS/미인증 보호 응답을 확인한다.
+- [x] DNS/HTTPS 완료(2026-10-15)·실제 로그인 저장 상태와 사용자 자료 열람 미확인을 구분해 문서를 갱신했다. Draft PR/앱 첨부·Sites v47 게시, 기존 탭을 열지 않았다. 개인 개발 앱 갱신 후 실제 HTTPS/미인증 보호 응답을 확인했다.
 
 ## 구현·검증 기록
 
 Task1 6308392와 보완9f1ba08에서 API/클라이언트를 구현했다. JSON 날짜 모드·마이크로초·canonical 출력 길이·async DB 호출을 assertion RED 후 보완하고 독립 재검토를 통과했다. Task2 a90b3fc/663d512에서 검색 UI와 canonical 원문 선택을 연결하고 별도 리뷰·새로고침 문서/coverage 정리를 수행했다. 새로고침은 history state를 보존할 수 있으며 새 보호 GET과 원문 대조를 다시 수행한다. state 없는 직접 URL은 일반 reader다.
 
-Controller 전체 Python1,808+JS363=2,171개·format159/mypy68/TS/SPA/OpenAPI 통과, skip/warning0. 소유 합성 PostgreSQL과 실제 HTTP API의 브라우저에서 본문 Unicode/새로고침·PDF page·전체 셀·저장 인용·pending·503/재시도/빈 결과·390px·로그아웃401을 확인했다. 페이지 예외0, 의도적503 네트워크 오류1개를 별도 구분했다. 마지막 표시 정리 후 관련64개/검색9개·lint/type/build 통과. 전체 변경 최종 리뷰와 개발 앱·PR/Sites 인계는 아직 진행 중이다. 실제 공동 DB 세션/자료를 합성 생성하거나 schema/권한을 변경하지 않았다.
+Controller 전체 Python1,808+JS363=2,171개·format159/mypy68/TS/SPA/OpenAPI 통과, skip/warning0. 소유 합성 PostgreSQL과 실제 HTTP API의 브라우저에서 본문 Unicode/새로고침·PDF page·전체 셀·저장 인용·pending·503/재시도/빈 결과·390px·로그아웃401을 확인했다. 페이지 예외0, 의도적503 네트워크 오류1개를 별도 구분했다. 마지막 표시 정리 후 관련64개/검색9개·lint/type/build 통과. 전체 변경 최종 리뷰·개발 앱/PR/Sites 인계까지 완료했다. 실제 사용자 검색 품질·의미 검색·AI·운영 배포는 후속이다. 실제 공동 DB 세션/자료를 합성 생성하거나 schema/권한을 변경하지 않았다.
 
 전체 변경96c1362 독립 리뷰에서 Critical/Important0·Minor1(중복/64자 오류 안내)을 확인했다. 단일 안내 문구fd26683에서 기존 안내와 함께 제한을 설명하도록 보완했고 검색9개·SPA 재빌드/독립 수정 검토를 통과했다. Draft PR #27 게시·앱 첨부, main/운영 유예는 유지한다.
 
