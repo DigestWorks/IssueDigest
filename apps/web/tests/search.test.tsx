@@ -45,7 +45,8 @@ it('starts with no results and shows pending, coverage, exact location and limit
   expect(screen.getByRole('status', { name: '검색 상태' })).toHaveTextContent('검색 중');
   await act(async () => complete(response(result())));
   expect(await screen.findByRole('link', { name: '원문 위치 열기' })).toHaveAttribute('href', searchPath);
-  expect(screen.getByText('본문 문자 0–38')).toBeInTheDocument();
+  expect(screen.getByText('본문')).toBeInTheDocument();
+  expect(screen.getByText('문자 0–38').closest('details')).not.toHaveAttribute('open');
   expect(screen.getByText(/색인 2\/3개/)).toBeInTheDocument();
   expect(screen.getByText(/미색인 1개/)).toBeInTheDocument();
   expect(screen.getByText(/빈 셀 제외 1개.*큰 셀 제외 2개/)).toBeInTheDocument();
@@ -75,8 +76,10 @@ it('shows actual PDF page, full table cell and a candidate or result limit warni
   setup(async () => response({ ...result([pdf, cell]), coverage: { total_snapshots: 2, indexed_snapshots: 2, missing_snapshots: 0, skipped_empty_cells: 0, skipped_large_cells: 0 }, truncated: true, scanned_candidates: 200 }));
   const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', { name: '원문 검색' }), '합성');
   await user.click(screen.getByRole('button', { name: '검색' }));
-  expect(await screen.findByText('PDF 1쪽 · 문자 0–38')).toBeInTheDocument();
-  expect(screen.getByText('표 synthetic-table · 셀 synthetic-cell')).toBeInTheDocument();
+  expect(await screen.findByText('PDF 1쪽')).toBeInTheDocument();
+  expect(screen.getByText('문자 0–38').closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByText('표 셀')).toBeInTheDocument();
+  expect(screen.getByText('표 synthetic-table · 셀 synthetic-cell').closest('details')).not.toHaveAttribute('open');
   expect(screen.getByText(/후보 또는 결과 한도/)).toBeInTheDocument();
   expect(screen.getByText('자료 색인 2/2개')).toBeInTheDocument();
   expect(screen.queryByText(/미색인|제외/)).not.toBeInTheDocument();
