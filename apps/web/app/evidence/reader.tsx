@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
-import { EvidenceError, getCitationUtf16Range, getEvidence, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
+import { EvidenceError, getCitationUtf16Range, getEvidence, getResearchSources, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
 import './reader.css';
 import { CollectedDate, sourceKind, TechnicalDetails } from './presentation';
 
@@ -20,21 +20,32 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
   const location = useLocation();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
+  const [sourceTitle, setSourceTitle] = useState<string | null>(null);
   useEffect(() => {
     const controller = new AbortController();
     let current = true;
     void getEvidence(workspaceId, snapshotId, { signal: controller.signal }).then(
-      result => { if (current) setState({ kind: 'ready', data: result.data }); },
+      result => {
+        if (!current) return;
+        setState({ kind: 'ready', data: result.data });
+        void getResearchSources(workspaceId, {signal: controller.signal}).then(({data}) => {
+          const item = data.items.find(item => item.snapshot_id === snapshotId && item.document_id === result.data.document.document_id);
+          if (current && item) setSourceTitle(item.title);
+        }, () => {});
+      },
       error => { if (current) setState({ kind: 'failure', error: error instanceof EvidenceError ? error : new EvidenceError('network') }); },
     );
     return () => { current = false; controller.abort(); };
   }, [workspaceId, snapshotId, attempt]);
-  function retry() { setState({ kind: 'loading' }); setAttempt(value => value + 1); }
+  function retry() { setState({ kind: 'loading' }); setSourceTitle(null); setAttempt(value => value + 1); }
+  const navigation = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : null;
+  const researchOrigin = navigation?.kind === 'research-citation' || navigation?.kind === 'research-source';
+  const returnTo = researchOrigin ? typeof navigation?.runId === 'string' && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i.test(navigation.runId) ? `/?view=research&run=${navigation.runId}` : '/?view=research' : navigation?.kind === 'catalog-source' || navigation?.kind === 'search-hit' ? '/?view=sources' : '/';
   return (
     <div className="workspace evidence-workspace">
       <header className="brand"><Link to="/" className="reader-brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest</Link><span className="brand-caption">저장된 근거 읽기</span></header>
       <main className="reader-main">
-        <Link to="/" className="action-link">작업 공간으로</Link>
+        <Link to={returnTo} className="action-link">{researchOrigin ? '이슈 조사로' : '작업 공간으로'}</Link>
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}
         {state.kind === 'failure' && <>
           <h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">{messages[state.error.kind]}</p>
@@ -42,7 +53,7 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
           {state.error.kind !== 'invalid-link' && <button type="button" onClick={retry}>다시 읽기</button>}
           {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
         </>}
-        {state.kind === 'ready' && <SavedEvidence data={state.data} workspaceId={workspaceId} snapshotId={snapshotId} searchState={location.state} />}
+        {state.kind === 'ready' && <SavedEvidence data={state.data} workspaceId={workspaceId} snapshotId={snapshotId} searchState={location.state} title={sourceTitle} />}
       </main>
       <footer>DigestWorks <span>자료와 근거를 차분히 살펴보는 곳</span></footer>
     </div>
@@ -57,7 +68,7 @@ function citationPosition(citation: Citation) {
   const selector = citation.selector;
   return selector.kind === 'table_cell' ? `표 ${selector.table_id} · 셀 ${selector.cell_id}` : `문자 ${selector.start}–${selector.end}`;
 }
-function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown }) {
+function SavedEvidence({ data, workspaceId, snapshotId, searchState, title }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown; title: string | null }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState<number | null>(null);
   const [searchSelection, setSearchSelection] = useState<SearchSelection | null>(null);
@@ -106,6 +117,14 @@ function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: E
     } else { setSelectedId(null); setPageNumber(number); focusOriginal.current = true; }
   }
   useEffect(() => {
+    if (searchState && typeof searchState === 'object' && 'kind' in searchState && searchState.kind === 'research-citation') {
+      const id = 'citationId' in searchState ? searchState.citationId : null;
+      const citation = typeof id === 'string' ? citations.find(item => item.citation_id === id) : undefined;
+      setSearchSelection(null); setSearchNotice(!citation); setSelectedId(citation?.citation_id ?? null);
+      setPageNumber(citation?.selector.kind === 'pdf' ? citation.selector.page_number : null);
+      if (citation) focusOriginal.current = true;
+      return;
+    }
     const resolved = resolveSearchSelection(searchState, data, workspaceId, snapshotId);
     setSearchSelection(resolved);
     setSearchNotice(searchState !== null && searchState !== undefined && !resolved);
@@ -114,7 +133,7 @@ function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: E
     if (resolved) {
       focusOriginal.current = true;
     }
-  }, [searchState, data, workspaceId, snapshotId]);
+  }, [searchState, data, workspaceId, snapshotId, citations]);
   useEffect(() => {
     if (searchSelection && focusOriginal.current) {
       original.current?.focus({ preventScroll: true });
@@ -124,7 +143,8 @@ function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: E
   }, [searchSelection]);
   return <>
     <p className="eyebrow">자료 읽기</p>
-    <h1>원문과 인용</h1>
+    <h1>{title ?? `${sourceKind(document.source_kind)} 원문`}</h1>
+    <h2>원문과 인용</h2>
     <dl className="source-meta">
       <div><dt>자료 유형</dt><dd>{sourceKind(document.source_kind)}</dd></div>
       <div><dt>공급처</dt><dd>{document.provider}</dd></div>
@@ -133,7 +153,7 @@ function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: E
     <TechnicalDetails><p>출처 ID <code>{document.source_id}</code></p><p>수집 시각 <code>{version.collected_at}</code></p></TechnicalDetails>
     <p className="source-link">{document.canonical_url ? <a href={document.canonical_url} target="_blank" rel="noopener noreferrer">원문 출처 열기 <span aria-hidden="true">↗</span></a> : '원문 출처 미등록'}</p>
     <p className="reader-note">인용 위치가 일치해도 해당 자료가 주장을 지지하는지는 별도 검토가 필요합니다.</p>
-    {searchNotice && <p className="reader-note" role="status">검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.</p>}
+    {searchNotice && <p className="reader-note" role="status">{searchState && typeof searchState === 'object' && 'kind' in searchState && searchState.kind === 'research-citation' ? '인용 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.' : '검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.'}</p>}
     {searchSelection && <p className="reader-note search-selection-note" role="status">검색된 원문 위치 선택됨</p>}
     <div className="reading-layout">
       <section className="original-pane" aria-labelledby="original-title">

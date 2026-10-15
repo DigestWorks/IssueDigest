@@ -73,3 +73,9 @@ npm run contract:check
 FastAPI·실제 소유 loopback PostgreSQL 테스트 DB·합성 RSA 서명·MockTransport로 start→callback→session→catalog→근거→logout을 확인합니다. 실제 외부 Google 로그인이나 사용자 계정의 준비 완료를 뜻하지 않습니다. 테스트 DB 연결과 보호 장치는 storage README를 따릅니다. OpenAPI/TS는 실제 domain 모델로 생성하며 기존 Evidence/Canvas/Research/Execution 계약과 인용 의미를 유지합니다. `/docs`와 `/openapi.json`의 운영 공개 정책은 별도 배포 단계에서 정합니다.
 
 서버 코드의 `create_app(access_repository=None, *, auth_service=None, workspace_repository=None)`은 내부 DI만 받습니다. AuthService가 검증된 identity를 초대 저장소에 전달하고 승인된 세션을 발급합니다. default import/startup에는 외부 접속이 없습니다.
+
+## 첫 실제 조사 API
+
+명시적 `create_configured_app()`만 PostgreSQL 연구 저장소를 연결합니다. `ISSUEDIGEST_RESEARCH_ENABLED=1`을 설정해야 새 질문 POST가 예약되며, 기본값은 비활성입니다. 이 값은 모델 키·작업자가 준비된 뒤에만 켭니다. 비활성일 때 자료 목록과 저장된 조사 GET은 열리고 새 질문은 고정된 `503 Research model unavailable`을 반환합니다. API 프로세스는 모델을 호출하거나 마이그레이션하지 않습니다.
+
+보호 경로는 `/api/v1/workspaces/{workspace_id}/research/sources`, `/research` GET·POST, `/research/{run_id}` GET, `/research/{run_id}/cancel` POST입니다. 세션 쿠키와 현재 membership을 다시 확인합니다. owner/editor만 생성·취소할 수 있습니다. POST는 same-origin, `application/json`, 최대 16 KiB, 중복 키 금지를 적용합니다. 취소 본문은 `{}`입니다. 모델 입력·결과는 URL/로그에 남기지 않으며 모든 조사 응답은 `no-store`입니다. 현재 API의 고정 오류는 401 인증, 403 출처·역할, 404 비회원·다른 공간, 409 멱등성·동시 실행, 422 입력, 429 월 예산, 503 저장소·모델 준비를 구분합니다.

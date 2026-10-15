@@ -2197,6 +2197,19 @@
         "title": "GraphModule",
         "type": "object"
       },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
       "IdentityReview": {
         "additionalProperties": false,
         "properties": {
@@ -3061,6 +3074,391 @@
           "support_reviews"
         ],
         "title": "ResearchBundle",
+        "type": "object"
+      },
+      "ResearchRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "parent_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Parent Run Id"
+          },
+          "question": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "snapshot_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Snapshot Ids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "request_id",
+          "question",
+          "snapshot_ids"
+        ],
+        "title": "ResearchRequest",
+        "type": "object"
+      },
+      "ResearchResult": {
+        "additionalProperties": false,
+        "properties": {
+          "canvas": {
+            "$ref": "#/components/schemas/CanvasBundle"
+          },
+          "source_titles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "format": "uuid"
+            },
+            "title": "Source Titles",
+            "type": "object"
+          }
+        },
+        "required": [
+          "canvas",
+          "source_titles"
+        ],
+        "title": "ResearchResult",
+        "type": "object"
+      },
+      "ResearchRun": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "error_code": {
+            "anyOf": [
+              {
+                "enum": [
+                  "insufficient_evidence",
+                  "model_unavailable",
+                  "generation_failed",
+                  "authority_changed",
+                  "cancelled"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Error Code"
+          },
+          "events": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchRunEvent"
+            },
+            "title": "Events",
+            "type": "array"
+          },
+          "input_tokens": {
+            "minimum": 0.0,
+            "title": "Input Tokens",
+            "type": "integer"
+          },
+          "model": {
+            "const": "gpt-5.4-mini",
+            "title": "Model",
+            "type": "string"
+          },
+          "output_tokens": {
+            "minimum": 0.0,
+            "title": "Output Tokens",
+            "type": "integer"
+          },
+          "parent_run_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parent Run Id"
+          },
+          "question": {
+            "title": "Question",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ResearchResult"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "run_id": {
+            "format": "uuid4",
+            "title": "Run Id",
+            "type": "string"
+          },
+          "snapshot_ids": {
+            "items": {
+              "format": "uuid4",
+              "type": "string"
+            },
+            "title": "Snapshot Ids",
+            "type": "array"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "retrieving",
+              "generating",
+              "validating",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "title": "Updated At",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "workspace_id",
+          "request_id",
+          "question",
+          "snapshot_ids",
+          "parent_run_id",
+          "status",
+          "error_code",
+          "created_at",
+          "updated_at",
+          "events",
+          "result",
+          "model",
+          "input_tokens",
+          "output_tokens"
+        ],
+        "title": "ResearchRun",
+        "type": "object"
+      },
+      "ResearchRunEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "created_at": {
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "sequence": {
+            "minimum": 1.0,
+            "title": "Sequence",
+            "type": "integer"
+          },
+          "status": {
+            "enum": [
+              "queued",
+              "retrieving",
+              "generating",
+              "validating",
+              "completed",
+              "failed",
+              "cancelled"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "sequence",
+          "status",
+          "created_at"
+        ],
+        "title": "ResearchRunEvent",
+        "type": "object"
+      },
+      "ResearchRunList": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchRun"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "items"
+        ],
+        "title": "ResearchRunList",
+        "type": "object"
+      },
+      "ResearchSource": {
+        "additionalProperties": false,
+        "properties": {
+          "bill_number": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Bill Number"
+          },
+          "canonical_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Canonical Url"
+          },
+          "citation_count": {
+            "minimum": 0.0,
+            "title": "Citation Count",
+            "type": "integer"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "excerpt": {
+            "maxLength": 160,
+            "title": "Excerpt",
+            "type": "string"
+          },
+          "proposed_on": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Proposed On"
+          },
+          "snapshot_id": {
+            "format": "uuid4",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "bill",
+              "legal_text",
+              "government_document",
+              "news",
+              "poll",
+              "statistics",
+              "petition",
+              "other"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "document_id",
+          "title",
+          "source_kind",
+          "bill_number",
+          "proposed_on",
+          "collected_at",
+          "canonical_url",
+          "citation_count",
+          "excerpt"
+        ],
+        "title": "ResearchSource",
+        "type": "object"
+      },
+      "ResearchSourceCatalog": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/ResearchSource"
+            },
+            "title": "Items",
+            "type": "array"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "items"
+        ],
+        "title": "ResearchSourceCatalog",
         "type": "object"
       },
       "Run": {
@@ -4503,6 +4901,46 @@
         "title": "UsageReservation",
         "type": "object"
       },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      },
       "WorkspaceMembership": {
         "additionalProperties": false,
         "properties": {
@@ -5441,6 +5879,259 @@
           }
         ],
         "summary": "Load Evidence"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/research": {
+      "get": {
+        "operationId": "runs_api_v1_workspaces__workspace_id__research_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchRunList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Runs"
+      },
+      "post": {
+        "operationId": "submit_api_v1_workspaces__workspace_id__research_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResearchRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Submit"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/research/sources": {
+      "get": {
+        "operationId": "sources_api_v1_workspaces__workspace_id__research_sources_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchSourceCatalog"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Sources"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/research/{run_id}": {
+      "get": {
+        "operationId": "run_api_v1_workspaces__workspace_id__research__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Run"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/research/{run_id}/cancel": {
+      "post": {
+        "operationId": "cancel_api_v1_workspaces__workspace_id__research__run_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResearchRun"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Cancel"
       }
     },
     "/health/live": {

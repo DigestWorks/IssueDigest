@@ -8,7 +8,7 @@
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 공동 DB 초기 적용 완료. 실제 로그인·나머지 API·이벤트·워커·검색은 미완료 |
 | P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 승인1건 적용 완료, 나머지 자료 이관은 후속 |
 | P3 검색·관계 | 문자 검색 SDK 구현·검증 · 전체 미완료 | 불변 근거의 본문/페이지/셀 검색·현재 권한·명시 색인 재생성 검증. 보호 API/화면은 아래 작업에서 연결. pgvector·재순위화·실제 질문 평가/Neo4j는 후속 |
-| P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
+| P4 에이전트·UI | 수동 조사·실제 모델 연결 · 품질 평가 후속 | 자료 선택·PydanticAI/DBOS·생성 모듈·정확 인용·후속 질문·저장/취소 구현. 합성 결합·실제 모델3건·개발 HTTPS 반영 확인. 전체 질문 품질·모듈 스트리밍·관계도/이미지·전체 제품은 후속 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
 | P6 운영 검증 | DNS·HTTPS·자동 배포 준비 · 앱 공개 유예 | 서버·전용 DB/pgvector·자료 접근 확인. 최소 제품·비용·권한·운영 연결·별도 복원 검증 후 첫 게시 판단 |
 | 이전 와이어프레임 | 코드 보존 · 배포 종료 | Vercel 배포 14개 삭제, Git 자동 배포 연결 해제 |
@@ -21,7 +21,22 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 자료 중심 UI·기존 법안 연결 · 2026-10-15
+## 현재 작업 · 첫 조사 흐름 · 2026-10-15
+
+- 범위: [명세](../changes/research-journey.md), [실행·비용·검증 경계](../../infra/research-development.md), feat/research-journey, base feat/workspace-clarity-legacy/5fd3824. 사용자 승인 범위는 자료 선택→질문→생성 결과→정확 원문→자동 저장·재열람이다. main/운영 게시 유예(D013)를 유지한다.
+- 화면: **이슈 조사 / 자료 / 저장한 조사**. 실제 자료 제목·의안번호·제안일로 고르고 법안 핵심 정리·질문을 시작한다. 접수/검색/분석/인용 연결 확인과 취소·실패·연결 대기·한도를 구분한다. 질문 전에는 AI 결과를 표시하지 않는다. 생성된 해석·검증된 인용 위치·원문을 구분하고 후속 질문·같은 결과 재열람을 연결했다.
+- 실행: PydanticAI2.56.0/DBOS3.2.0, gpt-5.4-mini Responses/store=False, PG migration0005. 명시 DBOS 초기화·앱 DDL 제한·내구 checkpoint·현재 권한·idempotency·월 글로벌 USD10/최대40건 보수적 예약. 새로고침/완료 GET은 모델 호출0, 응답 유실 구간의 정확히 한 번 과금은 보장하지 않는다.
+- 자료 연결: [기존 법안 내용·이력 대조](../research/bill-history-reuse.md). 최근 기본 정보8건의 수집 이력0건을 확인했다. 별도21대 법안2건의 원본 제안 내용400/422자와7개 과거 날짜/단계 문구를 국회 원문과 대조하고 정확 인용13개를 준비했다. 과거 자료/최신 상태/전문을 구분하며 기존9건의 불변 hash·계정·초대·권한을 보존한다. 개발 DB에2건/인용13개를 추가해 총11건/인용32개/검색20단위를 연결했다. 반복 적용 신규0, 기존9건과 계정·권한·세션 보존을 확인했다.
+- 검증: controller 전체 Python1,888+JS408=2,296개, skip/warning0·Ruff178/mypy77·TypeScript/빌드/계약 통과. 작업별 독립 검토/보완 재검토 C/I/M0. 합성 신원·실제 자료 복원본·실제 HTTP/PG/DBOS·합성 FunctionModel 브라우저에서 요약/비교/타임라인·진행 상태·정확 원문 선택·후속 질문·저장 재열람·새로고침 POST0·취소·실패·390px 가로 넘침0/pageerror0 확인. 타임라인 JSONB 날짜 재열람과 요청 중 선택/취소/Back/Forward 상태를 회귀 검증으로 보완했다. 전체 독립 검토·보완 재검토·실제 결과 표시/접근성 검토 C/I/M0. 실제 결과 1365/390px·원문 재진입·추가 POST0/pageerror0 확인.
+- 실제 AI: 승인 키를 저장소 밖600권한으로 준비했다. 별도 소유 DB·실제 자료·합성 신원의 HTTP/PG/DBOS 흐름에서 gpt-5.4-mini 고정 질문3건의 요약·비교·타임라인과 정확 원문·저장/재열람을 확인했다. 선택1/2/2자료의 주장3/2/7개가 모두 선택 자료를 인용하고7개 과거 날짜가 원문 인용과 일치했다. 첫 제공자 응답의 보조 메시지 중복으로 실패한1건은 보존하고 반환 투영·선택/관련 자료 구분·알려진 사용량 보존을 보완했다. 실제 응답4회 합계 입력8499/출력1572토큰이며 청구액을 조회한 결과는 아니다. 실제 사용자 세션을 임의 발급/재사용하지 않았다.
+- 품질 한계: 이3건은 실행/저장/정확 위치/모듈 차이를 확인한 표본이다. 타임라인 질문의 전체4항목 요청을 법안별4/3개로 표시한 사례가 있어 길이·개수 지시 준수 평가는 후속이다. 인용 일치는 주장 지지/법적 효력 검증이 아니며, 전체20문항·두 사용자의 상품적 품질/운영비 평가는 미완료다.
+- 개발 반영: [개발 앱](https://dev.issuedigest.projects.ai.kr/) 제품 source `d6e2df1`·정적15파일/source map0, 개인 API/DBOS worker·앱 역할 DDL 제한·migration0005 연결. TLS 검증을 유지한 index/asset7개 빌드 일치·login/health200·미인증session/research401/no-store·잘못된Origin403 확인. 서버에서도 별도 고정 질문1회를 검증해 입력1064/출력267토큰·요약/근거 모듈을 확인했다(실제 사용자 세션/DB 쓰기0).
+- 백업/복구: 적용 직전과 적용 후 서버 외부 full/app archive 보존. 별도 소유 PG18.6에 적용 후 app archive 복원, 자료11/인용32/검색20·DBOS schema·새 canonical bundle2·기존 계정/세션 건수 보존, 합성 신원으로 보호 catalog11·비회원/다른 공간/viewer생성 거부 확인. 실제 DB를 초기화/복원하지 않았다. 전체 역할·확장·운영 복구 검증은 별도다.
+- 인계: [Draft PR #29](https://github.com/DigestWorks/IssueDigest/pull/29), [제품 코드 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38732066902). [Sites v49](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#research-journey) 공개 게시 native succeeded. source `eee84956564eb2d29c6d18ddf15db61ffd52bb58`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0057c22d36cc81919ff55d2c65963dcf`, deployment `appgdep_6ad0c52ac25c8191b400fea83ef699d5`. 이전v48 보존·사본 기준65a4e9c·HTML34/로컬 링크·anchor847·공개 텍스트90개 비밀값/계정/원문 제외 확인. 기존 브라우저 탭은 열지 않았다. 운영 원본/MySQL·공용 checkout·시스템 서비스·main은 변경하지 않는다. 비밀값·실제 계정·개별ID·원문은 비공개 검증 위치에만 둔다.
+
+- 정리: 자체 합성 브라우저·API·worker 종료, 이미지/전체ID/작업label/loopback 포트 대조 후 자체 QA·복원 컨테이너/익명 볼륨 제거. 실제 모델 결과·검증·전후 dump·리뷰 기록은 비공개에 보존한다. 서버 개인 개발 앱/worker는 유지하며 문서 인계 커밋은 제품 코드를 변경하지 않는다.
+
+## 이전 작업 · 자료 중심 UI·기존 법안 연결 · 2026-10-15
 
 - 범위: [작업 명세](../changes/workspace-clarity-legacy.md), R2/R3/D011/D015 유지. feat/workspace-clarity-legacy, base feat/evidence-search-ui/b94c7fb. 격리 worktree·OpenSpec root=null·작업별 구현/독립 리뷰를 적용한다.
 - UI: 검색→자료→원문/인용이 중심인 작은 작업 공간으로 정리한다. ID/정밀 시각·개발 진단은 보조 상세로 옮기고 기본 자료 유형/날짜/읽기를 우선한다. 실제 AI 답변·생성 UI 미연결 상태를 명시한다.

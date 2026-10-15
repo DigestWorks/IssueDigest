@@ -11,6 +11,8 @@
 | [결정 기록](planning/decisions.md) | 확정된 결정, 비교 중인 제안, 필요한 입력 |
 | [작업 목록](planning/tasks.md) | 해야 할 일과 검증된 완료 항목 |
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
+| [첫 조사 흐름](changes/research-journey.md) | 자료 선택·AI 질문·생성 모듈·원문 인용·자동 저장의 수용 기준 |
+| [조사 개발 실행](../infra/research-development.md) | DBOS 명시 초기화·앱 권한·서버 키·예산·검증 경계 |
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
 | [공동 개발 DB 적용](changes/shared-database-bootstrap.md) | 초기 스키마·승인 등록·기존 앱 권한·전/후 백업과 앱 범위 복원·남은 입력 |

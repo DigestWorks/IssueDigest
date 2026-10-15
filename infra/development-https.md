@@ -109,3 +109,7 @@ https://dev.issuedigest.projects.ai.kr/api/v1/auth/google/callback
 관리자 적용 후 개발자가 TLS 검증을 유지한 `/login`·정적 asset·`/health/live`·인증 전session401·잘못된Origin403·정확 callback/보안cookie를 확인한다. 그 뒤 사용자 Google 로그인→승인 공간 자료 목록→원문·인용3개, 미초대/만료/로그아웃을 확인한다. 이전 내부 테스트와 실제 사용자의 완료는 구분한다.
 
 근거: [Nginx 실행·개인 prefix/정적·프록시](https://nginx.org/en/docs/beginners_guide.html), [proxy_pass와 헤더](https://nginx.org/en/docs/http/ngx_http_proxy_module.html), [Google 웹 서버 OAuth·등록 redirect URI](https://developers.google.com/identity/protocols/oauth2/web-server).
+
+## 2026-10-15 · 실제 조사 흐름 반영
+
+개발 주소의 제품 source는 `d6e2df1`이다. 개인 API·정적15파일·DBOS worker를 연결했고 기존 시스템 프록시/TLS·main/운영 배포는 변경하지 않았다. 외부 index/asset7개 일치·login/health200·보호session/research401/no-store·Origin403을 확인했다. 서버에서 실제 모델 요약1건을 호출해 구조/인용 검증까지 확인했으며 실제 사용자 세션을 대신 사용하지 않았다. 자료11건·인용32개·검색20단위, 앱 역할 DDL 제한 유지. 상세 실행/비용/한계는 [조사 개발 인수인계](research-development.md), 전후 백업·별도 소유 DB 복원은 [진행 기록](../docs/planning/progress.md)을 따른다.

@@ -20,6 +20,7 @@ from issuedigest_domain import (
     SubmissionAssessment,
     UsageBook,
 )
+from issuedigest_domain.research_journey import ResearchRequest
 from pydantic.json_schema import models_json_schema
 
 from .errors import EvidenceSearchRequestError
@@ -29,6 +30,7 @@ def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
     """Return a new OpenAPI document; reject all existing component name collisions."""
     _, definitions = models_json_schema(
         [
+            (ResearchRequest, "validation"),
             (RunHistory, "validation"),
             (ReplayBatch, "validation"),
             (SubmissionAssessment, "validation"),
@@ -51,7 +53,19 @@ def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
     result = deepcopy(schema)
     schemas = result.setdefault("components", {}).setdefault("schemas", {})
     additions = definitions["$defs"]
-    collisions = schemas.keys() & additions.keys()
+
+    def without_defaults(value: Any) -> Any:
+        if isinstance(value, dict):
+            return {key: without_defaults(item) for key, item in value.items() if key != "default"}
+        if isinstance(value, list):
+            return [without_defaults(item) for item in value]
+        return value
+
+    collisions = {
+        name
+        for name in schemas.keys() & additions.keys()
+        if without_defaults(schemas[name]) != without_defaults(additions[name])
+    }
     if collisions:
         raise ValueError(f"OpenAPI component name collision: {', '.join(sorted(collisions))}")
     schemas.update(additions)

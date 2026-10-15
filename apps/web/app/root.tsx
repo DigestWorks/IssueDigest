@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
+import { ResearchDraftProvider } from './research-drafts';
 import './styles.css';
 
 export function Layout({ children }: { children: ReactNode }) {
@@ -24,5 +25,5 @@ export function HydrateFallback() {
 }
 
 export default function App() {
-  return <Outlet />;
+  return <ResearchDraftProvider><Outlet /></ResearchDraftProvider>;
 }

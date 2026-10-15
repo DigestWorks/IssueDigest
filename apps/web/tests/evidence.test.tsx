@@ -37,7 +37,7 @@ it('renders source metadata and requires explicit citation selection without ano
   const button = screen.getByRole('button', { name: /인용 1 · 본문/ });
   await userEvent.setup().click(button);
   expect(button).toHaveAttribute('aria-pressed', 'true'); expect(document.querySelector('mark')).toHaveTextContent(body.representation.text);
-  expect(screen.getByRole('status')).toHaveTextContent('인용 1'); expect(fetch).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('status')).toHaveTextContent('인용 1'); expect(fetch).toHaveBeenCalledTimes(2);
 });
 it('highlights Unicode without slicing a surrogate or combining sequence and supports keyboard selection', async () => {
   const body = fixture(); body.representation.text = '앞😀é뒤'; body.representation.pages = [{ page_number: 7, start: 0, end: 5 }]; body.citations = [body.citations[0]];
@@ -158,7 +158,7 @@ it('restores full text after table-only citation selection without pages or anot
   expect(screen.getByLabelText('원문 텍스트')).toHaveTextContent(body.representation.text);
   expect(screen.queryByLabelText('선택한 표 셀')).not.toBeInTheDocument();
   expect(citation).toHaveAttribute('aria-pressed', 'false'); expect(fullText).toHaveAttribute('aria-pressed', 'true');
-  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch).toHaveBeenCalledTimes(2);
 });
 it.each(['initial', 'repeated'])('scrolls the actual late highlighted quote on %s selection while keeping original focus', async phase => {
   const body = fixture(); const prefix = '먼 합성 원문.\n'.repeat(200); const quote = '끝😀인용';

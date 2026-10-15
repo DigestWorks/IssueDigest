@@ -1,0 +1,1265 @@
+{
+  "run_id": "00000000-0000-4000-8000-000000000032",
+  "workspace_id": "00000000-0000-4000-8000-000000000001",
+  "request_id": "00000000-0000-4000-8000-000000000041",
+  "question": "자료에서 무엇을 알 수 있나요?",
+  "snapshot_ids": [
+    "00000000-0000-4000-8000-000000000040"
+  ],
+  "parent_run_id": null,
+  "status": "completed",
+  "error_code": null,
+  "created_at": "2026-10-15T00:00:00Z",
+  "updated_at": "2026-10-15T00:00:00Z",
+  "events": [
+    {
+      "sequence": 1,
+      "status": "queued",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 2,
+      "status": "retrieving",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 3,
+      "status": "generating",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 4,
+      "status": "validating",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 5,
+      "status": "completed",
+      "created_at": "2026-10-15T00:00:00Z"
+    }
+  ],
+  "result": {
+    "canvas": {
+      "research": {
+        "schema_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "evidence": [
+          {
+            "schema_version": 1,
+            "document": {
+              "document_id": "00000000-0000-4000-8000-000000000002",
+              "workspace_id": "00000000-0000-4000-8000-000000000001",
+              "provider": "synthetic-test",
+              "source_id": "합성 문서 A",
+              "source_kind": "other",
+              "canonical_url": null
+            },
+            "version": {
+              "version_id": "00000000-0000-4000-8000-000000000003",
+              "document_id": "00000000-0000-4000-8000-000000000002",
+              "raw_object_id": "00000000-0000-4000-8000-000000000005",
+              "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "media_type": "application/pdf",
+              "collected_at": "2026-01-01T00:00:00Z"
+            },
+            "representation": {
+              "representation_id": "00000000-0000-4000-8000-000000000004",
+              "document_version_id": "00000000-0000-4000-8000-000000000003",
+              "parser_name": "synthetic-test",
+              "parser_version": "1",
+              "normalization_profile": "identity",
+              "text": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+              "text_sha256": "a755043a71869cb45c1f90d1a1421f8cecb06265d063eea1986ec2004eb6d913",
+              "pages": [
+                {
+                  "page_number": 1,
+                  "start": 0,
+                  "end": 38
+                }
+              ],
+              "tables": [
+                {
+                  "table_id": "synthetic-table",
+                  "cells": [
+                    {
+                      "cell_id": "synthetic-cell",
+                      "text": "합성 표 인용",
+                      "unit": null,
+                      "period": null,
+                      "question": null,
+                      "population": null,
+                      "methodology": null,
+                      "sample_size": null,
+                      "weighting": null
+                    }
+                  ]
+                }
+              ]
+            },
+            "citations": [
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000006",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000007",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "pdf",
+                  "page_number": 1,
+                  "regions": []
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000008",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "kind": "table_cell",
+                  "table_id": "synthetic-table",
+                  "cell_id": "synthetic-cell",
+                  "quote": "합성 표 인용"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000064",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000065",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000066",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000067",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000068",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000069",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006a",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006b",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006c",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006d",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006e",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000006f",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000070",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000071",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000072",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000073",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000074",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000075",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000076",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000077",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000078",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000079",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007a",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007b",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007c",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007d",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007e",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-00000000007f",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000080",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000081",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000082",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000083",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              },
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000084",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 38,
+                  "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              }
+            ]
+          }
+        ],
+        "entities": [],
+        "claims": [
+          {
+            "claim_id": "151b15a9-9b0e-48af-a489-fc638486c750",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 1-1",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006",
+              "00000000-0000-4000-8000-000000000007",
+              "00000000-0000-4000-8000-000000000008"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "e64101af-9ec0-40a8-b31d-007bfecbc7c5",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 1-2",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000064",
+              "00000000-0000-4000-8000-000000000065",
+              "00000000-0000-4000-8000-000000000066"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "0340d1e2-4fbf-4fba-9afa-e84952595785",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 1-3",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000067",
+              "00000000-0000-4000-8000-000000000068",
+              "00000000-0000-4000-8000-000000000069"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "8d916919-6815-4ff2-87a4-fdb92292e8d7",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 1-4",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-00000000006a",
+              "00000000-0000-4000-8000-00000000006b",
+              "00000000-0000-4000-8000-00000000006c"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "a2831da2-f240-4cc4-8478-e64ba31ff78d",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 2-1",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-00000000006d",
+              "00000000-0000-4000-8000-00000000006e",
+              "00000000-0000-4000-8000-00000000006f"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "a77ce925-a766-4ae8-9fca-9da1c152c07d",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 2-2",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000070",
+              "00000000-0000-4000-8000-000000000071",
+              "00000000-0000-4000-8000-000000000072"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "98169385-bc37-48e6-b375-3af1e46f033e",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 2-3",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000073",
+              "00000000-0000-4000-8000-000000000074",
+              "00000000-0000-4000-8000-000000000075"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "3dc0b574-f33f-4985-9e07-6b5bb715572a",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 2-4",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000076",
+              "00000000-0000-4000-8000-000000000077",
+              "00000000-0000-4000-8000-000000000078"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "74c8d7a0-c692-46f1-afaf-31d1707a5a81",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 3-1",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000079",
+              "00000000-0000-4000-8000-00000000007a",
+              "00000000-0000-4000-8000-00000000007b"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "3fc73174-fa5c-47b4-b277-02f08d978297",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 3-2",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-00000000007c",
+              "00000000-0000-4000-8000-00000000007d",
+              "00000000-0000-4000-8000-00000000007e"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "4d8ef73c-f245-46a9-91a6-1156a61ab383",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 3-3",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-00000000007f",
+              "00000000-0000-4000-8000-000000000080",
+              "00000000-0000-4000-8000-000000000081"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          },
+          {
+            "claim_id": "0bd1e4fb-ca15-4070-9c91-651c52e789fd",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "합성 해석 3-4",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000082",
+              "00000000-0000-4000-8000-000000000083",
+              "00000000-0000-4000-8000-000000000084"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact selected source quotations"
+            }
+          }
+        ],
+        "relations": [],
+        "observations": [],
+        "support_reviews": []
+      },
+      "revision": {
+        "schema_version": 1,
+        "revision_id": "68a8b2eb-bfe8-422f-9f5e-474a4801d877",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "run_id": "00000000-0000-4000-8000-000000000032",
+        "revision_number": 1,
+        "parent_revision_id": null,
+        "selected_version_ids": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "draft": {
+          "schema_version": 1,
+          "draft_id": "5650886b-36cf-44eb-93ad-29d25051ee24",
+          "outcome": "answer",
+          "modules": [
+            {
+              "module_id": "aa3d29ed-2108-4623-a897-eb528ee46766",
+              "title": "합성 요약 1",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000006",
+                "00000000-0000-4000-8000-000000000007",
+                "00000000-0000-4000-8000-000000000008",
+                "00000000-0000-4000-8000-000000000064",
+                "00000000-0000-4000-8000-000000000065",
+                "00000000-0000-4000-8000-000000000066",
+                "00000000-0000-4000-8000-000000000067",
+                "00000000-0000-4000-8000-000000000068",
+                "00000000-0000-4000-8000-000000000069",
+                "00000000-0000-4000-8000-00000000006a",
+                "00000000-0000-4000-8000-00000000006b",
+                "00000000-0000-4000-8000-00000000006c"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000006"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000007"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000008"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000064"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000065"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000066"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000067"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000068"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000069"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006a"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006b"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006c"
+                }
+              ],
+              "kind": "summary",
+              "claim_ids": [
+                "151b15a9-9b0e-48af-a489-fc638486c750",
+                "e64101af-9ec0-40a8-b31d-007bfecbc7c5",
+                "0340d1e2-4fbf-4fba-9afa-e84952595785",
+                "8d916919-6815-4ff2-87a4-fdb92292e8d7"
+              ]
+            },
+            {
+              "module_id": "f5975189-6982-42d4-8bd5-116a2f2793bf",
+              "title": "합성 요약 2",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-00000000006d",
+                "00000000-0000-4000-8000-00000000006e",
+                "00000000-0000-4000-8000-00000000006f",
+                "00000000-0000-4000-8000-000000000070",
+                "00000000-0000-4000-8000-000000000071",
+                "00000000-0000-4000-8000-000000000072",
+                "00000000-0000-4000-8000-000000000073",
+                "00000000-0000-4000-8000-000000000074",
+                "00000000-0000-4000-8000-000000000075",
+                "00000000-0000-4000-8000-000000000076",
+                "00000000-0000-4000-8000-000000000077",
+                "00000000-0000-4000-8000-000000000078"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006d"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006e"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006f"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000070"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000071"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000072"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000073"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000074"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000075"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000076"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000077"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000078"
+                }
+              ],
+              "kind": "summary",
+              "claim_ids": [
+                "a2831da2-f240-4cc4-8478-e64ba31ff78d",
+                "a77ce925-a766-4ae8-9fca-9da1c152c07d",
+                "98169385-bc37-48e6-b375-3af1e46f033e",
+                "3dc0b574-f33f-4985-9e07-6b5bb715572a"
+              ]
+            },
+            {
+              "module_id": "451650f5-4f1a-4764-adad-69c5112ab262",
+              "title": "합성 요약 3",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000079",
+                "00000000-0000-4000-8000-00000000007a",
+                "00000000-0000-4000-8000-00000000007b",
+                "00000000-0000-4000-8000-00000000007c",
+                "00000000-0000-4000-8000-00000000007d",
+                "00000000-0000-4000-8000-00000000007e",
+                "00000000-0000-4000-8000-00000000007f",
+                "00000000-0000-4000-8000-000000000080",
+                "00000000-0000-4000-8000-000000000081",
+                "00000000-0000-4000-8000-000000000082",
+                "00000000-0000-4000-8000-000000000083",
+                "00000000-0000-4000-8000-000000000084"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000079"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007a"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007b"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007c"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007d"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007e"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007f"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000080"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000081"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000082"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000083"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000084"
+                }
+              ],
+              "kind": "summary",
+              "claim_ids": [
+                "74c8d7a0-c692-46f1-afaf-31d1707a5a81",
+                "3fc73174-fa5c-47b4-b277-02f08d978297",
+                "4d8ef73c-f245-46a9-91a6-1156a61ab383",
+                "0bd1e4fb-ca15-4070-9c91-651c52e789fd"
+              ]
+            },
+            {
+              "module_id": "5f36c7b9-78f3-4ff9-b6ac-a949de411cb1",
+              "title": "근거",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000006",
+                "00000000-0000-4000-8000-000000000007",
+                "00000000-0000-4000-8000-000000000008",
+                "00000000-0000-4000-8000-000000000064",
+                "00000000-0000-4000-8000-000000000065",
+                "00000000-0000-4000-8000-000000000066",
+                "00000000-0000-4000-8000-000000000067",
+                "00000000-0000-4000-8000-000000000068",
+                "00000000-0000-4000-8000-000000000069",
+                "00000000-0000-4000-8000-00000000006a",
+                "00000000-0000-4000-8000-00000000006b",
+                "00000000-0000-4000-8000-00000000006c",
+                "00000000-0000-4000-8000-00000000006d",
+                "00000000-0000-4000-8000-00000000006e",
+                "00000000-0000-4000-8000-00000000006f",
+                "00000000-0000-4000-8000-000000000070",
+                "00000000-0000-4000-8000-000000000071",
+                "00000000-0000-4000-8000-000000000072",
+                "00000000-0000-4000-8000-000000000073",
+                "00000000-0000-4000-8000-000000000074",
+                "00000000-0000-4000-8000-000000000075",
+                "00000000-0000-4000-8000-000000000076",
+                "00000000-0000-4000-8000-000000000077",
+                "00000000-0000-4000-8000-000000000078",
+                "00000000-0000-4000-8000-000000000079",
+                "00000000-0000-4000-8000-00000000007a",
+                "00000000-0000-4000-8000-00000000007b",
+                "00000000-0000-4000-8000-00000000007c",
+                "00000000-0000-4000-8000-00000000007d",
+                "00000000-0000-4000-8000-00000000007e",
+                "00000000-0000-4000-8000-00000000007f",
+                "00000000-0000-4000-8000-000000000080",
+                "00000000-0000-4000-8000-000000000081",
+                "00000000-0000-4000-8000-000000000082",
+                "00000000-0000-4000-8000-000000000083",
+                "00000000-0000-4000-8000-000000000084"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000006"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000007"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000008"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000064"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000065"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000066"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000067"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000068"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000069"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006a"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006b"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006c"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006d"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006e"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000006f"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000070"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000071"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000072"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000073"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000074"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000075"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000076"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000077"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000078"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000079"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007a"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007b"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007c"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007d"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007e"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-00000000007f"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000080"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000081"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000082"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000083"
+                },
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000084"
+                }
+              ],
+              "kind": "evidence"
+            }
+          ],
+          "message": null
+        },
+        "validated_at": "2026-10-15T10:54:17.306060Z",
+        "validation_policy": "issuedigest-canvas-v1"
+      }
+    },
+    "source_titles": {
+      "00000000-0000-4000-8000-000000000002": "합성 문서"
+    }
+  },
+  "model": "gpt-5.4-mini",
+  "input_tokens": 10,
+  "output_tokens": 20
+}

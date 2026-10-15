@@ -12,11 +12,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from issuedigest_domain.status import Liveness, ServiceStatus
 from issuedigest_storage import EvidenceAccessRepository, WorkspaceAccessRepository
+from issuedigest_storage.research import ResearchRepository
 
 from .auth import AuthService, auth_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
 from .evidence import evidence_router
+from .research import research_router
 from .search import search_router
 from .workspace_catalog import catalog_router
 
@@ -47,6 +49,10 @@ def _protected_path(path: str) -> bool:
     return (
         _auth_path(path)
         or re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence(?:/[^/]+)?/?", path) is not None
+        or re.fullmatch(
+            r"/api/v1/workspaces/[^/]+/research(?:/sources|/[^/]+(?:/cancel)?)?/?", path
+        )
+        is not None
     )
 
 
@@ -55,6 +61,8 @@ def create_app(
     *,
     auth_service: AuthService | None = None,
     workspace_repository: WorkspaceAccessRepository | None = None,
+    research_repository: ResearchRepository | None = None,
+    research_model_available: bool = True,
 ) -> IssueDigestAPI:
     """Configure only from trusted server code; the default protected route fails closed."""
     application = IssueDigestAPI(title="IssueDigest API", version="v1")
@@ -69,9 +77,11 @@ def create_app(
                     {
                         "type": error["type"],
                         "loc": error["loc"],
-                        "msg": "Invalid UUID4 path parameter"
-                        if error["loc"][0] == "path"
-                        else "Invalid catalog limit",
+                        "msg": (
+                            "Invalid UUID4 path parameter"
+                            if error["loc"][0] == "path"
+                            else "Invalid catalog limit"
+                        ),
                     }
                     for error in exception.errors()
                 ]
@@ -93,11 +103,13 @@ def create_app(
             response = JSONResponse(
                 status_code=503 if protected else 500,
                 content={
-                    "detail": "Authentication service unavailable"
-                    if _auth_path(request.url.path)
-                    else "Evidence service unavailable"
-                    if protected
-                    else "Internal server error"
+                    "detail": (
+                        "Authentication service unavailable"
+                        if _auth_path(request.url.path)
+                        else (
+                            "Evidence service unavailable" if protected else "Internal server error"
+                        )
+                    )
                 },
             )
         if _auth_path(request.url.path) and response.status_code in {307, 308}:
@@ -128,6 +140,9 @@ def create_app(
     application.include_router(auth_router(auth_service, workspace_repository))
     application.include_router(catalog_router(workspace_repository))
     application.include_router(search_router(workspace_repository, auth_service))
+    application.include_router(
+        research_router(research_repository, auth_service, model_available=research_model_available)
+    )
     application.include_router(evidence_router(access_repository))
     return application
 

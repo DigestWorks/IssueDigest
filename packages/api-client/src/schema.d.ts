@@ -140,6 +140,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/research": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Runs */
+        get: operations["runs_api_v1_workspaces__workspace_id__research_get"];
+        put?: never;
+        /** Submit */
+        post: operations["submit_api_v1_workspaces__workspace_id__research_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/research/sources": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Sources */
+        get: operations["sources_api_v1_workspaces__workspace_id__research_sources_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/research/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Run */
+        get: operations["run_api_v1_workspaces__workspace_id__research__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/research/{run_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel */
+        post: operations["cancel_api_v1_workspaces__workspace_id__research__run_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/health/live": {
         parameters: {
             query?: never;
@@ -1083,6 +1152,11 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** HTTPValidationError */
+        HTTPValidationError: {
+            /** Detail */
+            detail?: components["schemas"]["ValidationError"][];
+        };
         /** IdentityReview */
         IdentityReview: {
             /**
@@ -1423,6 +1497,154 @@ export interface components {
             schema_version: 1;
             /** Support Reviews */
             support_reviews: components["schemas"]["SupportReview"][];
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** ResearchRequest */
+        ResearchRequest: {
+            /**
+             * Parent Run Id
+             * @default null
+             */
+            parent_run_id: string | null;
+            /** Question */
+            question: string;
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+            /** Snapshot Ids */
+            snapshot_ids: string[];
+        };
+        /** ResearchResult */
+        ResearchResult: {
+            canvas: components["schemas"]["CanvasBundle"];
+            /** Source Titles */
+            source_titles: {
+                [key: string]: string;
+            };
+        };
+        /** ResearchRun */
+        ResearchRun: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Error Code */
+            error_code: ("insufficient_evidence" | "model_unavailable" | "generation_failed" | "authority_changed" | "cancelled") | null;
+            /** Events */
+            events: components["schemas"]["ResearchRunEvent"][];
+            /** Input Tokens */
+            input_tokens: number;
+            /**
+             * Model
+             * @constant
+             */
+            model: "gpt-5.4-mini";
+            /** Output Tokens */
+            output_tokens: number;
+            /** Parent Run Id */
+            parent_run_id: string | null;
+            /** Question */
+            question: string;
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+            result: components["schemas"]["ResearchResult"] | null;
+            /**
+             * Run Id
+             * Format: uuid4
+             */
+            run_id: string;
+            /** Snapshot Ids */
+            snapshot_ids: string[];
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "retrieving" | "generating" | "validating" | "completed" | "failed" | "cancelled";
+            /**
+             * Updated At
+             * Format: date-time
+             */
+            updated_at: string;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** ResearchRunEvent */
+        ResearchRunEvent: {
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Sequence */
+            sequence: number;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "queued" | "retrieving" | "generating" | "validating" | "completed" | "failed" | "cancelled";
+        };
+        /** ResearchRunList */
+        ResearchRunList: {
+            /** Items */
+            items: components["schemas"]["ResearchRun"][];
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** ResearchSource */
+        ResearchSource: {
+            /** Bill Number */
+            bill_number: string | null;
+            /** Canonical Url */
+            canonical_url: string | null;
+            /** Citation Count */
+            citation_count: number;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /** Excerpt */
+            excerpt: string;
+            /** Proposed On */
+            proposed_on: string | null;
+            /**
+             * Snapshot Id
+             * Format: uuid4
+             */
+            snapshot_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other";
+            /** Title */
+            title: string;
+        };
+        /** ResearchSourceCatalog */
+        ResearchSourceCatalog: {
+            /** Items */
+            items: components["schemas"]["ResearchSource"][];
             /**
              * Workspace Id
              * Format: uuid4
@@ -1994,6 +2216,19 @@ export interface components {
              */
             workspace_id: string;
         };
+        /** ValidationError */
+        ValidationError: {
+            /** Context */
+            ctx?: Record<string, never>;
+            /** Input */
+            input?: unknown;
+            /** Location */
+            loc: (string | number)[];
+            /** Message */
+            msg: string;
+            /** Error Type */
+            type: string;
+        };
         /** WorkspaceMembership */
         WorkspaceMembership: {
             /**
@@ -2472,6 +2707,167 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidenceUnavailableError"];
+                };
+            };
+        };
+    };
+    runs_api_v1_workspaces__workspace_id__research_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchRunList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    submit_api_v1_workspaces__workspace_id__research_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResearchRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    sources_api_v1_workspaces__workspace_id__research_sources_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchSourceCatalog"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    run_api_v1_workspaces__workspace_id__research__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_api_v1_workspaces__workspace_id__research__run_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ResearchRun"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

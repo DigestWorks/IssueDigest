@@ -45,7 +45,7 @@ function timestamp(value: unknown) {
  * identities and exact selectors. Does not reproduce domain integrity/hash/semantic checks,
  * authenticate the source, or validate unused optional table research metadata.
  */
-function isDisplayEvidence(value: unknown, workspaceId: string): value is EvidenceBundle {
+export function isDisplayEvidence(value: unknown, workspaceId: string): value is EvidenceBundle {
   if (!object(value) || value.schema_version !== 1 || !object(value.document) || !object(value.version) || !object(value.representation) || !Array.isArray(value.citations)) return false;
   const { document: doc, version, representation: rep, citations } = value;
   if (!sameId(doc.workspace_id, workspaceId) || !id(doc.document_id) || !nonempty(doc.provider) || !nonempty(doc.source_id) || typeof doc.source_kind !== 'string' || !['bill', 'legal_text', 'government_document', 'news', 'poll', 'statistics', 'petition', 'other'].includes(doc.source_kind) || !sourceUrl(doc.canonical_url)) return false;

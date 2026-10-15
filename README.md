@@ -1,6 +1,6 @@
 # IssueDigest
 
-DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 현재 React Router 웹·FastAPI API·상태 계약·개발 검증 기반을 구성했습니다. 내부 PostgreSQL 근거 스냅샷 저장 기반과 생성 화면 React 렌더러를 구현했으며, 제품의 자료 수집·조사·운영 연결과 전체 P1은 아직 미완료입니다.
+DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 자료를 선택하고 질문하면 AI가 근거를 인용한 요약·비교·타임라인을 구성하고 조사 결과를 자동 저장합니다. React Router 웹·FastAPI API·PostgreSQL과 PydanticAI/DBOS 워커를 연결했습니다. 실제 개발 적용·AI 연결 상태와 남은 범위는 [진행 기록](docs/planning/progress.md)에서 확인합니다. 전체 제품과 운영 배포는 미완료입니다.
 
 첫 사용자는 우리 둘이며, 실제 원자료에서 근거·관계·변화를 찾아 질문에 맞는 화면으로 탐색합니다. 프론트는 React Router, 백엔드는 Python/FastAPI, 그래프는 Neo4j를 사용합니다. 기준 저장소는 PostgreSQL이며, 검색·AI 실행 도구는 D011에 따라 단계적으로 연결합니다. 운영 배치는 검토 중입니다.
 
@@ -13,6 +13,7 @@ DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입�
 - [진행 기록](docs/planning/progress.md)
 - [이전 기록·재사용 자산](docs/planning/archive.md)
 - [개발 서버 안내·확인 기록](infra/development-server.md)
+- [조사 실행·비용·검증 경계](infra/research-development.md)
 - [공유 계획 사이트](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)
 
 이전 와이어프레임은 별도 비공개 저장소의 코드로 보존하며 배포를 종료했습니다. 계획 문서는 서비스 기능의 구현 완료를 뜻하지 않습니다.
@@ -75,7 +76,7 @@ npm run check
 
 재사용 생성 화면 렌더러 `@issuedigest/ui`의 사용법과 표시 검증 경계는
 [UI 패키지 안내](packages/ui/README.md)에 있다. 이 패키지는 서버 검증 자료를
-받아 여섯 모듈을 렌더링하며 현재 작업 공간 화면에는 아직 연결하지 않는다.
+받아 여섯 모듈을 렌더링합니다. 조사 화면은 서버 검증 결과와 자료 제목을 전달하며, 현재 AI 생성 범위는 요약·비교·타임라인·근거입니다. 수치 없는 차트나 근거 없는 관계도는 만들지 않습니다.
 
 이 명령은 Python lint·format·타입·테스트, TypeScript lint·타입·테스트, SPA 생산 빌드, 계약 변경 검사를 순서대로 실행합니다. 각 단계도 루트에서 `npm run lint:python`, `npm run typecheck:python`, `npm run test:python`, `npm run lint`, `npm run typecheck`, `npm test`, `npm run build`, `npm run contract:check`로 실행할 수 있습니다. Python 도구 직접 실행은 `uv run ruff check .`, `uv run mypy`, `uv run pytest`입니다.
 
@@ -97,7 +98,7 @@ React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, P
 
 `npm run build`의 정적 산출물은 `apps/web/build/client`입니다. 운영에서는 웹 정적 파일을 제공하고 `/api/*`와 `/health/*`를 FastAPI로 전달하는 같은 출처의 리버스 프록시가 필요합니다. 앱 경로는 `index.html`로 연결하되 API·헬스 요청을 HTML로 바꾸면 안 됩니다. Vite 프록시는 개발 서버 설정입니다. 개발 서버나 `vite preview`를 운영 서버로 사용하지 않습니다. 개발 서버의 사용자 전용 환경·웹/API·SSH 터널은 검증했습니다. [서버 안내](infra/development-server.md)에 실행·재접속 방법을 기록하며 운영 배포는 아직 수행하지 않았습니다.
 
-웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 공동 개발 DB·승인 자료와 Google 로그인·보호 문자 검색을 연결했습니다. 워커·Neo4j·정기 수집·의미 검색·AI 실행·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
+웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 공동 개발 DB·승인 자료와 Google 로그인·보호 문자 검색을 연결했습니다. PydanticAI/DBOS 조사 워커와 저장·후속 질문·취소를 연결했습니다. 실제 모델 사용에는 별도의 서버 키와 명시 활성화가 필요합니다. Neo4j·정기 수집·의미 검색·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
 
 
 ## 개발 앱·근거 검색

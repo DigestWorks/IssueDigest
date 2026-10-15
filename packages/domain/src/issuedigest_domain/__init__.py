@@ -70,6 +70,17 @@ from .observations import (
 )
 from .relations import Relation
 from .research import ResearchBundle
+from .research_journey import (
+    ResearchRequest,
+    ResearchResult,
+    ResearchRun,
+    ResearchRunEvent,
+    ResearchRunList,
+    ResearchSource,
+    ResearchSourceCatalog,
+    SourcePresentation,
+    presentation_for,
+)
 from .search import (
     EvidenceSearchHit,
     EvidenceSearchQuery,
@@ -179,6 +190,15 @@ __all__ = [
     "assess_comparison",
     "Relation",
     "ResearchBundle",
+    "ResearchRequest",
+    "ResearchResult",
+    "ResearchRun",
+    "ResearchRunEvent",
+    "ResearchRunList",
+    "ResearchSource",
+    "ResearchSourceCatalog",
+    "SourcePresentation",
+    "presentation_for",
     "Citation",
     "CitationAnchorValidation",
     "DocumentVersion",

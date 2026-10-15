@@ -2,14 +2,14 @@
 
 `@issuedigest/ui`는 서버가 기존 Python `CanvasBundle`로 검증한 자료를 표시하는
 private React workspace다. evidence·summary·comparison·timeline·graph·chart의
-순서와 half/full 배치를 명세에서 읽는다. 앱에는 자동으로 연결되지 않는다.
+순서와 half/full 배치를 명세에서 읽는다. 웹 앱의 조사 결과에 연결되어 있다.
 
 ```tsx
 import { CanvasView } from '@issuedigest/ui';
 import type { CanvasViewProps } from '@issuedigest/ui';
 import '@issuedigest/ui/styles.css';
 
-const props: CanvasViewProps = { bundle: validatedBundle, onAction: handleAction };
+const props: CanvasViewProps = { bundle: validatedBundle, sourceTitles: verifiedTitleMap, onAction: handleAction };
 <CanvasView {...props} />;
 ```
 
@@ -25,9 +25,7 @@ CSS는 별도 export로 가져와야 하며 모든 규칙을 `.id-canvas` 범위
 이 브라우저 검사로 보장하지 않는다. 원시 응답 검증은 후속 API 소비 경계에서,
 원문·인용 검증은 기존 서버 계약에서 담당한다.
 
-문서는 기존 `SourceDocument.source_id`로 식별한다. 현재 계약에 문서 제목 필드는
-없으므로 별도 제목을 추정하지 않는다. timeline은 `valid_period`의 시작·종료 날짜를
-그대로 보존한다. chart는 모든 알려진 비교 조건이 같을 때만 표시하며 정확 소수
+`sourceTitles`는 보호된 조사 결과의 문서 ID→검증된 제목 map이다. map을 주면 출처·인용 액션·AI 해석의 근거 자료를 사람에게 읽히는 제목으로 표시한다. 기존 호출자가 map을 주지 않으면 `SourceDocument.source_id`를 쓴다. 단일 날짜 timeline은 같은 시작·종료 날짜를 중복하지 않는다. chart는 모든 알려진 비교 조건이 같을 때만 표시하며 정확 소수
 문자열을 라벨·표에 보존한다. 막대의 근사 기하만 BigInt 비율에서 유한 좌표로 변환한다.
 같은 비교 조건은 합산 가능성이나 주장 동등성의 판정이 아니다.
 

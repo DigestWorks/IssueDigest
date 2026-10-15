@@ -8,7 +8,7 @@ import EvidenceRoute from '../app/routes/evidence';
 import { catalog, headers, otherWorkspace, requestId, response, session, snapshot, workspace } from './workspace-data';
 
 function mount() {
-  const router = createMemoryRouter([{ path: '/', Component: Home }, { path: '/login', element: <h1>로그인 도착</h1> }, { path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }]);
+  const router = createMemoryRouter([{ path: '/', Component: Home }, { path: '/login', element: <h1>로그인 도착</h1> }, { path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }], {initialEntries: ['/?view=sources']});
   const view = render(<RouterProvider router={router} />); return { router, ...view };
 }
 function stub() { vi.stubGlobal('fetch', async (path: string) => response(path.endsWith('/session') ? session() : catalog(path.includes(otherWorkspace) ? otherWorkspace : workspace))); }
@@ -51,12 +51,12 @@ it('names a single shared workspace without displaying its UUID in the main view
   mount(); await screen.findByText('첫 공간 합성 원문');
   expect(screen.getByText('공동 조사 자료')).toBeInTheDocument();
   expect(screen.queryByRole('combobox', { name: '작업 공간' })).not.toBeInTheDocument();
-  expect(screen.getByText(workspace).closest('details')).not.toHaveAttribute('open');
+  expect(screen.queryByText(workspace)).not.toBeInTheDocument();
 });
 it('numbers multiple workspaces while preserving exact IDs in optional details', async () => {
   stub(); mount(); await screen.findByText('첫 공간 합성 원문');
   expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['공간 1', '공간 2']);
-  expect(screen.getByText(workspace).closest('details')).not.toHaveAttribute('open');
+  expect(screen.queryByText(workspace)).not.toBeInTheDocument();
 });
 it('clears the old list immediately, cancels it and ignores late responses while switching workspaces', async () => {
   let resolve!: (r: Response) => void; let firstSignal!: AbortSignal;
