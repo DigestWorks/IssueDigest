@@ -84,12 +84,16 @@ def run_worker(
         if loaded is None:
             return
         run, sources = loaded
+        input_tokens, output_tokens = 0, 0
         try:
             if not persist(run_id, "retrieving"):
                 return
             try:
                 prompt = model_prompt(
-                    run.question, sources, repository.worker_parent_context(run_id)
+                    run.question,
+                    sources,
+                    repository.worker_parent_context(run_id),
+                    selected_snapshot_ids=run.snapshot_ids,
                 )
             except ValueError:
                 output = AIOutput(
@@ -97,7 +101,6 @@ def run_worker(
                     message="선택한 자료에 인용 가능한 내용이 부족합니다.",
                     modules=(),
                 )
-                input_tokens, output_tokens = 0, 0
             else:
                 if not persist(run_id, "generating"):
                     return
@@ -117,7 +120,13 @@ def run_worker(
             )
         except Exception:
             # Provider/validation failures are final; ambiguous outcomes stay reserved.
-            persist(run_id, "failed", error_code="generation_failed")
+            persist(
+                run_id,
+                "failed",
+                error_code="generation_failed",
+                input_tokens=input_tokens,
+                output_tokens=output_tokens,
+            )
 
     try:
         DBOS.launch()

@@ -335,3 +335,86 @@ def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
     assert (
         final is not None and final.status == "failed" and final.error_code == "generation_failed"
     )
+
+
+def test_validation_failure_retains_known_model_usage(monkeypatch):
+    """A paid response is counted even when its canvas fails validation afterward."""
+    from contextlib import nullcontext
+    from types import SimpleNamespace
+
+    import issuedigest_worker.research_worker as worker
+
+    run_id, workspace_id, snapshot_id = uuid4(), uuid4(), uuid4()
+    transitions = []
+
+    class Repository:
+        def __init__(self, _engine):
+            pass
+
+        def queued_ids(self):
+            return (run_id,)
+
+        def worker_load(self, _run_id):
+            return (
+                SimpleNamespace(
+                    question="합성 질문",
+                    workspace_id=workspace_id,
+                    snapshot_ids=(snapshot_id,),
+                ),
+                (),
+            )
+
+        def worker_parent_context(self, _run_id):
+            return None
+
+        def worker_transition(self, _run_id, status, **kwargs):
+            transitions.append((status, kwargs))
+            return True
+
+    class FakeDBOS:
+        def __init__(self, *, config):
+            pass
+
+        @staticmethod
+        def workflow(**kwargs):
+            return lambda function: function
+
+        @staticmethod
+        def launch():
+            pass
+
+        @staticmethod
+        def start_workflow(function, *args):
+            function(*args)
+            return SimpleNamespace(get_result=lambda: None)
+
+        @staticmethod
+        def destroy(**kwargs):
+            pass
+
+    def fail_validation(*args):
+        raise ValueError("synthetic invalid citation")
+
+    monkeypatch.setattr(worker, "ResearchRepository", Repository)
+    monkeypatch.setattr(
+        worker, "create_storage_engine", lambda _url: SimpleNamespace(dispose=lambda: None)
+    )
+    monkeypatch.setattr(worker, "create_agent", lambda _model: object())
+    monkeypatch.setattr(worker, "DBOS", FakeDBOS)
+    monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
+    monkeypatch.setattr(worker, "model_prompt", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(
+        worker,
+        "run_agent",
+        lambda _agent, _prompt: (object(), 123, 45),
+    )
+    monkeypatch.setattr(worker, "build_canvas", fail_validation)
+
+    run_worker(
+        "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True
+    )
+
+    status, fields = transitions[-1]
+    assert status == "failed"
+    assert fields["error_code"] == "generation_failed"
+    assert (fields["input_tokens"], fields["output_tokens"]) == (123, 45)

@@ -49,8 +49,10 @@ def test_canvas_rejects_unknown_citation_and_accepts_exact_one():
         build_canvas(uuid4(), selected[1].document.workspace_id, (selected,), wrong)
 
 
-@pytest.mark.parametrize("message", ["", " \t "])
-def test_answer_normalizes_only_blank_message_to_canonical_none(message):
+@pytest.mark.parametrize(
+    "message", [None, "", " \t ", "합성 보조 설명과 인용 ID는 별도 문장입니다."]
+)
+def test_answer_projects_auxiliary_message_out_of_canonical_canvas(message):
     selected = source()
     claim = AIClaim(text="합성 근거의 해석", citation_ids=(selected[1].citations[0].citation_id,))
     module = AIModule(kind="summary", title="요약", claims=(claim,))
@@ -58,14 +60,10 @@ def test_answer_normalizes_only_blank_message_to_canonical_none(message):
     canvas = build_canvas(uuid4(), selected[1].document.workspace_id, (selected,), output)
     assert canvas.revision.draft.outcome == "answer"
     assert canvas.revision.draft.message is None
-
-    with pytest.raises(ValueError, match="Answer needs modules"):
-        build_canvas(
-            uuid4(),
-            selected[1].document.workspace_id,
-            (selected,),
-            output.model_copy(update={"message": "내용이 있는 메시지"}),
-        )
+    assert canvas.research.claims[0].text == claim.text
+    assert canvas.research.claims[0].citation_ids == claim.citation_ids
+    assert canvas.revision.draft.modules[0].kind == "summary"
+    assert canvas.revision.draft.modules[0].citation_ids == claim.citation_ids
     with pytest.raises(ValueError, match="Answer needs modules"):
         build_canvas(
             uuid4(),
@@ -75,7 +73,8 @@ def test_answer_normalizes_only_blank_message_to_canonical_none(message):
         )
 
 
-def test_insufficient_evidence_still_requires_a_nonblank_message():
+@pytest.mark.parametrize("outcome", ["insufficient_evidence", "clarification_needed"])
+def test_nonanswer_still_requires_a_nonblank_message(outcome):
     selected = source()
     for message in (None, "", "  "):
         with pytest.raises(ValueError, match="Insufficient response needs a message"):
@@ -83,13 +82,13 @@ def test_insufficient_evidence_still_requires_a_nonblank_message():
                 uuid4(),
                 selected[1].document.workspace_id,
                 (selected,),
-                AIOutput(outcome="insufficient_evidence", message=message, modules=()),
+                AIOutput(outcome=outcome, message=message, modules=()),
             )
     canvas = build_canvas(
         uuid4(),
         selected[1].document.workspace_id,
         (selected,),
-        AIOutput(outcome="insufficient_evidence", message="인용할 자료가 부족합니다.", modules=()),
+        AIOutput(outcome=outcome, message="인용할 자료가 부족합니다.", modules=()),
     )
     assert canvas.revision.draft.message == "인용할 자료가 부족합니다."
 
@@ -172,6 +171,36 @@ def test_prompt_preserves_thirteen_exact_historical_citations():
     assert [item["quote"] for item in prompt["sources"][0]["citations"]] == [
         item.selector.quote for item in selected.citations
     ]
+
+
+def test_prompt_marks_selected_seed_and_keeps_related_source_as_context():
+    from issuedigest_agents.research import model_prompt
+
+    selected = source()
+    related = (uuid4(), selected[1], selected[2])
+    prompt = json.loads(
+        model_prompt(
+            "선택 자료를 요약",
+            (selected, related),
+            selected_snapshot_ids=(selected[0],),
+        )
+    )
+    assert prompt["selected_snapshot_ids"] == [str(selected[0])]
+    assert [document["snapshot_id"] for document in prompt["sources"]] == [
+        str(selected[0]),
+        str(related[0]),
+    ]
+    assert json.loads(model_prompt("기본 선택", (selected,)))["selected_snapshot_ids"] == [
+        str(selected[0])
+    ]
+
+    uncitable = selected[1].model_copy(update={"citations": ()})
+    with pytest.raises(ValueError):
+        model_prompt(
+            "선택 자료를 요약",
+            ((selected[0], uncitable, selected[2]), related),
+            selected_snapshot_ids=(selected[0],),
+        )
 
 
 def test_comparison_and_timeline_require_distinct_cited_facts():

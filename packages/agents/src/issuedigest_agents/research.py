@@ -47,6 +47,10 @@ SYSTEM_INSTRUCTIONS = (
     "date inside the cited quotation. Return insufficient_evidence when the quotes do not "
     "answer. Use summary, comparison or timeline modules as appropriate, at most three. "
     "Do not include HTML."
+    " Treat selected_snapshot_ids as the user's target sources; other supplied sources are "
+    "context only. Never attribute one bill's proposal or status to another bill. "
+    "A selected bill summary must focus on its own cited quotations; if target quotes "
+    "do not answer, return insufficient_evidence."
 )
 
 # One request can spend at most 2,500 output tokens. A UTF-8 byte is a conservative
@@ -99,17 +103,33 @@ def model_prompt(
     question: str,
     sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
     parent: str | None = None,
+    *,
+    selected_snapshot_ids: tuple[UUID, ...] | None = None,
 ) -> str:
+    limited_sources = sources[:5]
+    selected = (
+        selected_snapshot_ids
+        if selected_snapshot_ids is not None
+        else tuple(snapshot_id for snapshot_id, _bundle, _title in limited_sources)
+    )
+    if (
+        not selected
+        or len(set(selected)) != len(selected)
+        or not set(selected) <= {snapshot_id for snapshot_id, _bundle, _title in limited_sources}
+    ):
+        raise ValueError("Invalid selected sources")
     documents: list[dict[str, object]] = []
+    cited_snapshots: set[UUID] = set()
     remaining = 12_000
     total_citations = 0
     payload: dict[str, object] = {
         "question": question,
         "parent_context": parent[:1500] if parent else None,
+        "selected_snapshot_ids": [str(snapshot_id) for snapshot_id in selected],
         "sources": documents,
     }
     _checked_prompt(payload)
-    for snapshot_id, bundle, presentation in sources[:5]:
+    for snapshot_id, bundle, presentation in limited_sources:
         citations: list[dict[str, str]] = []
         document: dict[str, object] = {
             "snapshot_id": str(snapshot_id),
@@ -140,8 +160,11 @@ def model_prompt(
             total_citations += 1
         if citations:
             documents.append({**document, "citations": citations})
+            cited_snapshots.add(snapshot_id)
     if not documents:
         raise ValueError("No usable citations")
+    if not set(selected) <= cited_snapshots:
+        raise ValueError("No usable selected citations")
     return _checked_prompt(payload)
 
 
@@ -162,7 +185,7 @@ def build_canvas(
         if output.modules or not output.message or not output.message.strip():
             raise ValueError("Insufficient response needs a message")
     else:
-        if not output.modules or (output.message is not None and output.message.strip()):
+        if not output.modules:
             raise ValueError("Answer needs modules")
         canonical_message = None
     claims = []
