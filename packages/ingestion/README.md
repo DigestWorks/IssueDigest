@@ -516,6 +516,83 @@ uv run pytest packages/ingestion/tests/test_policy_html.py
 uv run pytest packages/ingestion/tests packages/domain/tests
 ```
 
+## 기존 법안 기본 정보 어댑터
+
+`parse_legacy_bill_metadata`는 호출자가 별도로 확보한 **단일 Bill 행의 JSON bytes**와
+사전에 대조한 SHA-256을 받는다. 기존 수집 DB에 접속하거나 URL을 방문하지 않는다.
+다음 값은 합성 예시이며 실제 수집 행을 포함하지 않는다.
+
+```python
+import json
+from hashlib import sha256
+from uuid import UUID
+
+from issuedigest_ingestion import (
+    locate_legacy_bill_quote,
+    parse_legacy_bill_metadata,
+    to_legacy_bill_representation,
+)
+
+source_id = "SYNTHETIC_42"
+bill = {
+    "bill_id": source_id,
+    "assembly_number": 22,
+    "bill_name": "합성 고등교육 법안",
+    "bill_number": 2200001,
+    "propose_date": "2026-03-30",
+    "committee": "합성 위원회",
+    "stage": None,
+    "bill_result": None,
+    "proposer_kind": "CONGRESSMAN",
+    "bill_link": f"https://likms.assembly.go.kr/bill/billDetail.do?billId={source_id}",
+}
+raw = json.dumps(bill, ensure_ascii=False).encode("utf-8")
+# 실제 호출자는 raw와 독립적으로 확보한 기대 해시를 전달한다.
+metadata = parse_legacy_bill_metadata(raw, expected_sha256=sha256(raw).hexdigest())
+representation = to_legacy_bill_representation(
+    metadata,
+    representation_id=UUID("22222222-2222-4222-8222-222222222222"),
+    document_version_id=UUID("11111111-1111-4111-8111-111111111111"),
+)
+selector = locate_legacy_bill_quote(representation, quote="고등교육 법안")
+```
+
+입력은 최대 64KiB의 strict UTF-8 JSON 객체다. 위 열 개 key는 모두 필수이고 다른 key,
+중복 key, 비표준 숫자, 잘못된 UTF-8, 빈 문자열, 제어문자와 줄바꿈을 거부한다.
+`committee`, `stage`, `bill_result`, `proposer_kind`만 `null`을 허용한다.
+ID는 ASCII 영숫자/underscore 1~255자, 법안명과 nullable 문구는 1~255자다.
+대수는 1~99 정수, 의안번호는 대수와 앞 두 자리가 일치하는 7자리 양의 정수다.
+제안일은 실제 `YYYY-MM-DD` 날짜이며 발의구분은 `CHAIRMAN`, `CONGRESSMAN`,
+`GOVERNMENT` 중 하나다. 공식 링크는 정확히
+`https://likms.assembly.go.kr/bill/billDetail.do?billId=<bill_id>` 형식이어야 한다.
+
+결과는 원천 ID·공식 링크·대수·의안번호·제안일 등 검증된 메타데이터와 원본 bytes의
+해시/길이, 렌더링 텍스트의 해시를 보존한다. 첫 줄은 법안명, 둘째 줄은 기본 정보이며
+전문이나 현재 상태가 아니라는 안내다. 나머지 줄은 대수, 의안번호, 제안일, 위원회,
+수집 당시 단계·처리결과, 발의구분 순이다. `null`은 “미수집”이며 발의구분 enum은
+“위원장 제안”/“의원 발의”/“정부 제출”로 표시하되 결과 객체에는 원래 enum을 보존한다.
+정규화 식별자는 `legacy-bill-metadata-v1`, 파서는 `legacy-bill-metadata` 버전 `1`이다.
+표현에는 실제 페이지나 표를 만들지 않는다. quote 위치는 Python Unicode code-point
+기준이며 중복 위치에는 명시 `start`가 필요하다. 기존 `Citation`과
+`validate_citation`으로 exact anchor를 확인할 수 있다.
+
+오류는 원본 값·경로·원래 예외를 담지 않는 고정 `AuditError` 코드다:
+`legacy_bill_invalid_raw`, `invalid_expected_sha256`, `legacy_bill_hash_mismatch`,
+`legacy_bill_byte_limit_exceeded`, `legacy_bill_invalid_json`,
+`legacy_bill_invalid_metadata`, `legacy_bill_invalid_url`, `legacy_bill_invalid_result`,
+`legacy_bill_invalid_representation`, `invalid_quote`, `invalid_quote_start`,
+`quote_not_found`, `quote_ambiguous`.
+
+이 텍스트는 기존 수집 DB의 **법안 기본 정보**를 내부 조사에 이용하기 위한 렌더링이다.
+표시할 때 국회 의안정보시스템의 공식 링크, 원천 ID, 수집 시각을 함께 남기고 현재
+처리 상태는 공식 출처에서 다시 확인한다. 원문 전문이나 AI 요약·현재 상태의 검증으로
+해석하지 않는다. PDF와 민간 본문 이용 권한으로 확대하지 않는다. 원본 JSON과 실제
+해시·ID는 개인 보관 영역에 두며 Git/PR/Sites에 넣지 않는다.
+
+```sh
+uv run pytest packages/ingestion/tests/test_legacy_bill.py
+```
+
 ## 로컬 HWPX 본문·표·정확 인용
 
 `extract_hwpx`는 별도로 획득한 exact `bytes`와 기대 SHA-256만 받는다. 파일·URL을
