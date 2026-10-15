@@ -2,7 +2,7 @@
 .research-nav button { border:0; border-bottom:2px solid transparent; border-radius:0; color:var(--muted); font-size:14px; padding:10px 2px 13px; white-space:nowrap; }
 .research-nav button[aria-current="page"] { border-color:var(--green); color:var(--green); font-weight:700; }
 .research-desk { margin-top:28px; }
-.research-grid { display:grid; grid-template-columns:minmax(260px, 340px) minmax(0, 1fr); gap:36px; align-items:start; }
+.research-grid { display:grid; grid-template-columns:minmax(260px, 300px) minmax(0, 1fr); gap:36px; align-items:start; }
 .research-sources, .research-work, .research-saved { min-width:0; }
 .research-section-heading { display:flex; justify-content:space-between; align-items:center; gap:12px; border-bottom:1px solid var(--line); padding-bottom:12px; }
 .research-section-heading h2 { font:500 20px/1.4 "Noto Serif KR", "Batang", serif; }

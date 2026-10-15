@@ -21,6 +21,17 @@ describe('CanvasView', () => {
     expect(screen.queryByText(/발화 주체 미제공/)).not.toBeInTheDocument();
     expect(screen.queryByText(/화면 버전/)).not.toBeInTheDocument();
   });
+  it('shows a short named-source citation button while preserving its full accessible label and action', async () => {
+    const bundle = data();
+    const received: CanvasAction[] = [];
+    const title = '실제 법안 제목';
+    render(<CanvasView bundle={bundle} sourceTitles={{[bundle.research.evidence[0].document.document_id]: title}} onAction={action => received.push(action)} />);
+    const button = screen.getAllByRole('button', {name: /^근거 열기: 실제 법안 제목 ·/})[0];
+    expect(button).toHaveTextContent(/^인용 보기$/);
+    expect(button).toHaveAttribute('title', expect.stringContaining(title));
+    await userEvent.setup().click(button);
+    expect(received).toEqual([{kind: 'open_evidence', citation_id: bundle.research.evidence[0].citations[0].citation_id}]);
+  });
   it('shows an empty state instead of fabricating modules', () => {
     render(<CanvasView bundle={null} />);
     expect(screen.getByRole('status')).toHaveTextContent('아직 표시할 조사 자료가 없습니다');

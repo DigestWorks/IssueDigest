@@ -11,6 +11,7 @@
 body { margin: 0; }
 button { font: inherit; }
 .workspace { max-width: 1056px; margin: 0 auto; padding: 0 56px; min-height: 100svh; display: flex; flex-direction: column; }
+.home-workspace { max-width: 1320px; padding-inline: clamp(24px, 3vw, 40px); }
 .brand { display: flex; align-items: center; gap: 12px; padding: 32px 0; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 650; letter-spacing: -.025em; }
 .brand-mark { width: 30px; height: 30px; display: grid; place-items: center; background: var(--green); color: #f7f7f1; font: 17px Georgia, serif; }
 .brand-caption { margin-left: auto; color: var(--muted); font-size: 12px; font-weight: 400; letter-spacing: 0; }

@@ -103,7 +103,7 @@ export default function Home() {
   }
 
   return (
-    <div className="workspace">
+    <div className="workspace home-workspace">
       <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">이슈 조사 작업 공간</span>{session.kind === 'ready' && <button type="button" onClick={() => void signOut()} disabled={logoutPending}>{logoutPending ? '로그아웃 중…' : '로그아웃'}</button>}</header>
       <main>
         <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>이슈 조사</button><button type="button" aria-current={view === 'sources' ? 'page' : undefined} onClick={() => setView('sources')}>자료</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>저장한 조사</button></nav>
