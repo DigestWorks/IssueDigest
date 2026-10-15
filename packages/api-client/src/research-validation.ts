@@ -140,7 +140,7 @@ export function validResearchCanvas(
       || !nonblank(module.title, 100) || module.span !== 'full'
       || !['summary', 'comparison', 'timeline', 'evidence'].includes(module.kind as string)) return false;
     moduleIds.add(module.module_id.toLowerCase());
-    const moduleCitations = selectedCitations(module.citation_ids, citations, 12);
+    const moduleCitations = selectedCitations(module.citation_ids, citations, evidence ? 36 : 12);
     if (!moduleCitations || !Array.isArray(module.actions)
       || module.actions.length !== moduleCitations.length) return false;
     const cited = new Set(moduleCitations.map(id => id.toLowerCase()));

@@ -1,6 +1,7 @@
 import { expect, test } from 'vitest';
 import { getResearchRun, getResearchSources, submitResearch, ResearchError } from '../src/research';
 import generatedRun from './fixtures/research-run-generated.json';
+import maximumCitations from './fixtures/research-run-36-citations.json';
 
 const workspace = '00000000-0000-4000-8000-000000000001';
 const snapshot = '00000000-0000-4000-8000-000000000002';
@@ -101,5 +102,47 @@ test('a complete insufficient-evidence Canvas with no claims or modules can be r
   draft(value).message = '인용 가능한 내용이 부족합니다.';
   globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
   try { expect((await getResearchRun(workspace, generatedRun.run_id)).data.result?.canvas.revision.draft.outcome).toBe('insufficient_evidence'); }
+  finally { globalThis.fetch = original; }
+});
+
+test('three generated analysis modules can cite 36 distinct pieces of evidence', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify(maximumCitations), {headers})) as typeof fetch;
+  try {
+    const result = (await getResearchRun(workspace, maximumCitations.run_id)).data.result;
+    expect(result?.canvas.revision.draft.modules.at(-1)?.citation_ids).toHaveLength(36);
+  }
+  finally { globalThis.fetch = original; }
+});
+
+test('an evidence module over the 36-citation generated maximum is rejected', async () => {
+  const original = globalThis.fetch;
+  const value = structuredClone(maximumCitations);
+  const extra = structuredClone(citationAt(value, 0));
+  extra.citation_id = '00000000-0000-4000-8000-000000000500';
+  const proofCitations = proof(value).citations;
+  const finalCitations = moduleAt(value, 3).citation_ids;
+  const finalActions = moduleAt(value, 3).actions;
+  if (!Array.isArray(proofCitations) || !Array.isArray(finalCitations) || !Array.isArray(finalActions)) throw new Error('Invalid synthetic fixture');
+  proofCitations.push(extra);
+  finalCitations.push(extra.citation_id);
+  finalActions.push({kind: 'open_evidence', citation_id: extra.citation_id});
+  globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+  try { await expect(getResearchRun(workspace, maximumCitations.run_id)).rejects.toMatchObject({kind: 'malformed'}); }
+  finally { globalThis.fetch = original; }
+});
+
+test('total usage respects the 24,000-token bound as well as output bound', async () => {
+  const original = globalThis.fetch;
+  try {
+    for (const [input, accepted] of [[19_001, false], [19_000, true]] as const) {
+      const value = structuredClone(generatedRun);
+      objectAt(value).input_tokens = input;
+      objectAt(value).output_tokens = 5_000;
+      globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+      if (accepted) expect((await getResearchRun(workspace, value.run_id)).data.input_tokens).toBe(input);
+      else await expect(getResearchRun(workspace, value.run_id)).rejects.toMatchObject({kind: 'malformed'});
+    }
+  }
   finally { globalThis.fetch = original; }
 });
