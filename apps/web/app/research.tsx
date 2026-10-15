@@ -54,6 +54,7 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
 
   useEffect(() => () => { postController.current?.abort(); actionController.current?.abort(); cancelController.current?.abort(); }, []);
   useEffect(() => () => {
+    invalidateSubmission();
     actionController.current?.abort();
     const controller = cancelController.current;
     if (controller) { cancelController.current = null; controller.abort(); setCancelling(false); }
@@ -96,11 +97,12 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
     return () => { controller.abort(); if (timer) clearTimeout(timer); };
   }, [workspaceId, runId, runVersion]);
 
+  function invalidateSubmission() {
+    const controller = postController.current;
+    if (controller) { postController.current = null; controller.abort(); locked.current = false; setSending(false); pendingInput.current = null; setRequestError(null); }
+  }
   function setCurrent(id: string | null, fromSubmission = false) {
-    if (!fromSubmission) {
-      const controller = postController.current;
-      if (controller) { postController.current = null; controller.abort(); locked.current = false; setSending(false); pendingInput.current = null; setRequestError(null); }
-    }
+    if (!fromSubmission) invalidateSubmission();
     const next = new URLSearchParams(currentParams.current);
     if (id) next.set('run', id); else next.delete('run');
     setParams(next);

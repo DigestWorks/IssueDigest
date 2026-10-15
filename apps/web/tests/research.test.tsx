@@ -253,6 +253,32 @@ it('does not replace a saved run when an earlier submission responds late', asyn
   expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
 });
 
+it.each([
+  {direction: -1, entries: [`/?view=research&run=${runId}`, '/?view=research'], index: 1},
+  {direction: 1, entries: ['/?view=research', `/?view=research&run=${runId}`], index: 0},
+])('preserves a history-selected run after navigating $direction while a POST is pending', async ({direction, entries, index}) => {
+  const lateId = '00000000-0000-4000-8000-000000000050';
+  let releasePost!: (value: Response) => void;
+  let submitted!: Record<string, unknown>;
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source]});
+    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
+    if (path.endsWith(`/research/${runId}`)) return response(completedRun());
+    throw Error(`unexpected ${path}`);
+  });
+  const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: entries, initialIndex: index});
+  render(<RouterProvider router={router} />);
+  await userEvent.setup().click(await screen.findByRole('button', {name: '핵심 정리'}));
+  await waitFor(() => expect(releasePost).toBeTypeOf('function'));
+  await act(async () => { await router.navigate(direction); });
+  expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
+  await act(async () => releasePost(response({...queuedRun(submitted), run_id: lateId})));
+  expect(router.state.location.search).toBe(`?view=research&run=${runId}`);
+  expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
+});
+
 it('keeps the current tab when a valid submission responds after a tab switch', async () => {
   let releasePost!: (value: Response) => void;
   let submitted!: Record<string, unknown>;
