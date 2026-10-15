@@ -83,3 +83,5 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 입력은 1~8개 단어, 각 1~64 Unicode code points, 공백 없는 양끝과 ASCII 기준 중복 금지, limit 1~20을 확인합니다. 응답은 필드·타입·개수·UUID4·수집 시각·위치 selector, 요청한 공간·검색어·필터·hit 일치와 coverage를 확인합니다. `SearchError.kind`는 `invalid-query`, `forbidden`, `unauthorized`, `not-found`, `unavailable`, `malformed`, `network`, `timeout`, `aborted`입니다. 기존 보호 요청의 same-origin cookie, no-store, 요청 ID, 헤더와 본문을 포함한 10초 기본 deadline 및 AbortSignal을 사용합니다. Origin 헤더는 브라우저가 설정합니다.
 
 검색은 원문에 포함된 문자만 찾습니다. `coverage.missing_snapshots`가 양수이면 일부 자료가 미색인 상태이고 `truncated`는 후보 또는 결과 한도에 걸렸음을 뜻합니다. 빈 결과를 근거 없음으로 단정하거나 검색 위치를 저장된 인용·주장 지지 판정으로 취급하지 않습니다. 원문 위치를 열 때는 로드한 `EvidenceBundle`과 hit의 ID·selector를 다시 대조해야 합니다.
+
+`resolveSearchSelection(routerState, bundle, workspaceId, snapshotId)`는 보호 GET에서 검증한 `EvidenceBundle`에 검색 hit가 가리키는 원문 위치가 정확히 존재하는지 확인합니다. workspace/snapshot/document/version/representation과 출처 메타데이터를 대조한 뒤 text/PDF의 quote·prefix·suffix·code point 범위와 실제 PDF 페이지, 표의 전체 cell text를 검사합니다. 유효하면 selector와 UTF-16 범위를 반환하고, 잘못되거나 오래된 상태에는 `null`을 반환합니다. router state는 저장된 인용을 만들지 않으며 직접 링크와 새로고침에는 전달되지 않습니다.

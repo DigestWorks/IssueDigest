@@ -98,6 +98,8 @@ function selector(value: unknown): value is EvidenceSearchHit['selector'] {
   return true;
 }
 
+export { selector as isSearchSelector };
+
 function isHit(value: unknown, workspaceId: string, query: EvidenceSearchQuery): value is EvidenceSearchHit {
   if (!isObject(value) || !hasKeys(value, ['workspace_id', 'snapshot_id', 'document_id', 'version_id', 'representation_id', 'provider', 'source_id', 'source_kind', 'canonical_url', 'collected_at', 'unit_ordinal', 'profile', 'selector', 'matched_terms', 'anchor_status', 'support_status'])) return false;
   if (!sameId(value.workspace_id, workspaceId) || ![value.snapshot_id, value.document_id, value.version_id, value.representation_id].every(isId) || !nonblank(value.provider) || !nonblank(value.source_id) || !kinds.includes(value.source_kind as string) || !sourceUrl(value.canonical_url) || !timestamp(value.collected_at, false) || !integer(value.unit_ordinal, 5999) || value.profile !== 'literal-ngrams-v1' || value.anchor_status !== 'matched' || value.support_status !== 'not_evaluated' || !selector(value.selector) || !terms(value.matched_terms)) return false;
