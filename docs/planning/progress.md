@@ -21,7 +21,15 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 보호 근거 검색 API·화면 · 2026-10-15
+## 현재 작업 · 자료 중심 UI·기존 법안 연결 · 2026-10-15
+
+- 범위: [작업 명세](../changes/workspace-clarity-legacy.md), R2/R3/D011/D015 유지. feat/workspace-clarity-legacy, base feat/evidence-search-ui/b94c7fb. 격리 worktree·OpenSpec root=null·작업별 구현/독립 리뷰를 적용한다.
+- UI: 검색→자료→원문/인용이 중심인 작은 작업 공간으로 정리한다. ID/정밀 시각·개발 진단은 보조 상세로 옮기고 기본 자료 유형/날짜/읽기를 우선한다. 실제 AI 답변·생성 UI 미연결 상태를 명시한다.
+- 자료: 기존 MySQL Bill을 SELECT만 하여 고등교육·등록금 관련8건을 선별했다. 제안일2026-03-30~2026-06-22, 원문 링크8건에서 HTTP200·국회 host·법안명/원천ID 대응 확인. 기본 메타데이터만 추가하며 전문/AI 요약/현재 처리 상태를 새로 검증했다고 표시하지 않는다. 원문/개인 ID/계정은 비공개에 보관한다.
+- 재검사: 기존 parsed JSON840/PDF774, 연결 후보225·격리384·미지원231·PDF 헤더 없음23으로 확인했다. 이 집계는 원문·인용·이용 조건 검증이 아니므로 PDF 본문 등록은 보류한다.
+- 상태: 실제 앱 DB 읽기 백업을 새로 확보했다. 코드·실DB 추가·전체 검사·개발 앱 갱신·PR/Sites는 진행 중이다. main/운영 배포는 유예한다.
+
+## 이전 작업 · 보호 근거 검색 API·화면 · 2026-10-15
 
 - 작업/담당: [검색 인터페이스](../changes/evidence-search-interface.md), R2/R3·D011/D015. controller/구현자·feat/evidence-search-ui, base docs/development-https-audit/edfa66f. 격리 worktree·OpenSpec root=null, 기존 SDK를 소비한다.
 - 현재: 보호 JSON POST·typed client·작업 공간 검색 화면·검증된 원문 위치 reader 연결을 구현했다. Task1 검토에서 JSON 날짜/마이크로초/출력 메타데이터 한도와 async DB 호출을 보완했고 재검토를 통과했다. Task2 검토 승인 후 새로고침 문서/coverage 표시를 정리했다. 전체 변경 독립 리뷰 Critical/Important0, Minor1 문구 보완 후 재검토 승인. [Draft PR #27](https://github.com/DigestWorks/IssueDigest/pull/27) 게시·앱 첨부, 개발 앱 갱신·Sites v47 게시·개발 인계 완료다. 의미 검색·AI 생성·스키마 변경은 이번 범위가 아니다.
