@@ -27,7 +27,9 @@
 - 확인: 관리자 HTTP80 virtual host→내부18173 설치. 정확 Host·DNS 우회 읽기 검사에서 login/health200·미인증session401. 실제 서버 내부 웹/API는 응답한다.
 - 미완료: 개발 주소는 OS/Google/Cloudflare와 권한DNS2곳(ns1/ns2.hosting.co.kr)에서 NXDOMAIN. 서버 직접 연결/SNI·정상 인증서 검증은 hostname mismatch62, 개발 host에443/TLS 미설정. 전역 access/error 로그를 상속하며 개발 host의 OAuth 로그 차단 미반영이다.
 - 다음: 활성 projects.ai.kr DNS 존에서 dev.issuedigest 레코드 확인·개발 TLS/443·callback 로그 정책 반영을 동료에게 추가 전달. 사용자 Google callback 추가 완료 기록은 유지한다. 해당 조건을 만족한 뒤 실제 HTTPS/Google 로그인·자료 열람을 검증한다.
-- 범위: 읽기 조사만 수행. 인증서 검증 우회/HTTP Google 로그인·OAuth start/callback·서버/앱/DB/권한/main 변경 없음. 새 사용자 입력은 DNS/TLS 적용 결과이며 비밀값을 요청하지 않는다. 문서/PR·Sites 결과 기록은 마무리 중이고 Sites 탭을 다시 열지 않는다.
+- 범위: 읽기 조사만 수행. 인증서 검증 우회/HTTP Google 로그인·OAuth start/callback·서버/앱/DB/권한/main 변경 없음. 새 사용자 입력은 DNS/TLS 적용 결과이며 비밀값을 요청하지 않는다. 문서 상대 링크25개·실제 비밀값/계정/개별ID 제외·diff 검사를 통과했다. [Draft PR #26](https://github.com/DigestWorks/IssueDigest/pull/26) baseops/development-https·앱 첨부. 제품 코드 변경 없어 전체 테스트를 반복하지 않았다.
+- Sites: [v46 개발 HTTPS 점검](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#development-https) native succeeded/public. source `be426d9bc8644aa6d498161273b0a5d4378752fb`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_f6d298c1216481919bf24117705d9f70`, deployment `appgdep_6ad06f3bdf34819197e4b6dc0d9dea74`. 사본 기준87123d0·v45 보존, HTML31/로컬 링크anchor718/manifest·Site공개69파일 비밀값 제외 통과. 첫 source helper 열기는 Git 호스트 DNS 오류로 중단됐고 호스트 재조회 후 같은 Site/credential로 정상 재개했다. 문서 요약의 새 브라우저 검사는 수행하지 않았고 사용자 요청대로 Site를 다시 열지 않았다.
+- 인계: 서버/앱을 변경하지 않으며 현재 읽기 점검 문서 branch의 사용자 폴더·서버 개인 worktree 동기화는 마무리 중이다.
 
 ## 이전 작업 · 고정 HTTPS 개발 접속 준비
 
