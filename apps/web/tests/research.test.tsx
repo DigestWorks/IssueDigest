@@ -49,6 +49,21 @@ it('shows named sources without creating an AI request on load and permits selec
   await waitFor(() => expect(requests.every(request => request.method === 'GET')).toBe(true));
 });
 
+it('limits a new research request to three selected sources', async () => {
+  const items = [1, 2, 3, 4].map(index => ({...source, snapshot_id: `00000000-0000-4000-8000-00000000009${index}`, document_id: `00000000-0000-4000-8000-00000000002${index}`, title: `법안 ${index}`}));
+  vi.stubGlobal('fetch', async (path: string) => {
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items});
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: []});
+    throw Error(`unexpected ${path}`);
+  });
+  render(<MemoryRouter><Home /></MemoryRouter>);
+  const user = userEvent.setup();
+  for (const index of [1, 2, 3]) await user.click(await screen.findByRole('checkbox', {name: `법안 ${index}`}));
+  expect(screen.getByText('선택한 자료 3개')).toBeInTheDocument();
+  expect(screen.getByRole('checkbox', {name: '법안 4'})).toBeDisabled();
+});
+
 it('keeps the selected source and unsent question when checking the source tab', async () => {
   vi.stubGlobal('fetch', async (path: string) => {
     if (path.endsWith('/session')) return response(session);
