@@ -75,3 +75,11 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 성공 GET은 JSON media type·no-store·요청 UUID와 표시 계약을 검증합니다. 세션은 schema 1·사용자/작업 공간 UUID4·viewer/editor/owner·최대 100개·고유한 UUID 오름차순 멤버십을 요구합니다. 목록은 같은 workspace·schema 1·최대 50개·고유 snapshot·문서 UUID4·NonBlank 공급처/출처·원문 종류·credential 없는 HTTP(S) URL·실제 UTC ISO 수집 시각·최대 160 Unicode code point excerpt·안전한 음이 아닌 정수 인용 수·strict bool을 요구합니다. 이 두 모델의 추가 필드도 거부합니다. 서버의 권한·자료 진위·권리·주장 지지 검증을 대체하지 않습니다.
 
 `packages/api-client/tests/auth-catalog.test.ts`는 합성 응답으로 잘못된 계약·본문/헤더 timeout·취소·안전 오류를 검사합니다. 실제 공급자 로그인·DB 연결·운영 설정은 이 검사의 범위가 아닙니다.
+
+## 보호 근거 문자 검색
+
+`searchEvidence(workspaceId, { terms: ['등록금', '2026'], limit: 10 }, options?)`는 현재 세션의 작업 공간에 JSON POST를 보내 `{ data: EvidenceSearchResult, requestId }`를 반환합니다. 생성 타입 `EvidenceSearchQuery`, `EvidenceSearchResult`, `EvidenceSearchHit`와 요청용 `EvidenceSearchInput`을 공개합니다. 검색어는 URL이나 브라우저 저장소에 넣지 않습니다. 선택 필터 `provider`, `source_id`, `source_kind`, UTC `collected_from`/`collected_to`를 입력에 넣을 수 있습니다.
+
+입력은 1~8개 단어, 각 1~64 Unicode code points, 공백 없는 양끝과 ASCII 기준 중복 금지, limit 1~20을 확인합니다. 응답은 필드·타입·개수·UUID4·수집 시각·위치 selector, 요청한 공간·검색어·필터·hit 일치와 coverage를 확인합니다. `SearchError.kind`는 `invalid-query`, `forbidden`, `unauthorized`, `not-found`, `unavailable`, `malformed`, `network`, `timeout`, `aborted`입니다. 기존 보호 요청의 same-origin cookie, no-store, 요청 ID, 헤더와 본문을 포함한 10초 기본 deadline 및 AbortSignal을 사용합니다. Origin 헤더는 브라우저가 설정합니다.
+
+검색은 원문에 포함된 문자만 찾습니다. `coverage.missing_snapshots`가 양수이면 일부 자료가 미색인 상태이고 `truncated`는 후보 또는 결과 한도에 걸렸음을 뜻합니다. 빈 결과를 근거 없음으로 단정하거나 검색 위치를 저장된 인용·주장 지지 판정으로 취급하지 않습니다. 원문 위치를 열 때는 로드한 `EvidenceBundle`과 hit의 ID·selector를 다시 대조해야 합니다.

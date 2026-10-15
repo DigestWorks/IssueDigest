@@ -40,3 +40,8 @@ class AuthUnavailableError(BaseModel):
 class OriginDeniedError(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     detail: Literal["Request origin denied"]
+
+
+class EvidenceSearchRequestError(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    detail: Literal["Invalid evidence search request"]

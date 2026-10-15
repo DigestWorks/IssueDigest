@@ -1638,6 +1638,313 @@
         "title": "EvidencePathValidationError",
         "type": "object"
       },
+      "EvidenceSearchHit": {
+        "additionalProperties": false,
+        "properties": {
+          "anchor_status": {
+            "const": "matched",
+            "default": "matched",
+            "title": "Anchor Status",
+            "type": "string"
+          },
+          "canonical_url": {
+            "anyOf": [
+              {
+                "format": "uri",
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Canonical Url"
+          },
+          "collected_at": {
+            "format": "date-time",
+            "title": "Collected At",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "matched_terms": {
+            "items": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Matched Terms",
+            "type": "array"
+          },
+          "profile": {
+            "const": "literal-ngrams-v1",
+            "default": "literal-ngrams-v1",
+            "title": "Profile",
+            "type": "string"
+          },
+          "provider": {
+            "title": "Provider",
+            "type": "string"
+          },
+          "representation_id": {
+            "format": "uuid4",
+            "title": "Representation Id",
+            "type": "string"
+          },
+          "selector": {
+            "discriminator": {
+              "mapping": {
+                "pdf": "#/components/schemas/PdfQuoteSelector",
+                "table_cell": "#/components/schemas/TableCellSelector",
+                "text": "#/components/schemas/TextQuoteSelector"
+              },
+              "propertyName": "kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/TextQuoteSelector"
+              },
+              {
+                "$ref": "#/components/schemas/PdfQuoteSelector"
+              },
+              {
+                "$ref": "#/components/schemas/TableCellSelector"
+              }
+            ],
+            "title": "Selector"
+          },
+          "snapshot_id": {
+            "format": "uuid4",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "bill",
+              "legal_text",
+              "government_document",
+              "news",
+              "poll",
+              "statistics",
+              "petition",
+              "other"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "support_status": {
+            "const": "not_evaluated",
+            "default": "not_evaluated",
+            "title": "Support Status",
+            "type": "string"
+          },
+          "unit_ordinal": {
+            "exclusiveMaximum": 6000,
+            "minimum": 0,
+            "title": "Unit Ordinal",
+            "type": "integer"
+          },
+          "version_id": {
+            "format": "uuid4",
+            "title": "Version Id",
+            "type": "string"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "snapshot_id",
+          "document_id",
+          "version_id",
+          "representation_id",
+          "provider",
+          "source_id",
+          "source_kind",
+          "collected_at",
+          "unit_ordinal",
+          "selector",
+          "matched_terms"
+        ],
+        "title": "EvidenceSearchHit",
+        "type": "object"
+      },
+      "EvidenceSearchQuery": {
+        "additionalProperties": false,
+        "properties": {
+          "collected_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Collected From"
+          },
+          "collected_to": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Collected To"
+          },
+          "limit": {
+            "default": 20,
+            "maximum": 20,
+            "minimum": 1,
+            "title": "Limit",
+            "type": "integer"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "maxLength": 1024,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Provider"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "maxLength": 1024,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Id"
+          },
+          "source_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "bill",
+                  "legal_text",
+                  "government_document",
+                  "news",
+                  "poll",
+                  "statistics",
+                  "petition",
+                  "other"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Kind"
+          },
+          "terms": {
+            "items": {
+              "maxLength": 64,
+              "minLength": 1,
+              "type": "string"
+            },
+            "maxItems": 8,
+            "minItems": 1,
+            "title": "Terms",
+            "type": "array"
+          }
+        },
+        "required": [
+          "terms"
+        ],
+        "title": "EvidenceSearchQuery",
+        "type": "object"
+      },
+      "EvidenceSearchRequestError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "const": "Invalid evidence search request",
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "EvidenceSearchRequestError",
+        "type": "object"
+      },
+      "EvidenceSearchResult": {
+        "additionalProperties": false,
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/SearchCoverage"
+          },
+          "hits": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceSearchHit"
+            },
+            "maxItems": 20,
+            "title": "Hits",
+            "type": "array"
+          },
+          "query": {
+            "$ref": "#/components/schemas/EvidenceSearchQuery"
+          },
+          "scanned_candidates": {
+            "maximum": 200,
+            "minimum": 0,
+            "title": "Scanned Candidates",
+            "type": "integer"
+          },
+          "truncated": {
+            "title": "Truncated",
+            "type": "boolean"
+          },
+          "workspace_id": {
+            "format": "uuid4",
+            "title": "Workspace Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "workspace_id",
+          "query",
+          "hits",
+          "coverage",
+          "scanned_candidates",
+          "truncated"
+        ],
+        "title": "EvidenceSearchResult",
+        "type": "object"
+      },
       "EvidenceSummary": {
         "additionalProperties": false,
         "properties": {
@@ -3162,6 +3469,45 @@
           "input"
         ],
         "title": "RunSubmission",
+        "type": "object"
+      },
+      "SearchCoverage": {
+        "additionalProperties": false,
+        "properties": {
+          "indexed_snapshots": {
+            "minimum": 0,
+            "title": "Indexed Snapshots",
+            "type": "integer"
+          },
+          "missing_snapshots": {
+            "minimum": 0,
+            "title": "Missing Snapshots",
+            "type": "integer"
+          },
+          "skipped_empty_cells": {
+            "minimum": 0,
+            "title": "Skipped Empty Cells",
+            "type": "integer"
+          },
+          "skipped_large_cells": {
+            "minimum": 0,
+            "title": "Skipped Large Cells",
+            "type": "integer"
+          },
+          "total_snapshots": {
+            "minimum": 0,
+            "title": "Total Snapshots",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "total_snapshots",
+          "indexed_snapshots",
+          "missing_snapshots",
+          "skipped_empty_cells",
+          "skipped_large_cells"
+        ],
+        "title": "SearchCoverage",
         "type": "object"
       },
       "SelectDocumentAction": {
@@ -4743,6 +5089,198 @@
           }
         ],
         "summary": "Catalog"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/evidence/search": {
+      "post": {
+        "operationId": "search_api_v1_workspaces__workspace_id__evidence_search_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EvidenceSearchQuery"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceSearchResult"
+                }
+              }
+            },
+            "description": "Validated immutable evidence",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceAuthenticationError"
+                }
+              }
+            },
+            "description": "Authentication required",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OriginDeniedError"
+                }
+              }
+            },
+            "description": "Forbidden",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceNotFoundError"
+                }
+              }
+            },
+            "description": "Evidence not found",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "$ref": "#/components/schemas/EvidenceSearchRequestError"
+                    },
+                    {
+                      "$ref": "#/components/schemas/EvidencePathValidationError"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "Validation Error",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EvidenceUnavailableError"
+                }
+              }
+            },
+            "description": "Evidence service unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Search"
       }
     },
     "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}": {

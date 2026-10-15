@@ -22,9 +22,9 @@
 
 ### Task 1: 보호 검색 HTTP 계약·클라이언트
 
-- [ ] TDD로 실제 assertion RED를 확인한 뒤 API route·bounded JSON 입력·고정 오류·현재 권한·출력 검증을 구현한다. apps/api의 search 모듈과 기존 main/contracts/errors 경계, packages/api-client의 검색 모듈/보호 transport·export, 생성 계약을 변경한다. 기존 세션·목록·인용 동작을 보존한다.
-- [ ] PostgreSQL 통합 검증은 기존 합성 fixture로 정상검색/다른 공간·폐기 세션·미색인·한도를 검사한다. HTTP 주입 backend로 body 한도·중복/잘못된 JSON·경로/Origin·반환 변조/에러 비노출을 검증한다. 클라이언트는 입력/응답 변조·타임아웃·취소/역순 응답·logout204 보존을 검증한다. client는 EvidenceSearchQuery/Result/Hit 및 searchEvidence를 export한다. reader가 쓸 검색 hit 검증/선택 helper의 계약은 Task2에서 구현한다.
-- [ ] 관련 API/클라이언트 README에 실제 사용법·문자 검색/미색인/권한 경계를 기록한다. 관련 테스트·lint/type/계약 검증·self-review 후 commit하고 별도 report에 RED/GREEN 근거를 기록한다. 수행한 task 체크만 갱신한다.
+- [x] TDD로 실제 assertion RED를 확인한 뒤 API route·bounded JSON 입력·고정 오류·현재 권한·출력 검증을 구현한다. apps/api의 search 모듈과 기존 main/contracts/errors 경계, packages/api-client의 검색 모듈/보호 transport·export, 생성 계약을 변경한다. 기존 세션·목록·인용 동작을 보존한다.
+- [x] PostgreSQL 통합 검증은 기존 합성 fixture로 정상검색/다른 공간·폐기 세션·미색인·한도를 검사한다. HTTP 주입 backend로 body 한도·중복/잘못된 JSON·경로/Origin·반환 변조/에러 비노출을 검증한다. 클라이언트는 입력/응답 변조·타임아웃·취소/역순 응답·logout204 보존을 검증한다. client는 EvidenceSearchQuery/Result/Hit 및 searchEvidence를 export한다. reader가 쓸 검색 hit 검증/선택 helper의 계약은 Task2에서 구현한다.
+- [x] 관련 API/클라이언트 README에 실제 사용법·문자 검색/미색인/권한 경계를 기록한다. 관련 테스트·lint/type/계약 검증·self-review 후 commit하고 별도 report에 RED/GREEN 근거를 기록한다. 수행한 task 체크만 갱신한다.
 
 ### Task 2: 검색 화면·원문 위치 연결
 

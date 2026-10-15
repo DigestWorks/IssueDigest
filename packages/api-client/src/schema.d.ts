@@ -106,6 +106,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/evidence/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search */
+        post: operations["search_api_v1_workspaces__workspace_id__evidence_search_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}": {
         parameters: {
             query?: never;
@@ -828,6 +845,136 @@ export interface components {
             /** Detail */
             detail: components["schemas"]["EvidencePathValidationDetail"][];
         };
+        /** EvidenceSearchHit */
+        EvidenceSearchHit: {
+            /**
+             * Anchor Status
+             * @default matched
+             * @constant
+             */
+            anchor_status: "matched";
+            /**
+             * Canonical Url
+             * @default null
+             */
+            canonical_url: string | null;
+            /**
+             * Collected At
+             * Format: date-time
+             */
+            collected_at: string;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /** Matched Terms */
+            matched_terms: string[];
+            /**
+             * Profile
+             * @default literal-ngrams-v1
+             * @constant
+             */
+            profile: "literal-ngrams-v1";
+            /** Provider */
+            provider: string;
+            /**
+             * Representation Id
+             * Format: uuid4
+             */
+            representation_id: string;
+            /** Selector */
+            selector: components["schemas"]["TextQuoteSelector"] | components["schemas"]["PdfQuoteSelector"] | components["schemas"]["TableCellSelector"];
+            /**
+             * Snapshot Id
+             * Format: uuid4
+             */
+            snapshot_id: string;
+            /** Source Id */
+            source_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other";
+            /**
+             * Support Status
+             * @default not_evaluated
+             * @constant
+             */
+            support_status: "not_evaluated";
+            /** Unit Ordinal */
+            unit_ordinal: number;
+            /**
+             * Version Id
+             * Format: uuid4
+             */
+            version_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
+        /** EvidenceSearchQuery */
+        EvidenceSearchQuery: {
+            /**
+             * Collected From
+             * @default null
+             */
+            collected_from: string | null;
+            /**
+             * Collected To
+             * @default null
+             */
+            collected_to: string | null;
+            /**
+             * Limit
+             * @default 20
+             */
+            limit: number;
+            /**
+             * Provider
+             * @default null
+             */
+            provider: string | null;
+            /**
+             * Source Id
+             * @default null
+             */
+            source_id: string | null;
+            /**
+             * Source Kind
+             * @default null
+             */
+            source_kind: ("bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other") | null;
+            /** Terms */
+            terms: string[];
+        };
+        /** EvidenceSearchRequestError */
+        EvidenceSearchRequestError: {
+            /**
+             * Detail
+             * @constant
+             */
+            detail: "Invalid evidence search request";
+        };
+        /** EvidenceSearchResult */
+        EvidenceSearchResult: {
+            coverage: components["schemas"]["SearchCoverage"];
+            /** Hits */
+            hits: components["schemas"]["EvidenceSearchHit"][];
+            query: components["schemas"]["EvidenceSearchQuery"];
+            /** Scanned Candidates */
+            scanned_candidates: number;
+            /** Truncated */
+            truncated: boolean;
+            /**
+             * Workspace Id
+             * Format: uuid4
+             */
+            workspace_id: string;
+        };
         /** EvidenceSummary */
         EvidenceSummary: {
             /**
@@ -1425,6 +1572,19 @@ export interface components {
              * Format: uuid4
              */
             workspace_id: string;
+        };
+        /** SearchCoverage */
+        SearchCoverage: {
+            /** Indexed Snapshots */
+            indexed_snapshots: number;
+            /** Missing Snapshots */
+            missing_snapshots: number;
+            /** Skipped Empty Cells */
+            skipped_empty_cells: number;
+            /** Skipped Large Cells */
+            skipped_large_cells: number;
+            /** Total Snapshots */
+            total_snapshots: number;
         };
         /** SelectDocumentAction */
         SelectDocumentAction: {
@@ -2137,6 +2297,95 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidencePathValidationError"];
+                };
+            };
+            /** @description Evidence service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceUnavailableError"];
+                };
+            };
+        };
+    };
+    search_api_v1_workspaces__workspace_id__evidence_search_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["EvidenceSearchQuery"];
+            };
+        };
+        responses: {
+            /** @description Validated immutable evidence */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceSearchResult"];
+                };
+            };
+            /** @description Authentication required */
+            401: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceAuthenticationError"];
+                };
+            };
+            /** @description Forbidden */
+            403: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OriginDeniedError"];
+                };
+            };
+            /** @description Evidence not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceNotFoundError"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvidenceSearchRequestError"] | components["schemas"]["EvidencePathValidationError"];
                 };
             };
             /** @description Evidence service unavailable */
