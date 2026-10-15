@@ -58,6 +58,11 @@ export default function EvidenceSearch({ workspaceId }: { workspaceId: string })
   }
 
   const data = state.kind === 'success' ? state.data : null;
+  const omissions = data ? [
+    data.coverage.missing_snapshots > 0 ? `미색인 ${data.coverage.missing_snapshots}개` : null,
+    data.coverage.skipped_empty_cells > 0 ? `빈 셀 제외 ${data.coverage.skipped_empty_cells}개` : null,
+    data.coverage.skipped_large_cells > 0 ? `큰 셀 제외 ${data.coverage.skipped_large_cells}개` : null,
+  ].filter(Boolean) : [];
   return <section className="evidence-search" aria-label="원문 검색">
     <form onSubmit={submit}>
       <label htmlFor="evidence-search-input">원문 검색</label>
@@ -76,9 +81,9 @@ export default function EvidenceSearch({ workspaceId }: { workspaceId: string })
     </div>}
     {data && <div className="search-results">
       <p role="status" aria-label="검색 상태" aria-live="polite" className="search-status">일치한 원문 위치 {data.hits.length}개 · 최대 {data.query.limit}개 위치 표시</p>
-      <p className="search-coverage">자료 색인 {data.coverage.indexed_snapshots}/{data.coverage.total_snapshots}개 · 미색인 {data.coverage.missing_snapshots}개 · 후보 {data.scanned_candidates}/200개 확인 · 제외 셀: 빈 셀 {data.coverage.skipped_empty_cells}개, 큰 셀 {data.coverage.skipped_large_cells}개</p>
+      <p className="search-coverage">자료 색인 {data.coverage.indexed_snapshots}/{data.coverage.total_snapshots}개{omissions.length > 0 && ` · ${omissions.join(' · ')}`}</p>
       {data.truncated && <p className="search-limit">후보 또는 결과 한도에 걸려 일부 일치 위치가 표시되지 않았을 수 있습니다.</p>}
-      {data.hits.length === 0 ? <p className="search-empty">일치한 위치가 없습니다. 미색인 자료와 제외된 셀에는 일치하는 내용이 있을 수 있습니다.</p> : <ol className="search-hit-list">
+      {data.hits.length === 0 ? <p className="search-empty">일치한 위치가 없습니다. {omissions.length > 0 ? '미색인 자료나 제외된 셀에는 일치하는 내용이 있을 수 있습니다.' : '검색 조건을 바꿔 다시 확인해 보세요.'}</p> : <ol className="search-hit-list">
         {data.hits.map(hit => <li key={`${hit.snapshot_id}/${hit.unit_ordinal}`}>
           <div className="search-hit-meta"><span>{hit.provider} · {hit.source_id}</span><time dateTime={hit.collected_at}>수집 {hit.collected_at}</time></div>
           <p className="search-hit-quote">{hit.selector.quote}</p>
