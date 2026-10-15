@@ -10,6 +10,8 @@ from issuedigest_domain import (
     ComparisonAssessment,
     EvidenceBundle,
     EvidenceCatalog,
+    EvidenceSearchQuery,
+    EvidenceSearchResult,
     ReplayBatch,
     ResearchBundle,
     RunExecutionBundle,
@@ -19,6 +21,8 @@ from issuedigest_domain import (
     UsageBook,
 )
 from pydantic.json_schema import models_json_schema
+
+from .errors import EvidenceSearchRequestError
 
 
 def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
@@ -35,6 +39,9 @@ def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
             (EvidenceBundle, "validation"),
             (SessionInfo, "validation"),
             (EvidenceCatalog, "validation"),
+            (EvidenceSearchQuery, "validation"),
+            (EvidenceSearchResult, "validation"),
+            (EvidenceSearchRequestError, "validation"),
             (CitationAnchorValidation, "validation"),
             (ResearchBundle, "validation"),
             (ComparisonAssessment, "validation"),

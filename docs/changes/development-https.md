@@ -4,7 +4,7 @@
 
 ## 경로·범위
 
-- 준비 주소는 `https://dev.issuedigest.projects.ai.kr`. 현재 DNS/TLS/공개 프록시는 미설치다. 관리자와 주소/인증서가 달라지면 실제 origin/callback을 함께 맞춘다. localhost 미리보기를 사용자 확인 주소로 다시 제공하지 않는다.
+- 준비 주소는 `https://dev.issuedigest.projects.ai.kr`. 초기에는 DNS/TLS/공개 프록시가 미설치였으며 2026-10-15 외부 연결을 확인했다. 관리자와 주소/인증서가 달라지면 실제 origin/callback을 함께 맞춘다. localhost 미리보기를 사용자 확인 주소로 다시 제공하지 않는다.
 - 공개 Nginx TLS → 서버 내부 `127.0.0.1:18173`의 개인 정적 웹/프록시 → 기존 `127.0.0.1:18090`의 개인 FastAPI runtime → 기존 앱 권한 DB. 웹은 고정 Node/lockfile의 React Router SPA 빌드이며 Vite 개발 서버/HMR을 외부에 노출하지 않는다.
 - 개인 웹 자산과 개인 Nginx prefix/config/PID·실행만 만든다. 기존 Nginx 설치 바이너리를 개인 계정으로 실행하고 루프백에만 바인딩한다. 시스템 Nginx/인증서·운영 서비스/main·공용 checkout·기존 DB/회원/자료·권한은 변경하지 않는다.
 - 개인 API의 공개 origin을 준비 주소에 맞추되 기존 앱 역할/Google client를 사용한다. Google Console에 해당 callback이 추가돼야 실제 제공자 인증이 성공한다. Google client 파일에 남은 과거 redirect 목록은 Console의 현재 허용 목록 검증이 아니다.
@@ -25,7 +25,7 @@ Sites는 상태 요약을 계속 갱신하지만 사용자가 이미 열어 둔 
 - [x] 기존 앱 계정/Google client·새 공개 origin과 start/cancel/Origin 거부·자료/초대·세션0 확인.
 - [x] 관리자 적용 파일/요청 메시지·공식 문서/독립 검토·Draft PR/Sites 기록과 개발 인계.
 - [x] 사용자 Google Console callback 추가 완료 전달. 실제 제공자 반환 검증은 외부 HTTPS 후 확인.
-- [ ] 관리자 DNS/TLS/공개 프록시 연결.
+- [x] 관리자 DNS/TLS/공개 프록시 연결. 2026-10-15 17:04 KST 외부 인증서/응답 확인.
 - [ ] 외부 인증서·동일 origin 라우팅·미승인 거부와 실제 사용자 Google 로그인/원문·인용3개 확인.
 
 ## 실제 내부 준비 결과
@@ -41,3 +41,7 @@ Sites는 상태 요약을 계속 갱신하지만 사용자가 이미 열어 둔 
 ## 2026-10-15 · 관리자 적용 후 외부 점검
 
 동료가 진행했다는 사용자 전달 후 직접 확인했다. HTTP virtual host/upstream은 설치됐고 DNS 우회·정확 Host의 읽기 검사에서 login/health200·session401이다. OS/Google/Cloudflare·권한 DNS2곳의 개발 주소는 NXDOMAIN, TLS는 SNI를 유지한 서버 직접 연결에서도 hostname mismatch(code62)로 실패했다. 개발 host는HTTP80만 설정돼 있고 전역 요청/오류 로그를 상속하며 OAuth 로그 차단은 미반영이다. OAuth start/callback은 실행하지 않았다. [추가 확인 요청](../../infra/development-https.md)을 준비했고 시스템/앱·DB/권한은 변경하지 않았다. 외부 연결과 실제 로그인 체크박스는 대기로 유지한다.
+
+## 2026-10-15 17:04 KST · 재검사 통과
+
+권한 DNS4곳·Google/Cloudflare 모두 정확 A 응답, CA/hostname 검증을 유지한 일반 HTTPS와 직접 SNI 정상이다. login/asset/health200·인증 전session401, 잘못된Origin403·정상start303·정확 callback/PKCE/보안cookie·정상취소303을 확인했다. 설치된 시스템 virtual host의443/로그 차단도 읽기 확인했다. 실제 Google 계정 로그인을 대신 수행하거나 사용자 세션을 제조하지 않았으며 실제 자료 열람·인증서 자동 갱신 실행은 미검증이다. 초기 실패 기록은 당시 상태로 보존한다. 상세는 [인수인계](../../infra/development-https.md)를 따른다.

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router';
-import { EvidenceError, getCitationUtf16Range, getEvidence, type Citation, type EvidenceBundle, type EvidenceFailure } from '@issuedigest/api-client';
+import { Link, useLocation } from 'react-router';
+import { EvidenceError, getCitationUtf16Range, getEvidence, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
 import './reader.css';
 
 type State = { kind: 'loading' } | { kind: 'ready'; data: EvidenceBundle } | { kind: 'failure'; error: EvidenceError };
@@ -16,6 +16,7 @@ const messages: Record<EvidenceFailure, string> = {
 };
 
 export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceId: string; snapshotId: string }) {
+  const location = useLocation();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
@@ -40,7 +41,7 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
           {state.error.kind !== 'invalid-link' && <button type="button" onClick={retry}>다시 읽기</button>}
           {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
         </>}
-        {state.kind === 'ready' && <SavedEvidence data={state.data} />}
+        {state.kind === 'ready' && <SavedEvidence data={state.data} workspaceId={workspaceId} snapshotId={snapshotId} searchState={location.state} />}
       </main>
       <footer>DigestWorks <span>자료와 근거를 차분히 살펴보는 곳</span></footer>
     </div>
@@ -51,9 +52,11 @@ function citationLabel(citation: Citation, index: number) {
   const selector = citation.selector;
   return `인용 ${index + 1} · ${selector.kind === 'text' ? '텍스트' : selector.kind === 'pdf' ? `PDF ${selector.page_number}쪽` : '표 셀'}`;
 }
-function SavedEvidence({ data }: { data: EvidenceBundle }) {
+function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState<number | null>(null);
+  const [searchSelection, setSearchSelection] = useState<SearchSelection | null>(null);
+  const [searchNotice, setSearchNotice] = useState(false);
   const original = useRef<HTMLDivElement>(null);
   const highlightedQuote = useRef<HTMLElement>(null);
   const focusOriginal = useRef(false);
@@ -65,12 +68,13 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
   const start = page ? points.slice(0, page.start).join('').length : 0;
   const end = page ? points.slice(0, page.end).join('').length : representation.text.length;
   const text = representation.text.slice(start, end);
-  const selector = selected?.selector;
-  const range = useMemo(() => selector && selector.kind !== 'table_cell' ? getCitationUtf16Range(representation.text, selector) : null, [representation.text, selector]);
+  const selector = selected?.selector ?? searchSelection?.selector;
+  const range = useMemo(() => selected && selected.selector.kind !== 'table_cell' ? getCitationUtf16Range(representation.text, selected.selector) : searchSelection?.range ?? null, [representation.text, selected, searchSelection]);
   const highlight = range && range.start >= start && range.end <= end ? { start: range.start - start, end: range.end - start } : null;
   const cell = selector?.kind === 'table_cell' ? representation.tables.find(table => table.table_id === selector.table_id)?.cells.find(cell => cell.cell_id === selector.cell_id) : undefined;
 
   function choose(citation: Citation) {
+    setSearchSelection(null); setSearchNotice(false);
     const destinationPage = citation.selector.kind === 'pdf' ? citation.selector.page_number : null;
     if (selectedId === citation.citation_id && pageNumber === destinationPage) {
       original.current?.focus({ preventScroll: true });
@@ -90,11 +94,29 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
     }
   }, [selectedId, pageNumber]);
   function choosePage(number: number | null) {
+    setSearchSelection(null); setSearchNotice(false);
     if (selectedId === null && pageNumber === number) {
       original.current?.focus();
       original.current?.scrollIntoView?.({ block: 'nearest' });
     } else { setSelectedId(null); setPageNumber(number); focusOriginal.current = true; }
   }
+  useEffect(() => {
+    const resolved = resolveSearchSelection(searchState, data, workspaceId, snapshotId);
+    setSearchSelection(resolved);
+    setSearchNotice(searchState !== null && searchState !== undefined && !resolved);
+    setSelectedId(null);
+    setPageNumber(resolved?.selector.kind === 'pdf' ? resolved.selector.page_number : null);
+    if (resolved) {
+      focusOriginal.current = true;
+    }
+  }, [searchState, data, workspaceId, snapshotId]);
+  useEffect(() => {
+    if (searchSelection && focusOriginal.current) {
+      original.current?.focus({ preventScroll: true });
+      (highlightedQuote.current ?? original.current)?.scrollIntoView?.({ block: 'nearest' });
+      focusOriginal.current = false;
+    }
+  }, [searchSelection]);
   return <>
     <p className="eyebrow">저장된 원문과 인용</p>
     <h1>{document.source_id}</h1>
@@ -105,6 +127,8 @@ function SavedEvidence({ data }: { data: EvidenceBundle }) {
     </dl>
     <p className="source-link">{document.canonical_url ? <a href={document.canonical_url} target="_blank" rel="noopener noreferrer">원문 출처 열기 <span aria-hidden="true">↗</span></a> : '원문 출처 미등록'}</p>
     <p className="reader-note">인용 위치가 일치해도 해당 자료가 주장을 지지하는지는 별도 검토가 필요합니다.</p>
+    {searchNotice && <p className="reader-note" role="status">검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.</p>}
+    {searchSelection && <p className="reader-note search-selection-note" role="status">검색된 원문 위치 선택됨</p>}
     <div className="reading-layout">
       <section className="original-pane" aria-labelledby="original-title">
         <h2 id="original-title">파싱된 원문</h2>

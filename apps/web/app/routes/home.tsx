@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router';
 import '../evidence/reader.css';
 import { AuthError, CatalogError, ConnectionError, getEvidenceCatalog, getSession, getStatus, logout, type AuthFailure, type EvidenceCatalog, type SessionInfo } from '@issuedigest/api-client';
+import EvidenceSearch from '../search';
 
 type State = 'idle' | 'pending' | 'success' | 'failure';
 const labels: Record<State, string> = {
@@ -9,6 +10,7 @@ const labels: Record<State, string> = {
 };
 type SessionState = { kind: 'loading' } | { kind: 'ready'; data: SessionInfo } | { kind: 'failure'; error: AuthError };
 const messages: Record<AuthFailure, string> = {
+  'invalid-query': '요청을 확인할 수 없습니다.', forbidden: '요청을 확인할 수 없습니다.',
   unauthorized: '로그인이 필요합니다.', 'not-found': '자료가 없거나 접근 권한이 없습니다.',
   unavailable: '작업 공간이 아직 준비되지 않았거나 서버에 문제가 있습니다.',
   malformed: '응답 형식을 확인할 수 없습니다.', network: '서버에 연결하지 못했습니다.',
@@ -111,6 +113,7 @@ export default function Home() {
               </select>
               {membership && <span className="role-label" title={`${roles[membership.role]} 권한`}>{roles[membership.role]}</span>}
             </div>
+            {workspaceId && !logoutPending && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
             {workspaceId && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
           </>)}
         </section>

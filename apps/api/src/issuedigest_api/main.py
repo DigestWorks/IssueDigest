@@ -17,6 +17,7 @@ from .auth import AuthService, auth_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
 from .evidence import evidence_router
+from .search import search_router
 from .workspace_catalog import catalog_router
 
 
@@ -102,6 +103,14 @@ def create_app(
         if _auth_path(request.url.path) and response.status_code in {307, 308}:
             # Automatic slash redirects otherwise copy sensitive callback queries to Location.
             response = JSONResponse(status_code=404, content={"detail": "Not Found"})
+        if (
+            request.method == "POST"
+            and re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence/search/?", request.url.path)
+            and response.status_code in {307, 308}
+        ):
+            response = JSONResponse(
+                status_code=422, content={"detail": "Invalid evidence search request"}
+            )
         response.headers["X-Request-ID"] = identifier
         if protected:
             response.headers["Cache-Control"] = "no-store"
@@ -118,6 +127,7 @@ def create_app(
 
     application.include_router(auth_router(auth_service, workspace_repository))
     application.include_router(catalog_router(workspace_repository))
+    application.include_router(search_router(workspace_repository, auth_service))
     application.include_router(evidence_router(access_repository))
     return application
 

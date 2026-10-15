@@ -1,13 +1,13 @@
 # 진행 기록
 
-2026-10-14 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-15 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
 | P0 계획·기록 | 작성·게시 완료 · 검토 중 | 저장소 조사·사용자 응답·요구사항·설계·작업 목록 작성 |
 | P1 기반 | 웹·API 개발 기반 구현 · 전체 미완료 | npm/uv 워크스페이스·상태 계약·자동 검증 통과. 실제 HTTP·브라우저 스모크 통과. 원문·인용·개체·주장·관계·실행·화면·사용량 부분 계약 구현. PostgreSQL 근거 스냅샷 저장·초기 outbox 추가. DB 세션·회원 권한·보호 근거 조회 구현. Google 로그인·명시 초대·자료 목록 구현·합성 검증. 공동 DB 초기 적용 완료. 실제 로그인·나머지 API·이벤트·워커·검색은 미완료 |
 | P2 실제 근거 | 첫 이슈 공식 HTML1건 검증 · 등록 도구 준비 | 정부 본문35문단/3,231자·인용3개와 전용 검증 DB 저장 재조회. 기존PDF6개/35문항/87위치는 별도 검사. 첫 코퍼스/평가20문항·표/수치/주장 지지·공동 DB 승인1건 적용 완료, 나머지 자료 이관은 후속 |
-| P3 검색·관계 | 문자 검색 SDK 구현·검증 · 전체 미완료 | 불변 근거의 본문/페이지/셀 검색·현재 권한·명시 색인 재생성 검증. API/화면·pgvector·재순위화·실제 질문 평가/Neo4j는 후속 |
+| P3 검색·관계 | 문자 검색 SDK 구현·검증 · 전체 미완료 | 불변 근거의 본문/페이지/셀 검색·현재 권한·명시 색인 재생성 검증. 보호 API/화면은 아래 작업에서 연결. pgvector·재순위화·실제 질문 평가/Neo4j는 후속 |
 | P4 에이전트·UI | 렌더러 일부 구현 · 검증 완료 | 기존 CanvasBundle의 여섯 모듈·표시 상태·근거 액션 구현. AI/API·실제 액션·스트리밍·권한은 미완료 |
 | P5 공유·이미지 | 미착수 | 저장/권한 경로와 이미지 공급자 필요 |
 | P6 운영 검증 | DNS·HTTPS·자동 배포 준비 · 앱 공개 유예 | 서버·전용 DB/pgvector·자료 접근 확인. 최소 제품·비용·권한·운영 연결·별도 복원 검증 후 첫 게시 판단 |
@@ -21,7 +21,18 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 개발 HTTPS 외부 연결 점검 · 2026-10-15
+## 현재 작업 · 보호 근거 검색 API·화면 · 2026-10-15
+
+- 작업/담당: [검색 인터페이스](../changes/evidence-search-interface.md), R2/R3·D011/D015. controller/구현자·feat/evidence-search-ui, base docs/development-https-audit/edfa66f. 격리 worktree·OpenSpec root=null, 기존 SDK를 소비한다.
+- 현재: 보호 JSON POST·typed client·작업 공간 검색 화면·검증된 원문 위치 reader 연결을 구현했다. Task1 검토에서 JSON 날짜/마이크로초/출력 메타데이터 한도와 async DB 호출을 보완했고 재검토를 통과했다. Task2 검토 승인 후 새로고침 문서/coverage 표시를 정리했다. 전체 변경 독립 리뷰 Critical/Important0, Minor1 문구 보완 후 재검토 승인. [Draft PR #27](https://github.com/DigestWorks/IssueDigest/pull/27) 게시·앱 첨부, 개발 앱 갱신·Sites v47 게시·개발 인계 완료다. 의미 검색·AI 생성·스키마 변경은 이번 범위가 아니다.
+- 개발 접속: 2026-10-15 17:04 KST에 권한DNS4곳/Google/Cloudflare 일치·실제 HTTPS 인증서 검증 정상. login/asset/health200·미인증session401·Origin403·Google start/브라우저 결합 취소303·callback/PKCE/보안cookie·외부 로그 차단을 확인했다. 앞선 DNS 불일치/TLS 대기는 해소됐다. [상세](../../infra/development-https.md).
+- 실제 로그인: 이번 읽기 전용 DB 확인에서 실제 identity·작업 공간 membership·세션 기록·초대 subject 바인딩의 존재를 확인했다(개별 값은 비공개). 실제 Google 로그인 후 저장 상태가 생성됐으며, 사용자 화면의 원문/인용 열람·오류 상태/로그아웃 완료는 아직 확인하지 않았다. main/운영 배포 유예는 유지한다.
+- 검증: controller 전체 Python1,808개·Ruff format159/mypy68, JS363개·lint/TypeScript/SPA/OpenAPI 통과(2,171개, skip/warning0). 마지막 표시 정리 후 관련64개·검색9개와 정적/빌드 재검사 통과. 별도 소유 PostgreSQL과 실제 HTTP API의 합성 브라우저 여정으로 text/emoji/결합문자·PDF 실제 페이지·전체 표 셀·기존 인용·새로고침 재검증·loading·503 후 재시도/빈 결과·390px 가로 넘침 없음·로그아웃401 확인. pageerror0, 의도적으로 주입한503 네트워크 console 오류1개는 실패 UI 검증이다. 실제 제공자 호출/공동 DB 합성 쓰기 없이 수행했다. Sites v47 게시 완료이며 기존 탭을 열지 않았다.
+- 개발 앱: 2026-10-15 18:04 KST, 제품 source fd26683·서버 고정 도구/lockfile 빌드14파일/source map0. 개인 API 재시작·개인 정적 Nginx root 갱신/reload 후 실제 HTTPS index가 해당 빌드와 byte hash 일치, home/login/asset/health200·미인증 session/search401/no-store 확인. 기존 schema0004·승인 자료1건/인용3개·초대 바인딩·DDL 없는 앱 권한 유지. 시스템 Nginx·DB schema/승인 자료·main/운영은 변경하지 않았다. 실제 사용자 검색/원문 열람 품질은 개발 앱에서 확인한다.
+- CI: [fd26683 전체 검사 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38710036436). 이후 문서/게시 metadata는 제품 코드와 구분한다.
+- Sites: [v47 근거 검색·개발 접속](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#evidence-search) native succeeded/public. source `08a39ab63573112d0c62fe7e86406b8c449ac667`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_cc4108a53ab0819180dea991bf1803d0`, deployment `appgdep_6ad0981ad0748191b2a67f3a4a2badcc`. 사본 기준cff9eee·v46 보존·HTML32/로컬 링크·anchor760·공개 텍스트84파일 실제 비밀값/계정/개별ID 제외 통과. 문서 요약의 새 Site 브라우저 검사는 수행하지 않았고 기존 탭을 열거나 이동하지 않았다. 제품 브라우저 검증은 위 별도 기록을 따른다.
+
+## 이전 작업 · 개발 HTTPS 외부 연결 점검 · 2026-10-15
 
 - 작업/담당: [개발 HTTPS 인수인계](../../infra/development-https.md)의 관리자 적용 후 실제 외부 확인. controller·docs/development-https-audit, baseops/development-https/a54e98c. 제품 코드 변경 없음.
 - 확인: 관리자 HTTP80 virtual host→내부18173 설치. 정확 Host·DNS 우회 읽기 검사에서 login/health200·미인증session401. 실제 서버 내부 웹/API는 응답한다.

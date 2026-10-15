@@ -133,3 +133,7 @@ export { getSession, logout, AuthError } from './auth';
 export type { SessionInfo, WorkspaceMembership, AuthFailure, AuthOptions } from './auth';
 export { getEvidenceCatalog, CatalogError } from './catalog';
 export type { EvidenceCatalog, EvidenceSummary, CatalogFailure, CatalogOptions } from './catalog';
+export { searchEvidence, SearchError } from './search';
+export type { EvidenceSearchQuery, EvidenceSearchResult, EvidenceSearchHit, EvidenceSearchInput, SearchFailure, SearchOptions } from './search';
+export { resolveSearchSelection } from './search-selection';
+export type { SearchSelection } from './search-selection';

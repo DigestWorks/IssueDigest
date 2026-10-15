@@ -45,6 +45,11 @@ Google Console에 개발·운영 웹 앱의 승인 origin과 callback을 각각 
 | `POST /api/v1/auth/logout` | 세션 폐기 후 204·cookie 삭제 |
 | `GET /api/v1/workspaces/{workspace_id}/evidence?limit=20` | `EvidenceCatalog` 200; 정수 1~50, 비회원 404 |
 | `GET /api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}` | 기존 불변 `EvidenceBundle` 200 |
+| `POST /api/v1/workspaces/{workspace_id}/evidence/search` | 현재 멤버십의 문자 일치 `EvidenceSearchResult` 200 |
+
+검색 요청은 세션 쿠키와 설정된 공개 origin의 `Origin` 헤더를 사용합니다. `Sec-Fetch-Site`가 있으면 `same-origin`이어야 합니다. JSON 본문 예시는 `{"terms":["등록금","2026"],"limit":10}`이며 모든 단어가 원문 검색 단위에 문자 그대로 포함되어야 합니다. `provider`, `source_id`, `source_kind`, UTC `collected_from`/`collected_to` 필터도 지원합니다. URL query string은 허용하지 않으며 UTF-8 JSON 본문은 최대 16,384바이트입니다. 잘못된 JSON·중복 키·필드·한도·미디어 형식은 내용이 고정된 422, Origin 거부는 403입니다.
+
+검색은 현재 세션과 작업 공간 멤버십을 저장소에서 매번 확인합니다. 비회원은 404, 만료·폐기된 세션은 401, 서비스/저장 오류는 503입니다. 결과의 `coverage.missing_snapshots`는 아직 검색 투영이 없는 자료 수이며, `truncated`와 `scanned_candidates`는 후보·결과 한도 해석에 사용합니다. 빈 결과나 미색인은 근거 부재 판정이 아닙니다. API 요청은 투영 재구축, 원문 수집, AI 호출을 수행하지 않습니다. 원문 위치와 quote는 문자 검색 결과이며 주장 지지 판정은 `not_evaluated`입니다.
 
 start/logout은 설정 origin과 정확히 일치하는 Origin 헤더가 필요하며 Sec-Fetch-Site가 있으면 `same-origin`만 허용합니다. callback은 브라우저에 묶인 state를 한 번 소비한 뒤 PKCE·nonce·서명·issuer·audience·시간을 검증합니다. Google issuer는 고정 canonical HTTPS로 저장합니다. 첫 바인딩은 운영자의 명시 초대와 Gmail 또는 검증된 Google Workspace 이메일에 한정합니다. 이후 등록된 issuer/sub와 활성 멤버십으로 허용하고 이메일 변경으로 권한을 바꾸지 않습니다. 실패한 callback은 기존 세션을 유지하며 모든 callback 응답은 flow cookie 삭제와 `Referrer-Policy: no-referrer`를 적용합니다.
 
