@@ -1,6 +1,8 @@
 """Real PostgreSQL security, idempotency, budget and restart persistence."""
 
 from concurrent.futures import ThreadPoolExecutor
+from datetime import date
+from hashlib import sha256
 from threading import Event, current_thread
 from uuid import uuid4
 
@@ -10,6 +12,9 @@ from issuedigest_domain import EvidenceBundle
 from issuedigest_domain.research_journey import ResearchRequest, ResearchResult
 from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
 from issuedigest_storage.research import ResearchConflict, ResearchForbidden, ResearchRepository
+from issuedigest_storage.research_schema import research_runs
+from pydantic import ValidationError
+from sqlalchemy import update
 
 from conftest import bundle_data
 
@@ -229,3 +234,103 @@ def test_cancel_and_publication_share_lock_order(engine, monkeypatch):
         assert publishing.result(timeout=7) is False
     final = repo.get_run(token, workspace, run.run_id)
     assert final is not None and final.status == "cancelled" and final.result is None
+
+
+def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
+    data = bundle_data()
+    original_text = data["representation"]["text"]
+    event_day = "2024-01-02"
+    data["representation"]["text"] = original_text + " " + event_day
+    data["representation"]["text_sha256"] = sha256(
+        data["representation"]["text"].encode()
+    ).hexdigest()
+    data["representation"]["pages"][0]["end"] = len(data["representation"]["text"])
+    citation_id = uuid4()
+    data["citations"].append(
+        {
+            "citation_id": str(citation_id),
+            "document_version_id": data["version"]["version_id"],
+            "representation_id": data["representation"]["representation_id"],
+            "selector": {
+                "kind": "text",
+                "start": len(original_text) + 1,
+                "end": len(original_text) + 11,
+                "quote": event_day,
+            },
+        }
+    )
+    bundle = EvidenceBundle.model_validate(data)
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    parent = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="어느 날짜?", snapshot_ids=(snapshot,)),
+    )
+    assert parent is not None
+    loaded = repo.worker_load(parent.run_id)
+    assert loaded is not None
+    output = AIOutput.model_validate(
+        {
+            "outcome": "answer",
+            "modules": [
+                {
+                    "kind": "timeline",
+                    "title": "날짜",
+                    "claims": [
+                        {
+                            "text": "합성 날짜 해석",
+                            "citation_ids": [str(citation_id)],
+                            "event_date": event_day,
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
+        source_titles={bundle.document.document_id: "합성 일정 자료"},
+    )
+    for status in ("retrieving", "generating", "validating"):
+        assert repo.worker_transition(parent.run_id, status)
+    assert repo.worker_transition(parent.run_id, "completed", result=result)
+
+    reopened = repo.get_run(token, workspace, parent.run_id)
+    assert reopened is not None and reopened.result is not None
+    assert reopened.result.canvas.research.claims[0].valid_period.start_date == date(2024, 1, 2)
+    assert repo.list_runs(token, workspace).items[0].run_id == parent.run_id
+    child = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(
+            request_id=uuid4(),
+            question="그다음은?",
+            snapshot_ids=(snapshot,),
+            parent_run_id=parent.run_id,
+        ),
+    )
+    assert child is not None
+    context = repo.worker_parent_context(child.run_id)
+    assert context is not None and "합성 날짜 해석" in context
+
+    damaged = result.model_dump(mode="json")
+    damaged["canvas"]["research"]["claims"][0]["valid_period"]["start_date"] = "2024-02-30"
+    with engine.begin() as conn:
+        conn.execute(
+            update(research_runs)
+            .where(research_runs.c.run_id == parent.run_id)
+            .values(result=damaged)
+        )
+    with pytest.raises(ValidationError):
+        repo.get_run(token, workspace, parent.run_id)
+    with pytest.raises(ValidationError):
+        repo.list_runs(token, workspace)
+    with pytest.raises(ValidationError):
+        repo.worker_parent_context(child.run_id)

@@ -224,7 +224,11 @@ class ResearchRepository:
             .mappings()
             .all()
         )
-        result = ResearchResult.model_validate(row["result"]) if row["result"] is not None else None
+        result = (
+            ResearchResult.model_validate_json(json.dumps(row["result"], allow_nan=False))
+            if row["result"] is not None
+            else None
+        )
         return ResearchRun(
             run_id=row["run_id"],
             workspace_id=row["workspace_id"],
@@ -586,7 +590,9 @@ class ResearchRepository:
             )
             if parent is None:
                 return None
-            result = ResearchResult.model_validate(parent["result"])
+            result = ResearchResult.model_validate_json(
+                json.dumps(parent["result"], allow_nan=False)
+            )
             claims = [claim.text for claim in result.canvas.research.claims[:4]]
             return json.dumps(
                 {"prior_question": parent["question"], "prior_interpretations": claims},
