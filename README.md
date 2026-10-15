@@ -100,6 +100,12 @@ React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, P
 웹은 Google 로그인·권한별 작업 공간 자료 목록·원문과 인용 읽기·로그아웃을 제공합니다. 실제 자료는 설정된 서버 세션과 승인 공간에 저장된 자료에서 읽으며, 기본 미설정 실행은 로그인/자료 연결이 준비되지 않았음을 표시합니다. D011에서 PostgreSQL + pgvector + PydanticAI/DBOS를 선택했습니다. 검증된 EvidenceBundle의 내부 PostgreSQL 저장·조회와 원자적 outbox를 구현했으며, 워커·Neo4j·자료 수집·검색 인덱스·AI 실행·실제 계정/공동 DB·운영 연결은 후속입니다. 키·공급자 자격 증명은 웹에 넣지 않습니다. 다음 범위와 검증 상태는 [개발 기반 작업](docs/changes/development-foundation.md)과 [진행 기록](docs/planning/progress.md)을 확인합니다.
 
 
+## 개발 앱·근거 검색
+
+[HTTPS 개발 작업 공간](https://dev.issuedigest.projects.ai.kr/)에서 승인된 Google 계정으로 로그인하고 자료를 검색할 수 있습니다. 공백으로 나눈 단어를 모두 포함하는 원문 위치를 찾으며, 결과에서 본문·PDF 페이지·표 셀을 열어 확인합니다. 미색인 자료·제외된 셀·결과 한도를 표시하며 검색 위치와 저장된 인용을 구분합니다. 문자 검색이며 의미 검색·AI 답변/생성 화면·운영 앱 배포는 후속입니다.
+
+[검색 인터페이스 명세](docs/changes/evidence-search-interface.md)와 [개발 접속 기록](infra/development-https.md)에 검증·남은 조건을 기록합니다. main 자동 배포와 별개로 개인 개발 앱에서 검증하며 현재 검색 코드의 앱 갱신 상태는 [진행 기록](docs/planning/progress.md)을 따릅니다.
+
 ## Google 로그인·자료 진입
 
 운영자가 초대한 Google 계정만 로그인할 수 있습니다. Google 서명·state/PKCE/nonce를 확인하고 서버 세션을 발급한 뒤 현재 작업 공간 권한으로 자료 목록·원문/인용을 읽습니다. 이메일·공급자 토큰을 웹 저장소에 보관하지 않습니다. 로그아웃하면 해당 서버 세션을 폐기합니다.
