@@ -23,7 +23,7 @@
 ## Task 2 · 기존 법안 메타데이터 어댑터
 
 - [x] 순수·오프라인 JSON 어댑터를 추가하고 RED→GREEN으로 입력·출력·해시·출처·정확 인용 계약을 검증한다.
-- [ ] 독립 검토 후 기존 수집 DB 추출8건을 같은 어댑터로 검사한다. 실제 데이터는 테스트/Git에 넣지 않는다.
+- [x] 독립 검토 후 기존 수집 DB 추출8건을 같은 어댑터로 검사한다. 실제 데이터는 테스트/Git에 넣지 않는다.
 
 입력은 최대64KiB UTF-8 JSON bytes의 단일 Bill 필드 allowlist 객체다: bill_id, assembly_number, bill_name, bill_number, propose_date, committee, stage, bill_result, proposer_kind, bill_link. 모두 필수 key이며 committee/stage/bill_result/proposer_kind는 null 허용. gpt_summary/summary/파생 제목 등 다른 key·중복key·NaN·잘못된 UTF-8·NUL/줄바꿈/제어문자·빈 문자열·bool 숫자를 거부한다. 명시 SHA256과 raw bytes를 먼저 대조한다. bill_id는 ASCII 알파벳/숫자/underscore1..255, name/nullable text는1..255자, assembly는1..99 정수, bill_number는7자리 양의 정수(assembly와 앞2자리 일치), propose_date는 정확 ISO YYYY-MM-DD 실제 날짜, proposer_kind는 CHAIRMAN/CONGRESSMAN/GOVERNMENT/null이다. URL은 정확 https://likms.assembly.go.kr/bill/billDetail.do?billId=ID 하나만 허용하고 ID가 bill_id와 같아야 한다. 자동 다운로드/DB/파일/공급자/네트워크/로그 호출 없음.
 
