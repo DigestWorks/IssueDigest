@@ -84,7 +84,7 @@
 
 ## P4 · 에이전트 탐색과 생성 화면
 
-- [ ] [첫 실제 조사 흐름](../changes/research-journey.md): 자료 선택/이름·AI 질문·PydanticAI/DBOS·생성 모듈·정확 인용·후속 질문·자동 저장/재열람 구현. 최종 전체/브라우저·개발 반영·실제 키·PR/Sites 상태는 진행 기록을 따른다. 실제 유료 모델 검증은 키 준비 전 미완료.
+- [x] [첫 실제 조사 흐름](../changes/research-journey.md): 자료 선택/이름·AI 질문·PydanticAI/DBOS·생성 모듈·정확 인용·후속 질문·자동 저장/재열람 구현. 전체/브라우저·실제 모델3건·개발 HTTPS 반영·Draft PR #29 완료. Sites 게시 상태는 진행 기록을 따른다. 전체 질문 품질·정기 수집·운영 배포는 후속.
 
 - [x] [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md): 여섯 모듈·정확 근거·등록 액션 콜백·표시 상태. 실제 AI/API·host 연결은 별도.
 
