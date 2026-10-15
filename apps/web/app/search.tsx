@@ -15,6 +15,7 @@ const errors: Record<SearchFailure, string> = {
   network: '서버에 연결하지 못했습니다.',
   timeout: '응답을 기다리는 시간이 길어졌습니다.',
   aborted: '검색이 취소되었습니다.',
+  conflict: '검색 요청이 충돌했습니다.', budget: '이번 달 조사 한도에 도달했습니다.',
 };
 
 function location(hit: EvidenceSearchHit) {

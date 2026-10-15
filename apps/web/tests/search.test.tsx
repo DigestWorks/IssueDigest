@@ -26,10 +26,11 @@ const setup = (search: (url: string, init?: RequestInit) => Promise<Response>) =
   const fetch = vi.fn((url: string, init?: RequestInit) => {
     if (url.endsWith('/session')) return Promise.resolve(response(session()));
     if (url.includes('/evidence?limit=')) return Promise.resolve(response(catalog(url.includes(otherWorkspace) ? otherWorkspace : workspace)));
+    if (url.endsWith('/research/sources')) return Promise.resolve(response({workspace_id: url.includes(otherWorkspace) ? otherWorkspace : workspace, items: []}));
     return search(url, init);
   });
   vi.stubGlobal('fetch', fetch);
-  return { fetch, ...render(<MemoryRouter><Home /></MemoryRouter>) };
+  return { fetch, ...render(<MemoryRouter initialEntries={['/?view=sources']}><Home /></MemoryRouter>) };
 };
 
 it('starts with no results and shows pending, coverage, exact location and limits after submit', async () => {

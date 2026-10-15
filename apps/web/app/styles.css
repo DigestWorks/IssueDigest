@@ -65,6 +65,7 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
 .catalog-title { margin: 25px 0 0; font-family: "Noto Serif KR", "Batang", serif; font-size: 19px; }
 .catalog-list { display: grid; gap: 0; }
 .catalog-list li { padding: 20px 0; }
+.catalog-item-title { margin: 0 0 10px; font-family: "Noto Serif KR", "Batang", serif; font-size: 17px; font-weight: 550; line-height: 1.5; }
 .catalog-source { align-items: center; gap: 9px; font-size: 12px; }
 .catalog-source span:first-child { padding: 2px 7px; background: #e8eee5; color: var(--green); }
 .catalog-excerpt { margin: 12px 0; font-size: 14px; line-height: 1.7; }

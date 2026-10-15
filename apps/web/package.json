@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@issuedigest/api-client": "0.0.0",
+    "@issuedigest/ui": "0.0.0",
     "@react-router/node": "8.4.0",
     "react": "19.3.0",
     "react-dom": "19.3.0",

@@ -11,6 +11,16 @@ function data(): CanvasBundle { return structuredClone(typedFixture); }
 const unknown = '00000000-0000-4000-8000-999999999999';
 
 describe('CanvasView', () => {
+  it('uses verified source titles for AI inference and citation actions without exposing source IDs', () => {
+    const bundle = data();
+    bundle.research.claims[0].speaker_entity_id = null;
+    bundle.research.claims[0].basis = 'inference';
+    render(<CanvasView bundle={bundle} sourceTitles={{[bundle.research.evidence[0].document.document_id]: '실제 법안 제목'}} />);
+    expect(screen.getAllByText('실제 법안 제목').length).toBeGreaterThan(0);
+    expect(screen.getAllByText('AI 해석').length).toBeGreaterThan(0);
+    expect(screen.queryByText(/발화 주체 미제공/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/화면 버전/)).not.toBeInTheDocument();
+  });
   it('shows an empty state instead of fabricating modules', () => {
     render(<CanvasView bundle={null} />);
     expect(screen.getByRole('status')).toHaveTextContent('아직 표시할 조사 자료가 없습니다');
@@ -19,13 +29,12 @@ describe('CanvasView', () => {
 
   it('renders all six modules in supplied order and span with selected evidence only', () => {
     render(<CanvasView bundle={data()} />);
-    expect(screen.getByText('화면 버전 1')).toBeInTheDocument();
+    expect(screen.getByRole('heading', {name: '조사 결과'})).toBeInTheDocument();
     expect(screen.getAllByRole('region').map(section => section.getAttribute('aria-label')))
       .toEqual(['합성 근거', '합성 요약', '합성 비교', '합성 타임라인', '합성 관계', '합성 수치']);
     expect(screen.getByRole('region', {name: '합성 비교'})).toHaveAttribute('data-span', 'full');
     const evidence = screen.getByRole('region', {name: '합성 근거'});
-    expect(within(evidence).getAllByText('문서 · 합성 문서 A')).toHaveLength(3);
-    expect(within(evidence).getAllByText('synthetic-test')).toHaveLength(3);
+    expect(within(evidence).getAllByText('합성 문서 A')).toHaveLength(3);
     expect(within(evidence).getByText('페이지 1 · 문자 0–38')).toBeInTheDocument();
     expect(within(evidence).getByText('텍스트 · 문자 0–38')).toBeInTheDocument();
     expect(within(evidence).getByText('표 synthetic-table · 셀 synthetic-cell')).toBeInTheDocument();
