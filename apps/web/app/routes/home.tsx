@@ -5,6 +5,7 @@ import { AuthError, CatalogError, ConnectionError, getEvidenceCatalog, getResear
 import EvidenceSearch from '../search';
 import { CollectedDate, sourceKind, TechnicalDetails } from '../evidence/presentation';
 import ResearchDesk from '../research';
+import { useResearchDrafts } from '../research-drafts';
 
 type State = 'idle' | 'pending' | 'success' | 'failure';
 const labels: Record<State, string> = {
@@ -22,6 +23,7 @@ const messages: Record<AuthFailure, string> = {
 const roles = { viewer: '읽기', editor: '편집', owner: '관리' };
 
 export default function Home() {
+  const drafts = useResearchDrafts();
   const navigate = useNavigate();
   const [evidenceLink, setEvidenceLink] = useState('');
   const [linkError, setLinkError] = useState('');
@@ -49,8 +51,8 @@ export default function Home() {
   useEffect(() => {
     const controller = new AbortController(); let current = true;
     void getSession({ signal: controller.signal }).then(result => {
-      if (current) { setSession({ kind: 'ready', data: result.data }); setWorkspaceId(result.data.memberships[0]?.workspace_id ?? ''); }
-    }, error => { if (current) setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); });
+      if (current) { drafts.identify(result.data.user_id, result.data.memberships.map(item => item.workspace_id)); setSession({ kind: 'ready', data: result.data }); setWorkspaceId(result.data.memberships[0]?.workspace_id ?? ''); }
+    }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') drafts.clear(); setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
     return () => { current = false; controller.abort(); };
   }, [sessionAttempt]);
   async function signOut() {
@@ -59,7 +61,7 @@ export default function Home() {
     setLogoutPending(true); setLogoutError(null);
     try {
       await logout({ signal: controller.signal });
-      if (mounted.current) { setSession({ kind: 'loading' }); setWorkspaceId(''); setEvidenceLink(''); void navigate('/login', { replace: true }); }
+      if (mounted.current) { drafts.clear(); setSession({ kind: 'loading' }); setWorkspaceId(''); setEvidenceLink(''); void navigate('/login', { replace: true }); }
     } catch (error) {
       if (mounted.current) setLogoutError(error instanceof AuthError ? error : new AuthError('network'));
     } finally {

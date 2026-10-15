@@ -66,6 +66,69 @@ def test_agent_usage_is_recorded_without_provider_call():
     assert input_tokens >= 0 and output_tokens >= 0
 
 
+def test_provider_envelope_rejects_oversized_prompt_before_model_call():
+    from issuedigest_agents.research import INPUT_PROMPT_BYTE_LIMIT, create_agent, run_agent
+    from pydantic_ai.models.test import TestModel
+
+    with pytest.raises(ValueError, match="provider input"):
+        run_agent(create_agent(TestModel()), "x" * (INPUT_PROMPT_BYTE_LIMIT + 1))
+
+
+def test_provider_request_is_single_shot_with_bounded_output():
+    from types import SimpleNamespace
+    from unittest.mock import Mock
+
+    from issuedigest_agents.research import MAX_OUTPUT_TOKENS, MAX_RUN_TOKENS, run_agent
+
+    result = SimpleNamespace(
+        output="proposal", usage=SimpleNamespace(input_tokens=10, output_tokens=5)
+    )
+    agent = Mock()
+    agent.run_sync.return_value = result
+    assert run_agent(agent, "bounded") == ("proposal", 10, 5)
+    options = agent.run_sync.call_args.kwargs
+    assert options["usage_limits"].request_limit == 1
+    assert options["usage_limits"].total_tokens_limit == MAX_RUN_TOKENS
+    assert options["model_settings"]["max_tokens"] == MAX_OUTPUT_TOKENS
+
+
+def test_prompt_bounds_many_short_citations_and_unicode_metadata():
+    from issuedigest_agents.research import (
+        INPUT_PROMPT_BYTE_LIMIT,
+        MAX_CITATIONS_PER_SOURCE,
+        MAX_CITATIONS_TOTAL,
+        model_prompt,
+    )
+
+    snapshot, bundle, title = source()
+    payload = bundle.model_dump(mode="json")
+    first = payload["citations"][0]
+    payload["citations"] = [{**first, "citation_id": str(uuid4())} for _ in range(9600)]
+    large = EvidenceBundle.model_validate(payload)
+    prompt = model_prompt("질문 😀", ((snapshot, large, title),))
+    citations = json.loads(prompt)["sources"][0]["citations"]
+    assert 1 <= len(citations) <= MAX_CITATIONS_PER_SOURCE
+    assert len(citations) <= MAX_CITATIONS_TOTAL
+    assert len(prompt.encode("utf-8")) <= INPUT_PROMPT_BYTE_LIMIT
+    long_title = title.model_copy(update={"title": "한😀" * INPUT_PROMPT_BYTE_LIMIT})
+    with pytest.raises(ValueError, match="provider input"):
+        model_prompt("질문", ((snapshot, bundle, long_title),))
+
+
+def test_prompt_preserves_thirteen_exact_historical_citations():
+    from issuedigest_agents.research import model_prompt
+
+    snapshot, bundle, title = source()
+    payload = bundle.model_dump(mode="json")
+    first = payload["citations"][0]
+    payload["citations"] = [{**first, "citation_id": str(uuid4())} for _ in range(13)]
+    selected = EvidenceBundle.model_validate(payload)
+    prompt = json.loads(model_prompt("자료 비교", ((snapshot, selected, title),)))
+    assert [item["quote"] for item in prompt["sources"][0]["citations"]] == [
+        item.selector.quote for item in selected.citations
+    ]
+
+
 def test_comparison_and_timeline_require_distinct_cited_facts():
     selected = source()
     citations = selected[1].citations

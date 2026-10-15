@@ -4,11 +4,13 @@ import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import Home from '../app/routes/home';
 import EvidenceRoute from '../app/routes/evidence';
+import App from '../app/root';
 import fixture from '../../../tests/fixtures/canvas-synthetic.json';
 import type { CanvasBundle, ResearchRun } from '@issuedigest/api-client';
-import { catalog, response, snapshot, workspace } from './workspace-data';
+import { catalog, headers, otherWorkspace, response, snapshot, workspace } from './workspace-data';
 
 const source = { snapshot_id: snapshot, document_id: '00000000-0000-4000-8000-000000000002', title: '공공기록법 일부개정법률안', source_kind: 'bill', bill_number: '2201234', proposed_on: '2024-09-02', collected_at: '2026-10-13T00:00:00Z', canonical_url: null, citation_count: 2, excerpt: '제안 이유의 일부' };
+const secondSource = {...source, snapshot_id: '00000000-0000-4000-8000-000000000098', document_id: '00000000-0000-4000-8000-000000000003', title: '두 번째 법안'};
 const session = { schema_version: 1, user_id: snapshot, memberships: [{ workspace_id: workspace, role: 'owner' }] };
 const runId = '00000000-0000-4000-8000-000000000040';
 const now = '2026-10-15T00:00:00Z';
@@ -29,6 +31,88 @@ function completedRun(): ResearchRun {
 function queuedRun(request: Record<string, unknown>): ResearchRun {
   return {...completedRun(), request_id: request.request_id as string, question: request.question as string, snapshot_ids: request.snapshot_ids as string[], parent_run_id: request.parent_run_id as string | null, status: 'queued', result: null, input_tokens: 0, output_tokens: 0, events: [{sequence: 1, status: 'queued', created_at: now}]};
 }
+
+function journeyRouter(followup = false) {
+  return createMemoryRouter([{path: '/', Component: App, children: [
+    {index: true, Component: Home},
+    {path: 'workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute},
+    {path: 'login', element: <p>로그인 화면</p>},
+  ]}], {initialEntries: [followup ? `/?view=research&run=${runId}` : '/?view=research']});
+}
+
+it.each([false, true])('restores an unsent %s draft after reading a source and browser Back, without POST', async (followup) => {
+  const requests: string[] = [];
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    requests.push(`${options.method ?? 'GET'} ${path}`);
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source, secondSource]});
+    if (path.endsWith(`/research/${runId}`)) return response(completedRun());
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: followup ? [completedRun()] : []});
+    if (path.endsWith(`/evidence/${snapshot}`)) return response(fixture.research.evidence[0]);
+    throw Error(`unexpected ${path}`);
+  });
+  const router = journeyRouter(followup);
+  render(<RouterProvider router={router} />);
+  const user = userEvent.setup();
+  const choice = await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/});
+  if (followup) {
+    await waitFor(() => expect(choice).toBeChecked());
+    await user.click(choice);
+    await user.click(screen.getByRole('checkbox', {name: '두 번째 법안'}));
+  } else await user.click(choice);
+  await user.type(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?'), '검토 중인 질문');
+  await user.click(screen.getAllByRole('link', {name: '원문 읽기'})[0]);
+  await user.click(await screen.findByRole('link', {name: '이슈 조사로'}));
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).toHaveProperty('checked', !followup);
+  if (followup) expect(screen.getByRole('checkbox', {name: '두 번째 법안'})).toBeChecked();
+  expect(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?')).toHaveValue('검토 중인 질문');
+  await user.click(screen.getAllByRole('link', {name: '원문 읽기'})[0]);
+  await act(async () => { await router.navigate(-1); });
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).toHaveProperty('checked', !followup);
+  if (followup) expect(screen.getByRole('checkbox', {name: '두 번째 법안'})).toBeChecked();
+  expect(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?')).toHaveValue('검토 중인 질문');
+  if (followup) {
+    await user.click(screen.getByRole('button', {name: '새 조사'}));
+    expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+    expect(screen.getByRole('checkbox', {name: /공공기록법 일부개정법률안/})).not.toBeChecked();
+  }
+  expect(requests.some(request => request.startsWith('POST '))).toBe(false);
+});
+
+it('keeps drafts within their workspace and clears them on logout', async () => {
+  const multiple = {...session, memberships: [session.memberships[0], {workspace_id: otherWorkspace, role: 'owner'}]};
+  let currentSession = multiple;
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    if (path.endsWith('/session')) return response(currentSession);
+    if (path.endsWith('/logout') && options.method === 'POST') return new Response(null, {status: 204, headers});
+    if (path.endsWith('/research/sources')) return response({workspace_id: path.includes(otherWorkspace) ? otherWorkspace : workspace, items: [source]});
+    if (path.endsWith('/research')) return response({workspace_id: path.includes(otherWorkspace) ? otherWorkspace : workspace, items: []});
+    throw Error(`unexpected ${path}`);
+  });
+  const router = journeyRouter();
+  render(<RouterProvider router={router} />);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '첫 공간 질문');
+  await user.selectOptions(screen.getByLabelText('작업 공간'), otherWorkspace);
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).not.toBeChecked();
+  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+  await user.selectOptions(screen.getByLabelText('작업 공간'), workspace);
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).toBeChecked();
+  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('첫 공간 질문');
+  await user.click(screen.getByRole('button', {name: '로그아웃'}));
+  expect(await screen.findByText('로그인 화면')).toBeInTheDocument();
+  await act(async () => { await router.navigate('/'); });
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).not.toBeChecked();
+  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+  await user.click(screen.getByRole('checkbox', {name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '새 사용자에게 보이면 안 되는 질문');
+  await act(async () => { await router.navigate('/login'); });
+  currentSession = {...multiple, user_id: '00000000-0000-4000-8000-000000000097'};
+  await act(async () => { await router.navigate('/'); });
+  expect(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/})).not.toBeChecked();
+  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+});
 
 it('shows named sources without creating an AI request on load and permits selecting a bill', async () => {
   const requests: {path: string; method: string}[] = [];

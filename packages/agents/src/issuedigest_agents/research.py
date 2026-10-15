@@ -49,6 +49,29 @@ SYSTEM_INSTRUCTIONS = (
     "Do not include HTML."
 )
 
+# One request can spend at most 2,500 output tokens. A UTF-8 byte is a conservative
+# upper bound for one input token; reserve the actual static schema/instructions
+# bytes plus 2,048 tokens for provider framing and structured-output plumbing.
+# This guard runs before PydanticAI (whose default token count is post-request).
+MAX_RUN_TOKENS = 24_000
+MAX_OUTPUT_TOKENS = 2_500
+PROVIDER_FRAMING_ALLOWANCE = 2_048
+STATIC_INPUT_BYTES = len(SYSTEM_INSTRUCTIONS.encode("utf-8")) + len(
+    json.dumps(AIOutput.model_json_schema(), ensure_ascii=False).encode("utf-8")
+)
+INPUT_PROMPT_BYTE_LIMIT = (
+    MAX_RUN_TOKENS - MAX_OUTPUT_TOKENS - PROVIDER_FRAMING_ALLOWANCE - STATIC_INPUT_BYTES
+)
+MAX_CITATIONS_PER_SOURCE = 32
+MAX_CITATIONS_TOTAL = 100
+
+
+def _checked_prompt(payload: dict[str, object]) -> str:
+    prompt = json.dumps(payload, ensure_ascii=False)
+    if len(prompt.encode("utf-8")) > INPUT_PROMPT_BYTE_LIMIT:
+        raise ValueError("provider input exceeds pre-request budget")
+    return prompt
+
 
 def create_agent(model: Model | None = None) -> Agent[None, AIOutput]:
     """Register named durability before DBOS.launch; no provider call during creation."""
@@ -77,36 +100,49 @@ def model_prompt(
     sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
     parent: str | None = None,
 ) -> str:
-    documents = []
+    documents: list[dict[str, object]] = []
     remaining = 12_000
+    total_citations = 0
+    payload: dict[str, object] = {
+        "question": question,
+        "parent_context": parent[:1500] if parent else None,
+        "sources": documents,
+    }
+    _checked_prompt(payload)
     for snapshot_id, bundle, presentation in sources[:5]:
-        citations = []
+        citations: list[dict[str, str]] = []
+        document: dict[str, object] = {
+            "snapshot_id": str(snapshot_id),
+            "title": presentation.title,
+            "kind": bundle.document.source_kind,
+            "collected_at": bundle.version.collected_at.isoformat(),
+            "citations": citations,
+        }
+        _checked_prompt({**payload, "sources": [*documents, document]})
         for citation in bundle.citations:
+            if len(citations) >= MAX_CITATIONS_PER_SOURCE or total_citations >= MAX_CITATIONS_TOTAL:
+                break
             quote = citation.selector.quote
-            if len(quote) > remaining:
+            if not quote or len(quote) > remaining:
                 continue
+            candidate_citations = [
+                *citations,
+                {"citation_id": str(citation.citation_id), "quote": quote},
+            ]
+            document = {**document, "citations": candidate_citations}
+            candidate = [*documents, document]
+            try:
+                _checked_prompt({**payload, "sources": candidate})
+            except ValueError:
+                continue
+            citations = candidate_citations
             remaining -= len(quote)
-            citations.append({"citation_id": str(citation.citation_id), "quote": quote})
+            total_citations += 1
         if citations:
-            documents.append(
-                {
-                    "snapshot_id": str(snapshot_id),
-                    "title": presentation.title,
-                    "kind": bundle.document.source_kind,
-                    "collected_at": bundle.version.collected_at.isoformat(),
-                    "citations": citations,
-                }
-            )
+            documents.append({**document, "citations": citations})
     if not documents:
         raise ValueError("No usable citations")
-    return json.dumps(
-        {
-            "question": question,
-            "parent_context": parent[:1500] if parent else None,
-            "sources": documents,
-        },
-        ensure_ascii=False,
-    )
+    return _checked_prompt(payload)
 
 
 def build_canvas(
@@ -228,13 +264,17 @@ def build_canvas(
 
 
 def run_agent(agent: Agent[None, AIOutput], prompt: str) -> tuple[AIOutput, int, int]:
+    if len(prompt.encode("utf-8")) > INPUT_PROMPT_BYTE_LIMIT:
+        raise ValueError("provider input exceeds pre-request budget")
     result = agent.run_sync(
         prompt,
         model_settings=OpenAIResponsesModelSettings(
-            openai_store=False, max_tokens=2500, timeout=60
+            openai_store=False, max_tokens=MAX_OUTPUT_TOKENS, timeout=60
         ),
         usage_limits=UsageLimits(
-            request_limit=2, output_tokens_limit=5000, total_tokens_limit=24000
+            request_limit=1,
+            output_tokens_limit=MAX_OUTPUT_TOKENS,
+            total_tokens_limit=MAX_RUN_TOKENS,
         ),
         retries=0,
     )

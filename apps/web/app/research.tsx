@@ -5,6 +5,7 @@ import { CanvasView } from '@issuedigest/ui';
 import '@issuedigest/ui/styles.css';
 import { sourceKind } from './evidence/presentation';
 import './research.css';
+import { useResearchDrafts } from './research-drafts';
 
 type CatalogState = {kind: 'loading'} | {kind: 'ready'; data: ResearchSourceCatalog} | {kind: 'failure'; error: ResearchError};
 type ListState = {kind: 'loading'} | {kind: 'ready'; items: ResearchRun[]} | {kind: 'failure'; error: ResearchError};
@@ -27,6 +28,7 @@ const date = (value: string) => new Intl.DateTimeFormat('ko-KR', {timeZone: 'UTC
 function normalize(error: unknown) { return error instanceof ResearchError ? error : new ResearchError('network'); }
 
 export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'}) {
+  const drafts = useResearchDrafts();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const currentParams = useRef(params);
@@ -37,8 +39,10 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
   const [listVersion, setListVersion] = useState(0);
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [runVersion, setRunVersion] = useState(0);
-  const [selected, setSelected] = useState<string[]>([]);
-  const [question, setQuestion] = useState('');
+  const [selected, setSelected] = useState<string[]>(() => drafts.read(workspaceId, runId)?.selected ?? []);
+  const [question, setQuestion] = useState(() => drafts.read(workspaceId, runId)?.question ?? '');
+  const selectedRef = useRef(selected);
+  const questionRef = useRef(question);
   const [run, setRun] = useState<ResearchRun | null>(null);
   const [runError, setRunError] = useState<ResearchError | null>(null);
   const [requestError, setRequestError] = useState<ResearchError | null>(null);
@@ -51,6 +55,20 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
   const cancelController = useRef<AbortController | null>(null);
   const locked = useRef(false);
   const lastSaved = useRef<string | null>(null);
+
+  function saveSelected(value: string[]) {
+    selectedRef.current = value; setSelected(value);
+    drafts.write(workspaceId, runId, {selected: value, question: questionRef.current});
+  }
+  function saveQuestion(value: string) {
+    questionRef.current = value; setQuestion(value);
+    drafts.write(workspaceId, runId, {selected: selectedRef.current, question: value});
+  }
+  useEffect(() => {
+    const draft = drafts.read(workspaceId, runId);
+    selectedRef.current = draft?.selected ?? []; questionRef.current = draft?.question ?? '';
+    setSelected(selectedRef.current); setQuestion(questionRef.current);
+  }, [drafts, workspaceId, runId]);
 
   useEffect(() => () => { postController.current?.abort(); actionController.current?.abort(); cancelController.current?.abort(); }, []);
   useEffect(() => () => {
@@ -85,8 +103,12 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
         const {data} = await getResearchRun(workspaceId, runId, {signal: controller.signal});
         if (controller.signal.aborted) return;
         setRun(current => current?.run_id === data.run_id && !active(current.status) && active(data.status) ? current : data);
-        setRunError(null); setSelected(data.snapshot_ids);
-        setQuestion(value => data.status === 'completed' ? value === data.question ? '' : value : value || data.question);
+        setRunError(null);
+        if (!drafts.read(workspaceId, runId)) {
+          selectedRef.current = data.snapshot_ids; setSelected(data.snapshot_ids);
+          const nextQuestion = data.status === 'completed' ? questionRef.current === data.question ? '' : questionRef.current : questionRef.current || data.question;
+          questionRef.current = nextQuestion; setQuestion(nextQuestion);
+        }
         if (data.status === 'completed' && lastSaved.current !== data.run_id) {
           lastSaved.current = data.run_id; setListVersion(value => value + 1);
         }
@@ -108,10 +130,12 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
     setParams(next);
   }
   function toggle(id: string) {
-    setSelected(value => value.includes(id) ? value.filter(item => item !== id) : value.length < 3 ? [...value, id] : value);
+    const value = selectedRef.current;
+    saveSelected(value.includes(id) ? value.filter(item => item !== id) : value.length < 3 ? [...value, id] : value);
   }
   function newResearch() {
-    pendingInput.current = null; setRequestError(null); setSelected([]); setQuestion(''); setCurrent(null);
+    drafts.clearWorkspace(workspaceId);
+    pendingInput.current = null; setRequestError(null); selectedRef.current = []; questionRef.current = ''; setSelected([]); setQuestion(''); setCurrent(null);
   }
   async function send(input: ResearchRequest) {
     if (locked.current || !canEdit) return;
@@ -136,7 +160,7 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
   function summarize(id: string) {
     if (locked.current || active(run?.status ?? 'completed') || !canEdit) return;
     const value = '선택한 법안의 주요 내용을 근거와 함께 정리해 주세요.';
-    setSelected([id]); setQuestion(value);
+    saveSelected([id]); saveQuestion(value);
     const input: ResearchRequest = {request_id: crypto.randomUUID(), question: value, snapshot_ids: [id], parent_run_id: null};
     pendingInput.current = input; void send(input);
   }
@@ -170,11 +194,11 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
         } catch { if (controller.signal.aborted) return; /* Another snapshot may be the cited version. */ }
       }
       setReaderError(true);
-    } else if (action.kind === 'ask_question') { setQuestion(action.question); document.getElementById('research-question')?.focus(); }
+    } else if (action.kind === 'ask_question') { saveQuestion(action.question); document.getElementById('research-question')?.focus(); }
     else if (action.kind === 'select_document') {
       const proof = run.result.canvas.research.evidence.find(item => item.document.document_id === action.document_id);
       const source = sourceItems.find(item => item.document_id === proof?.document.document_id);
-      if (source) setSelected([source.snapshot_id]);
+      if (source) saveSelected([source.snapshot_id]);
     }
   }
   const sourceItems = catalog.kind === 'ready' ? catalog.data.items : [];
@@ -199,7 +223,7 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
           <form onSubmit={submit} className="research-form">
             {run?.status === 'completed' && <p className="research-context">후속 질문 · {run.question}</p>}
             <label htmlFor="research-question">{run?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
-            <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => setQuestion(event.target.value)} disabled={!canEdit || sending || active(run?.status ?? 'completed')} placeholder="자료를 선택하고 질문을 입력하세요" />
+            <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(run?.status ?? 'completed')} placeholder="자료를 선택하고 질문을 입력하세요" />
             <div className="research-form-foot"><span>선택한 자료 {selected.length}개</span><button type="submit" disabled={!canEdit || sending || active(run?.status ?? 'completed') || !question.trim() || selected.length === 0}>{sending ? '요청 접수 중…' : run?.status === 'completed' ? '후속 질문하기' : 'AI 조사 시작'}</button></div>
             {!canEdit && <p role="status">읽기 권한으로는 저장된 조사를 열람할 수 있습니다.</p>}
           </form>
