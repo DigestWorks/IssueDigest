@@ -12,6 +12,7 @@ from issuedigest_storage import (
     WorkspaceAccessRepository,
     create_storage_engine,
 )
+from issuedigest_storage.research import ResearchRepository
 from sqlalchemy import Engine
 from starlette.concurrency import run_in_threadpool
 
@@ -33,6 +34,8 @@ def create_configured_app() -> IssueDigestAPI:
             EvidenceAccessRepository(engine),
             auth_service=AuthService(config, oauth, sessions, GoogleOAuthProvider(config)),
             workspace_repository=workspace,
+            research_repository=ResearchRepository(engine),
+            research_model_available=os.environ.get("ISSUEDIGEST_RESEARCH_ENABLED") == "1",
         )
     except Exception:
         if engine is not None:

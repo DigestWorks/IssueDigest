@@ -85,3 +85,7 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 검색은 원문에 포함된 문자만 찾습니다. `coverage.missing_snapshots`가 양수이면 일부 자료가 미색인 상태이고 `truncated`는 후보 또는 결과 한도에 걸렸음을 뜻합니다. 빈 결과를 근거 없음으로 단정하거나 검색 위치를 저장된 인용·주장 지지 판정으로 취급하지 않습니다. 원문 위치를 열 때는 로드한 `EvidenceBundle`과 hit의 ID·selector를 다시 대조해야 합니다.
 
 `resolveSearchSelection(routerState, bundle, workspaceId, snapshotId)`는 보호 GET에서 검증한 `EvidenceBundle`에 검색 hit가 가리키는 원문 위치가 정확히 존재하는지 확인합니다. workspace/snapshot/document/version/representation과 출처 메타데이터를 대조한 뒤 text/PDF의 quote·prefix·suffix·code point 범위와 실제 PDF 페이지, 표의 전체 cell text를 검사합니다. 유효하면 selector와 UTF-16 범위를 반환하고, 잘못되거나 오래된 상태에는 `null`을 반환합니다. router state는 저장된 인용을 만들지 않습니다. state가 없는 직접 URL은 선택 없이 읽고, 기존 history 항목을 새로고침해 state가 유지되면 보호 GET 후 canonical 검증을 다시 수행합니다.
+
+## 조사 클라이언트
+
+`getResearchSources`, `listResearchRuns`, `getResearchRun`, `submitResearch`, `cancelResearchRun`은 OpenAPI 생성 타입과 응답 검증을 사용합니다. 모든 요청은 같은 출처 쿠키·`no-store`·서버 request ID를 확인하고 원시 HTML/JS를 실행하지 않습니다. `ResearchRun.result.canvas`는 기존 `CanvasView`에 전달하고 `source_titles`는 document ID를 실제 제목으로 바꿀 때 사용합니다. `ResearchError.kind`는 `conflict`(409), `budget`(429), `unavailable`(503)을 포함합니다. 사용자 재시도 때 같은 `request_id`를 재사용하면 재과금 없이 같은 run을 얻습니다. GET/새로고침은 모델 호출을 시작하지 않습니다.

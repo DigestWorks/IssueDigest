@@ -2,15 +2,18 @@
 name = "issuedigest-worker"
 version = "0.0.0"
 requires-python = ">=3.13,<3.14"
-dependencies = ["issuedigest-domain", "issuedigest-ingestion", "issuedigest-storage"]
+dependencies = ["issuedigest-domain", "issuedigest-ingestion", "issuedigest-storage", "issuedigest-agents"]
 
 [tool.uv.sources]
 issuedigest-domain = { workspace = true }
 issuedigest-ingestion = { workspace = true }
 issuedigest-storage = { workspace = true }
+issuedigest-agents = { workspace = true }
 
 [project.scripts]
 issuedigest-prepare-hwpx = "issuedigest_worker.cli:main"
+issuedigest-research-worker = "issuedigest_worker.research_worker:main"
+issuedigest-research-migrate-dbos = "issuedigest_worker.research_worker:migrate_dbos"
 
 [build-system]
 requires = ["hatchling==1.32.4"]

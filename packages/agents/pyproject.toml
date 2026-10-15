@@ -1,0 +1,13 @@
+[project]
+name = "issuedigest-agents"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = ["issuedigest-domain", "issuedigest-storage", "pydantic-ai-slim[openai,dbos]==2.56.0", "dbos==3.2.0"]
+
+[tool.uv.sources]
+issuedigest-domain = { workspace = true }
+issuedigest-storage = { workspace = true }
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"

@@ -116,3 +116,7 @@ ASCII A~Z만 소문자로 비교합니다. Unicode 정규화·형태소 분석·
 Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. 빈 결과에서도 전체·투영·
 미투영 snapshot 수와 제외 셀 수를 확인해야 하며, 문자 일치는 주장 지지·관련성·의미 검색 품질을
 뜻하지 않습니다.
+
+## 조사 화면 계약
+
+`research_journey.py`는 자료 표시 sidecar, 1~3 snapshot 선택·질문, 증가하는 상태 이벤트, 자동 저장된 `CanvasBundle` 결과를 정의합니다. 기존 불변 SourceDocument/EvidenceBundle 필드는 바꾸지 않습니다. 표시 제목에는 UUID를 허용하지 않으며 알 수 없는 원본에는 자료 종류의 중립적 이름을 사용합니다.

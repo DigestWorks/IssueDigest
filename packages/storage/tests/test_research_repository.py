@@ -1,0 +1,161 @@
+"""Real PostgreSQL security, idempotency, budget and restart persistence."""
+
+from concurrent.futures import ThreadPoolExecutor
+from uuid import uuid4
+
+import pytest
+from issuedigest_domain import EvidenceBundle
+from issuedigest_domain.research_journey import ResearchRequest
+from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
+from issuedigest_storage.research import ResearchConflict, ResearchForbidden, ResearchRepository
+
+from conftest import bundle_data
+
+
+def setup_run(engine, role="owner"):
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, user = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    identities = IdentityRepository(engine)
+    identities.register_identity(user, "synthetic", str(user))
+    identities.set_membership(user, bundle.document.workspace_id, role)
+    token = SessionRepository(engine).issue_session(user).token
+    return bundle, snapshot, user, token
+
+
+def test_duplicate_submission_is_same_run_and_different_input_conflicts(engine):
+    bundle, snapshot, _user, token = setup_run(engine)
+    repository = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    request = ResearchRequest(
+        request_id=uuid4(), question="무엇이 다른가?", snapshot_ids=(snapshot,)
+    )
+    first = repository.submit(token, workspace, request)
+    assert first.status == "queued"
+    assert repository.submit(token, workspace, request).run_id == first.run_id
+    with pytest.raises(ResearchConflict):
+        repository.submit(token, workspace, request.model_copy(update={"question": "다른 질문"}))
+    assert repository.list_runs(token, workspace).items[0].run_id == first.run_id
+    assert repository.cancel(token, workspace, first.run_id).status == "cancelled"
+
+
+def test_global_reservation_caps_and_active_workspace_run(engine):
+    bundle, snapshot, _user, token = setup_run(engine)
+    repository = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        futures = [
+            pool.submit(
+                repository.submit,
+                token,
+                workspace,
+                ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+            )
+            for _ in range(2)
+        ]
+        outcomes = []
+        for future in futures:
+            try:
+                outcomes.append(future.result())
+            except ResearchConflict:
+                pass
+    assert len(outcomes) == 1
+    assert repository.get_run(token, workspace, outcomes[0].run_id).run_id == outcomes[0].run_id
+
+
+def test_viewer_cannot_submit_and_revoked_membership_cannot_read(engine):
+    bundle, snapshot, user, token = setup_run(engine, "viewer")
+    repository = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    with pytest.raises(ResearchForbidden):
+        repository.submit(
+            token,
+            workspace,
+            ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        )
+    assert repository.list_sources(token, workspace).items[0].title == "수집 자료"
+    IdentityRepository(engine).set_membership(user, workspace, "viewer", False)
+    assert repository.list_sources(token, workspace) is None
+
+
+def test_operator_title_and_monthly_budget_are_durable(engine):
+    from issuedigest_domain.research_journey import SourcePresentation
+    from issuedigest_storage.research import ResearchBudgetExceeded
+    from issuedigest_storage.research_schema import research_budget_months
+    from sqlalchemy import insert, select
+
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    presentation = SourcePresentation(
+        snapshot_id=snapshot,
+        workspace_id=bundle.document.workspace_id,
+        title="검증된 정부 문서",
+        profile="operator-verified-v1",
+    )
+    repo.upsert_presentation(presentation)
+    assert (
+        repo.list_sources(token, bundle.document.workspace_id).items[0].title == "검증된 정부 문서"
+    )
+    with engine.begin() as conn:
+        month = conn.scalar(
+            select(
+                __import__("sqlalchemy").func.to_char(
+                    __import__("sqlalchemy").func.clock_timestamp(), "YYYY-MM"
+                )
+            )
+        )
+        conn.execute(
+            insert(research_budget_months).values(
+                month=month, reserved_usd=10, reservation_count=40
+            )
+        )
+    with pytest.raises(ResearchBudgetExceeded):
+        repo.submit(
+            token,
+            bundle.document.workspace_id,
+            ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        )
+    assert repo.list_runs(token, bundle.document.workspace_id).items == ()
+
+
+def test_worker_demotion_prevents_result_publication(engine):
+    bundle, snapshot, actor, token = setup_run(engine, "editor")
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    run = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+    )
+    assert run is not None
+    IdentityRepository(engine).set_membership(actor, workspace, "viewer")
+    assert repo.worker_load(run.run_id) is None
+    final = repo.get_run(token, workspace, run.run_id)
+    assert (
+        final is not None and final.status == "failed" and final.error_code == "authority_changed"
+    )
+
+
+def test_replay_does_not_regress_progress_or_duplicate_events(engine):
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    run = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+    )
+    assert run is not None
+    for status in ("retrieving", "generating", "validating"):
+        assert repo.worker_transition(run.run_id, status)
+    for status in ("retrieving", "generating", "validating"):
+        assert repo.worker_transition(run.run_id, status)
+    current = repo.get_run(token, workspace, run.run_id)
+    assert current is not None
+    assert current.status == "validating"
+    assert [event.status for event in current.events] == [
+        "queued",
+        "retrieving",
+        "generating",
+        "validating",
+    ]

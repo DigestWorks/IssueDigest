@@ -33,8 +33,8 @@
 
 ## Task 1 · 실제 조사 backend·내구 실행·typed client
 
-- [ ] 위 보호 source catalog/run 생성·진행/결과 목록/재열람·취소/예산/idempotency/authority·표시 제목 계약과 PostgreSQL migration/repository를 TDD로 구현한다.
-- [ ] PydanticAI/DBOS 워커·구조화 결과→검증 CanvasBundle·usage/fixederrors·재시작/중복 dispatch/명시 runtime·READMEs를 구현하고 필요한 종속성/계약/typed client를 고정한다.
+- [x] 위 보호 source catalog/run 생성·진행/결과 목록/재열람·취소/예산/idempotency/authority·표시 제목 계약과 PostgreSQL migration/repository를 TDD로 구현한다.
+- [x] PydanticAI/DBOS 워커·구조화 결과→검증 CanvasBundle·usage/fixederrors·재시작/중복 dispatch/명시 runtime·READMEs를 구현하고 필요한 종속성/계약/typed client를 고정한다.
 
 수정 범위 packages/domain·storage·agents·api-client, apps/api·worker, root Python workspace 설정/lock/테스트, 관련 READMEs. 기존web UI는 Task2 담당. 하위 구현자는 전체 spec을 읽고 명시한 경계 안에서 단순한 계약을 결정해 문서화한다. DBOS/AI 공식 SDK 소스·문서를 확인하며 기억으로 API를 추측하지 않는다. 실제 외부 유료 호출/서버/비밀값은 controller만 다룬다. 단위/권한/트랜잭션/예산경쟁/정확 참조/직접 CLI/API/실제 DBOS 재시작은 합성 전용PG로 검증한다.
 

@@ -363,3 +363,9 @@ coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분�
 
 이 단계는 typed SDK와 합성 QA 검증이며 HTTP/UI·자동 outbox 소비·pgvector·AI 답변·전체 검색
 평가20문항은 후속입니다. 실제 공동 DB 적용·설정·백업 확인과 사용자 운영 연결은 별도로 준비합니다.
+
+## 조사 저장
+
+`0005_research_journey`는 원본 evidence JSON이나 해시를 고치지 않고 표시 제목 sidecar, 조사 run/event, 월 예약 테이블을 추가합니다. `ResearchRepository`는 현재 쿠키 세션·enabled user·활성 membership을 조회/제출/취소 때 확인하고 worker는 actor 역할을 실행 전·완료 전 다시 확인합니다. 동일 actor/workspace/request_id와 동일 입력은 같은 run을 반환하며 입력이 달라지면 409입니다. 월 USD 10·건당 USD 0.25·40건, 공간별 active 1개를 PostgreSQL 잠금과 인덱스로 제한합니다. 실패·취소 예약은 자동 환급하지 않습니다. 모든 완료 결과는 JSONB에 저장되어 동료 멤버가 다시 읽을 수 있습니다.
+
+운영자가 검증한 외부 제목은 `ResearchRepository.upsert_presentation(SourcePresentation(..., profile="operator-verified-v1"))`로 snapshot/workspace별 저장합니다. 자료 종류 기본 제목 외의 임의 본문 첫 줄을 제목으로 추정하지 않습니다. 기존 `legacy-bill-metadata-v1`만 정해진 첫 줄·의안번호·제안일을 검증해 자동으로 표시합니다.
