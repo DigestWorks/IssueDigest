@@ -35,7 +35,7 @@
 
 - [x] readonly 원문/manifest를 현재 확인하고 출처/페이지/인용·이용 범위를 검증해 선별한다. 불확실한 자료는 등록하지 않는다.
 - [x] 등록 가능 자료는 백업 후 기존 CLI로 추가하고 재실행 idempotence/검색 투영/보호 SDK 조회·기존 인증 보존을 확인한다. 불가하면 구체적 근거를 기록한다.
-- [ ] 전체 검사·독립 전체 리뷰·브라우저 QA 후 개인 개발 HTTPS 앱 갱신, Draft PR/진행·작업 문서/Sites 요약 반영. main/운영 배포는 수행하지 않는다.
+- [x] 전체 검사·독립 전체 리뷰·브라우저 QA 후 개인 개발 HTTPS 앱 갱신, Draft PR/진행·작업 문서/Sites 요약 반영. main/운영 배포는 수행하지 않는다.
 
 ## 검증·실행 결과
 
@@ -46,3 +46,5 @@
 - 전후 full/app 백업을 서버 밖에 확보했다. 앱 범위 백업을 별도 소유 loopback 테스트DB에 각각 복원해 자료/인용/초대·신규8개 canonical bundle 일치를 확인했다. 실제 개발DB는 복원/reset하지 않았다. 복원본의 별도 합성 사용자로 보호 목록9·GET8·검색8과 다른 공간/권한·세션 폐기 거부를 확인했다. 실제 사용자 세션은 생성/대신 사용하지 않았다.
 - 개인 개발 앱 source0116885·정적14파일/source map0 반영. 외부 TLS/hostname·index 빌드 일치·home/login/asset/health/status200·미인증session/search401/no-store 확인. 시스템 Nginx·운영 서비스·공용 checkout·main·DB schema/권한 유지.
 - 사용자 본인의 자료/검색 확인·동료 초대·정기 수집·PDF 대응/이용·질문20개 평가·의미 검색/Neo4j·AI/생성 화면·운영 앱은 후속이다. 새 API 키/권한 요청은 없다.
+
+Draft [PR #28](https://github.com/DigestWorks/IssueDigest/pull/28)·공개 Sites v48(native succeeded, source34492f9, 이전v47 보존) 인계를 완료했다. Sites 사본 기준은 c446d0d이며 그 시점 이후 인계 상태는 현재 원본 문서를 따른다.

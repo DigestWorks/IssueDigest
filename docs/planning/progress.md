@@ -31,7 +31,8 @@
 - 실제 추가: 기본 정보8건/인용16개를 기존 앱 역할/초대로 개발DB에 추가. 총자료9/인용19/outbox9, 자료9건 전체 색인·총16단위. 반복 신규0, 기존 공식 자료·계정/초대/권한·세션 보존. schema/권한/legacy 쓰기/AI 호출 변경 없음.
 - 백업/조회: 전후 서버 외부 full/app 백업·소유 loopback DB 앱 복원/새8 bundle 대조. 복원본의 별도 합성 계정으로 보호 목록9·GET8·검색8 및 다른 공간/권한·세션 폐기 거부. 실제 사용자 세션을 생성/대신 사용하지 않았다.
 - 개발 앱: 2026-10-15 18:46 KST source0116885·정적14파일/source map0 반영. 외부 TLS·index 빌드 일치·home/login/asset/health/status200·미인증session/search401/no-store. 사용자 본인의 자료/검색 확인은 남아 있다. main/운영 배포 유예·시스템/공용 checkout 유지.
-- 인계: Draft PR/Sites·개인 개발 checkout 최신 문서 반영 진행 중. 새 키/관리자 권한 요청은 없다.
+- 인계: [Draft PR #28](https://github.com/DigestWorks/IssueDigest/pull/28) 게시·앱 첨부. 공개 [Sites v48](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#workspace-clarity) native succeeded·source34492f9, 이전v47 보존·사본 기준c446d0d·HTML33/로컬 링크803/공개 텍스트86개 실제 비밀값/UUID/개별hash/원문 제외 확인. 브라우저 탭은 열지 않았다. 새 키/관리자 권한 요청은 없다.
+- 정리: 브라우저/합성 API 종료·소유/이미지/label/loopback 포트 대조 후 전용 QA 컨테이너와 익명 볼륨/복원 자료를 제거했다. 실제/합성 검증 증거·private 계획·전후 dump는 개인 위치에 보존한다. 개발 문서·PR·Sites를 갱신하며 마지막 저장소 인계 commit은 코드/자료/운영 설정을 바꾸지 않는다.
 
 ## 이전 작업 · 보호 근거 검색 API·화면 · 2026-10-15
 
