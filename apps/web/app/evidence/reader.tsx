@@ -137,7 +137,7 @@ function SavedEvidence({ data, workspaceId, snapshotId, searchState }: { data: E
     {searchSelection && <p className="reader-note search-selection-note" role="status">검색된 원문 위치 선택됨</p>}
     <div className="reading-layout">
       <section className="original-pane" aria-labelledby="original-title">
-        <h2 id="original-title">파싱된 원문</h2>
+        <h2 id="original-title">저장된 자료 본문</h2>
         <nav className="page-navigation" aria-label="원문 페이지">
           <button type="button" aria-pressed={pageNumber === null && !cell} onClick={() => choosePage(null)}>전체 텍스트</button>
           {representation.pages.map(page => <button key={page.page_number} type="button" aria-pressed={pageNumber === page.page_number} onClick={() => choosePage(page.page_number)}>{page.page_number}쪽</button>)}
