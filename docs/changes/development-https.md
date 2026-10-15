@@ -37,3 +37,7 @@ Sites는 상태 요약을 계속 갱신하지만 사용자가 이미 열어 둔 
 관리자 설치안을 계정 개인600 파일에 준비했다. 실제 DNS/TLS/공개 프록시·Google Console의 새 callback 허용·사용자 로그인은 미완료다. 예시 TLS 설정의 인증서 경로는 발급/검사 전이며 내부 설정 검사와 다르다. 앱/자료/의미 검색·AI/워커의 제품 완료를 주장하지 않는다.
 
 사용자가 새 Google callback 추가 완료를 전달했다. Console 설정을 독립 조회하거나 실제 Google 반환을 확인한 것은 아니며, 외부 HTTPS 적용 후 제공자 흐름에서 검증한다. 웹 asset 검사 도구가 처음에는 script src를 기대했지만 빌드는 inline import를 사용했다. asset URL을 실제 빌드 형식에서 찾아 재검사했고 모든 내부 검사가 통과했다. 제품 코드는 수정하지 않았다.
+
+## 2026-10-15 · 관리자 적용 후 외부 점검
+
+동료가 진행했다는 사용자 전달 후 직접 확인했다. HTTP virtual host/upstream은 설치됐고 DNS 우회·정확 Host의 읽기 검사에서 login/health200·session401이다. OS/Google/Cloudflare·권한 DNS2곳의 개발 주소는 NXDOMAIN, TLS는 SNI를 유지한 서버 직접 연결에서도 hostname mismatch(code62)로 실패했다. 개발 host는HTTP80만 설정돼 있고 전역 요청/오류 로그를 상속하며 OAuth 로그 차단은 미반영이다. OAuth start/callback은 실행하지 않았다. [추가 확인 요청](../../infra/development-https.md)을 준비했고 시스템/앱·DB/권한은 변경하지 않았다. 외부 연결과 실제 로그인 체크박스는 대기로 유지한다.
