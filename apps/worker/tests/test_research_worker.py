@@ -28,7 +28,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
         ResearchRequest(request_id=uuid4(), question="무슨 의미인가?", snapshot_ids=(snapshot,)),
     )
     assert run is not None
-    DBOS.migrate(database_url, application_role="issuedigest")
+    DBOS.migrate(database_url, application_role=engine.url.username)
     output = {
         "outcome": "answer",
         "message": None,
@@ -77,7 +77,7 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
         ResearchRequest(request_id=uuid4(), question="해석?", snapshot_ids=(snapshot,)),
     )
     assert run is not None
-    DBOS.migrate(database_url, application_role="issuedigest")
+    DBOS.migrate(database_url, application_role=engine.url.username)
     citation = str(bundle.citations[0].citation_id)
     first_output = {
         "outcome": "answer",
@@ -190,7 +190,7 @@ def test_terminal_storage_outage_recovers_without_recalling_model(engine, databa
         ResearchRequest(request_id=uuid4(), question="자료는?", snapshot_ids=(snapshot,)),
     )
     assert run is not None
-    DBOS.migrate(database_url, application_role="issuedigest")
+    DBOS.migrate(database_url, application_role=engine.url.username)
     citation = str(bundle.citations[0].citation_id)
 
     def output(text):
@@ -294,7 +294,7 @@ def test_worker_marks_uncitable_source_insufficient_without_model_request(engine
         ResearchRequest(request_id=uuid4(), question="질문?", snapshot_ids=(snapshot,)),
     )
     assert run is not None
-    DBOS.migrate(database_url, application_role="issuedigest")
+    DBOS.migrate(database_url, application_role=engine.url.username)
     run_worker(database_url, model=TestModel(), once=True)
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert final is not None and final.status == "completed"
@@ -329,7 +329,7 @@ def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
             .where(evidence_snapshots.c.snapshot_id == snapshot)
             .values(payload={"bad": "private source"})
         )
-    DBOS.migrate(database_url, application_role="issuedigest")
+    DBOS.migrate(database_url, application_role=engine.url.username)
     run_worker(database_url, model=TestModel(), once=True)
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert (
