@@ -28,7 +28,7 @@ from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 
 from .auth_schema import auth_sessions, auth_users, auth_workspace_memberships
 from .engine import verify_engine
-from .repository import EvidenceRepository, StorageError, _uuid4
+from .repository import EvidenceRepository, StorageCorruption, StorageError, _uuid4
 from .research_schema import (
     research_budget_months,
     research_events,
@@ -131,7 +131,7 @@ class ResearchRepository:
         if row is not None:
             presentation = SourcePresentation.model_validate(row)
             if presentation.workspace_id != workspace_id or presentation.snapshot_id != snapshot_id:
-                raise StorageError("Source presentation mismatch")
+                raise StorageCorruption("Source presentation mismatch")
             return presentation
         presentation = presentation_for(bundle, snapshot_id)
         conn.execute(
@@ -501,6 +501,17 @@ class ResearchRepository:
             conn: Connection,
         ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
             row = (
+                conn.execute(select(research_runs).where(research_runs.c.run_id == run_id))
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                return None
+            try:
+                allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
+            except ResearchForbidden:
+                allowed = False
+            row = (
                 conn.execute(
                     select(research_runs).where(research_runs.c.run_id == run_id).with_for_update()
                 )
@@ -514,10 +525,6 @@ class ResearchRepository:
                 "validating",
             }:
                 return None
-            try:
-                allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
-            except ResearchForbidden:
-                allowed = False
             if not allowed:
                 self._transition(conn, row, "failed", "authority_changed")
                 return None
@@ -541,7 +548,7 @@ class ResearchRepository:
             for snapshot_id in candidate_ids:
                 bundle = EvidenceRepository._load(conn, row["workspace_id"], snapshot_id)
                 if bundle is None:
-                    raise StorageError("Selected source unavailable")
+                    raise StorageCorruption("Selected source unavailable")
                 sources.append(
                     (
                         snapshot_id,
@@ -600,6 +607,17 @@ class ResearchRepository:
     ) -> bool:
         def change(conn: Connection) -> bool:
             row = (
+                conn.execute(select(research_runs).where(research_runs.c.run_id == run_id))
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                return False
+            try:
+                allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
+            except ResearchForbidden:
+                allowed = False
+            row = (
                 conn.execute(
                     select(research_runs).where(research_runs.c.run_id == run_id).with_for_update()
                 )
@@ -608,10 +626,6 @@ class ResearchRepository:
             )
             if row is None or row["status"] in {"cancelled", "failed", "completed"}:
                 return False
-            try:
-                allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
-            except ResearchForbidden:
-                allowed = False
             if not allowed:
                 status_final: RunStatus = "failed"
                 self._transition(conn, row, status_final, "authority_changed")

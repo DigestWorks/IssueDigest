@@ -12,8 +12,8 @@ from issuedigest_agents.research import (
     model_prompt,
     run_agent,
 )
-from issuedigest_domain.research_journey import ResearchResult
-from issuedigest_storage import create_storage_engine
+from issuedigest_domain.research_journey import ResearchResult, RunStatus
+from issuedigest_storage import StorageCorruption, StorageError, create_storage_engine
 from issuedigest_storage.research import ResearchRepository
 from sqlalchemy import Engine
 
@@ -42,23 +42,50 @@ def run_worker(
         }
     )
 
+    def persist(
+        run_id: UUID,
+        status: RunStatus,
+        *,
+        error_code: str | None = None,
+        result: ResearchResult | None = None,
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> bool:
+        """Retry only application writes; never repeat a paid model request here."""
+        while True:
+            try:
+                return repository.worker_transition(
+                    run_id,
+                    status,
+                    error_code=error_code,
+                    result=result,
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+            except StorageError:
+                time.sleep(poll_seconds)
+
     @DBOS.workflow(name="issuedigest_research_run_v1", max_recovery_attempts=3)
     def execute(run_id_text: str) -> None:
         run_id = UUID(run_id_text)
-        try:
-            loaded = repository.worker_load(run_id)
-        except Exception:
-            # Canonical evidence or storage errors cannot leak through DBOS exception logs.
+        while True:
             try:
-                repository.worker_transition(run_id, "failed", error_code="generation_failed")
+                loaded = repository.worker_load(run_id)
+                break
+            except StorageCorruption:
+                persist(run_id, "failed", error_code="generation_failed")
+                return
+            except StorageError:
+                time.sleep(poll_seconds)
             except Exception:
-                pass  # A later operator repair can reconcile a temporarily unavailable DB.
-            return
+                # Canonical evidence errors are fixed-code failures, not DBOS log payloads.
+                persist(run_id, "failed", error_code="generation_failed")
+                return
         if loaded is None:
             return
         run, sources = loaded
         try:
-            if not repository.worker_transition(run_id, "retrieving"):
+            if not persist(run_id, "retrieving"):
                 return
             try:
                 prompt = model_prompt(
@@ -72,16 +99,16 @@ def run_worker(
                 )
                 input_tokens, output_tokens = 0, 0
             else:
-                if not repository.worker_transition(run_id, "generating"):
+                if not persist(run_id, "generating"):
                     return
                 output, input_tokens, output_tokens = run_agent(agent, prompt)
-            if not repository.worker_transition(run_id, "validating"):
+            if not persist(run_id, "validating"):
                 return
             canvas = build_canvas(run_id, run.workspace_id, sources, output)
             titles = {
                 bundle.document.document_id: title.title for _snapshot, bundle, title in sources
             }
-            repository.worker_transition(
+            persist(
                 run_id,
                 "completed",
                 result=ResearchResult(canvas=canvas, source_titles=titles),
@@ -89,11 +116,8 @@ def run_worker(
                 output_tokens=output_tokens,
             )
         except Exception:
-            # Ambiguous provider outcomes remain reserved; no retries or raw error logging.
-            try:
-                repository.worker_transition(run_id, "failed", error_code="generation_failed")
-            except Exception:
-                pass
+            # Provider/validation failures are final; ambiguous outcomes stay reserved.
+            persist(run_id, "failed", error_code="generation_failed")
 
     try:
         DBOS.launch()

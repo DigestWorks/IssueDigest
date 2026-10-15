@@ -1,11 +1,13 @@
 """Real PostgreSQL security, idempotency, budget and restart persistence."""
 
 from concurrent.futures import ThreadPoolExecutor
+from threading import Event, current_thread
 from uuid import uuid4
 
 import pytest
+from issuedigest_agents.research import AIOutput, build_canvas
 from issuedigest_domain import EvidenceBundle
-from issuedigest_domain.research_journey import ResearchRequest
+from issuedigest_domain.research_journey import ResearchRequest, ResearchResult
 from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
 from issuedigest_storage.research import ResearchConflict, ResearchForbidden, ResearchRepository
 
@@ -159,3 +161,71 @@ def test_replay_does_not_regress_progress_or_duplicate_events(engine):
         "generating",
         "validating",
     ]
+
+
+def test_cancel_and_publication_share_lock_order(engine, monkeypatch):
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    run = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+    )
+    assert run is not None
+    loaded = repo.worker_load(run.run_id)
+    assert loaded is not None
+    sources = loaded[1]
+    output = AIOutput.model_validate(
+        {
+            "outcome": "answer",
+            "modules": [
+                {
+                    "kind": "summary",
+                    "title": "요약",
+                    "claims": [
+                        {"text": "합성 해석", "citation_ids": [bundle.citations[0].citation_id]}
+                    ],
+                }
+            ],
+        }
+    )
+    result = ResearchResult(
+        canvas=build_canvas(run.run_id, workspace, sources, output),
+        source_titles={bundle.document.document_id: "합성 문서"},
+    )
+    cancel_member_held, publisher_at_member = Event(), Event()
+    original_actor = ResearchRepository._actor
+    original_member = ResearchRepository._member
+
+    def actor_gate(conn, session_token, workspace_id, *, write=False):
+        actor = original_actor(conn, session_token, workspace_id, write=write)
+        if current_thread().name == "cancel-race" and write:
+            cancel_member_held.set()
+            assert publisher_at_member.wait(5)
+        return actor
+
+    def member_gate(conn, user_id, workspace_id, *, write=False):
+        if current_thread().name == "publish-race":
+            publisher_at_member.set()
+        return original_member(conn, user_id, workspace_id, write=write)
+
+    monkeypatch.setattr(ResearchRepository, "_actor", staticmethod(actor_gate))
+    monkeypatch.setattr(ResearchRepository, "_member", staticmethod(member_gate))
+
+    def cancel():
+        current_thread().name = "cancel-race"
+        return repo.cancel(token, workspace, run.run_id)
+
+    def publish():
+        current_thread().name = "publish-race"
+        return repo.worker_transition(run.run_id, "completed", result=result)
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        cancelling = pool.submit(cancel)
+        assert cancel_member_held.wait(5)
+        publishing = pool.submit(publish)
+        assert cancelling.result(timeout=7).status == "cancelled"
+        assert publishing.result(timeout=7) is False
+    final = repo.get_run(token, workspace, run.run_id)
+    assert final is not None and final.status == "cancelled" and final.result is None

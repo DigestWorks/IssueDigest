@@ -168,6 +168,115 @@ run_worker(
             first.wait(timeout=5)
 
 
+def test_terminal_storage_outage_recovers_without_recalling_model(engine, database_url, tmp_path):
+    import json
+    import os
+    import signal
+    import subprocess
+    import sys
+    import time
+
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="자료는?", snapshot_ids=(snapshot,)),
+    )
+    assert run is not None
+    DBOS.migrate(database_url, application_role="issuedigest")
+    citation = str(bundle.citations[0].citation_id)
+
+    def output(text):
+        return {
+            "outcome": "answer",
+            "message": None,
+            "modules": [
+                {
+                    "kind": "summary",
+                    "title": "요약",
+                    "claims": [{"text": text, "citation_ids": [citation], "event_date": None}],
+                }
+            ],
+        }
+
+    script = """import json, os
+from pathlib import Path
+from issuedigest_storage.research import ResearchRepository
+from issuedigest_storage import StorageError
+from issuedigest_worker.research_worker import run_worker
+from pydantic_ai.models.test import TestModel
+original = ResearchRepository.worker_transition
+if os.environ.get('FAIL_TERMINAL') == '1':
+    def fail(self, run_id, status, **kwargs):
+        if status in {'completed', 'failed'}:
+            Path(os.environ['FAULT_MARKER']).write_text('terminal write attempted')
+            raise StorageError('synthetic private DB fault')
+        return original(self, run_id, status, **kwargs)
+    ResearchRepository.worker_transition = fail
+run_worker(
+    os.environ['ISSUEDIGEST_TEST_DATABASE_URL'],
+    model=TestModel(custom_output_args=json.loads(os.environ['SYNTHETIC_OUTPUT'])),
+    poll_seconds=0.1,
+)
+"""
+    marker = tmp_path / "terminal-attempted"
+    env = {
+        **os.environ,
+        "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
+        "SYNTHETIC_OUTPUT": json.dumps(output("첫 모델의 해석")),
+        "FAIL_TERMINAL": "1",
+        "FAULT_MARKER": str(marker),
+        "PYDANTIC_AI_NO_BANNER": "1",
+    }
+    first = subprocess.Popen(
+        [sys.executable, "-c", script],
+        env=env,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    try:
+        deadline = time.monotonic() + 15
+        while not marker.exists() and time.monotonic() < deadline:
+            time.sleep(0.05)
+        assert marker.exists() and first.poll() is None
+        active = repo.get_run(token, bundle.document.workspace_id, run.run_id)
+        assert active is not None and active.status == "validating"
+        first.send_signal(signal.SIGKILL)
+        assert first.wait(timeout=10) == -signal.SIGKILL
+        env.pop("FAIL_TERMINAL")
+        env["SYNTHETIC_OUTPUT"] = json.dumps(output("재호출됐다면 보일 해석"))
+        second = subprocess.Popen(
+            [sys.executable, "-c", script],
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        try:
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
+                if final is not None and final.status in {"completed", "failed"}:
+                    break
+                time.sleep(0.1)
+            assert final is not None and final.status == "completed"
+            assert final.result is not None
+            assert final.result.canvas.research.claims[0].text == "첫 모델의 해석"
+        finally:
+            second.terminate()
+            second.wait(timeout=10)
+    finally:
+        if first.poll() is None:
+            first.kill()
+            first.wait(timeout=5)
+
+
 def test_worker_marks_uncitable_source_insufficient_without_model_request(engine, database_url):
     data = bundle_data()
     data["citations"] = []

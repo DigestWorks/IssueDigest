@@ -28,17 +28,23 @@ from .search import _invalid_constant, _unique_pairs
 BASE = "/api/v1/workspaces/{workspace_id}/research"
 
 
-async def _body(request: Request) -> ResearchRequest:
-    if request.query_params or request.headers.getlist("content-type") != ["application/json"]:
-        raise HTTPException(422, "Invalid research request")
+async def _bounded_bytes(request: Request) -> bytes:
     body = bytearray()
     async for chunk in request.stream():
         if len(body) + len(chunk) > 16_384:
             raise HTTPException(422, "Invalid research request")
         body.extend(chunk)
+    return bytes(body)
+
+
+async def _body(request: Request) -> ResearchRequest:
+    if request.query_params or request.headers.getlist("content-type") != ["application/json"]:
+        raise HTTPException(422, "Invalid research request")
     try:
         parsed = json.loads(
-            body.decode("utf-8"), object_pairs_hook=_unique_pairs, parse_constant=_invalid_constant
+            (await _bounded_bytes(request)).decode("utf-8"),
+            object_pairs_hook=_unique_pairs,
+            parse_constant=_invalid_constant,
         )
         return ResearchRequest.model_validate(parsed)
     except (UnicodeError, ValueError, TypeError, ValidationError, RecursionError):
@@ -145,7 +151,7 @@ def research_router(
         if (
             request.query_params
             or request.headers.getlist("content-type") != ["application/json"]
-            or await request.body() != b"{}"
+            or await _bounded_bytes(request) != b"{}"
         ):
             raise HTTPException(422, "Invalid research request")
         return cast(ResearchRun, await call("cancel", valid, workspace_id, run_id))
