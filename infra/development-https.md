@@ -2,6 +2,12 @@
 
 2026-10-15 한국 시간. 개발 주소는 `https://dev.issuedigest.projects.ai.kr`이며 DNS/TLS/공개 연결을 직접 확인했다. 실제 사용자 Google 로그인·자료 열람은 별도 확인한다. [작업·검증 경계](../docs/changes/development-https.md)를 따른다. 기존 `issuedigest.projects.ai.kr`·운영 서비스·main 자동 배포는 유지한다.
 
+## 2026-10-15 18:46 KST · 자료 중심 UI·법안 기본 정보
+
+[작업 명세](../docs/changes/workspace-clarity-legacy.md)의 source0116885·정적14파일/source map0을 개인 runtime에 반영했다. API/개인 Nginx만 재시작/reload하고 시스템·운영·main을 유지했다. 외부 CA/hostname·index 빌드 일치·home/login/asset/health/status200·미인증session/search401/no-store다.
+
+공동 개발DB에 기본 정보8건을 추가해 총자료9/인용19·모두 색인, 반복 신규0·기존 인증/자료 보존·schema0004/DDL 부재를 확인했다. 전후 서버 외부 백업·별도 loopback 앱 복원/새8 bundle 대조, 합성 계정 보호 목록/GET/검색·권한 폐기를 확인했다. 실제 사용자 세션을 생성/대신 사용하지 않았다. 사용자의 자료/검색 확인과 정기 수집/AI·운영 배포는 별도다.
+
 ## 2026-10-15 18:04 KST · 검색 앱 갱신
 
 [검색 인터페이스](../docs/changes/evidence-search-interface.md) source `fd26683`의 고정 Node/lockfile 빌드14파일·source map0을 개인 자산 경로에 보관했다. 개인 API 재시작과 개인 정적 Nginx root/reload만 수행했다. 외부 TLS/시스템 서비스·main/공용 checkout·DB schema/권한은 유지했다.

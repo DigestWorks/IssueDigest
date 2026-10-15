@@ -31,6 +31,7 @@ button { flex-shrink: 0; min-height: 44px; padding: 8px 17px; border: 1px solid 
 button:hover:enabled { background: #ebefe6; border-color: var(--green); }
 button:disabled { opacity: .65; cursor: wait; }
 button:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
+summary:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
 footer { display: flex; justify-content: space-between; gap: 16px; padding: 22px 0 28px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
 .workspace-catalog { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 24px; font-size: 14px; line-height: 1.8; }
 .workspace-choice { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
@@ -51,6 +52,27 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
 .catalog-meta .action-link { margin-left: auto; }
 .action-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--green); text-underline-offset: 4px; }
 .workspace-tools { border-top: 1px solid var(--line); margin-top: 28px; }
+.workspace-tools > summary { cursor: pointer; padding: 18px 0; color: var(--muted); font-size: 12px; }
+.workspace-tools > aside { padding-bottom: 24px; }
+.workspace:not(.login-workspace) .brand { padding: 19px 0; }
+.workspace:not(.login-workspace) > main { padding-top: 34px; }
+.workspace:not(.login-workspace):not(.evidence-workspace) > main > .eyebrow { margin-bottom: 8px; }
+.workspace:not(.login-workspace):not(.evidence-workspace) > main > h1 { font-size: clamp(25px, 3vw, 34px); line-height: 1.35; }
+.workspace:not(.login-workspace):not(.evidence-workspace) > main > .intro { margin-top: 12px; max-width: 760px; font-size: 13px; line-height: 1.7; }
+.workspace:not(.login-workspace) .workspace-catalog { margin-top: 28px; padding-top: 18px; }
+.workspace-name { font-size: 14px; font-weight: 650; color: var(--green); }
+.workspace-choice .technical-details { margin-left: auto; }
+.catalog-title { margin: 25px 0 0; font-family: "Noto Serif KR", "Batang", serif; font-size: 19px; }
+.catalog-list { display: grid; gap: 0; }
+.catalog-list li { padding: 20px 0; }
+.catalog-source { align-items: center; gap: 9px; font-size: 12px; }
+.catalog-source span:first-child { padding: 2px 7px; background: #e8eee5; color: var(--green); }
+.catalog-excerpt { margin: 12px 0; font-size: 14px; line-height: 1.7; }
+.technical-details { color: var(--muted); font-size: 11px; }
+.technical-details summary { display: inline-block; cursor: pointer; padding: 7px 0; text-decoration: underline; text-decoration-color: #aab6aa; text-underline-offset: 3px; }
+.technical-details > div { border-left: 2px solid var(--line); padding: 2px 0 2px 12px; }
+.technical-details p { margin: 4px 0; overflow-wrap: anywhere; }
+.technical-details code { font-family: ui-monospace, monospace; }
 .logout-feedback { font-size: 12px; color: #974334; }
 .login-panel { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); }
 .login-button { min-width: 200px; background: var(--green); color: #f7f7f1; font-size: 14px; }
@@ -66,4 +88,9 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
   .empty-state { margin-top: 40px; gap: 16px; padding: 28px 0; }
   .connection { align-items: flex-start; gap: 16px; }
   footer { flex-direction: column; gap: 8px; }
+  .workspace:not(.login-workspace) > main { padding-top: 28px; }
+  .workspace-choice .technical-details { margin-left: 0; width: 100%; }
+  .catalog-meta .action-link { margin-left: 0; }
+  .evidence-link-fields { display: flex; flex-wrap: wrap; gap: 8px; }
+  .evidence-link-fields input { min-width: 0; flex: 1 1 190px; }
 }

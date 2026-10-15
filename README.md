@@ -110,4 +110,4 @@ React Router **8.4.0**, React **19.3.0**, Vite **8.3.4**, FastAPI **0.143.0**, P
 
 운영자가 초대한 Google 계정만 로그인할 수 있습니다. Google 서명·state/PKCE/nonce를 확인하고 서버 세션을 발급한 뒤 현재 작업 공간 권한으로 자료 목록·원문/인용을 읽습니다. 이메일·공급자 토큰을 웹 저장소에 보관하지 않습니다. 로그아웃하면 해당 서버 세션을 폐기합니다.
 
-[설정·실행 안내](apps/api/README.md)와 [작업 명세](docs/changes/google-oauth-workspace.md)에 개발용 HTTPS callback, 명시 마이그레이션·초대/자료 등록과 필요한 환경변수를 기록했습니다. 실제 Google 클라이언트 파일은 개인 위치에서 확인했지만 실제 Google 계정 로그인·공동 DB 이관·운영 프록시는 미검증입니다. 테스트의 합성 계정/자료는 실사용 계정/자료가 아닙니다. 공개 앱·main 병합은 D013에 따라 유예합니다.
+[설정·실행 안내](apps/api/README.md)와 [작업 명세](docs/changes/google-oauth-workspace.md)에 개발용 HTTPS callback, 명시 마이그레이션·초대/자료 등록과 필요한 환경변수를 기록했습니다. 공동 개발 DB·고정 HTTPS 개발 앱을 연결했고 실제 Google 로그인 바인딩과 세션 저장을 확인했습니다. 사용자의 자료 읽기·검색 최종 확인과 main 운영 앱은 별도로 남아 있습니다. 테스트의 합성 계정/자료는 실사용 계정/자료가 아닙니다. 공개 앱·main 병합은 D013에 따라 유예합니다.

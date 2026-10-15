@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router';
 import '../evidence/reader.css';
 import { AuthError, CatalogError, ConnectionError, getEvidenceCatalog, getSession, getStatus, logout, type AuthFailure, type EvidenceCatalog, type SessionInfo } from '@issuedigest/api-client';
 import EvidenceSearch from '../search';
+import { CollectedDate, sourceKind, TechnicalDetails } from '../evidence/presentation';
 
 type State = 'idle' | 'pending' | 'success' | 'failure';
 const labels: Record<State, string> = {
@@ -94,9 +95,9 @@ export default function Home() {
     <div className="workspace">
       <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">이슈 조사 작업 공간</span>{session.kind === 'ready' && <button type="button" onClick={() => void signOut()} disabled={logoutPending}>{logoutPending ? '로그아웃 중…' : '로그아웃'}</button>}</header>
       <main>
-        <p className="eyebrow">자료에서 시작하는 조사</p>
-        <h1>이슈를 읽고,<br />근거를 비교합니다.</h1>
-        <p className="intro">하나의 이슈를 여러 자료와 관점으로 살펴보는 작업 공간입니다.</p>
+        <p className="eyebrow">공동 조사 공간</p>
+        <h1>자료를 찾고 원문을 읽습니다.</h1>
+        <p className="intro">원문을 검색하고 저장된 자료를 열어 인용 위치를 확인하세요. 현재는 원문 문자 검색과 열람을 제공합니다. AI 답변과 생성 기능은 아직 연결되지 않았습니다.</p>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
         <section className="workspace-catalog" aria-label="작업 공간 자료">
           {session.kind === 'loading' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
@@ -107,17 +108,18 @@ export default function Home() {
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="작업 공간 상태">접근 가능한 작업 공간이 없습니다.</p> : <>
             <div className="workspace-choice">
-              <label htmlFor="workspace-choice">작업 공간</label>
-              <select id="workspace-choice" value={workspaceId} onChange={event => setWorkspaceId(event.target.value)}>
-                {session.data.memberships.map(membership => <option key={membership.workspace_id} value={membership.workspace_id}>{membership.workspace_id}</option>)}
-              </select>
+              {session.data.memberships.length === 1 ? <span className="workspace-name">공동 조사 자료</span> : <><label htmlFor="workspace-choice">작업 공간</label>
+                <select id="workspace-choice" value={workspaceId} onChange={event => setWorkspaceId(event.target.value)}>
+                  {session.data.memberships.map((membership, index) => <option key={membership.workspace_id} value={membership.workspace_id}>공간 {index + 1}</option>)}
+                </select></>}
               {membership && <span className="role-label" title={`${roles[membership.role]} 권한`}>{roles[membership.role]}</span>}
+              {membership && <TechnicalDetails><p>작업 공간 ID <code>{membership.workspace_id}</code></p></TechnicalDetails>}
             </div>
             {workspaceId && !logoutPending && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
             {workspaceId && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
           </>)}
         </section>
-        <aside className="workspace-tools" aria-label="연결과 저장된 근거 링크">
+        <details className="workspace-tools"><summary>연결 확인과 저장된 근거 링크</summary><aside aria-label="연결과 저장된 근거 링크">
         <section className="connection" aria-label="서비스 연결 확인">
           <div>
             <p className="connection-label">서비스 연결</p>
@@ -139,7 +141,7 @@ export default function Home() {
           <p id="evidence-link-note">저장된 근거 링크로 원문과 인용을 읽습니다. 자료 접근에는 로그인과 작업 공간 권한이 필요합니다.</p>
           {linkError && <p id="evidence-link-error" role="alert">{linkError}</p>}
         </form>
-        </aside>
+        </aside></details>
       </main>
       <footer>DigestWorks <span>자료와 근거를 차분히 살펴보는 곳</span></footer>
     </div>
@@ -167,12 +169,14 @@ function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
     <SupportInfo requestId={state.error.requestId} />
   </>;
   return <>
+    <h2 className="catalog-title">저장된 자료</h2>
     <p role="status" aria-label="자료 목록 상태" aria-live="polite" className="catalog-note">저장된 자료 {state.data.items.length}개 · 최대 50개를 표시합니다.{state.data.has_more && ' 표시되지 않은 자료가 더 있습니다.'}</p>
     {state.data.items.length === 0 ? <div className="catalog-empty"><h2>아직 등록된 자료가 없습니다.</h2><p>이 작업 공간에 저장된 원자료가 준비되면 함께 살펴봅니다.</p></div> : <ul className="catalog-list">
       {state.data.items.map(item => <li key={item.snapshot_id}>
-        <div className="catalog-source"><span>{item.provider}</span><span className="catalog-source-id">{item.source_id}</span></div>
+        <div className="catalog-source"><span>{sourceKind(item.source_kind)}</span><span>{item.provider}</span></div>
         <p className="catalog-excerpt">{item.excerpt || '저장된 원문 텍스트가 없습니다.'}</p>
-        <div className="catalog-meta"><time dateTime={item.collected_at}>수집 {item.collected_at}</time><span>인용 {item.citation_count}개</span><Link className="action-link" to={`/workspaces/${workspaceId}/evidence/${item.snapshot_id}`}>근거 열기</Link></div>
+        <div className="catalog-meta"><CollectedDate value={item.collected_at} /><span>인용 {item.citation_count}개</span><Link className="action-link" to={`/workspaces/${workspaceId}/evidence/${item.snapshot_id}`}>근거 열기</Link></div>
+        <TechnicalDetails><p>출처 ID <code>{item.source_id}</code></p><p>수집 시각 <code>{item.collected_at}</code></p></TechnicalDetails>
       </li>)}
     </ul>}
   </>;

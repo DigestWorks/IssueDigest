@@ -14,6 +14,7 @@
 | [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
 | [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
 | [공동 개발 DB 적용](changes/shared-database-bootstrap.md) | 초기 스키마·승인 등록·기존 앱 권한·전/후 백업과 앱 범위 복원·남은 입력 |
+| [자료 중심 UI·기존 법안 연결](changes/workspace-clarity-legacy.md) | 검색/자료/원문 흐름·소량 기존 기본 정보·실DB 적용 경계 |
 | [검색 API·화면](changes/evidence-search-interface.md) | 현재 작업 공간 검색·상태/한도·검증된 원문 위치 읽기 |
 | [저장 근거 문자 검색](changes/evidence-search.md) | PostgreSQL 색인/재생성·현재 권한·정확 위치와 의미 검색의 경계 |
 | [첫 자료 풀](research/first-issue-corpus.md) | 공식 후보·원문·이용·연구 추출·앱 파서와 재게시 가족 상태 |

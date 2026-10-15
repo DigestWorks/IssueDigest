@@ -11,7 +11,7 @@
 .source-meta dd { margin: 0; overflow-wrap: anywhere; }
 .source-link { font-size: 13px; }
 .reader-main a { color: var(--green); text-underline-offset: 4px; }
-.reading-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 36px; margin-top: 36px; border-top: 1px solid var(--line); padding-top: 24px; }
+.reading-layout { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 36px; margin-top: 24px; border-top: 1px solid var(--line); padding-top: 24px; }
 .original-pane, .citations-pane { min-width: 0; }
 .citations-pane { border-left: 1px solid var(--line); padding-left: 28px; }
 .page-navigation { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0; }

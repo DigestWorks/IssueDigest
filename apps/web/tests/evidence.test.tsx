@@ -21,17 +21,20 @@ afterEach(() => vi.useRealTimers());
 it('announces loading while a real GET is pending, without evidence', () => {
   vi.stubGlobal('fetch', () => new Promise(() => {})); mount();
   expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
-  expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument();
+  expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument();
 });
 it('renders source metadata and requires explicit citation selection without another GET', async () => {
   const body = fixture(); body.document.canonical_url = 'https://example.com/source';
   const fetch = vi.fn(async () => response(body)); vi.stubGlobal('fetch', fetch); mount();
-  expect(await screen.findByRole('heading', { name: '합성 문서 A' })).toBeInTheDocument();
+  expect(await screen.findByRole('heading', { name: '원문과 인용' })).toBeInTheDocument();
   expect(screen.getByText('synthetic-test')).toBeInTheDocument();
-  expect(screen.getByText('2026-01-01T00:00:00Z')).toBeInTheDocument();
+  expect(screen.getByText(body.document.source_id).closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByText('2026-01-01T00:00:00Z').closest('details')).not.toHaveAttribute('open');
+  expect(screen.getByText('기타 자료')).toBeInTheDocument();
+  expect(screen.getByText('수집 2026. 1. 1.')).toBeInTheDocument();
   const link = screen.getByRole('link', { name: '원문 출처 열기' }); expect(link).toHaveAttribute('href', 'https://example.com/source'); expect(link).toHaveAttribute('rel', 'noopener noreferrer');
   expect(document.querySelector('mark')).toBeNull(); expect(screen.queryByText(requestId)).not.toBeInTheDocument();
-  const button = screen.getByRole('button', { name: /인용 1 · 텍스트/ });
+  const button = screen.getByRole('button', { name: /인용 1 · 본문/ });
   await userEvent.setup().click(button);
   expect(button).toHaveAttribute('aria-pressed', 'true'); expect(document.querySelector('mark')).toHaveTextContent(body.representation.text);
   expect(screen.getByRole('status')).toHaveTextContent('인용 1'); expect(fetch).toHaveBeenCalledTimes(1);
@@ -52,14 +55,14 @@ it('uses actual PDF page numbers and displays the validated table cell', async (
   body.representation.pages[1].end = 6;
   body.representation.text_sha256 = createHash('sha256').update(body.representation.text).digest('hex');
   vi.stubGlobal('fetch', async () => response(body)); mount();
-  await screen.findByRole('heading', { name: '합성 문서 A' });
+  await screen.findByRole('heading', { name: '원문과 인용' });
   expect(screen.getByRole('button', { name: '3쪽' })).toBeInTheDocument(); expect(screen.getByRole('button', { name: '7쪽' })).toBeInTheDocument();
   await userEvent.setup().click(screen.getByRole('button', { name: /인용 2 · PDF 7쪽/ }));
   expect(screen.getByRole('button', { name: '7쪽' })).toHaveAttribute('aria-pressed', 'true'); expect(screen.getByLabelText('원문 텍스트')).toHaveTextContent('😀인용끝'); expect(document.querySelector('mark')?.textContent).toBe('😀인용');
   await userEvent.setup().click(screen.getByRole('button', { name: /인용 3 · 표 셀/ }));
   expect(screen.getByLabelText('선택한 표 셀')).toHaveTextContent('합성 표 인용');
   expect(screen.getByRole('button', { name: '전체 텍스트' })).toHaveAttribute('aria-pressed', 'false');
-  await userEvent.setup().click(screen.getByRole('button', { name: /인용 1 · 텍스트/ }));
+  await userEvent.setup().click(screen.getByRole('button', { name: /인용 1 · 본문/ }));
   expect(screen.getByRole('button', { name: '전체 텍스트' })).toHaveAttribute('aria-pressed', 'true'); expect(screen.getByLabelText('원문 텍스트')).toHaveTextContent('첫쪽😀인용끝');
 });
 it('shows precise empty states and an unregistered source link', async () => {
@@ -81,7 +84,7 @@ it('retries through a cleared loading state and then a real response', async () 
   vi.stubGlobal('fetch', async () => { if (first) { first = false; return response({}, 503); } return new Promise<Response>(resolve => { complete = resolve; }); }); mount();
   await userEvent.setup().click(await screen.findByRole('button', { name: '다시 읽기' }));
   expect(screen.getByRole('status')).toHaveTextContent('읽는 중'); expect(screen.queryByText(requestId)).not.toBeInTheDocument();
-  await act(async () => complete(response())); expect(await screen.findByRole('heading', { name: '합성 문서 A' })).toBeInTheDocument();
+  await act(async () => complete(response())); expect(await screen.findByRole('heading', { name: '원문과 인용' })).toBeInTheDocument();
 });
 it('rejects malformed HTML success and supports a retry', async () => {
   vi.stubGlobal('fetch', async () => new Response('<img src="https://example.com/tracker" onerror="alert(1)">', { headers: { 'Content-Type': 'text/html' } })); mount();
@@ -101,26 +104,26 @@ it('shows a timeout state without displaying a delayed response', async () => {
   vi.useFakeTimers(); let complete!: (response: Response) => void;
   vi.stubGlobal('fetch', () => new Promise<Response>(resolve => { complete = resolve; })); mount();
   await act(async () => vi.advanceTimersByTimeAsync(10000)); expect(screen.getByText('응답을 기다리는 시간이 길어졌습니다.')).toBeInTheDocument();
-  await act(async () => complete(response())); expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument();
+  await act(async () => complete(response())); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument();
 });
 it('clears old evidence and selection synchronously on route ID change', async () => {
   let second!: (response: Response) => void; let count = 0;
   vi.stubGlobal('fetch', async () => { count++; if (count === 1) { return response(); } return new Promise<Response>(resolve => { second = resolve; }); });
-  const { router } = mount(); await screen.findByRole('heading', { name: '합성 문서 A' }); await userEvent.setup().click(screen.getByRole('button', { name: /인용 1/ }));
+  const { router } = mount(); await screen.findByRole('heading', { name: '원문과 인용' }); await userEvent.setup().click(screen.getByRole('button', { name: /인용 1/ }));
   await act(async () => { await router.navigate(path.replace(snapshot, '00000000-0000-4000-8000-000000000098')); });
-  expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument(); expect(document.querySelector('mark')).toBeNull(); expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
-  await act(async () => second(response())); await screen.findByRole('heading', { name: '합성 문서 A' }); expect(document.querySelector('mark')).toBeNull();
+  expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(document.querySelector('mark')).toBeNull(); expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
+  await act(async () => second(response())); await screen.findByRole('heading', { name: '원문과 인용' }); expect(document.querySelector('mark')).toBeNull();
 });
 it('ignores an earlier route response after the new route fails', async () => {
   let late!: (response: Response) => void; let signal: AbortSignal | undefined; let first = true;
   vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => { if (first) { first = false; signal = init.signal as AbortSignal; return new Promise<Response>(resolve => { late = resolve; }); } return response({}, 404); });
   const { router } = mount(); await act(async () => { await router.navigate(path.replace(snapshot, '00000000-0000-4000-8000-000000000098')); });
-  await screen.findByText('자료가 없거나 접근 권한이 없습니다.'); await act(async () => late(response())); expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument(); expect(signal?.aborted).toBe(true);
+  await screen.findByText('자료가 없거나 접근 권한이 없습니다.'); await act(async () => late(response())); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(signal?.aborted).toBe(true);
 });
 it('aborts on unmount and ignores a late response', async () => {
   let late!: (response: Response) => void; let signal: AbortSignal | undefined;
   vi.stubGlobal('fetch', (_url: string, init: RequestInit) => { signal = init.signal as AbortSignal; return new Promise<Response>(resolve => { late = resolve; }); });
-  const { unmount } = mount(); unmount(); expect(signal?.aborted).toBe(true); await act(async () => late(response())); expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument();
+  const { unmount } = mount(); unmount(); expect(signal?.aborted).toBe(true); await act(async () => late(response())); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument();
 });
 it('does not fetch malformed route IDs', async () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
@@ -140,8 +143,8 @@ it('keeps a timeout retry loading when the preceding ignored request arrives lat
   await act(async () => vi.advanceTimersByTimeAsync(10000));
   fireEvent.click(screen.getByRole('button', { name: '다시 읽기' }));
   expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
-  await act(async () => completions[0](response())); expect(screen.getByRole('status')).toHaveTextContent('읽는 중'); expect(screen.queryByText('합성 문서 A')).not.toBeInTheDocument();
-  await act(async () => completions[1](response())); expect(screen.getByRole('heading', { name: '합성 문서 A' })).toBeInTheDocument();
+  await act(async () => completions[0](response())); expect(screen.getByRole('status')).toHaveTextContent('읽는 중'); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument();
+  await act(async () => completions[1](response())); expect(screen.getByRole('heading', { name: '원문과 인용' })).toBeInTheDocument();
 });
 
 it('restores full text after table-only citation selection without pages or another GET', async () => {
@@ -169,7 +172,7 @@ it.each(['initial', 'repeated'])('scrolls the actual late highlighted quote on %
   Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', { configurable: true, value: function (this: HTMLElement) { targets.push(this); } });
   try {
     vi.stubGlobal('fetch', async () => response(body)); mount(); const user = userEvent.setup();
-    const button = await screen.findByRole('button', { name: /인용 1 · 텍스트/ }); await user.click(button);
+    const button = await screen.findByRole('button', { name: /인용 1 · 본문/ }); await user.click(button);
     if (phase === 'repeated') { targets.length = 0; button.focus(); await user.keyboard('{Enter}'); }
     const mark = document.querySelector('mark'); expect(mark).toHaveTextContent(quote);
     expect(screen.getByLabelText('원문 텍스트')).toHaveFocus(); expect(targets.at(-1)).toBe(mark);

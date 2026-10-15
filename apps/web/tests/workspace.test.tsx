@@ -38,10 +38,25 @@ it.each(['503', 'network', 'malformed'])('retries session error %s and displays 
 });
 it('displays provider, source ID, collected instant, citation count and a safe reader link', async () => {
   stub(); mount(); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();
-  expect(screen.getByText('합성 공급처')).toBeInTheDocument(); expect(screen.getByText('synthetic-source')).toBeInTheDocument(); expect(screen.getByText('인용 3개')).toBeInTheDocument();
+  expect(screen.getByText('합성 공급처')).toBeInTheDocument(); expect(screen.getByText('인용 3개')).toBeInTheDocument();
+  expect(screen.getByText('synthetic-source').closest('details')).not.toHaveAttribute('open');
   expect(document.querySelector('time')).toHaveAttribute('datetime', '2026-10-13T00:00:00Z');
+  expect(document.querySelector('time')).toHaveTextContent('2026. 10. 13.');
+  expect(screen.getByText('기타 자료')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: '근거 열기' })).toHaveAttribute('href', `/workspaces/${workspace}/evidence/${snapshot}`);
   expect(screen.getByText('읽기')).toHaveAttribute('title', '읽기 권한');
+});
+it('names a single shared workspace without displaying its UUID in the main view', async () => {
+  vi.stubGlobal('fetch', async (path: string) => response(path.endsWith('/session') ? { ...session(), memberships: [session().memberships[0]] } : catalog()));
+  mount(); await screen.findByText('첫 공간 합성 원문');
+  expect(screen.getByText('공동 조사 자료')).toBeInTheDocument();
+  expect(screen.queryByRole('combobox', { name: '작업 공간' })).not.toBeInTheDocument();
+  expect(screen.getByText(workspace).closest('details')).not.toHaveAttribute('open');
+});
+it('numbers multiple workspaces while preserving exact IDs in optional details', async () => {
+  stub(); mount(); await screen.findByText('첫 공간 합성 원문');
+  expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['공간 1', '공간 2']);
+  expect(screen.getByText(workspace).closest('details')).not.toHaveAttribute('open');
 });
 it('clears the old list immediately, cancels it and ignores late responses while switching workspaces', async () => {
   let resolve!: (r: Response) => void; let firstSignal!: AbortSignal;
@@ -119,7 +134,7 @@ it('times out catalog body reading and retries without displaying an old body', 
 it('opens a catalog record in the existing protected read-only reader and returns home', async () => {
   const fetch = vi.fn(async (path: string) => response(path.endsWith('/session') ? session() : path.endsWith(`/${snapshot}`) ? canvas.research.evidence[0] : catalog())); vi.stubGlobal('fetch', fetch);
   const { router } = mount(); const link = await screen.findByRole('link', { name: '근거 열기' }); link.focus(); await userEvent.setup().keyboard('{Enter}');
-  expect(await screen.findByRole('heading', { name: '합성 문서 A' })).toBeInTheDocument(); expect(router.state.location.pathname).toBe(`/workspaces/${workspace}/evidence/${snapshot}`);
+  expect(await screen.findByRole('heading', { name: '원문과 인용' })).toBeInTheDocument(); expect(router.state.location.pathname).toBe(`/workspaces/${workspace}/evidence/${snapshot}`);
   expect(screen.queryByText('첫 공간 합성 원문')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /생성|저장|수정/ })).not.toBeInTheDocument();
   await userEvent.setup().click(screen.getByRole('link', { name: '작업 공간으로' })); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();

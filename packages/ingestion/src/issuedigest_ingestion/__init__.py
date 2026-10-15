@@ -15,6 +15,12 @@ from .hwpx import (
     locate_hwpx_quote,
     to_hwpx_representation,
 )
+from .legacy_bill import (
+    LegacyBillMetadata,
+    locate_legacy_bill_quote,
+    parse_legacy_bill_metadata,
+    to_legacy_bill_representation,
+)
 from .pdf import (
     PdfExtraction,
     PdfLimits,
@@ -37,6 +43,10 @@ from .quotes import (
 )
 
 __all__ = [
+    "LegacyBillMetadata",
+    "parse_legacy_bill_metadata",
+    "to_legacy_bill_representation",
+    "locate_legacy_bill_quote",
     "HwpxLimits",
     "HwpxExtraction",
     "HwpxSpan",
