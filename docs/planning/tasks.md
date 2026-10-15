@@ -69,6 +69,8 @@
 
 ## P3 · 검색·Neo4j·근거
 
+- [ ] [보호 검색 API·화면](../changes/evidence-search-interface.md): 현재 세션/공간의 문자 검색·정확 원문 위치·미색인/한도·loading/실패·reader 연결. 기존 SDK를 소비하며 의미 검색/AI와 구분한다.
+
 - [x] [PostgreSQL 문자 검색 기반](../changes/evidence-search.md): 문자 검색·본문/페이지/셀 위치·명시 투영/반복·현재 권한·한도/미투영 상태. SDK·전체2,109개·실제HWPX3개/검색9건·독립 작업/보완/전체 리뷰 통과. 공동 DB 승인 자료의 투영 적용 완료. API/UI·벡터/평가20문항은 후속.
 
 - [x] 서버 pgvector 준비: 동료 설치 보고, 직접 PostgreSQL18.6/vector0.8.7·거리 연산 읽기 확인. 실제 HNSW 실행·한국어 검색 품질·제품 연결은 아래 후속 작업이며 완료 아님.

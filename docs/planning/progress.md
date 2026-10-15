@@ -21,7 +21,15 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 개발 HTTPS 외부 연결 점검 · 2026-10-15
+## 현재 작업 · 보호 근거 검색 API·화면 · 2026-10-15
+
+- 작업/담당: [검색 인터페이스](../changes/evidence-search-interface.md), R2/R3·D011/D015. controller/구현자·feat/evidence-search-ui, base docs/development-https-audit/edfa66f. 격리 worktree·OpenSpec root=null, 기존 SDK를 소비한다.
+- 현재: 요구사항·태스크 작성, 구현 중. 같은 출처 JSON POST·현재 세션/공간 권한·원문 위치/coverage·즉시 loading·검증된 검색 위치 reader 연결. 의미 검색·AI 생성·스키마 변경은 이번 범위가 아니다.
+- 개발 접속: 2026-10-15 17:04 KST에 권한DNS4곳/Google/Cloudflare 일치·실제 HTTPS 인증서 검증 정상. login/asset/health200·미인증session401·Origin403·Google start/브라우저 결합 취소303·callback/PKCE/보안cookie·외부 로그 차단을 확인했다. 앞선 DNS 불일치/TLS 대기는 해소됐다. [상세](../../infra/development-https.md).
+- 실제 로그인: 이번 읽기 전용 DB 확인에서 실제 identity·작업 공간 membership·세션 기록·초대 subject 바인딩의 존재를 확인했다(개별 값은 비공개). 실제 Google 로그인 후 저장 상태가 생성됐으며, 사용자 화면의 원문/인용 열람·오류 상태/로그아웃 완료는 아직 확인하지 않았다. main/운영 배포 유예는 유지한다.
+- 검증: 수정 전 합성 JS322·domain Python679개 통과. Task별 TDD·독립 리뷰/전체 검사·브라우저 여정은 후속. Sites 반영 대기이며 기존 탭을 열지 않는다.
+
+## 이전 작업 · 개발 HTTPS 외부 연결 점검 · 2026-10-15
 
 - 작업/담당: [개발 HTTPS 인수인계](../../infra/development-https.md)의 관리자 적용 후 실제 외부 확인. controller·docs/development-https-audit, baseops/development-https/a54e98c. 제품 코드 변경 없음.
 - 확인: 관리자 HTTP80 virtual host→내부18173 설치. 정확 Host·DNS 우회 읽기 검사에서 login/health200·미인증session401. 실제 서버 내부 웹/API는 응답한다.

@@ -1,8 +1,16 @@
 # 개발 HTTPS 연결 인수인계
 
-2026-10-14 한국 시간. 준비 주소는 `https://dev.issuedigest.projects.ai.kr`이며 DNS/TLS/공개 연결은 아직 완료하지 않았다. [작업·검증 경계](../docs/changes/development-https.md)를 따른다. 기존 `issuedigest.projects.ai.kr`·운영 서비스·main 자동 배포는 유지한다.
+2026-10-15 한국 시간. 개발 주소는 `https://dev.issuedigest.projects.ai.kr`이며 DNS/TLS/공개 연결을 직접 확인했다. 실제 사용자 Google 로그인·자료 열람은 별도 확인한다. [작업·검증 경계](../docs/changes/development-https.md)를 따른다. 기존 `issuedigest.projects.ai.kr`·운영 서비스·main 자동 배포는 유지한다.
 
-## 2026-10-15 · 동료 작업 후 직접 확인
+## 2026-10-15 17:04 KST · 외부 연결 완료
+
+- 권한 DNS ns1~ns4.hosting.co.kr와 Google/Cloudflare 모두 같은 개발 서버의 A 레코드를 반환한다. 앞선 ns3만 응답하던 불일치는 이번 재검사에서 해소됐다.
+- 일반 개발 URL과 서버 직접 SNI 연결 모두 CA/hostname 인증서 검증 통과. `/login`·빌드 JS·`/health/live`200, 미인증 `/api/v1/auth/session`401이다.
+- 설치된 개발 virtual host의 IPv4/IPv6 443·인증서·18173 프록시·access_log off와 error_log 폐기 설정을 읽기 확인했다. 관리자가 외부 설정을 적용했으며 개발자는 시스템 설정을 수정하지 않았다. 자동 갱신의 실제 실행/재부팅 복구는 이번 검사가 아니다.
+- HTTPS의 잘못된 Origin403·정상 로그인 시작303·정확 Google callback/PKCE·Secure/HttpOnly/Lax cookie·브라우저에 연결된 취소303을 확인했다. Google 제공자에는 로그인 요청을 보내지 않고 취소 flow만 정상 소모했다. 사용자 계정·세션을 임의로 생성하지 않았다.
+- 이제 사용자에게 [개발 로그인](https://dev.issuedigest.projects.ai.kr/login)을 안내할 수 있다. 후속 읽기 전용 DB 확인에서 실제 identity·membership·세션 기록·초대 subject 바인딩 존재를 확인했다. 사용자 화면의 승인 자료/인용 열람·로그아웃은 아직 확인 대기다. 아래 초기 실패 기록은 당시 상태로 보존하며 추가 DNS/TLS 요청은 해소됐다.
+
+## 2026-10-15 · 초기 외부 연결 점검 (이후 해소)
 
 - 개발 virtual host의 HTTP80 → 내부18173 프록시는 설치됐다. DNS를 우회해 실제 서버에 Host를 유지한 읽기 검사에서 `/login`200·`/health/live`200·미인증session401을 확인했다. 이것은 HTTP upstream 확인이며 일반 도메인 접속/HTTPS 성공이 아니다.
 - 현재 개발 주소의 DNS는 OS/Google Public DNS/Cloudflare 및 권한 DNS `ns1.hosting.co.kr`, `ns2.hosting.co.kr`에서 NXDOMAIN이다. 권한 응답에도 A 레코드가 없어 로컬 캐시 전파 대기로만 간주하지 않는다. 실제 활성 `projects.ai.kr` 존에서 이름 `dev.issuedigest`의 서버 연결 레코드를 확인해야 한다. 서버 IP는 공개 문서에서 제외한다.
@@ -10,7 +18,7 @@
 - 설치된 개발 virtual host에는 요청/오류 로그 차단이 없고 전역 access/error 로그를 상속한다. Google callback을 실행하기 전에 개발 host의 OAuth code/state·cookie가 로그에 남지 않도록 기존 설치안의 로그 정책을 반영해야 한다. 로그 파일 내용이나 비밀값은 읽지 않았다.
 - 시스템 Nginx/인증서/DNS/앱·DB/권한을 변경하지 않고 읽기 조사만 수행했다. 아래 설치안과 사용자 callback 추가 완료 기록은 유지한다. 실제 Google 제공자 로그인/자료 열람·인증서 갱신 검증은 미완료다.
 
-추가 전달 문장:
+당시 전달 문장 (현재 추가 요청 불필요):
 
 > 서버의 HTTP 프록시는 확인했습니다. 다만 `dev.issuedigest.projects.ai.kr`이 권한 DNS(ns1/ns2.hosting.co.kr)에서도 NXDOMAIN입니다. 활성 projects.ai.kr 존에 `dev.issuedigest`를 기존 IssueDigest와 같은 서버로 연결하는 레코드가 반영됐는지 확인 부탁드립니다. 이후 개발 주소용 TLS/443 연결과 callback 요청/오류 로그 차단도 적용해 주세요. 현재는 HTTP80 프록시만 있고 개발 주소의 HTTPS 인증서 검증은 hostname mismatch로 실패합니다. 기존 HTTP/ACME 준비는 유지해 주시면 됩니다.
 
