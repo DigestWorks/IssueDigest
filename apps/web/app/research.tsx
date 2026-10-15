@@ -29,6 +29,8 @@ function normalize(error: unknown) { return error instanceof ResearchError ? err
 export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'}) {
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
+  const currentParams = useRef(params);
+  currentParams.current = params;
   const runId = params.get('run');
   const [catalog, setCatalog] = useState<CatalogState>({kind: 'loading'});
   const [list, setList] = useState<ListState>({kind: 'loading'});
@@ -51,7 +53,11 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
   const lastSaved = useRef<string | null>(null);
 
   useEffect(() => () => { postController.current?.abort(); actionController.current?.abort(); cancelController.current?.abort(); }, []);
-  useEffect(() => () => { actionController.current?.abort(); cancelController.current?.abort(); }, [runId]);
+  useEffect(() => () => {
+    actionController.current?.abort();
+    const controller = cancelController.current;
+    if (controller) { cancelController.current = null; controller.abort(); setCancelling(false); }
+  }, [runId]);
   useEffect(() => {
     const controller = new AbortController();
     setCatalog({kind: 'loading'});
@@ -90,8 +96,12 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
     return () => { controller.abort(); if (timer) clearTimeout(timer); };
   }, [workspaceId, runId, runVersion]);
 
-  function setCurrent(id: string | null) {
-    const next = new URLSearchParams(params);
+  function setCurrent(id: string | null, fromSubmission = false) {
+    if (!fromSubmission) {
+      const controller = postController.current;
+      if (controller) { postController.current = null; controller.abort(); locked.current = false; setSending(false); pendingInput.current = null; setRequestError(null); }
+    }
+    const next = new URLSearchParams(currentParams.current);
     if (id) next.set('run', id); else next.delete('run');
     setParams(next);
   }
@@ -108,9 +118,10 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
     try {
       const {data} = await submitResearch(workspaceId, input, {signal: controller.signal});
       if (controller.signal.aborted) return;
-      pendingInput.current = null; setRun(data); setCurrent(data.run_id); setListVersion(value => value + 1);
+      if (postController.current !== controller) return;
+      pendingInput.current = null; setRun(data); setCurrent(data.run_id, true); setListVersion(value => value + 1);
     } catch (error) { if (!controller.signal.aborted) setRequestError(normalize(error)); }
-    finally { if (postController.current === controller) postController.current = null; locked.current = false; setSending(false); }
+    finally { if (postController.current === controller) { postController.current = null; locked.current = false; setSending(false); } }
   }
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -136,7 +147,7 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
       if (controller.signal.aborted) return;
       setRun(data); if (data.status === 'completed') setListVersion(value => value + 1);
     } catch (error) { if (!controller.signal.aborted) setRequestError(normalize(error)); }
-    finally { if (cancelController.current === controller) cancelController.current = null; if (!controller.signal.aborted) setCancelling(false); }
+    finally { if (cancelController.current === controller) { cancelController.current = null; setCancelling(false); } }
   }
   async function onCanvasAction(action: CanvasAction) {
     if (!run?.result) return;

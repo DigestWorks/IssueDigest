@@ -225,3 +225,86 @@ it('cancels an active run and keeps its question visible', async () => {
   expect(cancelCount).toBe(1);
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('법안의 핵심은?');
 });
+
+it('does not replace a saved run when an earlier submission responds late', async () => {
+  const lateId = '00000000-0000-4000-8000-000000000050';
+  let releasePost!: (value: Response) => void;
+  let submitted!: Record<string, unknown>;
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source]});
+    if (path.endsWith(`/research/${runId}`)) return response(completedRun());
+    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
+    throw Error(`unexpected ${path}`);
+  });
+  const router = createMemoryRouter([{path: '/', Component: Home}]);
+  render(<RouterProvider router={router} />);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '새 질문은?');
+  await user.click(screen.getByRole('button', {name: 'AI 조사 시작'}));
+  await waitFor(() => expect(releasePost).toBeTypeOf('function'));
+  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
+  expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
+  await act(async () => releasePost(response({...queuedRun(submitted), run_id: lateId})));
+  expect(router.state.location.search).toBe(`?view=saved&run=${runId}`);
+  expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
+});
+
+it('keeps the current tab when a valid submission responds after a tab switch', async () => {
+  let releasePost!: (value: Response) => void;
+  let submitted!: Record<string, unknown>;
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source]});
+    if (path.endsWith(`/research/${runId}`)) return response(queuedRun(submitted));
+    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: []});
+    throw Error(`unexpected ${path}`);
+  });
+  const router = createMemoryRouter([{path: '/', Component: Home}]);
+  render(<RouterProvider router={router} />);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '새 질문은?');
+  await user.click(screen.getByRole('button', {name: 'AI 조사 시작'}));
+  await waitFor(() => expect(releasePost).toBeTypeOf('function'));
+  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await act(async () => releasePost(response(queuedRun(submitted))));
+  expect(router.state.location.search).toBe(`?view=saved&run=${runId}`);
+  expect(screen.getByText('요청 접수')).toBeInTheDocument();
+});
+
+it('allows cancellation again after a pending cancel was aborted by run navigation', async () => {
+  const queued = queuedRun({request_id: '00000000-0000-4000-8000-000000000044', question: '법안의 핵심은?', snapshot_ids: [snapshot], parent_run_id: null});
+  let cancelCount = 0;
+  let firstCancelSignal: AbortSignal | undefined;
+  vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
+    if (path.endsWith('/session')) return response(session);
+    if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source]});
+    if (path.endsWith(`/research/${runId}/cancel`) && options.method === 'POST') {
+      cancelCount++;
+      if (cancelCount === 1) {firstCancelSignal = options.signal as AbortSignal; return new Promise<Response>(() => {});}
+      return response({...queued, status: 'cancelled', error_code: 'cancelled', events: [...queued.events, {sequence: 2, status: 'cancelled', created_at: now}]});
+    }
+    if (path.endsWith(`/research/${runId}`)) return response(queued);
+    if (path.endsWith('/research')) return response({workspace_id: workspace, items: [queued]});
+    throw Error(`unexpected ${path}`);
+  });
+  const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: [`/?view=research&run=${runId}`]});
+  render(<RouterProvider router={router} />);
+  const user = userEvent.setup();
+  await user.click(await screen.findByRole('button', {name: '조사 취소'}));
+  expect(screen.getByRole('button', {name: '취소 중…'})).toBeDisabled();
+  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await user.click(screen.getByRole('button', {name: '선택 해제'}));
+  await waitFor(() => expect(firstCancelSignal?.aborted).toBe(true));
+  await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
+  await user.click(screen.getByRole('button', {name: '이슈 조사'}));
+  const cancelAgain = await screen.findByRole('button', {name: '조사 취소'});
+  expect(cancelAgain).toBeEnabled();
+  await user.click(cancelAgain);
+  expect(cancelCount).toBe(2);
+});
