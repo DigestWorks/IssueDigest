@@ -21,7 +21,17 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 고정 HTTPS 개발 접속 준비
+## 현재 작업 · 개발 HTTPS 외부 연결 점검 · 2026-10-15
+
+- 작업/담당: [개발 HTTPS 인수인계](../../infra/development-https.md)의 관리자 적용 후 실제 외부 확인. controller·docs/development-https-audit, baseops/development-https/a54e98c. 제품 코드 변경 없음.
+- 확인: 관리자 HTTP80 virtual host→내부18173 설치. 정확 Host·DNS 우회 읽기 검사에서 login/health200·미인증session401. 실제 서버 내부 웹/API는 응답한다.
+- 미완료: 개발 주소는 OS/Google/Cloudflare와 권한DNS2곳(ns1/ns2.hosting.co.kr)에서 NXDOMAIN. 서버 직접 연결/SNI·정상 인증서 검증은 hostname mismatch62, 개발 host에443/TLS 미설정. 전역 access/error 로그를 상속하며 개발 host의 OAuth 로그 차단 미반영이다.
+- 다음: 활성 projects.ai.kr DNS 존에서 dev.issuedigest 레코드 확인·개발 TLS/443·callback 로그 정책 반영을 동료에게 추가 전달. 사용자 Google callback 추가 완료 기록은 유지한다. 해당 조건을 만족한 뒤 실제 HTTPS/Google 로그인·자료 열람을 검증한다.
+- 범위: 읽기 조사만 수행. 인증서 검증 우회/HTTP Google 로그인·OAuth start/callback·서버/앱/DB/권한/main 변경 없음. 새 사용자 입력은 DNS/TLS 적용 결과이며 비밀값을 요청하지 않는다. 문서 상대 링크25개·실제 비밀값/계정/개별ID 제외·diff 검사를 통과했다. [Draft PR #26](https://github.com/DigestWorks/IssueDigest/pull/26) baseops/development-https·앱 첨부. 제품 코드 변경 없어 전체 테스트를 반복하지 않았다.
+- Sites: [v46 개발 HTTPS 점검](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#development-https) native succeeded/public. source `be426d9bc8644aa6d498161273b0a5d4378752fb`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_f6d298c1216481919bf24117705d9f70`, deployment `appgdep_6ad06f3bdf34819197e4b6dc0d9dea74`. 사본 기준87123d0·v45 보존, HTML31/로컬 링크anchor718/manifest·Site공개69파일 비밀값 제외 통과. 첫 source helper 열기는 Git 호스트 DNS 오류로 중단됐고 호스트 재조회 후 같은 Site/credential로 정상 재개했다. 문서 요약의 새 브라우저 검사는 수행하지 않았고 사용자 요청대로 Site를 다시 열지 않았다.
+- 인계: 서버/앱을 변경하지 않으며 현재 읽기 점검 문서 branch의 사용자 폴더·서버 개인 worktree 동기화는 마무리 중이다.
+
+## 이전 작업 · 고정 HTTPS 개발 접속 준비
 
 - 작업: [고정 HTTPS 개발 준비](../changes/development-https.md), [관리자 적용/요청](../../infra/development-https.md). controller·ops/development-https·baseops/google-login-runtime/95b7bff. 제품 코드·API/DB 스키마·의존성 변경 없음. Sites는 갱신하되 사용자가 이미 열어 둔 탭을 다시 열거나 이동하지 않는다.
 - 준비: dev.issuedigest.projects.ai.kr의 별도 개발 origin. 개인 정적 빌드12파일/source map0·개인 Nginx loopback18173→기존 개인 API18090, Vite/HMR 외부 노출 없음. 개인 API의 origin과 기존 Google client/app 역할을 연결했다. 설치 Nginx의 미지원 CLI 옵션은 설정 검사에서 발견해 호환 명령으로 검사·기동했고, 시스템 로그/권한 변경 없이 개인 prefix를 사용한다.

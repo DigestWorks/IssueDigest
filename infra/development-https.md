@@ -2,6 +2,18 @@
 
 2026-10-14 한국 시간. 준비 주소는 `https://dev.issuedigest.projects.ai.kr`이며 DNS/TLS/공개 연결은 아직 완료하지 않았다. [작업·검증 경계](../docs/changes/development-https.md)를 따른다. 기존 `issuedigest.projects.ai.kr`·운영 서비스·main 자동 배포는 유지한다.
 
+## 2026-10-15 · 동료 작업 후 직접 확인
+
+- 개발 virtual host의 HTTP80 → 내부18173 프록시는 설치됐다. DNS를 우회해 실제 서버에 Host를 유지한 읽기 검사에서 `/login`200·`/health/live`200·미인증session401을 확인했다. 이것은 HTTP upstream 확인이며 일반 도메인 접속/HTTPS 성공이 아니다.
+- 현재 개발 주소의 DNS는 OS/Google Public DNS/Cloudflare 및 권한 DNS `ns1.hosting.co.kr`, `ns2.hosting.co.kr`에서 NXDOMAIN이다. 권한 응답에도 A 레코드가 없어 로컬 캐시 전파 대기로만 간주하지 않는다. 실제 활성 `projects.ai.kr` 존에서 이름 `dev.issuedigest`의 서버 연결 레코드를 확인해야 한다. 서버 IP는 공개 문서에서 제외한다.
+- 개발 virtual host는80만 listen하며 TLS 설정이 없다. 서버 IP에 SNI를 유지한 인증서 검증은 hostname mismatch(code62)로 실패했다. 인증서 검증을 끄거나 HTTP에서 Google 로그인을 진행하지 않았다.
+- 설치된 개발 virtual host에는 요청/오류 로그 차단이 없고 전역 access/error 로그를 상속한다. Google callback을 실행하기 전에 개발 host의 OAuth code/state·cookie가 로그에 남지 않도록 기존 설치안의 로그 정책을 반영해야 한다. 로그 파일 내용이나 비밀값은 읽지 않았다.
+- 시스템 Nginx/인증서/DNS/앱·DB/권한을 변경하지 않고 읽기 조사만 수행했다. 아래 설치안과 사용자 callback 추가 완료 기록은 유지한다. 실제 Google 제공자 로그인/자료 열람·인증서 갱신 검증은 미완료다.
+
+추가 전달 문장:
+
+> 서버의 HTTP 프록시는 확인했습니다. 다만 `dev.issuedigest.projects.ai.kr`이 권한 DNS(ns1/ns2.hosting.co.kr)에서도 NXDOMAIN입니다. 활성 projects.ai.kr 존에 `dev.issuedigest`를 기존 IssueDigest와 같은 서버로 연결하는 레코드가 반영됐는지 확인 부탁드립니다. 이후 개발 주소용 TLS/443 연결과 callback 요청/오류 로그 차단도 적용해 주세요. 현재는 HTTP80 프록시만 있고 개발 주소의 HTTPS 인증서 검증은 hostname mismatch로 실패합니다. 기존 HTTP/ACME 준비는 유지해 주시면 됩니다.
+
 ## 개발자가 준비하는 부분
 
 React Router 정적 빌드를 개인 자산 경로에 보관하고, 별도 개인 Nginx에서 `127.0.0.1:18173`으로 제공한다. `/login` 등 SPA 경로와 `/assets`를 구분하고 `/api/`·`/health/live`는 개인 API `127.0.0.1:18090`으로 전달한다. Vite/HMR을 외부에 노출하지 않으며 시스템 Nginx가 개인 홈 디렉터리를 읽을 권한도 필요 없다. 외부 Nginx는 이 내부 upstream 하나만 연결한다.
