@@ -1,10 +1,14 @@
 """Protected literal search HTTP boundary and owned PostgreSQL integration."""
 
+import asyncio
 import logging
 import secrets
+import time
+from threading import Event, Timer
 from types import SimpleNamespace
 from uuid import UUID, uuid4
 
+import httpx2
 import pytest
 from fastapi.testclient import TestClient
 from issuedigest_api.cookies import SESSION_COOKIE
@@ -81,6 +85,69 @@ def test_search_is_cookie_origin_bound_and_reports_missing_index():
     checked(anonymous.post(PATH, json=QUERY, headers=HEADERS), 401)
 
 
+def test_search_accepts_utc_json_date_filters_and_rejects_bad_intervals():
+    client = client_with(SearchRepository())
+    valid = {
+        **QUERY,
+        "collected_from": "2026-10-14T00:00:00.000001Z",
+        "collected_to": "2026-10-14T00:00:00.000002+00:00",
+    }
+    response = client.post(PATH, json=valid, headers=HEADERS)
+    checked(response, 200)
+    assert response.json()["query"]["collected_from"] == valid["collected_from"]
+    assert response.json()["query"]["collected_to"] == "2026-10-14T00:00:00.000002Z"
+    for bad in [
+        {**QUERY, "collected_from": "2026-10-14T09:00:00+09:00"},
+        {**QUERY, "collected_from": valid["collected_to"], "collected_to": valid["collected_from"]},
+    ]:
+        rejected = client.post(PATH, json=bad, headers=HEADERS)
+        checked(rejected, 422)
+        assert rejected.json() == {"detail": "Invalid evidence search request"}
+
+
+def test_slow_search_storage_does_not_block_health_requests():
+    entered, release = Event(), Event()
+    started = []
+    timers = []
+
+    class Slow(SearchRepository):
+        def search_evidence(self, token, workspace_id, query):
+            started.append(time.monotonic())
+            entered.set()
+            timer = Timer(0.75, release.set)
+            timers.append(timer)
+            timer.start()
+            release.wait(2)
+            return super().search_evidence(token, workspace_id, query)
+
+    async def concurrent_requests():
+        transport = httpx2.ASGITransport(
+            app=create_app(
+                auth_service=SimpleNamespace(config=SimpleNamespace(public_origin=ORIGIN)),
+                workspace_repository=Slow(),
+            )
+        )
+        async with httpx2.AsyncClient(transport=transport, base_url=ORIGIN) as client:
+            client.cookies.set(SESSION_COOKIE, secrets.token_urlsafe(32))
+            pending = asyncio.create_task(client.post(PATH, json=QUERY, headers=HEADERS))
+            assert await asyncio.to_thread(entered.wait, 2)
+            health = await client.get("/health/live")
+            elapsed = time.monotonic() - started[0]
+            release.set()
+            search = await pending
+            return health, search, elapsed
+
+    try:
+        health, search, elapsed = asyncio.run(concurrent_requests())
+        assert health.status_code == 200
+        checked(search, 200)
+        assert elapsed < 0.5
+    finally:
+        release.set()
+        for timer in timers:
+            timer.cancel()
+
+
 def test_search_slash_redirect_does_not_reflect_query_string():
     response = client_with(SearchRepository()).post(
         PATH + "/?private=sentinel", json=QUERY, headers=HEADERS, follow_redirects=False
@@ -114,6 +181,7 @@ def test_search_openapi_describes_body_cookie_and_both_422_shapes():
     [
         (b'{"terms":["x"],"terms":["y"]}', "application/json"),
         (b'{"terms":["x"]} PRIVATE', "application/json"),
+        (b'{"terms":["\xff"]}', "application/json"),
         (b'{"terms":[]}', "application/json"),
         (b'{"terms":["x"]}' + b" " * 16385, "application/json"),
         (b'{"terms":["x"]}', "text/plain"),
@@ -286,6 +354,17 @@ def test_real_storage_search_requires_membership_and_live_session(engine):
     checked(found, 200)
     assert found.json()["hits"]
     assert len(found.json()["hits"]) <= 1
+    filtered = client.post(
+        path,
+        json={
+            "terms": [bundle.representation.text[:4]],
+            "collected_from": "2026-10-11T23:59:59.999999Z",
+            "collected_to": "2026-10-12T00:00:00.000001Z",
+        },
+        headers=HEADERS,
+    )
+    checked(filtered, 200)
+    assert filtered.json()["hits"]
     checked(
         client.post(f"/api/v1/workspaces/{uuid4()}/evidence/search", json=QUERY, headers=HEADERS),
         404,

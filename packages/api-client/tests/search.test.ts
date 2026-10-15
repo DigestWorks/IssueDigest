@@ -46,6 +46,43 @@ it('rejects a hit outside the requested source filter', async () => {
   await expect(searchEvidence(workspace, { ...query(), provider: 'synthetic' })).rejects.toMatchObject({ kind: 'malformed' });
 });
 
+it('preserves microsecond interval precision for input and included hits', async () => {
+  const from = '2026-10-14T00:00:00.0000019Z';
+  const to = '2026-10-14T00:00:00.000002+00:00';
+  const data = result(); Object.assign(data.query, { collected_from: '2026-10-14T00:00:00.000001Z', collected_to: '2026-10-14T00:00:00.000002Z' });
+  data.hits[0].collected_at = '2026-10-14T00:00:00.000001Z';
+  vi.stubGlobal('fetch', async () => response(data));
+  expect((await searchEvidence(workspace, { ...query(), collected_from: from, collected_to: to })).data.hits).toHaveLength(1);
+});
+
+it('rejects a changed echoed microsecond bound', async () => {
+  const data = result(); Object.assign(data.query, { collected_from: '2026-10-14T00:00:00.000002Z', collected_to: '2026-10-14T00:00:00.000003Z' });
+  data.hits[0].collected_at = '2026-10-14T00:00:00.000002Z';
+  vi.stubGlobal('fetch', async () => response(data));
+  await expect(searchEvidence(workspace, { ...query(), collected_from: '2026-10-14T00:00:00.000001Z', collected_to: '2026-10-14T00:00:00.000003Z' })).rejects.toMatchObject({ kind: 'malformed' });
+});
+
+it('excludes a hit exactly at the microsecond upper bound', async () => {
+  const data = result(); Object.assign(data.query, { collected_from: '2026-10-14T00:00:00.000001Z', collected_to: '2026-10-14T00:00:00.000002Z' });
+  data.hits[0].collected_at = '2026-10-14T00:00:00.000002Z';
+  vi.stubGlobal('fetch', async () => response(data));
+  await expect(searchEvidence(workspace, { ...query(), collected_from: '2026-10-14T00:00:00.000001Z', collected_to: '2026-10-14T00:00:00.000002Z' })).rejects.toMatchObject({ kind: 'malformed' });
+});
+
+it.each(['provider', 'source_id', 'table_id', 'cell_id'] as const)('accepts canonical long output %s', async field => {
+  const data = result(); const longId = 'x'.repeat(1025);
+  if (field === 'provider' || field === 'source_id') Object.assign(data.hits[0], { [field]: longId });
+  else Object.assign(data.hits[0], { selector: { kind: 'table_cell', table_id: field === 'table_id' ? longId : 'table', cell_id: field === 'cell_id' ? longId : 'cell', quote: '한국어' } });
+  vi.stubGlobal('fetch', async () => response(data));
+  expect((await searchEvidence(workspace, query())).data.hits).toHaveLength(1);
+});
+
+it('keeps the 1024 code-point query-filter limit', async () => {
+  const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
+  await expect(searchEvidence(workspace, { ...query(), provider: 'x'.repeat(1025) })).rejects.toMatchObject({ kind: 'invalid-query' });
+  expect(fetch).not.toHaveBeenCalled();
+});
+
 it('classifies fixed search errors without reading private bodies', async () => {
   for (const [status, kind] of [[401, 'unauthorized'], [403, 'forbidden'], [404, 'not-found'], [422, 'invalid-query'], [503, 'unavailable']] as const) {
     vi.stubGlobal('fetch', async () => new Response('PRIVATE', { status, headers }));

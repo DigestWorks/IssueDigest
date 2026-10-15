@@ -13,6 +13,7 @@ from issuedigest_domain import (
 from issuedigest_storage import AuthenticationDenied, StorageError, WorkspaceAccessRepository
 from issuedigest_storage.sessions import valid_session_token
 from pydantic import UUID4, BaseModel, ValidationError
+from starlette.concurrency import run_in_threadpool
 
 from .auth import AuthService, _same_origin
 from .errors import OriginDeniedError
@@ -44,10 +45,10 @@ async def _query(request: Request) -> EvidenceSearchQuery:
             raise HTTPException(422, "Invalid evidence search request")
         body.extend(chunk)
     try:
-        value = json.loads(
+        json.loads(
             body.decode("utf-8"), object_pairs_hook=_unique_pairs, parse_constant=_invalid_constant
         )
-        return EvidenceSearchQuery.model_validate(value)
+        return EvidenceSearchQuery.model_validate_json(body)
     except (UnicodeError, ValueError, TypeError, ValidationError, RecursionError):
         raise HTTPException(422, "Invalid evidence search request") from None
 
@@ -148,7 +149,7 @@ def search_router(
         query = await _query(request)
         try:
             assert token is not None
-            result = repository.search_evidence(token, workspace_id, query)
+            result = await run_in_threadpool(repository.search_evidence, token, workspace_id, query)
             if result is None:
                 raise HTTPException(404, "Evidence not found")
             checked = _validated_result(result, workspace_id, query)
