@@ -53,7 +53,7 @@ export function ActionButton({action, context, sourceTitles, onAction}: {
 }) {
   const label = actionLabel(action, context, sourceTitles);
   const compactCitation = Boolean(sourceTitles) && action.kind === 'open_evidence';
-  return <button type="button" disabled={!onAction} onClick={() => onAction?.(action)} aria-label={compactCitation ? label : undefined} title={compactCitation ? label : undefined}>{compactCitation ? '인용 보기' : label}</button>;
+  return <button type="button" disabled={!onAction} onClick={() => onAction?.(action)} aria-label={compactCitation ? label : undefined} title={compactCitation ? label : undefined}>{compactCitation ? '근거 열기' : label}</button>;
 }
 export function EvidenceCard({display, context, sourceTitles, onAction}: {
   display: CitationDisplay; context: DisplayContext; sourceTitles?: Record<string, string>; onAction: ActionHandler;

@@ -27,7 +27,7 @@ describe('CanvasView', () => {
     const title = '실제 법안 제목';
     render(<CanvasView bundle={bundle} sourceTitles={{[bundle.research.evidence[0].document.document_id]: title}} onAction={action => received.push(action)} />);
     const button = screen.getAllByRole('button', {name: /^근거 열기: 실제 법안 제목 ·/})[0];
-    expect(button).toHaveTextContent(/^인용 보기$/);
+    expect(button).toHaveTextContent(/^근거 열기$/);
     expect(button).toHaveAttribute('title', expect.stringContaining(title));
     await userEvent.setup().click(button);
     expect(received).toEqual([{kind: 'open_evidence', citation_id: bundle.research.evidence[0].citations[0].citation_id}]);
