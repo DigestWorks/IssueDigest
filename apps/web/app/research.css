@@ -8,6 +8,8 @@
 .research-section-heading h2 { font:500 20px/1.4 "Noto Serif KR", "Batang", serif; }
 .research-section-heading > span, .research-help { font-size:12px; color:var(--muted); }
 .research-source-list, .research-run-list { list-style:none; margin:0; padding:0; }
+.research-source-list { max-height:min(68svh, 680px); overflow-y:auto; overscroll-behavior:contain; scrollbar-color:#a8b9aa transparent; }
+.research-source-list:focus-visible { outline:2px solid var(--green); outline-offset:3px; }
 .research-source-list li { padding:20px 0; border-bottom:1px solid var(--line); }
 .research-source-choice { display:flex; align-items:flex-start; gap:10px; cursor:pointer; line-height:1.5; }
 .research-source-choice input { margin:4px 0 0; width:18px; height:18px; accent-color:var(--green); flex:none; }
@@ -43,4 +45,4 @@
 .research-run-list button { display:grid; gap:7px; width:100%; border:0; text-align:left; padding:16px 4px; font-size:13px; }
 .research-run-list button strong { font-weight:600; overflow-wrap:anywhere; }
 .research-run-list button span { color:var(--muted); font-size:11px; }
-@media(max-width:760px) { .research-grid { grid-template-columns:minmax(0,1fr); gap:26px; } .research-source-list { display:grid; grid-template-columns:minmax(0,1fr); } .research-nav { gap:18px; } }
+@media(max-width:760px) { .research-grid { grid-template-columns:minmax(0,1fr); gap:20px; } .research-source-list { display:grid; grid-template-columns:minmax(0,1fr); max-height:min(42svh, 300px); } .research-nav { gap:18px; } }

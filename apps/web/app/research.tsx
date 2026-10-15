@@ -173,7 +173,7 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
           {sourceItems.some(item => item.source_kind === 'bill') && <p className="research-help">법안 기본 정보는 현재 처리 상태·조문·영향을 확인한 자료가 아닙니다.</p>}
           {catalog.kind === 'loading' && <p role="status">자료를 읽는 중…</p>}
           {catalog.kind === 'failure' && <div role="status"><p>{failures[catalog.error.kind]}</p><button type="button" onClick={() => setCatalogVersion(value => value + 1)}>자료 다시 읽기</button></div>}
-          {catalog.kind === 'ready' && (sourceItems.length === 0 ? <p className="research-empty">조사할 자료가 아직 없습니다.</p> : <ul className="research-source-list">{sourceItems.map(source => <li key={source.snapshot_id}>
+          {catalog.kind === 'ready' && (sourceItems.length === 0 ? <p className="research-empty">조사할 자료가 아직 없습니다.</p> : <ul className="research-source-list" tabIndex={0} aria-label="조사 자료 목록">{sourceItems.map(source => <li key={source.snapshot_id}>
             <label className="research-source-choice"><input type="checkbox" checked={selected.includes(source.snapshot_id)} disabled={!canEdit || (!selected.includes(source.snapshot_id) && selected.length >= 3) || sending || active(run?.status ?? 'completed')} onChange={() => toggle(source.snapshot_id)} /><span className="research-source-title">{source.title}</span></label>
             <p className="research-source-meta">{sourceKind(source.source_kind)}{source.bill_number && ` · 의안번호 ${source.bill_number}`}{source.proposed_on && ` · 제안 ${source.proposed_on}`} · 수집 {date(source.collected_at)}</p>
             {source.excerpt && <p className="research-source-excerpt">{source.excerpt}</p>}
