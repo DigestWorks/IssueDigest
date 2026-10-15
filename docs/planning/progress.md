@@ -32,7 +32,9 @@
 - 품질 한계: 이3건은 실행/저장/정확 위치/모듈 차이를 확인한 표본이다. 타임라인 질문의 전체4항목 요청을 법안별4/3개로 표시한 사례가 있어 길이·개수 지시 준수 평가는 후속이다. 인용 일치는 주장 지지/법적 효력 검증이 아니며, 전체20문항·두 사용자의 상품적 품질/운영비 평가는 미완료다.
 - 개발 반영: [개발 앱](https://dev.issuedigest.projects.ai.kr/) 제품 source `d6e2df1`·정적15파일/source map0, 개인 API/DBOS worker·앱 역할 DDL 제한·migration0005 연결. TLS 검증을 유지한 index/asset7개 빌드 일치·login/health200·미인증session/research401/no-store·잘못된Origin403 확인. 서버에서도 별도 고정 질문1회를 검증해 입력1064/출력267토큰·요약/근거 모듈을 확인했다(실제 사용자 세션/DB 쓰기0).
 - 백업/복구: 적용 직전과 적용 후 서버 외부 full/app archive 보존. 별도 소유 PG18.6에 적용 후 app archive 복원, 자료11/인용32/검색20·DBOS schema·새 canonical bundle2·기존 계정/세션 건수 보존, 합성 신원으로 보호 catalog11·비회원/다른 공간/viewer생성 거부 확인. 실제 DB를 초기화/복원하지 않았다. 전체 역할·확장·운영 복구 검증은 별도다.
-- 인계: [Draft PR #29](https://github.com/DigestWorks/IssueDigest/pull/29), [제품 코드 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38732066902). Sites 최신 요약 게시 준비 중이다. 운영 원본/MySQL·공용 checkout·시스템 서비스·main은 변경하지 않는다. 비밀값·실제 계정·개별ID·원문은 비공개 검증 위치에만 둔다.
+- 인계: [Draft PR #29](https://github.com/DigestWorks/IssueDigest/pull/29), [제품 코드 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38732066902). [Sites v49](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#research-journey) 공개 게시 native succeeded. source `eee84956564eb2d29c6d18ddf15db61ffd52bb58`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0057c22d36cc81919ff55d2c65963dcf`, deployment `appgdep_6ad0c52ac25c8191b400fea83ef699d5`. 이전v48 보존·사본 기준65a4e9c·HTML34/로컬 링크·anchor847·공개 텍스트90개 비밀값/계정/원문 제외 확인. 기존 브라우저 탭은 열지 않았다. 운영 원본/MySQL·공용 checkout·시스템 서비스·main은 변경하지 않는다. 비밀값·실제 계정·개별ID·원문은 비공개 검증 위치에만 둔다.
+
+- 정리: 자체 합성 브라우저·API·worker 종료, 이미지/전체ID/작업label/loopback 포트 대조 후 자체 QA·복원 컨테이너/익명 볼륨 제거. 실제 모델 결과·검증·전후 dump·리뷰 기록은 비공개에 보존한다. 서버 개인 개발 앱/worker는 유지하며 문서 인계 커밋은 제품 코드를 변경하지 않는다.
 
 ## 이전 작업 · 자료 중심 UI·기존 법안 연결 · 2026-10-15
 
