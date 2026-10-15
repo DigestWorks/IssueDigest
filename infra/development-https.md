@@ -2,6 +2,14 @@
 
 2026-10-15 한국 시간. 개발 주소는 `https://dev.issuedigest.projects.ai.kr`이며 DNS/TLS/공개 연결을 직접 확인했다. 실제 사용자 Google 로그인·자료 열람은 별도 확인한다. [작업·검증 경계](../docs/changes/development-https.md)를 따른다. 기존 `issuedigest.projects.ai.kr`·운영 서비스·main 자동 배포는 유지한다.
 
+## 2026-10-15 18:04 KST · 검색 앱 갱신
+
+[검색 인터페이스](../docs/changes/evidence-search-interface.md) source `fd26683`의 고정 Node/lockfile 빌드14파일·source map0을 개인 자산 경로에 보관했다. 개인 API 재시작과 개인 정적 Nginx root/reload만 수행했다. 외부 TLS/시스템 서비스·main/공용 checkout·DB schema/권한은 유지했다.
+
+CA/hostname 검증을 유지한 실제 개발 HTTPS에서 index가 해당 빌드와 일치하고 home/login/asset/health200·미인증session/search401/no-store다. DB read-only 확인에서 기존 승인 자료1건/인용3개·초대 바인딩·schema0004·DDL 없는 앱 역할을 확인했다. 실제 사용자 세션을 제조/대신 사용하지 않았고 사용자 본인의 검색·원문 열람은 별도 확인한다. 원문·PDF·셀·오류·로그아웃 여정의 브라우저 검증은 별도 소유 합성 DB/HTTP 환경에서 수행했다.
+
+개인 runtime 집계는 계정 전용 `~/.local/state/issuedigest/evidence-search-interface-20261015/`에 보관한다. 이전 초기 준비 source와 현재 앱 갱신 source를 구분한다. 재부팅 자동 실행·운영 배포·인증서 갱신 실행의 완료를 의미하지 않는다.
+
 ## 2026-10-15 17:04 KST · 외부 연결 완료
 
 - 권한 DNS ns1~ns4.hosting.co.kr와 Google/Cloudflare 모두 같은 개발 서버의 A 레코드를 반환한다. 앞선 ns3만 응답하던 불일치는 이번 재검사에서 해소됐다.

@@ -69,7 +69,7 @@
 
 ## P3 · 검색·Neo4j·근거
 
-- [ ] [보호 검색 API·화면](../changes/evidence-search-interface.md): 구현·전체 검사/합성 브라우저 검증 완료, 최종 전체 리뷰·개발 앱/PR/Sites 인계 진행 중. 현재 세션/공간·정확 위치·미색인/한도·loading/실패·reader. 의미 검색/AI와 구분한다.
+- [x] [보호 검색 API·화면](../changes/evidence-search-interface.md): 구현·전체2,171개/독립 리뷰/합성 브라우저·Draft PR #27·개발 HTTPS 앱 연결 확인. 현재 세션/공간·정확 위치·미색인/한도·loading/실패·reader. 의미 검색/AI·실제 사용자 검색 품질은 별도이며 Sites 인계는 진행 기록을 따른다.
 
 - [x] [PostgreSQL 문자 검색 기반](../changes/evidence-search.md): 문자 검색·본문/페이지/셀 위치·명시 투영/반복·현재 권한·한도/미투영 상태. SDK·전체2,109개·실제HWPX3개/검색9건·독립 작업/보완/전체 리뷰 통과. 공동 DB 승인 자료의 투영 적용 완료. API/UI·벡터/평가20문항은 후속.
 
