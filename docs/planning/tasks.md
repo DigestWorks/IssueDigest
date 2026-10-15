@@ -84,6 +84,8 @@
 
 ## P4 · 에이전트 탐색과 생성 화면
 
+- [ ] [첫 실제 조사 흐름](../changes/research-journey.md): 자료 선택/이름·AI 질문·PydanticAI/DBOS·생성 모듈·정확 인용·후속 질문·자동 저장/재열람 구현. 최종 전체/브라우저·개발 반영·실제 키·PR/Sites 상태는 진행 기록을 따른다. 실제 유료 모델 검증은 키 준비 전 미완료.
+
 - [x] [검증된 생성 화면 React 렌더러](../changes/canvas-renderer.md): 여섯 모듈·정확 근거·등록 액션 콜백·표시 상태. 실제 AI/API·host 연결은 별도.
 
 - [ ] 단일 조율과 등록 도구 구성. Decisions 선택 판단·근거 검색·Responses 설명/UI 명세의 책임 분리.
