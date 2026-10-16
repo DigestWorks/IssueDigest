@@ -31,7 +31,7 @@ it('keeps typing ephemeral until explicit guest continuation, then previews the 
   await user.click(screen.getByRole('button', {name: '질문하기'}));
   expect(router.state.location.pathname).toBe('/login'); expect(router.state.location.search).toBe('');
   expect(screen.getByLabelText('이어갈 질문')).toHaveTextContent('청년 교통비는 어떻게 달라졌나요?');
-  expect(fetch.mock.calls.every(([path]) => path.endsWith('/session'))).toBe(true);
+  expect(fetch.mock.calls.every(([path]) => path.endsWith('/session') || path === '/api/v1/briefings')).toBe(true);
 });
 it.each(['denied', 'invalid', 'unavailable'])('preserves the preview after OAuth %s and browser pageshow', async error => {
   seed(); const {router} = mount(`/login?error=${error}`);

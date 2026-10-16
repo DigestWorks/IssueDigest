@@ -137,3 +137,5 @@ export { resolveSearchSelection } from './search-selection';
 export type { SearchSelection } from './search-selection';
 export { listResearchRuns, getResearchRun, submitResearch, cancelResearchRun, ResearchError } from './research';
 export type { ResearchRun, ResearchRunList, ResearchRequest, ResearchOptions, ResearchFailure } from './research';
+export {listPublicBriefings, getPublicBriefing, PublicBriefingError} from './briefings';
+export type {PublicBriefingSummary, PublicBriefingDetail, PublicBriefingList, PublicSourceAttribution, PublicBriefingOptions, PublicBriefingFailure, PublicBriefingErrorResponse} from './briefings';

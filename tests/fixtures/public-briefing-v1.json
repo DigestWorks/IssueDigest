@@ -1,0 +1,205 @@
+{
+  "slug": "synthetic-policy",
+  "public_id": "00000000-0000-4000-8000-000000000099",
+  "version": 1,
+  "title": "합성 정책 브리핑",
+  "description": "공개 읽기 검증용 합성 자료입니다. 실제 게시물이나 권리 확인을 뜻하지 않습니다.",
+  "as_of": "2026-01-01T00:00:00Z",
+  "published_at": "2026-10-16T00:00:00Z",
+  "content_sha256": "2bea975937788820dbe4cfe3243dc66b8b259751e59f12da7eda556f1e995653",
+  "canvas": {
+    "research": {
+      "schema_version": 1,
+      "workspace_id": "c9512f4f-366a-4880-b21d-3eefb37af4dc",
+      "evidence": [
+        {
+          "schema_version": 1,
+          "document": {
+            "document_id": "383badd0-b651-441c-afa9-cff122b03b38",
+            "workspace_id": "c9512f4f-366a-4880-b21d-3eefb37af4dc",
+            "provider": "public-reviewed-copy",
+            "source_id": "383badd0-b651-441c-afa9-cff122b03b38",
+            "source_kind": "other",
+            "canonical_url": "https://www.korea.kr/news/policyNewsView.do?newsId=100000000"
+          },
+          "version": {
+            "version_id": "ab9309e4-ba30-4b62-9d23-e0094688d321",
+            "document_id": "383badd0-b651-441c-afa9-cff122b03b38",
+            "raw_object_id": "f80ee26a-78e3-46a4-b8a8-ae6fc678b3e6",
+            "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "media_type": "application/pdf",
+            "collected_at": "2026-01-01T00:00:00Z"
+          },
+          "representation": {
+            "representation_id": "73358012-5cfd-4274-955e-9bbb58b46930",
+            "document_version_id": "ab9309e4-ba30-4b62-9d23-e0094688d321",
+            "parser_name": "public-reviewed-copy",
+            "parser_version": "1",
+            "normalization_profile": "public-reviewed-copy-v1",
+            "text": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+            "text_sha256": "a755043a71869cb45c1f90d1a1421f8cecb06265d063eea1986ec2004eb6d913",
+            "pages": [
+              {
+                "page_number": 1,
+                "start": 0,
+                "end": 38
+              }
+            ],
+            "tables": [
+              {
+                "table_id": "synthetic-table",
+                "cells": [
+                  {
+                    "cell_id": "synthetic-cell",
+                    "text": "합성 표 인용",
+                    "unit": null,
+                    "period": null,
+                    "question": null,
+                    "population": null,
+                    "methodology": null,
+                    "sample_size": null,
+                    "weighting": null
+                  }
+                ]
+              }
+            ]
+          },
+          "citations": [
+            {
+              "citation_id": "964c02b7-ca88-4802-9fb4-74aa54d17874",
+              "document_version_id": "ab9309e4-ba30-4b62-9d23-e0094688d321",
+              "representation_id": "73358012-5cfd-4274-955e-9bbb58b46930",
+              "selector": {
+                "start": 0,
+                "end": 38,
+                "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                "prefix": null,
+                "suffix": null,
+                "kind": "text"
+              }
+            },
+            {
+              "citation_id": "663656e7-ee7a-488c-9522-988362db6585",
+              "document_version_id": "ab9309e4-ba30-4b62-9d23-e0094688d321",
+              "representation_id": "73358012-5cfd-4274-955e-9bbb58b46930",
+              "selector": {
+                "start": 0,
+                "end": 38,
+                "quote": "합성 테스트 전용: 합성 문서 A. 실제 조사·AI 결과가 아닙니다.",
+                "prefix": null,
+                "suffix": null,
+                "kind": "pdf",
+                "page_number": 1,
+                "regions": []
+              }
+            },
+            {
+              "citation_id": "a0a0fcd9-50d3-4e2b-880a-9ba132dbfbc0",
+              "document_version_id": "ab9309e4-ba30-4b62-9d23-e0094688d321",
+              "representation_id": "73358012-5cfd-4274-955e-9bbb58b46930",
+              "selector": {
+                "kind": "table_cell",
+                "table_id": "synthetic-table",
+                "cell_id": "synthetic-cell",
+                "quote": "합성 표 인용"
+              }
+            }
+          ]
+        }
+      ],
+      "entities": [],
+      "claims": [
+        {
+          "claim_id": "0c41f6c3-54cd-48be-920c-3fd4eb3d07cb",
+          "workspace_id": "c9512f4f-366a-4880-b21d-3eefb37af4dc",
+          "text": "합성 자료에 대한 해석",
+          "basis": "inference",
+          "speaker_entity_id": null,
+          "subject_entity_ids": [],
+          "citation_ids": [
+            "964c02b7-ca88-4802-9fb4-74aa54d17874"
+          ],
+          "valid_period": null,
+          "raw_event_time_text": null,
+          "derivation": {
+            "method": "pydantic-ai",
+            "method_version": "research-v1",
+            "rationale": "AI interpretation of exact selected source quotations"
+          }
+        }
+      ],
+      "relations": [],
+      "observations": [],
+      "support_reviews": []
+    },
+    "revision": {
+      "schema_version": 1,
+      "revision_id": "3d55c23f-5ada-4776-9162-eba2e4c29279",
+      "workspace_id": "c9512f4f-366a-4880-b21d-3eefb37af4dc",
+      "run_id": "a892e73a-aa1e-45fc-aae7-41f67e477f85",
+      "revision_number": 1,
+      "parent_revision_id": null,
+      "selected_version_ids": [
+        "ab9309e4-ba30-4b62-9d23-e0094688d321"
+      ],
+      "draft": {
+        "schema_version": 1,
+        "draft_id": "5c9e608b-ec8a-4194-b79c-c64f92445612",
+        "outcome": "answer",
+        "modules": [
+          {
+            "module_id": "42f106cf-faa0-42ac-9daf-15c1f0db39df",
+            "title": "합성 요약",
+            "span": "full",
+            "citation_ids": [
+              "964c02b7-ca88-4802-9fb4-74aa54d17874"
+            ],
+            "actions": [
+              {
+                "kind": "open_evidence",
+                "citation_id": "964c02b7-ca88-4802-9fb4-74aa54d17874"
+              }
+            ],
+            "kind": "summary",
+            "claim_ids": [
+              "0c41f6c3-54cd-48be-920c-3fd4eb3d07cb"
+            ]
+          },
+          {
+            "module_id": "bd72a788-a392-4bc0-ac22-908cc7691fbe",
+            "title": "근거",
+            "span": "full",
+            "citation_ids": [
+              "964c02b7-ca88-4802-9fb4-74aa54d17874"
+            ],
+            "actions": [
+              {
+                "kind": "open_evidence",
+                "citation_id": "964c02b7-ca88-4802-9fb4-74aa54d17874"
+              }
+            ],
+            "kind": "evidence"
+          }
+        ],
+        "message": null
+      },
+      "validated_at": "2026-10-15T10:46:12.893435Z",
+      "validation_policy": "issuedigest-canvas-v1"
+    }
+  },
+  "source_titles": {
+    "383badd0-b651-441c-afa9-cff122b03b38": "합성 정책 자료 1"
+  },
+  "sources": [
+    {
+      "document_id": "383badd0-b651-441c-afa9-cff122b03b38",
+      "official_url": "https://www.korea.kr/news/policyNewsView.do?newsId=100000000",
+      "title": "합성 정책 자료 1",
+      "publisher": "합성 발행처",
+      "published_on": "2026-01-01",
+      "license": "kogl-type-1",
+      "attribution": "합성 테스트 출처 표시 · 실제 게시 자료 아님",
+      "text_sha256": "a755043a71869cb45c1f90d1a1421f8cecb06265d063eea1986ec2004eb6d913"
+    }
+  ]
+}

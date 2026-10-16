@@ -26,12 +26,14 @@
 
 ## Task 2: 공개 브리핑의 발견·읽기·인용과 질문 연결
 
-- [ ] strict public TS transport/validation/type export를 구현한다. 기존 Canvas/evidence 안전 검증을 재사용/공유하되 private research의 검증을 약화하지 않는다. 같은 slug/version/public IDs/출처/본문/인용/hash와bounded shape를 검증하며 malformed/시간초과/abort/no-store를 구분한다. generated 파일은 Task1 산출물을 소비한다.
-- [ ] 홈 질문 아래 실제 게시 목록과 공개 브리핑 라우트를 연결한다. 질문 입력은 기본 진입점이며 empty는 생략·실패는 재시도 가능하다. public route는 세션 조회 완료에 종속하지 않는다. 기존 CanvasView·원문 읽기 UI를 재사용하고 source attribution/license/as_of·개별 버전/최신판 링크를 정확히 보여 준다. 새 임시 진단/ID/관리 메뉴·과장된 인기/최신/가짜 데이터/카드 대시보드는 만들지 않는다. 절제된 편집형 세로 읽기·현행 브랜드/테마·390/1440·44px/키보드·접기/원문 초점 복원을 유지한다.
-- [ ] citation click/다시 진입/focus/visibility에서 같은 공개 버전의 현재 상태를 재조회한다.404는 화면/원문 정리, 일시 오류는 복구 가능, 늦은 구 버전 응답/닫기 경쟁은 무시한다. 페이지 비동기 요청을 취소하고 stale content를 새 slug로 보여주지 않는다.
-- [ ] 공개 브리핑에서 질문 입력을 일반 홈 draft로 연결한다. guest는 로그인에서 질문 복원 후 직접 실행하며 member는 질문을 편집한 뒤 명시 제출한다. private/public parent run을 섞지 않는다. 공개 읽기·새로고침·원문은 유료 요청을 만들지 않는다. 기존 Google login/세션/초안/기록/권한/생성/취소를 보존한다.
-- [ ] meaningful TDD: public guest list→read→exact citation→back/focus·stable v1/new v2·404withdrawal cleanup·malformed/crossref·networkretry·route races·question draft/login/noautoPOST·private401. 이전 검사 광범위 삭제 없이 관련 검사를 보강하고 UI cosmetic absence만 새 테스트로 만들지 않는다. JS lint/types/tests/build/contract 후 커밋/보고한다.
-- [ ] README/AGENTS·R1/R2/R4·D020·계획/작업/진행·개발 실행 문서를 현재 공개/비공개 계약으로 정리한다. 질문 전용 작업은 완료로 이동하고 기록은 보존한다. 외부 수집/전체 상품 품질/개인화는 후속이며 public source조건과 운영 게시 유예를 명시한다. 실제 데이터 등록·dev rollout·Sites는 controller가 검증 뒤 수행한다.
+- [x] strict public TS transport/validation/type export를 구현한다. 기존 Canvas/evidence 안전 검증을 재사용/공유하되 private research의 검증을 약화하지 않는다. 같은 slug/version/public IDs/출처/본문/인용/hash와bounded shape를 검증하며 malformed/시간초과/abort/no-store를 구분한다. generated 파일은 Task1 산출물을 소비한다.
+- [x] 홈 질문 아래 실제 게시 목록과 공개 브리핑 라우트를 연결한다. 질문 입력은 기본 진입점이며 empty는 생략·실패는 재시도 가능하다. public route는 세션 조회 완료에 종속하지 않는다. 기존 CanvasView·원문 읽기 UI를 재사용하고 source attribution/license/as_of·개별 버전/최신판 링크를 정확히 보여 준다. 새 임시 진단/ID/관리 메뉴·과장된 인기/최신/가짜 데이터/카드 대시보드는 만들지 않는다. 절제된 편집형 세로 읽기·현행 브랜드/테마·390/1440·44px/키보드·접기/원문 초점 복원을 유지한다.
+- [x] citation click/다시 진입/focus/visibility에서 같은 공개 버전의 현재 상태를 재조회한다.404는 화면/원문 정리, 일시 오류는 복구 가능, 늦은 구 버전 응답/닫기 경쟁은 무시한다. 페이지 비동기 요청을 취소하고 stale content를 새 slug로 보여주지 않는다.
+- [x] 공개 브리핑에서 질문 입력을 일반 홈 draft로 연결한다. guest는 로그인에서 질문 복원 후 직접 실행하며 member는 질문을 편집한 뒤 명시 제출한다. private/public parent run을 섞지 않는다. 공개 읽기·새로고침·원문은 유료 요청을 만들지 않는다. 기존 Google login/세션/초안/기록/권한/생성/취소를 보존한다.
+- [x] meaningful TDD: public guest list→read→exact citation→back/focus·stable v1/new v2·404withdrawal cleanup·malformed/crossref·networkretry·route races·question draft/login/noautoPOST·private401. 이전 검사 광범위 삭제 없이 관련 검사를 보강하고 UI cosmetic absence만 새 테스트로 만들지 않는다. JS lint/types/tests/build/contract 후 커밋/보고한다.
+- [x] README/AGENTS·R1/R2/R4·D020·계획/작업/진행·개발 실행 문서를 현재 공개/비공개 계약으로 정리한다. 질문 전용 작업은 완료로 이동하고 기록은 보존한다. 외부 수집/전체 상품 품질/개인화는 후속이며 public source조건과 운영 게시 유예를 명시한다. 실제 데이터 등록·dev rollout·Sites는 controller가 검증 뒤 수행한다.
+
+Task2 검증: 합성 public v1/v2를 사용한 transport30개·공개 사용자 흐름18개와 기존 질문/로그인/권한/원문 회귀를 보존했다. 최종 전체 JS500개/26파일·lint·workspace types·생산 SPA·생성 계약 일치 검사 통과. 서버는 전체 canonical digest/공개 namespace를 검증하고 브라우저는 schema·참조·출처·정확 인용·고정 버전 hash 일치를 확인한다. 독립390/1440/다크 브라우저·실제 전용 PG 전체 검사와 실제1건 게시/개발 적용은 아래 컨트롤러 인수 항목이다. Task2는 실제 계정/원문/키·모델·서버·Sites를 사용/변경하지 않았다.
 
 ## 최종 검증과 개발 반영
 
