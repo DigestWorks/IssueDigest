@@ -37,7 +37,7 @@ export default function Login() {
         {message && <p role="alert" className="login-feedback">{message}</p>}
         <form method="post" action="/api/v1/auth/google/start" onSubmit={submit} aria-busy={pending}>
           <button type="submit" disabled={pending} className="login-button">{pending ? 'Google로 이동 중…' : 'Google로 로그인'}</button>
-          <p role="status" aria-live="polite" className="catalog-note">{pending ? 'Google 로그인 화면으로 이동합니다.' : '승인된 작업 공간의 자료만 읽을 수 있습니다.'}</p>
+          <p role="status" aria-live="polite" className="catalog-note">{pending ? 'Google 로그인 화면으로 이동합니다.' : '접근이 허용된 자료만 읽을 수 있습니다.'}</p>
         </form>
         <Link to="/" className="action-link">홈으로</Link>
       </section>

@@ -53,10 +53,10 @@ it('shows a quiet guest home with one question action and no repeated login noti
   const input = screen.getByRole('textbox', {name: '무엇이 궁금한가요?'}); await userEvent.setup().type(input, '   ');
   expect(submit).toBeDisabled(); expect(sessionStorage.getItem('issuedigest.guest-question.v1')).toBeNull();
 });
-it.each(['saved', 'sources'])('opens login only after confirmed guest navigation to private %s', async view => {
+it.each(['saved'])('opens login only after confirmed guest navigation to private %s', async () => {
   const fetch = vi.fn(async () => response({}, 401)); vi.stubGlobal('fetch', fetch); const {router} = mount();
   await screen.findByRole('textbox', {name: '무엇이 궁금한가요?'});
-  await userEvent.setup().click(screen.getByRole('button', {name: view === 'saved' ? '저장한 조사' : '자료'}));
+  await userEvent.setup().click(screen.getByRole('button', {name: '브리핑 기록'}));
   expect(router.state.location.pathname).toBe('/login'); expect(fetch.mock.calls).toHaveLength(1);
 });
 it.each(['saved', 'sources'])('waits for confirmed session before redirecting direct private %s without calling protected APIs', async view => {
@@ -70,12 +70,12 @@ it.each(['saved', 'sources'])('waits for confirmed session before redirecting di
 it.each([403, 503, 'network'])('keeps private entry visible with retry on %s rather than treating it as guest', async failure => {
   const fetch = vi.fn(async () => {if (failure === 'network') throw new TypeError('offline'); return response({}, failure as number);});
   vi.stubGlobal('fetch', fetch); const {router} = mount('/?view=saved');
-  await screen.findByRole('button', {name: '작업 공간 다시 확인'});
+  await screen.findByRole('button', {name: '접근 상태 다시 확인'});
   expect(router.state.location.pathname).toBe('/'); expect(screen.queryByRole('textbox', {name: '무엇이 궁금한가요?'})).not.toBeInTheDocument(); expect(fetch.mock.calls).toHaveLength(1);
 });
 it('puts authenticated logout inside the account menu', async () => {
   vi.stubGlobal('fetch', async (path: string) => response(path.endsWith('/session') ? {...session(), memberships: []} : {})); mount();
-  await screen.findByText('접근 가능한 작업 공간이 없습니다.'); expect(screen.queryByRole('button', {name: '로그아웃'})).not.toBeInTheDocument();
+  await screen.findByText('접근 가능한 자료 범위가 없습니다.'); expect(screen.queryByRole('button', {name: '로그아웃'})).not.toBeInTheDocument();
   await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'})); expect(screen.getByRole('menuitem', {name: '로그아웃'})).toBeInTheDocument();
 });
 it('applies the same saved palette in the prepaint bootstrap before React mounts', async () => {

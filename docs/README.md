@@ -1,109 +1,51 @@
 # 문서 안내·협업 방법
 
-사람과 에이전트가 함께 보는 개발 기록이다. Linear는 사용하지 않는다. 저장소 문서가 원본이며 PR에서 변경을 검토한다. Sites는 이 기록을 요약해 공유하는 공간이다.
+IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경험 인터뷰](research/product-experience-interview.md)와 [D016·D017](planning/decisions.md)의 사용자 선택을 기준으로 질문→짧은 브리핑→필요한 비교·변화·반응·근거를 잇는다. 현재 자료·브리핑 기록은 초대된 초기 검증 참여자의 공유 자료 범위이며 공개 피드나 개인 보관함이 아니다.
 
-## 어디에 기록할까
+저장소 문서가 결정 원본이고 PR에서 변경을 검토한다. 별도 이슈 트래커는 사용하지 않는다. Sites는 검증된 현재 상태의 요약이며 독립된 요구사항 원본으로 복제하지 않는다.
 
-| 문서 | 기록할 내용 |
+## 현재 계획과 작업
+
+| 문서 | 용도 |
 | --- | --- |
-| [구현 계획](planning/implementation-plan.md) | 제품 목표·범위·단계·모노레포 구조 |
-| [요구사항·설계](planning/requirements-design.md) | 동작·입출력·권한·오류·검증 조건 |
-| [결정 기록](planning/decisions.md) | 확정된 결정, 비교 중인 제안, 필요한 입력 |
-| [작업 목록](planning/tasks.md) | 해야 할 일과 검증된 완료 항목 |
-| [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
-| [제품 경험 인터뷰](research/product-experience-interview.md) | 질문·최근 이슈·사실/주장·반응·AI 태도에 대한 사용자 답변과 미정 방향 |
-| [브랜드·테마·로그인 진입](changes/brand-theme-entry.md) | 생성 로고·명시 테마·계정 메뉴와 행동 시 로그인 |
-| [브리핑 경험 첫 연결](changes/briefing-experience.md) | 질문 우선·로그인 초안·생성 중 원문·검증된 브리핑·본문 내 근거 확인 |
-| [국회 원문 연결기](changes/assembly-source-connector.md) | 첫 공식 원문 capture·정확 추출·명시 등록 준비와 자동 수집 경계 |
-| [첫 조사 흐름](changes/research-journey.md) | 자료 선택·AI 질문·생성 모듈·원문 인용·자동 저장의 수용 기준 |
-| [조사 개발 실행](../infra/research-development.md) | DBOS 명시 초기화·앱 권한·서버 키·예산·검증 경계 |
-| [이전 기록](planning/archive.md) | 보존 자산·이전 배포·기준 커밋 |
-| [엔진 선택 기록](research/engine-selection.md) | 확정 조합·공식 근거·남은 품질 검증 |
-| [공동 개발 DB 적용](changes/shared-database-bootstrap.md) | 초기 스키마·승인 등록·기존 앱 권한·전/후 백업과 앱 범위 복원·남은 입력 |
-| [자료 중심 UI·기존 법안 연결](changes/workspace-clarity-legacy.md) | 검색/자료/원문 흐름·소량 기존 기본 정보·실DB 적용 경계 |
-| [검색 API·화면](changes/evidence-search-interface.md) | 현재 작업 공간 검색·상태/한도·검증된 원문 위치 읽기 |
-| [저장 근거 문자 검색](changes/evidence-search.md) | PostgreSQL 색인/재생성·현재 권한·정확 위치와 의미 검색의 경계 |
-| [첫 자료 풀](research/first-issue-corpus.md) | 공식 후보·원문·이용·연구 추출·앱 파서와 재게시 가족 상태 |
-| [평가 질문20개](../tests/evaluation/first-issue.md) | 질문별 필수 근거·보류·수치/시점·생성 화면의 판정 기준 |
-| [첫 검증 이슈](research/first-issue.md) | 최근 시사 선정·대표 질문·출처와 자료/평가 경계 |
-| [제품 계약 조사](research/product-contracts.md) | 기존 코드·공식 근거, 원문/인용/실행/생성 화면 설계 제안과 검증 계획 |
-| [전용 DB·수집 자산 실측](research/server-data-inventory.md) | 실제 건수·기간·원문 품질·pgvector 준비 상태·첫 이관 경계 |
-| [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·기록 기준 |
-| [PostgreSQL 연결 준비](../infra/postgresql.md) | 관리자에게 확인할 자원·비용·전용 DB·외부 백업 |
-| [개발 HTTPS 인수인계](../infra/development-https.md) | 준비한 내부 upstream·관리자 DNS/TLS/프록시·사용자 Google callback·실제 접속 완료 조건 |
-| [관리자 요청](../infra/administrator-request.md) | 필요한 관리자 작업·접근 정보와 개발자 책임 |
-| [개발 서버 안내](../infra/development-server.md) | 사용자 전용 환경·실행 방법·기초 자원·실제 검증·남은 확인 |
+| [구현 계획](planning/implementation-plan.md) | B2C 여정·현재 구현·다음 구현 순서·재사용 구조와 예산 |
+| [요구사항·설계](planning/requirements-design.md) | R1~R7 접근·원문·탐색·브리핑·진행·복구 계약과 현재 제한 |
+| [결정 기록](planning/decisions.md) | 사용자 선택·확정 기술·대체 결정·대기 입력 |
+| [작업 목록](planning/tasks.md) | 실제 다음 작업과 현재 변경의 완료 조건 |
+| [진행 기록](planning/progress.md) | 코드·검증·개인 개발 적용·Sites·운영의 개별 증거와 인계 |
+| [B2C 화면 정리·로그인 유지](changes/b2c-cleanup-persistent-login.md) | 아이콘 헤더·질문/브리핑 중심 화면·활성 계획 재편·14일/7일 세션 |
+| [브리핑 경험 첫 연결](changes/briefing-experience.md) | 비회원 질문→로그인 복원·원문 선열람·완료 브리핑·본문 내 근거 |
+| [브랜드·테마·계정](changes/brand-theme-entry.md) | 로고·기기 테마 선호·계정 메뉴·행동 시 로그인 |
+| [에이전트 지침](../AGENTS.md) | 읽는 순서·개발 절차·권한·기록 기준 |
 
-## 작업 흐름
+공개 브리핑 게시/읽기·개인 관심 이슈·변화 알림·고정 공유본·최근 이슈/개인화·검증된 AI 모듈 점진 전달은 미완료다. 해당 데이터·이용권·게시/소유·근거 평가·비용/복구 계약부터 이어간다. 과거 공간 중심 P0~P6 계획은 현재 본문에서 제거했고 전개는 Git 이력(재편 전 `d6d05f3`), 아래 변경 명세와 진행 기록에서 확인한다.
 
-1. 시작: 관련 단계·요구사항·결정을 읽고 작업 범위를 정한다. 진행 기록의 현재 작업에 담당·브랜치·범위를 적는다.
-2. 진행: 코드와 관련 문서를 같은 브랜치에서 갱신한다. 새 작업은 작업 목록에 추가한다. 결정이 바뀌면 이전 결정과 대체 이유를 남긴다.
-3. 검증: 변경에 맞는 테스트·타입·빌드·문서 확인을 수행한다. 실제 결과와 미검증 범위를 기록한다.
-4. 검토: PR 설명에 문제·변경·검증·남은 결정을 적는다. 합의된 변경을 기록에 반영한다.
-5. 인계: 진행 기록에 현재 상태·수정 파일·검증 결과·다음 행동을 남긴다. 새 에이전트가 대화 기록 없이 이어갈 수 있게 쓴다.
+## 재사용 코어·계약의 근거
 
-작업 목록의 체크박스는 완료 여부만 나타낸다. 진행 중·대기 이유·담당은 진행 기록에서 관리한다. 작은 작업마다 별도 문서를 만들지 않는다. 규모가 큰 기능은 `docs/changes/<작업명>.md`에 요구사항·설계·작업·검증을 묶어 기록할 수 있다. 적용 중인 개발 스킬이 산출물 위치를 정한 경우 그 위치를 사용하고 여기에는 링크만 남긴다.
+| 영역 | 원본·검증 기록 |
+| --- | --- |
+| 원문·정확 인용·도메인 | [원문 계약](changes/source-evidence-contracts.md), [주장/관계/비교](changes/research-contracts.md), [실행/화면/사용량](changes/execution-contracts.md), [도메인 안내](../packages/domain/README.md) |
+| 저장·권한·로그인 | [PostgreSQL 저장](changes/postgres-storage.md), [서버 세션/보호 GET](changes/session-evidence-api.md), [Google 초대/로그인](changes/google-oauth-workspace.md), [API 안내](../apps/api/README.md), [저장 안내](../packages/storage/README.md) |
+| 검색·원문 읽기 | [문자 검색](changes/evidence-search.md), [검색 API/화면](changes/evidence-search-interface.md), [보호 reader](changes/evidence-reader.md), [웹 안내](../apps/web/README.md), [클라이언트 안내](../packages/api-client/README.md) |
+| 실행·브리핑 | [첫 실제 조사 실행](changes/research-journey.md), [생성 렌더러](changes/canvas-renderer.md), [조사 실행/비용](../infra/research-development.md), [UI 안내](../packages/ui/README.md) |
+| 원문 연결·파싱 | [국회 원문](changes/assembly-source-connector.md), [후보 연결](changes/source-intake.md), [HTML](changes/official-html-evidence.md), [PDF 텍스트](changes/pdf-text-evidence.md), [PDF 후보/문맥](changes/pdf-quote-candidates.md), [HWPX 근거](changes/hwpx-evidence.md), [HWPX 수집](changes/hwpx-import.md) |
+| 승인 등록·개발 연결 | [등록 CLI](changes/workspace-bootstrap.md), [초기 DB 적용](changes/shared-database-bootstrap.md), [Google runtime](changes/google-login-runtime.md), [개발 HTTPS](changes/development-https.md), [개발 기반](changes/development-foundation.md) |
 
-## 현재 작업·인계 형식
+기존 계약은 재사용한다. 정확 인용·객체 검증을 출처 진위/주장 지지·실제 자율 탐색·공개 접근 허용으로 확대하지 않는다. 기존 변경 명세는 해당 시점의 부분 구현과 검증 기록이며 후속 목표는 현재 작업 목록에서 관리한다. 법안/자료 중심 이전 화면은 [자료 UI 기록](changes/workspace-clarity-legacy.md)에 남기고 현재 기본 제품으로 되살리지 않는다. [개발 보조 도구 제거](changes/home-tools-removal.md)의 연결 확인·수동 링크 도구 제거도 유지한다.
 
-진행 기록에 다음 항목을 짧게 적는다. 끝난 작업은 날짜별 이력으로 옮기고 현재 작업에서 제거한다.
+## 자료·평가·운영 기록
 
-```text
-작업 / 관련 단계·요구사항:
-담당 / 브랜치 / PR:
-범위 / 현재 상태:
-검증 결과 / 미검증 범위:
-남은 결정·입력:
-다음 행동:
-Sites 반영 상태:
-```
+- [첫 검증 이슈](research/first-issue.md), [첫 자료 풀](research/first-issue-corpus.md), [평가 질문20개](../tests/evaluation/first-issue.md): 실제 출처·권리·필수 근거·자료 부족·수치/시점 평가.
+- [엔진 선택](research/engine-selection.md), [제품 계약 조사](research/product-contracts.md), [기존 법안 재사용](research/bill-history-reuse.md), [서버 자산 실측](research/server-data-inventory.md): 당시 조사·선택 근거. 현재 수집 성공·전체 검색 품질·최신 이슈 선정 완료와 구분한다.
+- [개발 서버](../infra/development-server.md), [개발 HTTPS 인계](../infra/development-https.md), [운영 배포 상태](../infra/public-deployment.md), [PostgreSQL 준비](../infra/postgresql.md), [관리자 요청](../infra/administrator-request.md): 실제 환경·접근·운영 미완료 조건.
+- [이전 기록](planning/archive.md): 와이어프레임 종료·재사용 자산·초기 계획 사이트 이력. 이전 결정을 지우지 않고 대체 관계를 보존한다.
 
-질문에 대한 답이나 PR에서 합의한 내용이 결정·요구사항을 바꾸면 해당 문서에도 반영한다. 대화나 PR 댓글에만 남겨두지 않는다. 문서에 완료된 것처럼 보이는 계획·예상·권고 표현을 섞지 않는다.
+## 협업과 완료 기록
 
-## 첫 원문·파싱·인용 계약
+1. 시작할 때 현재 계획·작업·진행과 관련 변경 명세를 읽고 Git 상태를 확인한다. 승인된 통상 구현 선택 때문에 같은 승인을 반복 요청하지 않는다.
+2. 코드와 관련 문서를 같은 브랜치에서 갱신한다. 일반 개발은 에이전트 지침의 spec-driven 절차를 따르고 결정이 바뀌면 날짜·근거·영향·대체 관계를 남긴다.
+3. 변경에 맞는 테스트·타입·빌드·계약·문서 확인을 수행한다. 버튼/문구 같은 낮은 영향 변경에 구현을 되풀이하는 새 테스트를 만들지 않는다. 기존 의미 있는 질문 복원·권한·생성/취소·재접속·원문 경로를 보존한다.
+4. 코드 구현·합성 검사·독립 브라우저·실제 데이터/모델·개인 개발 적용·Sites·운영 게시를 각각 기록한다. 하나의 성공을 다른 단계 완료로 바꾸지 않는다.
+5. PR과 인계에는 현재 상태·검증·남은 입력·다음 행동을 남긴다. 과거 완료 상세는 진행 이력으로 옮기고 중복된 미완료 목록을 활성 계획에 남기지 않는다.
 
-원문 식별/버전과 파싱 표현을 분리한 첫 계약 및 정확한 인용 anchor 검증을 구현했습니다. [Python 도메인](../packages/domain/README.md)과 [생성 웹 타입·Unicode 변환](../packages/api-client/README.md)에 실제 공개 모델과 검증 경계를 기록합니다. API OpenAPI components로 연결하며 제품 HTTP 경로를 추가하지 않습니다. 완료 증거와 리뷰·Sites 대기는 [진행 기록](planning/progress.md), 후속 범위는 [작업 목록](planning/tasks.md)에서 관리합니다.
-
-이 부분 완료는 전체 P1이나 원문 저장·중복 제거·파싱 성공·접근 권한·주장 지지 검증 완료를 뜻하지 않습니다. 출처 시간 정밀도·재수집 관측·내용 비교 fingerprint·실제 parser/저장, 실행 이벤트 저장·SSE·렌더러의 제품 연결·사용량 집계·권한이 남아 있습니다.
-
-
-## 두 번째 개체·주장·관계·비교 조건 계약
-
-[작업 명세](changes/research-contracts.md)의 실행 모델·묶음 참조 검증·보수적 조건 판정을 구현했습니다. [도메인](../packages/domain/README.md), [생성 타입](../packages/api-client/README.md)에 실제 공개 계약과 한계를 기록합니다. 관계 어휘와 비교 정책은 제한된 v1이며 제공된 근거·검토·조건을 검사합니다. 주장 진실, 조사 동등성, 합산·완전 분포, 인증된 검토·실제 저장·Neo4j 투영은 후속입니다. 독립 리뷰·PR·Sites의 완료 여부는 [진행 기록](planning/progress.md)에서 관리합니다. [제품 계약 조사](research/product-contracts.md)는 당시의 조사·제안 기록으로 보존합니다.
-
-
-## 세 번째 실행·화면·사용량 부분 계약
-
-[작업 명세](changes/execution-contracts.md)의 불변 모델과 순수 입력 해시·재전송 판정·순번 이력 재생·화면 근거/승격·월 예산 및 전체 참조 검증을 구현했습니다. 실제 OpenAPI components와 생성 TS 공개 타입으로 연결합니다. 제공된 객체 검증과 운영 실행·저장·SSE·동시 예산·인증·공급자 호출을 구분합니다. 렌더러 구현은 아래 별도 작업입니다. 독립 리뷰·Draft PR·Sites v20 이후 요약·사용자 폴더 연결은 [진행 기록](planning/progress.md)에 따라 마무리합니다. 전체 P1은 미완료입니다.
-
-## PostgreSQL 원문·인용 저장 기반
-
-[작업 명세](changes/postgres-storage.md)에서 불변 객체·스냅샷·원자적 outbox와 마이그레이션을 구현한다. [엔진 선택 기록](research/engine-selection.md)은 선택과 품질 검증을 구분한다. 실제 구현·리뷰·검증 결과는 진행 기록을 확인한다. 저장 패키지 내부 workspace 범위는 인증·멤버십 구현이 아니며 원문 bytes·검색·worker·운영 연결은 후속이다.
-
-## 검증된 생성 화면 렌더러
-
-[작업 명세](changes/canvas-renderer.md)에 따라 기존 CanvasBundle을 소비하는 React UI 패키지를 구현했다. 화면 표시와 실제 AI 생성·API 소비·액션 처리·권한을 구분하며 검증 결과는 진행 기록에 남긴다. 합성 자료는 테스트·내부 QA 전용이다.
-
-## 서버 세션·근거 조회 API
-
-[작업 명세](changes/session-evidence-api.md)에 따라 로그인 공급자와 독립적인 DB 세션·회원 권한·보호 조회를 구현했다. 실제 공급자 로그인/초대/운영 연결과 코드 접근 경계의 검증을 구분한다.
-
-## 실제 PDF 텍스트·정확 인용 준비
-
-[작업 명세](changes/pdf-text-evidence.md)는 원문 후보 검사의 다음 부분 구현이다. 제한된 파서에서 실제 페이지 텍스트를 얻고 기존 인용 계약에 연결한다. 정확한 텍스트 anchor와 출처 진위/문항 수치·주장 지지를 구분하며 구현/실측/남은 조건은 진행 기록을 따른다.
-
-## 반복 PDF 문항의 후보·문맥 선택
-
-[작업 명세](changes/pdf-quote-candidates.md)에 따라 기존 추출/인용 계약을 소비하는 제한된 후보 검색과 정확 문맥 선택을 구현한다. 위치 round-trip 검증과 적합한 조사/표 근거의 의미 판단을 구분하며 완료/실측/남은 조건은 진행 기록을 따른다.
-
-## 저장 근거 읽기 화면
-
-[작업 명세](changes/evidence-reader.md)에 따라 기존 보호 GET을 소비하는 원문·페이지·인용 읽기 화면과 안전한 링크 진입을 구현한다. display validation과 서버 도메인/권한 검증을 구분한다. 실제 로그인·자료 이관·AI와 공개 배포는 후속이며 진행 기록에 검증 범위를 남긴다.
-
-## 공동 공간 자료·접근 허용 등록
-
-[등록 도구 명세](changes/workspace-bootstrap.md)에 기존 저장·Google 초대 규칙을 재사용하는 운영자 CLI의 입력·검증·원자 적용 경계를 둔다. 기본 실행은 오프라인 입력 검사이고 실제 DB 변경은 명시 적용으로 구분한다. 앱 계정·백업·실제 로그인 연결 상태는 진행 기록을 따른다.
-
-HWPX 본문·표·인용의 구현 범위와 검증 상태는 [작업 명세](changes/hwpx-evidence.md)를 따른다.
-
-HWPX 수집 준비 명령과 기존 등록 도구 연결은 [수집 작업 명세](changes/hwpx-import.md)를 따른다.
+진행 기록에는 `작업/관련 요구사항`, `담당/브랜치/PR`, `범위/현재 상태`, `검증/미검증`, `남은 입력`, `다음 행동`, `Sites 반영 상태`를 적는다. Sites 미반영은 대기로 표시하고 사용자가 열어 둔 탭을 자동으로 열거나 이동하지 않는다. 비공개 운영 계정·초대·원자료·자격 증명은 공개 기록에 남기지 않는다.

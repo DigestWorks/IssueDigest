@@ -15,10 +15,10 @@ function stub() { vi.stubGlobal('fetch', async (path: string) => response(path.e
 afterEach(() => vi.useRealTimers());
 it('checks session before requesting a catalog and announces loading without fake empty data', async () => {
   let resolve!: (r: Response) => void; const fetch = vi.fn(() => new Promise<Response>(done => { resolve = done; })); vi.stubGlobal('fetch', fetch); mount();
-  expect(screen.getByRole('status', { name: '작업 공간 상태' })).toHaveTextContent('로그인 상태');
+  expect(screen.getByRole('status', { name: '접근 상태' })).toHaveTextContent('로그인 상태');
   expect(screen.queryByText('아직 등록된 자료가 없습니다.')).not.toBeInTheDocument(); expect(fetch).toHaveBeenCalledTimes(1);
   await act(async () => resolve(response({ ...session(), memberships: [] })));
-  expect(screen.getByText('접근 가능한 작업 공간이 없습니다.')).toBeInTheDocument(); expect(fetch).toHaveBeenCalledTimes(1);
+  expect(screen.getByText('접근 가능한 자료 범위가 없습니다.')).toBeInTheDocument(); expect(fetch).toHaveBeenCalledTimes(1);
 });
 it('offers actual login navigation on 401 without leaking server details', async () => {
   vi.stubGlobal('fetch', async () => response({ detail: 'PRIVATE' }, 401)); const { router } = mount();
@@ -30,9 +30,9 @@ it.each(['503', 'network', 'malformed'])('retries session error %s and displays 
       if (failure && kind === 'network') throw new Error('PRIVATE');
       return failure ? response(kind === 'malformed' ? {} : { detail: 'PRIVATE' }, kind === '503' ? 503 : 200) : response(session());
     } return response(catalog());
-  }); mount(); const retry = await screen.findByRole('button', { name: '작업 공간 다시 확인' });
+  }); mount(); const retry = await screen.findByRole('button', { name: '접근 상태 다시 확인' });
   expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument(); failure = false; await userEvent.setup().click(retry);
-  expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument(); expect(screen.getByRole('combobox', { name: '작업 공간' })).toHaveValue(workspace);
+  expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument(); expect(screen.getByRole('combobox', { name: '자료 범위' })).toHaveValue(workspace);
   expect(screen.getAllByRole('option').map(option => option.getAttribute('value'))).toEqual([workspace, otherWorkspace]);
 });
 it('displays provider, source ID, collected instant, citation count and a safe reader link', async () => {
@@ -43,18 +43,16 @@ it('displays provider, source ID, collected instant, citation count and a safe r
   expect(document.querySelector('time')).toHaveTextContent('2026. 10. 13.');
   expect(screen.getByText('기타 자료')).toBeInTheDocument();
   expect(screen.getByRole('link', { name: '근거 열기' })).toHaveAttribute('href', `/workspaces/${workspace}/evidence/${snapshot}`);
-  expect(screen.getByText('읽기')).toHaveAttribute('title', '읽기 권한');
 });
-it('names a single shared workspace without displaying its UUID in the main view', async () => {
+it('reads a single authorized scope without a redundant selector', async () => {
   vi.stubGlobal('fetch', async (path: string) => response(path.endsWith('/session') ? { ...session(), memberships: [session().memberships[0]] } : catalog()));
   mount(); await screen.findByText('첫 공간 합성 원문');
-  expect(screen.getByText('공동 조사 자료')).toBeInTheDocument();
-  expect(screen.queryByRole('combobox', { name: '작업 공간' })).not.toBeInTheDocument();
+  expect(screen.queryByRole('combobox', { name: '자료 범위' })).not.toBeInTheDocument();
   expect(screen.queryByText(workspace)).not.toBeInTheDocument();
 });
-it('numbers multiple workspaces while preserving exact IDs in optional details', async () => {
+it('keeps multiple authorized scopes selectable with concise names', async () => {
   stub(); mount(); await screen.findByText('첫 공간 합성 원문');
-  expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['공간 1', '공간 2']);
+  expect(screen.getAllByRole('option').map(option => option.textContent)).toEqual(['범위 1', '범위 2']);
   expect(screen.queryByText(workspace)).not.toBeInTheDocument();
 });
 it('clears the old list immediately, cancels it and ignores late responses while switching workspaces', async () => {
@@ -115,8 +113,8 @@ it('keeps retry session data when a timed-out session arrives late', async () =>
   vi.useFakeTimers(); let finish!: (r: Response) => void; let sessions = 0;
   vi.stubGlobal('fetch', (path: string) => path.endsWith('/session') && sessions++ === 0 ? new Promise<Response>(done => { finish = done; }) : Promise.resolve(response(path.endsWith('/session') ? session() : catalog())));
   mount(); await act(async () => vi.advanceTimersByTimeAsync(10_000));
-  expect(screen.getByRole('status', { name: '작업 공간 상태' })).toHaveTextContent('시간이 길어');
-  const retry = screen.getByRole('button', { name: '작업 공간 다시 확인' }); await act(async () => retry.click());
+  expect(screen.getByRole('status', { name: '접근 상태' })).toHaveTextContent('시간이 길어');
+  const retry = screen.getByRole('button', { name: '접근 상태 다시 확인' }); await act(async () => retry.click());
   expect(screen.getByText('첫 공간 합성 원문')).toBeInTheDocument();
   await act(async () => finish(response({ ...session(), memberships: [] }))); expect(screen.getByText('첫 공간 합성 원문')).toBeInTheDocument();
 });
@@ -138,7 +136,7 @@ it('opens a catalog record in the existing protected read-only reader and return
   expect(readerRequest?.[1]?.method ?? 'GET').toBe('GET');
   expect(screen.queryByText('첫 공간 합성 원문')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /생성|저장|수정/ })).not.toBeInTheDocument();
-  await userEvent.setup().click(screen.getByRole('link', { name: '작업 공간으로' })); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();
+  await userEvent.setup().click(screen.getByRole('link', { name: '자료 검색으로' })); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();
 });
 it('cancels logout on unmount without applying a late success', async () => {
   let signal!: AbortSignal; let finish!: (r: Response) => void;

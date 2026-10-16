@@ -52,7 +52,7 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
     <div className="workspace evidence-workspace">
       <BrandHeader caption="저장된 근거 읽기" />
       <main className="reader-main">
-        <Link to={returnTo} className="action-link">{researchOrigin ? '이슈 조사로' : '작업 공간으로'}</Link>
+        <Link to={returnTo} className="action-link">{returnTo === '/?view=sources' ? '자료 검색으로' : '브리핑으로'}</Link>
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}
         {state.kind === 'failure' && <>
           <h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">{messages[state.error.kind]}</p>

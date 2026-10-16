@@ -69,7 +69,7 @@ it.each([false, true])('restores an unsent %s draft after reading a source and b
   } else await user.click(choice);
   await user.type(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?'), '검토 중인 질문');
   await user.click(screen.getAllByRole('link', {name: '원문 읽기'})[0]);
-  await user.click(await screen.findByRole('link', {name: '이슈 조사로'}));
+  await user.click(await screen.findByRole('link', {name: '브리핑으로'}));
   expect(await findSource({name: /공공기록법 일부개정법률안/})).toHaveProperty('checked', !followup);
   if (followup) expect(await findSource({name: '두 번째 법안'})).toBeChecked();
   expect(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?')).toHaveValue('검토 중인 질문');
@@ -79,7 +79,7 @@ it.each([false, true])('restores an unsent %s draft after reading a source and b
   if (followup) expect(await findSource({name: '두 번째 법안'})).toBeChecked();
   expect(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?')).toHaveValue('검토 중인 질문');
   if (followup) {
-    await user.click(screen.getByRole('button', {name: '새 조사'}));
+    await user.click(screen.getByRole('button', {name: '새 질문'}));
     expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
     expect(await findSource({name: /공공기록법 일부개정법률안/})).not.toBeChecked();
   }
@@ -101,10 +101,10 @@ it('keeps drafts within their workspace and clears them on logout', async () => 
   const user = userEvent.setup();
   await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
   await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '첫 공간 질문');
-  await user.selectOptions(screen.getByLabelText('작업 공간'), otherWorkspace);
+  await user.selectOptions(screen.getByLabelText('자료 범위'), otherWorkspace);
   expect(await findSource({name: /공공기록법 일부개정법률안/})).not.toBeChecked();
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
-  await user.selectOptions(screen.getByLabelText('작업 공간'), workspace);
+  await user.selectOptions(screen.getByLabelText('자료 범위'), workspace);
   expect(await findSource({name: /공공기록법 일부개정법률안/})).toBeChecked();
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('첫 공간 질문');
   await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', {name: '로그아웃'}));
@@ -131,7 +131,7 @@ it('shows named sources without creating an AI request on load and permits selec
     throw Error('unexpected request');
   });
   render(<MemoryRouter><Home /></MemoryRouter>);
-  expect(await screen.findByText('공공기록법 일부개정법률안')).toBeInTheDocument();
+  expect(await findSource({name: /공공기록법 일부개정법률안/})).toBeInTheDocument();
   expect(screen.getByText(/의안번호 2201234/)).toBeInTheDocument();
   expect(screen.queryByText('synthetic-source')).not.toBeInTheDocument();
   expect(requests.every(request => request.method === 'GET')).toBe(true);
@@ -155,22 +155,25 @@ it('limits a new research request to three selected sources', async () => {
   expect(await findSource({name: '법안 4'})).toBeDisabled();
 });
 
-it('keeps the selected source and unsent question when checking the source tab', async () => {
+it.each([false, true])('keeps the selected source and unsent question through contextual source search (followup=%s)', async followup => {
   vi.stubGlobal('fetch', async (path: string) => {
     if (path.endsWith('/session')) return response(session);
     if (path.endsWith('/research/sources')) return response({workspace_id: workspace, items: [source]});
+    if (path.endsWith(`/research/${runId}`)) return response(completedRun());
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: []});
     if (path.includes('/evidence?limit=')) return response(catalog());
     throw Error(`unexpected ${path}`);
   });
-  render(<MemoryRouter><Home /></MemoryRouter>);
+  render(<MemoryRouter initialEntries={[followup ? `/?view=research&run=${runId}` : '/?view=research']}><Home /></MemoryRouter>);
   const user = userEvent.setup();
-  await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
-  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '처리 상태는?');
-  await user.click(screen.getByRole('button', {name: '자료'}));
-  await user.click(screen.getByRole('button', {name: '홈'}));
+  const choice = await findSource({name: /공공기록법 일부개정법률안/});
+  if (!followup) await user.click(choice);
+  if (followup) await screen.findByLabelText('후속 질문');
+  await user.type(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?'), '처리 상태는?');
+  await user.click(screen.getByRole('link', {name: '자료에서 검색'}));
+  await user.click(screen.getByRole('button', {name: '브리핑'}));
   expect(await findSource({name: /공공기록법 일부개정법률안/})).toBeChecked();
-  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('처리 상태는?');
+  expect(screen.getByLabelText(followup ? '후속 질문' : '무엇을 알아볼까요?')).toHaveValue('처리 상태는?');
 });
 
 it('shows verified titles in the secondary source catalog', async () => {
@@ -195,10 +198,13 @@ it('shows the monthly budget limit without inventing a result or losing the sele
     throw Error(`unexpected ${path}`);
   });
   render(<MemoryRouter><Home /></MemoryRouter>);
-  await userEvent.setup().click(await screen.findByRole('button', {name: '핵심 정리'}));
+  const user = userEvent.setup();
+  await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
+  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
   expect(await screen.findByText('이번 달 AI 조사 한도에 도달했습니다.')).toBeInTheDocument();
   expect(await findSource({name: /공공기록법 일부개정법률안/})).toBeChecked();
-  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('선택한 법안의 주요 내용을 근거와 함께 정리해 주세요.');
+  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('법안의 핵심은?');
   expect(screen.queryByRole('article', {name: '조사 화면'})).not.toBeInTheDocument();
   expect(posts).toBe(1);
 });
@@ -220,11 +226,11 @@ it('starts one real run, shows progress, restores the generated result and opens
   const user = userEvent.setup();
   await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
   await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
-  await user.click(screen.getByRole('button', {name: 'AI 조사 시작'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
   expect(postCount).toBe(1);
   expect(screen.queryByText('합성 근거에 맞춘 AI 해석')).not.toBeInTheDocument();
   await waitFor(() => expect(resolveRun).toBeTypeOf('function'));
-  expect(screen.getByRole('status', {name: '조사 상태'})).toHaveTextContent('요청 접수');
+  expect(screen.getByRole('status', {name: '브리핑 상태'})).toHaveTextContent('요청 접수');
   await act(async () => resolveRun(response(completedRun())));
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
   expect(screen.getAllByText(source.title).length).toBeGreaterThan(1);
@@ -293,7 +299,7 @@ it('allows a viewer to read a saved result while blocking AI submission', async 
   const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: [`/?view=research&run=${runId}`]});
   render(<RouterProvider router={router} />);
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
-  expect(screen.getByText('읽기 권한으로는 저장된 조사를 열람할 수 있습니다.')).toBeInTheDocument();
+  expect(screen.getByText('읽기 권한으로는 브리핑 기록을 열람할 수 있습니다.')).toBeInTheDocument();
   expect(screen.getByRole('button', {name: '후속 질문하기'})).toBeDisabled();
   expect(methods.every(method => method === 'GET')).toBe(true);
 });
@@ -312,8 +318,8 @@ it('cancels an active run and keeps its question visible', async () => {
   });
   const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: [`/?view=research&run=${runId}`]});
   render(<RouterProvider router={router} />);
-  await userEvent.setup().click(await screen.findByRole('button', {name: '조사 취소'}));
-  expect(await screen.findByText('조사가 취소되었습니다')).toBeInTheDocument();
+  await userEvent.setup().click(await screen.findByRole('button', {name: '생성 취소'}));
+  expect(await screen.findByText('생성이 취소되었습니다')).toBeInTheDocument();
   expect(cancelCount).toBe(1);
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('법안의 핵심은?');
 });
@@ -335,9 +341,9 @@ it('does not replace a saved run when an earlier submission responds late', asyn
   const user = userEvent.setup();
   await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
   await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '새 질문은?');
-  await user.click(screen.getByRole('button', {name: 'AI 조사 시작'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
-  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 기록'}));
   await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
   await act(async () => releasePost(response({...queuedRun(submitted), run_id: lateId})));
@@ -362,7 +368,10 @@ it.each([
   });
   const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: entries, initialIndex: index});
   render(<RouterProvider router={router} />);
-  await userEvent.setup().click(await screen.findByRole('button', {name: '핵심 정리'}));
+  const user = userEvent.setup();
+  await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
+  await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
+  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
   await act(async () => { await router.navigate(direction); });
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
@@ -387,9 +396,9 @@ it('keeps the current tab when a valid submission responds after a tab switch', 
   const user = userEvent.setup();
   await user.click(await findSource({name: /공공기록법 일부개정법률안/}));
   await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '새 질문은?');
-  await user.click(screen.getByRole('button', {name: 'AI 조사 시작'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
-  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 기록'}));
   await act(async () => releasePost(response(queuedRun(submitted))));
   expect(router.state.location.search).toBe(`?view=saved&run=${runId}`);
   expect(screen.getByText('요청 접수')).toBeInTheDocument();
@@ -414,14 +423,14 @@ it('allows cancellation again after a pending cancel was aborted by run navigati
   const router = createMemoryRouter([{path: '/', Component: Home}], {initialEntries: [`/?view=research&run=${runId}`]});
   render(<RouterProvider router={router} />);
   const user = userEvent.setup();
-  await user.click(await screen.findByRole('button', {name: '조사 취소'}));
+  await user.click(await screen.findByRole('button', {name: '생성 취소'}));
   expect(screen.getByRole('button', {name: '취소 중…'})).toBeDisabled();
-  await user.click(screen.getByRole('button', {name: '저장한 조사'}));
+  await user.click(screen.getByRole('button', {name: '브리핑 기록'}));
   await user.click(screen.getByRole('button', {name: '선택 해제'}));
   await waitFor(() => expect(firstCancelSignal?.aborted).toBe(true));
   await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
-  await user.click(screen.getByRole('button', {name: '홈'}));
-  const cancelAgain = await screen.findByRole('button', {name: '조사 취소'});
+  await user.click(screen.getByRole('button', {name: '브리핑'}));
+  const cancelAgain = await screen.findByRole('button', {name: '생성 취소'});
   expect(cancelAgain).toBeEnabled();
   await user.click(cancelAgain);
   expect(cancelCount).toBe(2);

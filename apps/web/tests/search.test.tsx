@@ -105,7 +105,7 @@ it('clears and cancels when workspace changes and ignores the late response', as
   setup((_url, init) => { signal = init?.signal as AbortSignal; return new Promise(resolve => { late = resolve; }); });
   const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', { name: '원문 검색' }), '합성');
   await user.click(screen.getByRole('button', { name: '검색' }));
-  await user.selectOptions(screen.getByRole('combobox', { name: '작업 공간' }), otherWorkspace);
+  await user.selectOptions(screen.getByRole('combobox', { name: '자료 범위' }), otherWorkspace);
   expect(signal?.aborted).toBe(true);
   expect(screen.getByRole('searchbox', { name: '원문 검색' })).toHaveValue('');
   await act(async () => late(response(result())));

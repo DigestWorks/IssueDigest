@@ -60,7 +60,7 @@ export default function BrandHeader({caption = '질문에서 시작하는 이슈
     <Link to="/" className="brand-identity" aria-label="IssueDigest 홈"><img className="brand-mark" src="/brand/issuedigest-mark-v1.png" width="32" height="32" alt="" /><span>IssueDigest</span></Link>
     <span className="brand-caption">{caption}</span>
     <div className="brand-actions"><ThemeToggle /><div className="account-control" ref={root} onKeyDown={keys} onBlur={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setOpen(false);}}>
-      <button type="button" ref={trigger} className="account-trigger" aria-label="계정 메뉴" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(value => !value)}><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></svg><span>계정</span></button>
+      <button type="button" ref={trigger} className="account-trigger" aria-label="계정 메뉴" title="계정 메뉴" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen(value => !value)}><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><circle cx="12" cy="8" r="3.5" /><path d="M5 21v-2a7 7 0 0 1 14 0v2" /></svg></button>
       {open && <div className="account-menu" role="menu" aria-label="계정" ref={menu}>
         {effective === 'guest' && <Link role="menuitem" to="/login" onClick={() => setOpen(false)}>로그인</Link>}
         {effective === 'authenticated' && <button type="button" role="menuitem" disabled={logoutPending || busy} onClick={() => void signOut()}>{logoutPending || busy ? '로그아웃 중…' : '로그아웃'}</button>}

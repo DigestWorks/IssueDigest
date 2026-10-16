@@ -10,9 +10,8 @@ it('offers basic navigation with explicit login inside the guest account menu', 
   vi.stubGlobal('fetch', async () => response({}, 401));
   render(<MemoryRouter><Home /></MemoryRouter>);
   expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('무엇이 궁금한가요?');
-  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('홈');
-  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('자료');
-  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('저장한 조사');
+  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('브리핑');
+  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('브리핑 기록');
   await screen.findByRole('button', {name: '질문하기'}); await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'}));
   expect(screen.getByRole('menuitem', { name: '로그인' })).toHaveAttribute('href', '/login');
 });

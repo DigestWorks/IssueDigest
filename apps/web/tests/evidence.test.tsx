@@ -77,7 +77,7 @@ it.each([[403, '자료가 없거나 접근 권한이 없습니다.'], [404, '자
   expect(await screen.findByText(message as string)).toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
   expect(router.state.location.pathname).toBe(path);
   expect(screen.queryByRole('link', { name: '로그인' })).not.toBeInTheDocument();
-  expect(screen.getByRole('link', { name: '작업 공간으로' })).toHaveAttribute('href', '/');
+  expect(screen.getByRole('link', { name: '브리핑으로' })).toHaveAttribute('href', '/');
   expect(screen.getByText(requestId).closest('details')).toBeInTheDocument();
 });
 it('retries through a cleared loading state and then a real response', async () => {

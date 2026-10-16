@@ -43,7 +43,6 @@ footer { display: flex; justify-content: space-between; gap: 16px; padding: 22px
 .workspace-choice label { font-size: 12px; color: var(--muted); }
 .workspace-choice select { max-width: 100%; min-width: 0; min-height: 44px; padding: 8px; border: 1px solid var(--control-border); background: var(--on-accent); color: var(--green); font: inherit; font-size: 12px; }
 select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
-.role-label { font-size: 11px; color: var(--muted); }
 .catalog-note, .catalog-empty p { font-size: 12px; color: var(--muted); }
 .catalog-empty { padding: 28px 0; }
 .catalog-list { list-style: none; padding: 0; margin: 20px 0 0; }
@@ -62,8 +61,6 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
 .workspace:not(.login-workspace):not(.evidence-workspace) > main > h1 { font-family: inherit; font-size: clamp(27px, 3.4vw, 38px); font-weight: 650; letter-spacing: -.045em; line-height: 1.5; }
 .workspace:not(.login-workspace):not(.evidence-workspace) > main > .intro { margin-top: 12px; max-width: 760px; font-size: 13px; line-height: 1.7; }
 .workspace:not(.login-workspace) .workspace-catalog { margin-top: 28px; padding-top: 18px; }
-.workspace-name { font-size: 14px; font-weight: 650; color: var(--green); }
-.workspace-choice .technical-details { margin-left: auto; }
 .catalog-title { margin: 25px 0 0; font-family: "Noto Serif KR", "Batang", serif; font-size: 19px; }
 .catalog-list { display: grid; gap: 0; }
 .catalog-list li { padding: 20px 0; }
@@ -91,7 +88,6 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
   .empty-state { margin-top: 40px; gap: 16px; padding: 28px 0; }
   footer { flex-direction: column; gap: 8px; }
   .workspace:not(.login-workspace) > main { padding-top: 28px; }
-  .workspace-choice .technical-details { margin-left: 0; width: 100%; }
   .catalog-meta .action-link { margin-left: 0; }
 }
 
@@ -154,10 +150,9 @@ textarea:focus-visible, input:focus-visible { outline: 2px solid var(--green); o
 .brand .brand-caption { margin-left: 10px; }
 .brand-actions { display: flex; gap: 8px; align-items: center; margin-left: auto; }
 .brand-actions button { font-size: 12px; padding: 8px 11px; min-height: 44px; border-color: transparent; color: var(--green); }
-.theme-toggle, .account-trigger { display: inline-flex; align-items: center; justify-content: center; gap: 7px; white-space: nowrap; }
-.theme-toggle > span:first-child { font-family: Georgia, serif; font-size: 20px; line-height: 1; }
+.brand-actions .theme-toggle, .brand-actions .account-trigger { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; }
 .account-control { position: relative; }
-.brand-actions .account-trigger { border-color: var(--line); border-radius: 7px; }
+.brand-actions .theme-toggle:focus-visible, .brand-actions .account-trigger:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .account-menu { position: absolute; top: calc(100% + 9px); right: 0; z-index: 10; width: 192px; padding: 6px; border: 1px solid var(--control-border); border-radius: 8px; background: var(--paper); box-shadow: 0 8px 24px rgb(0 0 0 / 12%); }
 .account-menu [role="menuitem"] { display: flex; align-items: center; min-height: 44px; width: 100%; padding: 10px 12px; color: var(--green); font-size: 13px; text-align: left; text-decoration: none; border: 0; border-radius: 4px; }
 .account-menu [role="menuitem"]:hover { background: var(--hover); }
@@ -174,7 +169,6 @@ input, textarea, select { max-width: 100%; }
   .brand-identity .brand-mark { width: 27px; height: 27px; }
   .brand-actions { gap: 3px; }
   .brand-actions button { padding-inline: 8px; }
-  .account-trigger > span { display: none; }
   .home-workspace .research-nav { gap: 20px; }
 }
 /* App-scoped overrides cover generated modules without changing package defaults. */

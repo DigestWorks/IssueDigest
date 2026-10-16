@@ -21,15 +21,15 @@ it('suggests only matching catalog sources, keeps the question and POSTs zero fo
   throw Error(path);
  });
  start(); const user=userEvent.setup();
- await screen.findByText(source.title);
+ await screen.findByLabelText('무엇을 알아볼까요?');
  await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'우주 탐사 현황');
- await user.click(screen.getByRole('button',{name:'AI 조사 시작'}));
+ await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
  expect(posts).toHaveLength(0);expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('우주 탐사 현황');
  expect(screen.getByRole('alert')).toHaveTextContent('자료를 선택');
  await user.clear(screen.getByLabelText('무엇을 알아볼까요?'));
  await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'2201234 제안 이유');
  expect(screen.getByLabelText('질문과 겹치는 연결 자료 후보')).toHaveTextContent(source.title);
- await user.click(screen.getByRole('button',{name:'AI 조사 시작'}));
+ await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
  await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].snapshot_ids).toEqual([snapshot]);
 });
 it.each(['failed','cancelled'] as const)('shows current exact raw citations before AI results and keeps them after %s',async(status)=> {
@@ -89,7 +89,7 @@ it('honors explicit source choices even when the question matches a different ca
  start();const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:'조사할 자료 선택'}));
  await user.click(await screen.findByRole('checkbox',{name:secondSource.title}));
  await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'2201234 제안 이유');
- await user.click(screen.getByRole('button',{name:'AI 조사 시작'}));
+ await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
  await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].snapshot_ids).toEqual([secondSource.snapshot_id]);
 });
 
@@ -112,7 +112,7 @@ it.each([401,403,404])('clears already readable originals and ignores pending re
  await waitFor(()=>expect(screen.queryByRole('blockquote')).not.toBeInTheDocument());
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
  expect(screen.getByText('원문을 다시 확인할 수 없습니다. 자료와 접근 권한을 확인해 주세요.')).toBeInTheDocument();
- expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('요청 접수');
+ expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
 });
 
 it('keeps the same selected source drawer through a poll and closes it when the run changes',async()=>{
@@ -175,11 +175,11 @@ it.each([401,403,404])('aborts a pending original on polling HTTP %s and retries
  });
  start(true);const user=userEvent.setup();await waitFor(()=>expect(originalReads).toBe(1));
  await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
- expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':status===403?'이 작업을 할 권한이 없습니다':'자료 또는 조사를 찾을 수 없습니다');
+ expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':status===403?'이 작업을 할 권한이 없습니다':'자료 또는 브리핑을 찾을 수 없습니다');
  expect(originalSignal?.aborted).toBe(true);
  await act(async()=>release(response(completedRun().result!.canvas.research.evidence[0])));
  expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
- await user.click(screen.getByRole('button',{name:'조사 다시 읽기'}));
+ await user.click(screen.getByRole('button',{name:'브리핑 다시 읽기'}));
  await screen.findByRole('blockquote');expect(originalReads).toBe(2);
 });
 
@@ -232,7 +232,7 @@ it('clears readable originals when a cancellation POST discovers revoked authori
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
  });
  start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
- await user.click(screen.getByRole('button',{name:'조사 취소'}));
+ await user.click(screen.getByRole('button',{name:'생성 취소'}));
  expect(await screen.findByRole('alert')).toHaveTextContent('이 작업을 할 권한이 없습니다');
  expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
 });
@@ -279,7 +279,7 @@ it.each([401,403,404])('clears a completed-run original and open drawer and abor
  });
  start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
  await waitFor(()=>expect(pendingLists).toHaveLength(2));
- expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('조사가 자동 저장되었습니다');
+ expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('브리핑 기록에 저장되었습니다');
  // Start a protected citation lookup, then open the already-readable same original while it is pending.
  await user.click(screen.getAllByRole('button',{name:/근거 열기: 공공기록법/})[0]);
  await waitFor(()=>expect(releaseLookup).toBeTypeOf('function'));
@@ -312,8 +312,8 @@ it('retains a new question typed after leaving a failed run while its URL transi
  });
  const router=createMemoryRouter([{path:'/',Component:App,HydrateFallback,children:[{index:true,Component:Home,loader:({request})=>new URL(request.url).searchParams.has('run')?null:new Promise<null>(resolve=>{releaseNavigation=resolve;})}]}],{initialEntries:[`/?view=research&run=${runId}`]});
  render(<RouterProvider router={router}/>);const user=userEvent.setup();
- await waitFor(()=>expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('조사를 완료하지 못했습니다'));
- await user.click(screen.getByRole('button',{name:'새 조사'}));
+ await waitFor(()=>expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('브리핑을 완료하지 못했습니다'));
+ await user.click(screen.getByRole('button',{name:'새 질문'}));
  await waitFor(()=>expect(releaseNavigation).toBeTypeOf('function'));
  await user.click(screen.getByRole('button',{name:'조사할 자료 선택'}));
  const choice=screen.getByRole('checkbox',{name:source.title});expect(choice).not.toBeChecked();

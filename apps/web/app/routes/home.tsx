@@ -13,12 +13,11 @@ type SessionState = { kind: 'loading' } | { kind: 'ready'; data: SessionInfo } |
 const messages: Record<AuthFailure, string> = {
   'invalid-query': '요청을 확인할 수 없습니다.', forbidden: '요청을 확인할 수 없습니다.',
   unauthorized: '로그인이 필요합니다.', 'not-found': '자료가 없거나 접근 권한이 없습니다.',
-  unavailable: '작업 공간이 아직 준비되지 않았거나 서버에 문제가 있습니다.',
+  unavailable: '자료 접근이 아직 준비되지 않았거나 서버에 문제가 있습니다.',
   malformed: '응답 형식을 확인할 수 없습니다.', network: '서버에 연결하지 못했습니다.',
   timeout: '응답을 기다리는 시간이 길어졌습니다.', aborted: '요청이 취소되었습니다.',
   conflict: '요청이 충돌했습니다.', budget: '이번 달 조사 한도에 도달했습니다.',
 };
-const roles = { viewer: '읽기', editor: '편집', owner: '관리' };
 
 export default function Home() {
   const drafts = useResearchDrafts();
@@ -96,14 +95,14 @@ export default function Home() {
     <div className="workspace home-workspace">
       <BrandHeader account={session.kind === 'ready' ? 'authenticated' : session.kind === 'loading' ? 'loading' : session.error.kind === 'unauthorized' ? 'guest' : 'unavailable'} onLogout={() => void signOut()} logoutPending={logoutPending} />
       <main>
-        <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>홈</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>저장한 조사</button><button type="button" aria-current={view === 'sources' ? 'page' : undefined} onClick={() => setView('sources')}>자료</button></nav>
+        <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>브리핑</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>브리핑 기록</button></nav>
         {view === 'research' && <p className="home-kicker">질문에서 시작해, 근거까지</p>}
-        <h1>{view === 'research' ? '무엇이 궁금한가요?' : view === 'sources' ? '자료' : '저장한 조사'}</h1>
+        <h1>{view === 'research' ? '무엇이 궁금한가요?' : view === 'sources' ? '자료에서 검색' : '브리핑 기록'}</h1>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
-        <section className="workspace-catalog" aria-label="작업 공간 자료">
-          {session.kind === 'loading' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
+        <section className="workspace-catalog" aria-label="브리핑">
+          {session.kind === 'loading' && <p role="status" aria-label="접근 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
           {session.kind === 'failure' && <>
-            {session.error.kind !== 'unauthorized' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">{messages[session.error.kind]}</p>}
+            {session.error.kind !== 'unauthorized' && <p role="status" aria-label="접근 상태" aria-live="polite">{messages[session.error.kind]}</p>}
             {session.error.kind === 'unauthorized' ? <>
               {view === 'research' && <form className="guest-composer" onSubmit={continueGuestQuestion}>
                 <label className="visually-hidden" htmlFor="guest-question">무엇이 궁금한가요?</label>
@@ -112,18 +111,16 @@ export default function Home() {
                 {guestError && <p role="alert">{guestError}</p>}
               </form>}
               <p className="public-briefing-note">공개 브리핑을 준비하고 있습니다.</p>
-            </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>작업 공간 다시 확인</button>}
+            </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>접근 상태 다시 확인</button>}
             {session.error.kind !== 'unauthorized' && <SupportInfo requestId={session.error.requestId} />}
           </>}
-          {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="작업 공간 상태">접근 가능한 작업 공간이 없습니다.</p> : <>
-            <div className="workspace-choice">
-              {session.data.memberships.length === 1 ? <span className="workspace-name">공동 조사 자료</span> : <><label htmlFor="workspace-choice">작업 공간</label>
-                <select id="workspace-choice" value={workspaceId} onChange={event => setWorkspaceId(event.target.value)}>
-                  {session.data.memberships.map((membership, index) => <option key={membership.workspace_id} value={membership.workspace_id}>공간 {index + 1}</option>)}
-                </select></>}
-              {membership && <span className="role-label" title={`${roles[membership.role]} 권한`}>{roles[membership.role]}</span>}
-              {membership && <TechnicalDetails><p>접근 권한: {roles[membership.role]}</p></TechnicalDetails>}
-            </div>
+          {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="접근 상태">접근 가능한 자료 범위가 없습니다.</p> : <>
+            {session.data.memberships.length > 1 && <div className="workspace-choice">
+              <label htmlFor="workspace-choice">자료 범위</label>
+              <select id="workspace-choice" value={workspaceId} onChange={event => setWorkspaceId(event.target.value)}>
+                {session.data.memberships.map((membership, index) => <option key={membership.workspace_id} value={membership.workspace_id}>범위 {index + 1}</option>)}
+              </select>
+            </div>}
             {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
             {workspaceId && !logoutPending && view === 'sources' && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
             {workspaceId && view === 'sources' && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
@@ -172,7 +169,7 @@ function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
   return <>
     <h2 className="catalog-title">저장된 자료</h2>
     <p role="status" aria-label="자료 목록 상태" aria-live="polite" className="catalog-note">저장된 자료 {state.data.items.length}개 · 최대 50개를 표시합니다.{state.data.has_more && ' 표시되지 않은 자료가 더 있습니다.'}</p>
-    {state.data.items.length === 0 ? <div className="catalog-empty"><h2>아직 등록된 자료가 없습니다.</h2><p>이 작업 공간에 저장된 원자료가 준비되면 함께 살펴봅니다.</p></div> : <ul className="catalog-list">
+    {state.data.items.length === 0 ? <div className="catalog-empty"><h2>아직 등록된 자료가 없습니다.</h2><p>접근 가능한 원자료가 준비되면 살펴볼 수 있습니다.</p></div> : <ul className="catalog-list">
       {state.data.items.map(item => <li key={item.snapshot_id}>
         <h3 className="catalog-item-title">{titles[item.snapshot_id] ?? `${sourceKind(item.source_kind)} 원문`}</h3>
         <div className="catalog-source"><span>{sourceKind(item.source_kind)}</span><span>{item.provider}</span></div>
