@@ -383,3 +383,110 @@ def test_concurrent_captures_keep_private_logs_suppressed_and_unrelated_logs_vis
             resume.set()
         assert slow.result(timeout=5)[0].bill_id == BILL
     assert [record.getMessage() for record in caplog.records] == ["unrelated request"]
+
+
+def test_valid_main_form_ignores_bounded_malformed_trailing_footer_without_metadata():
+    # The selected form and main body finish before the unrelated legacy footer.
+    # No browser repair is used to derive data from this invalid nested document.
+    html = GET.replace("</body>", "<footer><div><html></div>FOOTER-NOT-METADATA</footer></body>")
+    capture, requests = fetch(get=html)
+    assert len(requests) == 2 and capture.detail_html == html
+    from issuedigest_connectors.html import detail_fields
+
+    fields, _, display = detail_fields(html, BILL)
+    assert fields["billId"] == BILL
+    assert "합성법안" in display and "FOOTER-NOT-METADATA" not in display
+
+
+@pytest.mark.parametrize(
+    "critical",
+    [
+        '<form id="form"><input name="billId" value="SYNTHETIC_01"></form>',
+        '<meta name="_csrf" content="second-token">',
+    ],
+)
+def test_opaque_footer_still_rejects_duplicate_critical_selector(critical):
+    html = GET.replace("</body>", "<footer><div><html></div>" + critical + "</footer></body>")
+    seen = []
+
+    def response(request, count):
+        seen.append(count)
+        return httpx.Response(200, content=html.encode(), headers={"content-type": "text/html"})
+
+    with pytest.raises(sdk().AssemblyError):
+        fetch(handler=response)
+    assert seen == [1]
+
+
+@pytest.mark.parametrize(
+    "html,want",
+    [
+        ('<div id="prntSummary">visible<dialog>hidden</dialog></div>', "visible"),
+        (
+            '<div id="prntSummary">visible<datalist><option>hidden</option></datalist></div>',
+            "visible",
+        ),
+    ],
+)
+def test_native_hidden_elements_never_become_summary_or_metadata(html, want):
+    assert sdk().extract_assembly_summary(html) == want
+    from issuedigest_connectors.html import visible_text
+
+    assert visible_text(html) == want
+
+
+@pytest.mark.parametrize(
+    "html",
+    [
+        '<dialog id="prntSummary">hidden target</dialog>',
+        '<datalist id="prntSummary"><option>hidden target</option></datalist>',
+        '<dialog><div id="prntSummary">hidden ancestor</div></dialog>',
+        '<datalist><div id="prntSummary">hidden ancestor</div></datalist>',
+    ],
+)
+def test_native_hidden_context_cannot_constitute_or_contain_selected_summary(html):
+    with pytest.raises(sdk().AssemblyError):
+        sdk().extract_assembly_summary(html)
+
+
+@pytest.mark.parametrize(
+    "style", ["opacity:0", "color:transparent", "display:/**/none", "visibility:var(--state)"]
+)
+def test_unsupported_ancestor_visibility_fails_closed(style):
+    html = f'<div style="{style}"><pre id="prntSummary">hidden ancestor</pre></div>'
+    with pytest.raises(sdk().AssemblyError):
+        sdk().extract_assembly_summary(html)
+
+
+def test_profiled_ancestor_layout_allows_official_wrapper_and_ignores_unrelated_css_sibling():
+    html = (
+        '<html><div class="container bill_info" style="height: auto;">'
+        '<form><div class="theme_area bill_info_div"><div class="theme_list">'
+        '<pre id="prntSummary" class="theme_list_summary" style="height: 130px;">visible</pre>'
+        '</div></div></form></div><div style="opacity:0">unrelated</div></html>'
+    )
+    assert sdk().extract_assembly_summary(html) == "visible"
+
+
+@pytest.mark.parametrize("failure", ["unclosed_form", "duplicate_summary", "depth", "nodes"])
+def test_opaque_footer_keeps_selected_structure_and_resource_bounds(failure):
+    footer = "<footer><div><html></div>ignored</footer>"
+    html = GET.replace("</body>", footer + "</body>")
+    if failure == "unclosed_form":
+        html = html.replace("</form>", "")
+    if failure == "duplicate_summary":
+        html = html.replace("<h1>", '<div id="prntSummary">placeholder</div><h1>')
+        html = html.replace("ignored", '<pre id="prntSummary">another</pre>')
+    if failure == "depth":
+        html = html.replace("ignored", "<div>" * 65)
+    if failure == "nodes":
+        html = html.replace("ignored", "<br>" * 50_001)
+    seen = []
+
+    def response(request, count):
+        seen.append(count)
+        return httpx.Response(200, content=html.encode(), headers={"content-type": "text/html"})
+
+    with pytest.raises(sdk().AssemblyError):
+        fetch(handler=response)
+    assert seen == [1]

@@ -13,7 +13,7 @@ _BLOCK = frozenset(
         "table tbody td th thead tr ul"
     ).split()
 )
-_IGNORED = frozenset({"script", "style", "template", "noscript", "head"})
+_IGNORED = frozenset({"script", "style", "template", "noscript", "head", "datalist"})
 
 
 def bounded_html(value: str) -> str:
@@ -35,6 +35,7 @@ def _hidden(tag: str, attrs: dict[str, str | None]) -> bool:
     style = re.sub(r"\s+", "", attrs.get("style") or "").lower()
     return (
         tag in _IGNORED
+        or (tag == "dialog" and "open" not in attrs)
         or "hidden" in attrs
         or "inert" in attrs
         or (attrs.get("aria-hidden") or "").lower() == "true"
@@ -49,13 +50,16 @@ class _Document(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
         self.stack: list[tuple[str, bool]] = []
+        self.styles: list[str | None] = []
         self.nodes = 0
 
     @property
     def hidden(self) -> bool:
         return bool(self.stack and self.stack[-1][1])
 
-    def handle_starttag(self, tag: str, attributes: list[tuple[str, str | None]]) -> None:
+    def _attributes(
+        self, tag: str, attributes: list[tuple[str, str | None]]
+    ) -> dict[str, str | None]:
         self.nodes += 1
         if self.nodes > 50_000 or len(self.stack) >= 64 or len(attributes) > 64:
             raise ValueError("HTML structure budget exceeded")
@@ -71,10 +75,15 @@ class _Document(HTMLParser):
                 flags=re.I,
             ) is None:
                 raise ValueError("Non UTF-8 HTML declaration")
+        return attrs
+
+    def handle_starttag(self, tag: str, attributes: list[tuple[str, str | None]]) -> None:
+        attrs = self._attributes(tag, attributes)
         hidden = self.hidden or _hidden(tag, attrs)
         self.start(tag, attrs, hidden)
         if tag not in _VOID:
             self.stack.append((tag, hidden))
+            self.styles.append(attrs.get("style"))
 
     def handle_startendtag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         self.handle_starttag(tag, attrs)
@@ -86,6 +95,7 @@ class _Document(HTMLParser):
             raise ValueError("Malformed HTML nesting")
         self.end(tag)
         self.stack.pop()
+        self.styles.pop()
 
     def start(self, tag: str, attrs: dict[str, str | None], hidden: bool) -> None:
         pass
@@ -96,6 +106,9 @@ class _Document(HTMLParser):
     def parse(self, html: str) -> None:
         self.feed(bounded_html(html))
         self.close()
+        self.finish()
+
+    def finish(self) -> None:
         if self.stack:
             raise ValueError("Unclosed HTML")
 
@@ -134,6 +147,17 @@ class _Summary(_VisibleDocument):
             self.count += 1
             if self.count != 1 or hidden or tag in _VOID:
                 raise ValueError("Ambiguous summary")
+            for style in self.styles:
+                if (
+                    style
+                    and re.fullmatch(
+                        r"\s*height\s*:\s*(?:auto|[1-9][0-9]{0,3}px)\s*;?\s*",
+                        style,
+                        flags=re.I,
+                    )
+                    is None
+                ):
+                    raise ValueError("Unprofiled summary ancestor style")
             self.region = len(self.stack) + 1
         if self.region is not None:
             if not hidden:
@@ -205,8 +229,59 @@ class _Detail(_VisibleDocument):
         self.form_depth: int | None = None
         self.fields: dict[str, str] = {}
         self.tokens: list[str] = []
+        self.opaque_footer = False
+        self.footer_depth = 0
+        self.summary_selectors = 0
+
+    def _summary_selector(self, attrs: dict[str, str | None]) -> None:
+        if attrs.get("id") == "prntSummary":
+            self.summary_selectors += 1
+            if self.summary_selectors > 1:
+                raise ValueError("Duplicate summary selector")
+
+    def handle_starttag(self, tag: str, attributes: list[tuple[str, str | None]]) -> None:
+        if (
+            tag == "footer"
+            and self.forms == 1
+            and self.form_depth is None
+            and len(self.tokens) == 1
+            and all(name in {"html", "body"} for name, _ in self.stack)
+        ):
+            self.opaque_footer = True
+        if not self.opaque_footer:
+            super().handle_starttag(tag, attributes)
+            return
+        # An observed legacy footer embeds a broken document. It is opaque,
+        # never repaired or used as evidence/metadata. Still scan the entire
+        # bounded tail for critical selectors so ambiguity cannot hide here.
+        attrs = self._attributes(tag, attributes)
+        self._summary_selector(attrs)
+        if (tag == "form" and attrs.get("id") == "form") or (
+            tag == "meta" and attrs.get("name") == "_csrf"
+        ):
+            raise ValueError("Duplicate critical selector in footer")
+        if tag not in _VOID:
+            self.footer_depth += 1
+            if self.footer_depth + len(self.stack) > 64:
+                raise ValueError("Footer structure budget exceeded")
+
+    def handle_endtag(self, tag: str) -> None:
+        if self.opaque_footer:
+            # This is only a resource counter, not a recovered DOM stack.
+            self.footer_depth = max(0, self.footer_depth - 1)
+        else:
+            super().handle_endtag(tag)
+
+    def handle_data(self, data: str) -> None:
+        if not self.opaque_footer:
+            super().handle_data(data)
+
+    def finish(self) -> None:
+        if not self.opaque_footer:
+            super().finish()
 
     def start(self, tag: str, attrs: dict[str, str | None], hidden: bool) -> None:
+        self._summary_selector(attrs)
         super().start(tag, attrs, hidden)
         if tag == "form":
             if any(name == "form" for name, _ in self.stack):
