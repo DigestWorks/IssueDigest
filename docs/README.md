@@ -12,6 +12,7 @@
 | [작업 목록](planning/tasks.md) | 해야 할 일과 검증된 완료 항목 |
 | [진행 기록](planning/progress.md) | 현재 작업·검증 결과·다음 행동·인계 |
 | [제품 경험 인터뷰](research/product-experience-interview.md) | 질문·최근 이슈·사실/주장·반응·AI 태도에 대한 사용자 답변과 미정 방향 |
+| [브랜드·테마·로그인 진입](changes/brand-theme-entry.md) | 생성 로고·명시 테마·계정 메뉴와 행동 시 로그인 |
 | [브리핑 경험 첫 연결](changes/briefing-experience.md) | 질문 우선·로그인 초안·생성 중 원문·검증된 브리핑·본문 내 근거 확인 |
 | [국회 원문 연결기](changes/assembly-source-connector.md) | 첫 공식 원문 capture·정확 추출·명시 등록 준비와 자동 수집 경계 |
 | [첫 조사 흐름](changes/research-journey.md) | 자료 선택·AI 질문·생성 모듈·원문 인용·자동 저장의 수용 기준 |
