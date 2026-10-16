@@ -202,6 +202,7 @@ function SupportInfo({ requestId }: { requestId?: string }) {
   return requestId ? <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{requestId}</code></p></details> : null;
 }
 function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
+  const navigate = useNavigate();
   const [state, setState] = useState<{ kind: 'loading' } | { kind: 'ready'; data: EvidenceCatalog } | { kind: 'failure'; error: CatalogError }>({ kind: 'loading' });
   const [titles, setTitles] = useState<Record<string, string>>({});
   const [attempt, setAttempt] = useState(0);
@@ -209,9 +210,14 @@ function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
     const controller = new AbortController(); let current = true;
     void getEvidenceCatalog(workspaceId, { signal: controller.signal }).then(result => {
       if (current) setState({ kind: 'ready', data: result.data });
-    }, error => { if (current) setState({ kind: 'failure', error: error instanceof CatalogError ? error : new CatalogError('network') }); });
+    }, error => {
+      if (!current) return;
+      const failure = error instanceof CatalogError ? error : new CatalogError('network');
+      if (failure.kind === 'unauthorized') {void navigate('/login', {replace: true}); return;}
+      setState({kind: 'failure', error: failure});
+    });
     return () => { current = false; controller.abort(); };
-  }, [workspaceId, attempt]);
+  }, [workspaceId, attempt, navigate]);
   useEffect(() => {
     if (state.kind !== 'ready') return;
     const controller = new AbortController();
@@ -223,7 +229,6 @@ function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
   if (state.kind === 'loading') return <p role="status" aria-label="자료 목록 상태" aria-live="polite">자료 목록을 읽는 중…</p>;
   if (state.kind === 'failure') return <>
     <p role="status" aria-label="자료 목록 상태" aria-live="polite">{messages[state.error.kind]}</p>
-    {state.error.kind === 'unauthorized' && <p><Link to="/login" className="action-link">로그인</Link></p>}
     <button type="button" onClick={() => { setState({ kind: 'loading' }); setAttempt(value => value + 1); }}>자료 목록 다시 읽기</button>
     <SupportInfo requestId={state.error.requestId} />
   </>;

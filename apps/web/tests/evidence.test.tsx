@@ -7,6 +7,7 @@ import canvas from '../../../tests/fixtures/canvas-synthetic.json';
 import type { EvidenceBundle } from '@issuedigest/api-client';
 
 import EvidenceRoute from '../app/routes/evidence';
+import Login from '../app/routes/login';
 const workspace = '00000000-0000-4000-8000-000000000001';
 const snapshot = '00000000-0000-4000-8000-000000000099';
 const requestId = '8ff9af27-d021-4fb3-a46e-cf8c3d093c44';
@@ -14,7 +15,7 @@ const path = `/workspaces/${workspace}/evidence/${snapshot}`;
 const fixture = () => structuredClone(canvas.research.evidence[0]) as EvidenceBundle;
 const response = (body: unknown = fixture(), status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json', 'X-Request-ID': requestId, 'Cache-Control': 'no-store' } });
 function mount() {
-  const router = createMemoryRouter([{ path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }], { initialEntries: [path] });
+  const router = createMemoryRouter([{ path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }, {path: '/login', Component: Login}], { initialEntries: [path] });
   return { router, ...render(<RouterProvider router={router} />) };
 }
 afterEach(() => vi.useRealTimers());
@@ -71,11 +72,11 @@ it('shows precise empty states and an unregistered source link', async () => {
   vi.stubGlobal('fetch', async () => response(body)); mount();
   expect(await screen.findByText('저장된 인용이 없습니다.')).toBeInTheDocument(); expect(screen.getByText('파싱된 텍스트가 비어 있습니다.')).toBeInTheDocument(); expect(screen.getByText('원문 출처 미등록')).toBeInTheDocument();
 });
-it.each([[401, '로그인이 필요합니다.'], [404, '자료가 없거나 접근 권한이 없습니다.'], [503, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.'], [500, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.']])('shows safe HTTP %s state and support details only', async (status, message) => {
-  vi.stubGlobal('fetch', async () => response({ detail: 'PRIVATE' }, status as number)); mount();
+it.each([[403, '자료가 없거나 접근 권한이 없습니다.'], [404, '자료가 없거나 접근 권한이 없습니다.'], [503, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.'], [500, '자료 읽기가 아직 준비되지 않았거나 서버에 문제가 있습니다.']])('shows safe HTTP %s state and support details only', async (status, message) => {
+  vi.stubGlobal('fetch', async () => response({ detail: 'PRIVATE' }, status as number)); const {router} = mount();
   expect(await screen.findByText(message as string)).toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
-  if (status === 401) expect(screen.getByRole('link', { name: '로그인' })).toHaveAttribute('href', '/login');
-  else expect(screen.queryByRole('link', { name: '로그인' })).not.toBeInTheDocument();
+  expect(router.state.location.pathname).toBe(path);
+  expect(screen.queryByRole('link', { name: '로그인' })).not.toBeInTheDocument();
   expect(screen.getByRole('link', { name: '작업 공간으로' })).toHaveAttribute('href', '/');
   expect(screen.getByText(requestId).closest('details')).toBeInTheDocument();
 });
@@ -114,16 +115,16 @@ it('clears old evidence and selection synchronously on route ID change', async (
   expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(document.querySelector('mark')).toBeNull(); expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
   await act(async () => second(response())); await screen.findByRole('heading', { name: '원문과 인용' }); expect(document.querySelector('mark')).toBeNull();
 });
-it('ignores an earlier route response after the new route fails', async () => {
+it.each([200, 401])('ignores an earlier route HTTP%s response after the new route fails', async status => {
   let late!: (response: Response) => void; let signal: AbortSignal | undefined; let first = true;
   vi.stubGlobal('fetch', async (_url: string, init: RequestInit) => { if (first) { first = false; signal = init.signal as AbortSignal; return new Promise<Response>(resolve => { late = resolve; }); } return response({}, 404); });
   const { router } = mount(); await act(async () => { await router.navigate(path.replace(snapshot, '00000000-0000-4000-8000-000000000098')); });
-  await screen.findByText('자료가 없거나 접근 권한이 없습니다.'); await act(async () => late(response())); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(signal?.aborted).toBe(true);
+  await screen.findByText('자료가 없거나 접근 권한이 없습니다.'); await act(async () => late(response(status === 200 ? fixture() : {}, status))); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(signal?.aborted).toBe(true); expect(router.state.location.pathname).toBe(path.replace(snapshot, '00000000-0000-4000-8000-000000000098'));
 });
-it('aborts on unmount and ignores a late response', async () => {
+it.each([200, 401])('aborts on unmount and ignores a late HTTP%s response', async status => {
   let late!: (response: Response) => void; let signal: AbortSignal | undefined;
   vi.stubGlobal('fetch', (_url: string, init: RequestInit) => { signal = init.signal as AbortSignal; return new Promise<Response>(resolve => { late = resolve; }); });
-  const { unmount } = mount(); unmount(); expect(signal?.aborted).toBe(true); await act(async () => late(response())); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument();
+  const { unmount, router } = mount(); unmount(); expect(signal?.aborted).toBe(true); await act(async () => late(response(status === 200 ? fixture() : {}, status))); expect(screen.queryByText('원문과 인용')).not.toBeInTheDocument(); expect(router.state.location.pathname).toBe(path);
 });
 it('does not fetch malformed route IDs', async () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
@@ -180,4 +181,18 @@ it.each(['initial', 'repeated'])('scrolls the actual late highlighted quote on %
     if (descriptor) Object.defineProperty(HTMLElement.prototype, 'scrollIntoView', descriptor);
     else Reflect.deleteProperty(HTMLElement.prototype, 'scrollIntoView');
   }
+});
+
+it('redirects an explicitly opened protected reader only after its confirmed401 to fixed login without an inline CTA', async () => {
+  let finish!: (value: Response) => void;
+  const fetch = vi.fn<(path: string, init: RequestInit) => Promise<Response>>(() => new Promise<Response>(resolve => {finish = resolve;})); vi.stubGlobal('fetch', fetch);
+  const {router} = mount(); expect(router.state.location.pathname).toBe(path);
+  expect(screen.getByRole('status')).toHaveTextContent('읽는 중');
+  await act(async () => finish(response({detail: 'PRIVATE'}, 401)));
+  expect(await screen.findByRole('button', {name: 'Google로 로그인'})).toBeInTheDocument();
+  expect(router.state.location.pathname).toBe('/login'); expect(router.state.location.search).toBe(''); expect(router.state.location.hash).toBe('');
+  expect(screen.queryByRole('link', {name: '로그인'})).not.toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0]).toEqual([`/api/v1/workspaces/${workspace}/evidence/${snapshot}`, expect.objectContaining({credentials: 'same-origin'})]);
+  expect(fetch.mock.calls[0][1].method ?? 'GET').toBe('GET');
 });

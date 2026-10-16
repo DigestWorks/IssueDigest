@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { EvidenceError, getCitationUtf16Range, getEvidence, getResearchSources, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
 import './reader.css';
 import BrandHeader from '../brand-header';
@@ -19,6 +19,7 @@ const messages: Record<EvidenceFailure, string> = {
 
 export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceId: string; snapshotId: string }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const [sourceTitle, setSourceTitle] = useState<string | null>(null);
@@ -34,10 +35,15 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
           if (current && item) setSourceTitle(item.title);
         }, () => {});
       },
-      error => { if (current) setState({ kind: 'failure', error: error instanceof EvidenceError ? error : new EvidenceError('network') }); },
+      error => {
+        if (!current) return;
+        const failure = error instanceof EvidenceError ? error : new EvidenceError('network');
+        if (failure.kind === 'authentication') {void navigate('/login', {replace: true}); return;}
+        setState({ kind: 'failure', error: failure });
+      },
     );
     return () => { current = false; controller.abort(); };
-  }, [workspaceId, snapshotId, attempt]);
+  }, [workspaceId, snapshotId, attempt, navigate]);
   function retry() { setState({ kind: 'loading' }); setSourceTitle(null); setAttempt(value => value + 1); }
   const navigation = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : null;
   const researchOrigin = navigation?.kind === 'research-citation' || navigation?.kind === 'research-source';
@@ -50,7 +56,6 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}
         {state.kind === 'failure' && <>
           <h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">{messages[state.error.kind]}</p>
-          {state.error.kind === 'authentication' && <p className="reader-note"><Link to="/login" className="action-link">로그인</Link> 후 작업 공간에서 자료를 다시 열어 주세요.</p>}
           {state.error.kind !== 'invalid-link' && <button type="button" onClick={retry}>다시 읽기</button>}
           {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
         </>}

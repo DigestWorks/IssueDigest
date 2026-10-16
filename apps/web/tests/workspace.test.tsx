@@ -75,16 +75,15 @@ it('clears already visible items on selection and reloads a reselected workspace
   await user.selectOptions(screen.getByRole('combobox'), workspace); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();
   await act(async () => second(response(catalog(otherWorkspace)))); expect(screen.queryByText('두 번째 공간 합성 원문')).not.toBeInTheDocument();
 });
-it.each(['404', '503', 'cross-workspace', 'corrupt-json', 'unauthorized'])('safely handles catalog %s and retries', async kind => {
+it.each(['403', '404', '503', 'cross-workspace', 'corrupt-json'])('safely handles catalog %s and retries', async kind => {
   let failure = true; vi.stubGlobal('fetch', async (path: string) => {
     if (path.endsWith('/session')) return response(session());
     if (!failure) return response(catalog());
     if (kind === 'corrupt-json') return new Response('{PRIVATE', { headers });
     if (kind === 'cross-workspace') return response(catalog(otherWorkspace));
-    return response({ detail: 'PRIVATE' }, kind === 'unauthorized' ? 401 : Number(kind));
+    return response({ detail: 'PRIVATE' }, Number(kind));
   }); mount(); const retry = await screen.findByRole('button', { name: '자료 목록 다시 읽기' });
   expect(screen.queryByText('첫 공간 합성 원문')).not.toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
-  if (kind === 'unauthorized') expect(screen.getByRole('link', { name: '로그인' })).toHaveAttribute('href', '/login');
   failure = false; await userEvent.setup().click(retry); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();
 });
 it('distinguishes a verified empty catalog from the bounded has_more catalog', async () => {
@@ -143,4 +142,11 @@ it('cancels logout on unmount without applying a late success', async () => {
   vi.stubGlobal('fetch', (path: string, options: RequestInit) => path.endsWith('/logout') ? (signal = options.signal as AbortSignal, new Promise<Response>(done => { finish = done; })) : Promise.resolve(response(path.endsWith('/session') ? session() : catalog())));
   const { unmount, router } = mount(); await screen.findByText('첫 공간 합성 원문'); await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'})); await userEvent.setup().click(screen.getByRole('menuitem', { name: '로그아웃' }));
   unmount(); expect(signal.aborted).toBe(true); await act(async () => finish(new Response(null, { status: 204, headers }))); expect(router.state.location.pathname).toBe('/');
+});
+
+it('redirects a current catalog401 to fixed login without a body CTA after verified session', async () => {
+  vi.stubGlobal('fetch', async (path: string) => path.endsWith('/session') ? response(session()) : response({detail: 'PRIVATE'}, 401));
+  const {router} = mount(); await screen.findByRole('heading', {name: '로그인 도착'});
+  expect(router.state.location.pathname).toBe('/login'); expect(router.state.location.search).toBe('');
+  expect(screen.queryByRole('link', {name: '로그인'})).not.toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
 });
