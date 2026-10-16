@@ -154,3 +154,24 @@ it('rechecks publication before a different exact citation in the open original 
  options.withdrawn=true;await user.click(within(drawer).getByRole('button',{name:/인용 2/}));
  await screen.findByText('이 브리핑은 현재 읽을 수 없습니다.');expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 });
+it.each(['이전에 작성한 질문',''])('explicit public handoff replaces an existing member home draft %j once and preserves later edits without automatic POST',async previous=>{
+ const fallback=api({member:true});const submissions:Record<string,unknown>[]=[];
+ vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
+  if(options.method==='POST'){submissions.push(JSON.parse(options.body as string) as Record<string,unknown>);return response({},503);}
+  return fallback(path);
+ });const {router}=mount();const user=userEvent.setup();
+ const original=await screen.findByRole('textbox',{name:'무엇을 알아볼까요?'});
+ await user.type(original,'이전에 작성한 질문');if(!previous)await user.clear(original);
+ await user.click(await screen.findByRole('link',{name:first.title}));await screen.findByRole('heading',{name:first.title});
+ const publicQuestion=screen.getByRole('textbox',{name:'이 브리핑에서 이어갈 질문'});await user.clear(publicQuestion);await user.type(publicQuestion,'새로 이어갈 공개 질문');
+ await user.click(screen.getByRole('button',{name:'질문 이어가기'}));
+ const restored=await screen.findByRole('textbox',{name:'무엇을 알아볼까요?'});expect(restored).toHaveValue('새로 이어갈 공개 질문');
+ expect(submissions).toHaveLength(0);expect(router.state.location.search).toBe('');expect(sessionStorage.getItem('issuedigest.guest-question.v1')).toBeNull();
+ await user.type(restored,'을 편집함');
+ await user.click(await screen.findByRole('link',{name:first.title}));await screen.findByRole('heading',{name:first.title});
+ await user.click(screen.getByRole('link',{name:'질문으로 돌아가기'}));
+ expect(await screen.findByRole('textbox',{name:'무엇을 알아볼까요?'})).toHaveValue('새로 이어갈 공개 질문을 편집함');expect(submissions).toHaveLength(0);
+ await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));await waitFor(()=>expect(submissions).toHaveLength(1));
+ expect(submissions[0]).toMatchObject({question:'새로 이어갈 공개 질문을 편집함',parent_run_id:null});
+ expect(Object.keys(submissions[0]).sort()).toEqual(['parent_run_id','question','request_id']);
+});

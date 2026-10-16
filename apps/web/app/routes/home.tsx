@@ -54,6 +54,8 @@ export default function Home() {
         const params = entryParams.current;
         const newResearch = !params.has('run') && params.get('view') !== 'saved';
         const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
+        // An explicit incoming question replaces this member's new-question draft once.
+        if (question !== null) drafts.write(firstWorkspace, null, {question});
         setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
         setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
       }
