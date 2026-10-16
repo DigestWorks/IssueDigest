@@ -26,7 +26,7 @@ export default function Login() {
     submitted.current = true; setPending(true);
   }
   return <div className="workspace login-workspace">
-    <BrandHeader account="guest" />
+    <BrandHeader />
     <main>
       <p className="eyebrow">질문을 이어가는 곳</p>
       <h1>궁금한 이슈를<br />근거와 함께 살펴보세요.</h1>

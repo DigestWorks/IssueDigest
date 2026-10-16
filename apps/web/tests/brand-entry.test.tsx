@@ -35,7 +35,7 @@ it('still switches theme when preference storage is denied and renders without b
   finally {vi.stubGlobal('window', browserWindow);}
 });
 it('keeps login inside the account menu and supports arrows, Escape, outside click and focus return', async () => {
-  mount('/login'); const user = userEvent.setup(); const account = screen.getByRole('button', {name: '계정 메뉴'});
+  vi.stubGlobal('fetch', async () => response({}, 401)); mount('/login'); const user = userEvent.setup(); const account = screen.getByRole('button', {name: '계정 메뉴'});
   expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   account.focus(); await user.keyboard('{ArrowDown}');
   expect(screen.getByRole('menuitem', {name: '로그인'})).toHaveFocus();
@@ -103,7 +103,7 @@ it('closes account menu while preserving an intentional click into the guest que
   expect(screen.queryByRole('menu')).not.toBeInTheDocument(); expect(input).toHaveFocus();
 });
 it('lets Tab leave the open account menu toward the next page action', async () => {
-  mount('/login'); const user = userEvent.setup();
+  vi.stubGlobal('fetch', async () => response({}, 401)); mount('/login'); const user = userEvent.setup();
   await user.click(screen.getByRole('button', {name: '계정 메뉴'}));
   expect(screen.getByRole('menuitem', {name: '로그인'})).toHaveFocus();
   await user.tab(); expect(screen.queryByRole('menu')).not.toBeInTheDocument();

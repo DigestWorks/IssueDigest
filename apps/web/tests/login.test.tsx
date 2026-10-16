@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { expect, it, vi } from 'vitest';
 import routes from '../app/routes';
+import { response, session } from './workspace-data';
 import Login from '../app/routes/login';
 function mount(query = '') {
   return render(<MemoryRouter initialEntries={[`/login${query}`]}><Login /></MemoryRouter>);
@@ -40,4 +41,28 @@ it('supports keyboard focus without fabricating a provider sign-in UI', async ()
 it('can render the SPA login shell without browser APIs or side effects', async () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
   expect(renderToString(<MemoryRouter initialEntries={['/login']}><Login /></MemoryRouter>)).toContain('Google로 로그인'); expect(fetch).not.toHaveBeenCalled();
+});
+
+it.each(['authenticated', 'guest', 'network'])('resolves %s account state lazily on login without starting OAuth', async state => {
+  const fetch = vi.fn(async () => {
+    if (state === 'network') throw new TypeError('offline');
+    return response(state === 'authenticated' ? session() : {}, state === 'guest' ? 401 : 200);
+  });
+  vi.stubGlobal('fetch', fetch); mount(); expect(fetch).not.toHaveBeenCalled();
+  await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'}));
+  if (state === 'authenticated') {
+    expect(await screen.findByRole('menuitem', {name: '로그아웃'})).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그인'})).not.toBeInTheDocument();
+  } else if (state === 'guest') {
+    expect(await screen.findByRole('menuitem', {name: '로그인'})).toHaveAttribute('href', '/login');
+    expect(screen.queryByRole('menuitem', {name: '로그아웃'})).not.toBeInTheDocument();
+  } else {
+    expect(await screen.findByRole('menuitem', {name: '다시 확인'})).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그인'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그아웃'})).not.toBeInTheDocument();
+  }
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0]).toEqual(['/api/v1/auth/session', expect.objectContaining({method: 'GET', credentials: 'same-origin'})]);
+  const form = screen.getByRole('button', {name: 'Google로 로그인'}).closest('form');
+  expect(form).toHaveAttribute('method', 'post'); expect(form).toHaveAttribute('action', '/api/v1/auth/google/start');
 });
