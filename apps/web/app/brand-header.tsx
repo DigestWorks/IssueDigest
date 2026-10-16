@@ -42,7 +42,7 @@ export default function BrandHeader({caption = '질문에서 시작하는 이슈
     const controller = new AbortController(); request.current = controller; setBusy(true); setError('');
     try {
       await logout({signal: controller.signal});
-      if (!controller.signal.aborted) {drafts.clear(); clearGuestQuestionDraft(); void navigate('/login', {replace: true});}
+      if (!controller.signal.aborted) {drafts.clear(); clearGuestQuestionDraft(); setChecked('guest'); close(); void navigate('/login', {replace: true});}
     } catch {if (!controller.signal.aborted) setError('로그아웃하지 못했습니다. 다시 시도해 주세요.');}
     finally {if (!controller.signal.aborted) setBusy(false);}
   }

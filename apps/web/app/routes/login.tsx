@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useSearchParams } from 'react-router';
+import { Link, useLocation, useSearchParams } from 'react-router';
 import BrandHeader from '../brand-header';
 import { readGuestQuestionDraft } from '../guest-question';
 
@@ -10,6 +10,7 @@ const feedback = new Map([
 ]);
 export default function Login() {
   const [params] = useSearchParams();
+  const {key: locationKey} = useLocation();
   const errors = params.getAll('error');
   const message = errors.length === 1 ? feedback.get(errors[0]) : undefined;
   const [draft, setDraft] = useState<string | null>(null);
@@ -20,7 +21,7 @@ export default function Login() {
     const reset = () => { submitted.current = false; setPending(false); setDraft(readGuestQuestionDraft()); };
     window.addEventListener('pageshow', reset);
     return () => window.removeEventListener('pageshow', reset);
-  }, []);
+  }, [locationKey]);
   function submit(event: FormEvent<HTMLFormElement>) {
     if (submitted.current) { event.preventDefault(); return; }
     submitted.current = true; setPending(true);
