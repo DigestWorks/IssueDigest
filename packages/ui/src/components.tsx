@@ -1,3 +1,4 @@
+import {claimClassification} from '@issuedigest/api-client';
 import type { CanvasAction, Claim, Relation } from '@issuedigest/api-client';
 import type { CitationDisplay, DisplayContext } from './prepare';
 
@@ -11,6 +12,15 @@ export const predicates: Record<Relation['predicate'], string> = {
 };
 export function Basis({value, aiGenerated}: {value: Claim['basis']; aiGenerated?: boolean}) {
   return <span className="id-canvas-basis">{aiGenerated && value === 'inference' ? 'AI 해석' : bases[value]}</span>;
+}
+const assessmentHelp = '선택한 인용에 대한 AI 평가입니다. 독립적인 사실 검증이 아닙니다.';
+export function Classification({claim, context}: {claim:Claim; context:DisplayContext}) {
+  const assessment = claimClassification(claim, context.supportReviews);
+  if (!assessment) return null;
+  return <details className="id-canvas-classification">
+    <summary title={assessmentHelp} aria-describedby={`assessment-${claim.claim_id}`}>{assessment.label}</summary>
+    <p id={`assessment-${claim.claim_id}`}>{assessmentHelp}</p><p>{assessment.rationale}</p>
+  </details>;
 }
 export function sourceTitle(documentId: string, context: DisplayContext, titles?: Record<string, string>) {
   return titles?.[documentId] ?? context.documents.get(documentId)!.source_id;

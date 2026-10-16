@@ -580,7 +580,7 @@ def test_plain_publisher_metadata_is_scoped_to_unique_direct_info(change):
         raw = raw.replace(
             "</body>",
             '<div class="variety"><div class="info"><span>2026.01.15</span>'
-            '<span>합성부처</span></div></div></body>',
+            "<span>합성부처</span></div></div></body>",
         )
     with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_metadata$"):
         extract(raw.encode())

@@ -43,7 +43,9 @@ function validDetail(value: unknown, expectedSlug: string, expectedVersion?: num
     || !validResearchCanvas(value.canvas, value.canvas.research.workspace_id, value.canvas.revision.run_id, value.source_titles)
     || !Array.isArray(value.sources) || value.sources.length < 1 || value.sources.length > 5 || !isObject(value.source_titles)) return false;
   const detail = value as unknown as PublicBriefingDetail;
-  if (detail.canvas.revision.draft.outcome !== 'answer') return false;
+  if (detail.canvas.revision.draft.outcome !== 'answer'
+    || detail.canvas.research.support_reviews.length !== 0
+    || detail.canvas.research.claims.some(claim => !['research-v1', 'research-v2'].includes(claim.derivation?.method_version ?? ''))) return false;
   const evidence = detail.canvas.research.evidence;
   if (new Set(evidence.map(item=>item.document.document_id)).size !== evidence.length || evidence.length !== detail.sources.length) return false;
   const sourceIds = new Set<string>();

@@ -67,9 +67,9 @@ MAX_CITATIONS_PER_SOURCE = 32
 MAX_CITATIONS_TOTAL = 100
 
 
-def _checked_prompt(payload: dict[str, object]) -> str:
+def _checked_prompt(payload: dict[str, object], byte_limit: int = INPUT_PROMPT_BYTE_LIMIT) -> str:
     prompt = json.dumps(payload, ensure_ascii=False)
-    if len(prompt.encode("utf-8")) > INPUT_PROMPT_BYTE_LIMIT:
+    if len(prompt.encode("utf-8")) > byte_limit:
         raise ValueError("provider input exceeds pre-request budget")
     return prompt
 
@@ -101,6 +101,16 @@ def model_prompt(
     sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
     parent: str | None = None,
 ) -> str:
+    return _model_prompt(question, sources, parent)
+
+
+def _model_prompt(
+    question: str,
+    sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
+    parent: str | None = None,
+    *,
+    byte_limit: int = INPUT_PROMPT_BYTE_LIMIT,
+) -> str:
     limited_sources = sources[:5]
     documents: list[dict[str, object]] = []
     remaining = 12_000
@@ -110,7 +120,7 @@ def model_prompt(
         "prior_interpretation_context": parent[:1500] if parent else None,
         "sources": documents,
     }
-    _checked_prompt(payload)
+    _checked_prompt(payload, byte_limit)
     for snapshot_id, bundle, presentation in limited_sources:
         citations: list[dict[str, str]] = []
         document: dict[str, object] = {
@@ -120,7 +130,7 @@ def model_prompt(
             "collected_at": bundle.version.collected_at.isoformat(),
             "citations": citations,
         }
-        _checked_prompt({**payload, "sources": [*documents, document]})
+        _checked_prompt({**payload, "sources": [*documents, document]}, byte_limit)
         for citation in bundle.citations:
             if len(citations) >= MAX_CITATIONS_PER_SOURCE or total_citations >= MAX_CITATIONS_TOTAL:
                 break
@@ -134,7 +144,7 @@ def model_prompt(
             document = {**document, "citations": candidate_citations}
             candidate = [*documents, document]
             try:
-                _checked_prompt({**payload, "sources": candidate})
+                _checked_prompt({**payload, "sources": candidate}, byte_limit)
             except ValueError:
                 continue
             citations = candidate_citations
@@ -144,7 +154,7 @@ def model_prompt(
             documents.append({**document, "citations": citations})
     if not documents:
         raise ValueError("No usable citations")
-    return _checked_prompt(payload)
+    return _checked_prompt(payload, byte_limit)
 
 
 def build_canvas(

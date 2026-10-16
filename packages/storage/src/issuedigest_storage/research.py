@@ -493,6 +493,37 @@ class ResearchRepository:
             insert(research_events).values(run_id=row["run_id"], sequence=sequence, status=status)
         )
 
+    def worker_states(self, run_ids: tuple[UUID, ...]) -> dict[UUID, RunStatus]:
+        """Read only owned application states for bounded DBOS recovery metadata checks."""
+
+        def read(conn: Connection) -> dict[UUID, RunStatus]:
+            return {
+                row.run_id: row.status
+                for row in conn.execute(
+                    select(research_runs.c.run_id, research_runs.c.status).where(
+                        research_runs.c.run_id.in_(run_ids)
+                    )
+                )
+            }
+
+        return self._transaction(read)
+
+    def worker_active_runs(self, after: UUID | None = None) -> tuple[tuple[UUID, RunStatus], ...]:
+        """Page active rows without reopening originals, sessions or provider requests."""
+
+        def read(conn: Connection) -> tuple[tuple[UUID, RunStatus], ...]:
+            query = select(research_runs.c.run_id, research_runs.c.status).where(
+                research_runs.c.status.in_(["queued", "retrieving", "generating", "validating"])
+            )
+            if after is not None:
+                query = query.where(research_runs.c.run_id > after)
+            return tuple(
+                (row.run_id, row.status)
+                for row in conn.execute(query.order_by(research_runs.c.run_id).limit(20))
+            )
+
+        return self._transaction(read)
+
     def queued_ids(self) -> tuple[UUID, ...]:
         def read(conn: Connection) -> tuple[UUID, ...]:
             return tuple(

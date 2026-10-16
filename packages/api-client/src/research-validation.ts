@@ -1,4 +1,5 @@
-/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2. */
+/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2/v3. */
+import {validResearchClassifications} from './research-classification';
 import { isDisplayEvidence } from './evidence';
 import { hasKeys, isId, isObject } from './protected-request';
 
@@ -6,20 +7,8 @@ const same = (a: unknown, b: unknown) => isId(a) && isId(b) && a.toLowerCase() =
 const nonblank = (value: unknown, max: number) =>
   typeof value === 'string' && value.length <= max && value.trim().length > 0;
 
-export function exactDay(value: unknown): value is string {
-  if (typeof value !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
-  const [year, month, date] = value.split('-').map(Number);
-  const leap = year! % 4 === 0 && (year! % 100 !== 0 || year! % 400 === 0);
-  const days = [31, leap ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-  return year! > 0 && month! >= 1 && month! <= 12 && date! >= 1 && date! <= days[month! - 1]!;
-}
-
-export function exactTimestamp(value: unknown): value is string {
-  if (typeof value !== 'string') return false;
-  const parts = /^(\d{4}-\d{2}-\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d{1,6})?(?:Z|\+00:00)$/.exec(value);
-  return parts !== null && exactDay(parts[1]) && Number(parts[2]) < 24
-    && Number(parts[3]) < 60 && Number(parts[4]) < 60 && Number.isFinite(Date.parse(value));
-}
+export {exactDay, exactTimestamp} from './research-time';
+import {exactDay, exactTimestamp} from './research-time';
 
 function ids(value: unknown, minimum: number, maximum: number): string[] | null {
   if (!Array.isArray(value) || value.length < minimum || value.length > maximum
@@ -50,7 +39,7 @@ export function validResearchCanvas(
     || !Array.isArray(research.entities) || research.entities.length !== 0
     || !Array.isArray(research.relations) || research.relations.length !== 0
     || !Array.isArray(research.observations) || research.observations.length !== 0
-    || !Array.isArray(research.support_reviews) || research.support_reviews.length !== 0
+    || !Array.isArray(research.support_reviews)
     || !Array.isArray(research.claims) || research.claims.length > 12) return false;
   if (!hasKeys(revision, ['schema_version', 'revision_id', 'workspace_id', 'run_id',
     'revision_number', 'parent_revision_id', 'selected_version_ids', 'draft',
@@ -100,7 +89,7 @@ export function validResearchCanvas(
       || !isObject(claim.derivation)
       || !hasKeys(claim.derivation, ['method', 'method_version', 'rationale'])
       || claim.derivation.method !== 'pydantic-ai'
-      || !['research-v1', 'research-v2'].includes(claim.derivation.method_version as string)
+      || !['research-v1', 'research-v2', 'research-v3'].includes(claim.derivation.method_version as string)
       || !nonblank(claim.derivation.rationale, 200)) return false;
     const claimCitations = selectedCitations(claim.citation_ids, citations, 3);
     if (!claimCitations) return false;
@@ -116,6 +105,8 @@ export function validResearchCanvas(
     }
     claims.set(claim.claim_id.toLowerCase(), {citations: claimCitations, day: period});
   }
+
+  if (!validResearchClassifications(research, revision)) return false;
 
   const draft = revision.draft;
   if (!hasKeys(draft, ['schema_version', 'draft_id', 'outcome', 'modules', 'message'])

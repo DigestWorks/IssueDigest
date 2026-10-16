@@ -78,3 +78,26 @@ def test_run_provenance_bounds_and_completed_result_integrity() -> None:
         ).snapshot_ids
         == ()
     )
+
+
+@pytest.mark.parametrize(
+    "version,digest",
+    [
+        ("research-v1", "9f5455f3845e67ef61e5231c01814d6b13e5969794568a2591823d9389f4578e"),
+        ("research-v2", "594e91a73122d45a56d9c03936929230c93bd38416f3740f8dcce16b83a090c0"),
+    ],
+)
+def test_legacy_result_canonical_payload_and_hash_are_unchanged(version, digest):
+    from issuedigest_domain.public_briefings import canonical_hash
+    from issuedigest_domain.research_journey import ResearchResult
+
+    path = (
+        Path(__file__).resolve().parents[3]
+        / "packages/api-client/tests/fixtures/research-run-generated.json"
+    )
+    payload = json.loads(path.read_text())["result"]
+    payload["canvas"]["research"]["claims"][0]["derivation"]["method_version"] = version
+    result = ResearchResult.model_validate(payload)
+    assert result.model_dump(mode="json") == payload
+    assert canonical_hash(result.model_dump(mode="json")) == digest
+    assert result.canvas.research.support_reviews == ()

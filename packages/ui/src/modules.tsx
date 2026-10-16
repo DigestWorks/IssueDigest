@@ -1,5 +1,5 @@
 import type { CanvasModule } from '@issuedigest/api-client';
-import { Basis, EvidenceCard, EvidenceLinks, endpointText, predicates, speaker } from './components';
+import { Basis, Classification, EvidenceCard, EvidenceLinks, endpointText, predicates, speaker } from './components';
 import type { ActionHandler } from './components';
 import type { DisplayContext } from './prepare';
 import { Chart } from './chart';
@@ -11,13 +11,13 @@ export function ModuleContent({module, context, sourceTitles, onAction, presenta
     case 'evidence': return <div>{module.citation_ids.map(id => <EvidenceCard key={id} display={context.citations.get(id)!} context={context} sourceTitles={sourceTitles} onAction={onAction} />)}</div>;
     case 'summary': return <ul className="id-canvas-claims">{module.claim_ids.map(id => {
       const claim = context.claims.get(id)!;
-      return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
+      return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><Classification claim={claim} context={context}/><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
     })}</ul>;
     case 'comparison': if (presentation === 'briefing') return <>
       <p className="id-canvas-note">{sourceTitles ? '자료별 AI 해석을 주장별로 읽습니다.' : '전달된 주장을 하나씩 읽습니다.'}</p>
       <ol className="id-canvas-claims" aria-label="주장별 비교">{module.claim_ids.map(id => {
         const claim = context.claims.get(id)!;
-        return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
+        return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><Classification claim={claim} context={context}/><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
       })}</ol>
     </>;
     return <>
@@ -26,7 +26,7 @@ export function ModuleContent({module, context, sourceTitles, onAction, presenta
         <table><caption>주장 비교</caption><thead><tr><th scope="col">{sourceTitles ? '근거 자료' : '발화 주체'}</th><th scope="col">내용</th><th scope="col">구분</th><th scope="col">근거</th></tr></thead>
           <tbody>{module.claim_ids.map(id => {
             const claim = context.claims.get(id)!;
-            return <tr key={id}><th scope="row">{speaker(claim, context, sourceTitles)}</th><td>{claim.text}</td><td><Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></td><td><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></td></tr>;
+            return <tr key={id}><th scope="row">{speaker(claim, context, sourceTitles)}</th><td>{claim.text}</td><td><Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /><Classification claim={claim} context={context}/></td><td><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></td></tr>;
           })}</tbody>
         </table>
       </div>
@@ -36,7 +36,7 @@ export function ModuleContent({module, context, sourceTitles, onAction, presenta
       return <ol className="id-canvas-timeline">{claims.map(claim => <li key={claim.claim_id}>
         <p className="id-canvas-period">{claim.valid_period!.start_date === claim.valid_period!.end_date ? claim.valid_period!.start_date : `${claim.valid_period!.start_date} – ${claim.valid_period!.end_date}`}</p>
         <p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p>
-        <EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} />
+        <Classification claim={claim} context={context}/><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} />
       </li>)}</ol>;
     }
     case 'graph': return <div className="id-canvas-relations">{module.relation_ids.map(id => {

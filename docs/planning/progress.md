@@ -1,5 +1,15 @@
 # 진행 기록
 
+## 구현·합성 검사 · 공식 근거·AI 분류 Task3 · 2026-10-16
+
+- 작업/관련 요구: R2/R3/R4/R6·D021, `feat/evidence-exploration`, [변경 명세](../changes/evidence-exploration.md). Task1의 화면 구성을 유지하고 Task2의 명시 수집/준비 경로를 소비한다.
+- 구현: 새 private research-v3 typed category/300자 설명을 기존 SupportReview에 정확1개/claim로 기록하고 접근 가능한 작은 펼침 도움말로 연결했다. inference·AI 해석 label과 선택 인용의 AI 평가임을 유지한다. 기존 Claim/default·v1/v2 canonical 결과·공개v1 hash·D020 공개 경계를 바꾸지 않았다.
+- 복구: 공용 DBOS3.2 API로 원래 이름/기록 application_version cohort를 회복한 뒤 새 queued 요청만v3로 시작한다. 실제 동결v2 worker 모델 checkpoint 뒤 SIGKILL→새 worker의 구 결과 재생·새v3 실행, 모델 요청 안 SIGKILL→재호출 없음·실패/예약 유지, session advisory lock→중복 기동 거부/첫 요청 보존을 합성 PostgreSQL로 확인했다. 최초v2 업그레이드는 중지된 기존 worker·활성 작업 정리가 필요하다.
+- 검증/미검증: 관련 Python/전용 PostgreSQL852개 통과(기존 third-party event-loop deprecation warning1개), 마지막 잠금 연결 상실 보완 후 worker/recovery23개 통과. JS 전체535개/28파일·Ruff/format·mypy101소스·JS lint/types·생산 SPA·계약 검사를 통과했다. 합성 분류·인용/마이크로초 UTC·legacy/public hash·DBOS 복구/중복 기동/취소/권한·기존 원문/로그인/race 회귀를 확인했다. 최종 명령/결과·변경 파일은 `.superpowers/sdd/evidence-exploration/task-3-report.md`에 인계한다. 전체 결합 검사·독립 UI·실제 모델 품질은 controller 후속이다.
+- 실제 적용/남은 입력: active 개발 자료는 기존12건이다. Task2 실제 기사 추가13/37/27 확인은 격리 복원본 검증까지이며 active 등록/새 API·worker·정적 웹 반영은 대기다. 기존 계정/세션·공개1건은 보존하며 실제 private ID/원문·접속/키는 공개 기록에 남기지 않는다.
+- 다음 행동/Sites: controller가 전체 검사·독립 인수·백업/복원·명시 자료 추가·개인 개발 반영 후 Draft PR·Sites를 갱신한다. 현재 Sites 반영 대기, main/운영 유예 유지.
+
+
 ## 구현·합성 검사 · 브리핑 디자인 Task1 · 2026-10-16
 
 - 요구사항/담당: [근거 탐색 계획 Task1](../changes/evidence-exploration.md), `feat/evidence-exploration`. 홈·로그인·공개/비공개 브리핑·공유 기록·원문 창의 앱 색상/타이포/간격을 통합했다. 한국어 serif fallback과 중복 시각 제목을 제거하고 기존 로고·테마/계정 아이콘·44px/초점·정확 인용·native details/dialog 계약을 유지한다. 새 폰트/의존성이나 API/데이터 변경은 없다.

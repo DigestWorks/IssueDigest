@@ -73,3 +73,7 @@
 .id-canvas .id-briefing-detail > summary:focus-visible { outline:2px solid var(--id-green); outline-offset:3px; }
 .id-canvas[data-presentation="briefing"] .id-canvas-claims { margin-top:16px; }
 .id-canvas[data-presentation="briefing"] .id-canvas-claims p { line-height:1.85; }
+.id-canvas .id-canvas-classification { margin: 8px 0; font-size: .85rem; color: var(--id-muted); }
+.id-canvas .id-canvas-classification summary { display: list-item; width: fit-content; min-height: 44px; align-content: center; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.id-canvas .id-canvas-classification summary:focus-visible { outline: 2px solid currentColor; outline-offset: 3px; }
+.id-canvas .id-canvas-classification p { max-width: 65ch; font-size: inherit; overflow-wrap: anywhere; }
