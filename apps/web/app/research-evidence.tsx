@@ -1,10 +1,11 @@
 import {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {EvidenceError, getEvidence, type Citation, type EvidenceBundle, type ResearchRun} from '@issuedigest/api-client';
+import {EvidenceError, getEvidence, type Citation, type EvidenceBundle, type ResearchRun, type PublicSourceAttribution} from '@issuedigest/api-client';
 import {SavedEvidence} from './evidence/reader';
 import {sourceKind} from './evidence/presentation';
 
 type Loaded = {snapshotId:string; data:EvidenceBundle; title:string};
-type Reader = Loaded & {identity:string; citationId:string; origin:HTMLElement | null};
+export type EvidenceReaderState = Loaded & {identity:string; citationId:string; origin:HTMLElement | null; attribution?:PublicSourceAttribution};
+type Reader = EvidenceReaderState;
 const titleFor = (data:EvidenceBundle, titles:Record<string,string>) => titles[data.document.document_id] ?? `${sourceKind(data.document.source_kind)} 원문`;
 
 function selectorKey(selector:Citation['selector']) {
@@ -73,7 +74,7 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, hi
     </>,
   };
 }
-function EvidenceDrawer({reader,workspaceId,onClose}:{reader:Reader;workspaceId:string;onClose:()=>void}) {
+export function EvidenceDrawer({reader,workspaceId,onClose,onCitation}:{reader:Reader;workspaceId:string;onClose:()=>void;onCitation?:(id:string)=>void}) {
   const modal=useRef<HTMLDialogElement>(null);
   const searchState=useRef({kind:'research-citation',citationId:reader.citationId});
   useLayoutEffect(()=>{
@@ -82,6 +83,6 @@ function EvidenceDrawer({reader,workspaceId,onClose}:{reader:Reader;workspaceId:
   },[reader.origin]);
   return <dialog ref={modal} className="research-evidence-drawer" aria-label="원문과 인용 읽기" onCancel={event=>{event.preventDefault();onClose();}} onClose={onClose}>
     <div className="research-drawer-heading"><span>선택한 근거</span><button type="button" onClick={onClose} autoFocus>닫기</button></div>
-    <div className="research-drawer-body"><SavedEvidence data={reader.data} workspaceId={workspaceId} snapshotId={reader.snapshotId} title={reader.title} searchState={searchState.current}/></div>
+    <div className="research-drawer-body">{reader.attribution && <p className="reader-note">{reader.attribution.attribution} · 공공누리 제1유형 · 사진 및 외부 저작물 제외</p>}<SavedEvidence onCitationSelect={onCitation} publisher={reader.attribution?.publisher} publicCopy={Boolean(reader.attribution)} data={reader.data} workspaceId={workspaceId} snapshotId={reader.snapshotId} title={reader.title} searchState={searchState.current}/></div>
   </dialog>;
 }

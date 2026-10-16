@@ -4,8 +4,9 @@ import '../evidence/reader.css';
 import BrandHeader from '../brand-header';
 import { AuthError, getSession, logout, type AuthFailure, type SessionInfo } from '@issuedigest/api-client';
 import ResearchDesk from '../research';
+import {PublicBriefingList} from '../public-briefings';
 import { useResearchDrafts } from '../research-drafts';
-import { clearGuestQuestionDraft, consumeGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
+import { clearGuestQuestionDraft, consumeGuestQuestionDraft, readGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
 
 type SessionState = { kind: 'loading' } | { kind: 'ready'; data: SessionInfo } | { kind: 'failure'; error: AuthError };
 const messages: Record<AuthFailure, string> = {
@@ -20,7 +21,7 @@ const messages: Record<AuthFailure, string> = {
 export default function Home() {
   const drafts = useResearchDrafts();
   const navigate = useNavigate();
-  const [guestQuestion, setGuestQuestion] = useState('');
+  const [guestQuestion, setGuestQuestion] = useState(() => readGuestQuestionDraft() ?? '');
   const [guestError, setGuestError] = useState('');
   const [restoredQuestion, setRestoredQuestion] = useState<{userId: string; workspaceId: string; question: string} | null>(null);
   const [session, setSession] = useState<SessionState>({ kind: 'loading' });
@@ -53,6 +54,8 @@ export default function Home() {
         const params = entryParams.current;
         const newResearch = !params.has('run') && params.get('view') !== 'saved';
         const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
+        // An explicit incoming question replaces this member's new-question draft once.
+        if (question !== null) drafts.write(firstWorkspace, null, {question});
         setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
         setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
       }
@@ -113,6 +116,7 @@ export default function Home() {
             {workspaceId && !logoutPending && <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />}
           </>)}
         </section>
+        {view === 'research' && !viewParams.has('run') && <PublicBriefingList/>}
       </main>
       <footer>DigestWorks <span>자료와 근거를 차분히 살펴보는 곳</span></footer>
     </div>

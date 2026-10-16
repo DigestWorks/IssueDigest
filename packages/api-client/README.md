@@ -90,3 +90,10 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 
 
 `submitResearch(workspaceId, {request_id, question, parent_run_id?}, options?)`는 질문과 선택적인 완료 부모 실행만 허용합니다. snapshot_ids/임의 필드·빈 질문·잘못된ID는 전송 전에 거부합니다. `ResearchRun.snapshot_ids`는 서버가 찾은0~5개 근거의 기록입니다. queued/무근거실패의 빈 근거와 완료 결과의1개 이상 근거를 구분하며 잘못된 상태/이벤트/결과는 거부합니다. 저장된 research-v1과 신규 research-v2의 정확 인용/Canvas를 모두 검증해 읽습니다. 전용 research source catalog 클라이언트/타입/endpoint는 없습니다.
+
+
+## 익명 공개 브리핑 GET
+
+`listPublicBriefings(options?)`, `getPublicBriefing(slug, version?, options?)`과 생성 계약의 PublicBriefingSummary/Detail/List·PublicSourceAttribution·PublicBriefingErrorResponse 타입을 제공합니다. slug와 안전한 양의 정수 버전은 fetch 전 검사합니다. GET은 same-origin/no-store이며 JSON·요청 ID/no-store 헤더·정확 필드/형식·최대20목록·5자료/12claims/4모듈·고유 ID/참조·공개 provenance·공식 policyNewsView URL·출처 title/date/hash 대응·정확 인용을 검증합니다. 보호 연구의 bounded Canvas/evidence 검증은 그대로 공유합니다.
+
+기본10초 deadline은 헤더/본문에 적용하며 외부 abort·timeout·network·404·503·malformed를 구분합니다. 원시 오류 본문을 표시하지 않고 자동 재시도/쓰기/모델/세션 요청을 하지 않습니다. 서버가 공개 UUID namespace와 전체 canonical payload digest를 검증합니다. 브라우저는 hash 형식과 같은 고정 버전의 불변 hash를 비교하며 Python canonical 숫자 직렬화를 별도로 재구현하지 않습니다. 클라이언트 암호학적 증명·자동 사실/권리 판정을 주장하지 않습니다. 서버가 검토한 공개 source만 원문 창에 전달합니다.

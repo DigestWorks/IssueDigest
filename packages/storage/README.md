@@ -375,3 +375,63 @@ coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분�
 운영자가 검증한 외부 제목은 `ResearchRepository.upsert_presentation(SourcePresentation(..., profile="operator-verified-v1"))`로 snapshot/workspace별 저장합니다. 자료 종류 기본 제목 외의 임의 본문 첫 줄을 제목으로 추정하지 않습니다. 기존 `legacy-bill-metadata-v1`만 정해진 첫 줄·의안번호·제안일을 검증해 자동으로 표시합니다.
 
 새 요청은 질문/부모 맥락의 멱등 해시와queued/빈 근거를 저장합니다. `research_retrieval`은 기존 `search_evidence`의 실제 색인을 최대8개 검색어로 조회해 일치도/결정적 동률 순서로 최대5개 snapshot을 찾습니다. `worker_load`는 현재 권한·run잠금 아래 검색/정확 원문 로드·근거 기록·retrieving 전환을 한 트랜잭션으로 고정합니다. 복구에서는 고정된 근거만 읽으며 무근거는0모델호출/insufficient_evidence로 종료합니다. 부모 근거 재사용은 완료된 부모와 유효 검색어 없는 일반 후속 질문으로 제한하며 명시 새 주제의 실패에 임의 적용하지 않습니다. 과거 저장 결과를 다시 쓰지 않습니다.
+
+## 검토한 공개 브리핑
+
+`0007_public_briefings`는 기존 자료·세션·조사 행과 분리된 `public_briefing_heads`,
+`public_briefings`를 추가합니다. 소유자만 명시 migration을 실행합니다. 기본 API import는
+연결하거나 migration·게시를 실행하지 않습니다. 설정된 서버 factory는 기존 엔진을
+`PublicBriefingRepository(engine)`에 명시 주입합니다. 서비스 역할에는 두 공개 테이블의
+`SELECT`만 부여합니다. 게시 운영자에는 `SELECT/INSERT/UPDATE`와 transaction advisory lock
+실행 권한이 필요하며 DDL·DELETE 권한은 필요하지 않습니다. 실제 역할 이름·권한 적용은
+운영자가 별도로 확인하며 CLI가 권한을 바꾸지 않습니다.
+
+게시 입력 `issuedigest_domain.public_briefings.PublicBriefingPlan`은 명시 공개 표제·설명·기준시각,
+UUID4 공개 식별자, 순차 버전, 검토할 전체 Canvas와 각 문서의 `PublicSourceReview`를 받습니다.
+출처 검토에는 정확한 `document_id`, `official_url`, `title`, `publisher`, `published_on`,
+`checked_at`, `reviewer`, `license="kogl-type-1"`, `attribution`, `text_sha256`,
+`photos_excluded=true`, `third_party_material_excluded=true`가 모두 필요합니다.
+첫 지원 URL은 `https://www.korea.kr/news/policyNewsView.do?newsId=` 뒤 ASCII 숫자뿐이며
+다른 호스트·경로·query·fragment·자격정보·명시 포트는 허용하지 않습니다. 같은 사이트의
+다른 문서에 이용권을 추정하지 않습니다. 검토자는 해당 문서의 공공누리1유형 조건과
+사진·외부 저작물 제외를 개별 확인하고, 자유 텍스트 전체의 공개 적합성도 검토해야 합니다.
+이는 자동 개인정보 제거·사실 판정이 아닙니다.
+
+Canvas는 기존 연구 v1/v2의 요약·비교·타임라인과 마지막 근거 모듈, 정확 인용,
+`open_evidence` 액션으로 제한합니다. 최대5개 자료·12개 주장·4개 모듈을 받으며
+생성/변환 문구의 inference provenance를 보존합니다. `as_of`는 내용 기준시각이므로
+수집보다 이를 수 있지만 모든 출처 발행일 이후여야 합니다. 개별 권리 검토는 기준시각·수집
+이후, 발행은 검토 이후여야 합니다. 원문 text/pages/tables/selector/인용·수집시각을 보존하고
+내부 식별자는 공개 ID·버전별 독립 UUID4로 일관 변환합니다. parser는
+`public-reviewed-copy` / `1` / `public-reviewed-copy-v1`로 표시합니다.
+
+절대 경로·현재 사용자 소유·0400/0600 일반 파일만 읽습니다. symlink·FIFO·중복 JSON 키·
+비유한 수치·추가 필드와8MiB 초과 입력은 거부합니다. 다음 명령의 경로와 해시는 운영자가
+검토한 비공개 파일과 출력값으로 대체합니다. 기본 명령은 네트워크·DB 없이 검증합니다.
+
+```sh
+uv run --package issuedigest-storage python -m issuedigest_storage.public_briefing_cli /absolute/private-plan.json
+uv run --package issuedigest-storage python -m issuedigest_storage.public_briefing_cli /absolute/private-plan.json --check-database
+uv run --package issuedigest-storage python -m issuedigest_storage.public_briefing_cli /absolute/private-plan.json --apply --reviewed-sha256 FULL_PLAN_SHA256
+uv run --package issuedigest-storage python -m issuedigest_storage.public_briefing_cli /absolute/private-plan.json --withdraw --reviewed-sha256 FULL_PLAN_SHA256
+```
+
+DB 명령은 `ISSUEDIGEST_DATABASE_URL`의 명시 PostgreSQL+psycopg URL을 사용하며 query override를
+거부합니다. `plan_sha256`는 전체 검증 모델의 기본값·UTC 정규화값을 포함한 JSON을
+`sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False`로 직렬화한
+UTF-8 SHA256입니다. 공백이나 키 순서 자체의 서명은 아닙니다. 전체 내용을 검토한 이 해시가
+정확히 일치해야 쓰며 검토자·본문·비밀 URL을 오류/로그에 출력하지 않습니다.
+
+같은 slug/version/계획 재시도는 같은 시각·공개 데이터·해시를 반환합니다. 다른 내용의 덮어쓰기,
+버전 건너뛰기, 공개 ID 재사용, 철회된 버전 재활성화는 충돌입니다. 동일 slug는 실제 PostgreSQL
+transaction advisory lock과 latest CAS로 직렬화합니다. 최신 철회 뒤 과거 버전을 최신으로
+되살리지 않으며 특정 과거 버전은 자체 철회 전까지 읽을 수 있습니다. `content_sha256`는
+자기 hash 필드만 제외한 전체 `PublicBriefingDetail`의 동일 canonical JSON SHA256입니다.
+DB의 payload/hash/행 참조·검토 기록·최대 버전/연속 이력/latest hash를 다시 검증하고 손상은
+고정 오류로 처리합니다. 클라이언트가 이미 받은 데이터를 원격 삭제하는 기능은 아닙니다.
+
+익명 읽기는 `/api/v1/briefings`, `/api/v1/briefings/{slug}`,
+`/api/v1/briefings/{slug}/versions/{version}`의 GET뿐입니다. 최신 공개 목록은20개 이하입니다.
+모두 `Cache-Control: no-store`, `X-Request-ID`와 검증된 JSON을 반환하며 미설정503,
+없음/철회404, 잘못된 입력422에는 입력을 되돌리지 않습니다. 공개 읽기는 두 공개 테이블만
+SELECT하고 세션·모델·DBOS·예산·비공개 저장소를 호출하지 않습니다. 공개 게시 HTTP API는 없습니다.

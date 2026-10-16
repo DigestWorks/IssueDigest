@@ -53,10 +53,10 @@ it('shows a quiet guest home with one question action and no repeated login noti
   expect(submit).toBeDisabled(); expect(sessionStorage.getItem('issuedigest.guest-question.v1')).toBeNull();
 });
 it.each(['saved'])('opens login only after confirmed guest navigation to private %s', async () => {
-  const fetch = vi.fn(async () => response({}, 401)); vi.stubGlobal('fetch', fetch); const {router} = mount();
+  const fetch = vi.fn(async (path:string) => response(path === '/api/v1/briefings' ? {items:[]} : {}, path === '/api/v1/briefings' ? 200 : 401)); vi.stubGlobal('fetch', fetch); const {router} = mount();
   await screen.findByRole('textbox', {name: '무엇이 궁금한가요?'});
   await userEvent.setup().click(screen.getByRole('button', {name: '브리핑 기록'}));
-  expect(router.state.location.pathname).toBe('/login'); expect(fetch.mock.calls).toHaveLength(1);
+  expect(router.state.location.pathname).toBe('/login'); expect(fetch.mock.calls.map(([path])=>path).sort()).toEqual(['/api/v1/auth/session','/api/v1/briefings']);
 });
 it.each(['saved'])('waits for confirmed session before redirecting direct private %s without calling protected APIs', async view => {
   let finish!: (value: Response) => void; const fetch = vi.fn(() => new Promise<Response>(resolve => {finish = resolve;}));

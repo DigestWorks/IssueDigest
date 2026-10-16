@@ -2794,6 +2794,245 @@
         "title": "PricingSnapshot",
         "type": "object"
       },
+      "PublicBriefingDetail": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "canvas": {
+            "$ref": "#/components/schemas/CanvasBundle"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 350,
+            "title": "Description",
+            "type": "string"
+          },
+          "public_id": {
+            "format": "uuid4",
+            "title": "Public Id",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "slug": {
+            "maxLength": 80,
+            "minLength": 3,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "title": "Slug",
+            "type": "string"
+          },
+          "source_titles": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "propertyNames": {
+              "format": "uuid4"
+            },
+            "title": "Source Titles",
+            "type": "object"
+          },
+          "sources": {
+            "items": {
+              "$ref": "#/components/schemas/PublicSourceAttribution"
+            },
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Sources",
+            "type": "array"
+          },
+          "title": {
+            "maxLength": 150,
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "slug",
+          "public_id",
+          "version",
+          "title",
+          "description",
+          "as_of",
+          "published_at",
+          "content_sha256",
+          "canvas",
+          "source_titles",
+          "sources"
+        ],
+        "title": "PublicBriefingDetail",
+        "type": "object"
+      },
+      "PublicBriefingError": {
+        "additionalProperties": false,
+        "properties": {
+          "detail": {
+            "enum": [
+              "Public briefing not found",
+              "Public briefing service unavailable",
+              "Invalid public briefing request"
+            ],
+            "title": "Detail",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail"
+        ],
+        "title": "PublicBriefingError",
+        "type": "object"
+      },
+      "PublicBriefingList": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/PublicBriefingSummary"
+            },
+            "maxItems": 20,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "PublicBriefingList",
+        "type": "object"
+      },
+      "PublicBriefingSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "as_of": {
+            "format": "date-time",
+            "title": "As Of",
+            "type": "string"
+          },
+          "content_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Content Sha256",
+            "type": "string"
+          },
+          "description": {
+            "maxLength": 350,
+            "title": "Description",
+            "type": "string"
+          },
+          "public_id": {
+            "format": "uuid4",
+            "title": "Public Id",
+            "type": "string"
+          },
+          "published_at": {
+            "format": "date-time",
+            "title": "Published At",
+            "type": "string"
+          },
+          "slug": {
+            "maxLength": 80,
+            "minLength": 3,
+            "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+            "title": "Slug",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 150,
+            "title": "Title",
+            "type": "string"
+          },
+          "version": {
+            "maximum": 9007199254740991.0,
+            "minimum": 1.0,
+            "title": "Version",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "slug",
+          "public_id",
+          "version",
+          "title",
+          "description",
+          "as_of",
+          "published_at",
+          "content_sha256"
+        ],
+        "title": "PublicBriefingSummary",
+        "type": "object"
+      },
+      "PublicSourceAttribution": {
+        "additionalProperties": false,
+        "properties": {
+          "attribution": {
+            "maxLength": 1000,
+            "title": "Attribution",
+            "type": "string"
+          },
+          "document_id": {
+            "format": "uuid4",
+            "title": "Document Id",
+            "type": "string"
+          },
+          "license": {
+            "const": "kogl-type-1",
+            "title": "License",
+            "type": "string"
+          },
+          "official_url": {
+            "maxLength": 180,
+            "title": "Official Url",
+            "type": "string"
+          },
+          "published_on": {
+            "format": "date",
+            "title": "Published On",
+            "type": "string"
+          },
+          "publisher": {
+            "maxLength": 255,
+            "title": "Publisher",
+            "type": "string"
+          },
+          "text_sha256": {
+            "pattern": "^[0-9a-f]{64}$",
+            "title": "Text Sha256",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 255,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "document_id",
+          "official_url",
+          "title",
+          "publisher",
+          "published_on",
+          "license",
+          "attribution",
+          "text_sha256"
+        ],
+        "title": "PublicSourceAttribution",
+        "type": "object"
+      },
       "ReconciliationResolvedPayload": {
         "additionalProperties": false,
         "properties": {
@@ -5208,6 +5447,368 @@
           }
         ],
         "summary": "Session"
+      }
+    },
+    "/api/v1/briefings": {
+      "get": {
+        "operationId": "list_briefings_api_v1_briefings_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingList"
+                }
+              }
+            },
+            "description": "Validated public publication",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing not found",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Invalid public briefing request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing service unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "List Briefings"
+      }
+    },
+    "/api/v1/briefings/{slug}": {
+      "get": {
+        "operationId": "latest_briefing_api_v1_briefings__slug__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 80,
+              "minLength": 3,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "title": "Slug",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingDetail"
+                }
+              }
+            },
+            "description": "Validated public publication",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing not found",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Invalid public briefing request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing service unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Latest Briefing"
+      }
+    },
+    "/api/v1/briefings/{slug}/versions/{version}": {
+      "get": {
+        "operationId": "versioned_briefing_api_v1_briefings__slug__versions__version__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "slug",
+            "required": true,
+            "schema": {
+              "maxLength": 80,
+              "minLength": 3,
+              "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$",
+              "title": "Slug",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "version",
+            "required": true,
+            "schema": {
+              "pattern": "^[1-9][0-9]{0,15}$",
+              "title": "Version",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingDetail"
+                }
+              }
+            },
+            "description": "Validated public publication",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing not found",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Invalid public briefing request",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "503": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicBriefingError"
+                }
+              }
+            },
+            "description": "Public briefing service unavailable",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Versioned Briefing"
       }
     },
     "/api/v1/status": {

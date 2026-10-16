@@ -72,6 +72,57 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/briefings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Briefings */
+        get: operations["list_briefings_api_v1_briefings_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefings/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Latest Briefing */
+        get: operations["latest_briefing_api_v1_briefings__slug__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/briefings/{slug}/versions/{version}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Versioned Briefing */
+        get: operations["versioned_briefing_api_v1_briefings__slug__versions__version__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/status": {
         parameters: {
             query?: never;
@@ -1380,6 +1431,110 @@ export interface components {
             /** Unit Quantity */
             unit_quantity: number;
         };
+        /** PublicBriefingDetail */
+        PublicBriefingDetail: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            canvas: components["schemas"]["CanvasBundle"];
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Description */
+            description: string;
+            /**
+             * Public Id
+             * Format: uuid4
+             */
+            public_id: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /** Slug */
+            slug: string;
+            /** Source Titles */
+            source_titles: {
+                [key: string]: string;
+            };
+            /** Sources */
+            sources: components["schemas"]["PublicSourceAttribution"][];
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /** PublicBriefingError */
+        PublicBriefingError: {
+            /**
+             * Detail
+             * @enum {string}
+             */
+            detail: "Public briefing not found" | "Public briefing service unavailable" | "Invalid public briefing request";
+        };
+        /** PublicBriefingList */
+        PublicBriefingList: {
+            /** Items */
+            items: components["schemas"]["PublicBriefingSummary"][];
+        };
+        /** PublicBriefingSummary */
+        PublicBriefingSummary: {
+            /**
+             * As Of
+             * Format: date-time
+             */
+            as_of: string;
+            /** Content Sha256 */
+            content_sha256: string;
+            /** Description */
+            description: string;
+            /**
+             * Public Id
+             * Format: uuid4
+             */
+            public_id: string;
+            /**
+             * Published At
+             * Format: date-time
+             */
+            published_at: string;
+            /** Slug */
+            slug: string;
+            /** Title */
+            title: string;
+            /** Version */
+            version: number;
+        };
+        /** PublicSourceAttribution */
+        PublicSourceAttribution: {
+            /** Attribution */
+            attribution: string;
+            /**
+             * Document Id
+             * Format: uuid4
+             */
+            document_id: string;
+            /**
+             * License
+             * @constant
+             */
+            license: "kogl-type-1";
+            /** Official Url */
+            official_url: string;
+            /**
+             * Published On
+             * Format: date
+             */
+            published_on: string;
+            /** Publisher */
+            publisher: string;
+            /** Text Sha256 */
+            text_sha256: string;
+            /** Title */
+            title: string;
+        };
         /** ReconciliationResolvedPayload */
         ReconciliationResolvedPayload: {
             /** Attempt Ids */
@@ -2383,6 +2538,188 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["AuthUnavailableError"];
+                };
+            };
+        };
+    };
+    list_briefings_api_v1_briefings_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated public publication */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingList"];
+                };
+            };
+            /** @description Public briefing not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Invalid public briefing request */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Public briefing service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+        };
+    };
+    latest_briefing_api_v1_briefings__slug__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated public publication */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingDetail"];
+                };
+            };
+            /** @description Public briefing not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Invalid public briefing request */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Public briefing service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+        };
+    };
+    versioned_briefing_api_v1_briefings__slug__versions__version__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                slug: string;
+                version: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Validated public publication */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingDetail"];
+                };
+            };
+            /** @description Public briefing not found */
+            404: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Invalid public briefing request */
+            422: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
+                };
+            };
+            /** @description Public briefing service unavailable */
+            503: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicBriefingError"];
                 };
             };
         };

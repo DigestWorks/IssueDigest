@@ -12,9 +12,11 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from issuedigest_domain.status import Liveness, ServiceStatus
 from issuedigest_storage import EvidenceAccessRepository, WorkspaceAccessRepository
+from issuedigest_storage.public_briefings import PublicBriefingRepository
 from issuedigest_storage.research import ResearchRepository
 
 from .auth import AuthService, auth_router
+from .briefings import briefings_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
 from .evidence import evidence_router
@@ -45,6 +47,10 @@ def _auth_path(path: str) -> bool:
     return path == "/api/v1/auth" or path.startswith("/api/v1/auth/")
 
 
+def _public_path(path: str) -> bool:
+    return path == "/api/v1/briefings" or path.startswith("/api/v1/briefings/")
+
+
 def _protected_path(path: str) -> bool:
     return (
         _auth_path(path)
@@ -63,12 +69,17 @@ def create_app(
     workspace_repository: WorkspaceAccessRepository | None = None,
     research_repository: ResearchRepository | None = None,
     research_model_available: bool = True,
+    public_repository: PublicBriefingRepository | None = None,
 ) -> IssueDigestAPI:
     """Configure only from trusted server code; the default protected route fails closed."""
     application = IssueDigestAPI(title="IssueDigest API", version="v1")
 
     @application.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exception: RequestValidationError) -> Response:
+        if _public_path(request.url.path):
+            return JSONResponse(
+                status_code=422, content={"detail": "Invalid public briefing request"}
+            )
         if not _protected_path(request.url.path):
             return await request_validation_exception_handler(request, exception)
         validated = EvidencePathValidationError.model_validate(
@@ -95,19 +106,26 @@ def create_app(
     ) -> Response:
         identifier = str(uuid4())
         protected = _protected_path(request.url.path)
+        public = _public_path(request.url.path)
         try:
             response = await call_next(request)
         except Exception:
             # Do not include exceptions, cookies, paths or source text in logs.
             logger.error("Unhandled request error request_id=%s", identifier)
             response = JSONResponse(
-                status_code=503 if protected else 500,
+                status_code=503 if protected or public else 500,
                 content={
                     "detail": (
                         "Authentication service unavailable"
                         if _auth_path(request.url.path)
                         else (
-                            "Evidence service unavailable" if protected else "Internal server error"
+                            "Public briefing service unavailable"
+                            if public
+                            else (
+                                "Evidence service unavailable"
+                                if protected
+                                else "Internal server error"
+                            )
                         )
                     )
                 },
@@ -124,7 +142,12 @@ def create_app(
                 status_code=422, content={"detail": "Invalid evidence search request"}
             )
         response.headers["X-Request-ID"] = identifier
-        if protected:
+        if public and response.status_code in {307, 308}:
+            response = JSONResponse(
+                status_code=422, content={"detail": "Invalid public briefing request"}
+            )
+            response.headers["X-Request-ID"] = identifier
+        if protected or public:
             response.headers["Cache-Control"] = "no-store"
         return response
 
@@ -144,6 +167,7 @@ def create_app(
         research_router(research_repository, auth_service, model_available=research_model_available)
     )
     application.include_router(evidence_router(access_repository))
+    application.include_router(briefings_router(public_repository))
     return application
 
 

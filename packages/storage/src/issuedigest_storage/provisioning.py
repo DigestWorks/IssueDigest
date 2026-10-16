@@ -11,6 +11,8 @@ from sqlalchemy.engine import URL, make_url
 
 from .auth_schema import auth_identity_invites
 from .oauth import OAuthRepository, _email
+from .operator_security import reject_json_constant as _reject_constant
+from .operator_security import unique_json_object as _unique_object
 from .repository import EvidenceRepository
 from .schema import (
     citations,
@@ -98,19 +100,6 @@ class ProvisioningPlan(_PrivateModel):
         ):
             raise ValueError("Invalid plan relationships")
         return self
-
-
-def _unique_object(pairs: list[tuple[str, object]]) -> dict[str, object]:
-    result: dict[str, object] = {}
-    for key, value in pairs:
-        if key in result:
-            raise ValueError("Duplicate JSON key")
-        result[key] = value
-    return result
-
-
-def _reject_constant(value: str) -> object:
-    raise ValueError("Invalid JSON number")
 
 
 def parse_plan(raw: str | bytes) -> ProvisioningPlan:

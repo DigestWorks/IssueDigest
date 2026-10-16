@@ -73,7 +73,7 @@ function citationPosition(citation: Citation) {
   const selector = citation.selector;
   return selector.kind === 'table_cell' ? `표 ${selector.table_id} · 셀 ${selector.cell_id}` : `문자 ${selector.start}–${selector.end}`;
 }
-export function SavedEvidence({ data, workspaceId, snapshotId, searchState, title }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown; title: string | null }) {
+export function SavedEvidence({ data, workspaceId, snapshotId, searchState, title, publisher, publicCopy = false, onCitationSelect }: { onCitationSelect?:(id:string)=>void; publisher?:string; publicCopy?:boolean; data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown; title: string | null }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState<number | null>(null);
   const [searchSelection, setSearchSelection] = useState<SearchSelection | null>(null);
@@ -152,10 +152,10 @@ export function SavedEvidence({ data, workspaceId, snapshotId, searchState, titl
     <h2>원문과 인용</h2>
     <dl className="source-meta">
       <div><dt>자료 유형</dt><dd>{sourceKind(document.source_kind)}</dd></div>
-      <div><dt>공급처</dt><dd>{document.provider}</dd></div>
+      <div><dt>공급처</dt><dd>{publisher ?? document.provider}</dd></div>
       <div><dt>수집 날짜</dt><dd><CollectedDate value={version.collected_at} /></dd></div>
     </dl>
-    <TechnicalDetails><p>출처 ID <code>{document.source_id}</code></p><p>수집 시각 <code>{version.collected_at}</code></p></TechnicalDetails>
+    {!publicCopy && <TechnicalDetails><p>출처 ID <code>{document.source_id}</code></p><p>수집 시각 <code>{version.collected_at}</code></p></TechnicalDetails>}
     <p className="source-link">{document.canonical_url ? <a href={document.canonical_url} target="_blank" rel="noopener noreferrer">원문 출처 열기 <span aria-hidden="true">↗</span></a> : '원문 출처 미등록'}</p>
     <p className="reader-note">인용 위치가 일치해도 해당 자료가 주장을 지지하는지는 별도 검토가 필요합니다.</p>
     {searchNotice && <p className="reader-note" role="status">{searchState && typeof searchState === 'object' && 'kind' in searchState && searchState.kind === 'research-citation' ? '인용 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.' : '검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.'}</p>}
@@ -175,7 +175,7 @@ export function SavedEvidence({ data, workspaceId, snapshotId, searchState, titl
         <h2 id="citations-title">저장된 인용 <span className="citation-count">{citations.length}</span></h2>
         <p role="status" aria-live="polite" className="selection-status">{selected ? `${citationLabel(selected, selectedIndex)} 선택됨` : '인용을 선택하면 원문에서 위치를 확인합니다.'}</p>
         {citations.length === 0 ? <p className="reader-note">저장된 인용이 없습니다.</p> : <ol className="citation-list">
-          {citations.map((citation, index) => <li key={citation.citation_id}><button type="button" aria-pressed={selectedId === citation.citation_id} onClick={() => choose(citation)}><span className="citation-label">{citationLabel(citation, index)}</span><span className="citation-quote">{citation.selector.quote}</span></button><TechnicalDetails><p>{citationPosition(citation)}</p><p>인용 ID <code>{citation.citation_id}</code></p></TechnicalDetails></li>)}
+          {citations.map((citation, index) => <li key={citation.citation_id}><button type="button" aria-pressed={selectedId === citation.citation_id} onClick={() => onCitationSelect ? onCitationSelect(citation.citation_id) : choose(citation)}><span className="citation-label">{citationLabel(citation, index)}</span><span className="citation-quote">{citation.selector.quote}</span></button>{!publicCopy && <TechnicalDetails><p>{citationPosition(citation)}</p><p>인용 ID <code>{citation.citation_id}</code></p></TechnicalDetails>}</li>)}
         </ol>}
       </section>
     </div>

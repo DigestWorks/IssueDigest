@@ -81,3 +81,11 @@ FastAPI·실제 소유 loopback PostgreSQL 테스트 DB·합성 RSA 서명·Mock
 보호 경로는 `/api/v1/workspaces/{workspace_id}/research` GET·POST, `/research/{run_id}` GET, `/research/{run_id}/cancel` POST입니다. 세션 쿠키와 현재 membership을 다시 확인합니다. owner/editor만 생성·취소할 수 있습니다. POST는 same-origin, `application/json`, 최대 16 KiB, 중복 키 금지를 적용합니다. 취소 본문은 `{}`입니다. 모델 입력·결과는 URL/로그에 남기지 않으며 모든 조사 응답은 `no-store`입니다. 현재 API의 고정 오류는 401 인증, 403 출처·역할, 404 비회원·다른 공간, 409 멱등성·동시 실행, 422 입력, 429 월 예산, 503 저장소·모델 준비를 구분합니다.
 
 생성 요청은request_id·question·선택적 parent_run_id만 허용하며 snapshot_ids/임의 필드는422로 거부합니다. 새run은queued/빈 근거로 저장하고 현재 권한에서 검색/근거 고정은v2 워커가 수행합니다. 전용research/sources 목록은 제공하지 않습니다. 독립 보호 원문/검색/자료 목록 API는 유지합니다.
+
+공개 브리핑은 선택적인 `create_app(public_repository=PublicBriefingRepository(engine))`로
+명시 연결합니다. 기존 `runtime:create_configured_app`는 설정된 같은 엔진으로 이를 주입하며
+추가 migration·자동 게시를 실행하지 않습니다. 공개 repository 없이 세 익명 GET은503입니다.
+`/api/v1/briefings`는 최신 공개 요약20개 이하, `/{slug}`는 최신 공개 상세,
+`/{slug}/versions/{version}`은 불변 특정 버전입니다. 철회/없는 버전404·입력422·장애503은
+입력·계획을 포함하지 않으며 모든 공개 경로 응답은 no-store·X-Request-ID를 포함합니다.
+게시·철회는 [storage 운영 절차](../../packages/storage/README.md)를 따릅니다.
