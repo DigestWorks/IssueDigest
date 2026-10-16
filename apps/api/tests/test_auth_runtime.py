@@ -46,6 +46,7 @@ def test_runtime_disposes_owned_engine_at_lifespan_exit(engine, monkeypatch):
     assert not disposed
     with TestClient(application) as client:
         assert client.get("/health/live").status_code == 200
+        assert client.get("/api/v1/briefings").json() == {"items": []}
         assert client.get("/api/v1/auth/session").status_code == 401
     assert disposed == [True]
 

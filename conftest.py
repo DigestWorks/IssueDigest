@@ -108,7 +108,8 @@ def engine(migrated):
     with migrated.begin() as connection:
         connection.execute(
             text(
-                "TRUNCATE research_events, research_runs, research_budget_months, "
+                "TRUNCATE public_briefings, public_briefing_heads, research_events, "
+                "research_runs, research_budget_months, "
                 "source_presentations, auth_oauth_flows, auth_identity_invites, auth_sessions, "
                 "auth_workspace_memberships, auth_users, outbox, "
                 "snapshot_citations, evidence_snapshots, citations, "
@@ -305,4 +306,95 @@ def historical_expanded_run(engine):
         "result": result,
         "before": before,
         "events": events,
+    }
+
+
+def public_plan_data():
+    proof = bundle_data()
+    proof["document"]["canonical_url"] = (
+        "https://www.korea.kr/news/policyNewsView.do?newsId=148000001"
+    )
+    workspace = proof["document"]["workspace_id"]
+    citation = proof["citations"][0]["citation_id"]
+    claim_id = str(uuid4())
+    return {
+        "slug": "synthetic-policy",
+        "public_id": str(uuid4()),
+        "version": 1,
+        "title": "합성 정책 브리핑",
+        "description": "검토한 합성 설명",
+        "as_of": "2026-10-13T00:00:00Z",
+        "canvas": {
+            "research": {
+                "workspace_id": workspace,
+                "evidence": [proof],
+                "entities": [],
+                "claims": [
+                    {
+                        "claim_id": claim_id,
+                        "workspace_id": workspace,
+                        "text": "합성 근거에서 도출한 해석",
+                        "basis": "inference",
+                        "citation_ids": [citation],
+                        "derivation": {
+                            "method": "pydantic-ai",
+                            "method_version": "research-v2",
+                            "rationale": "합성 인용에 대한 해석",
+                        },
+                    }
+                ],
+                "relations": [],
+                "observations": [],
+                "support_reviews": [],
+            },
+            "revision": {
+                "revision_id": str(uuid4()),
+                "workspace_id": workspace,
+                "run_id": str(uuid4()),
+                "revision_number": 1,
+                "parent_revision_id": None,
+                "selected_version_ids": [proof["version"]["version_id"]],
+                "validated_at": "2026-10-13T00:00:00Z",
+                "draft": {
+                    "draft_id": str(uuid4()),
+                    "outcome": "answer",
+                    "message": None,
+                    "modules": [
+                        {
+                            "kind": "summary",
+                            "module_id": str(uuid4()),
+                            "title": "요약",
+                            "span": "full",
+                            "citation_ids": [citation],
+                            "claim_ids": [claim_id],
+                            "actions": [{"kind": "open_evidence", "citation_id": citation}],
+                        },
+                        {
+                            "kind": "evidence",
+                            "module_id": str(uuid4()),
+                            "title": "근거",
+                            "span": "full",
+                            "citation_ids": [citation],
+                            "actions": [{"kind": "open_evidence", "citation_id": citation}],
+                        },
+                    ],
+                },
+            },
+        },
+        "sources": [
+            {
+                "document_id": proof["document"]["document_id"],
+                "official_url": proof["document"]["canonical_url"],
+                "title": "합성 정책 원문",
+                "publisher": "합성 발행처",
+                "published_on": "2026-10-12",
+                "checked_at": "2026-10-13T00:00:00Z",
+                "reviewer": "private-reviewer",
+                "license": "kogl-type-1",
+                "attribution": "합성 발행처 / 합성 정책 원문 / 공공누리 제1유형",
+                "text_sha256": proof["representation"]["text_sha256"],
+                "photos_excluded": True,
+                "third_party_material_excluded": True,
+            }
+        ],
     }

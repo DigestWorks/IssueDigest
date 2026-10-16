@@ -26,6 +26,9 @@ def test_evidence_components_resolve_with_canonical_protected_http_path():
     assert set(schema["paths"]) == {
         "/health/live",
         "/api/v1/status",
+        "/api/v1/briefings",
+        "/api/v1/briefings/{slug}",
+        "/api/v1/briefings/{slug}/versions/{version}",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
         "/api/v1/workspaces/{workspace_id}/evidence",
         "/api/v1/workspaces/{workspace_id}/evidence/search",
@@ -83,6 +86,9 @@ def test_research_and_comparison_components_preserve_discriminators():
     assert set(schema["paths"]) == {
         "/health/live",
         "/api/v1/status",
+        "/api/v1/briefings",
+        "/api/v1/briefings/{slug}",
+        "/api/v1/briefings/{slug}/versions/{version}",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
         "/api/v1/workspaces/{workspace_id}/evidence",
         "/api/v1/workspaces/{workspace_id}/evidence/search",
@@ -188,6 +194,9 @@ def test_execution_components_registered_public_and_legacy_unchanged():
     assert set(schema["paths"]) == {
         "/health/live",
         "/api/v1/status",
+        "/api/v1/briefings",
+        "/api/v1/briefings/{slug}",
+        "/api/v1/briefings/{slug}/versions/{version}",
         "/api/v1/workspaces/{workspace_id}/evidence/{snapshot_id}",
         "/api/v1/workspaces/{workspace_id}/evidence",
         "/api/v1/workspaces/{workspace_id}/evidence/search",
