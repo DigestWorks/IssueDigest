@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import '../evidence/reader.css';
+import BrandHeader from '../brand-header';
 import { AuthError, CatalogError, ConnectionError, getEvidenceCatalog, getResearchSources, getSession, getStatus, logout, type AuthFailure, type EvidenceCatalog, type SessionInfo } from '@issuedigest/api-client';
 import EvidenceSearch from '../search';
 import { CollectedDate, sourceKind, TechnicalDetails } from '../evidence/presentation';
@@ -45,6 +46,7 @@ export default function Home() {
   const [researchVisited, setResearchVisited] = useState(view !== 'sources');
   useEffect(() => { if (view !== 'sources') setResearchVisited(true); }, [view]);
   function setView(value: 'research' | 'sources' | 'saved') {
+    if (value !== 'research' && session.kind === 'failure' && session.error.kind === 'unauthorized') {void navigate('/login'); return;}
     const next = new URLSearchParams(viewParams); next.set('view', value); setViewParams(next);
   }
   const logoutRequest = useRef<AbortController | null>(null);
@@ -70,6 +72,10 @@ export default function Home() {
     }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') drafts.clear(); setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
     return () => { current = false; controller.abort(); };
   }, [sessionAttempt]);
+  useEffect(() => {
+    if (view !== 'research' && session.kind === 'failure' && session.error.kind === 'unauthorized') void navigate('/login', {replace: true});
+  }, [view, session, navigate]);
+
   async function signOut() {
     if (logoutRequest.current) return;
     const controller = new AbortController(); logoutRequest.current = controller;
@@ -87,6 +93,7 @@ export default function Home() {
 
   function continueGuestQuestion(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (!guestQuestion.trim()) return;
     if (!writeGuestQuestionDraft(guestQuestion)) {
       setGuestError('질문을 임시 보관하지 못했습니다. 이 탭의 저장 설정을 확인하고 다시 시도해 주세요.'); return;
     }
@@ -127,7 +134,7 @@ export default function Home() {
 
   return (
     <div className="workspace home-workspace">
-      <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">질문에서 시작하는 이슈 브리핑</span>{session.kind === 'ready' && <button type="button" onClick={() => void signOut()} disabled={logoutPending}>{logoutPending ? '로그아웃 중…' : '로그아웃'}</button>}</header>
+      <BrandHeader account={session.kind === 'ready' ? 'authenticated' : session.kind === 'loading' ? 'loading' : session.error.kind === 'unauthorized' ? 'guest' : 'unavailable'} onLogout={() => void signOut()} logoutPending={logoutPending} />
       <main>
         <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>홈</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>저장한 조사</button><button type="button" aria-current={view === 'sources' ? 'page' : undefined} onClick={() => setView('sources')}>자료</button></nav>
         {view === 'research' && <p className="home-kicker">질문에서 시작해, 근거까지</p>}
@@ -136,17 +143,17 @@ export default function Home() {
         <section className="workspace-catalog" aria-label="작업 공간 자료">
           {session.kind === 'loading' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
           {session.kind === 'failure' && <>
-            <p role="status" aria-label="작업 공간 상태" aria-live="polite">{messages[session.error.kind]}</p>
+            {session.error.kind !== 'unauthorized' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">{messages[session.error.kind]}</p>}
             {session.error.kind === 'unauthorized' ? <>
               {view === 'research' && <form className="guest-composer" onSubmit={continueGuestQuestion}>
                 <label className="visually-hidden" htmlFor="guest-question">무엇이 궁금한가요?</label>
-                <textarea id="guest-question" rows={3} maxLength={1500} value={guestQuestion} onChange={event => {setGuestQuestion(event.target.value); setGuestError('');}} placeholder="궁금한 이슈나 알고 싶은 변화를 적어 주세요" aria-describedby="guest-question-note" />
-                <div className="guest-compose-foot"><span id="guest-question-note">로그인 후 질문을 확인하고 조사를 시작합니다.</span><button type="submit" disabled={!guestQuestion.trim()}>로그인하고 질문 이어가기</button></div>
+                <textarea id="guest-question" rows={3} maxLength={1500} value={guestQuestion} onChange={event => {setGuestQuestion(event.target.value); setGuestError('');}} placeholder="궁금한 이슈나 알고 싶은 변화를 적어 주세요" />
+                <div className="guest-compose-foot"><button type="submit" disabled={!guestQuestion.trim()}>질문하기</button></div>
                 {guestError && <p role="alert">{guestError}</p>}
               </form>}
-              <div className="public-briefing-note"><h2>공개 브리핑을 준비하고 있습니다.</h2><p>지금은 초대받은 Google 계정으로 로그인해 자료를 살펴보고 질문할 수 있습니다.</p><Link to="/login" className="action-link">로그인</Link></div>
+              <p className="public-briefing-note">공개 브리핑을 준비하고 있습니다.</p>
             </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>작업 공간 다시 확인</button>}
-            <SupportInfo requestId={session.error.requestId} />
+            {session.error.kind !== 'unauthorized' && <SupportInfo requestId={session.error.requestId} />}
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="작업 공간 상태">접근 가능한 작업 공간이 없습니다.</p> : <>
             <div className="workspace-choice">

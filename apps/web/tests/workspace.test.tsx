@@ -22,8 +22,7 @@ it('checks session before requesting a catalog and announces loading without fak
 });
 it('offers actual login navigation on 401 without leaking server details', async () => {
   vi.stubGlobal('fetch', async () => response({ detail: 'PRIVATE' }, 401)); const { router } = mount();
-  const link = await screen.findByRole('link', { name: '로그인' }); expect(link).toHaveAttribute('href', '/login'); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
-  await userEvent.setup().click(link); expect(router.state.location.pathname).toBe('/login');
+  await screen.findByRole('heading', {name: '로그인 도착'}); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument(); expect(router.state.location.pathname).toBe('/login');
 });
 it.each(['503', 'network', 'malformed'])('retries session error %s and displays only verified workspace data', async kind => {
   let failure = true; vi.stubGlobal('fetch', async (path: string) => {
@@ -98,10 +97,10 @@ it('distinguishes a verified empty catalog from the bounded has_more catalog', a
 it('keeps data on logout failure, prevents duplicates and clears content on successful logout', async () => {
   let finish!: (r: Response) => void; let count = 0;
   vi.stubGlobal('fetch', (path: string) => path.endsWith('/logout') ? (count++, new Promise<Response>(done => { finish = done; })) : Promise.resolve(response(path.endsWith('/session') ? session() : catalog())));
-  const { router } = mount(); await screen.findByText('첫 공간 합성 원문'); const user = userEvent.setup(); await user.click(screen.getByRole('button', { name: '로그아웃' }));
-  const pending = screen.getByRole('button', { name: '로그아웃 중…' }); expect(pending).toBeDisabled(); await user.click(pending); expect(count).toBe(1);
+  const { router } = mount(); await screen.findByText('첫 공간 합성 원문'); const user = userEvent.setup(); await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', { name: '로그아웃' }));
+  const pending = screen.getByRole('menuitem', { name: '로그아웃 중…' }); expect(pending).toBeDisabled(); await user.click(pending); expect(count).toBe(1);
   await act(async () => finish(response({ detail: 'PRIVATE' }, 503))); expect(screen.getByText('첫 공간 합성 원문')).toBeInTheDocument(); expect(screen.getByRole('alert')).toHaveTextContent('로그아웃');
-  await user.click(screen.getByRole('button', { name: '로그아웃' })); await act(async () => finish(new Response(null, { status: 204, headers })));
+  await user.click(screen.getByRole('menuitem', { name: '로그아웃' })); await act(async () => finish(new Response(null, { status: 204, headers })));
   await waitFor(() => expect(router.state.location.pathname).toBe('/login')); expect(screen.queryByText('첫 공간 합성 원문')).not.toBeInTheDocument();
 });
 it('aborts session and catalog fetches on unmount', async () => {
@@ -142,6 +141,6 @@ it('opens a catalog record in the existing protected read-only reader and return
 it('cancels logout on unmount without applying a late success', async () => {
   let signal!: AbortSignal; let finish!: (r: Response) => void;
   vi.stubGlobal('fetch', (path: string, options: RequestInit) => path.endsWith('/logout') ? (signal = options.signal as AbortSignal, new Promise<Response>(done => { finish = done; })) : Promise.resolve(response(path.endsWith('/session') ? session() : catalog())));
-  const { unmount, router } = mount(); await screen.findByText('첫 공간 합성 원문'); await userEvent.setup().click(screen.getByRole('button', { name: '로그아웃' }));
+  const { unmount, router } = mount(); await screen.findByText('첫 공간 합성 원문'); await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'})); await userEvent.setup().click(screen.getByRole('menuitem', { name: '로그아웃' }));
   unmount(); expect(signal.aborted).toBe(true); await act(async () => finish(new Response(null, { status: 204, headers }))); expect(router.state.location.pathname).toBe('/');
 });

@@ -107,7 +107,7 @@ it('keeps drafts within their workspace and clears them on logout', async () => 
   await user.selectOptions(screen.getByLabelText('작업 공간'), workspace);
   expect(await findSource({name: /공공기록법 일부개정법률안/})).toBeChecked();
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('첫 공간 질문');
-  await user.click(screen.getByRole('button', {name: '로그아웃'}));
+  await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', {name: '로그아웃'}));
   expect(await screen.findByText('로그인 화면')).toBeInTheDocument();
   await act(async () => { await router.navigate('/'); });
   expect(await findSource({name: /공공기록법 일부개정법률안/})).not.toBeChecked();

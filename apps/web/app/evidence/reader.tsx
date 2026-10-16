@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useLocation } from 'react-router';
 import { EvidenceError, getCitationUtf16Range, getEvidence, getResearchSources, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
 import './reader.css';
+import BrandHeader from '../brand-header';
 import { CollectedDate, sourceKind, TechnicalDetails } from './presentation';
 
 type State = { kind: 'loading' } | { kind: 'ready'; data: EvidenceBundle } | { kind: 'failure'; error: EvidenceError };
@@ -43,7 +44,7 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
   const returnTo = researchOrigin ? typeof navigation?.runId === 'string' && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i.test(navigation.runId) ? `/?view=research&run=${navigation.runId}` : '/?view=research' : navigation?.kind === 'catalog-source' || navigation?.kind === 'search-hit' ? '/?view=sources' : '/';
   return (
     <div className="workspace evidence-workspace">
-      <header className="brand"><Link to="/" className="reader-brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest</Link><span className="brand-caption">저장된 근거 읽기</span></header>
+      <BrandHeader caption="저장된 근거 읽기" />
       <main className="reader-main">
         <Link to={returnTo} className="action-link">{researchOrigin ? '이슈 조사로' : '작업 공간으로'}</Link>
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}

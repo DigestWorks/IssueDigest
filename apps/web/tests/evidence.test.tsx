@@ -88,13 +88,13 @@ it('retries through a cleared loading state and then a real response', async () 
 });
 it('rejects malformed HTML success and supports a retry', async () => {
   vi.stubGlobal('fetch', async () => new Response('<img src="https://example.com/tracker" onerror="alert(1)">', { headers: { 'Content-Type': 'text/html' } })); mount();
-  expect(await screen.findByText('응답 형식을 확인할 수 없습니다.')).toBeInTheDocument(); expect(document.querySelector('img')).toBeNull(); expect(screen.getByRole('button', { name: '다시 읽기' })).toBeEnabled();
+  expect(await screen.findByText('응답 형식을 확인할 수 없습니다.')).toBeInTheDocument(); expect(document.querySelectorAll('img')).toHaveLength(1); expect(document.querySelector('img')).toHaveAttribute('src', '/brand/issuedigest-mark-v1.png'); expect(screen.getByRole('button', { name: '다시 읽기' })).toBeEnabled();
 });
 it('renders stored HTML as text without external image loading', async () => {
   const body = fixture(); body.representation.text = '<img src="https://example.com/tracker" onerror="alert(1)">'; body.representation.pages = []; body.citations = [];
   body.representation.text_sha256 = createHash('sha256').update(body.representation.text).digest('hex');
   vi.stubGlobal('fetch', async () => response(body)); mount();
-  expect(await screen.findByText(body.representation.text)).toBeInTheDocument(); expect(document.querySelector('img')).toBeNull();
+  expect(await screen.findByText(body.representation.text)).toBeInTheDocument(); expect(document.querySelectorAll('img')).toHaveLength(1); expect(document.querySelector('img')).toHaveAttribute('src', '/brand/issuedigest-mark-v1.png');
 });
 it('shows an offline state', async () => {
   vi.stubGlobal('fetch', async () => { throw new TypeError('PRIVATE offline'); }); mount();

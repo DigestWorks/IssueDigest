@@ -116,7 +116,7 @@ it('clears and cancels search as soon as logout starts, including a late search 
   setup((url, init) => url.endsWith('/logout') ? new Promise(() => {}) : new Promise(resolve => { signal = init?.signal as AbortSignal; late = resolve; }));
   const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', { name: '원문 검색' }), '합성');
   await user.click(screen.getByRole('button', { name: '검색' }));
-  await user.click(screen.getByRole('button', { name: '로그아웃' }));
+  await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', { name: '로그아웃' }));
   expect(signal?.aborted).toBe(true);
   expect(screen.queryByRole('searchbox', { name: '원문 검색' })).not.toBeInTheDocument();
   await act(async () => late(response(result())));

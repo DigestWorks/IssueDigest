@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { Link, useSearchParams } from 'react-router';
+import BrandHeader from '../brand-header';
 import { readGuestQuestionDraft } from '../guest-question';
 
 const feedback = new Map([
@@ -25,7 +26,7 @@ export default function Login() {
     submitted.current = true; setPending(true);
   }
   return <div className="workspace login-workspace">
-    <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">질문에서 시작하는 이슈 브리핑</span></header>
+    <BrandHeader account="guest" />
     <main>
       <p className="eyebrow">질문을 이어가는 곳</p>
       <h1>궁금한 이슈를<br />근거와 함께 살펴보세요.</h1>

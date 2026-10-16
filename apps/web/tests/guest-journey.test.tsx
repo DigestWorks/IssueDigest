@@ -28,7 +28,7 @@ it('keeps typing ephemeral until explicit guest continuation, then previews the 
   const {router} = mount(); const user = userEvent.setup();
   const input = await screen.findByRole('textbox', {name: '무엇이 궁금한가요?'});
   await user.type(input, '청년 교통비는 어떻게 달라졌나요?'); expect(sessionStorage.getItem(key)).toBeNull();
-  await user.click(screen.getByRole('button', {name: '로그인하고 질문 이어가기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   expect(router.state.location.pathname).toBe('/login'); expect(router.state.location.search).toBe('');
   expect(screen.getByLabelText('이어갈 질문')).toHaveTextContent('청년 교통비는 어떻게 달라졌나요?');
   expect(fetch.mock.calls.every(([path]) => path.endsWith('/session'))).toBe(true);
@@ -51,7 +51,7 @@ it('restores a new research question once after verified membership, allowing ed
 });
 it.each(['/?run=00000000-0000-4000-8000-000000000040', '/?view=saved', '/?view=sources'])('does not mix a guest question into an existing run or another entry: %s', async entry => {
   seed(); signedIn([{workspace_id: workspace, role: 'editor'}]); mount(entry);
-  await screen.findByRole('button', {name: '로그아웃'}); await waitFor(() => expect(document.querySelector('.workspace-choice')).not.toBeNull());
+  await waitFor(() => expect(document.querySelector('.workspace-choice')).not.toBeNull());
   expect(screen.queryByDisplayValue('로그인 전에 쓴 질문')).not.toBeInTheDocument(); expect(sessionStorage.getItem(key)).not.toBeNull();
 });
 it('does not consume on network failure or no memberships and only offers guest entry on confirmed 401', async () => {
@@ -64,8 +64,8 @@ it('clears guest storage only after successful logout and preserves other keys',
   let succeed = false; const fetch = signedIn();
   vi.stubGlobal('fetch', async (path: string) => path.endsWith('/logout') ? succeed ? new Response(null, {status: 204, headers}) : response({}, 503) : fetch(path));
   const {router} = mount('/?view=sources'); seed(); sessionStorage.setItem('unrelated', 'keep'); const user = userEvent.setup();
-  await user.click(await screen.findByRole('button', {name: '로그아웃'})); await screen.findByRole('alert'); expect(sessionStorage.getItem(key)).not.toBeNull();
-  succeed = true; await user.click(screen.getByRole('button', {name: '로그아웃'})); await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
+  await waitFor(() => expect(document.querySelector('.workspace-choice')).not.toBeNull()); await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', {name: '로그아웃'})); await screen.findByRole('alert'); expect(sessionStorage.getItem(key)).not.toBeNull();
+  succeed = true; await user.click(screen.getByRole('menuitem', {name: '로그아웃'})); await waitFor(() => expect(router.state.location.pathname).toBe('/login'));
   expect(sessionStorage.getItem(key)).toBeNull(); expect(sessionStorage.getItem('unrelated')).toBe('keep'); expect(screen.queryByLabelText('이어갈 질문')).not.toBeInTheDocument();
 });
 it('keeps guest restoration within the selected membership', async () => {
@@ -78,6 +78,6 @@ it('reports refused guest storage without navigating or losing the typed questio
   vi.stubGlobal('fetch', async () => response({}, 401)); const {router} = mount(); const user = userEvent.setup();
   const input = await screen.findByRole('textbox', {name: '무엇이 궁금한가요?'}); await user.type(input, '보관할 질문');
   vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { throw new DOMException('blocked', 'SecurityError'); });
-  await user.click(screen.getByRole('button', {name: '로그인하고 질문 이어가기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   expect(await screen.findByRole('alert')).toHaveTextContent('임시 보관하지 못했습니다'); expect(input).toHaveValue('보관할 질문'); expect(router.state.location.pathname).toBe('/');
 });

@@ -31,7 +31,7 @@ it('allows the first native submit, blocks duplicates and resets pending on bfca
   expect(screen.getByRole('button', { name: 'Google로 로그인' })).toBeEnabled();
 });
 it('supports keyboard focus without fabricating a provider sign-in UI', async () => {
-  await mount(); await userEvent.setup().tab(); expect(screen.getByRole('button', { name: 'Google로 로그인' })).toHaveFocus();
+  await mount(); const user = userEvent.setup(); await user.tab(); await user.tab(); await user.tab(); await user.tab(); expect(screen.getByRole('button', { name: 'Google로 로그인' })).toHaveFocus();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   // Simulate the browser navigation boundary while exercising native keyboard submit.
   screen.getByRole('button', { name: 'Google로 로그인' }).closest('form')!.addEventListener('submit', event => event.preventDefault());
