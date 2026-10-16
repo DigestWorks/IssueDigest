@@ -55,4 +55,4 @@
 - [x] Task1/2 독립 작업 검토·전체 변경 검토를 마치고 실제 앱/renderer build·JS 전체·Python 전체(소유 합성 PostgreSQL 포함)·lint/type/contract를 확인한다. 변경 없는 전체 검사를 무의미하게 반복하지 않는다.
 - [x] 합성 HTTP/브라우저로 guest 질문→실제 OAuth POST 준비/초안 복원→권한별 source/조사 진행/완료·drawer/저장·320/390/데스크톱을 확인한다. 실제 사용자 세션을 만들지 않는다.
 - [x] 기존 개인 개발 서버의 사용자 전용 worktree·앱·API/worker 설정·포트를 확인하고, 기존 데이터/설정/worker는 보존하면서 검증한 코드/정적 웹만 개발 HTTPS에 반영한다. DB migration/새 데이터 쓰기/실제 모델 호출은 이번 UI 검증에 필요하지 않다. 실제 키·계정/접속 메타데이터를 출력하지 않는다.
-- [ ] 새 Draft PR(기준 feat/assembly-source-connector) 생성·attach, AGENTS/현재 결정·진행/작업/README 갱신, Sites 요약·과거 기록 보존. main/운영 배포는 하지 않는다. 최종에는 실제 구현·미정/후속·검증 범위를 구분한다.
+- [x] 새 Draft PR(기준 feat/assembly-source-connector) 생성·attach, AGENTS/현재 결정·진행/작업/README 갱신, Sites 요약·과거 기록 보존. main/운영 배포는 하지 않는다. 최종에는 실제 구현·미정/후속·검증 범위를 구분한다.
