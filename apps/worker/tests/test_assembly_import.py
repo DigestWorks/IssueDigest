@@ -493,3 +493,113 @@ def test_capture_cli_invalid_output_parent_rejected_before_network(
     assert module.capture_main(args) == 1
     assert attempted == []
     assert capsys.readouterr().err == "Unable to capture Assembly source\n"
+
+
+_NATIVE_CONTEXTS = (
+    "<details open><summary>toggle</summary>"
+    '<pre id="prntSummary">unprofiled proposal</pre></details>',
+    '<details><summary>toggle</summary><pre id="prntSummary">hidden proposal</pre></details>',
+    '<details id="prntSummary"><summary>toggle</summary>hidden proposal</details>',
+    '<pre id="prntSummary">visible<details>hidden proposal</details></pre>',
+    '<pre popover id="prntSummary">hidden proposal</pre>',
+    '<div popover="manual"><pre id="prntSummary">hidden proposal</pre></div>',
+    '<pre id="prntSummary">visible<span popover="auto">hidden proposal</span></pre>',
+)
+
+
+@pytest.mark.parametrize("summary", _NATIVE_CONTEXTS)
+def test_native_hidden_context_cannot_pass_capture_to_canonical_evidence(assembly_inputs, summary):
+    """The complete SDK→artifact→prepare route must never create these hidden citations."""
+    from issuedigest_connectors import AssemblyError
+
+    job, raw, base, _ = assembly_inputs
+    from datetime import datetime
+
+    requests = []
+
+    def response(request):
+        requests.append(request.method)
+        return httpx.Response(
+            200,
+            content=(GET if request.method == "GET" else summary).encode(),
+            headers={"content-type": "text/html"},
+        )
+
+    a = api()
+    with pytest.raises(AssemblyError):
+        capture = capture_assembly(
+            BILL,
+            collected_at=datetime.fromisoformat(job["collected_at"]),
+            transport=httpx.MockTransport(response),
+        )
+        a.prepare_assembly_plan(
+            a.parse_assembly_job(json.dumps(job)),
+            serialize_capture(capture),
+            parse_plan(json.dumps(base)),
+        )
+    assert requests == ["GET", "POST"]
+    # An already saved/forged artifact must be rejected offline as well.
+    forged = json.loads(raw)
+    forged["summary_html"] = summary
+    with pytest.raises(a.PreparationError):
+        a.prepare_assembly_plan(
+            a.parse_assembly_job(json.dumps(job)),
+            json.dumps(forged).encode(),
+            parse_plan(json.dumps(base)),
+        )
+
+
+@pytest.mark.parametrize("wrapper", ["details", "div popover", 'div popover="manual"'])
+def test_native_hidden_operator_metadata_cannot_approve_capture(assembly_inputs, wrapper):
+    job, raw, base, _ = assembly_inputs
+    source = json.loads(raw)
+    tag = wrapper.split()[0]
+    source["detail_html"] = GET.replace(
+        "<h1>합성법안</h1>", f"<{wrapper}><h1>합성법안</h1></{tag}>"
+    )
+    a = api()
+    with pytest.raises(a.PreparationError):
+        a.prepare_assembly_plan(
+            a.parse_assembly_job(json.dumps(job)),
+            json.dumps(source).encode(),
+            parse_plan(json.dumps(base)),
+        )
+
+
+def test_official_wrapper_capture_stays_exact_through_preparation_and_repeat(assembly_inputs):
+    from datetime import datetime
+
+    job, _, base, _ = assembly_inputs
+    summary = (
+        '<html><div><div class="container bill_info" style="height: auto;">'
+        '<form><div class="theme_area bill_info_div"><div class="theme_list"><div>'
+        '<pre id="prntSummary" class="theme_list_summary" style="height: 130px;">'
+        "제안이유😀\r\n주요내용 e\u0301</pre>"
+        "</div></div></div></form></div></div></html>"
+    )
+
+    def response(request):
+        return httpx.Response(
+            200,
+            content=(GET if request.method == "GET" else summary).encode(),
+            headers={"content-type": "text/html"},
+        )
+
+    capture = capture_assembly(
+        BILL,
+        collected_at=datetime.fromisoformat(job["collected_at"]),
+        transport=httpx.MockTransport(response),
+    )
+    raw = serialize_capture(capture)
+    a = api()
+    parsed_job = a.parse_assembly_job(json.dumps(job))
+    result = a.prepare_assembly_plan(parsed_job, raw, parse_plan(json.dumps(base)))
+    bundle = result.snapshots[-1].bundle
+    assert (
+        bundle.representation.text
+        == bundle.citations[0].selector.quote
+        == "제안이유😀\n주요내용 e\u0301"
+    )
+    assert bundle.version.raw_sha256 == sha256(raw).hexdigest()
+    assert serialize_capture(capture) == raw
+    assert a.prepare_assembly_plan(parsed_job, raw, result) == result

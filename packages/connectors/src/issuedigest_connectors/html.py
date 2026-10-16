@@ -14,6 +14,21 @@ _BLOCK = frozenset(
     ).split()
 )
 _IGNORED = frozenset({"script", "style", "template", "noscript", "head", "datalist"})
+_UNSUPPORTED_RENDERING = frozenset(
+    {
+        "iframe",
+        "object",
+        "embed",
+        "canvas",
+        "svg",
+        "math",
+        "video",
+        "audio",
+        "details",
+        "textarea",
+        "select",
+    }
+)
 
 
 def bounded_html(value: str) -> str:
@@ -35,7 +50,8 @@ def _hidden(tag: str, attrs: dict[str, str | None]) -> bool:
     style = re.sub(r"\s+", "", attrs.get("style") or "").lower()
     return (
         tag in _IGNORED
-        or (tag == "dialog" and "open" not in attrs)
+        or (tag in {"dialog", "details"} and "open" not in attrs)
+        or "popover" in attrs
         or "hidden" in attrs
         or "inert" in attrs
         or (attrs.get("aria-hidden") or "").lower() == "true"
@@ -145,7 +161,12 @@ class _Summary(_VisibleDocument):
     def start(self, tag: str, attrs: dict[str, str | None], hidden: bool) -> None:
         if attrs.get("id") == "prntSummary":
             self.count += 1
-            if self.count != 1 or hidden or tag in _VOID:
+            if (
+                self.count != 1
+                or hidden
+                or tag in _VOID
+                or any(name in _UNSUPPORTED_RENDERING for name, _ in self.stack)
+            ):
                 raise ValueError("Ambiguous summary")
             for style in self.styles:
                 if (
@@ -178,20 +199,8 @@ class _Summary(_VisibleDocument):
                     raise ValueError("Unprofiled summary style")
             ancestors = {name for name, _ in self.stack[self.region - 1 :]}
             if (
-                tag
-                in {
-                    "iframe",
-                    "object",
-                    "embed",
-                    "canvas",
-                    "svg",
-                    "math",
-                    "video",
-                    "audio",
-                    "details",
-                    "textarea",
-                    "select",
-                }
+                tag in _UNSUPPORTED_RENDERING
+                or "popover" in attrs
                 or ("p" in ancestors and tag in _BLOCK)
                 or (tag == "a" and "a" in ancestors)
                 or (tag == "pre" and "pre" in ancestors)
