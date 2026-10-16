@@ -6,7 +6,6 @@ from uuid import UUID
 
 from dbos import DBOS, SetWorkflowID
 from issuedigest_agents.research import (
-    AIOutput,
     build_canvas,
     create_agent,
     model_prompt,
@@ -62,10 +61,12 @@ def run_worker(
                     input_tokens=input_tokens,
                     output_tokens=output_tokens,
                 )
+            except StorageCorruption:
+                raise
             except StorageError:
                 time.sleep(poll_seconds)
 
-    @DBOS.workflow(name="issuedigest_research_run_v1", max_recovery_attempts=3)
+    @DBOS.workflow(name="issuedigest_research_run_v2", max_recovery_attempts=3)
     def execute(run_id_text: str) -> None:
         run_id = UUID(run_id_text)
         while True:
@@ -86,21 +87,15 @@ def run_worker(
         run, sources = loaded
         input_tokens, output_tokens = 0, 0
         try:
-            if not persist(run_id, "retrieving"):
-                return
             try:
                 prompt = model_prompt(
                     run.question,
                     sources,
                     repository.worker_parent_context(run_id),
-                    selected_snapshot_ids=run.snapshot_ids,
                 )
             except ValueError:
-                output = AIOutput(
-                    outcome="insufficient_evidence",
-                    message="선택한 자료에 인용 가능한 내용이 부족합니다.",
-                    modules=(),
-                )
+                persist(run_id, "failed", error_code="insufficient_evidence")
+                return
             else:
                 if not persist(run_id, "generating"):
                     return

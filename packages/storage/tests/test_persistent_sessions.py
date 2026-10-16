@@ -68,12 +68,10 @@ def read_path(engine, authorized, path):
     if path == "search":
         return access.search_evidence(issued.token, workspace, EvidenceSearchQuery(terms=("앞",)))
     research = ResearchRepository(engine)
-    if path == "sources":
-        return research.list_sources(issued.token, workspace)
     return research.list_runs(issued.token, workspace)
 
 
-PATHS = ["evidence", "session", "catalog", "search", "sources", "runs"]
+PATHS = ["evidence", "session", "catalog", "search", "runs"]
 
 
 @pytest.mark.parametrize("path", PATHS)

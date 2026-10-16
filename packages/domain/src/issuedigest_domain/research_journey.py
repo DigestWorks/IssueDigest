@@ -11,7 +11,6 @@ from pydantic import UUID4, AwareDatetime, Field, field_validator, model_validat
 from .canvas import CanvasBundle
 from .contract_values import ContractModel
 from .evidence import EvidenceBundle
-from .sources import SourceKind, SourceUrl
 
 RunStatus = Literal[
     "queued", "retrieving", "generating", "validating", "completed", "failed", "cancelled"
@@ -21,13 +20,12 @@ RunStatus = Literal[
 class ResearchRequest(ContractModel):
     request_id: UUID4
     question: str = Field(min_length=1, max_length=1500)
-    snapshot_ids: tuple[UUID4, ...] = Field(min_length=1, max_length=3)
     parent_run_id: UUID4 | None = None
 
     @model_validator(mode="after")
-    def valid_selection(self) -> Self:
-        if not self.question.strip() or len(set(self.snapshot_ids)) != len(self.snapshot_ids):
-            raise ValueError("Question and snapshot selection must be valid")
+    def valid_question(self) -> Self:
+        if not self.question.strip():
+            raise ValueError("Question must be nonblank")
         return self
 
 
@@ -57,24 +55,6 @@ class SourcePresentation(ContractModel):
         raise ValueError("Display title must not be an identifier")
 
 
-class ResearchSource(ContractModel):
-    snapshot_id: UUID4
-    document_id: UUID4
-    title: str
-    source_kind: SourceKind
-    bill_number: str | None
-    proposed_on: date | None
-    collected_at: AwareDatetime
-    canonical_url: SourceUrl | None
-    citation_count: int = Field(ge=0)
-    excerpt: str = Field(max_length=160)
-
-
-class ResearchSourceCatalog(ContractModel):
-    workspace_id: UUID4
-    items: tuple[ResearchSource, ...]
-
-
 class ResearchRunEvent(ContractModel):
     sequence: int = Field(ge=1)
     status: RunStatus
@@ -91,7 +71,7 @@ class ResearchRun(ContractModel):
     workspace_id: UUID4
     request_id: UUID4
     question: str
-    snapshot_ids: tuple[UUID4, ...]
+    snapshot_ids: tuple[UUID4, ...] = Field(max_length=5)
     parent_run_id: UUID4 | None
     status: RunStatus
     error_code: (
@@ -111,6 +91,21 @@ class ResearchRun(ContractModel):
     model: Literal["gpt-5.4-mini"]
     input_tokens: int = Field(ge=0)
     output_tokens: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def valid_provenance(self) -> Self:
+        if len(set(self.snapshot_ids)) != len(self.snapshot_ids):
+            raise ValueError("Research provenance must be unique")
+        if self.status == "completed":
+            if (
+                not self.snapshot_ids
+                or self.result is None
+                or not self.result.canvas.research.evidence
+                or self.result.canvas.revision.run_id != self.run_id
+                or self.result.canvas.revision.workspace_id != self.workspace_id
+            ):
+                raise ValueError("Completed research requires valid evidence and result")
+        return self
 
 
 class ResearchRunList(ContractModel):

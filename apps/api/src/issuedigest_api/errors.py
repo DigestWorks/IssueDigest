@@ -23,7 +23,7 @@ class EvidenceUnavailableError(BaseModel):
 class EvidencePathValidationDetail(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
     type: str
-    loc: tuple[Literal["path", "query"], Literal["workspace_id", "snapshot_id", "limit"]]
+    loc: tuple[Literal["path", "query"], Literal["workspace_id", "snapshot_id", "run_id", "limit"]]
     msg: Literal["Invalid UUID4 path parameter", "Invalid catalog limit"]
 
 

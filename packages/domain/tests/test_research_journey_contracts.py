@@ -9,12 +9,15 @@ from issuedigest_domain.research_journey import ResearchRequest, presentation_fo
 from pydantic import ValidationError
 
 
-def test_request_rejects_duplicate_snapshots_and_blank_question() -> None:
-    snapshot = uuid4()
+def test_request_accepts_question_only_and_rejects_blank_or_injected_fields() -> None:
+    assert ResearchRequest(request_id=uuid4(), question="질문").parent_run_id is None
     with pytest.raises(ValidationError):
-        ResearchRequest(request_id=uuid4(), question=" ", snapshot_ids=(snapshot,))
-    with pytest.raises(ValidationError):
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot, snapshot))
+        ResearchRequest(request_id=uuid4(), question=" ")
+    for field in ("snapshot_ids", "workspace_id", "sources"):
+        with pytest.raises(ValidationError):
+            ResearchRequest.model_validate(
+                {"request_id": uuid4(), "question": "질문", field: [uuid4()]}
+            )
 
 
 def test_verified_bill_profile_yields_name_number_and_date() -> None:
@@ -53,3 +56,25 @@ def test_presentation_rejects_uuid_or_blank_title() -> None:
                 title=title,
                 profile="operator-verified-v1",
             )
+
+
+def test_run_provenance_bounds_and_completed_result_integrity() -> None:
+    from issuedigest_domain.research_journey import ResearchRun
+
+    fixture = (
+        Path(__file__).resolve().parents[3]
+        / "packages/api-client/tests/fixtures/research-run-generated.json"
+    )
+    data = json.loads(fixture.read_text())
+    assert ResearchRun.model_validate(data).status == "completed"
+    for snapshots in ([], [str(uuid4()) for _ in range(6)], [data["snapshot_ids"][0]] * 2):
+        with pytest.raises(ValidationError):
+            ResearchRun.model_validate({**data, "snapshot_ids": snapshots})
+    with pytest.raises(ValidationError):
+        ResearchRun.model_validate({**data, "result": None})
+    assert (
+        ResearchRun.model_validate(
+            {**data, "snapshot_ids": [], "status": "queued", "result": None}
+        ).snapshot_ids
+        == ()
+    )
