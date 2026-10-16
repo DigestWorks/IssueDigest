@@ -3,6 +3,7 @@ import { Links, Meta, Outlet, Scripts, ScrollRestoration } from 'react-router';
 import { ResearchDraftProvider } from './research-drafts';
 import { themeBootstrap } from './theme';
 import './styles.css';
+import './briefing.css';
 
 export function Layout({ children }: { children: ReactNode }) {
   return (

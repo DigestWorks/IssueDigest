@@ -196,3 +196,22 @@ it('opens the added canonical source of a historical seed-plus-expanded-source r
  expect(drawer.querySelector('mark')).toHaveTextContent('주거지원 추가 발표');
  expect(protectedGets).toEqual(historical.snapshot_ids.map(id=>`/api/v1/workspaces/${historical.workspace_id}/evidence/${id}`));
 });
+
+it('reads the completed briefing before reaching the follow-up question in keyboard order', async () => {
+ vi.stubGlobal('fetch', async (path: string) => {
+  if (path.endsWith('/session')) return response(session);
+  if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
+  if (path.endsWith(`/research/${runId}`)) return response(completedRun());
+  throw Error(path);
+ });
+ start(true);
+ const briefing = await screen.findByRole('article', {name: '브리핑 화면'});
+ const followup = screen.getByRole('textbox', {name: '후속 질문'});
+ expect(briefing.compareDocumentPosition(followup) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ // Source actions must be encountered before a new question in the reading order.
+ const sourceAction = within(briefing).getAllByRole('button', {name: /근거 열기:/})[0];
+ sourceAction.focus();
+ await userEvent.setup().tab();
+ expect(within(briefing).getByText('근거', {selector: 'summary'})).toHaveFocus();
+ expect(screen.getByRole('button', {name: '후속 질문하기'})).toBeDisabled();
+});

@@ -92,7 +92,7 @@ it('ignores a late previous-run original denial after navigation to a new comple
  const router=mount(`/?run=${runId}`);const user=userEvent.setup();await screen.findByText('합성 근거에 맞춘 AI 해석');
  hold=true;await user.click(screen.getAllByRole('button',{name:/근거 열기: 공공기록법/})[0]);
  await waitFor(()=>expect(release).toBeTypeOf('function'));const oldRelease=release;hold=false;
- await act(async()=>router.navigate(`/?run=${nextId}`));await screen.findByText('질문 · 새 질문');
+ await act(async()=>router.navigate(`/?run=${nextId}`));await screen.findByRole('heading', {name: '새 질문'});
  await user.type(screen.getByLabelText('후속 질문'),'새 브리핑 초안');
  await act(async()=>oldRelease(response({},403)));
  expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();expect(screen.getByLabelText('후속 질문')).toHaveValue('새 브리핑 초안');

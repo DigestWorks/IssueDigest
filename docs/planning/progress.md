@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 구현·합성 검사 · 브리핑 디자인 Task1 · 2026-10-16
+
+- 요구사항/담당: [근거 탐색 계획 Task1](../changes/evidence-exploration.md), `feat/evidence-exploration`. 홈·로그인·공개/비공개 브리핑·공유 기록·원문 창의 앱 색상/타이포/간격을 통합했다. 한국어 serif fallback과 중복 시각 제목을 제거하고 기존 로고·테마/계정 아이콘·44px/초점·정확 인용·native details/dialog 계약을 유지한다. 새 폰트/의존성이나 API/데이터 변경은 없다.
+- 읽기 순서: 완료 브리핑 뒤에 후속 질문을 배치했다. DOM/키보드 읽기 순서 검사 RED→GREEN을 확인했고 기존 질문 복원·공개 고정 버전/철회·권한/원문/취소 회귀를 유지했다. 과거 경로 전환 검사의 옛 `질문 ·` 표시문구 의존만 제목 역할 조회로 바꾸었다.
+- 검증/인계: JS 전체 린트·타입·503개/26파일 테스트·생산 SPA 빌드·OpenAPI/TS 계약 검사를 통과했다. 구현자의 별도 headless 브라우저에서 생산 SPA·합성 HTTP로320/390/1440·밝은/어두운 원문 창, 가로 넘침 없음, 표시 버튼 최소44px, 정확 강조·Escape/초점 복원을 확인했다. 컨트롤러의 실제 자료를 사용하는 독립 인수는 대기다. 실제 계정/자료/서버·모델·운영/main을 변경하지 않았다.
+- 다음 행동/Sites: Task2·Task3 및 독립 인수 후 개인 개발 반영·Draft PR·Sites 요약을 컨트롤러가 진행한다. 이 Task1 단계의 개발 반영·Sites 갱신은 대기다.
+
 ## 완료 작업 · 명시 공개 브리핑 읽기 · 2026-10-16
 
 - 요구사항/담당: [D020](decisions.md)·[공개 브리핑 명세](../changes/public-briefings.md), `feat/public-briefings`, [Draft PR34](https://github.com/DigestWorks/IssueDigest/pull/34). 제품 소스 `b82624de2dc342733ced8ad9d8757e9b93d68154`. 기존 비공개 자료·질문·실행·계정/세션은 공개로 전환하지 않는다.

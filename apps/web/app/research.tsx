@@ -195,31 +195,32 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   }
   const displayedRun = deniedContext !== context && !sending && run?.run_id === runId && run.workspace_id === workspaceId ? run : null;
   const evidence = useResearchEvidence(workspaceId, displayedRun, deniedContext === context, error => clearAuthority(new ResearchError(error.kind === 'authentication' ? 'unauthorized' : 'not-found')));
+  const composer = <form onSubmit={submit} className="research-form">
+    <label className={displayedRun?.status === 'completed' ? undefined : 'visually-hidden'} htmlFor="research-question">{displayedRun?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
+    <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed')} placeholder="알아보고 싶은 이슈를 질문하세요" />
+    <div className="research-form-foot"><button type="submit" disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed') || !question.trim()}>{sending ? '요청 접수 중…' : displayedRun?.status === 'completed' ? '후속 질문하기' : '브리핑 만들기'}</button></div>
+    {!canEdit && <p role="status">읽기 권한으로는 브리핑 기록을 열람할 수 있습니다.</p>}
+  </form>;
   return <div className="research-desk">
     {view === 'research' ? <>
       <div className="research-grid">
         <section className="research-work" aria-label="브리핑 작성">
-          <div className="research-section-heading"><h2>질문과 결과</h2>{displayedRun && <button type="button" onClick={newResearch} disabled={active(displayedRun.status) || sending}>새 질문</button>}</div>
-          <form onSubmit={submit} className="research-form">
-            {displayedRun?.status === 'completed' && <p className="research-context">후속 질문 · {displayedRun.question}</p>}
-            <label htmlFor="research-question">{displayedRun?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
-            <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed')} placeholder="알아보고 싶은 이슈를 질문하세요" />
-            <div className="research-form-foot"><button type="submit" disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed') || !question.trim()}>{sending ? '요청 접수 중…' : displayedRun?.status === 'completed' ? '후속 질문하기' : '브리핑 만들기'}</button></div>
-            {!canEdit && <p role="status">읽기 권한으로는 브리핑 기록을 열람할 수 있습니다.</p>}
-          </form>
+          <h2 className="visually-hidden">질문과 결과</h2>
+          {displayedRun?.status !== 'completed' && composer}
           {requestError && <div className="research-feedback" role="alert"><p>{failures[requestError.kind]}</p>{pendingInput.current && ['network','timeout','unavailable'].includes(requestError.kind) && <button type="button" onClick={() => void send(pendingInput.current!)} disabled={sending}>같은 요청 다시 확인</button>}</div>}
           {runId && runError && <div className="research-feedback" role="alert"><p>{failures[runError.kind]}</p><button type="button" onClick={retryRun}>브리핑 다시 읽기</button></div>}
           {runId && !displayedRun && !runError && <p role="status" aria-live="polite">브리핑을 다시 여는 중…</p>}
           {displayedRun && <div className="research-result">
-            <div className="research-result-heading"><span role="status" aria-label="브리핑 상태" aria-live="polite">{stage[displayedRun.status]}</span>{active(displayedRun.status) && canEdit && <button type="button" onClick={() => void cancel()} disabled={cancelling}>{cancelling ? '취소 중…' : '생성 취소'}</button>}</div>
+            <div className="research-result-heading"><span role="status" aria-label="브리핑 상태" aria-live="polite">{stage[displayedRun.status]}</span><button type="button" onClick={newResearch} disabled={active(displayedRun.status) || sending}>새 질문</button>{active(displayedRun.status) && canEdit && <button type="button" onClick={() => void cancel()} disabled={cancelling}>{cancelling ? '취소 중…' : '생성 취소'}</button>}</div>
             {active(displayedRun.status) && <ol className="research-progress" aria-label="브리핑 진행 상태">{(['queued','retrieving','generating','validating'] as const).map((step, index) => <li key={step} aria-current={displayedRun.status === step ? 'step' : undefined} data-done={index <= ['queued','retrieving','generating','validating'].indexOf(displayedRun.status)}>{stage[step]}</li>)}</ol>}
             {(displayedRun.status === 'failed' || displayedRun.status === 'cancelled') && <p role="alert">{displayedRun.error_code ? runFailures[displayedRun.error_code] : stage[displayedRun.status]} 질문을 바꾸어 다시 시작할 수 있습니다.</p>}
-            {displayedRun.status === 'completed' && displayedRun.result && <><p className="research-question">질문 · {displayedRun.question}</p><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></>}
+            {displayedRun.status === 'completed' && displayedRun.result && <><h2 className="research-question">{displayedRun.question}</h2><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></>}
           </div>}
+          {displayedRun?.status === 'completed' && composer}
           {!displayedRun && !runId && <p className="research-start">궁금한 점을 질문하세요. 현재 접근 가능한 저장 자료에서 관련 근거를 찾습니다.</p>}
         </section>
       </div>
-    </> : <section className="research-saved" aria-label="브리핑 기록 목록"><div className="research-section-heading"><h2>브리핑 기록</h2><button type="button" onClick={refreshList}>목록 새로고침</button></div>
+    </> : <section className="research-saved" aria-label="브리핑 기록 목록"><div className="research-section-heading"><h2 className="visually-hidden">브리핑 기록</h2><button type="button" onClick={refreshList}>목록 새로고침</button></div>
       <p className="research-help">초기 검증 참여자가 같은 자료 범위에서 만든 브리핑입니다.</p>
       {list.kind === 'loading' && <p role="status">브리핑 기록을 읽는 중…</p>}
       {list.kind === 'failure' && <p role="alert">{failures[list.error.kind]}</p>}
@@ -228,7 +229,7 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
       {runId && runError && <div className="research-feedback" role="alert"><p>{failures[runError.kind]}</p><button type="button" onClick={retryRun}>브리핑 다시 읽기</button></div>}
       {runId && !displayedRun && !runError && <p role="status" aria-live="polite">브리핑을 다시 여는 중…</p>}
       {displayedRun && (displayedRun.status === 'failed' || displayedRun.status === 'cancelled') && <p role="alert">{displayedRun.error_code ? runFailures[displayedRun.error_code] : stage[displayedRun.status]}</p>}
-      {displayedRun?.status === 'completed' && displayedRun.result && <div className="research-saved-result"><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></div>}
+      {displayedRun?.status === 'completed' && displayedRun.result && <div className="research-saved-result"><h2 className="research-question">{displayedRun.question}</h2><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></div>}
       {displayedRun && active(displayedRun.status) && <p role="status" aria-live="polite">{stage[displayedRun.status]}</p>}
     </section>}
     {evidence.drawer}
