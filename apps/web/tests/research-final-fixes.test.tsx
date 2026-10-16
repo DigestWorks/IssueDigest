@@ -5,8 +5,8 @@ import {createMemoryRouter, RouterProvider} from 'react-router';
 import {afterEach, expect, it, vi} from 'vitest';
 import App from '../app/root';
 import Home from '../app/routes/home';
-import {completedRun, queuedRun, runId, session, source, secondSource} from './research-data';
-import {otherWorkspace, response, snapshot, workspace} from './workspace-data';
+import {completedRun, queuedRun, runId, session} from './research-data';
+import {response, snapshot, workspace} from './workspace-data';
 
 const guestKey='issuedigest.guest-question.v1';
 afterEach(()=>sessionStorage.removeItem(guestKey));
@@ -14,15 +14,13 @@ function mount(entry='/?view=research') {
  const router=createMemoryRouter([{path:'/',Component:App,children:[{index:true,Component:Home}]}],{initialEntries:[entry]});
  render(<StrictMode><RouterProvider router={router}/></StrictMode>);return router;
 }
-it('retires the restored guest handoff after initialization so reset and workspace return stay empty',async()=>{
+it('retires the restored guest handoff after initialization so reset and navigation return stay empty',async()=>{
  sessionStorage.setItem(guestKey,JSON.stringify({version:1,question:'이미 버린 로그인 전 질문',createdAt:Date.now()}));
  const methods:string[]=[];
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   methods.push(options.method??'GET');
-  if(path.endsWith('/session'))return response({...session,memberships:[...session.memberships,{workspace_id:otherWorkspace,role:'owner'}]});
-  const target=path.includes(otherWorkspace)?otherWorkspace:workspace;
-  if(path.endsWith('/research/sources'))return response({workspace_id:target,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:target,items:[]});
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
   if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
  });
@@ -33,49 +31,31 @@ it('retires the restored guest handoff after initialization so reset and workspa
  await screen.findByText('합성 근거에 맞춘 AI 해석');
  await user.click(screen.getByRole('button',{name:'새 질문'}));
  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
- await user.selectOptions(screen.getByLabelText('자료 범위'),otherWorkspace);
  expect(await screen.findByLabelText('무엇을 알아볼까요?')).toHaveValue('');
- await user.selectOptions(screen.getByLabelText('자료 범위'),workspace);
  expect(await screen.findByLabelText('무엇을 알아볼까요?')).toHaveValue('');
  expect(methods.every(method=>method==='GET')).toBe(true);
 });
 
-it.each([false,true])('a newer raw source stays selected or closed after the old citation lookup resolves (dismiss=%s)',async(dismiss)=>{
- const run=completedRun();run.snapshot_ids=[snapshot,secondSource.snapshot_id];
- const originalA=run.result!.canvas.research.evidence[0];
- const originalB=structuredClone(originalA);originalB.document.document_id=secondSource.document_id;originalB.version.document_id=secondSource.document_id;
- const originalReads:AbortSignal[]=[];let holdLookup=false;let release!:(value:Response)=>void;let lookupSignal:AbortSignal|null|undefined;
- const methods:string[]=[];
+it.each([false,true])('an existing citation reader stays open or closed after an older lookup resolves (dismiss=%s)',async(dismiss)=>{
+ let hold=false;let release!:(value:Response)=>void;let signal:AbortSignal|null|undefined;
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  methods.push(options.method??'GET');
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(run);
-  if(path.endsWith(`/evidence/${secondSource.snapshot_id}`)){originalReads.push(options.signal as AbortSignal);return response(originalB);}
+  if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`)){
-   if(!holdLookup){originalReads.push(options.signal as AbortSignal);return response(originalA);}
-   lookupSignal=options.signal;return new Promise<Response>(resolve=>{release=resolve;});
+   if(!hold)return response(completedRun().result!.canvas.research.evidence[0]);
+   signal=options.signal;return new Promise<Response>(resolve=>{release=resolve;});
   }
   throw Error(path);
  });
  mount(`/?view=research&run=${runId}`);const user=userEvent.setup();
- const newer=await screen.findByRole('button',{name:`전체 원문과 인용 위치 열기 · ${secondSource.title}`});
- holdLookup=true;
- await user.click(screen.getAllByRole('button',{name:/근거 열기: 공공기록법/})[0]);
- await waitFor(()=>expect(release).toBeTypeOf('function'));
- await user.click(newer);
- const drawer=await screen.findByRole('dialog');
- expect(within(drawer).getByRole('heading',{name:secondSource.title})).toBeInTheDocument();
- const focusBefore=document.activeElement;
- if(dismiss){await user.click(within(drawer).getByRole('button',{name:'닫기'}));expect(newer).toHaveFocus();}
- await act(async()=>release(response(originalA)));
- if(dismiss){expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(newer).toHaveFocus();}
- else {expect(screen.getByRole('dialog')).toBe(drawer);expect(within(drawer).getByRole('heading',{name:secondSource.title})).toBeInTheDocument();expect(document.activeElement).toBe(focusBefore);}
- expect(lookupSignal?.aborted).toBe(true);
- // Reader intent must not cancel independent preview requests.
- expect(originalReads.some(signal=>!signal.aborted)).toBe(true);
- expect(methods.every(method=>method==='GET')).toBe(true);
+ const triggers=await screen.findAllByRole('button',{name:/근거 열기: 공공기록법/});
+ await user.click(triggers[0]);const drawer=await screen.findByRole('dialog');
+ hold=true;await user.click(triggers[1]);await waitFor(()=>expect(release).toBeTypeOf('function'));
+ if(dismiss)await user.click(within(drawer).getByRole('button',{name:'닫기'}));
+ await act(async()=>release(response(completedRun().result!.canvas.research.evidence[0])));
+ if(dismiss){expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(signal?.aborted).toBe(true);}
+ else expect(screen.getByRole('dialog')).toBeInTheDocument();
 });
 
 it.each([403,404,503])('shows selected saved-run loading, HTTP %s failure and GET-only retry',async(status)=>{
@@ -83,7 +63,6 @@ it.each([403,404,503])('shows selected saved-run loading, HTTP %s failure and GE
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   methods.push(options.method??'GET');
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[completedRun()]});
   if(path.endsWith(`/research/${runId}`))return reads++===0?new Promise<Response>(resolve=>{release=resolve;}):response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
@@ -105,7 +84,6 @@ it.each(['failed','cancelled'] as const)('shows the actual %s status for a selec
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   methods.push(options.method??'GET');
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[run]});
   if(path.endsWith(`/research/${runId}`))return response(run);
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);

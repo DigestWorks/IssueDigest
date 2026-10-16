@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest';
-import { getResearchRun, getResearchSources, submitResearch, ResearchError } from '../src/research';
+import { getResearchRun, submitResearch, type ResearchRequest } from '../src/research';
 import generatedRun from './fixtures/research-run-generated.json';
 import maximumCitations from './fixtures/research-run-36-citations.json';
 
@@ -8,27 +8,39 @@ const snapshot = '00000000-0000-4000-8000-000000000002';
 const request = '00000000-0000-4000-8000-000000000003';
 const headers = { 'Content-Type': 'application/json', 'Cache-Control': 'no-store', 'X-Request-ID': request };
 
-test('source catalog rejects an internal-id title and submit sends bounded JSON', async () => {
+test('question-only submission accepts queued empty provenance and sends only the declared input', async () => {
   const original = globalThis.fetch;
-  const paths: string[] = [];
-  globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-    paths.push(String(input));
-    expect(init?.credentials).toBe('same-origin');
-    expect(init?.cache).toBe('no-store');
-    return new Response(JSON.stringify({workspace_id: workspace, items: [{ snapshot_id: snapshot, document_id: request, title: '법안 자료', source_kind: 'bill', bill_number: null, proposed_on: null, collected_at: '2026-10-15T00:00:00Z', canonical_url: null, citation_count: 0, excerpt: '' }]}), {headers});
+  const input = {request_id: request, question: '최근 변화는?', parent_run_id: null};
+  let sent: unknown;
+  globalThis.fetch = (async (_path, init) => {
+    sent = JSON.parse(init?.body as string);
+    expect(init).toMatchObject({credentials: 'same-origin', cache: 'no-store'});
+    return new Response(JSON.stringify({...generatedRun, ...input, snapshot_ids: [], status: 'queued', error_code: null, result: null, events: [generatedRun.events[0]]}), {headers});
   }) as typeof fetch;
-  try {
-    const result = await getResearchSources(workspace);
-    expect(result.data.items[0]?.title).toBe('법안 자료');
-    expect(() => submitResearch(workspace, {request_id: request, question: '', snapshot_ids: [snapshot], parent_run_id: null})).toThrowError(ResearchError);
-    expect(paths).toHaveLength(1);
-  } finally { globalThis.fetch = original; }
+  try { expect((await submitResearch(workspace, input)).data.snapshot_ids).toEqual([]); expect(sent).toEqual(input); }
+  finally { globalThis.fetch = original; }
 });
 
-test('catalog rejects an impossible proposal date', async () => {
+test.each([{snapshot_ids: [snapshot]}, {arbitrary: true}])('rejects injected request fields before HTTP: %j', async extra => {
+  const input = {request_id: request, question: '질문', parent_run_id: null, ...extra} as ResearchRequest;
+  await expect(Promise.resolve().then(() => submitResearch(workspace, input))).rejects.toMatchObject({kind: 'malformed'});
+});
+
+test.each(['queued', 'no-hit'] as const)('reads %s with empty server provenance', async kind => {
   const original = globalThis.fetch;
-  globalThis.fetch = (async () => new Response(JSON.stringify({workspace_id: workspace, items: [{ snapshot_id: snapshot, document_id: request, title: '법안 자료', source_kind: 'bill', bill_number: '2200001', proposed_on: '2026-02-30', collected_at: '2026-10-15T00:00:00Z', canonical_url: null, citation_count: 0, excerpt: '' }]}), {headers})) as typeof fetch;
-  try { await expect(getResearchSources(workspace)).rejects.toMatchObject({kind: 'malformed'}); }
+  const status = kind === 'queued' ? 'queued' : 'failed';
+  const value = {...generatedRun, snapshot_ids: [], status, error_code: kind === 'queued' ? null : 'insufficient_evidence', result: null, events: kind === 'queued' ? [generatedRun.events[0]] : [generatedRun.events[0], {sequence: 2, status, created_at: generatedRun.updated_at}]};
+  globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+  try { expect((await getResearchRun(workspace, value.run_id)).data.snapshot_ids).toEqual([]); }
+  finally { globalThis.fetch = original; }
+});
+
+test.each(['research-v1', 'research-v2'])('reads saved %s derivation without rewriting it', async version => {
+  const original = globalThis.fetch;
+  const value = structuredClone(generatedRun);
+  value.result.canvas.research.claims.forEach(claim => { claim.derivation.method_version = version; });
+  globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+  try { expect((await getResearchRun(workspace, value.run_id)).data.result?.canvas.research.claims[0]?.derivation?.method_version).toBe(version); }
   finally { globalThis.fetch = original; }
 });
 
@@ -66,6 +78,8 @@ const proof = (value: unknown) => objectAt(research(value), 'evidence', 0);
 const citationAt = (value: unknown, index: number) => objectAt(proof(value), 'citations', index);
 
 const malformed: [string, (value: unknown) => void][] = [
+  ['empty completed provenance', value => { objectAt(value).snapshot_ids = []; }],
+  ['six sources', value => { objectAt(value).snapshot_ids = Array.from({length: 6}, (_, index) => `00000000-0000-4000-8000-${String(index+100).padStart(12, '0')}`); }],
   ['missing research collection', value => { delete research(value).entities; }],
   ['missing revision identity', value => { delete revision(value).revision_id; }],
   ['nonroot revision', value => { revision(value).revision_number = 2; }],

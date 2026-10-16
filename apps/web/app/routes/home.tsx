@@ -1,10 +1,8 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
+import { useNavigate, useSearchParams } from 'react-router';
 import '../evidence/reader.css';
 import BrandHeader from '../brand-header';
-import { AuthError, CatalogError, getEvidenceCatalog, getResearchSources, getSession, logout, type AuthFailure, type EvidenceCatalog, type SessionInfo } from '@issuedigest/api-client';
-import EvidenceSearch from '../search';
-import { CollectedDate, sourceKind, TechnicalDetails } from '../evidence/presentation';
+import { AuthError, getSession, logout, type AuthFailure, type SessionInfo } from '@issuedigest/api-client';
 import ResearchDesk from '../research';
 import { useResearchDrafts } from '../research-drafts';
 import { clearGuestQuestionDraft, consumeGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
@@ -31,12 +29,10 @@ export default function Home() {
   const [logoutPending, setLogoutPending] = useState(false);
   const [logoutError, setLogoutError] = useState<AuthError | null>(null);
   const [viewParams, setViewParams] = useSearchParams();
-  const view = viewParams.get('view') === 'sources' ? 'sources' : viewParams.get('view') === 'saved' ? 'saved' : 'research';
+  const view = viewParams.get('view') === 'saved' ? 'saved' : 'research';
   const entryParams = useRef(viewParams);
   entryParams.current = viewParams;
-  const [researchVisited, setResearchVisited] = useState(view !== 'sources');
-  useEffect(() => { if (view !== 'sources') setResearchVisited(true); }, [view]);
-  function setView(value: 'research' | 'sources' | 'saved') {
+  function setView(value: 'research' | 'saved') {
     if (value !== 'research' && session.kind === 'failure' && session.error.kind === 'unauthorized') {void navigate('/login'); return;}
     const next = new URLSearchParams(viewParams); next.set('view', value); setViewParams(next);
   }
@@ -55,7 +51,7 @@ export default function Home() {
         drafts.identify(data.user_id, data.memberships.map(item => item.workspace_id));
         const firstWorkspace = data.memberships[0]?.workspace_id ?? '';
         const params = entryParams.current;
-        const newResearch = !params.has('run') && !['saved', 'sources'].includes(params.get('view') ?? '');
+        const newResearch = !params.has('run') && params.get('view') !== 'saved';
         const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
         setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
         setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
@@ -97,7 +93,7 @@ export default function Home() {
       <main>
         <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>브리핑</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>브리핑 기록</button></nav>
         {view === 'research' && <p className="home-kicker">질문에서 시작해, 근거까지</p>}
-        <h1>{view === 'research' ? '무엇이 궁금한가요?' : view === 'sources' ? '자료에서 검색' : '브리핑 기록'}</h1>
+        <h1>{view === 'research' ? '무엇이 궁금한가요?' : '브리핑 기록'}</h1>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
         <section className="workspace-catalog" aria-label="브리핑">
           {session.kind === 'loading' && <p role="status" aria-label="접근 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
@@ -110,20 +106,11 @@ export default function Home() {
                 <div className="guest-compose-foot"><button type="submit" disabled={!guestQuestion.trim()}>질문하기</button></div>
                 {guestError && <p role="alert">{guestError}</p>}
               </form>}
-              <p className="public-briefing-note">공개 브리핑을 준비하고 있습니다.</p>
             </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>접근 상태 다시 확인</button>}
             {session.error.kind !== 'unauthorized' && <SupportInfo requestId={session.error.requestId} />}
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="접근 상태">접근 가능한 자료 범위가 없습니다.</p> : <>
-            {session.data.memberships.length > 1 && <div className="workspace-choice">
-              <label htmlFor="workspace-choice">자료 범위</label>
-              <select id="workspace-choice" value={workspaceId} onChange={event => setWorkspaceId(event.target.value)}>
-                {session.data.memberships.map((membership, index) => <option key={membership.workspace_id} value={membership.workspace_id}>범위 {index + 1}</option>)}
-              </select>
-            </div>}
-            {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
-            {workspaceId && !logoutPending && view === 'sources' && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
-            {workspaceId && view === 'sources' && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
+            {workspaceId && !logoutPending && <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />}
           </>)}
         </section>
       </main>
@@ -134,49 +121,4 @@ export default function Home() {
 
 function SupportInfo({ requestId }: { requestId?: string }) {
   return requestId ? <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{requestId}</code></p></details> : null;
-}
-function WorkspaceCatalog({ workspaceId }: { workspaceId: string }) {
-  const navigate = useNavigate();
-  const [state, setState] = useState<{ kind: 'loading' } | { kind: 'ready'; data: EvidenceCatalog } | { kind: 'failure'; error: CatalogError }>({ kind: 'loading' });
-  const [titles, setTitles] = useState<Record<string, string>>({});
-  const [attempt, setAttempt] = useState(0);
-  useEffect(() => {
-    const controller = new AbortController(); let current = true;
-    void getEvidenceCatalog(workspaceId, { signal: controller.signal }).then(result => {
-      if (current) setState({ kind: 'ready', data: result.data });
-    }, error => {
-      if (!current) return;
-      const failure = error instanceof CatalogError ? error : new CatalogError('network');
-      if (failure.kind === 'unauthorized') {void navigate('/login', {replace: true}); return;}
-      setState({kind: 'failure', error: failure});
-    });
-    return () => { current = false; controller.abort(); };
-  }, [workspaceId, attempt, navigate]);
-  useEffect(() => {
-    if (state.kind !== 'ready') return;
-    const controller = new AbortController();
-    void getResearchSources(workspaceId, {signal: controller.signal}).then(({data}) => {
-      if (!controller.signal.aborted) setTitles(Object.fromEntries(data.items.map(item => [item.snapshot_id, item.title])));
-    }, () => {});
-    return () => controller.abort();
-  }, [workspaceId, state.kind]);
-  if (state.kind === 'loading') return <p role="status" aria-label="자료 목록 상태" aria-live="polite">자료 목록을 읽는 중…</p>;
-  if (state.kind === 'failure') return <>
-    <p role="status" aria-label="자료 목록 상태" aria-live="polite">{messages[state.error.kind]}</p>
-    <button type="button" onClick={() => { setState({ kind: 'loading' }); setAttempt(value => value + 1); }}>자료 목록 다시 읽기</button>
-    <SupportInfo requestId={state.error.requestId} />
-  </>;
-  return <>
-    <h2 className="catalog-title">저장된 자료</h2>
-    <p role="status" aria-label="자료 목록 상태" aria-live="polite" className="catalog-note">저장된 자료 {state.data.items.length}개 · 최대 50개를 표시합니다.{state.data.has_more && ' 표시되지 않은 자료가 더 있습니다.'}</p>
-    {state.data.items.length === 0 ? <div className="catalog-empty"><h2>아직 등록된 자료가 없습니다.</h2><p>접근 가능한 원자료가 준비되면 살펴볼 수 있습니다.</p></div> : <ul className="catalog-list">
-      {state.data.items.map(item => <li key={item.snapshot_id}>
-        <h3 className="catalog-item-title">{titles[item.snapshot_id] ?? `${sourceKind(item.source_kind)} 원문`}</h3>
-        <div className="catalog-source"><span>{sourceKind(item.source_kind)}</span><span>{item.provider}</span></div>
-        <p className="catalog-excerpt">{item.excerpt || '저장된 원문 텍스트가 없습니다.'}</p>
-        <div className="catalog-meta"><CollectedDate value={item.collected_at} /><span>인용 {item.citation_count}개</span><Link className="action-link" to={`/workspaces/${workspaceId}/evidence/${item.snapshot_id}`} state={{kind: 'catalog-source'}}>근거 열기</Link></div>
-        <TechnicalDetails><p>출처 ID <code>{item.source_id}</code></p><p>수집 시각 <code>{item.collected_at}</code></p></TechnicalDetails>
-      </li>)}
-    </ul>}
-  </>;
 }

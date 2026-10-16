@@ -49,7 +49,6 @@ it('shows a quiet guest home with one question action and no repeated login noti
   expect(submit).toBeDisabled(); expect(screen.queryByText('로그인이 필요합니다.')).not.toBeInTheDocument();
   expect(screen.queryByText(/로그인 후/)).not.toBeInTheDocument();
   expect(screen.queryByRole('link', {name: '로그인'})).not.toBeInTheDocument();
-  expect(screen.getByText('공개 브리핑을 준비하고 있습니다.')).toBeInTheDocument();
   const input = screen.getByRole('textbox', {name: '무엇이 궁금한가요?'}); await userEvent.setup().type(input, '   ');
   expect(submit).toBeDisabled(); expect(sessionStorage.getItem('issuedigest.guest-question.v1')).toBeNull();
 });
@@ -59,7 +58,7 @@ it.each(['saved'])('opens login only after confirmed guest navigation to private
   await userEvent.setup().click(screen.getByRole('button', {name: '브리핑 기록'}));
   expect(router.state.location.pathname).toBe('/login'); expect(fetch.mock.calls).toHaveLength(1);
 });
-it.each(['saved', 'sources'])('waits for confirmed session before redirecting direct private %s without calling protected APIs', async view => {
+it.each(['saved'])('waits for confirmed session before redirecting direct private %s without calling protected APIs', async view => {
   let finish!: (value: Response) => void; const fetch = vi.fn(() => new Promise<Response>(resolve => {finish = resolve;}));
   vi.stubGlobal('fetch', fetch); const {router} = mount(`/?view=${view}`);
   expect(router.state.location.pathname).toBe('/'); expect(fetch.mock.calls).toHaveLength(1);

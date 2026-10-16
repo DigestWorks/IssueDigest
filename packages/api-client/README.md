@@ -61,20 +61,18 @@ npm test
 집중 검사는 저장소 루트에서 실행합니다.
 
 ```sh
-npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.test.tsx apps/web/tests/evidence-link.test.tsx
+npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.test.tsx
 ```
 
 합성 `tests/fixtures/canvas-synthetic.json`을 테스트에만 사용합니다. 정상 Unicode 변형은 text hash를 재계산합니다. HTTP 실패, 잘못된 헤더와 JSON, 교차 workspace, 참조·페이지·표·인용 오류, 취소, 헤더 및 본문 timeout을 확인합니다. 전체 서버 및 실제 합성 PostgreSQL 결합 검증은 Controller가 별도로 수행합니다.
 
-## 보호 세션·자료 목록·로그아웃
+## 보호 세션·로그아웃
 
-`getSession(options?)`와 `getEvidenceCatalog(workspaceId, options?)`는 생성된 `SessionInfo`·`EvidenceCatalog` 타입의 `{ data, requestId }`를 반환합니다. 세션은 `/api/v1/auth/session`, 목록은 `/api/v1/workspaces/{workspace_id}/evidence?limit=50`에 GET합니다. `logout(options?)`는 `/api/v1/auth/logout`에 POST하고 검증된 204에서 `{ requestId }`를 반환합니다. Origin은 브라우저가 설정합니다. 토큰·가짜 CSRF·사용자 identity를 JS에서 전송하지 않습니다.
+`getSession(options?)`는 `/api/v1/auth/session`에서 생성된 `SessionInfo` 타입의 `{ data, requestId }`를 반환합니다. `logout(options?)`는 `/api/v1/auth/logout`에 POST하고 검증된204에서 `{ requestId }`를 반환합니다. Origin은 브라우저가 설정하며 JS는 토큰·가짜 CSRF·사용자 신원을 전송하지 않습니다.
 
-세 경계는 relative URL·same-origin credentials·no-store, 기본 10초 헤더/본문 deadline, 외부 AbortSignal과 요청별 정리를 사용합니다. `AuthError`·`CatalogError`의 고정 kind는 `timeout`, `aborted`, `unauthorized`, `not-found`, `unavailable`, `malformed`, `network`입니다. HTTP 오류 본문이나 원시 예외를 노출하지 않고 유효한 UUID4 요청 ID만 보존합니다. 잘못된 ID나 양의 안전 정수가 아닌 timeout은 요청 전에 `malformed`로 거부합니다.
+두 경계는 같은 출처 쿠키·no-store·기본10초 헤더/본문 deadline·AbortSignal과 요청별 정리를 사용합니다. `AuthError`는 고정 kind로 HTTP 오류 본문/원시 예외를 숨기고 유효한 UUID4 요청 ID만 보존합니다. 세션은 schema1·사용자/작업 공간 UUID4·viewer/editor/owner·최대100개·고유 UUID 오름차순 멤버십과 정확 필드를 검증합니다. `tests/auth.test.ts`는 계약·권한 오류·본문/헤더 timeout·취소/늦은 응답·안전한 로그아웃을 검사합니다. 실제 공급자 로그인·DB/운영 검증을 대신하지 않습니다.
 
-성공 GET은 JSON media type·no-store·요청 UUID와 표시 계약을 검증합니다. 세션은 schema 1·사용자/작업 공간 UUID4·viewer/editor/owner·최대 100개·고유한 UUID 오름차순 멤버십을 요구합니다. 목록은 같은 workspace·schema 1·최대 50개·고유 snapshot·문서 UUID4·NonBlank 공급처/출처·원문 종류·credential 없는 HTTP(S) URL·실제 UTC ISO 수집 시각·최대 160 Unicode code point excerpt·안전한 음이 아닌 정수 인용 수·strict bool을 요구합니다. 이 두 모델의 추가 필드도 거부합니다. 서버의 권한·자료 진위·권리·주장 지지 검증을 대체하지 않습니다.
-
-`packages/api-client/tests/auth-catalog.test.ts`는 합성 응답으로 잘못된 계약·본문/헤더 timeout·취소·안전 오류를 검사합니다. 실제 공급자 로그인·DB 연결·운영 설정은 이 검사의 범위가 아닙니다.
+미사용 수동 자료 목록 클라이언트/타입과 전용 테스트는 제거했습니다. 서버의 독립 보호 자료 목록과 원문/검색 API를 삭제하거나 공개하지 않습니다.
 
 ## 보호 근거 문자 검색
 
@@ -88,4 +86,7 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 
 ## 조사 클라이언트
 
-`getResearchSources`, `listResearchRuns`, `getResearchRun`, `submitResearch`, `cancelResearchRun`은 OpenAPI 생성 타입과 응답 검증을 사용합니다. 모든 요청은 같은 출처 쿠키·`no-store`·서버 request ID를 확인하고 원시 HTML/JS를 실행하지 않습니다. `ResearchRun.result.canvas`는 기존 `CanvasView`에 전달하고 `source_titles`는 document ID를 실제 제목으로 바꿀 때 사용합니다. `ResearchError.kind`는 `conflict`(409), `budget`(429), `unavailable`(503)을 포함합니다. 사용자 재시도 때 같은 `request_id`를 재사용하면 재과금 없이 같은 run을 얻습니다. GET/새로고침은 모델 호출을 시작하지 않습니다.
+`listResearchRuns`, `getResearchRun`, `submitResearch`, `cancelResearchRun`은 OpenAPI 생성 타입과 응답 검증을 사용합니다. 모든 요청은 같은 출처 쿠키·`no-store`·서버 request ID를 확인하고 원시 HTML/JS를 실행하지 않습니다. `ResearchRun.result.canvas`는 기존 `CanvasView`에 전달하고 `source_titles`는 document ID를 실제 제목으로 바꿀 때 사용합니다. `ResearchError.kind`는 `conflict`(409), `budget`(429), `unavailable`(503)을 포함합니다. 사용자 재시도 때 같은 `request_id`를 재사용하면 재과금 없이 같은 run을 얻습니다. GET/새로고침은 모델 호출을 시작하지 않습니다.
+
+
+`submitResearch(workspaceId, {request_id, question, parent_run_id?}, options?)`는 질문과 선택적인 완료 부모 실행만 허용합니다. snapshot_ids/임의 필드·빈 질문·잘못된ID는 전송 전에 거부합니다. `ResearchRun.snapshot_ids`는 서버가 찾은0~5개 근거의 기록입니다. queued/무근거실패의 빈 근거와 완료 결과의1개 이상 근거를 구분하며 잘못된 상태/이벤트/결과는 거부합니다. 저장된 research-v1과 신규 research-v2의 정확 인용/Canvas를 모두 검증해 읽습니다. 전용 research source catalog 클라이언트/타입/endpoint는 없습니다.
