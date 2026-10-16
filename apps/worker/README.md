@@ -70,7 +70,7 @@ def prepare(job: HwpxJob, approved_base: ProvisioningPlan) -> ProvisioningPlan:
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 실행합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 두 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 실행합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 

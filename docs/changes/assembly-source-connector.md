@@ -25,11 +25,11 @@
 ## Task 1 · 공식 원문 SDK·오프라인 등록 준비
 
 - [x] 새 connector SDK, HTML 추출, strict capture/job 모델, workspace 설정과 worker CLI/순수 준비를 TDD로 구현한다. 기존 ProvisioningPlan 검증·불변ID alias 검사·private file helpers를 재사용/작게 공통화하되 HWPX 회귀를 유지한다. 새 package root/tests/mypy/pytest/uv lock을 등록한다.
-- [ ] 테스트: bounded fixed origin2요청·cookie/CSRF결합·redirect/HTTP/nonHTML/oversize stream/duplicateform/token/ID mismatch·script/숨김/중복/비정상HTML/Unicode, private file/invalid JSON/크기/실패부분파일·inputs보존, plan exactrepeat/IDconflict/기존승인불변/정확canonicalcitation. 기존 전용PG에서 준비 artifact의 기존 provision register→repeat0→보호read 연계를 합성 신원으로 확인한다. 실제 외부/운영 DB에 테스트하지 않는다.
+- [x] 테스트: bounded fixed origin2요청·cookie/CSRF결합·redirect/HTTP/nonHTML/oversize stream/duplicateform/token/ID mismatch·script/숨김/중복/비정상HTML/Unicode, private file/invalid JSON/크기/실패부분파일·inputs보존, plan exactrepeat/IDconflict/기존승인불변/정확canonicalcitation. 기존 전용PG에서 준비 artifact의 기존 provision register→repeat0→보호read 연계를 합성 신원으로 확인한다. 실제 외부/운영 DB에 테스트하지 않는다.
 
 구현 범위 packages/connectors, apps/worker, root workspace/lock·테스트 설정·관련README. 명세/진행·Sites/실제서버는 controller 소유. 새 UI/API/DB migration·네트워크 fixture·추정 날짜/이력은 추가하지 않는다.
 
 ## Task 2 · controller 실제 검증·인계
 
-- [ ] controller가 별도 private artifact로 실제 원천1건 capture·준비·offline검사·반복을 확인한다. 실제 개발 등록은 기존근거와 겹치지 않는 본문을 선별한 경우에만 전후백업/별도소유DB복원·기존인증보존 후 기존 앱 계정으로 명시 적용한다. 미확인·변경없음이면 추가0으로 기록한다.
+- [x] controller가 별도 private artifact로 실제 원천1건 capture·준비·offline검사·반복을 확인한다. 실제 개발 등록은 기존근거와 겹치지 않는 본문을 선별한 경우에만 전후백업/별도소유DB복원·기존인증보존 후 기존 앱 계정으로 명시 적용한다. 미확인·변경없음이면 추가0으로 기록한다.
 - [ ] 독립 작업/전체 검토·적절한전체검사·Draft PR/진행기록/Sites 갱신. 개발본 적용 범위와 최신성/이력/자동수집 미구현을 구분한다. 사용자 UI 인터뷰는 제안·확정·미정으로 따로 보존한다. main/운영 게시 유예.
