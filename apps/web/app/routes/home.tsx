@@ -6,6 +6,7 @@ import EvidenceSearch from '../search';
 import { CollectedDate, sourceKind, TechnicalDetails } from '../evidence/presentation';
 import ResearchDesk from '../research';
 import { useResearchDrafts } from '../research-drafts';
+import { clearGuestQuestionDraft, consumeGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
 
 type State = 'idle' | 'pending' | 'success' | 'failure';
 const labels: Record<State, string> = {
@@ -25,6 +26,9 @@ const roles = { viewer: '읽기', editor: '편집', owner: '관리' };
 export default function Home() {
   const drafts = useResearchDrafts();
   const navigate = useNavigate();
+  const [guestQuestion, setGuestQuestion] = useState('');
+  const [guestError, setGuestError] = useState('');
+  const [restoredQuestion, setRestoredQuestion] = useState<{userId: string; workspaceId: string; question: string} | null>(null);
   const [evidenceLink, setEvidenceLink] = useState('');
   const [linkError, setLinkError] = useState('');
   const [state, setState] = useState<State>('idle');
@@ -36,6 +40,8 @@ export default function Home() {
   const [logoutError, setLogoutError] = useState<AuthError | null>(null);
   const [viewParams, setViewParams] = useSearchParams();
   const view = viewParams.get('view') === 'sources' ? 'sources' : viewParams.get('view') === 'saved' ? 'saved' : 'research';
+  const entryParams = useRef(viewParams);
+  entryParams.current = viewParams;
   const [researchVisited, setResearchVisited] = useState(view !== 'sources');
   useEffect(() => { if (view !== 'sources') setResearchVisited(true); }, [view]);
   function setView(value: 'research' | 'sources' | 'saved') {
@@ -51,7 +57,16 @@ export default function Home() {
   useEffect(() => {
     const controller = new AbortController(); let current = true;
     void getSession({ signal: controller.signal }).then(result => {
-      if (current) { drafts.identify(result.data.user_id, result.data.memberships.map(item => item.workspace_id)); setSession({ kind: 'ready', data: result.data }); setWorkspaceId(result.data.memberships[0]?.workspace_id ?? ''); }
+      if (current) {
+        const data = result.data;
+        drafts.identify(data.user_id, data.memberships.map(item => item.workspace_id));
+        const firstWorkspace = data.memberships[0]?.workspace_id ?? '';
+        const params = entryParams.current;
+        const newResearch = !params.has('run') && !['saved', 'sources'].includes(params.get('view') ?? '');
+        const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
+        setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
+        setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
+      }
     }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') drafts.clear(); setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
     return () => { current = false; controller.abort(); };
   }, [sessionAttempt]);
@@ -61,13 +76,21 @@ export default function Home() {
     setLogoutPending(true); setLogoutError(null);
     try {
       await logout({ signal: controller.signal });
-      if (mounted.current) { drafts.clear(); setSession({ kind: 'loading' }); setWorkspaceId(''); setEvidenceLink(''); void navigate('/login', { replace: true }); }
+      if (mounted.current) { drafts.clear(); clearGuestQuestionDraft(); setRestoredQuestion(null); setGuestQuestion(''); setSession({ kind: 'loading' }); setWorkspaceId(''); setEvidenceLink(''); void navigate('/login', { replace: true }); }
     } catch (error) {
       if (mounted.current) setLogoutError(error instanceof AuthError ? error : new AuthError('network'));
     } finally {
       logoutRequest.current = null;
       if (mounted.current) setLogoutPending(false);
     }
+  }
+
+  function continueGuestQuestion(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!writeGuestQuestionDraft(guestQuestion)) {
+      setGuestError('질문을 임시 보관하지 못했습니다. 이 탭의 저장 설정을 확인하고 다시 시도해 주세요.'); return;
+    }
+    setGuestError(''); void navigate('/login');
   }
 
   function openEvidence(event: FormEvent<HTMLFormElement>) {
@@ -104,16 +127,25 @@ export default function Home() {
 
   return (
     <div className="workspace home-workspace">
-      <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">이슈 조사 작업 공간</span>{session.kind === 'ready' && <button type="button" onClick={() => void signOut()} disabled={logoutPending}>{logoutPending ? '로그아웃 중…' : '로그아웃'}</button>}</header>
+      <header className="brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest <span className="brand-caption">질문에서 시작하는 이슈 브리핑</span>{session.kind === 'ready' && <button type="button" onClick={() => void signOut()} disabled={logoutPending}>{logoutPending ? '로그아웃 중…' : '로그아웃'}</button>}</header>
       <main>
-        <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>이슈 조사</button><button type="button" aria-current={view === 'sources' ? 'page' : undefined} onClick={() => setView('sources')}>자료</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>저장한 조사</button></nav>
-        <h1>{view === 'research' ? '이슈 조사' : view === 'sources' ? '자료' : '저장한 조사'}</h1>
+        <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>홈</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>저장한 조사</button><button type="button" aria-current={view === 'sources' ? 'page' : undefined} onClick={() => setView('sources')}>자료</button></nav>
+        {view === 'research' && <p className="home-kicker">질문에서 시작해, 근거까지</p>}
+        <h1>{view === 'research' ? '무엇이 궁금한가요?' : view === 'sources' ? '자료' : '저장한 조사'}</h1>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
         <section className="workspace-catalog" aria-label="작업 공간 자료">
           {session.kind === 'loading' && <p role="status" aria-label="작업 공간 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
           {session.kind === 'failure' && <>
             <p role="status" aria-label="작업 공간 상태" aria-live="polite">{messages[session.error.kind]}</p>
-            {session.error.kind === 'unauthorized' ? <><p className="catalog-note">승인된 Google 계정으로 작업 공간의 자료를 함께 읽습니다.</p><Link to="/login" className="action-link">로그인</Link></> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>작업 공간 다시 확인</button>}
+            {session.error.kind === 'unauthorized' ? <>
+              {view === 'research' && <form className="guest-composer" onSubmit={continueGuestQuestion}>
+                <label className="visually-hidden" htmlFor="guest-question">무엇이 궁금한가요?</label>
+                <textarea id="guest-question" rows={3} maxLength={1500} value={guestQuestion} onChange={event => {setGuestQuestion(event.target.value); setGuestError('');}} placeholder="궁금한 이슈나 알고 싶은 변화를 적어 주세요" aria-describedby="guest-question-note" />
+                <div className="guest-compose-foot"><span id="guest-question-note">로그인 후 질문을 확인하고 조사를 시작합니다.</span><button type="submit" disabled={!guestQuestion.trim()}>로그인하고 질문 이어가기</button></div>
+                {guestError && <p role="alert">{guestError}</p>}
+              </form>}
+              <div className="public-briefing-note"><h2>공개 브리핑을 준비하고 있습니다.</h2><p>지금은 초대받은 Google 계정으로 로그인해 자료를 살펴보고 질문할 수 있습니다.</p><Link to="/login" className="action-link">로그인</Link></div>
+            </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>작업 공간 다시 확인</button>}
             <SupportInfo requestId={session.error.requestId} />
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="작업 공간 상태">접근 가능한 작업 공간이 없습니다.</p> : <>
@@ -125,7 +157,7 @@ export default function Home() {
               {membership && <span className="role-label" title={`${roles[membership.role]} 권한`}>{roles[membership.role]}</span>}
               {membership && <TechnicalDetails><p>접근 권한: {roles[membership.role]}</p></TechnicalDetails>}
             </div>
-            {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk key={workspaceId} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
+            {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
             {workspaceId && !logoutPending && view === 'sources' && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
             {workspaceId && view === 'sources' && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
           </>)}

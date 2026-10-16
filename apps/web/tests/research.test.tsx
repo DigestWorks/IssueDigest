@@ -161,7 +161,7 @@ it('keeps the selected source and unsent question when checking the source tab',
   await user.click(await screen.findByRole('checkbox', {name: /공공기록법 일부개정법률안/}));
   await user.type(screen.getByLabelText('무엇을 알아볼까요?'), '처리 상태는?');
   await user.click(screen.getByRole('button', {name: '자료'}));
-  await user.click(screen.getByRole('button', {name: '이슈 조사'}));
+  await user.click(screen.getByRole('button', {name: '홈'}));
   expect(screen.getByRole('checkbox', {name: /공공기록법 일부개정법률안/})).toBeChecked();
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('처리 상태는?');
 });
@@ -412,7 +412,7 @@ it('allows cancellation again after a pending cancel was aborted by run navigati
   await user.click(screen.getByRole('button', {name: '선택 해제'}));
   await waitFor(() => expect(firstCancelSignal?.aborted).toBe(true));
   await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
-  await user.click(screen.getByRole('button', {name: '이슈 조사'}));
+  await user.click(screen.getByRole('button', {name: '홈'}));
   const cancelAgain = await screen.findByRole('button', {name: '조사 취소'});
   expect(cancelAgain).toBeEnabled();
   await user.click(cancelAgain);

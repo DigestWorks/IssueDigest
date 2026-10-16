@@ -27,7 +27,7 @@ const runFailures: Record<NonNullable<ResearchRun['error_code']>, string> = {
 const date = (value: string) => new Intl.DateTimeFormat('ko-KR', {timeZone: 'UTC', year: 'numeric', month: 'numeric', day: 'numeric'}).format(new Date(value));
 function normalize(error: unknown) { return error instanceof ResearchError ? error : new ResearchError('network'); }
 
-export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'}) {
+export default function ResearchDesk({workspaceId, canEdit, view, initialQuestion}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'; initialQuestion?: string}) {
   const drafts = useResearchDrafts();
   const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
@@ -40,7 +40,9 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
   const [catalogVersion, setCatalogVersion] = useState(0);
   const [runVersion, setRunVersion] = useState(0);
   const [selected, setSelected] = useState<string[]>(() => drafts.read(workspaceId, runId)?.selected ?? []);
-  const [question, setQuestion] = useState(() => drafts.read(workspaceId, runId)?.question ?? '');
+  const restoredContext = useRef<string | null>(null);
+  const initialDraft = useRef(!runId && view === 'research' ? initialQuestion ?? '' : '');
+  const [question, setQuestion] = useState(() => drafts.read(workspaceId, runId)?.question ?? initialDraft.current);
   const selectedRef = useRef(selected);
   const questionRef = useRef(question);
   const [run, setRun] = useState<ResearchRun | null>(null);
@@ -65,8 +67,14 @@ export default function ResearchDesk({workspaceId, canEdit, view}: {workspaceId:
     drafts.write(workspaceId, runId, {selected: selectedRef.current, question: value});
   }
   useEffect(() => {
+    const context = `${workspaceId}/${runId ?? 'new'}`;
+    // Effect replay must not erase a one-time OAuth question handoff.
+    if (restoredContext.current === context) return;
+    restoredContext.current = context;
     const draft = drafts.read(workspaceId, runId);
-    selectedRef.current = draft?.selected ?? []; questionRef.current = draft?.question ?? '';
+    selectedRef.current = draft?.selected ?? []; questionRef.current = draft?.question ?? initialDraft.current;
+    if (initialDraft.current && !runId) drafts.write(workspaceId, null, {selected: selectedRef.current, question: questionRef.current});
+    initialDraft.current = '';
     setSelected(selectedRef.current); setQuestion(questionRef.current);
   }, [drafts, workspaceId, runId]);
 
