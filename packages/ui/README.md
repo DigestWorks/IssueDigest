@@ -13,6 +13,8 @@ const props: CanvasViewProps = { bundle: validatedBundle, sourceTitles: verified
 <CanvasView {...props} />;
 ```
 
+`presentation="briefing"`을 선택하면 첫 요약(없으면 첫 유효 모듈)을 강조하고 다른 모듈을 펼쳐 읽는다. 비교는 좁은 다열 표 대신 주장별로 표시한다. 기본 presentation은 기존 Canvas의 순서·레이아웃·표를 유지한다. 두 방식 모두 같은 prepareCanvas 검사·claim basis·canonical 근거 액션을 사용하며 새로운 사실 판정을 만들지 않는다.
+
 `bundle`은 API-client의 생성 공개 타입 `CanvasBundle | null`이고 `onAction`은
 선택적인 `(action: CanvasAction) => void`다. null은 빈 상태로 표시한다.
 근거 부족·추가 질문은 전달된 안내문을 표시하며, 거절·미완성·미지원 버전이나

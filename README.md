@@ -1,8 +1,8 @@
 # IssueDigest
 
-DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 자료를 선택하고 질문하면 AI가 근거를 인용한 요약·비교·타임라인을 구성하고 조사 결과를 자동 저장합니다. React Router 웹·FastAPI API·PostgreSQL과 PydanticAI/DBOS 워커를 연결했습니다. 실제 개발 적용·AI 연결 상태와 남은 범위는 [진행 기록](docs/planning/progress.md)에서 확인합니다. 전체 제품과 운영 배포는 미완료입니다.
+DigestWorks의 이슈 조사·근거 비교 서비스 풀스택 모노레포입니다. 질문에서 시작해 연결된 자료의 원문 인용을 확인하고, AI가 구성한 요약·비교·타임라인을 브리핑으로 읽습니다. 조사 결과는 자동 저장됩니다. React Router 웹·FastAPI API·PostgreSQL과 PydanticAI/DBOS 워커를 연결했습니다. 실제 개발 적용·AI 연결 상태와 남은 범위는 [진행 기록](docs/planning/progress.md)에서 확인합니다. 전체 제품과 운영 배포는 미완료입니다.
 
-첫 사용자는 우리 둘이며, 실제 원자료에서 근거·관계·변화를 찾아 질문에 맞는 화면으로 탐색합니다. 프론트는 React Router, 백엔드는 Python/FastAPI, 그래프는 Neo4j를 사용합니다. 기준 저장소는 PostgreSQL이며, 검색·AI 실행 도구는 D011에 따라 단계적으로 연결합니다. 운영 배치는 검토 중입니다.
+B2C를 목표로 하며 우리 둘은 초기 검증 참여자입니다. 실제 원자료에서 근거·관계·변화를 찾아 질문에 맞는 화면으로 탐색합니다. 비회원 브리핑 읽기·개인 관심 이슈·알림·공유는 후속이며 현재 개발 자료와 조사는 초대된 계정으로 보호합니다. 프론트는 React Router, 백엔드는 Python/FastAPI, 그래프는 Neo4j를 사용합니다. 기준 저장소는 PostgreSQL이며, 검색·AI 실행 도구는 D011에 따라 단계적으로 연결합니다. 운영 배치는 검토 중입니다.
 
 - [문서 안내·협업 방법](docs/README.md)
 - [에이전트 지침](AGENTS.md)
