@@ -33,8 +33,15 @@
 - [x] meaningful TDD: public guest list→read→exact citation→back/focus·stable v1/new v2·404withdrawal cleanup·malformed/crossref·networkretry·route races·question draft/login/noautoPOST·private401. 이전 검사 광범위 삭제 없이 관련 검사를 보강하고 UI cosmetic absence만 새 테스트로 만들지 않는다. JS lint/types/tests/build/contract 후 커밋/보고한다.
 - [x] README/AGENTS·R1/R2/R4·D020·계획/작업/진행·개발 실행 문서를 현재 공개/비공개 계약으로 정리한다. 질문 전용 작업은 완료로 이동하고 기록은 보존한다. 외부 수집/전체 상품 품질/개인화는 후속이며 public source조건과 운영 게시 유예를 명시한다. 실제 데이터 등록·dev rollout·Sites는 controller가 검증 뒤 수행한다.
 
-Task2 검증: 합성 public v1/v2를 사용한 transport30개·공개 사용자 흐름18개와 기존 질문/로그인/권한/원문 회귀를 보존했다. 최종 전체 JS500개/26파일·lint·workspace types·생산 SPA·생성 계약 일치 검사 통과. 서버는 전체 canonical digest/공개 namespace를 검증하고 브라우저는 schema·참조·출처·정확 인용·고정 버전 hash 일치를 확인한다. 독립390/1440/다크 브라우저·실제 전용 PG 전체 검사와 실제1건 게시/개발 적용은 아래 컨트롤러 인수 항목이다. Task2는 실제 계정/원문/키·모델·서버·Sites를 사용/변경하지 않았다.
+Task2 초기 검증은 합성 public v1/v2의 transport30개·공개 사용자 흐름18개와 기존 회귀를 포함한 JS500개였다. 이후 기존 회원 초안의 명시 질문 우선순위 회귀2개를 추가해 최종 JS502개/26파일·lint·workspace types·생산 SPA·생성 계약 검사를 통과했다. 서버는 전체 canonical digest/공개 namespace를, 브라우저는 schema·참조·출처·정확 인용·고정 버전 hash 일치를 확인한다. 독립 브라우저·실제 PG·1건 게시/개발 적용과 복원 결과는 아래 최종 인수 결과를 따른다. 실제 원문/계정/키는 공개 Git/PR/Sites에 싣지 않았다.
 
 ## 최종 검증과 개발 반영
 
 컨트롤러가 실제 PG 전체 검사와 독립 API/브라우저·390/1440/다크모드·public0모델/세션·private권한 경계를 검증하고 전체 변경을 백지 컨텍스트로 검토한다. 기존 공공누리1유형 공식 자료의 전체 공개 계획/표시/인용/근거 부족 표현을 검토해1건만 개인 개발 public table에 명시 게시한다. 실제 비공개 질문/기록을 발행하지 않는다. 기존 실제 앱 자료/인증/실행을 보존하는 사전 백업·명시 migration/최소 권한·반복검증과 별도 전용 DB 복원을 확인하고 웹/API를 같은 개발 도메인에 반영한다. 새 유료 모델 호출은 불필요하면 하지 않는다. 이전 실행 worker는 바꾸지 않는 한 강제 재시작하지 않는다. PR·문서·Sites를 갱신하되 main/운영은 병합하지 않고 사용자의 탭은 열지 않는다.
+
+
+## 최종 인수 결과 · 2026-10-16
+
+제품 소스 `b82624de2dc342733ced8ad9d8757e9b93d68154`의 전체 CI·컨트롤러 전용 PostgreSQL Python2,203개/JS502개와 필수 린트·타입·SPA·생성 계약 검사, 독립 검토/보완 재검토를 통과했다. 기존 회원 초안의 명시 질문 handoff와 게시 전 확인의 동시 발행 snapshot 문제를 실제 RED/GREEN으로 해결했다. 실제 백업 복원본의 기존31테이블 보존·익명 공개0모델/세션·private401·390/1440/다크/정확 강조/초점·고정v1/v2/철회·질문→홈→로그인과 자동POST0을 확인했다.
+
+읽기 전용 사전 백업→소유자0007/앱 새테이블SELECTonly→개별 권리/전체 내용 검토1건/전체 계획 hash 명시 게시/반복 확인→개인 개발 웹/API 반영→외부 TLS/공개3GET·원문/로그인 연결→사후 백업/별도 빈 DB 복원을 마쳤다. 기존 내부 자료12/인용33/검색단위21과31기존테이블 payload를 보존했고 워커는 그대로 유지했다. 실제 비공개 사용자 질문/실행을 게시하지 않았고 새 유료 모델 호출·main/운영 변경은 없다. [PR34](https://github.com/DigestWorks/IssueDigest/pull/34)와 [진행 기록](../planning/progress.md)에 최종 증거/후속/Sites 상태를 남긴다.
