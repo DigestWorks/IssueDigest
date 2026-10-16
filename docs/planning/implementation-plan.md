@@ -1,5 +1,7 @@
 # IssueDigest 구현 계획
 
+최신 B2C 방향은 [D016](decisions.md)과 [제품 경험 인터뷰](../research/product-experience-interview.md)를 따른다. 아래 두 사용자·공동 조사 범위와 월10만 원은 초기 개발 검증 기준이며 최종 고객·B2C 이용 정책이 아니다. [브리핑 경험 첫 연결](../changes/briefing-experience.md) 이후 공개 게시·개인 관심 이슈/알림·공유 기능을 별도로 연결한다.
+
 상태: 검토안 · 2026-10-11 한국 시간. 이 문서는 구현 완료 보고가 아니다.
 
 ## 목표와 합의
