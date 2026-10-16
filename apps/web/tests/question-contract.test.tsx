@@ -135,3 +135,48 @@ it('blocks duplicate submits and rechecks an ambiguous POST with the identical q
  expect(posted).toHaveLength(2);expect(posted[1]).toEqual(posted[0]);
  expect(await screen.findByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
 });
+
+it.each([401,403,404].flatMap(status=>['owner','viewer'].map(role=>({status,role}))))('shows a standalone history denial and explicitly rechecks restored access (HTTP $status, $role)',async({status,role})=>{
+ let allowed=false;let reads=0;
+ vi.stubGlobal('fetch',async(path:string)=>{
+  if(path.endsWith('/session'))return response({...session,memberships:[{workspace_id:workspace,role}]});
+  if(path.endsWith('/research')){reads++;return allowed?response({workspace_id:workspace,items:[completedRun()]}):response({},status);}
+  throw Error(path);
+ });
+ const router=mount('/?view=saved');const user=userEvent.setup();
+ const message=status===401?'로그인이 필요합니다.':status===403?'이 작업을 할 권한이 없습니다.':'자료 또는 브리핑을 찾을 수 없습니다.';
+ expect(await screen.findByRole('alert')).toHaveTextContent(message);
+ expect(screen.queryByText('브리핑 기록이 없습니다.')).not.toBeInTheDocument();
+ expect(router.state.location.search).toBe('?view=saved');
+ allowed=true;await user.click(screen.getByRole('button',{name:'목록 새로고침'}));
+ expect(await screen.findByRole('button',{name:/법안의 핵심은/})).toBeInTheDocument();
+ expect(reads).toBe(2);expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+});
+
+it('clears the question on a standalone history denial and ignores an older list after explicit recovery',async()=>{
+ let reads=0;let releaseOld!:(value:Response)=>void;let oldSignal:AbortSignal|null|undefined;
+ vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research')){
+   reads++;
+   if(reads===1){oldSignal=options.signal;return new Promise<Response>(resolve=>{releaseOld=resolve;});}
+   if(reads===2)return response({},403);
+   return response({workspace_id:workspace,items:[completedRun()]});
+  }
+  throw Error(path);
+ });
+ const router=mount();const user=userEvent.setup();
+ await user.type(await screen.findByLabelText('무엇을 알아볼까요?'),'권한 오류로 지울 질문');
+ await user.click(screen.getByRole('button',{name:'브리핑 기록'}));
+ await user.click(screen.getByRole('button',{name:'목록 새로고침'}));
+ expect(await screen.findByRole('alert')).toHaveTextContent('이 작업을 할 권한이 없습니다.');
+ expect(oldSignal?.aborted).toBe(true);
+ await user.click(screen.getByRole('button',{name:'목록 새로고침'}));
+ expect(await screen.findByRole('button',{name:/법안의 핵심은/})).toBeInTheDocument();
+ const old=completedRun();old.question='늦게 도착한 이전 기록';
+ await act(async()=>releaseOld(response({workspace_id:workspace,items:[old]})));
+ expect(screen.queryByRole('button',{name:/늦게 도착한 이전 기록/})).not.toBeInTheDocument();
+ expect(screen.getByRole('button',{name:/법안의 핵심은/})).toBeInTheDocument();
+ await act(async()=>router.navigate('/'));
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+});

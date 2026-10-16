@@ -65,12 +65,17 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
     invalidateSubmission(); cancelController.current?.abort(); setCancelling(false);
     pendingInput.current = null; drafts.clearWorkspace(workspaceId);
     initialDraft.current = ''; questionRef.current = ''; setQuestion('');
-    setRun(null); setList({kind: 'ready', items: []});
+    setRun(null); setList(runId ? {kind: 'ready', items: []} : {kind: 'failure', error});
     if (runId) setRunError(error); else setRequestError(error);
   }
   function retryRun() {
     deniedRef.current = null; setDeniedContext(null);
     setRunVersion(value => value + 1);
+  }
+  function refreshList() {
+    listController.current?.abort();
+    deniedRef.current = null; setDeniedContext(null); setRequestError(null);
+    setListVersion(value => value + 1);
   }
   function saveQuestion(value: string) {
     questionRef.current = value; setQuestion(value);
@@ -214,7 +219,7 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
           {!displayedRun && !runId && <p className="research-start">궁금한 점을 질문하세요. 현재 접근 가능한 저장 자료에서 관련 근거를 찾습니다.</p>}
         </section>
       </div>
-    </> : <section className="research-saved" aria-label="브리핑 기록 목록"><div className="research-section-heading"><h2>브리핑 기록</h2><button type="button" onClick={() => setListVersion(value => value + 1)}>목록 새로고침</button></div>
+    </> : <section className="research-saved" aria-label="브리핑 기록 목록"><div className="research-section-heading"><h2>브리핑 기록</h2><button type="button" onClick={refreshList}>목록 새로고침</button></div>
       <p className="research-help">초기 검증 참여자가 같은 자료 범위에서 만든 브리핑입니다.</p>
       {list.kind === 'loading' && <p role="status">브리핑 기록을 읽는 중…</p>}
       {list.kind === 'failure' && <p role="alert">{failures[list.error.kind]}</p>}
