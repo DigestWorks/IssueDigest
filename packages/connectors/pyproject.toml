@@ -1,0 +1,9 @@
+[project]
+name = "issuedigest-connectors"
+version = "0.0.0"
+requires-python = ">=3.13,<3.14"
+dependencies = ["pydantic==2.14.0", "httpx2==2.13.1"]
+
+[build-system]
+requires = ["hatchling==1.32.4"]
+build-backend = "hatchling.build"

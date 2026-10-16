@@ -33,6 +33,7 @@ from issuedigest_storage.provisioning import (
 )
 from pydantic import AnyHttpUrl, BaseModel, TypeAdapter, UrlConstraints
 
+from .assembly_models import AssemblyJob
 from .models import (
     CellCitationRequest,
     HwpxJob,
@@ -42,6 +43,7 @@ from .models import (
 )
 
 _MODEL_TYPES = {
+    AssemblyJob,
     HwpxJob,
     HwpxSource,
     LicenseAttestation,
@@ -70,6 +72,9 @@ _COLLECTION_LIMITS: dict[tuple[type[BaseModel], str], tuple[int, int]] = {
     (ProvisioningPlan, "invites"): (1, 2),
 }
 _STRING_LIMITS: dict[tuple[type[BaseModel], str], int] = {
+    (AssemblyJob, "bill_id"): 80,
+    (AssemblyJob, "title"): 300,
+    (AssemblyJob, "bill_number"): 10,
     (HwpxSource, "raw_path"): 4096,
     (LicenseAttestation, "evidence_url"): 4096,
     (TextCitationRequest, "quote"): 100_000,
@@ -169,7 +174,7 @@ class _Budget:
             raise ValueError("Unsupported model input")
 
 
-def preflight_model(value: HwpxJob | ProvisioningPlan) -> None:
+def preflight_model(value: HwpxJob | AssemblyJob | ProvisioningPlan) -> None:
     """Bound counts, depth and aggregate escaped UTF-8 bytes before full serialization."""
     if type(value) is HwpxJob:
         if type(value.sources) is not tuple or not 1 <= len(value.sources) <= 10:
@@ -184,6 +189,6 @@ def preflight_model(value: HwpxJob | ProvisioningPlan) -> None:
             count += len(source.citations)
         if count > 200:
             raise ValueError("Too many citations")
-    elif type(value) is not ProvisioningPlan:
+    elif type(value) not in {AssemblyJob, ProvisioningPlan}:
         raise ValueError("Invalid model input")
     _Budget().visit(value)

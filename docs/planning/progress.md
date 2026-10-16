@@ -21,7 +21,20 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 첫 조사 흐름 · 2026-10-15
+## 현재 작업 · 수집 연결·제품 경험 인터뷰 · 2026-10-16
+
+- 범위: [첫 국회 원문 연결기](../changes/assembly-source-connector.md), [제품 경험 인터뷰](../research/product-experience-interview.md). feat/assembly-source-connector, base feat/research-journey/2439385. 기존 linked worktree를 유지하며 새 branch에서 진행한다.
+- 읽기 조사: 기존 MySQL Bill41,004·제안일2020-06-01~2026-07-10 확인, SELECT만 수행했다. 행수/상한은 현재 수집 실행의 정상·최신성을 보장하지 않는다. 기존 Airflow는 검토 코드의 폐기 경로이며 실제 활성 실행기는 추가 확인 대상이다.
+- 구현: 공개 국회 상세 GET/읽기 POST의 고정2요청·TLS/크기/형식/비밀로그 제한·정확 요약 추출과 private capture→기존 승인 등록 계획의 offline 연결을 구현했다. 실제 공식 원문487자를 수집하고 정확 인용1개를 준비했다. 원문과 관계없는 footer 구조 문제·숨김/native context 반영 문제를 RED회귀→보완·독립 검토로 해결했다. 재수집의 문서 변경 판정·정기 수집·전체 처리 이력/변경 감지/알림은 이번 완료가 아니다.
+- 실제 연결: 기존 앱 역할로 제안 내용1건/인용1개를 추가해 총자료12·인용33·검색21단위/outbox12. 기존11건의 hash·계정/초대/권한·세션 보존, 반복 신규0. schema/DDL·legacy쓰기·실제사용자 세션 대행·모델호출0. 기존 개인 API/웹/조사worker는 재시작하지 않았다. 신규 수집기가 상주/예약 실행되는 상태는 아니다.
+- 검증: controller 별도 소유 PG18.6 전체 Python2047개/skip0, JS408개·Ruff188파일/mypy83·TypeScript/빌드/계약 통과. 독립 작업/보완/전체/최종 보완 재검토 C/I/M0. 실제GET/POST2회·265262바이트capture, 본문487자·canonical 인용·같은artifact반복추가0 확인. 앞선GET 호환 실패와 controller의 잘못된 로컬base경로 참조는 적용 전에 교정했으며 실제DB 부분쓰기0이었다.
+- 백업: 적용 전후 서버 외부 full/app archive 보존. 적용 후 앱 archive를 별도 소유 PG18.6에 복원해 자료12/인용33/검색21·기존11hash와 실제auth행 보존·기존/신규 canonical bundle·합성 신원 보호catalog12/다른공간/미인증/viewer생성거부를 확인했다. 이후 자체컨테이너/익명볼륨을 제거했다. 원래사용자의 세션은 대신 사용하지 않았다. 외부TLS·동일기존웹빌드/asset7개·login/health200·보호401/Origin403도 확인했다. 프런트 코드는 그대로이며 새로운관심이슈/생성UI를 배포한것이아니다. 실제 DB 테스트/초기화/복원·운영 원본/MySQL·공용 checkout·main은 변경하지 않는다.
+- 인터뷰: 질문 우선+최근 이슈 탐색, 사실/주장/미확인 요약, 여론조사/언론/온라인 반응 구분, 근거 부족을 솔직히 인정하는 AI 어조를 사용자 답변으로 기록했다. 30초 요약·결과 중심 동적 화면·관심 이슈 저장/변화→후속 탐색→공유·휴대폰 중심·최신 전체 요약의 변경 표시·새 사실/공식 결정/정정 우선까지 답변을 받았다. 여러 매체의 새 보도 기반 최근 이슈·중요 변화 발생 시 알림 선호, ChatGPT의 위젯/에이전트 경험과 Linear/Toss/Apple 수준의 정돈·마감 선호도 기록했다. AI가 자료 탐색→비교/시각화까지 자율 진행하는 선호도 확인했다. 우선 모듈·구체적인 불만은 추가 질문 중이다. 제안과 확정 답변을 구분하며 새 UI는 아직 구현하지 않는다.
+- 인계: [Draft PR #30](https://github.com/DigestWorks/IssueDigest/pull/30), 기준제품 코드912854f·문서a413b46의 [CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/38838392607). 서버 개인 checkout도a413b46으로 동기화하고 수집/준비 entrypoint2개를 설치했다. 앱/워커 재시작·정기 수집 시작·main/운영 게시 없음.
+- Sites: [v50 제품 경험 인터뷰·첫 연결기](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#product-experience) public/native succeeded. source `ee61a05a320aa203cc5578bc2e347d2a576f881f`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_77be20c2049c8191b3ebebecde763ae2`, deployment `appgdep_6ad186d11a0c819195a52504ced7d6c2`. 이전v49 보존·사본기준a413b46·HTML35/로컬 링크anchor892/공개 텍스트94개와 실제 비밀값/계정/원문 제외 검사 통과. source동기화의 일시DNS실패는 복구 확인 후 같은소스/프로젝트로 재개했다. 브라우저 탭을 열지 않았다.
+- 정리: 자체 PG 검사/복원 컨테이너·익명볼륨을 제거하고 private capture·job·계획·전후dump·리뷰를 보존했다. SDD 스크래치만 비공개 보관 후 정리하며 PR 작업용 linked worktree는 유지한다. 인터뷰는 계속 진행 중이고 신규UI 배포로 표시하지 않는다.
+
+## 이전 작업 · 첫 조사 흐름 · 2026-10-15
 
 - 범위: [명세](../changes/research-journey.md), [실행·비용·검증 경계](../../infra/research-development.md), feat/research-journey, base feat/workspace-clarity-legacy/5fd3824. 사용자 승인 범위는 자료 선택→질문→생성 결과→정확 원문→자동 저장·재열람이다. main/운영 게시 유예(D013)를 유지한다.
 - 화면: **이슈 조사 / 자료 / 저장한 조사**. 실제 자료 제목·의안번호·제안일로 고르고 법안 핵심 정리·질문을 시작한다. 접수/검색/분석/인용 연결 확인과 취소·실패·연결 대기·한도를 구분한다. 질문 전에는 AI 결과를 표시하지 않는다. 생성된 해석·검증된 인용 위치·원문을 구분하고 후속 질문·같은 결과 재열람을 연결했다.

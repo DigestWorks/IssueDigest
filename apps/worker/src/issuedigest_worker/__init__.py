@@ -1,5 +1,7 @@
-"""Offline HWPX evidence preparation; importing never connects external services."""
+"""Private HWPX/Assembly evidence preparation; imports never connect external services."""
 
+from .assembly_models import AssemblyJob, parse_assembly_job
+from .assembly_prepare import prepare_assembly_plan
 from .models import (
     CellCitationRequest,
     HwpxJob,
@@ -12,6 +14,9 @@ from .models import (
 from .prepare import prepare_hwpx_plan
 
 __all__ = [
+    "AssemblyJob",
+    "parse_assembly_job",
+    "prepare_assembly_plan",
     "CellCitationRequest",
     "HwpxJob",
     "HwpxSource",
