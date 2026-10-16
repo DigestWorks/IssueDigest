@@ -1,6 +1,6 @@
 # 진행 기록
 
-2026-10-15 한국 시간. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
+2026-10-16. 최신 상태는 아래 현재 작업을 따르며 과거 검증 기록을 보존한다. 상태는 문서·코드·검증·운영 증거를 구분한다. 웹·API·상태 계약·개발 자동 검증 기반, 첫 원문·파싱·인용 및 두 번째 개체·주장·관계·비교 조건, 세 번째 실행·화면·사용량 부분 계약을 구현했다. 실제 HTTP·브라우저 스모크 검증을 통과했으며 전체 P1과 제품 기능은 미완료다.
 
 | 단계 | 현재 상태 | 완료 증거·다음 조건 |
 | --- | --- | --- |
@@ -21,7 +21,17 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 수집 연결·제품 경험 인터뷰 · 2026-10-16
+## 현재 작업 · B2C 브리핑 경험 첫 연결 · 2026-10-16
+
+- 기준: [승인 인터뷰](../research/product-experience-interview.md)와 [첫 실제 연결 명세](../changes/briefing-experience.md). feat/briefing-experience, base feat/assembly-source-connector/e8c7b0a. B2C가 목표이며 두 사람은 초기 검증 참여자다(D016). 기존 linked worktree를 재사용한다.
+- 구현: 질문 우선 홈·초대 로그인 초안·편집 후 명시 실행, 직접 선택/제한적인 연결 자료 후보, 현재 선택 원문의 정확 인용 선열람, 검증된 실제 AI 모듈의 브리핑·모바일 주장별 비교, 본문을 떠나지 않는 정확 원문 창을 연결했다. 기본 Canvas 계약·기존 저장/후속/멱등성/취소/예산은 유지한다. 공개 최근 이슈나 가짜 AI 결과를 채우지 않는다.
+- 구분: 생성 중 먼저 보이는 것은 원문 인용이다. AI 부분 답변·전체 검색 이력·확인된 사실이 아니다. 현재 AI 주장 basis는 해석 그대로 표시하며 UI가 사실·찬반 분류를 만들지 않는다. 저장한 조사는 공동 조사 기록이지 개인 비공개 북마크가 아니다.
+- 검증: Task1/2 작업 독립 검토와 보완 재검토 승인. Python2047/skip0·Ruff189·mypy83, 최종 웹478/25파일·lint/type/build/contract 통과. Python은 이번 UI 변경이 없어 같은 작업의 검사를 반복하지 않았다. 전체 검토의 초안 재등장·늦은 원문 응답2건과 저장 개별 조회 피드백을 RED8→GREEN8로 보완하고 scoped 재검토 C0/I0/M0을 확인했다. 합성 HTTP+소유 PG/FunctionModel 브라우저에서 질문 복원/조사0, 무관 질문 실행0, 원문→완료 모달 유지·정확 mark/Escape/초점 복귀, 320/390/1440 비교 가로넘침0, 실패/취소 원문 유지, viewer 생성 비활성, 저장 재열람 추가모델0을 확인했다. 실패→새 조사 즉시 입력 보존·지연된 목록404 뒤 원문/모달 삭제도 새 빌드 브라우저로 재확인했다. 최종 새 브라우저에서 guest reset→B→A/POST0, 늦은 A 조회→B 유지/닫힘 유지, 저장 GET의 loading→503→동일 GET 재시도2회도 확인했다. 권한404/일시503 주입과 원문 응답 지연 외에는 실제 합성 API/DB다. 실제 OAuth 제공자 로그인·실제 모델 추론 품질 검증이 아니다.
+- 판단: HTTP403을 기존 클라이언트 권한 오류로 구분하고 현재 보호 리소스404도 원문을 닫는 조건으로 다룬다. 기존 backend가 회원권 상실에404를 쓰기 때문이다. 기존 원문 화면의403 안내가 로그인/권한 안내로 바뀌고, 실제 자료 누락/일시404라도 닫힌 원문은 성공한 재조회가 필요하다. HTTP/스키마·DB·워커 계약은 바꾸지 않는다.
+- 개발 적용: [개발 앱](https://dev.issuedigest.projects.ai.kr/)의 정적 웹 source35a530a 반영, 파일16개/이전 asset9개 유지·개인 Nginx reload. 외부 TLS·홈/login/health/status200·session/research401/no-store, 현재 asset7개의 로컬 빌드 일치와 기존 asset7개의 같은 바이트를 확인했다. 기존 API/worker·TLS/시스템 프록시·자료·비밀 설정 유지, DB쓰기/migration·실제 사용자 세션 대행·유료 모델 검증·main/운영 게시0. [Draft PR31](https://github.com/DigestWorks/IssueDigest/pull/31), base feat/assembly-source-connector. Sites v52 public/native succeeded, 이전v51 보존. source56d070e744fd470eb5a509b141d9dbdb0c2051fb, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_08fcb4f6351881918e5f38180f209918, deployment appgdep_6ad1a3ddff84819188daf00100cc762c. 사본기준83e81f0, HTML37/로컬링크·anchor984/공개텍스트97의 실제 비밀값 제외 검사 통과. 사용자 브라우저 탭을 열지 않았다.
+- 후속: 공개 게시·공유 불변 브리핑, 개인 관심 이슈/변경·알림, 실제 주목도·개인화, 검증된 AI 모듈의 점진 전달. 공개 이슈 범위·외부 탐색 범위·초기 AI 이용 정책은 답변 대기다. 현재 자료12건을 공개 브리핑12개나 최근 인기 이슈로 표시하지 않는다. 권한 상실 시 현재 원문 미리보기/창은 지우지만 이미 표시한 Canvas/자료 제목 전체 정리는 공개 출시 전 후속으로 남긴다.
+
+## 이전 작업 · 수집 연결·제품 경험 인터뷰 · 2026-10-16
 
 - 범위: [첫 국회 원문 연결기](../changes/assembly-source-connector.md), [제품 경험 인터뷰](../research/product-experience-interview.md). feat/assembly-source-connector, base feat/research-journey/2439385. 기존 linked worktree를 유지하며 새 branch에서 진행한다.
 - 읽기 조사: 기존 MySQL Bill41,004·제안일2020-06-01~2026-07-10 확인, SELECT만 수행했다. 행수/상한은 현재 수집 실행의 정상·최신성을 보장하지 않는다. 기존 Airflow는 검토 코드의 폐기 경로이며 실제 활성 실행기는 추가 확인 대상이다.

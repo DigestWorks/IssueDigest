@@ -10,8 +10,8 @@ export function Layout({ children }: { children: ReactNode }) {
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
-        <title>IssueDigest · 이슈 조사와 근거 비교</title>
-        <meta name="description" content="자료를 함께 읽고 이슈의 근거를 비교하는 작업 공간" />
+        <title>IssueDigest · 질문에서 시작하는 이슈 브리핑</title>
+        <meta name="description" content="궁금한 이슈를 질문하고 원자료와 근거를 살펴보세요." />
         <Meta />
         <Links />
       </head>
@@ -21,7 +21,7 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 
 export function HydrateFallback() {
-  return <p className="loading-shell" role="status">IssueDigest 작업 공간을 준비하고 있습니다.</p>;
+  return <p className="loading-shell" role="status">IssueDigest를 준비하고 있습니다.</p>;
 }
 
 export default function App() {

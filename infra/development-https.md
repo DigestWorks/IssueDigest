@@ -113,3 +113,9 @@ https://dev.issuedigest.projects.ai.kr/api/v1/auth/google/callback
 ## 2026-10-15 · 실제 조사 흐름 반영
 
 개발 주소의 제품 source는 `d6e2df1`이다. 개인 API·정적15파일·DBOS worker를 연결했고 기존 시스템 프록시/TLS·main/운영 배포는 변경하지 않았다. 외부 index/asset7개 일치·login/health200·보호session/research401/no-store·Origin403을 확인했다. 서버에서 실제 모델 요약1건을 호출해 구조/인용 검증까지 확인했으며 실제 사용자 세션을 대신 사용하지 않았다. 자료11건·인용32개·검색20단위, 앱 역할 DDL 제한 유지. 상세 실행/비용/한계는 [조사 개발 인수인계](research-development.md), 전후 백업·별도 소유 DB 복원은 [진행 기록](../docs/planning/progress.md)을 따른다.
+
+## 2026-10-16 · 질문·브리핑 웹 반영
+
+제품 source35a530a의 검증된 정적 웹16파일을 기존 개인 개발 HTTPS에 반영하고 이전 asset9개를 유지했다. 개인 Nginx root/reload만 변경했으며 API/AI worker 재시작·DB쓰기/마이그레이션·시스템TLS/프록시·main/운영 변경은 없다. 외부 홈/login/health/status200, 보호session/research401/no-store, 새 asset7개의 로컬 빌드 일치·이전 asset7개의 동일 바이트를 확인했다. 기존 탭은 새로고침해 사용한다.
+
+질문 우선 홈·로그인 초안·생성 중 선택 원문·완료 AI 브리핑·본문 내 원문 창·모바일 비교·저장 GET 재시도가 첫 연결 범위다. 최종 Python2047+JS478=2525 검사는 합성/소유 DB에서 수행했고 실제 제공자 로그인/유료 모델 품질 검증을 새로 수행하지 않았다. 실제 사용자 세션을 만들지 않았다. 최신 코드·후속·검토와 Sites 게시 기록은 [진행 기록](../docs/planning/progress.md)을 따른다.

@@ -4,8 +4,8 @@ import type { ActionHandler } from './components';
 import type { DisplayContext } from './prepare';
 import { Chart } from './chart';
 
-export function ModuleContent({module, context, sourceTitles, onAction}: {
-  module: CanvasModule; context: DisplayContext; sourceTitles?: Record<string, string>; onAction: ActionHandler;
+export function ModuleContent({module, context, sourceTitles, onAction, presentation = 'canvas'}: {
+  presentation?: 'canvas' | 'briefing'; module: CanvasModule; context: DisplayContext; sourceTitles?: Record<string, string>; onAction: ActionHandler;
 }) {
   switch (module.kind) {
     case 'evidence': return <div>{module.citation_ids.map(id => <EvidenceCard key={id} display={context.citations.get(id)!} context={context} sourceTitles={sourceTitles} onAction={onAction} />)}</div>;
@@ -13,7 +13,14 @@ export function ModuleContent({module, context, sourceTitles, onAction}: {
       const claim = context.claims.get(id)!;
       return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
     })}</ul>;
-    case 'comparison': return <>
+    case 'comparison': if (presentation === 'briefing') return <>
+      <p className="id-canvas-note">{sourceTitles ? '자료별 AI 해석을 주장별로 읽습니다.' : '전달된 주장을 하나씩 읽습니다.'}</p>
+      <ol className="id-canvas-claims" aria-label="주장별 비교">{module.claim_ids.map(id => {
+        const claim = context.claims.get(id)!;
+        return <li key={id}><p className="id-canvas-attribution">{speaker(claim, context, sourceTitles)} <Basis value={claim.basis} aiGenerated={Boolean(sourceTitles)} /></p><p>{claim.text}</p><EvidenceLinks ids={claim.citation_ids} context={context} sourceTitles={sourceTitles} onAction={onAction} /></li>;
+      })}</ol>
+    </>;
+    return <>
       <p className="id-canvas-note">{sourceTitles ? '자료별 AI 해석을 나란히 봅니다.' : '전달된 주장을 나란히 표시합니다. 수치 합산이나 주장 간 동등성을 평가하지 않았습니다.'}</p>
       <div className="id-canvas-table-scroll" tabIndex={0} role="group" aria-label="주장 비교 표 가로 스크롤">
         <table><caption>주장 비교</caption><thead><tr><th scope="col">{sourceTitles ? '근거 자료' : '발화 주체'}</th><th scope="col">내용</th><th scope="col">구분</th><th scope="col">근거</th></tr></thead>

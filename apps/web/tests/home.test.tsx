@@ -13,8 +13,8 @@ const success = () => new Response(JSON.stringify({ service: 'issuedigest-api', 
 it('offers research, source, and saved-run navigation while asking an unauthenticated user to log in', async () => {
   vi.stubGlobal('fetch', async () => response({}, 401));
   render(<MemoryRouter><Home /></MemoryRouter>);
-  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('이슈 조사');
-  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('이슈 조사');
+  expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent('무엇이 궁금한가요?');
+  expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('홈');
   expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('자료');
   expect(screen.getByRole('navigation', { name: '주요 메뉴' })).toHaveTextContent('저장한 조사');
   expect(await screen.findByRole('link', { name: '로그인' })).toBeInTheDocument();
@@ -70,5 +70,5 @@ it('does not display a malformed API response as a successful connection', async
 it('prerenders a truthful loading shell without API requests', () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
   const html = renderToString(<MemoryRouter><Home /></MemoryRouter>);
-  expect(html).toContain('로그인 상태를 확인하는 중'); expect(html).not.toContain('아직 등록된 자료'); expect(html).toContain('이슈 조사'); expect(fetch).not.toHaveBeenCalled();
+  expect(html).toContain('로그인 상태를 확인하는 중'); expect(html).not.toContain('아직 등록된 자료'); expect(html).toContain('무엇이 궁금한가요?'); expect(fetch).not.toHaveBeenCalled();
 });

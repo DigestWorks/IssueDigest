@@ -46,3 +46,35 @@
 .research-run-list button strong { font-weight:600; overflow-wrap:anywhere; }
 .research-run-list button span { color:var(--muted); font-size:11px; }
 @media(max-width:760px) { .research-grid { grid-template-columns:minmax(0,1fr); gap:20px; } .research-source-list { display:grid; grid-template-columns:minmax(0,1fr); max-height:min(42svh, 300px); } .research-nav { gap:18px; } }
+/* A narrow reading column leads; connected sources remain a secondary shelf. */
+.research-grid { grid-template-columns:minmax(0,740px) minmax(220px,280px); gap:48px; justify-content:center; }
+.research-sources { padding-top:2px; }
+.research-sources .research-section-heading { align-items:flex-start; flex-wrap:wrap; }
+.research-sources .research-section-heading h2 { font-size:17px; }
+.research-sources .research-section-heading button { font-size:12px; border:0; padding:4px 0; text-decoration:underline; }
+.research-source-meta { margin-left:0; }
+.research-source-choice { min-height:44px; align-items:center; }
+.research-source-actions, .research-source-excerpt { margin-left:0; }
+.research-selected-scope { margin:12px 0 0; color:var(--green); font-size:12px; line-height:1.7; overflow-wrap:anywhere; }
+.research-candidates { margin-top:16px; border-top:1px solid var(--line); padding-top:12px; color:var(--green); font-size:12px; line-height:1.7; }
+.research-candidates ul { padding-left:20px; }
+.research-candidates button { padding:8px 0; border:0; text-decoration:underline; }
+.research-work .id-canvas[data-presentation="briefing"] .id-canvas-module, .research-saved .id-canvas[data-presentation="briefing"] .id-canvas-module { padding:20px 0; }
+.research-work .id-canvas[data-presentation="briefing"] .id-canvas-grid > .id-canvas-module:first-child, .research-saved .id-canvas[data-presentation="briefing"] .id-canvas-grid > .id-canvas-module:first-child { padding:24px; }
+.research-work .id-canvas .id-canvas-evidence blockquote, .research-saved .id-canvas .id-canvas-evidence blockquote { max-height:none; overflow:visible; }
+.research-preview { margin-top:28px; padding-top:24px; border-top:1px solid var(--line); }
+.research-preview h3 { font:500 19px/1.5 "Noto Serif KR", "Batang", serif; }
+.research-preview article { padding:16px 0 20px; border-bottom:1px solid var(--line); }
+.research-preview h4 { margin:0; font-size:14px; line-height:1.6; overflow-wrap:anywhere; }
+.research-preview blockquote { margin:14px 0; padding-left:16px; border-left:2px solid var(--green); font-size:14px; line-height:1.85; white-space:pre-wrap; overflow-wrap:anywhere; }
+.research-preview button { font-size:12px; text-align:left; white-space:normal; overflow-wrap:anywhere; }
+.research-evidence-drawer { position:fixed; inset:0 0 0 auto; width:min(760px,100%); height:100dvh; max-height:100dvh; max-width:100%; margin:0; padding:0; border:0; background:#fbfbf7; color:#21372c; overflow:hidden; }
+.research-evidence-drawer::backdrop { background:rgb(24 39 29 / 38%); }
+.research-drawer-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; min-height:72px; padding:12px 24px; border-bottom:1px solid var(--line); color:var(--green); }
+.research-drawer-body { height:calc(100% - 72px); overflow-y:auto; overscroll-behavior:contain; padding:24px; overflow-wrap:anywhere; }
+.research-drawer-body h1 { font:500 clamp(22px,4vw,30px)/1.5 "Noto Serif KR", "Batang", serif; }
+.research-drawer-body .reading-layout { grid-template-columns:minmax(0,1fr); }
+.research-drawer-body .original-text { max-height:none; }
+.research-drawer-body .citations-pane { border-left:0; border-top:1px solid var(--line); padding:24px 0 0; }
+@media(max-width:1000px) { .research-grid { grid-template-columns:minmax(0,740px); gap:28px; } .research-sources { border-top:1px solid var(--line); padding-top:24px; } .research-source-list { max-height:360px; } }
+@media(max-width:480px) { .research-form { padding:16px; } .research-form-foot button { width:100%; } .research-drawer-heading { padding-inline:16px; } .research-drawer-body { padding:20px 16px; } .research-work .id-canvas[data-presentation="briefing"] .id-canvas-grid > .id-canvas-module:first-child { padding:18px; } }

@@ -14,7 +14,7 @@ it('registers the real login route with a native fixed POST form and no client c
   const form = screen.getByRole('button', { name: 'Google로 로그인' }).closest('form');
   expect(form).toHaveAttribute('method', 'post'); expect(form).toHaveAttribute('action', '/api/v1/auth/google/start');
   expect(form?.querySelector('input')).toBeNull(); expect(fetch).not.toHaveBeenCalled();
-  expect(screen.getByRole('link', { name: '작업 공간으로' })).toHaveAttribute('href', '/');
+  expect(screen.getByRole('link', { name: '홈으로' })).toHaveAttribute('href', '/');
 });
 it.each([['denied', '로그인을 취소했습니다.'], ['invalid', '로그인 요청을 확인하지 못했습니다. 다시 시도해 주세요.'], ['unavailable', '로그인 서비스가 아직 준비되지 않았거나 서버에 문제가 있습니다.']])('shows fixed Korean feedback for %s', async (error, message) => {
   await mount(`?error=${error}&error_description=PRIVATE`); expect(screen.getByRole('alert')).toHaveTextContent(message); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();

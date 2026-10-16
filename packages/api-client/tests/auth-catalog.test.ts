@@ -66,7 +66,7 @@ it('accepts exactly 50 unique catalog snapshots', async () => {
 });
 const calls = [() => client.getSession(), () => client.getEvidenceCatalog(workspace), () => client.logout()];
 it.each(calls)('sanitizes errors and preserves only valid request UUIDs (%#)', async call => {
-  for (const [status, kind] of [[401, 'unauthorized'], [404, 'not-found'], [403, 'unavailable'], [503, 'unavailable']] as const) {
+  for (const [status, kind] of [[401, 'unauthorized'], [404, 'not-found'], [403, 'forbidden'], [503, 'unavailable']] as const) {
     vi.stubGlobal('fetch', async () => new Response('PRIVATE BODY', { status, headers }));
     await expect(call()).rejects.toMatchObject({ kind, requestId });
   }
