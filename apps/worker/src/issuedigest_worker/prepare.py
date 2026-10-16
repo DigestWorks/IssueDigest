@@ -33,6 +33,11 @@ def _aliases(snapshots: tuple[ProvisioningSnapshot, ...]) -> None:
             ("representation", bundle.representation.representation_id, bundle.representation),
             *(("citation", citation.citation_id, citation) for citation in bundle.citations),
         )
+        raw_key = ("raw_object", bundle.version.raw_object_id)
+        raw_content = bundle.version.raw_sha256 + ":" + bundle.version.media_type
+        if raw_key in aliases and aliases[raw_key] != raw_content:
+            raise ValueError("Conflicting raw object content")
+        aliases[raw_key] = raw_content
         for kind, identity, model in entities:
             content = model.model_dump_json(warnings="error")
             key = (kind, identity)

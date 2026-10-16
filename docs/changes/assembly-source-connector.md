@@ -24,7 +24,7 @@
 
 ## Task 1 · 공식 원문 SDK·오프라인 등록 준비
 
-- [ ] 새 connector SDK, HTML 추출, strict capture/job 모델, workspace 설정과 worker CLI/순수 준비를 TDD로 구현한다. 기존 ProvisioningPlan 검증·불변ID alias 검사·private file helpers를 재사용/작게 공통화하되 HWPX 회귀를 유지한다. 새 package root/tests/mypy/pytest/uv lock을 등록한다.
+- [x] 새 connector SDK, HTML 추출, strict capture/job 모델, workspace 설정과 worker CLI/순수 준비를 TDD로 구현한다. 기존 ProvisioningPlan 검증·불변ID alias 검사·private file helpers를 재사용/작게 공통화하되 HWPX 회귀를 유지한다. 새 package root/tests/mypy/pytest/uv lock을 등록한다.
 - [ ] 테스트: bounded fixed origin2요청·cookie/CSRF결합·redirect/HTTP/nonHTML/oversize stream/duplicateform/token/ID mismatch·script/숨김/중복/비정상HTML/Unicode, private file/invalid JSON/크기/실패부분파일·inputs보존, plan exactrepeat/IDconflict/기존승인불변/정확canonicalcitation. 기존 전용PG에서 준비 artifact의 기존 provision register→repeat0→보호read 연계를 합성 신원으로 확인한다. 실제 외부/운영 DB에 테스트하지 않는다.
 
 구현 범위 packages/connectors, apps/worker, root workspace/lock·테스트 설정·관련README. 명세/진행·Sites/실제서버는 controller 소유. 새 UI/API/DB migration·네트워크 fixture·추정 날짜/이력은 추가하지 않는다.

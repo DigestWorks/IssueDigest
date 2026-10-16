@@ -135,3 +135,22 @@ def write_private(path: str, raw: bytes) -> None:
                     os.unlink(temporary, dir_fd=directory)
             finally:
                 os.close(directory)
+
+
+def check_private_output(path: str) -> None:
+    """Best-effort early output check; exclusive write still guards publication races."""
+    try:
+        directory, name = _parent(path)
+        try:
+            info = os.fstat(directory)
+            if info.st_uid != os.geteuid() or stat.S_IMODE(info.st_mode) != 0o700:
+                raise ValueError("Private parent required")
+            try:
+                os.stat(name, dir_fd=directory, follow_symlinks=False)
+            except FileNotFoundError:
+                return
+            raise ValueError("New output required")
+        finally:
+            os.close(directory)
+    except Exception:
+        raise PreparationError("Unable to write private preparation output") from None

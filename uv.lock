@@ -6,6 +6,7 @@ requires-python = "==3.13.*"
 members = [
     "issuedigest-agents",
     "issuedigest-api",
+    "issuedigest-connectors",
     "issuedigest-domain",
     "issuedigest-ingestion",
     "issuedigest-storage",
@@ -447,6 +448,21 @@ requires-dist = [
 ]
 
 [[package]]
+name = "issuedigest-connectors"
+version = "0.0.0"
+source = { editable = "packages/connectors" }
+dependencies = [
+    { name = "httpx2" },
+    { name = "pydantic" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "httpx2", specifier = "==2.13.1" },
+    { name = "pydantic", specifier = "==2.14.0" },
+]
+
+[[package]]
 name = "issuedigest-domain"
 version = "0.0.0"
 source = { editable = "packages/domain" }
@@ -497,6 +513,7 @@ version = "0.0.0"
 source = { editable = "apps/worker" }
 dependencies = [
     { name = "issuedigest-agents" },
+    { name = "issuedigest-connectors" },
     { name = "issuedigest-domain" },
     { name = "issuedigest-ingestion" },
     { name = "issuedigest-storage" },
@@ -505,6 +522,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "issuedigest-agents", editable = "packages/agents" },
+    { name = "issuedigest-connectors", editable = "packages/connectors" },
     { name = "issuedigest-domain", editable = "packages/domain" },
     { name = "issuedigest-ingestion", editable = "packages/ingestion" },
     { name = "issuedigest-storage", editable = "packages/storage" },
