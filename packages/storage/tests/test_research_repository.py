@@ -670,3 +670,199 @@ def test_worker_uses_durable_operator_source_presentation(engine):
     )
     loaded = repo.worker_load(run.run_id)
     assert loaded[1][0][2] == presentation
+
+
+def test_historical_expanded_provenance_is_complete_on_reads_and_never_persisted(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage.research_schema import research_events
+    from sqlalchemy import select
+
+    old = historical_expanded_run
+    repo, workspace, token = old["repo"], old["workspace"], old["token"]
+    expected = tuple(source[0] for source in old["sources"])
+    reopened = repo.get_run(token, workspace, old["run"].run_id)
+    assert reopened.snapshot_ids == expected
+    assert reopened.result == old["result"]
+    assert repo.list_runs(token, workspace).items[0] == reopened
+    assert repo.cancel(token, workspace, reopened.run_id) == reopened
+    with engine.connect() as conn:
+        assert dict(conn.execute(select(research_runs)).mappings().one()) == old["before"]
+        assert [dict(row) for row in conn.execute(select(research_events)).mappings()] == old[
+            "events"
+        ]
+
+
+def test_generic_child_freezes_complete_legacy_parent_sources(engine, historical_expanded_run):
+    old = historical_expanded_run
+    repo = old["repo"]
+    child = repo.submit(
+        old["token"],
+        old["workspace"],
+        ResearchRequest(
+            request_id=uuid4(), question="더 자세히 알려줘", parent_run_id=old["run"].run_id
+        ),
+    )
+    assert child.snapshot_ids == ()
+    loaded, sources = repo.worker_load(child.run_id)
+    assert loaded.snapshot_ids == tuple(source[0] for source in old["sources"])
+    assert tuple(source[1] for source in sources) == old["result"].canvas.research.evidence
+    # Recovery continues with the fixed complete source set.
+    assert repo.worker_load(child.run_id)[0] == loaded
+    with engine.connect() as conn:
+        from sqlalchemy import select
+
+        assert (
+            conn.scalar(
+                select(research_runs.c.snapshot_ids).where(
+                    research_runs.c.run_id == old["run"].run_id
+                )
+            )
+            == old["before"]["snapshot_ids"]
+        )
+
+
+@pytest.mark.parametrize(
+    "damage", ["missing", "hash", "bundle", "foreign", "v2", "v2-marker", "legacy-v2-claim"]
+)
+def test_historical_resolution_fails_closed_on_unverified_provenance(
+    engine, historical_expanded_run, damage
+):
+    import json
+
+    from issuedigest_storage import StorageCorruption
+    from issuedigest_storage.schema import evidence_snapshots, outbox, snapshot_citations
+    from issuedigest_storage.search_schema import projections, units
+    from sqlalchemy import delete
+
+    old = historical_expanded_run
+    added_id = old["sources"][1][0]
+    with engine.begin() as conn:
+        if damage == "missing":
+            conn.execute(delete(units).where(units.c.snapshot_id == added_id))
+            conn.execute(delete(projections).where(projections.c.snapshot_id == added_id))
+            conn.execute(
+                delete(snapshot_citations).where(snapshot_citations.c.snapshot_id == added_id)
+            )
+            conn.execute(delete(outbox).where(outbox.c.snapshot_id == added_id))
+            conn.execute(
+                delete(evidence_snapshots).where(evidence_snapshots.c.snapshot_id == added_id)
+            )
+        elif damage == "hash":
+            conn.execute(
+                update(evidence_snapshots)
+                .where(evidence_snapshots.c.snapshot_id == added_id)
+                .values(content_sha256="0" * 64)
+            )
+        elif damage == "foreign":
+            # Same chain identifiers in the result must still be workspace scoped.
+            payload = old["result"].model_dump(mode="json")
+            payload["canvas"]["research"]["evidence"][1]["document"]["workspace_id"] = str(uuid4())
+            conn.execute(update(research_runs).values(result=payload))
+        elif damage == "bundle":
+            # Valid domain data with the exact same identity chain is not necessarily canonical.
+            payload = old["result"].model_dump(mode="json")
+            payload["canvas"]["research"]["evidence"][1]["document"]["canonical_url"] = (
+                "https://example.test/changed"
+            )
+            conn.execute(update(research_runs).values(result=payload))
+        else:
+            values = {
+                "input_hash": sha256(
+                    json.dumps(
+                        {"question": old["run"].question, "parent_run_id": None},
+                        sort_keys=True,
+                        ensure_ascii=False,
+                    ).encode()
+                ).hexdigest()
+            }
+            if damage == "legacy-v2-claim":
+                values["input_hash"] = old["before"]["input_hash"]
+            if damage in {"v2", "legacy-v2-claim"}:
+                payload = old["result"].model_dump(mode="json")
+                payload["canvas"]["research"]["claims"][0]["derivation"]["method_version"] = (
+                    "research-v2"
+                )
+                values["result"] = payload
+            conn.execute(update(research_runs).values(**values))
+    with pytest.raises((StorageCorruption, ValueError)):
+        old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+
+
+def test_legacy_read_checks_current_membership_before_canonical_resolution(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage.schema import evidence_snapshots
+
+    old = historical_expanded_run
+    IdentityRepository(engine).set_membership(old["actor"], old["workspace"], "owner", False)
+    with engine.begin() as conn:
+        conn.execute(update(evidence_snapshots).values(content_sha256="0" * 64))
+    assert old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id) is None
+    assert old["repo"].list_runs(old["token"], old["workspace"]) is None
+
+
+def test_legacy_no_claim_result_still_resolves_actual_parent_evidence(
+    engine, historical_expanded_run
+):
+    old = historical_expanded_run
+    result = ResearchResult(
+        canvas=build_canvas(
+            old["run"].run_id,
+            old["workspace"],
+            old["sources"],
+            AIOutput(
+                outcome="insufficient_evidence", message="근거가 충분하지 않습니다", modules=()
+            ),
+        ),
+        source_titles=old["result"].source_titles,
+    )
+    with engine.begin() as conn:
+        conn.execute(update(research_runs).values(result=result.model_dump(mode="json")))
+    reopened = old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+    assert reopened.snapshot_ids == tuple(source[0] for source in old["sources"])
+    assert reopened.result == result
+
+
+def test_legacy_resolution_preserves_seeds_and_deterministically_selects_existing_aliases(
+    engine, historical_expanded_run
+):
+    from uuid import UUID
+
+    old = historical_expanded_run
+    seed_alias = UUID("00000000-0000-4000-8000-000000000001")
+    added_alias = UUID("00000000-0000-4000-8000-000000000002")
+    EvidenceRepository(engine).save(seed_alias, old["sources"][0][1])
+    EvidenceRepository(engine).save(added_alias, old["sources"][1][1])
+    # Same canonical chain can also have a different snapshot citation subset.
+    EvidenceRepository(engine).save(
+        UUID("00000000-0000-4000-8000-000000000000"),
+        old["sources"][1][1].model_copy(update={"citations": ()}),
+    )
+    reopened = old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+    assert reopened.snapshot_ids == (old["sources"][0][0], added_alias)
+    assert old["repo"].list_runs(old["token"], old["workspace"]).items[0] == reopened
+
+
+def test_legacy_resolution_rejects_more_than_five_actual_sources(engine, historical_expanded_run):
+    from issuedigest_domain.research_journey import presentation_for
+    from issuedigest_storage import StorageCorruption
+
+    old = historical_expanded_run
+    sources = list(old["sources"])
+    for index in range(4):
+        snapshot, bundle = add_topic(engine, old["workspace"], f"추가 합성 자료 {index}")
+        sources.append((snapshot, bundle, presentation_for(bundle, snapshot)))
+    result = ResearchResult(
+        canvas=build_canvas(
+            old["run"].run_id,
+            old["workspace"],
+            tuple(sources),
+            AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=()),
+        ),
+        source_titles=old["result"].source_titles,
+    )
+    with engine.begin() as conn:
+        conn.execute(update(research_runs).values(result=result.model_dump(mode="json")))
+    with pytest.raises(StorageCorruption):
+        old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)

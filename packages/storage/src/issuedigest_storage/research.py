@@ -186,7 +186,7 @@ class ResearchRepository:
             if row["result"] is not None
             else None
         )
-        return ResearchRun(
+        run = ResearchRun(
             run_id=row["run_id"],
             workspace_id=row["workspace_id"],
             request_id=row["request_id"],
@@ -208,6 +208,70 @@ class ResearchRepository:
             input_tokens=row["input_tokens"],
             output_tokens=row["output_tokens"],
         )
+        if run.status != "completed":
+            return run
+        return ResearchRepository._completed_provenance(conn, row, run)
+
+    @staticmethod
+    def _completed_provenance(
+        conn: Connection, row: Mapping[Any, Any], run: ResearchRun
+    ) -> ResearchRun:
+        """Revalidate originals; expand only proven legacy seed provenance, without writes."""
+        assert run.result is not None
+        evidence = run.result.canvas.research.evidence
+        if not 1 <= len(evidence) <= 5:
+            raise StorageCorruption("Invalid completed source count")
+        known = tuple(
+            EvidenceRepository._load(conn, run.workspace_id, snapshot)
+            for snapshot in run.snapshot_ids
+        )
+        if known != evidence[: len(known)]:
+            raise StorageCorruption("Research result differs from fixed provenance")
+        if len(known) == len(evidence):
+            return run
+        # v1 hashed the request's selected seeds. v2 hashes question/parent only.
+        # Check the historical input as well as derivations, including no-claim results.
+        legacy_input = json.dumps(
+            {
+                "question": run.question,
+                "snapshot_ids": [str(snapshot) for snapshot in run.snapshot_ids],
+                "parent_run_id": str(run.parent_run_id) if run.parent_run_id else None,
+            },
+            sort_keys=True,
+            ensure_ascii=False,
+        )
+        if (
+            not 1 <= len(known) <= 3
+            or row["input_hash"] != sha256(legacy_input.encode()).hexdigest()
+            or any(
+                claim.derivation is None or claim.derivation.method_version != "research-v1"
+                for claim in run.result.canvas.research.claims
+            )
+        ):
+            raise StorageCorruption("Research result differs from fixed provenance")
+        resolved = list(run.snapshot_ids)
+        for bundle in evidence[len(known) :]:
+            snapshot = conn.scalar(
+                select(evidence_snapshots.c.snapshot_id)
+                .where(
+                    evidence_snapshots.c.workspace_id == run.workspace_id,
+                    evidence_snapshots.c.document_id == bundle.document.document_id,
+                    evidence_snapshots.c.version_id == bundle.version.version_id,
+                    evidence_snapshots.c.representation_id
+                    == bundle.representation.representation_id,
+                    evidence_snapshots.c.payload == bundle.model_dump(mode="json"),
+                )
+                .order_by(evidence_snapshots.c.snapshot_id)
+                .limit(1)
+            )
+            if (
+                snapshot is None
+                or snapshot in resolved
+                or EvidenceRepository._load(conn, run.workspace_id, snapshot) != bundle
+            ):
+                raise StorageCorruption("Historical source provenance unavailable")
+            resolved.append(snapshot)
+        return run.model_copy(update={"snapshot_ids": tuple(resolved)})
 
     def submit(
         self, token: str, workspace_id: UUID, request: ResearchRequest

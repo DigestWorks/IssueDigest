@@ -176,3 +176,47 @@ def test_cancel_rejects_oversized_stream_before_reading_later_chunks(engine):
         asyncio.run(_bounded_bytes(request))
     assert error.value.status_code == 422
     assert consumed == 1
+
+
+def test_historical_added_source_is_readable_through_existing_protected_api(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage import EvidenceAccessRepository
+    from issuedigest_storage.research_schema import research_runs
+    from issuedigest_storage.schema import evidence_snapshots
+    from sqlalchemy import select, update
+
+    old = historical_expanded_run
+    client = TestClient(
+        create_app(
+            access_repository=EvidenceAccessRepository(engine), research_repository=old["repo"]
+        ),
+        base_url=ORIGIN,
+    )
+    client.cookies.set(SESSION_COOKIE, old["token"])
+    path = f"/api/v1/workspaces/{old['workspace']}"
+    run_path = f"{path}/research/{old['run'].run_id}"
+    added_id, added, _ = old["sources"][1]
+    response = client.get(run_path)
+    assert response.status_code == 200
+    assert response.json()["snapshot_ids"] == [str(source[0]) for source in old["sources"]]
+    assert response.json()["result"] == old["result"].model_dump(mode="json")
+    assert client.get(path + "/research").json()["items"][0] == response.json()
+    original = client.get(f"{path}/evidence/{added_id}")
+    assert original.status_code == 200 and original.json() == added.model_dump(mode="json")
+    assert original.headers["Cache-Control"] == response.headers["Cache-Control"] == "no-store"
+    with engine.connect() as conn:
+        assert dict(conn.execute(select(research_runs)).mappings().one()) == old["before"]
+    with engine.begin() as conn:
+        conn.execute(
+            update(evidence_snapshots)
+            .where(evidence_snapshots.c.snapshot_id == added_id)
+            .values(content_sha256="0" * 64)
+        )
+    assert client.get(run_path).status_code == 503
+    assert client.get(path + "/research").status_code == 503
+    assert client.get(f"{path}/evidence/{added_id}").status_code == 503
+    IdentityRepository(engine).set_membership(old["actor"], old["workspace"], "owner", False)
+    assert client.get(run_path).status_code == 404
+    assert client.get(path + "/research").status_code == 404
+    assert client.get(f"{path}/evidence/{added_id}").status_code == 404

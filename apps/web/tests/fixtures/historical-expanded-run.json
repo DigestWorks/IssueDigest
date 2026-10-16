@@ -1,0 +1,213 @@
+{
+  "run_id": "02cc33ba-5798-40fc-8827-cf0ca59918a4",
+  "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+  "request_id": "de0c4699-681b-4c82-9d09-02d9a78f31f2",
+  "question": "주거지원은?",
+  "snapshot_ids": [
+    "f5d081c5-0abd-47b4-99d1-722e947a9928",
+    "608b583e-49ee-464c-9e86-186330b7f5c0"
+  ],
+  "parent_run_id": null,
+  "status": "completed",
+  "error_code": null,
+  "created_at": "2026-10-16T07:33:57.965623Z",
+  "updated_at": "2026-10-16T07:33:57.965623Z",
+  "events": [
+    {
+      "sequence": 1,
+      "status": "queued",
+      "created_at": "2026-10-16T07:33:57.965623Z"
+    },
+    {
+      "sequence": 2,
+      "status": "completed",
+      "created_at": "2026-10-16T07:33:57.984341Z"
+    }
+  ],
+  "result": {
+    "canvas": {
+      "research": {
+        "schema_version": 1,
+        "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+        "evidence": [
+          {
+            "schema_version": 1,
+            "document": {
+              "document_id": "df0535a1-47ee-411e-bb04-12321b8fe40c",
+              "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+              "provider": "synthetic",
+              "source_id": "389fa277-8229-4f6e-a4d1-4a116b1d925d",
+              "source_kind": "other",
+              "canonical_url": null
+            },
+            "version": {
+              "version_id": "627ae0a7-bb38-45b9-b8c1-c8b6bd3bf600",
+              "document_id": "df0535a1-47ee-411e-bb04-12321b8fe40c",
+              "raw_object_id": "dfb8956b-c4b6-455c-bfed-a5e5d9a09aff",
+              "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "media_type": "text/plain",
+              "collected_at": "2026-10-12T00:00:00Z"
+            },
+            "representation": {
+              "representation_id": "32cb184a-7d5f-4164-8514-0a3a81d9af82",
+              "document_version_id": "627ae0a7-bb38-45b9-b8c1-c8b6bd3bf600",
+              "parser_name": "synthetic",
+              "parser_version": "1",
+              "normalization_profile": "identity",
+              "text": "주거지원 기존 발표",
+              "text_sha256": "57fbb3eea409032644903f7850412dec5b8a471915ce0760db1d234bba00a55d",
+              "pages": [],
+              "tables": []
+            },
+            "citations": [
+              {
+                "citation_id": "9bf68047-7c0c-4091-ae14-3cfe2ba535c8",
+                "document_version_id": "627ae0a7-bb38-45b9-b8c1-c8b6bd3bf600",
+                "representation_id": "32cb184a-7d5f-4164-8514-0a3a81d9af82",
+                "selector": {
+                  "start": 0,
+                  "end": 10,
+                  "quote": "주거지원 기존 발표",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              }
+            ]
+          },
+          {
+            "schema_version": 1,
+            "document": {
+              "document_id": "fc3f93a4-6732-47ca-8021-257b5e592d39",
+              "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+              "provider": "synthetic",
+              "source_id": "d20ff7ce-7aac-47e2-9131-0905b807a9b0",
+              "source_kind": "other",
+              "canonical_url": null
+            },
+            "version": {
+              "version_id": "f8cf2a74-af2d-492f-9913-e09734236e24",
+              "document_id": "fc3f93a4-6732-47ca-8021-257b5e592d39",
+              "raw_object_id": "e68ca8a3-4d72-47ca-98c6-cb98a954ad78",
+              "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "media_type": "text/plain",
+              "collected_at": "2026-10-12T00:00:00Z"
+            },
+            "representation": {
+              "representation_id": "289469ca-6667-4633-bc89-974483d3a281",
+              "document_version_id": "f8cf2a74-af2d-492f-9913-e09734236e24",
+              "parser_name": "synthetic",
+              "parser_version": "1",
+              "normalization_profile": "identity",
+              "text": "주거지원 추가 발표",
+              "text_sha256": "464930badf66bb9aea05a2dfd004c8fdce3744ce02a8d58a49dc516bf053b8e1",
+              "pages": [],
+              "tables": []
+            },
+            "citations": [
+              {
+                "citation_id": "65fdab1c-4bab-4305-9f56-bf2f43e793a5",
+                "document_version_id": "f8cf2a74-af2d-492f-9913-e09734236e24",
+                "representation_id": "289469ca-6667-4633-bc89-974483d3a281",
+                "selector": {
+                  "start": 0,
+                  "end": 10,
+                  "quote": "주거지원 추가 발표",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              }
+            ]
+          }
+        ],
+        "entities": [],
+        "claims": [
+          {
+            "claim_id": "b6d2b19a-bffd-4788-92ed-5e67f20e9ef4",
+            "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+            "text": "추가 발표의 합성 해석",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "65fdab1c-4bab-4305-9f56-bf2f43e793a5"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v1",
+              "rationale": "AI interpretation of exact server-retrieved quotations"
+            }
+          }
+        ],
+        "relations": [],
+        "observations": [],
+        "support_reviews": []
+      },
+      "revision": {
+        "schema_version": 1,
+        "revision_id": "d29d175f-7956-4e34-a475-3bc582acf11b",
+        "workspace_id": "0cdfd376-4be8-4305-958f-d75fead1fc3b",
+        "run_id": "02cc33ba-5798-40fc-8827-cf0ca59918a4",
+        "revision_number": 1,
+        "parent_revision_id": null,
+        "selected_version_ids": [
+          "627ae0a7-bb38-45b9-b8c1-c8b6bd3bf600",
+          "f8cf2a74-af2d-492f-9913-e09734236e24"
+        ],
+        "draft": {
+          "schema_version": 1,
+          "draft_id": "96bfefbd-8019-48ae-9280-b0c878c3a4a1",
+          "outcome": "answer",
+          "modules": [
+            {
+              "module_id": "9a87e5d2-1739-451d-b1a9-874f7bc17c12",
+              "title": "요약",
+              "span": "full",
+              "citation_ids": [
+                "65fdab1c-4bab-4305-9f56-bf2f43e793a5"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "65fdab1c-4bab-4305-9f56-bf2f43e793a5"
+                }
+              ],
+              "kind": "summary",
+              "claim_ids": [
+                "b6d2b19a-bffd-4788-92ed-5e67f20e9ef4"
+              ]
+            },
+            {
+              "module_id": "0906d436-cde1-4649-82b5-b4efd37aaecb",
+              "title": "근거",
+              "span": "full",
+              "citation_ids": [
+                "65fdab1c-4bab-4305-9f56-bf2f43e793a5"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "65fdab1c-4bab-4305-9f56-bf2f43e793a5"
+                }
+              ],
+              "kind": "evidence"
+            }
+          ],
+          "message": null
+        },
+        "validated_at": "2026-10-16T07:33:57.983394Z",
+        "validation_policy": "issuedigest-canvas-v1"
+      }
+    },
+    "source_titles": {
+      "df0535a1-47ee-411e-bb04-12321b8fe40c": "합성 자료 0",
+      "fc3f93a4-6732-47ca-8021-257b5e592d39": "합성 자료 1"
+    }
+  },
+  "model": "gpt-5.4-mini",
+  "input_tokens": 0,
+  "output_tokens": 0
+}

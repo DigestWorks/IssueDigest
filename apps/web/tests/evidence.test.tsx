@@ -4,7 +4,7 @@ import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, RouterProvider } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
 import canvas from '../../../tests/fixtures/canvas-synthetic.json';
-import type { EvidenceBundle } from '@issuedigest/api-client';
+import type { EvidenceBundle, EvidenceSearchHit } from '@issuedigest/api-client';
 
 import EvidenceRoute from '../app/routes/evidence';
 import Login from '../app/routes/login';
@@ -195,4 +195,40 @@ it('redirects an explicitly opened protected reader only after its confirmed401 
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(fetch.mock.calls[0]).toEqual([`/api/v1/workspaces/${workspace}/evidence/${snapshot}`, expect.objectContaining({credentials: 'same-origin'})]);
   expect(fetch.mock.calls[0][1].method ?? 'GET').toBe('GET');
+});
+
+// Reader routes still accept exact search locations from independent consumers.
+function routeHit(selector: EvidenceSearchHit['selector'] = fixture().citations[0].selector as EvidenceSearchHit['selector']): EvidenceSearchHit {
+  const evidence = fixture();
+  return {workspace_id: workspace, snapshot_id: snapshot, document_id: evidence.document.document_id,
+    version_id: evidence.version.version_id, representation_id: evidence.representation.representation_id,
+    provider: evidence.document.provider, source_id: evidence.document.source_id, source_kind: 'other',
+    canonical_url: null, collected_at: evidence.version.collected_at, unit_ordinal: 0,
+    profile: 'literal-ngrams-v1', selector, matched_terms: ['합성'], anchor_status: 'matched', support_status: 'not_evaluated'};
+}
+it('uses router state to select an exact search hit, then clears it on page or saved citation choice', async () => {
+  const evidence = fixture();
+  vi.stubGlobal('fetch', async () => response(evidence));
+  const router = createMemoryRouter([{ path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }], { initialEntries: [{ pathname: path, state: { kind: 'search-hit', hit: routeHit(evidence.citations[1].selector as EvidenceSearchHit['selector']) } }] });
+  render(<RouterProvider router={router} />);
+  expect(await screen.findByText('검색된 원문 위치 선택됨')).toBeInTheDocument();
+  expect(screen.getByRole('button', { name: '1쪽' })).toHaveAttribute('aria-pressed', 'true');
+  expect(document.querySelector('mark')).toHaveTextContent(evidence.citations[1].selector.quote);
+  await userEvent.setup().click(screen.getByRole('button', { name: '전체 텍스트' }));
+  expect(screen.queryByText('검색된 원문 위치 선택됨')).not.toBeInTheDocument();
+  expect(document.querySelector('mark')).toBeNull();
+  await userEvent.setup().click(screen.getByRole('button', { name: /인용 3 · 표 셀/ }));
+  expect(screen.getByLabelText('선택한 표 셀')).toHaveTextContent('합성 표 인용');
+  await act(async () => { await router.navigate(path, { state: { kind: 'search-hit', hit: routeHit(evidence.citations[2].selector as EvidenceSearchHit['selector']) } }); });
+  expect(screen.getByText('검색된 원문 위치 선택됨')).toBeInTheDocument();
+  expect(screen.getByLabelText('선택한 표 셀')).toHaveTextContent('합성 표 인용');
+  expect(screen.getByRole('button', { name: /인용 3 · 표 셀/ })).toHaveAttribute('aria-pressed', 'false');
+});
+it('shows a fixed notice for stale router state without blocking the original text', async () => {
+  vi.stubGlobal('fetch', async () => response(fixture()));
+  const router = createMemoryRouter([{ path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute }], { initialEntries: [{ pathname: path, state: { kind: 'search-hit', hit: { ...routeHit(), document_id: '00000000-0000-4000-8000-000000000098' } } }] });
+  render(<RouterProvider router={router} />);
+  expect(await screen.findByText('검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.')).toBeInTheDocument();
+  expect(screen.getByLabelText('원문 텍스트')).toBeInTheDocument();
+  expect(document.querySelector('mark')).toBeNull();
 });

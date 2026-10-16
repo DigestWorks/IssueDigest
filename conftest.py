@@ -198,3 +198,111 @@ def overlapping_session_reads(engine, first_call, second_call, after_conflict=No
     finally:
         for name, callback in listeners:
             event.remove(engine, name, callback)
+
+
+@pytest.fixture
+def historical_expanded_run(engine):
+    """A real v1 seed plus later indexed hit; the added document is cited."""
+    import json
+
+    from issuedigest_agents.research import AIOutput, build_canvas
+    from issuedigest_domain import EvidenceBundle
+    from issuedigest_domain.research_journey import (
+        ResearchRequest,
+        ResearchResult,
+        presentation_for,
+    )
+    from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
+    from issuedigest_storage.research import ResearchRepository
+    from issuedigest_storage.research_schema import research_events, research_runs
+    from issuedigest_storage.search import rebuild_projection
+    from sqlalchemy import insert, select, update
+
+    workspace, actor = uuid4(), uuid4()
+    sources = []
+    for text in ("주거지원 기존 발표", "주거지원 추가 발표"):
+        data = bundle_data()
+        data["document"]["workspace_id"] = str(workspace)
+        data["version"]["media_type"] = "text/plain"
+        data["representation"].update(
+            text=text, text_sha256=sha256(text.encode()).hexdigest(), pages=[], tables=[]
+        )
+        data["citations"] = [data["citations"][0]]
+        data["citations"][0]["selector"] = {
+            "kind": "text",
+            "start": 0,
+            "end": len(text),
+            "quote": text,
+        }
+        bundle = EvidenceBundle.model_validate(data)
+        snapshot = uuid4()
+        EvidenceRepository(engine).save(snapshot, bundle)
+        with engine.begin() as conn:
+            rebuild_projection(conn, workspace, snapshot)
+        sources.append((snapshot, bundle, presentation_for(bundle, snapshot)))
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, workspace, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    run = repo.submit(token, workspace, ResearchRequest(request_id=uuid4(), question="주거지원은?"))
+    proposal = AIOutput.model_validate(
+        {
+            "outcome": "answer",
+            "modules": [
+                {
+                    "kind": "summary",
+                    "title": "요약",
+                    "claims": [
+                        {
+                            "text": "추가 발표의 합성 해석",
+                            "citation_ids": [sources[1][1].citations[0].citation_id],
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+    canvas = build_canvas(run.run_id, workspace, tuple(sources), proposal).model_dump(mode="json")
+    canvas["research"]["claims"][0]["derivation"]["method_version"] = "research-v1"
+    result = ResearchResult.model_validate(
+        {
+            "canvas": canvas,
+            "source_titles": {
+                str(bundle.document.document_id): f"합성 자료 {index}"
+                for index, (_, bundle, _) in enumerate(sources)
+            },
+        }
+    )
+    seed_ids = [str(sources[0][0])]
+    legacy_input = {"question": run.question, "snapshot_ids": seed_ids, "parent_run_id": None}
+    with engine.begin() as conn:
+        # Reproduce the historical persisted shape rather than publishing it through v2.
+        conn.execute(
+            update(research_runs)
+            .where(research_runs.c.run_id == run.run_id)
+            .values(
+                status="completed",
+                snapshot_ids=seed_ids,
+                result=result.model_dump(mode="json"),
+                input_hash=sha256(
+                    json.dumps(legacy_input, sort_keys=True, ensure_ascii=False).encode()
+                ).hexdigest(),
+            )
+        )
+        conn.execute(
+            insert(research_events).values(run_id=run.run_id, sequence=2, status="completed")
+        )
+        before = dict(conn.execute(select(research_runs)).mappings().one())
+        events = [dict(row) for row in conn.execute(select(research_events)).mappings()]
+    return {
+        "repo": repo,
+        "run": run,
+        "workspace": workspace,
+        "actor": actor,
+        "token": token,
+        "sources": tuple(sources),
+        "result": result,
+        "before": before,
+        "events": events,
+    }

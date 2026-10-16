@@ -170,3 +170,29 @@ it('clears the current question and stage when a cancellation POST discovers rev
  expect(screen.queryByRole('status',{name:'브리핑 상태'})).not.toBeInTheDocument();
  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
 });
+
+it('opens the added canonical source of a historical seed-plus-expanded-source result',async()=>{
+ // Captured from the real PostgreSQL/API legacy fixture: seed A and indexed/cited B.
+ const {default:fixture}=await import('./fixtures/historical-expanded-run.json');
+ const historical=structuredClone(fixture);
+ const [seed,added]=historical.result.canvas.research.evidence;
+ const protectedGets:string[]=[];
+ vi.stubGlobal('fetch',async(path:string)=>{
+  if(path.endsWith('/session'))return response({...session,memberships:[{workspace_id:historical.workspace_id,role:'owner'}]});
+  if(path.endsWith('/research'))return response({workspace_id:historical.workspace_id,items:[historical]});
+  if(path.endsWith(`/research/${historical.run_id}`))return response(historical);
+  if(path.endsWith(`/evidence/${historical.snapshot_ids[0]}`)){protectedGets.push(path);return response(seed);}
+  if(path.endsWith(`/evidence/${historical.snapshot_ids[1]}`)){protectedGets.push(path);return response(added);}
+  throw Error(path);
+ });
+ const router=createMemoryRouter([{path:'/',Component:Home}],{initialEntries:[`/?view=research&run=${historical.run_id}`]});
+ render(<RouterProvider router={router}/>);
+ const user=userEvent.setup();
+ const trigger=(await screen.findAllByRole('button',{name:/근거 열기: 합성 자료 1/}))[0];
+ expect(protectedGets).toEqual([]);
+ await user.click(trigger);
+ const drawer=await screen.findByRole('dialog',{name:'원문과 인용 읽기'});
+ expect(within(drawer).getByRole('heading',{name:'합성 자료 1'})).toBeInTheDocument();
+ expect(drawer.querySelector('mark')).toHaveTextContent('주거지원 추가 발표');
+ expect(protectedGets).toEqual(historical.snapshot_ids.map(id=>`/api/v1/workspaces/${historical.workspace_id}/evidence/${id}`));
+});
