@@ -122,7 +122,7 @@ export async function getEvidence(workspaceId: string, snapshotId: string, { tim
       credentials: 'same-origin', cache: 'no-store', signal: controller.signal, headers: { Accept: 'application/json' },
     });
     const header = response.headers.get('X-Request-ID'); requestId = id(header) ? header : undefined;
-    if (!response.ok) throw new EvidenceError(response.status === 401 ? 'authentication' : response.status === 404 ? 'not-found' : 'unavailable', requestId);
+    if (!response.ok) throw new EvidenceError([401, 403].includes(response.status) ? 'authentication' : response.status === 404 ? 'not-found' : 'unavailable', requestId);
     const mediaType = response.headers.get('Content-Type')?.split(';')[0].trim().toLowerCase();
     const noStore = response.headers.get('Cache-Control')?.split(',').some(token => token.trim().toLowerCase() === 'no-store');
     if (!requestId || !mediaType || !/^application\/(json|[a-z0-9!#$&^_.+-]+\+json)$/.test(mediaType) || !noStore) throw new EvidenceError('invalid-response', requestId);

@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router';
-import { cancelResearchRun, getEvidence, getResearchRun, getResearchSources, listResearchRuns, ResearchError, submitResearch, type CanvasAction, type ResearchRequest, type ResearchRun, type ResearchSourceCatalog } from '@issuedigest/api-client';
+import { Link, useSearchParams } from 'react-router';
+import { cancelResearchRun, getResearchRun, getResearchSources, listResearchRuns, ResearchError, submitResearch, type CanvasAction, type ResearchRequest, type ResearchRun, type ResearchSourceCatalog } from '@issuedigest/api-client';
 import { CanvasView } from '@issuedigest/ui';
 import '@issuedigest/ui/styles.css';
 import { sourceKind } from './evidence/presentation';
 import './research.css';
 import { useResearchDrafts } from './research-drafts';
+import {suggestResearchSources} from './research-selection';
+import {useResearchEvidence} from './research-evidence';
 
 type CatalogState = {kind: 'loading'} | {kind: 'ready'; data: ResearchSourceCatalog} | {kind: 'failure'; error: ResearchError};
 type ListState = {kind: 'loading'} | {kind: 'ready'; items: ResearchRun[]} | {kind: 'failure'; error: ResearchError};
@@ -29,7 +31,6 @@ function normalize(error: unknown) { return error instanceof ResearchError ? err
 
 export default function ResearchDesk({workspaceId, canEdit, view, initialQuestion}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'; initialQuestion?: string}) {
   const drafts = useResearchDrafts();
-  const navigate = useNavigate();
   const [params, setParams] = useSearchParams();
   const currentParams = useRef(params);
   currentParams.current = params;
@@ -50,20 +51,20 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   const [requestError, setRequestError] = useState<ResearchError | null>(null);
   const [sending, setSending] = useState(false);
   const [cancelling, setCancelling] = useState(false);
-  const [readerError, setReaderError] = useState(false);
+  const [selectionRequired, setSelectionRequired] = useState(false);
+  const [sourcesOpen, setSourcesOpen] = useState(false);
   const pendingInput = useRef<ResearchRequest | null>(null);
   const postController = useRef<AbortController | null>(null);
-  const actionController = useRef<AbortController | null>(null);
   const cancelController = useRef<AbortController | null>(null);
   const locked = useRef(false);
   const lastSaved = useRef<string | null>(null);
 
   function saveSelected(value: string[]) {
-    selectedRef.current = value; setSelected(value);
+    setSelectionRequired(false); selectedRef.current = value; setSelected(value);
     drafts.write(workspaceId, runId, {selected: value, question: questionRef.current});
   }
   function saveQuestion(value: string) {
-    questionRef.current = value; setQuestion(value);
+    setSelectionRequired(false); questionRef.current = value; setQuestion(value);
     drafts.write(workspaceId, runId, {selected: selectedRef.current, question: value});
   }
   useEffect(() => {
@@ -78,10 +79,9 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
     setSelected(selectedRef.current); setQuestion(questionRef.current);
   }, [drafts, workspaceId, runId]);
 
-  useEffect(() => () => { postController.current?.abort(); actionController.current?.abort(); cancelController.current?.abort(); }, []);
+  useEffect(() => () => { postController.current?.abort(); cancelController.current?.abort(); }, []);
   useEffect(() => () => {
     invalidateSubmission();
-    actionController.current?.abort();
     const controller = cancelController.current;
     if (controller) { cancelController.current = null; controller.abort(); setCancelling(false); }
   }, [runId]);
@@ -161,14 +161,18 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
     event.preventDefault();
     if (locked.current || active(run?.status ?? 'completed') || !canEdit) return;
     const value = question.trim();
-    if (!value || value.length > 1500 || selected.length < 1 || selected.length > 3) return;
-    const input: ResearchRequest = {request_id: crypto.randomUUID(), question: value, snapshot_ids: selected, parent_run_id: run?.status === 'completed' ? run.run_id : null};
+    if (!value || value.length > 1500) return;
+    const choices = selected.length ? selected : suggested;
+    if (choices.length < 1 || choices.length > 3) {setSelectionRequired(true);setSourcesOpen(true);return;}
+    setSelectionRequired(false);
+    if (!selected.length) saveSelected(choices);
+    const input: ResearchRequest = {request_id: crypto.randomUUID(), question: value, snapshot_ids: choices, parent_run_id: run?.status === 'completed' ? run.run_id : null};
     pendingInput.current = input; void send(input);
   }
   function summarize(id: string) {
     if (locked.current || active(run?.status ?? 'completed') || !canEdit) return;
     const value = '선택한 법안의 주요 내용을 근거와 함께 정리해 주세요.';
-    saveSelected([id]); saveQuestion(value);
+    setSourcesOpen(true); saveSelected([id]); saveQuestion(value);
     const input: ResearchRequest = {request_id: crypto.randomUUID(), question: value, snapshot_ids: [id], parent_run_id: null};
     pendingInput.current = input; void send(input);
   }
@@ -186,22 +190,7 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   async function onCanvasAction(action: CanvasAction) {
     if (!run?.result) return;
     if (action.kind === 'open_evidence') {
-      const proof = run.result.canvas.research.evidence.find(item => item.citations.some(citation => citation.citation_id === action.citation_id));
-      if (!proof) return;
-      setReaderError(false);
-      actionController.current?.abort();
-      const controller = new AbortController(); actionController.current = controller;
-      const candidates = [...new Set([...run.snapshot_ids, ...sourceItems.filter(item => item.document_id === proof.document.document_id).map(item => item.snapshot_id)])];
-      for (const snapshotId of candidates) {
-        try {
-          const {data} = await getEvidence(workspaceId, snapshotId, {signal: controller.signal});
-          if (controller.signal.aborted) return;
-          if (data.document.document_id !== proof.document.document_id || data.version.version_id !== proof.version.version_id || !data.citations.some(citation => citation.citation_id === action.citation_id)) continue;
-          void navigate(`/workspaces/${workspaceId}/evidence/${snapshotId}`, {state: {kind: 'research-citation', citationId: action.citation_id, runId: run.run_id}});
-          return;
-        } catch { if (controller.signal.aborted) return; /* Another snapshot may be the cited version. */ }
-      }
-      setReaderError(true);
+      await evidence.openCitation(action.citation_id);
     } else if (action.kind === 'ask_question') { saveQuestion(action.question); document.getElementById('research-question')?.focus(); }
     else if (action.kind === 'select_document') {
       const proof = run.result.canvas.research.evidence.find(item => item.document.document_id === action.document_id);
@@ -210,51 +199,59 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
     }
   }
   const sourceItems = catalog.kind === 'ready' ? catalog.data.items : [];
+  const suggested = selected.length ? [] : suggestResearchSources(question, sourceItems);
+  const displayedRun = !sending && run?.run_id === runId && run.workspace_id === workspaceId ? run : null;
+  const accessDenied = requestError?.kind === 'unauthorized' || requestError?.kind === 'forbidden' || runError?.kind === 'unauthorized' || runError?.kind === 'forbidden' || catalog.kind === 'failure' && ['unauthorized','forbidden'].includes(catalog.error.kind);
+  const evidence = useResearchEvidence(workspaceId, displayedRun, sourceItems, accessDenied);
   return <div className="research-desk">
     {view === 'research' ? <>
       <div className="research-grid">
+        <section className="research-work" aria-label="이슈 조사 작업">
+          <div className="research-section-heading"><h2>질문과 결과</h2>{displayedRun && <button type="button" onClick={newResearch} disabled={active(displayedRun.status) || sending}>새 조사</button>}</div>
+          <p className="research-help">연결된 자료에서 질문과 겹치는 후보를 제안합니다. 조사 범위를 직접 선택하고 바꿀 수 있습니다.</p>
+          <form onSubmit={submit} className="research-form">
+            {displayedRun?.status === 'completed' && <p className="research-context">후속 질문 · {displayedRun.question}</p>}
+            <label htmlFor="research-question">{displayedRun?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
+            <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed')} placeholder="알아보고 싶은 이슈를 질문하세요" />
+            {selected.length > 0 && <p className="research-selected-scope">조사 범위 · {selected.map(id => sourceItems.find(item => item.snapshot_id === id)?.title).filter(Boolean).join(' / ') || `선택한 자료 ${selected.length}개`}</p>}
+            {suggested.length > 0 && <div className="research-candidates" aria-label="질문과 겹치는 연결 자료 후보"><p>질문과 겹치는 연결 자료 후보 · {suggested.length}개</p><ul>{suggested.map(id => <li key={id}>{sourceItems.find(item => item.snapshot_id === id)?.title}</li>)}</ul><button type="button" onClick={() => {saveSelected(suggested);setSourcesOpen(true);}}>이 범위 선택하고 변경</button></div>}
+            {selectionRequired && <p role="alert">질문과 겹치는 연결 자료가 없습니다. 조사할 자료를 선택해 주세요.</p>}
+            <div className="research-form-foot"><span>선택한 자료 {selected.length}개</span><button type="submit" disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed') || !question.trim()}>{sending ? '요청 접수 중…' : displayedRun?.status === 'completed' ? '후속 질문하기' : 'AI 조사 시작'}</button></div>
+            {!canEdit && <p role="status">읽기 권한으로는 저장된 조사를 열람할 수 있습니다.</p>}
+          </form>
+          {requestError && <div className="research-feedback" role="alert"><p>{failures[requestError.kind]}</p>{pendingInput.current && ['network','timeout','unavailable'].includes(requestError.kind) && <button type="button" onClick={() => void send(pendingInput.current!)} disabled={sending}>같은 요청 다시 확인</button>}</div>}
+          {runId && runError && <div className="research-feedback" role="alert"><p>{failures[runError.kind]}</p><button type="button" onClick={() => setRunVersion(value => value + 1)}>조사 다시 읽기</button></div>}
+          {runId && !displayedRun && !runError && <p role="status" aria-live="polite">조사를 다시 여는 중…</p>}
+          {displayedRun && <div className="research-result">
+            <div className="research-result-heading"><span role="status" aria-label="조사 상태" aria-live="polite">{stage[displayedRun.status]}</span>{active(displayedRun.status) && canEdit && <button type="button" onClick={() => void cancel()} disabled={cancelling}>{cancelling ? '취소 중…' : '조사 취소'}</button>}</div>
+            {active(displayedRun.status) && <ol className="research-progress" aria-label="조사 진행 상태">{(['queued','retrieving','generating','validating'] as const).map((step, index) => <li key={step} aria-current={displayedRun.status === step ? 'step' : undefined} data-done={index <= ['queued','retrieving','generating','validating'].indexOf(displayedRun.status)}>{stage[step]}</li>)}</ol>}
+            {(displayedRun.status === 'failed' || displayedRun.status === 'cancelled') && <p role="alert">{displayedRun.error_code ? runFailures[displayedRun.error_code] : stage[displayedRun.status]} 질문과 선택 자료를 확인하고 새 조사를 시작할 수 있습니다.</p>}
+            {displayedRun.status === 'completed' && displayedRun.result && <><p className="research-question">질문 · {displayedRun.question}</p><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></>}
+          </div>}
+          {evidence.preview}
+          {!displayedRun && !runId && <p className="research-start">궁금한 점을 질문하세요. 연결된 자료에 관련 후보가 없으면 자료를 직접 선택해 주세요.</p>}
+        </section>
         <aside className="research-sources" aria-label="조사 자료 선택">
-          <div className="research-section-heading"><h2>조사할 자료</h2><span>최대 3개</span></div>
+          <div className="research-section-heading"><h2>연결된 자료</h2><button type="button" aria-expanded={sourcesOpen} onClick={() => setSourcesOpen(value => !value)}>{sourcesOpen ? '선택 닫기' : '조사할 자료 선택'}</button></div>
           {sourceItems.some(item => item.source_kind === 'bill') && <p className="research-help">법안 기본 정보는 현재 처리 상태·조문·영향을 확인한 자료가 아닙니다.</p>}
           {catalog.kind === 'loading' && <p role="status">자료를 읽는 중…</p>}
           {catalog.kind === 'failure' && <div role="status"><p>{failures[catalog.error.kind]}</p><button type="button" onClick={() => setCatalogVersion(value => value + 1)}>자료 다시 읽기</button></div>}
           {catalog.kind === 'ready' && (sourceItems.length === 0 ? <p className="research-empty">조사할 자료가 아직 없습니다.</p> : <ul className="research-source-list" tabIndex={0} aria-label="조사 자료 목록">{sourceItems.map(source => <li key={source.snapshot_id}>
-            <label className="research-source-choice"><input type="checkbox" checked={selected.includes(source.snapshot_id)} disabled={!canEdit || (!selected.includes(source.snapshot_id) && selected.length >= 3) || sending || active(run?.status ?? 'completed')} onChange={() => toggle(source.snapshot_id)} /><span className="research-source-title">{source.title}</span></label>
+            <label className="research-source-choice">{sourcesOpen && <input type="checkbox" checked={selected.includes(source.snapshot_id)} disabled={!canEdit || (!selected.includes(source.snapshot_id) && selected.length >= 3) || sending || active(displayedRun?.status ?? 'completed')} onChange={() => toggle(source.snapshot_id)} />}<span className="research-source-title">{source.title}</span></label>
             <p className="research-source-meta">{sourceKind(source.source_kind)}{source.bill_number && ` · 의안번호 ${source.bill_number}`}{source.proposed_on && ` · 제안 ${source.proposed_on}`} · 수집 {date(source.collected_at)}</p>
-            {source.excerpt && <p className="research-source-excerpt">{source.excerpt}</p>}
-            <div className="research-source-actions"><Link to={`/workspaces/${workspaceId}/evidence/${source.snapshot_id}`} state={{kind: 'research-source', runId}}>원문 읽기</Link>{source.source_kind === 'bill' && canEdit && <button type="button" onClick={() => summarize(source.snapshot_id)} disabled={sending || active(run?.status ?? 'completed')}>핵심 정리</button>}</div>
+            {sourcesOpen && source.excerpt && <p className="research-source-excerpt">{source.excerpt}</p>}
+            <div className="research-source-actions"><Link to={`/workspaces/${workspaceId}/evidence/${source.snapshot_id}`} state={{kind: 'research-source', runId}}>원문 읽기</Link>{source.source_kind === 'bill' && canEdit && <button type="button" onClick={() => summarize(source.snapshot_id)} disabled={sending || active(displayedRun?.status ?? 'completed')}>핵심 정리</button>}</div>
           </li>)}</ul>)}
         </aside>
-        <section className="research-work" aria-label="이슈 조사 작업">
-          <div className="research-section-heading"><h2>질문과 결과</h2>{run && <button type="button" onClick={newResearch} disabled={active(run.status) || sending}>새 조사</button>}</div>
-          <p className="research-help">선택한 자료와 관련 저장 자료를 토대로 정리합니다. 인용을 열어 원문 위치를 확인할 수 있습니다.</p>
-          <form onSubmit={submit} className="research-form">
-            {run?.status === 'completed' && <p className="research-context">후속 질문 · {run.question}</p>}
-            <label htmlFor="research-question">{run?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
-            <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(run?.status ?? 'completed')} placeholder="자료를 선택하고 질문을 입력하세요" />
-            <div className="research-form-foot"><span>선택한 자료 {selected.length}개</span><button type="submit" disabled={!canEdit || sending || active(run?.status ?? 'completed') || !question.trim() || selected.length === 0}>{sending ? '요청 접수 중…' : run?.status === 'completed' ? '후속 질문하기' : 'AI 조사 시작'}</button></div>
-            {!canEdit && <p role="status">읽기 권한으로는 저장된 조사를 열람할 수 있습니다.</p>}
-          </form>
-          {requestError && <div className="research-feedback" role="alert"><p>{failures[requestError.kind]}</p>{pendingInput.current && ['network','timeout','unavailable'].includes(requestError.kind) && <button type="button" onClick={() => void send(pendingInput.current!)} disabled={sending}>같은 요청 다시 확인</button>}</div>}
-          {readerError && <p className="research-feedback" role="alert">인용의 저장 원문을 열 수 없습니다. 자료를 다시 확인해 주세요.</p>}
-          {runId && runError && <div className="research-feedback" role="alert"><p>{failures[runError.kind]}</p><button type="button" onClick={() => setRunVersion(value => value + 1)}>조사 다시 읽기</button></div>}
-          {runId && !run && !runError && <p role="status" aria-live="polite">조사를 다시 여는 중…</p>}
-          {run && <div className="research-result">
-            <div className="research-result-heading"><span role="status" aria-label="조사 상태" aria-live="polite">{stage[run.status]}</span>{active(run.status) && canEdit && <button type="button" onClick={() => void cancel()} disabled={cancelling}>{cancelling ? '취소 중…' : '조사 취소'}</button>}</div>
-            {active(run.status) && <ol className="research-progress" aria-label="조사 진행 상태">{(['queued','retrieving','generating','validating'] as const).map((step, index) => <li key={step} aria-current={run.status === step ? 'step' : undefined} data-done={index <= ['queued','retrieving','generating','validating'].indexOf(run.status)}>{stage[step]}</li>)}</ol>}
-            {(run.status === 'failed' || run.status === 'cancelled') && <p role="alert">{run.error_code ? runFailures[run.error_code] : stage[run.status]} 질문과 선택 자료를 확인하고 새 조사를 시작할 수 있습니다.</p>}
-            {run.result && <><p className="research-question">질문 · {run.question}</p><CanvasView bundle={run.result.canvas} sourceTitles={run.result.source_titles} onAction={onCanvasAction} /></>}
-          </div>}
-          {!run && !runId && <p className="research-start">자료를 선택해 질문하거나 법안의 핵심 정리를 시작하세요.</p>}
-        </section>
       </div>
     </> : <section className="research-saved" aria-label="저장한 조사 목록"><div className="research-section-heading"><h2>저장한 조사</h2><button type="button" onClick={() => setListVersion(value => value + 1)}>목록 새로고침</button></div>
       {list.kind === 'loading' && <p role="status">저장한 조사를 읽는 중…</p>}
       {list.kind === 'failure' && <p role="alert">{failures[list.error.kind]}</p>}
       {list.kind === 'ready' && (list.items.length === 0 ? <p className="research-empty">저장한 조사가 없습니다.</p> : <ul className="research-run-list">{list.items.map(item => <li key={item.run_id}><button type="button" onClick={() => setCurrent(item.run_id)} aria-current={runId === item.run_id ? 'true' : undefined}><strong>{item.question}</strong><span>{date(item.created_at)} · {stage[item.status]}</span></button></li>)}</ul>)}
       {runId && <button type="button" onClick={() => setCurrent(null)}>선택 해제</button>}
-      {run && run.result && <div className="research-saved-result"><CanvasView bundle={run.result.canvas} sourceTitles={run.result.source_titles} onAction={onCanvasAction} /></div>}
-      {run && active(run.status) && <p role="status" aria-live="polite">{stage[run.status]}</p>}
+      {displayedRun?.status === 'completed' && displayedRun.result && <div className="research-saved-result"><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></div>}
+      {displayedRun && active(displayedRun.status) && <p role="status" aria-live="polite">{stage[displayedRun.status]}</p>}
     </section>}
+    {evidence.drawer}
   </div>;
 }

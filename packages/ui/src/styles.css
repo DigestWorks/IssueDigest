@@ -64,3 +64,12 @@
   .id-canvas .id-canvas-connection { flex-direction: column; align-items: stretch; }
   .id-canvas .id-canvas-edge > span:last-child { transform: rotate(90deg); }
 }
+.id-canvas[data-presentation="briefing"] { max-width:760px; }
+.id-canvas[data-presentation="briefing"] .id-canvas-grid { grid-template-columns:minmax(0,1fr); gap:0; }
+.id-canvas[data-presentation="briefing"] .id-canvas-module { border:0; border-radius:0; padding:20px 0; background:transparent; }
+.id-canvas[data-presentation="briefing"] .id-canvas-grid > .id-canvas-module:first-child { background:#edf2e9; padding:24px; margin-bottom:20px; border-left:3px solid var(--id-green); }
+.id-canvas .id-briefing-detail { min-width:0; border-bottom:1px solid var(--id-border); }
+.id-canvas .id-briefing-detail > summary { cursor:pointer; padding:16px 0; min-height:52px; font-size:1.05rem; font-weight:600; }
+.id-canvas .id-briefing-detail > summary:focus-visible { outline:2px solid var(--id-green); outline-offset:3px; }
+.id-canvas[data-presentation="briefing"] .id-canvas-claims { margin-top:16px; }
+.id-canvas[data-presentation="briefing"] .id-canvas-claims p { line-height:1.85; }

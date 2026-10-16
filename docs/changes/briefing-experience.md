@@ -35,7 +35,7 @@
 
 ## Task 2 · 실제 브리핑·원문 선열람·근거 drawer
 
-구현 범위: apps/web/app/research.tsx/research.css, 새로운 research-evidence.tsx·research-selection.ts·research-briefing.tsx 등 책임별 작은 모듈이 필요한 경우, evidence/reader.tsx의 재사용 가능한 SavedEvidence export(기존 route 동작 유지), packages/ui/src/CanvasView.tsx·modules.tsx·styles.css와 관련 tests. Task1 홈·초안 인터페이스와 스타일 토큰을 사용하며 API·도메인·DB·워커/lock는 바꾸지 않는다.
+구현 범위: apps/web/app/research.tsx/research.css, 새로운 research-evidence.tsx·research-selection.ts·research-briefing.tsx 등 책임별 작은 모듈이 필요한 경우, evidence/reader.tsx의 재사용 가능한 SavedEvidence export(기존 route 동작 유지), packages/ui/src/CanvasView.tsx·modules.tsx·styles.css와 관련 tests. Task1 홈·초안 인터페이스와 스타일 토큰을 사용하며 API·도메인·DB·워커/lock는 바꾸지 않는다. 단, 기존 getEvidence가 HTTP403을503과 같은 unavailable로 처리하므로 packages/api-client/src/evidence.ts·protected-request.ts와 관련 테스트에서 보호 GET의403을 기존 authentication/forbidden 오류로 구분하는 최소 변경을 허용한다. 원문 권한 상실 시 즉시 지우기 위한 client 분류이며 HTTP 계약은 바꾸지 않는다.
 
 요구사항:
 - 질문/결과를 주 콘텐츠로 두고 ‘조사할 자료’는 필요할 때 여는 보조 선택으로 내린다. 초기에는 실제 연결 자료의 제목·출처/시점·근거 열람을 간결하게 보여준다. 질문 전 결과/AI 예시/인기 점수/가짜 여론을 채우지 않는다. 실제 모듈이 생성됐다는 점과 원문·AI 해석의 차이가 분명해야 한다. 단일 열 브리핑은 데스크톱에서도 지나치게 넓지 않고 보조 근거만 곁에 둔다.

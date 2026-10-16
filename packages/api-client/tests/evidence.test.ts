@@ -26,7 +26,7 @@ it.each([['bad', snapshot, undefined], [workspace, 'bad', undefined], [workspace
   await expect(client.getEvidence(w, s, { timeoutMs })).rejects.toMatchObject({ kind: 'invalid-link' });
   expect(fetch).not.toHaveBeenCalled();
 });
-it.each([[401, 'authentication'], [404, 'not-found'], [503, 'unavailable'], [403, 'unavailable'], [500, 'unavailable']])('sanitizes HTTP %s without disclosing body', async (status, kind) => {
+it.each([[401, 'authentication'], [404, 'not-found'], [503, 'unavailable'], [403, 'authentication'], [500, 'unavailable']])('sanitizes HTTP %s without disclosing body', async (status, kind) => {
   vi.stubGlobal('fetch', async () => new Response('PRIVATE DETAIL', { status: status as number, headers }));
   await expect(client.getEvidence(workspace, snapshot)).rejects.toMatchObject({ kind, requestId, message: `Evidence request failed: ${kind}` });
 });

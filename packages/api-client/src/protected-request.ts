@@ -29,7 +29,7 @@ export async function protectedRequest<T>(path: string, method: 'GET' | 'POST', 
     try { response = await fetch(path, { method, credentials: 'same-origin', cache: 'no-store', signal: controller.signal, headers: body === undefined ? { Accept: 'application/json' } : { Accept: 'application/json', 'Content-Type': 'application/json' }, ...(body === undefined ? {} : { body }) }); }
     catch { throw error('network', requestId); }
     const header = response.headers.get('X-Request-ID'); requestId = isId(header) ? header : undefined;
-    if (!response.ok) throw error(response.status === 401 ? 'unauthorized' : response.status === 404 ? 'not-found' : body !== undefined && response.status === 403 ? 'forbidden' : body !== undefined && response.status === 422 ? 'invalid-query' : response.status === 409 ? 'conflict' : response.status === 429 ? 'budget' : 'unavailable', requestId);
+    if (!response.ok) throw error(response.status === 401 ? 'unauthorized' : response.status === 404 ? 'not-found' : response.status === 403 ? 'forbidden' : body !== undefined && response.status === 422 ? 'invalid-query' : response.status === 409 ? 'conflict' : response.status === 429 ? 'budget' : 'unavailable', requestId);
     const noStore = response.headers.get('Cache-Control')?.split(',').some(token => token.trim().toLowerCase() === 'no-store');
     if (!requestId || !noStore) throw error('malformed', requestId);
     let data: unknown;

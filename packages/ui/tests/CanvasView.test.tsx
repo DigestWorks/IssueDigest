@@ -291,3 +291,32 @@ it.each(invalidCases)('safely rejects %s without leaking earlier modules or raw 
   expect(screen.queryByRole('region')).not.toBeInTheDocument();
   expect(screen.queryByText('raw secret')).not.toBeInTheDocument();
 });
+
+it('briefing promotes the supplied summary and folds supporting modules without changing the default table', async () => {
+  const bundle = data();
+  render(<CanvasView bundle={bundle} presentation="briefing" />);
+  const article = screen.getByRole('article');
+  expect(article).toHaveAttribute('data-presentation', 'briefing');
+  expect(article.querySelector('section')).toHaveAccessibleName('합성 요약');
+  const comparison = screen.getByText('합성 비교');
+  expect(comparison.closest('details')).not.toHaveAttribute('open');
+  await userEvent.setup().click(comparison);
+  const region = screen.getByRole('region', {name:'합성 비교'});
+  expect(within(region).queryByRole('table')).not.toBeInTheDocument();
+  expect(within(region).getByRole('list', {name:'주장별 비교'})).toBeInTheDocument();
+  expect(within(region).getByText('합성 주장: 나중 구간')).toBeInTheDocument();
+  expect(within(region).getAllByRole('button', {name:/근거 열기/}).length).toBeGreaterThan(0);
+});
+it.each(['insufficient_evidence', 'clarification_needed'] as const)('briefing keeps the real %s message', outcome => {
+  const bundle = data(); bundle.revision.draft={...bundle.revision.draft,outcome,modules:[],message:'서버가 제공한 안내'};
+  render(<CanvasView bundle={bundle} presentation="briefing" />);
+  expect(screen.getByRole('status')).toHaveTextContent('서버가 제공한 안내');
+});
+it('briefing rejects broken canonical references and uses the actual first module when summary is absent', () => {
+  const bundle = data(); bundle.revision.draft.modules=[bundle.revision.draft.modules[2]];
+  const {rerender} = render(<CanvasView bundle={bundle} presentation="briefing" />);
+  expect(screen.getByRole('region', {name:'합성 비교'})).toBeInTheDocument();
+  bundle.revision.draft.modules[0].citation_ids=['00000000-0000-4000-8000-999999999999'];
+  rerender(<CanvasView bundle={bundle} presentation="briefing" />);
+  expect(screen.getByRole('alert')).toHaveTextContent('안전하게 표시할 수 없습니다');
+});

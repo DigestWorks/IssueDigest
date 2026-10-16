@@ -68,7 +68,7 @@ function citationPosition(citation: Citation) {
   const selector = citation.selector;
   return selector.kind === 'table_cell' ? `표 ${selector.table_id} · 셀 ${selector.cell_id}` : `문자 ${selector.start}–${selector.end}`;
 }
-function SavedEvidence({ data, workspaceId, snapshotId, searchState, title }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown; title: string | null }) {
+export function SavedEvidence({ data, workspaceId, snapshotId, searchState, title }: { data: EvidenceBundle; workspaceId: string; snapshotId: string; searchState: unknown; title: string | null }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [pageNumber, setPageNumber] = useState<number | null>(null);
   const [searchSelection, setSearchSelection] = useState<SearchSelection | null>(null);
