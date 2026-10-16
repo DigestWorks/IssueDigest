@@ -40,7 +40,7 @@ describe('CanvasView', () => {
 
   it('renders all six modules in supplied order and span with selected evidence only', () => {
     render(<CanvasView bundle={data()} />);
-    expect(screen.getByRole('heading', {name: '조사 결과'})).toBeInTheDocument();
+    expect(screen.getByRole('heading', {name: '브리핑'})).toBeInTheDocument();
     expect(screen.getAllByRole('region').map(section => section.getAttribute('aria-label')))
       .toEqual(['합성 근거', '합성 요약', '합성 비교', '합성 타임라인', '합성 관계', '합성 수치']);
     expect(screen.getByRole('region', {name: '합성 비교'})).toHaveAttribute('data-span', 'full');

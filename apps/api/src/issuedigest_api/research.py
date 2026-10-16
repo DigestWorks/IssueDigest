@@ -8,7 +8,6 @@ from issuedigest_domain.research_journey import (
     ResearchRequest,
     ResearchRun,
     ResearchRunList,
-    ResearchSourceCatalog,
 )
 from issuedigest_storage import AuthenticationDenied, StorageError
 from issuedigest_storage.research import (
@@ -83,16 +82,6 @@ def research_router(
             raise HTTPException(409, "Research request conflicts") from None
         except (StorageError, ValueError, ValidationError, TypeError):
             raise HTTPException(503, "Research service unavailable") from None
-
-    @router.get(BASE + "/sources", response_model=ResearchSourceCatalog)
-    async def sources(
-        request: Request, workspace_id: UUID4, token: Annotated[str | None, Security(COOKIE_AUTH)]
-    ) -> ResearchSourceCatalog:
-        if request.query_params:
-            raise HTTPException(422, "Invalid research request")
-        return cast(
-            ResearchSourceCatalog, await call("list_sources", check_token(token), workspace_id)
-        )
 
     @router.get(BASE, response_model=ResearchRunList)
     async def runs(

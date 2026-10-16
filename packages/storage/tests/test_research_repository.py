@@ -23,6 +23,10 @@ def setup_run(engine, role="owner"):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, user = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(user, "synthetic", str(user))
     identities.set_membership(user, bundle.document.workspace_id, role)
@@ -34,11 +38,9 @@ def test_duplicate_submission_is_same_run_and_different_input_conflicts(engine):
     bundle, snapshot, _user, token = setup_run(engine)
     repository = ResearchRepository(engine)
     workspace = bundle.document.workspace_id
-    request = ResearchRequest(
-        request_id=uuid4(), question="무엇이 다른가?", snapshot_ids=(snapshot,)
-    )
+    request = ResearchRequest(request_id=uuid4(), question="80% 의미는?")
     first = repository.submit(token, workspace, request)
-    assert first.status == "queued"
+    assert first.status == "queued" and first.snapshot_ids == ()
     assert repository.submit(token, workspace, request).run_id == first.run_id
     with pytest.raises(ResearchConflict):
         repository.submit(token, workspace, request.model_copy(update={"question": "다른 질문"}))
@@ -56,7 +58,7 @@ def test_global_reservation_caps_and_active_workspace_run(engine):
                 repository.submit,
                 token,
                 workspace,
-                ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+                ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
             )
             for _ in range(2)
         ]
@@ -78,31 +80,20 @@ def test_viewer_cannot_submit_and_revoked_membership_cannot_read(engine):
         repository.submit(
             token,
             workspace,
-            ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+            ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
         )
-    assert repository.list_sources(token, workspace).items[0].title == "수집 자료"
+    assert repository.list_runs(token, workspace).items == ()
     IdentityRepository(engine).set_membership(user, workspace, "viewer", False)
-    assert repository.list_sources(token, workspace) is None
+    assert repository.list_runs(token, workspace) is None
 
 
-def test_operator_title_and_monthly_budget_are_durable(engine):
-    from issuedigest_domain.research_journey import SourcePresentation
+def test_monthly_budget_is_durable(engine):
     from issuedigest_storage.research import ResearchBudgetExceeded
     from issuedigest_storage.research_schema import research_budget_months
     from sqlalchemy import insert, select
 
-    bundle, snapshot, _actor, token = setup_run(engine)
+    bundle, _snapshot, _actor, token = setup_run(engine)
     repo = ResearchRepository(engine)
-    presentation = SourcePresentation(
-        snapshot_id=snapshot,
-        workspace_id=bundle.document.workspace_id,
-        title="검증된 정부 문서",
-        profile="operator-verified-v1",
-    )
-    repo.upsert_presentation(presentation)
-    assert (
-        repo.list_sources(token, bundle.document.workspace_id).items[0].title == "검증된 정부 문서"
-    )
     with engine.begin() as conn:
         month = conn.scalar(
             select(
@@ -120,7 +111,7 @@ def test_operator_title_and_monthly_budget_are_durable(engine):
         repo.submit(
             token,
             bundle.document.workspace_id,
-            ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+            ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
         )
     assert repo.list_runs(token, bundle.document.workspace_id).items == ()
 
@@ -132,7 +123,7 @@ def test_worker_demotion_prevents_result_publication(engine):
     run = repo.submit(
         token,
         workspace,
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     IdentityRepository(engine).set_membership(actor, workspace, "viewer")
@@ -150,7 +141,7 @@ def test_replay_does_not_regress_progress_or_duplicate_events(engine):
     run = repo.submit(
         token,
         workspace,
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     for status in ("retrieving", "generating", "validating"):
@@ -175,7 +166,7 @@ def test_cancel_and_publication_share_lock_order(engine, monkeypatch):
     run = repo.submit(
         token,
         workspace,
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     loaded = repo.worker_load(run.run_id)
@@ -262,6 +253,10 @@ def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
     bundle = EvidenceBundle.model_validate(data)
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -271,7 +266,7 @@ def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
     parent = repo.submit(
         token,
         workspace,
-        ResearchRequest(request_id=uuid4(), question="어느 날짜?", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert parent is not None
     loaded = repo.worker_load(parent.run_id)
@@ -298,6 +293,9 @@ def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
         canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
         source_titles={bundle.document.document_id: "합성 일정 자료"},
     )
+    historical = result.model_dump(mode="python")
+    historical["canvas"]["research"]["claims"][0]["derivation"]["method_version"] = "research-v1"
+    result = ResearchResult.model_validate(historical)
     for status in ("retrieving", "generating", "validating"):
         assert repo.worker_transition(parent.run_id, status)
     assert repo.worker_transition(parent.run_id, "completed", result=result)
@@ -312,7 +310,6 @@ def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
         ResearchRequest(
             request_id=uuid4(),
             question="그다음은?",
-            snapshot_ids=(snapshot,),
             parent_run_id=parent.run_id,
         ),
     )
@@ -334,3 +331,538 @@ def test_timeline_jsonb_reopens_lists_and_supplies_followup_context(engine):
         repo.list_runs(token, workspace)
     with pytest.raises(ValidationError):
         repo.worker_parent_context(child.run_id)
+
+
+def add_topic(engine, workspace, text):
+    data = bundle_data()
+    data["document"]["workspace_id"] = str(workspace)
+    data["representation"].update(
+        text=text, text_sha256=sha256(text.encode()).hexdigest(), pages=[], tables=[]
+    )
+    data["version"]["media_type"] = "text/plain"
+    data["citations"] = [data["citations"][0]]
+    data["citations"][0]["selector"] = {"kind": "text", "start": 0, "end": len(text), "quote": text}
+    bundle = EvidenceBundle.model_validate(data)
+    snapshot = uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, workspace, snapshot)
+    return snapshot, bundle
+
+
+def test_question_retrieval_is_scoped_ranked_bounded_and_frozen(engine):
+    bundle, unrelated, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    less_relevant, _ = add_topic(engine, workspace, "주거지원 관련 보도")
+    expected = []
+    for _ in range(6):
+        snapshot, _ = add_topic(engine, workspace, "주거지원 확대 발표")
+        expected.append(snapshot)
+    foreign, _ = add_topic(engine, uuid4(), "주거지원 확대 발표")
+    run = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="주거지원은 확대가 무엇인가요?"),
+    )
+    assert run.snapshot_ids == ()
+    loaded = repo.worker_load(run.run_id)
+    assert loaded is not None
+    current, sources = loaded
+    assert current.status == "retrieving"
+    assert current.snapshot_ids == tuple(sorted(expected, key=str)[:5])
+    assert tuple(source[0] for source in sources) == current.snapshot_ids
+    assert (
+        unrelated not in current.snapshot_ids
+        and less_relevant not in current.snapshot_ids
+        and foreign not in current.snapshot_ids
+    )
+    assert [event.status for event in current.events] == ["queued", "retrieving"]
+    add_topic(engine, workspace, "주거지원 확대 발표")
+    replayed = repo.worker_load(run.run_id)
+    assert replayed[0].snapshot_ids == current.snapshot_ids
+    assert replayed[0].events == current.events
+    assert (
+        repo.submit(
+            token, workspace, ResearchRequest(request_id=run.request_id, question=run.question)
+        ).snapshot_ids
+        == current.snapshot_ids
+    )
+
+
+def test_nohit_and_cancel_never_choose_default_sources(engine):
+    bundle, _snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    run = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="양자컴퓨터 소식은?")
+    )
+    assert repo.worker_load(run.run_id) is None
+    final = repo.get_run(token, workspace, run.run_id)
+    assert final.status == "failed" and final.error_code == "insufficient_evidence"
+    assert final.snapshot_ids == () and final.result is None
+    assert final.input_tokens == 0 and final.output_tokens == 0
+    assert repo.worker_load(run.run_id) is None
+    assert repo.cancel(token, workspace, run.run_id) == final
+    cancelled = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    repo.cancel(token, workspace, cancelled.run_id)
+    assert repo.worker_load(cancelled.run_id) is None
+    assert repo.get_run(token, workspace, cancelled.run_id).snapshot_ids == ()
+
+
+@pytest.mark.parametrize(
+    "followup_question",
+    ["더 자세히 알려줘", "무슨 의미인가?", "그것은 무엇인가?", "“그것은 무엇인가?”…"],
+)
+def test_only_topicless_followup_reuses_verified_parent_sources(engine, followup_question):
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    proposal = AIOutput.model_validate(
+        {
+            "outcome": "answer",
+            "modules": [
+                {
+                    "kind": "summary",
+                    "title": "해석",
+                    "claims": [
+                        {
+                            "text": "합성 의미",
+                            "citation_ids": [str(bundle.citations[0].citation_id)],
+                        }
+                    ],
+                }
+            ],
+        }
+    )
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], proposal),
+        source_titles={bundle.document.document_id: "합성 문서"},
+    )
+    assert repo.worker_transition(parent.run_id, "completed", result=result)
+    followup = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(
+            request_id=uuid4(), question=followup_question, parent_run_id=parent.run_id
+        ),
+    )
+    followup_loaded = repo.worker_load(followup.run_id)
+    assert followup_loaded is not None
+    assert followup_loaded[0].snapshot_ids == (snapshot,)
+    repo.cancel(token, workspace, followup.run_id)
+    new_topic = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="양자컴퓨터는?", parent_run_id=parent.run_id),
+    )
+    assert repo.worker_load(new_topic.run_id) is None
+    assert repo.get_run(token, workspace, new_topic.run_id).snapshot_ids == ()
+    # The original completed result remains byte-for-byte readable under the same IDs.
+    assert repo.get_run(token, workspace, parent.run_id).result == result
+
+
+def test_failed_retrieval_transaction_does_not_publish_partial_sources(engine, monkeypatch):
+    from issuedigest_storage import StorageCorruption
+    from issuedigest_storage.search_schema import units
+
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
+    )
+    with engine.begin() as conn:
+        conn.execute(
+            update(units).where(units.c.snapshot_id == snapshot).values(text_sha256="b" * 64)
+        )
+    with pytest.raises(StorageCorruption):
+        repo.worker_load(run.run_id)
+    unchanged = repo.get_run(token, bundle.document.workspace_id, run.run_id)
+    assert unchanged.status == "queued" and unchanged.snapshot_ids == ()
+    assert len(unchanged.events) == 1
+
+
+def test_parent_provenance_is_verified_before_topicless_reuse(engine):
+    from issuedigest_storage import StorageCorruption
+
+    bundle, snapshot, _actor, token = setup_run(engine)
+    workspace = bundle.document.workspace_id
+    repo = ResearchRepository(engine)
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    proposal = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], proposal),
+        source_titles={bundle.document.document_id: "합성 자료"},
+    )
+    assert repo.worker_transition(parent.run_id, "completed", result=result)
+    unrelated, _ = add_topic(engine, workspace, "다른 주제의 합성 자료")
+    with engine.begin() as conn:
+        conn.execute(
+            update(research_runs)
+            .where(research_runs.c.run_id == parent.run_id)
+            .values(snapshot_ids=[str(unrelated)])
+        )
+    followup = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(
+            request_id=uuid4(), question="더 자세히 알려줘", parent_run_id=parent.run_id
+        ),
+    )
+    with pytest.raises(StorageCorruption):
+        repo.worker_load(followup.run_id)
+    assert repo.get_run(token, workspace, followup.run_id).snapshot_ids == ()
+
+
+def test_result_publication_rejects_evidence_outside_fixed_provenance(engine):
+    from issuedigest_storage import StorageError
+
+    bundle, _snapshot, _actor, token = setup_run(engine)
+    workspace = bundle.document.workspace_id
+    repo = ResearchRepository(engine)
+    run = repo.submit(token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?"))
+    repo.worker_load(run.run_id)
+    unrelated, other = add_topic(engine, workspace, "다른 주제")
+    from issuedigest_domain.research_journey import presentation_for
+
+    sources = ((unrelated, other, presentation_for(other, unrelated)),)
+    proposal = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    forged = ResearchResult(
+        canvas=build_canvas(run.run_id, workspace, sources, proposal),
+        source_titles={other.document.document_id: "합성 자료"},
+    )
+    with pytest.raises(StorageError):
+        repo.worker_transition(run.run_id, "completed", result=forged)
+    assert repo.get_run(token, workspace, run.run_id).status == "retrieving"
+
+
+def test_concurrent_worker_load_fixes_sources_only_once(engine):
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
+    )
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        loaded = list(pool.map(repo.worker_load, [run.run_id, run.run_id]))
+    assert loaded[0][0] == loaded[1][0]
+    assert loaded[0][0].snapshot_ids == (snapshot,)
+    assert [event.status for event in loaded[0][0].events] == ["queued", "retrieving"]
+
+
+def test_request_rejects_forged_model_extra_fields_before_reserving(engine):
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    request = ResearchRequest(request_id=uuid4(), question="80% 의미는?").model_copy(
+        update={"snapshot_ids": (snapshot,)}
+    )
+    with pytest.raises(ValidationError):
+        repo.submit(token, bundle.document.workspace_id, request)
+    assert repo.list_runs(token, bundle.document.workspace_id).items == ()
+
+
+def test_retrieval_caps_topical_terms_at_eight(engine):
+    bundle, _snapshot, _actor, token = setup_run(engine)
+    workspace = bundle.document.workspace_id
+    add_topic(engine, workspace, "ninthtopic")
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(
+            request_id=uuid4(),
+            question="alpha bravo charlie delta echo foxtrot golf hotel ninthtopic",
+        ),
+    )
+    assert repo.worker_load(run.run_id) is None
+    assert repo.get_run(token, workspace, run.run_id).error_code == "insufficient_evidence"
+
+
+def test_worker_rechecks_parent_completion_even_for_a_new_topic(engine):
+    from issuedigest_storage import StorageCorruption
+
+    bundle, _snapshot, _actor, token = setup_run(engine)
+    workspace = bundle.document.workspace_id
+    repo = ResearchRepository(engine)
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    output = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
+        source_titles={bundle.document.document_id: "합성 자료"},
+    )
+    repo.worker_transition(parent.run_id, "completed", result=result)
+    child = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question="80% 새 질문", parent_run_id=parent.run_id),
+    )
+    with engine.begin() as conn:
+        conn.execute(
+            update(research_runs)
+            .where(research_runs.c.run_id == parent.run_id)
+            .values(status="failed")
+        )
+    with pytest.raises(StorageCorruption):
+        repo.worker_load(child.run_id)
+    assert repo.get_run(token, workspace, child.run_id).snapshot_ids == ()
+
+
+@pytest.mark.parametrize(
+    "new_question",
+    ["돈?", "z" * 100 + "?", "日本について 설명해줘", "💰 설명해줘", "$ 설명해줘", "+ 설명해줘"],
+)
+def test_unrecognized_new_topic_never_reuses_parent(engine, new_question):
+    bundle, _snapshot, _actor, token = setup_run(engine)
+    workspace = bundle.document.workspace_id
+    repo = ResearchRepository(engine)
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    output = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
+        source_titles={bundle.document.document_id: "합성 자료"},
+    )
+    repo.worker_transition(parent.run_id, "completed", result=result)
+    child = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question=new_question, parent_run_id=parent.run_id),
+    )
+    assert repo.worker_load(child.run_id) is None
+    assert repo.get_run(token, workspace, child.run_id).snapshot_ids == ()
+
+
+def test_worker_uses_durable_operator_source_presentation(engine):
+    from issuedigest_domain.research_journey import SourcePresentation
+
+    bundle, snapshot, _actor, token = setup_run(engine)
+    repo = ResearchRepository(engine)
+    presentation = SourcePresentation(
+        snapshot_id=snapshot,
+        workspace_id=bundle.document.workspace_id,
+        title="검증된 정부 문서",
+        profile="operator-verified-v1",
+    )
+    repo.upsert_presentation(presentation)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
+    )
+    loaded = repo.worker_load(run.run_id)
+    assert loaded[1][0][2] == presentation
+
+
+def test_historical_expanded_provenance_is_complete_on_reads_and_never_persisted(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage.research_schema import research_events
+    from sqlalchemy import select
+
+    old = historical_expanded_run
+    repo, workspace, token = old["repo"], old["workspace"], old["token"]
+    expected = tuple(source[0] for source in old["sources"])
+    reopened = repo.get_run(token, workspace, old["run"].run_id)
+    assert reopened.snapshot_ids == expected
+    assert reopened.result == old["result"]
+    assert repo.list_runs(token, workspace).items[0] == reopened
+    assert repo.cancel(token, workspace, reopened.run_id) == reopened
+    with engine.connect() as conn:
+        assert dict(conn.execute(select(research_runs)).mappings().one()) == old["before"]
+        assert [dict(row) for row in conn.execute(select(research_events)).mappings()] == old[
+            "events"
+        ]
+
+
+def test_generic_child_freezes_complete_legacy_parent_sources(engine, historical_expanded_run):
+    old = historical_expanded_run
+    repo = old["repo"]
+    child = repo.submit(
+        old["token"],
+        old["workspace"],
+        ResearchRequest(
+            request_id=uuid4(), question="더 자세히 알려줘", parent_run_id=old["run"].run_id
+        ),
+    )
+    assert child.snapshot_ids == ()
+    loaded, sources = repo.worker_load(child.run_id)
+    assert loaded.snapshot_ids == tuple(source[0] for source in old["sources"])
+    assert tuple(source[1] for source in sources) == old["result"].canvas.research.evidence
+    # Recovery continues with the fixed complete source set.
+    assert repo.worker_load(child.run_id)[0] == loaded
+    with engine.connect() as conn:
+        from sqlalchemy import select
+
+        assert (
+            conn.scalar(
+                select(research_runs.c.snapshot_ids).where(
+                    research_runs.c.run_id == old["run"].run_id
+                )
+            )
+            == old["before"]["snapshot_ids"]
+        )
+
+
+@pytest.mark.parametrize(
+    "damage", ["missing", "hash", "bundle", "foreign", "v2", "v2-marker", "legacy-v2-claim"]
+)
+def test_historical_resolution_fails_closed_on_unverified_provenance(
+    engine, historical_expanded_run, damage
+):
+    import json
+
+    from issuedigest_storage import StorageCorruption
+    from issuedigest_storage.schema import evidence_snapshots, outbox, snapshot_citations
+    from issuedigest_storage.search_schema import projections, units
+    from sqlalchemy import delete
+
+    old = historical_expanded_run
+    added_id = old["sources"][1][0]
+    with engine.begin() as conn:
+        if damage == "missing":
+            conn.execute(delete(units).where(units.c.snapshot_id == added_id))
+            conn.execute(delete(projections).where(projections.c.snapshot_id == added_id))
+            conn.execute(
+                delete(snapshot_citations).where(snapshot_citations.c.snapshot_id == added_id)
+            )
+            conn.execute(delete(outbox).where(outbox.c.snapshot_id == added_id))
+            conn.execute(
+                delete(evidence_snapshots).where(evidence_snapshots.c.snapshot_id == added_id)
+            )
+        elif damage == "hash":
+            conn.execute(
+                update(evidence_snapshots)
+                .where(evidence_snapshots.c.snapshot_id == added_id)
+                .values(content_sha256="0" * 64)
+            )
+        elif damage == "foreign":
+            # Same chain identifiers in the result must still be workspace scoped.
+            payload = old["result"].model_dump(mode="json")
+            payload["canvas"]["research"]["evidence"][1]["document"]["workspace_id"] = str(uuid4())
+            conn.execute(update(research_runs).values(result=payload))
+        elif damage == "bundle":
+            # Valid domain data with the exact same identity chain is not necessarily canonical.
+            payload = old["result"].model_dump(mode="json")
+            payload["canvas"]["research"]["evidence"][1]["document"]["canonical_url"] = (
+                "https://example.test/changed"
+            )
+            conn.execute(update(research_runs).values(result=payload))
+        else:
+            values = {
+                "input_hash": sha256(
+                    json.dumps(
+                        {"question": old["run"].question, "parent_run_id": None},
+                        sort_keys=True,
+                        ensure_ascii=False,
+                    ).encode()
+                ).hexdigest()
+            }
+            if damage == "legacy-v2-claim":
+                values["input_hash"] = old["before"]["input_hash"]
+            if damage in {"v2", "legacy-v2-claim"}:
+                payload = old["result"].model_dump(mode="json")
+                payload["canvas"]["research"]["claims"][0]["derivation"]["method_version"] = (
+                    "research-v2"
+                )
+                values["result"] = payload
+            conn.execute(update(research_runs).values(**values))
+    with pytest.raises((StorageCorruption, ValueError)):
+        old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+
+
+def test_legacy_read_checks_current_membership_before_canonical_resolution(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage.schema import evidence_snapshots
+
+    old = historical_expanded_run
+    IdentityRepository(engine).set_membership(old["actor"], old["workspace"], "owner", False)
+    with engine.begin() as conn:
+        conn.execute(update(evidence_snapshots).values(content_sha256="0" * 64))
+    assert old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id) is None
+    assert old["repo"].list_runs(old["token"], old["workspace"]) is None
+
+
+def test_legacy_no_claim_result_still_resolves_actual_parent_evidence(
+    engine, historical_expanded_run
+):
+    old = historical_expanded_run
+    result = ResearchResult(
+        canvas=build_canvas(
+            old["run"].run_id,
+            old["workspace"],
+            old["sources"],
+            AIOutput(
+                outcome="insufficient_evidence", message="근거가 충분하지 않습니다", modules=()
+            ),
+        ),
+        source_titles=old["result"].source_titles,
+    )
+    with engine.begin() as conn:
+        conn.execute(update(research_runs).values(result=result.model_dump(mode="json")))
+    reopened = old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+    assert reopened.snapshot_ids == tuple(source[0] for source in old["sources"])
+    assert reopened.result == result
+
+
+def test_legacy_resolution_preserves_seeds_and_deterministically_selects_existing_aliases(
+    engine, historical_expanded_run
+):
+    from uuid import UUID
+
+    old = historical_expanded_run
+    seed_alias = UUID("00000000-0000-4000-8000-000000000001")
+    added_alias = UUID("00000000-0000-4000-8000-000000000002")
+    EvidenceRepository(engine).save(seed_alias, old["sources"][0][1])
+    EvidenceRepository(engine).save(added_alias, old["sources"][1][1])
+    # Same canonical chain can also have a different snapshot citation subset.
+    EvidenceRepository(engine).save(
+        UUID("00000000-0000-4000-8000-000000000000"),
+        old["sources"][1][1].model_copy(update={"citations": ()}),
+    )
+    reopened = old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)
+    assert reopened.snapshot_ids == (old["sources"][0][0], added_alias)
+    assert old["repo"].list_runs(old["token"], old["workspace"]).items[0] == reopened
+
+
+def test_legacy_resolution_rejects_more_than_five_actual_sources(engine, historical_expanded_run):
+    from issuedigest_domain.research_journey import presentation_for
+    from issuedigest_storage import StorageCorruption
+
+    old = historical_expanded_run
+    sources = list(old["sources"])
+    for index in range(4):
+        snapshot, bundle = add_topic(engine, old["workspace"], f"추가 합성 자료 {index}")
+        sources.append((snapshot, bundle, presentation_for(bundle, snapshot)))
+    result = ResearchResult(
+        canvas=build_canvas(
+            old["run"].run_id,
+            old["workspace"],
+            tuple(sources),
+            AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=()),
+        ),
+        source_titles=old["result"].source_titles,
+    )
+    with engine.begin() as conn:
+        conn.execute(update(research_runs).values(result=result.model_dump(mode="json")))
+    with pytest.raises(StorageCorruption):
+        old["repo"].get_run(old["token"], old["workspace"], old["run"].run_id)

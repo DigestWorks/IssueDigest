@@ -70,7 +70,7 @@ def prepare(job: HwpxJob, approved_base: ProvisioningPlan) -> ProvisioningPlan:
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 실행합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID와v2 workflow 버전로 실행합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 
@@ -105,3 +105,5 @@ uv run python -m issuedigest_storage.provision_cli PRIVATE_NEW_PLAN
 base의 workspace·expected_database·승인 invites·기존 snapshot을 보존한다. 기존/신규 문서·버전·raw object·표현·snapshot·인용 ID의 다른 내용 재사용을 거부하고, 동일 artifact+job+IDs 재실행은 같은 결과다. 새 네트워크 capture의 HTML·CSRF·collected_at 변화를 버전으로 자동 판정하지 않으며 운영자가 원문을 대조하고 새 버전 IDs를 제공해야 한다. 같은 JSON의 공백을 바꿔도 raw bytes/hash가 달라질 수 있으므로 최초 capture 파일을 그대로 보관한다.
 
 실제 DB 등록은 위 HWPX 절차와 같은 기존 provision CLI의 `--check-database`/`--apply`만 사용한다. 새 DB write path·초대/role·스키마·API를 만들지 않는다. 앱의 제목 연결은 운영자가 공식 제목 대조 후 기존 `SourcePresentation` SDK로 수행한다. 앱은 마지막 저장 capture를 보여주며 최신 상태·전문·전체 이력이나 자동 수집 완료를 뜻하지 않는다. 공개 테스트는 합성 HTML·신원·자료만 사용한다.
+
+질문 전용 실행은 현재 권한과run잠금 아래 기존 색인을 검색해 최대5개 근거를 고정한 뒤retrieving으로 전환합니다. 고정된 근거는 복구 때 다시 검색하지 않습니다. 무근거는 모델 호출 없이insufficient_evidence로 종료하며 기존 월 예약/요청 한도는 유지합니다. 개발 적용 전 이전 활성run/workflow가 없는지 확인하고 진행 중 작업을 임의 폐기하지 않습니다.

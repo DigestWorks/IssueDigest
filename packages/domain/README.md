@@ -119,4 +119,4 @@ Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. �
 
 ## 조사 화면 계약
 
-`research_journey.py`는 자료 표시 sidecar, 1~3 snapshot 선택·질문, 증가하는 상태 이벤트, 자동 저장된 `CanvasBundle` 결과를 정의합니다. 기존 불변 SourceDocument/EvidenceBundle 필드는 바꾸지 않습니다. 표시 제목에는 UUID를 허용하지 않으며 알 수 없는 원본에는 자료 종류의 중립적 이름을 사용합니다.
+`research_journey.py`는 자료 표시 sidecar, 질문/선택적 부모 요청, 서버가 찾은0~5개 snapshot의 실행 기록, 증가하는 상태 이벤트, 자동 저장된 `CanvasBundle` 결과를 정의합니다. 완료 결과는1개 이상의 유효 근거를 요구하며 queued/무근거실패는 빈 근거를 허용합니다. 요청의 snapshot_ids/임의 필드는 거부합니다. 기존 불변 SourceDocument/EvidenceBundle 필드는 바꾸지 않습니다. 표시 제목에는 UUID를 허용하지 않으며 알 수 없는 원본에는 자료 종류의 중립적 이름을 사용합니다.

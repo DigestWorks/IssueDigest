@@ -21,10 +21,14 @@ from conftest import bundle_data
 ORIGIN = "https://example.test"
 
 
-def test_selected_source_submit_reopen_and_cancel(engine):
+def test_question_submit_reopen_and_cancel(engine):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -39,20 +43,22 @@ def test_selected_source_submit_reopen_and_cancel(engine):
     )
     client.cookies.set(SESSION_COOKIE, token)
     path = f"/api/v1/workspaces/{bundle.document.workspace_id}/research"
-    sources = client.get(path + "/sources")
-    assert sources.status_code == 200
-    assert sources.json()["items"][0]["title"] == "수집 자료"
-    assert sources.headers["Cache-Control"] == "no-store"
+    assert client.get(path + "/sources").status_code == 422
     body = {
         "request_id": str(uuid4()),
         "question": "무엇인가?",
-        "snapshot_ids": [str(snapshot)],
         "parent_run_id": None,
     }
     assert client.post(path, json=body).status_code == 403
     headers = {"Origin": ORIGIN, "Sec-Fetch-Site": "same-origin"}
     response = client.post(path, json=body, headers=headers)
     assert response.status_code == 200
+    assert response.json()["snapshot_ids"] == []
+    for injected in ([str(snapshot)], [str(uuid4())]):
+        assert (
+            client.post(path, json={**body, "snapshot_ids": injected}, headers=headers).status_code
+            == 422
+        )
     run_id = response.json()["run_id"]
     assert client.post(path, json=body, headers=headers).json()["run_id"] == run_id
     assert client.get(path).json()["items"][0]["run_id"] == run_id
@@ -81,6 +87,10 @@ def test_disabled_model_rejects_paid_submission_before_reservation(engine):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -101,7 +111,6 @@ def test_disabled_model_rejects_paid_submission_before_reservation(engine):
         json={
             "request_id": str(uuid4()),
             "question": "질문",
-            "snapshot_ids": [str(snapshot)],
             "parent_run_id": None,
         },
         headers={"Origin": ORIGIN, "Sec-Fetch-Site": "same-origin"},
@@ -116,6 +125,10 @@ def test_cancel_rejects_oversized_stream_before_reading_later_chunks(engine):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -124,7 +137,7 @@ def test_cancel_rejects_oversized_stream_before_reading_later_chunks(engine):
     run = repo.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     client = TestClient(
@@ -163,3 +176,47 @@ def test_cancel_rejects_oversized_stream_before_reading_later_chunks(engine):
         asyncio.run(_bounded_bytes(request))
     assert error.value.status_code == 422
     assert consumed == 1
+
+
+def test_historical_added_source_is_readable_through_existing_protected_api(
+    engine, historical_expanded_run
+):
+    from issuedigest_storage import EvidenceAccessRepository
+    from issuedigest_storage.research_schema import research_runs
+    from issuedigest_storage.schema import evidence_snapshots
+    from sqlalchemy import select, update
+
+    old = historical_expanded_run
+    client = TestClient(
+        create_app(
+            access_repository=EvidenceAccessRepository(engine), research_repository=old["repo"]
+        ),
+        base_url=ORIGIN,
+    )
+    client.cookies.set(SESSION_COOKIE, old["token"])
+    path = f"/api/v1/workspaces/{old['workspace']}"
+    run_path = f"{path}/research/{old['run'].run_id}"
+    added_id, added, _ = old["sources"][1]
+    response = client.get(run_path)
+    assert response.status_code == 200
+    assert response.json()["snapshot_ids"] == [str(source[0]) for source in old["sources"]]
+    assert response.json()["result"] == old["result"].model_dump(mode="json")
+    assert client.get(path + "/research").json()["items"][0] == response.json()
+    original = client.get(f"{path}/evidence/{added_id}")
+    assert original.status_code == 200 and original.json() == added.model_dump(mode="json")
+    assert original.headers["Cache-Control"] == response.headers["Cache-Control"] == "no-store"
+    with engine.connect() as conn:
+        assert dict(conn.execute(select(research_runs)).mappings().one()) == old["before"]
+    with engine.begin() as conn:
+        conn.execute(
+            update(evidence_snapshots)
+            .where(evidence_snapshots.c.snapshot_id == added_id)
+            .values(content_sha256="0" * 64)
+        )
+    assert client.get(run_path).status_code == 503
+    assert client.get(path + "/research").status_code == 503
+    assert client.get(f"{path}/evidence/{added_id}").status_code == 503
+    IdentityRepository(engine).set_membership(old["actor"], old["workspace"], "owner", False)
+    assert client.get(run_path).status_code == 404
+    assert client.get(path + "/research").status_code == 404
+    assert client.get(f"{path}/evidence/{added_id}").status_code == 404

@@ -158,23 +158,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/v1/workspaces/{workspace_id}/research/sources": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Sources */
-        get: operations["sources_api_v1_workspaces__workspace_id__research_sources_get"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/v1/workspaces/{workspace_id}/research/{run_id}": {
         parameters: {
             query?: never;
@@ -899,7 +882,7 @@ export interface components {
             /** Loc */
             loc: [
                 "path" | "query",
-                "workspace_id" | "snapshot_id" | "limit"
+                "workspace_id" | "snapshot_id" | "run_id" | "limit"
             ];
             /**
              * Msg
@@ -1517,8 +1500,6 @@ export interface components {
              * Format: uuid4
              */
             request_id: string;
-            /** Snapshot Ids */
-            snapshot_ids: string[];
         };
         /** ResearchResult */
         ResearchResult: {
@@ -1600,51 +1581,6 @@ export interface components {
         ResearchRunList: {
             /** Items */
             items: components["schemas"]["ResearchRun"][];
-            /**
-             * Workspace Id
-             * Format: uuid4
-             */
-            workspace_id: string;
-        };
-        /** ResearchSource */
-        ResearchSource: {
-            /** Bill Number */
-            bill_number: string | null;
-            /** Canonical Url */
-            canonical_url: string | null;
-            /** Citation Count */
-            citation_count: number;
-            /**
-             * Collected At
-             * Format: date-time
-             */
-            collected_at: string;
-            /**
-             * Document Id
-             * Format: uuid4
-             */
-            document_id: string;
-            /** Excerpt */
-            excerpt: string;
-            /** Proposed On */
-            proposed_on: string | null;
-            /**
-             * Snapshot Id
-             * Format: uuid4
-             */
-            snapshot_id: string;
-            /**
-             * Source Kind
-             * @enum {string}
-             */
-            source_kind: "bill" | "legal_text" | "government_document" | "news" | "poll" | "statistics" | "petition" | "other";
-            /** Title */
-            title: string;
-        };
-        /** ResearchSourceCatalog */
-        ResearchSourceCatalog: {
-            /** Items */
-            items: components["schemas"]["ResearchSource"][];
             /**
              * Workspace Id
              * Format: uuid4
@@ -2764,37 +2700,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ResearchRun"];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    sources_api_v1_workspaces__workspace_id__research_sources_get: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                workspace_id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Successful Response */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ResearchSourceCatalog"];
                 };
             };
             /** @description Validation Error */

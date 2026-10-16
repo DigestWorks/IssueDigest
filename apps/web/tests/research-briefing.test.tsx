@@ -4,64 +4,18 @@ import {createMemoryRouter, RouterProvider} from 'react-router';
 import {expect, it, vi} from 'vitest';
 import Home from '../app/routes/home';
 import App, {HydrateFallback} from '../app/root';
-import {completedRun, queuedRun, runId, session, source, secondSource} from './research-data';
+import {completedRun, queuedRun, runId, session, source} from './research-data';
 import {response, snapshot, workspace} from './workspace-data';
 
 function start(run = false) {
  const router = createMemoryRouter([{path:'/', Component:Home}], {initialEntries:[run ? `/?view=research&run=${runId}` : '/?view=research']});
  render(<RouterProvider router={router}/>); return router;
 }
-it('suggests only matching catalog sources, keeps the question and POSTs zero for unrelated questions', async () => {
- const posts: Record<string, unknown>[]=[];
- vi.stubGlobal('fetch', async(path:string, options:RequestInit={})=> {
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
-  if(options.method==='POST'){posts.push(JSON.parse(options.body as string));return response({},429);}
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  throw Error(path);
- });
- start(); const user=userEvent.setup();
- await screen.findByLabelText('무엇을 알아볼까요?');
- await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'우주 탐사 현황');
- await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
- expect(posts).toHaveLength(0);expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('우주 탐사 현황');
- expect(screen.getByRole('alert')).toHaveTextContent('자료를 선택');
- await user.clear(screen.getByLabelText('무엇을 알아볼까요?'));
- await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'2201234 제안 이유');
- expect(screen.getByLabelText('질문과 겹치는 연결 자료 후보')).toHaveTextContent(source.title);
- await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
- await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].snapshot_ids).toEqual([snapshot]);
-});
-it.each(['failed','cancelled'] as const)('shows current exact raw citations before AI results and keeps them after %s',async(status)=> {
- let resolveRun!:(value:Response)=>void; const methods:string[]=[];
- vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  methods.push(options.method??'GET');
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return new Promise<Response>(resolve=>{resolveRun=resolve;});
-  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
-  throw Error(path);
- });
- const router=start();
- // Accept a queued run through GET and keep its following poll pending.
- let count=0; const original=globalThis.fetch;
- vi.stubGlobal('fetch',async(path:string,options?:RequestInit)=>path.endsWith(`/research/${runId}`)&&count++===0?response(queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null})):original(path,options));
- await act(async()=>{await router.navigate(`/?view=research&run=${runId}`);});
- const preview=await screen.findByRole('region',{name:'선택한 원문에서 먼저 읽기'});
- await waitFor(()=>expect(within(preview).getByRole('blockquote')).toHaveTextContent('합성 테스트 전용'));
- expect(screen.queryByText('합성 근거에 맞춘 AI 해석')).not.toBeInTheDocument();
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
- await act(async()=>resolveRun(response({...queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null}),status,error_code:status==='failed'?'generation_failed':'cancelled',events:[{sequence:1,status:'queued',created_at:completedRun().created_at},{sequence:2,status,created_at:completedRun().created_at}]})));
- expect(within(preview).getByRole('blockquote')).toHaveTextContent('합성 테스트 전용');
- expect(methods.every(method=>method==='GET')).toBe(true);
-});
 it('opens the exact citation in a stable native drawer, closes on Escape and restores focus',async()=>{
  Object.defineProperty(HTMLDialogElement.prototype,'showModal',{configurable:true,value:function(this:HTMLDialogElement){this.open=true;}});
  Object.defineProperty(HTMLDialogElement.prototype,'close',{configurable:true,value:function(this:HTMLDialogElement){this.open=false;}});
  vi.stubGlobal('fetch',async(path:string)=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[completedRun()]});
   if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
@@ -78,73 +32,13 @@ it('opens the exact citation in a stable native drawer, closes on Escape and res
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(trigger).toHaveFocus();
 });
 
-it('honors explicit source choices even when the question matches a different catalog item',async()=>{
- const posts:Record<string,unknown>[]=[];
- vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
-  if(options.method==='POST'){posts.push(JSON.parse(options.body as string));return response({},429);}
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});throw Error(path);
- });
- start();const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:'조사할 자료 선택'}));
- await user.click(await screen.findByRole('checkbox',{name:secondSource.title}));
- await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'2201234 제안 이유');
- await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
- await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].snapshot_ids).toEqual([secondSource.snapshot_id]);
-});
-
-it.each([401,403,404])('clears already readable originals and ignores pending responses on HTTP %s',async(status)=>{
- let release!:(value:Response)=>void;
- const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot,secondSource.snapshot_id],parent_run_id:null});
- vi.stubGlobal('fetch',async(path:string)=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(queued);
-  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
-  if(path.endsWith(`/evidence/${secondSource.snapshot_id}`))return new Promise<Response>(resolve=>{release=resolve;});
-  throw Error(path);
- });
- start(true);const user=userEvent.setup();
- await user.click(await screen.findByRole('button',{name:/전체 원문과 인용 위치 열기/}));
- expect(await screen.findByRole('dialog')).toBeInTheDocument();
- await act(async()=>release(response({},status)));
- await waitFor(()=>expect(screen.queryByRole('blockquote')).not.toBeInTheDocument());
- expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
- expect(screen.getByText('원문을 다시 확인할 수 없습니다. 자료와 접근 권한을 확인해 주세요.')).toBeInTheDocument();
- expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
-});
-
-it('keeps the same selected source drawer through a poll and closes it when the run changes',async()=>{
- let reads=0;
- const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null});
- vi.stubGlobal('fetch',async(path:string)=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(reads++===0?queued:completedRun());
-  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
-  throw Error(path);
- });
- const router=start(true);const user=userEvent.setup();
- await user.click(await screen.findByRole('button',{name:/전체 원문과 인용 위치 열기/}));
- const drawer=await screen.findByRole('dialog');
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
- expect(screen.getByRole('dialog')).toBe(drawer);expect(drawer.querySelector('mark')).toHaveTextContent('합성 테스트 전용');
- expect(reads).toBe(2);
- await act(async()=>{await router.navigate('/?view=research');});
- expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
-});
-
 it('aborts citation lookup on run navigation so a late exact original cannot reopen the drawer',async()=>{
- let requests=0;let release!:(value:Response)=>void;let lookupSignal:AbortSignal|null|undefined;
+ let release!:(value:Response)=>void;let lookupSignal:AbortSignal|null|undefined;
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
   if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`)) {
-   if(requests++===0)return response(completedRun().result!.canvas.research.evidence[0]);
    lookupSignal=options.signal;return new Promise<Response>(resolve=>{release=resolve;});
   }
   throw Error(path);
@@ -159,144 +53,63 @@ it('aborts citation lookup on run navigation so a late exact original cannot reo
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
 });
 
-it.each([401,403,404])('aborts a pending original on polling HTTP %s and retries originals only after rechecking the run',async(status)=>{
- const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null});
- let runReads=0;let originalReads=0;let originalSignal:AbortSignal|null|undefined;let release!:(value:Response)=>void;
- vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return runReads++===1?response({},status):response(queued);
-  if(path.endsWith(`/evidence/${snapshot}`)){
-   if(originalReads++>0)return response(completedRun().result!.canvas.research.evidence[0]);
-   originalSignal=options.signal;return new Promise<Response>(resolve=>{release=resolve;});
-  }
-  throw Error(path);
- });
- start(true);const user=userEvent.setup();await waitFor(()=>expect(originalReads).toBe(1));
- await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
- expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':status===403?'이 작업을 할 권한이 없습니다':'자료 또는 브리핑을 찾을 수 없습니다');
- expect(originalSignal?.aborted).toBe(true);
- await act(async()=>release(response(completedRun().result!.canvas.research.evidence[0])));
- expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
- await user.click(screen.getByRole('button',{name:'브리핑 다시 읽기'}));
- await screen.findByRole('blockquote');expect(originalReads).toBe(2);
-});
-
 it('rejects a citation whose IDs match but canonical quote differs from the completed result',async()=>{
  let reads=0;
  vi.stubGlobal('fetch',async(path:string)=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
   if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`)){
    const data=completedRun().result!.canvas.research.evidence[0];
-   if(reads++>0){data.representation.text=data.representation.text.replaceAll('합성','변경');data.citations[0].selector.quote=data.citations[0].selector.quote.replaceAll('합성','변경');}
+   if(reads++===0){data.representation.text=data.representation.text.replaceAll('합성','변경');data.citations[0].selector.quote=data.citations[0].selector.quote.replaceAll('합성','변경');}
    return response(data);
   }
   throw Error(path);
  });
- start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
+ start(true);const user=userEvent.setup();await screen.findByText('합성 근거에 맞춘 AI 해석');
  await user.click((await screen.findAllByRole('button',{name:/근거 열기: 공공기록법/}))[0]);
  expect(await screen.findByRole('alert')).toHaveTextContent('인용의 저장 원문을 열 수 없습니다');
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-});
-
-it('bounds long exact quotes by Unicode code points and makes the omission explicit',async()=>{
- const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null});
- const data=completedRun().result!.canvas.research.evidence[0];
- const quote='원문🙂'.repeat(200);data.representation.text=quote;
- data.citations[0].selector={kind:'text',start:0,end:Array.from(quote).length,quote,prefix:null,suffix:null};
- vi.stubGlobal('fetch',async(path:string)=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(queued);
-  if(path.endsWith(`/evidence/${snapshot}`))return response(data);throw Error(path);
- });
- start(true);
- const raw=await screen.findByRole('blockquote');expect(Array.from(raw.textContent??'')).toHaveLength(420);
- expect(raw.textContent).toBe(Array.from(quote).slice(0,420).join(''));
- expect(screen.getByText(/앞 420자만 표시/)).toBeInTheDocument();
-});
-
-it('clears readable originals when a cancellation POST discovers revoked authority',async()=>{
- const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null});
- vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(queued);
-  if(path.endsWith('/cancel')&&options.method==='POST')return response({},403);
-  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
- });
- start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
- await user.click(screen.getByRole('button',{name:'생성 취소'}));
- expect(await screen.findByRole('alert')).toHaveTextContent('이 작업을 할 권한이 없습니다');
- expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
 });
 
 it('accepts an unchanged canonical citation regardless of JSON property order',async()=>{
  let reads=0;
  vi.stubGlobal('fetch',async(path:string)=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
   if(path.endsWith(`/research/${runId}`))return response(completedRun());
   if(path.endsWith(`/evidence/${snapshot}`)){
    const data=completedRun().result!.canvas.research.evidence[0];
-   if(reads++>0)data.citations[0].selector=Object.fromEntries(Object.entries(data.citations[0].selector).reverse()) as typeof data.citations[0]['selector'];
+   if(reads++===0)data.citations[0].selector=Object.fromEntries(Object.entries(data.citations[0].selector).reverse()) as typeof data.citations[0]['selector'];
    return response(data);
   }
   throw Error(path);
  });
- start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
+ start(true);const user=userEvent.setup();await screen.findByText('합성 근거에 맞춘 AI 해석');
  await user.click((await screen.findAllByRole('button',{name:/근거 열기: 공공기록법/}))[0]);
  expect(await screen.findByRole('dialog')).toBeInTheDocument();
 });
 
-it.each([401,403,404])('clears a completed-run original and open drawer and aborts pending reads when the saved list returns HTTP %s',async(status)=>{
- const completed=completedRun();completed.snapshot_ids=[snapshot,secondSource.snapshot_id];
+it.each([401,403,404])('clears a completed-run Canvas and open drawer when the saved list returns HTTP %s',async(status)=>{
  const pendingLists:((value:Response)=>void)[]=[];
- let evidenceReads=0;let previewSignal:AbortSignal|null|undefined;let lookupSignal:AbortSignal|null|undefined;
- let releasePreview!:(value:Response)=>void;let releaseLookup!:(value:Response)=>void;
- const methods:string[]=[];
- vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
-  methods.push(options.method??'GET');
+ vi.stubGlobal('fetch',async(path:string)=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
   if(path.endsWith('/research'))return new Promise<Response>(resolve=>{pendingLists.push(resolve);});
-  if(path.endsWith(`/research/${runId}`))return response(completed);
-  if(path.endsWith(`/evidence/${secondSource.snapshot_id}`)){
-   previewSignal=options.signal;return new Promise<Response>(resolve=>{releasePreview=resolve;});
-  }
-  if(path.endsWith(`/evidence/${snapshot}`)){
-   if(evidenceReads++===0)return response(completed.result!.canvas.research.evidence[0]);
-   lookupSignal=options.signal;return new Promise<Response>(resolve=>{releaseLookup=resolve;});
-  }
+  if(path.endsWith(`/research/${runId}`))return response(completedRun());
+  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
   throw Error(path);
  });
- start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
+ start(true);const user=userEvent.setup();await screen.findByText('합성 근거에 맞춘 AI 해석');
  await waitFor(()=>expect(pendingLists).toHaveLength(2));
- expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('브리핑 기록에 저장되었습니다');
- // Start a protected citation lookup, then open the already-readable same original while it is pending.
+ await user.type(screen.getByLabelText('후속 질문'),'지울 후속 질문');
  await user.click(screen.getAllByRole('button',{name:/근거 열기: 공공기록법/})[0]);
- await waitFor(()=>expect(releaseLookup).toBeTypeOf('function'));
- await user.click(screen.getByRole('button',{name:/전체 원문과 인용 위치 열기/}));
  expect(await screen.findByRole('dialog')).toBeInTheDocument();
  await act(async()=>pendingLists.at(-1)!(response({},status)));
- expect(screen.queryByRole('region',{name:'선택한 원문에서 먼저 읽기'})).not.toBeInTheDocument();
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
- expect(previewSignal?.aborted).toBe(true);expect(lookupSignal?.aborted).toBe(true);
- await act(async()=>{
-  releasePreview(response(completed.result!.canvas.research.evidence[0]));
-  releaseLookup(response(completed.result!.canvas.research.evidence[0]));
- });
- expect(screen.queryByRole('region',{name:'선택한 원문에서 먼저 읽기'})).not.toBeInTheDocument();expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
- expect(methods.every(method=>method==='GET')).toBe(true);
+ expect(screen.queryByText('합성 근거에 맞춘 AI 해석')).not.toBeInTheDocument();
+ expect(screen.queryByText(source.title)).not.toBeInTheDocument();
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
 });
-
 
 it('retains a new question typed after leaving a failed run while its URL transition is still pending',async()=>{
  const queued=queuedRun({request_id:completedRun().request_id,question:'실패한 이전 질문',snapshot_ids:[snapshot],parent_run_id:null});
@@ -305,7 +118,6 @@ it('retains a new question typed after leaving a failed run while its URL transi
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   methods.push(options.method??'GET');
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
   if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
   if(path.endsWith(`/research/${runId}`))return response(failed);
   if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
@@ -315,14 +127,72 @@ it('retains a new question typed after leaving a failed run while its URL transi
  await waitFor(()=>expect(screen.getByRole('status',{name:'브리핑 상태'})).toHaveTextContent('브리핑을 완료하지 못했습니다'));
  await user.click(screen.getByRole('button',{name:'새 질문'}));
  await waitFor(()=>expect(releaseNavigation).toBeTypeOf('function'));
- await user.click(screen.getByRole('button',{name:'조사할 자료 선택'}));
- const choice=screen.getByRole('checkbox',{name:source.title});expect(choice).not.toBeChecked();
- await user.click(choice);
  await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'새 질문을 유지해 주세요');
  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('새 질문을 유지해 주세요');
  await act(async()=>releaseNavigation(null));
  await waitFor(()=>expect(router.state.location.search).toBe('?view=research'));
  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('새 질문을 유지해 주세요');
- expect(screen.getByRole('checkbox',{name:source.title})).toBeChecked();
  expect(methods.every(method=>method==='GET')).toBe(true);
+});
+
+it.each([401,403,404])('clears current question and stage on polling HTTP %s and resumes only after a fresh run check',async(status)=>{
+ const queued=queuedRun({request_id:completedRun().request_id,question:'진행 중 질문',snapshot_ids:[],parent_run_id:null});
+ let reads=0;
+ vi.stubGlobal('fetch',async(path:string)=>{
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
+  if(path.endsWith(`/research/${runId}`))return reads++===1?response({},status):response(queued);
+  throw Error(path);
+ });
+ start(true);const user=userEvent.setup();
+ expect(await screen.findByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('진행 중 질문');
+ await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
+ expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':status===403?'이 작업을 할 권한이 없습니다':'자료 또는 브리핑을 찾을 수 없습니다');
+ expect(screen.queryByRole('status',{name:'브리핑 상태'})).not.toBeInTheDocument();
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+ await user.click(screen.getByRole('button',{name:'브리핑 다시 읽기'}));
+ expect(await screen.findByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
+ expect(reads).toBe(3);
+});
+
+it('clears the current question and stage when a cancellation POST discovers revoked authority',async()=>{
+ const queued=queuedRun({request_id:completedRun().request_id,question:'진행 중 질문',snapshot_ids:[],parent_run_id:null});
+ vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
+  if(path.endsWith(`/research/${runId}`))return response(queued);
+  if(path.endsWith('/cancel')&&options.method==='POST')return response({},403);
+  throw Error(path);
+ });
+ start(true);const user=userEvent.setup();await user.click(await screen.findByRole('button',{name:'생성 취소'}));
+ expect(await screen.findByRole('alert')).toHaveTextContent('이 작업을 할 권한이 없습니다');
+ expect(screen.queryByRole('status',{name:'브리핑 상태'})).not.toBeInTheDocument();
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
+});
+
+it('opens the added canonical source of a historical seed-plus-expanded-source result',async()=>{
+ // Captured from the real PostgreSQL/API legacy fixture: seed A and indexed/cited B.
+ const {default:fixture}=await import('./fixtures/historical-expanded-run.json');
+ const historical=structuredClone(fixture);
+ const [seed,added]=historical.result.canvas.research.evidence;
+ const protectedGets:string[]=[];
+ vi.stubGlobal('fetch',async(path:string)=>{
+  if(path.endsWith('/session'))return response({...session,memberships:[{workspace_id:historical.workspace_id,role:'owner'}]});
+  if(path.endsWith('/research'))return response({workspace_id:historical.workspace_id,items:[historical]});
+  if(path.endsWith(`/research/${historical.run_id}`))return response(historical);
+  if(path.endsWith(`/evidence/${historical.snapshot_ids[0]}`)){protectedGets.push(path);return response(seed);}
+  if(path.endsWith(`/evidence/${historical.snapshot_ids[1]}`)){protectedGets.push(path);return response(added);}
+  throw Error(path);
+ });
+ const router=createMemoryRouter([{path:'/',Component:Home}],{initialEntries:[`/?view=research&run=${historical.run_id}`]});
+ render(<RouterProvider router={router}/>);
+ const user=userEvent.setup();
+ const trigger=(await screen.findAllByRole('button',{name:/근거 열기: 합성 자료 1/}))[0];
+ expect(protectedGets).toEqual([]);
+ await user.click(trigger);
+ const drawer=await screen.findByRole('dialog',{name:'원문과 인용 읽기'});
+ expect(within(drawer).getByRole('heading',{name:'합성 자료 1'})).toBeInTheDocument();
+ expect(drawer.querySelector('mark')).toHaveTextContent('주거지원 추가 발표');
+ expect(protectedGets).toEqual(historical.snapshot_ids.map(id=>`/api/v1/workspaces/${historical.workspace_id}/evidence/${id}`));
 });

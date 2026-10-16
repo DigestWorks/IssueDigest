@@ -1,6 +1,6 @@
 import { createContext, useContext, useRef, type ReactNode } from 'react';
 
-type Draft = { selected: string[]; question: string };
+type Draft = { question: string };
 type Drafts = {
   identify: (userId: string, workspaces: string[]) => void;
   clear: () => void;
@@ -31,7 +31,7 @@ export function ResearchDraftProvider({children}: {children: ReactNode}) {
     clear() { identity.current = null; drafts.current.clear(); },
     read(workspaceId, runId) { return identity.current ? drafts.current.get(key(workspaceId, runId)) ?? null : null; },
     write(workspaceId, runId, draft) {
-      if (identity.current) drafts.current.set(key(workspaceId, runId), {selected: [...draft.selected], question: draft.question});
+      if (identity.current) drafts.current.set(key(workspaceId, runId), {question: draft.question});
     },
     clearWorkspace(workspaceId) {
       for (const draftKey of drafts.current.keys()) {

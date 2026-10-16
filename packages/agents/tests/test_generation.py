@@ -173,34 +173,22 @@ def test_prompt_preserves_thirteen_exact_historical_citations():
     ]
 
 
-def test_prompt_marks_selected_seed_and_keeps_related_source_as_context():
+def test_prompt_uses_server_evidence_and_labels_prior_interpretation():
     from issuedigest_agents.research import model_prompt
 
-    selected = source()
-    related = (uuid4(), selected[1], selected[2])
-    prompt = json.loads(
-        model_prompt(
-            "선택 자료를 요약",
-            (selected, related),
-            selected_snapshot_ids=(selected[0],),
-        )
-    )
-    assert prompt["selected_snapshot_ids"] == [str(selected[0])]
+    found = source()
+    related = (uuid4(), found[1], found[2])
+    prompt = json.loads(model_prompt("시사 질문", (found, related), "이전 AI 해석"))
+    assert "selected_snapshot_ids" not in prompt
+    assert prompt["prior_interpretation_context"] == "이전 AI 해석"
     assert [document["snapshot_id"] for document in prompt["sources"]] == [
-        str(selected[0]),
+        str(found[0]),
         str(related[0]),
     ]
-    assert json.loads(model_prompt("기본 선택", (selected,)))["selected_snapshot_ids"] == [
-        str(selected[0])
-    ]
-
-    uncitable = selected[1].model_copy(update={"citations": ()})
+    assert prompt["sources"][0]["citations"][0]["quote"] == found[1].citations[0].selector.quote
+    uncitable = found[1].model_copy(update={"citations": ()})
     with pytest.raises(ValueError):
-        model_prompt(
-            "선택 자료를 요약",
-            ((selected[0], uncitable, selected[2]), related),
-            selected_snapshot_ids=(selected[0],),
-        )
+        model_prompt("질문", ((found[0], uncitable, found[2]),))
 
 
 def test_comparison_and_timeline_require_distinct_cited_facts():

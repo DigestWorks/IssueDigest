@@ -78,4 +78,6 @@ FastAPI·실제 소유 loopback PostgreSQL 테스트 DB·합성 RSA 서명·Mock
 
 명시적 `create_configured_app()`만 PostgreSQL 연구 저장소를 연결합니다. `ISSUEDIGEST_RESEARCH_ENABLED=1`을 설정해야 새 질문 POST가 예약되며, 기본값은 비활성입니다. 이 값은 모델 키·작업자가 준비된 뒤에만 켭니다. 비활성일 때 자료 목록과 저장된 조사 GET은 열리고 새 질문은 고정된 `503 Research model unavailable`을 반환합니다. API 프로세스는 모델을 호출하거나 마이그레이션하지 않습니다.
 
-보호 경로는 `/api/v1/workspaces/{workspace_id}/research/sources`, `/research` GET·POST, `/research/{run_id}` GET, `/research/{run_id}/cancel` POST입니다. 세션 쿠키와 현재 membership을 다시 확인합니다. owner/editor만 생성·취소할 수 있습니다. POST는 same-origin, `application/json`, 최대 16 KiB, 중복 키 금지를 적용합니다. 취소 본문은 `{}`입니다. 모델 입력·결과는 URL/로그에 남기지 않으며 모든 조사 응답은 `no-store`입니다. 현재 API의 고정 오류는 401 인증, 403 출처·역할, 404 비회원·다른 공간, 409 멱등성·동시 실행, 422 입력, 429 월 예산, 503 저장소·모델 준비를 구분합니다.
+보호 경로는 `/api/v1/workspaces/{workspace_id}/research` GET·POST, `/research/{run_id}` GET, `/research/{run_id}/cancel` POST입니다. 세션 쿠키와 현재 membership을 다시 확인합니다. owner/editor만 생성·취소할 수 있습니다. POST는 same-origin, `application/json`, 최대 16 KiB, 중복 키 금지를 적용합니다. 취소 본문은 `{}`입니다. 모델 입력·결과는 URL/로그에 남기지 않으며 모든 조사 응답은 `no-store`입니다. 현재 API의 고정 오류는 401 인증, 403 출처·역할, 404 비회원·다른 공간, 409 멱등성·동시 실행, 422 입력, 429 월 예산, 503 저장소·모델 준비를 구분합니다.
+
+생성 요청은request_id·question·선택적 parent_run_id만 허용하며 snapshot_ids/임의 필드는422로 거부합니다. 새run은queued/빈 근거로 저장하고 현재 권한에서 검색/근거 고정은v2 워커가 수행합니다. 전용research/sources 목록은 제공하지 않습니다. 독립 보호 원문/검색/자료 목록 API는 유지합니다.

@@ -76,8 +76,6 @@ from .research_journey import (
     ResearchRun,
     ResearchRunEvent,
     ResearchRunList,
-    ResearchSource,
-    ResearchSourceCatalog,
     SourcePresentation,
     presentation_for,
 )
@@ -195,8 +193,6 @@ __all__ = [
     "ResearchRun",
     "ResearchRunEvent",
     "ResearchRunList",
-    "ResearchSource",
-    "ResearchSourceCatalog",
     "SourcePresentation",
     "presentation_for",
     "Citation",

@@ -18,8 +18,8 @@ export function CanvasView({bundle, onAction, sourceTitles, presentation = 'canv
   const modules = prepared.status === 'ready' ? prepared.modules : [];
   const lead = modules.find(module => module.kind === 'summary') ?? modules[0];
   const ordered = briefing && lead ? [lead, ...modules.filter(module => module !== lead)] : modules;
-  return <article className="id-canvas" data-presentation={presentation} aria-label="조사 화면">
-    <header className="id-canvas-header"><h2>조사 결과</h2></header>
+  return <article className="id-canvas" data-presentation={presentation} aria-label="브리핑 화면">
+    <header className="id-canvas-header"><h2>브리핑</h2></header>
     {prepared.status === 'message' ? <div role="status" className="id-canvas-state"><h3>{prepared.outcome === 'insufficient_evidence' ? '근거가 부족합니다' : '추가 질문이 필요합니다'}</h3><p>{prepared.message}</p></div> : <div className="id-canvas-grid">{ordered.map((module, index) => {
       const content = <section key={module.module_id} aria-label={module.title} data-span={module.span} className="id-canvas-module">
       {(!briefing || index === 0) && <h3>{module.title}</h3>}

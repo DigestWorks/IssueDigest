@@ -373,3 +373,5 @@ coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분�
 `0005_research_journey`는 원본 evidence JSON이나 해시를 고치지 않고 표시 제목 sidecar, 조사 run/event, 월 예약 테이블을 추가합니다. `ResearchRepository`는 현재 쿠키 세션·enabled user·활성 membership을 조회/제출/취소 때 확인하고 worker는 actor 역할을 실행 전·완료 전 다시 확인합니다. 동일 actor/workspace/request_id와 동일 입력은 같은 run을 반환하며 입력이 달라지면 409입니다. 월 USD 10·건당 USD 0.25·40건, 공간별 active 1개를 PostgreSQL 잠금과 인덱스로 제한합니다. 실패·취소 예약은 자동 환급하지 않습니다. 모든 완료 결과는 JSONB에 저장되어 동료 멤버가 다시 읽을 수 있습니다.
 
 운영자가 검증한 외부 제목은 `ResearchRepository.upsert_presentation(SourcePresentation(..., profile="operator-verified-v1"))`로 snapshot/workspace별 저장합니다. 자료 종류 기본 제목 외의 임의 본문 첫 줄을 제목으로 추정하지 않습니다. 기존 `legacy-bill-metadata-v1`만 정해진 첫 줄·의안번호·제안일을 검증해 자동으로 표시합니다.
+
+새 요청은 질문/부모 맥락의 멱등 해시와queued/빈 근거를 저장합니다. `research_retrieval`은 기존 `search_evidence`의 실제 색인을 최대8개 검색어로 조회해 일치도/결정적 동률 순서로 최대5개 snapshot을 찾습니다. `worker_load`는 현재 권한·run잠금 아래 검색/정확 원문 로드·근거 기록·retrieving 전환을 한 트랜잭션으로 고정합니다. 복구에서는 고정된 근거만 읽으며 무근거는0모델호출/insufficient_evidence로 종료합니다. 부모 근거 재사용은 완료된 부모와 유효 검색어 없는 일반 후속 질문으로 제한하며 명시 새 주제의 실패에 임의 적용하지 않습니다. 과거 저장 결과를 다시 쓰지 않습니다.

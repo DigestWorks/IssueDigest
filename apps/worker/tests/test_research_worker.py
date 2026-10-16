@@ -2,6 +2,7 @@
 
 from uuid import uuid4
 
+import pytest
 from dbos import DBOS
 from issuedigest_domain import EvidenceBundle
 from issuedigest_domain.research_journey import ResearchRequest
@@ -17,6 +18,10 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -25,7 +30,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     run = repository.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="무슨 의미인가?", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     DBOS.migrate(database_url, application_role=engine.url.username)
@@ -66,6 +71,10 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -74,7 +83,7 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
     run = repo.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="해석?", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     DBOS.migrate(database_url, application_role=engine.url.username)
@@ -141,6 +150,15 @@ run_worker(
         assert first.wait(timeout=15) == -signal.SIGKILL
         midway = repo.get_run(token, bundle.document.workspace_id, run.run_id)
         assert midway is not None and midway.status == "generating"
+        assert midway.snapshot_ids == (snapshot,)
+        added = bundle_data()
+        added["document"]["workspace_id"] = str(bundle.document.workspace_id)
+        new_snapshot = uuid4()
+        EvidenceRepository(engine).save(new_snapshot, EvidenceBundle.model_validate(added))
+        with engine.begin() as conn:
+            from issuedigest_storage.search import rebuild_projection
+
+            rebuild_projection(conn, bundle.document.workspace_id, new_snapshot)
         env["SYNTHETIC_OUTPUT"] = __import__("json").dumps(second_output)
         env.pop("CRASH_AFTER_MODEL")
         second = subprocess.Popen(
@@ -159,6 +177,15 @@ run_worker(
             assert completed is not None and completed.status == "completed"
             assert completed.result is not None
             assert completed.result.canvas.research.claims[0].text == "첫 모델의 해석"
+            assert completed.snapshot_ids == (snapshot,)
+            assert len(completed.result.canvas.research.evidence) == 1
+            assert [event.status for event in completed.events] == [
+                "queued",
+                "retrieving",
+                "generating",
+                "validating",
+                "completed",
+            ]
         finally:
             second.terminate()
             second.wait(timeout=10)
@@ -179,6 +206,10 @@ def test_terminal_storage_outage_recovers_without_recalling_model(engine, databa
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -187,7 +218,7 @@ def test_terminal_storage_outage_recovers_without_recalling_model(engine, databa
     run = repo.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="자료는?", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     DBOS.migrate(database_url, application_role=engine.url.username)
@@ -283,6 +314,10 @@ def test_worker_marks_uncitable_source_insufficient_without_model_request(engine
     bundle = EvidenceBundle.model_validate(data)
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -291,17 +326,14 @@ def test_worker_marks_uncitable_source_insufficient_without_model_request(engine
     run = repo.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="질문?", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     DBOS.migrate(database_url, application_role=engine.url.username)
     run_worker(database_url, model=TestModel(), once=True)
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
-    assert final is not None and final.status == "completed"
-    assert (
-        final.result is not None
-        and final.result.canvas.revision.draft.outcome == "insufficient_evidence"
-    )
+    assert final is not None and final.status == "failed"
+    assert final.error_code == "insufficient_evidence" and final.result is None
     assert final.input_tokens == 0 and final.output_tokens == 0
 
 
@@ -312,6 +344,10 @@ def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
     EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
     identities = IdentityRepository(engine)
     identities.register_identity(actor, "synthetic", str(actor))
     identities.set_membership(actor, bundle.document.workspace_id, "owner")
@@ -320,7 +356,7 @@ def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
     run = repo.submit(
         token,
         bundle.document.workspace_id,
-        ResearchRequest(request_id=uuid4(), question="질문", snapshot_ids=(snapshot,)),
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
     )
     assert run is not None
     with engine.begin() as conn:
@@ -418,3 +454,157 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     assert status == "failed"
     assert fields["error_code"] == "generation_failed"
     assert (fields["input_tokens"], fields["output_tokens"]) == (123, 45)
+
+
+def test_worker_nohit_never_calls_model_and_keeps_conservative_reservation(engine, database_url):
+    from issuedigest_storage.research_schema import research_budget_months
+    from pydantic_ai.models.function import FunctionModel
+    from sqlalchemy import select
+
+    data = bundle_data()
+    bundle = EvidenceBundle.model_validate(data)
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="양자컴퓨터는?"),
+    )
+    calls = []
+
+    def forbidden_provider(messages, info):
+        calls.append(messages)
+        raise AssertionError("no evidence must never reach provider")
+
+    DBOS.migrate(database_url, application_role=engine.url.username)
+    run_worker(database_url, model=FunctionModel(forbidden_provider), once=True)
+    final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
+    assert final.status == "failed" and final.error_code == "insufficient_evidence"
+    assert final.snapshot_ids == () and final.result is None and calls == []
+    assert final.input_tokens == 0 and final.output_tokens == 0
+    assert (
+        repo.submit(
+            token,
+            bundle.document.workspace_id,
+            ResearchRequest(request_id=run.request_id, question=run.question),
+        )
+        == final
+    )
+    with engine.connect() as conn:
+        budget = conn.execute(select(research_budget_months)).one()
+    assert budget.reservation_count == 1 and str(budget.reserved_usd) == "0.25"
+
+
+def test_corrupt_publication_is_terminal_and_never_retries_the_model(
+    engine, database_url, monkeypatch
+):
+    from issuedigest_storage import StorageCorruption
+
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        from issuedigest_storage.search import rebuild_projection
+
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    run = repo.submit(
+        token,
+        bundle.document.workspace_id,
+        ResearchRequest(request_id=uuid4(), question="80% 의미는?"),
+    )
+    original = ResearchRepository.worker_transition
+    injected = False
+
+    def corrupt_once(self, run_id, status, **fields):
+        nonlocal injected
+        if status == "completed" and not injected:
+            injected = True
+            raise StorageCorruption("synthetic immutable evidence integrity failure")
+        return original(self, run_id, status, **fields)
+
+    monkeypatch.setattr(ResearchRepository, "worker_transition", corrupt_once)
+    output = {
+        "outcome": "answer",
+        "message": None,
+        "modules": [
+            {
+                "kind": "summary",
+                "title": "해석",
+                "claims": [
+                    {
+                        "text": "합성 의미",
+                        "citation_ids": [str(bundle.citations[0].citation_id)],
+                        "event_date": None,
+                    }
+                ],
+            }
+        ],
+    }
+    DBOS.migrate(database_url, application_role=engine.url.username)
+    run_worker(database_url, model=TestModel(custom_output_args=output), once=True)
+    final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
+    assert final.status == "failed" and final.error_code == "generation_failed"
+    assert final.result is None and final.input_tokens > 0
+
+
+@pytest.mark.parametrize(
+    "question", ["日本について 설명해줘", "💰 설명해줘", "$ 설명해줘", "+ 설명해줘"]
+)
+def test_explicit_unknown_topic_with_parent_never_reaches_provider(engine, database_url, question):
+    from issuedigest_agents.research import AIOutput, build_canvas
+    from issuedigest_domain.research_journey import ResearchResult
+    from issuedigest_storage.search import rebuild_projection
+    from pydantic_ai.models.function import FunctionModel
+
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    output = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
+        source_titles={bundle.document.document_id: "합성 자료"},
+    )
+    repo.worker_transition(parent.run_id, "completed", result=result)
+    child = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question=question, parent_run_id=parent.run_id),
+    )
+    calls = []
+
+    def forbidden_provider(messages, info):
+        calls.append(messages)
+        raise AssertionError("explicit unknown topic must not use parent's evidence")
+
+    DBOS.migrate(database_url, application_role=engine.url.username)
+    run_worker(database_url, model=FunctionModel(forbidden_provider), once=True)
+    final = repo.get_run(token, workspace, child.run_id)
+    assert final.status == "failed" and final.error_code == "insufficient_evidence"
+    assert final.snapshot_ids == () and final.result is None
+    assert final.input_tokens == 0 and final.output_tokens == 0 and calls == []

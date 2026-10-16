@@ -21,5 +21,5 @@ export function completedRun(): ResearchRun {
   return {run_id: runId, workspace_id: workspace, request_id: '00000000-0000-4000-8000-000000000044', question: '법안의 핵심은?', snapshot_ids: [snapshot], parent_run_id: null, status: 'completed', error_code: null, created_at: now, updated_at: now, model: 'gpt-5.4-mini', input_tokens: 100, output_tokens: 50, events: [{sequence: 1, status: 'queued', created_at: now}, {sequence: 2, status: 'completed', created_at: now}], result: {canvas, source_titles: {[proof.document.document_id]: source.title}}} as ResearchRun;
 }
 export function queuedRun(request: Record<string, unknown>): ResearchRun {
-  return {...completedRun(), request_id: request.request_id as string, question: request.question as string, snapshot_ids: request.snapshot_ids as string[], parent_run_id: request.parent_run_id as string | null, status: 'queued', result: null, input_tokens: 0, output_tokens: 0, events: [{sequence: 1, status: 'queued', created_at: now}]};
+  return {...completedRun(), request_id: request.request_id as string, question: request.question as string, snapshot_ids: (request.snapshot_ids as string[] | undefined) ?? [], parent_run_id: request.parent_run_id as string | null, status: 'queued', result: null, input_tokens: 0, output_tokens: 0, events: [{sequence: 1, status: 'queued', created_at: now}]};
 }

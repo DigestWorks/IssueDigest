@@ -1,7 +1,6 @@
 """Transactional protected research repository and durable worker state."""
 
 import json
-import re
 from collections.abc import Callable, Mapping
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -9,15 +8,13 @@ from hashlib import sha256
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-from issuedigest_domain import EvidenceSearchQuery
+from issuedigest_domain import EvidenceBundle
 from issuedigest_domain.research_journey import (
     ResearchRequest,
     ResearchResult,
     ResearchRun,
     ResearchRunEvent,
     ResearchRunList,
-    ResearchSource,
-    ResearchSourceCatalog,
     RunStatus,
     SourcePresentation,
     presentation_for,
@@ -173,47 +170,6 @@ class ResearchRepository:
 
         self._transaction(save)
 
-    def list_sources(self, token: str, workspace_id: UUID) -> ResearchSourceCatalog | None:
-        _uuid4(workspace_id)
-
-        def read(conn: Connection) -> ResearchSourceCatalog | None:
-            if self._actor(conn, token, workspace_id) is None:
-                return None
-            ids = conn.scalars(
-                select(evidence_snapshots.c.snapshot_id)
-                .where(evidence_snapshots.c.workspace_id == workspace_id)
-                .order_by(evidence_snapshots.c.created_at.desc())
-                .limit(101)
-            ).all()
-            items = []
-            for snapshot_id in ids[:100]:
-                bundle = EvidenceRepository._load(conn, workspace_id, snapshot_id)
-                if bundle is None:
-                    raise StorageError("Source unavailable")
-                title = self._presentation(conn, workspace_id, snapshot_id, bundle)
-                excerpt = bundle.representation.text[:160]
-                if bundle.representation.normalization_profile == "legacy-bill-dossier-v1":
-                    marker = "제안이유·주요내용\n"
-                    if marker in bundle.representation.text:
-                        excerpt = bundle.representation.text.split(marker, 1)[1][:160]
-                items.append(
-                    ResearchSource(
-                        snapshot_id=snapshot_id,
-                        document_id=bundle.document.document_id,
-                        title=title.title,
-                        source_kind=bundle.document.source_kind,
-                        bill_number=title.bill_number,
-                        proposed_on=title.proposed_on,
-                        collected_at=bundle.version.collected_at,
-                        canonical_url=bundle.document.canonical_url,
-                        citation_count=len(bundle.citations),
-                        excerpt=excerpt,
-                    )
-                )
-            return ResearchSourceCatalog(workspace_id=workspace_id, items=tuple(items))
-
-        return self._transaction(read)
-
     @staticmethod
     def _run(conn: Connection, row: Mapping[Any, Any]) -> ResearchRun:
         events = (
@@ -230,7 +186,7 @@ class ResearchRepository:
             if row["result"] is not None
             else None
         )
-        return ResearchRun(
+        run = ResearchRun(
             run_id=row["run_id"],
             workspace_id=row["workspace_id"],
             request_id=row["request_id"],
@@ -252,12 +208,76 @@ class ResearchRepository:
             input_tokens=row["input_tokens"],
             output_tokens=row["output_tokens"],
         )
+        if run.status != "completed":
+            return run
+        return ResearchRepository._completed_provenance(conn, row, run)
+
+    @staticmethod
+    def _completed_provenance(
+        conn: Connection, row: Mapping[Any, Any], run: ResearchRun
+    ) -> ResearchRun:
+        """Revalidate originals; expand only proven legacy seed provenance, without writes."""
+        assert run.result is not None
+        evidence = run.result.canvas.research.evidence
+        if not 1 <= len(evidence) <= 5:
+            raise StorageCorruption("Invalid completed source count")
+        known = tuple(
+            EvidenceRepository._load(conn, run.workspace_id, snapshot)
+            for snapshot in run.snapshot_ids
+        )
+        if known != evidence[: len(known)]:
+            raise StorageCorruption("Research result differs from fixed provenance")
+        if len(known) == len(evidence):
+            return run
+        # v1 hashed the request's selected seeds. v2 hashes question/parent only.
+        # Check the historical input as well as derivations, including no-claim results.
+        legacy_input = json.dumps(
+            {
+                "question": run.question,
+                "snapshot_ids": [str(snapshot) for snapshot in run.snapshot_ids],
+                "parent_run_id": str(run.parent_run_id) if run.parent_run_id else None,
+            },
+            sort_keys=True,
+            ensure_ascii=False,
+        )
+        if (
+            not 1 <= len(known) <= 3
+            or row["input_hash"] != sha256(legacy_input.encode()).hexdigest()
+            or any(
+                claim.derivation is None or claim.derivation.method_version != "research-v1"
+                for claim in run.result.canvas.research.claims
+            )
+        ):
+            raise StorageCorruption("Research result differs from fixed provenance")
+        resolved = list(run.snapshot_ids)
+        for bundle in evidence[len(known) :]:
+            snapshot = conn.scalar(
+                select(evidence_snapshots.c.snapshot_id)
+                .where(
+                    evidence_snapshots.c.workspace_id == run.workspace_id,
+                    evidence_snapshots.c.document_id == bundle.document.document_id,
+                    evidence_snapshots.c.version_id == bundle.version.version_id,
+                    evidence_snapshots.c.representation_id
+                    == bundle.representation.representation_id,
+                    evidence_snapshots.c.payload == bundle.model_dump(mode="json"),
+                )
+                .order_by(evidence_snapshots.c.snapshot_id)
+                .limit(1)
+            )
+            if (
+                snapshot is None
+                or snapshot in resolved
+                or EvidenceRepository._load(conn, run.workspace_id, snapshot) != bundle
+            ):
+                raise StorageCorruption("Historical source provenance unavailable")
+            resolved.append(snapshot)
+        return run.model_copy(update={"snapshot_ids": tuple(resolved)})
 
     def submit(
         self, token: str, workspace_id: UUID, request: ResearchRequest
     ) -> ResearchRun | None:
         _uuid4(workspace_id)
-        request = ResearchRequest.model_validate(request)
+        request = ResearchRequest.model_validate(dict(request.__dict__))
         canonical = json.dumps(
             request.model_dump(mode="json", exclude={"request_id"}),
             sort_keys=True,
@@ -299,17 +319,6 @@ class ResearchRepository:
                 ).scalar_one_or_none()
                 if parent != "completed":
                     raise ResearchConflict("Parent research unavailable")
-            for snapshot_id in request.snapshot_ids:
-                if (
-                    conn.scalar(
-                        select(evidence_snapshots.c.snapshot_id).where(
-                            evidence_snapshots.c.workspace_id == workspace_id,
-                            evidence_snapshots.c.snapshot_id == snapshot_id,
-                        )
-                    )
-                    is None
-                ):
-                    raise ResearchConflict("Selected source unavailable")
             active = conn.scalar(
                 select(research_runs.c.run_id).where(
                     research_runs.c.workspace_id == workspace_id,
@@ -354,7 +363,7 @@ class ResearchRepository:
                     request_id=request.request_id,
                     input_hash=digest,
                     question=request.question,
-                    snapshot_ids=[str(s) for s in request.snapshot_ids],
+                    snapshot_ids=[],
                     parent_run_id=request.parent_run_id,
                     status="queued",
                     model="gpt-5.4-mini",
@@ -533,33 +542,71 @@ class ResearchRepository:
             if not allowed:
                 self._transition(conn, row, "failed", "authority_changed")
                 return None
-            candidate_ids = [UUID(snapshot) for snapshot in row["snapshot_ids"][:3]]
-            # Existing literal index adds only query-relevant sources; selected seeds always lead.
-            from .search import search_evidence
-
-            terms = tuple(dict.fromkeys(re.findall(r"[가-힣A-Za-z0-9]{2,32}", row["question"])))[:4]
-            for term in terms:
-                if len(candidate_ids) >= 5:
-                    break
-                found = search_evidence(
-                    conn, row["workspace_id"], EvidenceSearchQuery(terms=(term,), limit=10)
+            verified_parent: ResearchRun | None = None
+            if row["parent_run_id"] is not None:
+                parent = (
+                    conn.execute(
+                        select(research_runs).where(
+                            research_runs.c.run_id == row["parent_run_id"],
+                            research_runs.c.workspace_id == row["workspace_id"],
+                            research_runs.c.status == "completed",
+                        )
+                    )
+                    .mappings()
+                    .one_or_none()
                 )
-                for hit in found.hits:
-                    if hit.snapshot_id not in candidate_ids:
-                        candidate_ids.append(hit.snapshot_id)
-                    if len(candidate_ids) >= 5:
-                        break
+                if parent is None:
+                    raise StorageCorruption("Parent research unavailable")
+                verified_parent = self._run(conn, parent)
+            parent_evidence: tuple[EvidenceBundle, ...] | None = None
+            if row["status"] == "queued":
+                from .research_retrieval import (
+                    is_generic_followup,
+                    question_terms,
+                    retrieve_snapshot_ids,
+                )
+
+                terms = question_terms(row["question"])
+                candidate_ids = retrieve_snapshot_ids(conn, row["workspace_id"], terms)
+                if (
+                    not terms
+                    and verified_parent is not None
+                    and is_generic_followup(row["question"])
+                ):
+                    candidate_ids = verified_parent.snapshot_ids
+                    assert verified_parent.result is not None
+                    parent_evidence = verified_parent.result.canvas.research.evidence
+                if not candidate_ids:
+                    self._transition(conn, row, "failed", "insufficient_evidence")
+                    return None
+            else:
+                # Replay uses the committed provenance, never today's search results.
+                candidate_ids = tuple(UUID(snapshot) for snapshot in row["snapshot_ids"])
             sources = []
             for snapshot_id in candidate_ids:
                 bundle = EvidenceRepository._load(conn, row["workspace_id"], snapshot_id)
                 if bundle is None:
-                    raise StorageCorruption("Selected source unavailable")
+                    raise StorageCorruption("Retrieved source unavailable")
+                if parent_evidence is not None and bundle not in parent_evidence:
+                    raise StorageCorruption("Parent source provenance mismatch")
                 sources.append(
                     (
                         snapshot_id,
                         bundle,
                         self._presentation(conn, row["workspace_id"], snapshot_id, bundle),
                     )
+                )
+            if row["status"] == "queued":
+                conn.execute(
+                    update(research_runs)
+                    .where(research_runs.c.run_id == run_id)
+                    .values(snapshot_ids=[str(identity) for identity in candidate_ids])
+                )
+                self._transition(conn, row, "retrieving")
+                row = (
+                    conn.execute(select(research_runs).where(research_runs.c.run_id == run_id))
+                    .mappings()
+                    .one()
                 )
             return self._run(conn, row), tuple(sources)
 
@@ -648,6 +695,12 @@ class ResearchRepository:
                     or result.canvas.revision.workspace_id != row["workspace_id"]
                 ):
                     raise StorageError("Invalid research result")
+                expected = tuple(
+                    EvidenceRepository._load(conn, row["workspace_id"], UUID(snapshot))
+                    for snapshot in row["snapshot_ids"]
+                )
+                if not expected or result.canvas.research.evidence != expected:
+                    raise StorageCorruption("Research result differs from fixed provenance")
             self._transition(conn, row, status, error_code, result, input_tokens, output_tokens)
             return True
 

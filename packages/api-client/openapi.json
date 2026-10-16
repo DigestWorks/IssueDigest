@@ -1591,6 +1591,7 @@
                 "enum": [
                   "workspace_id",
                   "snapshot_id",
+                  "run_id",
                   "limit"
                 ],
                 "type": "string"
@@ -3102,22 +3103,11 @@
             "format": "uuid4",
             "title": "Request Id",
             "type": "string"
-          },
-          "snapshot_ids": {
-            "items": {
-              "format": "uuid4",
-              "type": "string"
-            },
-            "maxItems": 3,
-            "minItems": 1,
-            "title": "Snapshot Ids",
-            "type": "array"
           }
         },
         "required": [
           "request_id",
-          "question",
-          "snapshot_ids"
+          "question"
         ],
         "title": "ResearchRequest",
         "type": "object"
@@ -3235,6 +3225,7 @@
               "format": "uuid4",
               "type": "string"
             },
+            "maxItems": 5,
             "title": "Snapshot Ids",
             "type": "array"
           },
@@ -3338,127 +3329,6 @@
           "items"
         ],
         "title": "ResearchRunList",
-        "type": "object"
-      },
-      "ResearchSource": {
-        "additionalProperties": false,
-        "properties": {
-          "bill_number": {
-            "anyOf": [
-              {
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Bill Number"
-          },
-          "canonical_url": {
-            "anyOf": [
-              {
-                "format": "uri",
-                "minLength": 1,
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Canonical Url"
-          },
-          "citation_count": {
-            "minimum": 0.0,
-            "title": "Citation Count",
-            "type": "integer"
-          },
-          "collected_at": {
-            "format": "date-time",
-            "title": "Collected At",
-            "type": "string"
-          },
-          "document_id": {
-            "format": "uuid4",
-            "title": "Document Id",
-            "type": "string"
-          },
-          "excerpt": {
-            "maxLength": 160,
-            "title": "Excerpt",
-            "type": "string"
-          },
-          "proposed_on": {
-            "anyOf": [
-              {
-                "format": "date",
-                "type": "string"
-              },
-              {
-                "type": "null"
-              }
-            ],
-            "title": "Proposed On"
-          },
-          "snapshot_id": {
-            "format": "uuid4",
-            "title": "Snapshot Id",
-            "type": "string"
-          },
-          "source_kind": {
-            "enum": [
-              "bill",
-              "legal_text",
-              "government_document",
-              "news",
-              "poll",
-              "statistics",
-              "petition",
-              "other"
-            ],
-            "title": "Source Kind",
-            "type": "string"
-          },
-          "title": {
-            "title": "Title",
-            "type": "string"
-          }
-        },
-        "required": [
-          "snapshot_id",
-          "document_id",
-          "title",
-          "source_kind",
-          "bill_number",
-          "proposed_on",
-          "collected_at",
-          "canonical_url",
-          "citation_count",
-          "excerpt"
-        ],
-        "title": "ResearchSource",
-        "type": "object"
-      },
-      "ResearchSourceCatalog": {
-        "additionalProperties": false,
-        "properties": {
-          "items": {
-            "items": {
-              "$ref": "#/components/schemas/ResearchSource"
-            },
-            "title": "Items",
-            "type": "array"
-          },
-          "workspace_id": {
-            "format": "uuid4",
-            "title": "Workspace Id",
-            "type": "string"
-          }
-        },
-        "required": [
-          "workspace_id",
-          "items"
-        ],
-        "title": "ResearchSourceCatalog",
         "type": "object"
       },
       "Run": {
@@ -5977,51 +5847,6 @@
           }
         ],
         "summary": "Submit"
-      }
-    },
-    "/api/v1/workspaces/{workspace_id}/research/sources": {
-      "get": {
-        "operationId": "sources_api_v1_workspaces__workspace_id__research_sources_get",
-        "parameters": [
-          {
-            "in": "path",
-            "name": "workspace_id",
-            "required": true,
-            "schema": {
-              "format": "uuid4",
-              "title": "Workspace Id",
-              "type": "string"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ResearchSourceCatalog"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "SessionCookie": []
-          }
-        ],
-        "summary": "Sources"
       }
     },
     "/api/v1/workspaces/{workspace_id}/research/{run_id}": {
