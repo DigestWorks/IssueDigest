@@ -366,5 +366,10 @@ def test_persistent_cookie_is_secure_and_bounded_to_fourteen_days(days, want_max
     assert max(0, want_max - 1) <= int(cookie["max-age"]) <= want_max
     assert cookie["secure"] and cookie["httponly"] and cookie["samesite"] == "lax"
     assert cookie["path"] == "/" and cookie["domain"] == ""
-    assert parsedate_to_datetime(cookie["expires"]) <= issued.expires_at
-    assert parsedate_to_datetime(cookie["expires"]) <= datetime.now(UTC) + timedelta(days=14)
+    expires = parsedate_to_datetime(cookie["expires"])
+    assert expires <= issued.expires_at
+    assert expires <= datetime.now(UTC) + timedelta(days=14)
+    if days <= 14:
+        assert expires == issued.expires_at.replace(microsecond=0)
+    else:
+        assert expires >= datetime.now(UTC) + timedelta(days=14, seconds=-1)
