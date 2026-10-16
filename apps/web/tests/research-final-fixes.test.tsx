@@ -31,11 +31,11 @@ it('retires the restored guest handoff after initialization so reset and workspa
  expect(sessionStorage.getItem(guestKey)).toBeNull();
  await act(async()=>{await router.navigate(`/?view=research&run=${runId}`);});
  await screen.findByText('합성 근거에 맞춘 AI 해석');
- await user.click(screen.getByRole('button',{name:'새 조사'}));
+ await user.click(screen.getByRole('button',{name:'새 질문'}));
  expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('');
- await user.selectOptions(screen.getByLabelText('작업 공간'),otherWorkspace);
+ await user.selectOptions(screen.getByLabelText('자료 범위'),otherWorkspace);
  expect(await screen.findByLabelText('무엇을 알아볼까요?')).toHaveValue('');
- await user.selectOptions(screen.getByLabelText('작업 공간'),workspace);
+ await user.selectOptions(screen.getByLabelText('자료 범위'),workspace);
  expect(await screen.findByLabelText('무엇을 알아볼까요?')).toHaveValue('');
  expect(methods.every(method=>method==='GET')).toBe(true);
 });
@@ -90,11 +90,11 @@ it.each([403,404,503])('shows selected saved-run loading, HTTP %s failure and GE
  });
  mount('/?view=saved');const user=userEvent.setup();
  await user.click(await screen.findByRole('button',{name:/법안의 핵심은/}));
- expect(screen.getByText('조사를 다시 여는 중…')).toHaveAttribute('role','status');
+ expect(screen.getByText('브리핑을 다시 여는 중…')).toHaveAttribute('role','status');
  await act(async()=>release(response({},status)));
- const message=status===403?'이 작업을 할 권한이 없습니다':status===404?'자료 또는 조사를 찾을 수 없습니다':'AI 연결을 기다리는 중';
+ const message=status===403?'이 작업을 할 권한이 없습니다':status===404?'자료 또는 브리핑을 찾을 수 없습니다':'AI 연결을 기다리는 중';
  expect(screen.getByRole('alert')).toHaveTextContent(message);
- await user.click(screen.getByRole('button',{name:'조사 다시 읽기'}));
+ await user.click(screen.getByRole('button',{name:'브리핑 다시 읽기'}));
  expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();expect(reads).toBe(2);
  expect(methods.every(method=>method==='GET')).toBe(true);
 });
@@ -112,6 +112,6 @@ it.each(['failed','cancelled'] as const)('shows the actual %s status for a selec
  });
  mount('/?view=saved');const user=userEvent.setup();
  await user.click(await screen.findByRole('button',{name:/완료하지 못한 저장 질문/}));
- expect(await screen.findByRole('alert')).toHaveTextContent(status==='failed'?'결과를 생성하지 못했습니다':'조사가 취소되었습니다');
+ expect(await screen.findByRole('alert')).toHaveTextContent(status==='failed'?'결과를 생성하지 못했습니다':'생성이 취소되었습니다');
  expect(methods.every(method=>method==='GET')).toBe(true);
 });

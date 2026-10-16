@@ -14,6 +14,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from .auth_schema import auth_sessions, auth_users
 from .engine import verify_engine
 from .repository import StorageError, _uuid4
+from .session_policy import SESSION_ABSOLUTE_MAX_SECONDS
 
 
 class AuthenticationDenied(RuntimeError):
@@ -47,10 +48,18 @@ class SessionRepository:
         verify_engine(engine)
         self._engine = engine
 
-    def issue_session(self, user_id: UUID, lifetime_seconds: int = 28800) -> IssuedSession:
+    def issue_session(
+        self, user_id: UUID, lifetime_seconds: int = SESSION_ABSOLUTE_MAX_SECONDS
+    ) -> IssuedSession:
         _uuid4(user_id)
-        if type(lifetime_seconds) is not int or not 1 <= lifetime_seconds <= 28800:
-            raise ValueError("Session lifetime must be an integer from 1 to 28800 seconds")
+        if (
+            type(lifetime_seconds) is not int
+            or not 1 <= lifetime_seconds <= SESSION_ABSOLUTE_MAX_SECONDS
+        ):
+            raise ValueError(
+                f"Session lifetime must be an integer from 1 to {SESSION_ABSOLUTE_MAX_SECONDS}"
+                " seconds"
+            )
         try:
             with self._engine.connect().execution_options(isolation_level="READ COMMITTED") as conn:
                 with conn.begin():

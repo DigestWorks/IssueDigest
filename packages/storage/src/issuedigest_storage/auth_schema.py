@@ -13,6 +13,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 
 from .schema import metadata
+from .session_policy import SESSION_ABSOLUTE_MAX_SECONDS
 
 
 def uuid4_check(column: str) -> CheckConstraint:
@@ -53,7 +54,8 @@ auth_sessions = Table(
     Column("revoked", Boolean, nullable=False),
     CheckConstraint("token_sha256 ~ '^[0-9a-f]{64}$'", name="session_hash"),
     CheckConstraint(
-        "expires_at > issued_at AND expires_at <= issued_at + interval '28800 seconds'",
+        f"expires_at > issued_at AND expires_at <= issued_at + "
+        f"interval '{SESSION_ABSOLUTE_MAX_SECONDS} seconds'",
         name="session_absolute_lifetime",
     ),
     CheckConstraint("last_activity_at >= issued_at", name="session_activity"),

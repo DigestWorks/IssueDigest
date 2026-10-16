@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter } from 'react-router';
-import { expect, it, vi } from 'vitest';
+import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router';
+import { afterEach, expect, it, vi } from 'vitest';
 import routes from '../app/routes';
+import { headers, response, session } from './workspace-data';
 import Login from '../app/routes/login';
 function mount(query = '') {
   return render(<MemoryRouter initialEntries={[`/login${query}`]}><Login /></MemoryRouter>);
@@ -31,7 +32,7 @@ it('allows the first native submit, blocks duplicates and resets pending on bfca
   expect(screen.getByRole('button', { name: 'Google로 로그인' })).toBeEnabled();
 });
 it('supports keyboard focus without fabricating a provider sign-in UI', async () => {
-  await mount(); await userEvent.setup().tab(); expect(screen.getByRole('button', { name: 'Google로 로그인' })).toHaveFocus();
+  await mount(); const user = userEvent.setup(); await user.tab(); await user.tab(); await user.tab(); await user.tab(); expect(screen.getByRole('button', { name: 'Google로 로그인' })).toHaveFocus();
   expect(screen.queryByRole('textbox')).not.toBeInTheDocument();
   // Simulate the browser navigation boundary while exercising native keyboard submit.
   screen.getByRole('button', { name: 'Google로 로그인' }).closest('form')!.addEventListener('submit', event => event.preventDefault());
@@ -40,4 +41,58 @@ it('supports keyboard focus without fabricating a provider sign-in UI', async ()
 it('can render the SPA login shell without browser APIs or side effects', async () => {
   const fetch = vi.fn(); vi.stubGlobal('fetch', fetch);
   expect(renderToString(<MemoryRouter initialEntries={['/login']}><Login /></MemoryRouter>)).toContain('Google로 로그인'); expect(fetch).not.toHaveBeenCalled();
+});
+
+it.each(['authenticated', 'guest', 'network'])('resolves %s account state lazily on login without starting OAuth', async state => {
+  const fetch = vi.fn(async () => {
+    if (state === 'network') throw new TypeError('offline');
+    return response(state === 'authenticated' ? session() : {}, state === 'guest' ? 401 : 200);
+  });
+  vi.stubGlobal('fetch', fetch); mount(); expect(fetch).not.toHaveBeenCalled();
+  await userEvent.setup().click(screen.getByRole('button', {name: '계정 메뉴'}));
+  if (state === 'authenticated') {
+    expect(await screen.findByRole('menuitem', {name: '로그아웃'})).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그인'})).not.toBeInTheDocument();
+  } else if (state === 'guest') {
+    expect(await screen.findByRole('menuitem', {name: '로그인'})).toHaveAttribute('href', '/login');
+    expect(screen.queryByRole('menuitem', {name: '로그아웃'})).not.toBeInTheDocument();
+  } else {
+    expect(await screen.findByRole('menuitem', {name: '다시 확인'})).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그인'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그아웃'})).not.toBeInTheDocument();
+  }
+  expect(fetch).toHaveBeenCalledTimes(1);
+  expect(fetch.mock.calls[0]).toEqual(['/api/v1/auth/session', expect.objectContaining({method: 'GET', credentials: 'same-origin'})]);
+  const form = screen.getByRole('button', {name: 'Google로 로그인'}).closest('form');
+  expect(form).toHaveAttribute('method', 'post'); expect(form).toHaveAttribute('action', '/api/v1/auth/google/start');
+});
+
+const guestDraftKey = 'issuedigest.guest-question.v1';
+afterEach(() => sessionStorage.removeItem(guestDraftKey));
+it.each([true, false])('retains accurate login-route account and draft state after logout success=%s', async succeeds => {
+  const storedDraft = JSON.stringify({version: 1, question: '보관한 질문', createdAt: Date.now()});
+  sessionStorage.setItem(guestDraftKey, storedDraft);
+  const fetch = vi.fn(async (path: string) => path.endsWith('/session') ? response(session()) : succeeds ? new Response(null, {status: 204, headers}) : response({}, 503));
+  vi.stubGlobal('fetch', fetch);
+  const router = createMemoryRouter([{path: '/login', Component: Login}], {initialEntries: ['/login']});
+  render(<RouterProvider router={router} />); const user = userEvent.setup();
+  expect(await screen.findByLabelText('이어갈 질문')).toHaveTextContent('보관한 질문');
+  const account = screen.getByRole('button', {name: '계정 메뉴'}); await user.click(account);
+  await user.click(await screen.findByRole('menuitem', {name: '로그아웃'}));
+  if (succeeds) {
+    await waitFor(() => expect(screen.queryByRole('menu')).not.toBeInTheDocument());
+    expect(router.state.location.pathname).toBe('/login'); expect(account).toHaveFocus();
+    expect(sessionStorage.getItem(guestDraftKey)).toBeNull();
+    await waitFor(() => expect(screen.queryByLabelText('이어갈 질문')).not.toBeInTheDocument());
+    await user.click(account); expect(await screen.findByRole('menuitem', {name: '로그인'})).toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', {name: '로그아웃'})).not.toBeInTheDocument();
+  } else {
+    expect(await screen.findByRole('alert')).toHaveTextContent('로그아웃하지 못했습니다');
+    expect(screen.getByRole('menuitem', {name: '로그아웃'})).toBeEnabled();
+    expect(screen.queryByRole('menuitem', {name: '로그인'})).not.toBeInTheDocument();
+    expect(sessionStorage.getItem(guestDraftKey)).toBe(storedDraft);
+    expect(screen.getByLabelText('이어갈 질문')).toHaveTextContent('보관한 질문');
+  }
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(fetch.mock.calls[1]).toEqual(['/api/v1/auth/logout', expect.objectContaining({method: 'POST', credentials: 'same-origin'})]);
 });

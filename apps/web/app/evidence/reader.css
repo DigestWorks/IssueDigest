@@ -16,11 +16,11 @@
 .citations-pane { border-left: 1px solid var(--line); padding-left: 28px; }
 .page-navigation { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0; }
 .page-navigation button { padding: 6px 12px; }
-.reader-main button[aria-pressed="true"] { background: #e6edde; border-color: var(--green); }
+.reader-main button[aria-pressed="true"] { background: var(--soft); border-color: var(--green); }
 .original-text { margin-top: 22px; font-size: 15px; line-height: 2; overflow-wrap: anywhere; }
 .original-text p { white-space: pre-wrap; margin-top: 0; }
 .original-text:focus-visible { outline: 2px solid var(--green); outline-offset: 6px; }
-.original-text mark { background: #dce8b6; color: inherit; padding: 1px 0; }
+.original-text mark { background: var(--highlight); color: inherit; padding: 1px 0; }
 .cell-location { color: var(--muted); font-size: 12px; }
 .citation-count { margin-left: 6px; font-size: 12px; color: var(--muted); }
 .selection-status { margin: 10px 0 18px; color: var(--muted); font-size: 12px; line-height: 1.8; }
@@ -33,18 +33,9 @@
 .support-details summary { cursor: pointer; padding: 12px 0; }
 .support-details code { overflow-wrap: anywhere; }
 .reader-main a:focus-visible, .reader-brand:focus-visible, summary:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
-.evidence-link-form { margin: 36px 0 0; padding-top: 24px; border-top: 1px solid var(--line); }
-.evidence-link-form label { display: block; font-size: 13px; margin-bottom: 10px; }
-.evidence-link-fields { display: flex; gap: 12px; }
-.evidence-link-fields input { min-width: 0; flex: 1; border: 1px solid #b6c4b8; border-radius: 3px; background: transparent; padding: 10px 12px; color: inherit; font: inherit; font-size: 13px; }
-.evidence-link-fields input:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-.evidence-link-form p { margin: 10px 0 0; font-size: 12px; line-height: 1.8; color: var(--muted); }
-.evidence-link-form [role="alert"] { color: #974334; }
 @media (max-width: 700px) {
   .reading-layout { grid-template-columns: minmax(0, 1fr); gap: 28px; }
   .citations-pane { border-left: 0; border-top: 1px solid var(--line); padding: 24px 0 0; }
   .source-meta { gap: 16px 24px; }
-  .evidence-link-fields { flex-direction: column; }
-  .evidence-link-fields button { align-self: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) { .original-text { scroll-behavior: auto; } }

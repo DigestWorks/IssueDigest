@@ -117,11 +117,11 @@ namespace이며 전체 workspace 생성/초대 관리가 아닙니다. 존재하
 초대 승인은 아래 운영자 전용 메서드를 명시적으로 호출해야 합니다. 공개 HTTP 등록/발급/
 멤버십 수정·테스트 로그인 경로는 없습니다. 외부 요청의 사용자 ID·이메일은 신뢰 증거가 아닙니다.
 
-`SessionRepository.issue_session(user_id, lifetime_seconds=28800)`는 활성 사용자에게만
+`SessionRepository.issue_session(user_id, lifetime_seconds=1209600)`는 활성 사용자에게만
 `secrets.token_urlsafe(32)`의 256bit 임의 토큰을 발급합니다. DB에는 SHA-256 해시만 저장하며
 원문은 `IssuedSession.token` 발급 결과에서만 반환합니다. repr에는 원문이 없고 로깅하지 않습니다.
-재발급은 별도 토큰이며 `revoke_session(token)`은 idempotent입니다. 수명은 정수 1~28,800초
-(bool 거부), 기본/최대 8시간입니다. DB의 timezone-aware 서버 시각으로 발급하며 반환 만료는 UTC입니다.
+재발급은 별도 토큰이며 `revoke_session(token)`은 idempotent입니다. 수명은 정수 1~1,209,600초
+(bool 거부), 기본/최대 14일입니다. DB의 timezone-aware 서버 시각으로 발급하며 반환 만료는 UTC입니다.
 
 `EvidenceAccessRepository.load_evidence(token, workspace_id, snapshot_id)`는 매 요청마다
 DB에서 세션·사용자 활성·해당 공간의 active 멤버십을 확인하고 같은 Connection/transaction으로
@@ -129,11 +129,15 @@ DB에서 세션·사용자 활성·해당 공간의 active 멤버십을 확인�
 없는/만료/폐기/비활성 세션은 `AuthenticationDenied`, 미가입/다른 공간/없는 자료는 `None`,
 DB 장애/저장 훼손은 원문·토큰·DB 설정을 포함하지 않는 `StorageError`입니다.
 권한을 메모리에 캐시하지 않습니다. 성공한 허용 조회만 마지막 활동을 갱신하며 절대 만료를
-연장하지 않습니다. 절대 만료 시각 또는 마지막 성공 조회 후 1,800초와 같은 시각도 거부합니다.
+연장하지 않습니다. 절대 만료 시각 또는 마지막 성공 조회 후 604,800초(7일)와 같은 시각도 거부합니다.
 폐기/비활성/멤버십 회수는 다음 요청에서 확인합니다. 이미 시작한 응답을 소급 회수하지 않습니다.
 
 인증 테이블은 기존 근거에 FK를 소급 추가하지 않습니다. `0001`→head와 `0002`→`0001`에서
 기존 근거·스냅샷·인용 순서를 보존하며 `0002` downgrade는 인증 테이블만 삭제합니다.
+`0006_persistent_sessions` upgrade는 기존 세션의 만료일을 변경하지 않고 절대 수명 제약만
+14일로 변경합니다. downgrade는 8시간보다 긴 세션을 삭제한 뒤 8시간 제약을 복구합니다.
+따라서 긴 세션 사용자는 다시 로그인해야 하며 기존 8시간 이하 세션의 만료일은 유지됩니다.
+공통 정책은 `session_policy.py`에서 발급·검증·API 쿠키가 함께 사용합니다.
 테스트 fixture는 루트 `conftest.py`를 공유하여 migration/reset을 충돌 없이 수행합니다.
 실제 DB identity 충돌/동시 등록·hash-only 저장·수명/idle·활동 갱신·폐기/비활성/멤버십 회수,
 두 회원의 동일 스냅샷 조회·workspace 격리·역할/FK·AUTOCOMMIT 경계·HTTP 오류 비노출을 검사합니다.
@@ -170,7 +174,7 @@ DB 장애/저장 훼손은 원문·토큰·DB 설정을 포함하지 않는 `Sto
 Google ID/access/refresh 토큰은 이 저장 계층에 전달하거나 저장하지 않습니다.
 
 `issue_authorized_session(issuer, subject, previous_token=None)`은 등록된 활성 사용자와
-활성 멤버십이 있는 경우에만 기존 8시간/idle 30분의 해시 세션을 발급합니다. 이전 보유 쿠키의
+활성 멤버십이 있는 경우에만 최대 14일/idle 7일의 해시 세션을 발급합니다. 이전 보유 쿠키의
 세션 잠금 → 사용자 → 멤버십 순서로 확인하며 새 세션 저장과 이전 세션 폐기를 함께 commit합니다.
 실패하면 둘 다 rollback합니다. 등록·권한 생성은 이 메서드가 수행하지 않습니다.
 

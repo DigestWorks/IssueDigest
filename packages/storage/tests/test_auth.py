@@ -91,7 +91,7 @@ def test_sessions_store_hash_only_and_authorized_read_updates_activity(engine):
                 text("SELECT issued_at FROM auth_sessions WHERE token_sha256=:h"),
                 {"h": before.token_sha256},
             )
-        ).total_seconds() == 28800
+        ).total_seconds() == 1209600
         assert issued.token not in str(conn.execute(text("SELECT * FROM auth_sessions")).all())
     assert access.load_evidence(issued.token, bundle.document.workspace_id, snapshot) == bundle
     with engine.connect() as conn:
@@ -104,7 +104,7 @@ def test_sessions_store_hash_only_and_authorized_read_updates_activity(engine):
     assert issued.expires_at.tzinfo is not None
 
 
-@pytest.mark.parametrize("seconds", [0, -1, 28801, True, 1.5, "60", None])
+@pytest.mark.parametrize("seconds", [0, -1, 1209601, True, 1.5, "60", None])
 def test_invalid_session_lifetimes_are_rejected(engine, seconds):
     with pytest.raises(ValueError):
         SessionRepository(engine).issue_session(uuid4(), seconds)
@@ -136,9 +136,9 @@ def test_database_revocation_and_expiry_apply_on_next_read(engine, mutation):
                         "expires_at=clock_timestamp()"
                         if mutation == "expired"
                         else (
-                            "issued_at=issued_at-interval '30 minutes', "
-                            "expires_at=expires_at-interval '30 minutes', "
-                            "last_activity_at=clock_timestamp()-interval '1800 seconds'"
+                            "issued_at=issued_at-interval '7 days', "
+                            "expires_at=expires_at-interval '7 days', "
+                            "last_activity_at=clock_timestamp()-interval '604800 seconds'"
                         )
                     )
                 )
@@ -250,7 +250,7 @@ def test_auth_migration_upgrade_and_downgrade_preserve_existing_evidence(engine,
         command.upgrade(config, "head")
 
 
-@pytest.mark.parametrize("seconds", [1, 28800])
+@pytest.mark.parametrize("seconds", [1, 1209600])
 def test_session_lifetime_limits_are_stored_exactly(engine, seconds):
     user = uuid4()
     IdentityRepository(engine).register_identity(user, "issuer", str(user))
@@ -313,9 +313,9 @@ def test_successful_read_just_inside_idle_boundary_is_permitted(engine):
     with engine.begin() as conn:
         conn.execute(
             text(
-                "UPDATE auth_sessions SET issued_at=issued_at-interval '30 minutes', "
-                "expires_at=expires_at-interval '30 minutes', "
-                "last_activity_at=clock_timestamp()-interval '1799 seconds'"
+                "UPDATE auth_sessions SET issued_at=issued_at-interval '7 days', "
+                "expires_at=expires_at-interval '7 days', "
+                "last_activity_at=clock_timestamp()-interval '604799 seconds'"
             )
         )
     assert access.load_evidence(issued.token, bundle.document.workspace_id, snapshot) == bundle

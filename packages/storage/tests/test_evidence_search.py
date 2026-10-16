@@ -318,9 +318,9 @@ def test_current_authority_and_activity_boundary(engine, denial):
                 conn.execute(
                     text(
                         "UPDATE auth_sessions SET "
-                        "issued_at=clock_timestamp()-interval '31 minutes', "
+                        "issued_at=clock_timestamp()-interval '8 days', "
                         "expires_at=clock_timestamp()+interval '7 hours', "
-                        "last_activity_at=clock_timestamp()-interval '30 minutes'"
+                        "last_activity_at=clock_timestamp()-interval '7 days'"
                     )
                 )
     with engine.connect() as conn:

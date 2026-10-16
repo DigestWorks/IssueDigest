@@ -21,6 +21,7 @@ from .auth_schema import (
 from .engine import verify_engine
 from .identity import _boolean, _identity_value
 from .repository import StorageConflict, StorageError, _uuid4
+from .session_policy import SESSION_ABSOLUTE_MAX_SECONDS
 from .sessions import AuthenticationDenied, IssuedSession, token_digest, valid_session_token
 
 
@@ -353,7 +354,7 @@ class OAuthRepository:
                         conn.execute(select(func.clock_timestamp())).scalar_one().astimezone(UTC)
                     )
                     token = secrets.token_urlsafe(32)
-                    expires = now + timedelta(seconds=28800)
+                    expires = now + timedelta(seconds=SESSION_ABSOLUTE_MAX_SECONDS)
                     conn.execute(
                         insert(auth_sessions).values(
                             token_sha256=token_digest(token),

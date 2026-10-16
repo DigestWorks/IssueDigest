@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link, useLocation } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { EvidenceError, getCitationUtf16Range, getEvidence, getResearchSources, resolveSearchSelection, type Citation, type EvidenceBundle, type EvidenceFailure, type SearchSelection } from '@issuedigest/api-client';
 import './reader.css';
+import BrandHeader from '../brand-header';
 import { CollectedDate, sourceKind, TechnicalDetails } from './presentation';
 
 type State = { kind: 'loading' } | { kind: 'ready'; data: EvidenceBundle } | { kind: 'failure'; error: EvidenceError };
@@ -18,6 +19,7 @@ const messages: Record<EvidenceFailure, string> = {
 
 export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceId: string; snapshotId: string }) {
   const location = useLocation();
+  const navigate = useNavigate();
   const [state, setState] = useState<State>({ kind: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const [sourceTitle, setSourceTitle] = useState<string | null>(null);
@@ -33,23 +35,27 @@ export default function EvidenceReader({ workspaceId, snapshotId }: { workspaceI
           if (current && item) setSourceTitle(item.title);
         }, () => {});
       },
-      error => { if (current) setState({ kind: 'failure', error: error instanceof EvidenceError ? error : new EvidenceError('network') }); },
+      error => {
+        if (!current) return;
+        const failure = error instanceof EvidenceError ? error : new EvidenceError('network');
+        if (failure.kind === 'authentication') {void navigate('/login', {replace: true}); return;}
+        setState({ kind: 'failure', error: failure });
+      },
     );
     return () => { current = false; controller.abort(); };
-  }, [workspaceId, snapshotId, attempt]);
+  }, [workspaceId, snapshotId, attempt, navigate]);
   function retry() { setState({ kind: 'loading' }); setSourceTitle(null); setAttempt(value => value + 1); }
   const navigation = location.state && typeof location.state === 'object' ? location.state as Record<string, unknown> : null;
   const researchOrigin = navigation?.kind === 'research-citation' || navigation?.kind === 'research-source';
   const returnTo = researchOrigin ? typeof navigation?.runId === 'string' && /^[\da-f]{8}-[\da-f]{4}-4[\da-f]{3}-[89ab][\da-f]{3}-[\da-f]{12}$/i.test(navigation.runId) ? `/?view=research&run=${navigation.runId}` : '/?view=research' : navigation?.kind === 'catalog-source' || navigation?.kind === 'search-hit' ? '/?view=sources' : '/';
   return (
     <div className="workspace evidence-workspace">
-      <header className="brand"><Link to="/" className="reader-brand"><span className="brand-mark" aria-hidden="true">iD</span> IssueDigest</Link><span className="brand-caption">저장된 근거 읽기</span></header>
+      <BrandHeader caption="저장된 근거 읽기" />
       <main className="reader-main">
-        <Link to={returnTo} className="action-link">{researchOrigin ? '이슈 조사로' : '작업 공간으로'}</Link>
+        <Link to={returnTo} className="action-link">{returnTo === '/?view=sources' ? '자료 검색으로' : '브리핑으로'}</Link>
         {state.kind === 'loading' && <><h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">원문과 인용을 읽는 중…</p></>}
         {state.kind === 'failure' && <>
           <h1>근거 읽기</h1><p role="status" aria-live="polite" className="reader-status">{messages[state.error.kind]}</p>
-          {state.error.kind === 'authentication' && <p className="reader-note"><Link to="/login" className="action-link">로그인</Link> 후 작업 공간에서 자료를 다시 열어 주세요.</p>}
           {state.error.kind !== 'invalid-link' && <button type="button" onClick={retry}>다시 읽기</button>}
           {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
         </>}

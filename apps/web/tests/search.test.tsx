@@ -5,6 +5,7 @@ import { expect, it, vi } from 'vitest';
 import canvas from '../../../tests/fixtures/canvas-synthetic.json';
 import Home from '../app/routes/home';
 import EvidenceRoute from '../app/routes/evidence';
+import Login from '../app/routes/login';
 import { catalog, otherWorkspace, response, session, snapshot, workspace } from './workspace-data';
 import type { EvidenceSearchHit, EvidenceSearchResult } from '@issuedigest/api-client';
 
@@ -104,7 +105,7 @@ it('clears and cancels when workspace changes and ignores the late response', as
   setup((_url, init) => { signal = init?.signal as AbortSignal; return new Promise(resolve => { late = resolve; }); });
   const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', { name: '원문 검색' }), '합성');
   await user.click(screen.getByRole('button', { name: '검색' }));
-  await user.selectOptions(screen.getByRole('combobox', { name: '작업 공간' }), otherWorkspace);
+  await user.selectOptions(screen.getByRole('combobox', { name: '자료 범위' }), otherWorkspace);
   expect(signal?.aborted).toBe(true);
   expect(screen.getByRole('searchbox', { name: '원문 검색' })).toHaveValue('');
   await act(async () => late(response(result())));
@@ -116,7 +117,7 @@ it('clears and cancels search as soon as logout starts, including a late search 
   setup((url, init) => url.endsWith('/logout') ? new Promise(() => {}) : new Promise(resolve => { signal = init?.signal as AbortSignal; late = resolve; }));
   const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', { name: '원문 검색' }), '합성');
   await user.click(screen.getByRole('button', { name: '검색' }));
-  await user.click(screen.getByRole('button', { name: '로그아웃' }));
+  await user.click(screen.getByRole('button', {name: '계정 메뉴'})); await user.click(screen.getByRole('menuitem', { name: '로그아웃' }));
   expect(signal?.aborted).toBe(true);
   expect(screen.queryByRole('searchbox', { name: '원문 검색' })).not.toBeInTheDocument();
   await act(async () => late(response(result())));
@@ -158,4 +159,28 @@ it('shows a fixed notice for stale router state without blocking the original te
   expect(await screen.findByText('검색 위치가 현재 원문과 일치하지 않습니다. 원문을 직접 확인해 주세요.')).toBeInTheDocument();
   expect(screen.getByLabelText('원문 텍스트')).toBeInTheDocument();
   expect(document.querySelector('mark')).toBeNull();
+});
+
+function mountGuardedSearch(search: () => Promise<Response>) {
+  vi.stubGlobal('fetch', async (path: string) => path.endsWith('/session') ? response(session()) : path.includes('/search') ? search() : path.endsWith('/research/sources') ? response({workspace_id: workspace, items: []}) : response(catalog()));
+  const router = createMemoryRouter([{path: '/', Component: Home}, {path: '/login', Component: Login}], {initialEntries: ['/?view=sources']});
+  render(<RouterProvider router={router} />); return router;
+}
+it.each([401, 403, 503, 'network'] as const)('redirects only current search401 while preserving other search error %s', async status => {
+  const router = mountGuardedSearch(async () => {if (status === 'network') throw new TypeError('offline'); return response({detail: 'PRIVATE'}, status);});
+  const user = userEvent.setup(); await user.type(await screen.findByRole('searchbox', {name: '원문 검색'}), '합성');
+  await user.click(screen.getByRole('button', {name: '검색'}));
+  if (status === 401) {
+    await screen.findByRole('button', {name: 'Google로 로그인'}); expect(router.state.location.pathname).toBe('/login'); expect(router.state.location.search).toBe('');
+  } else {
+    await screen.findByRole('button', {name: '같은 검색 재시도'}); expect(router.state.location.pathname).toBe('/');
+    expect(screen.getByRole('searchbox', {name: '원문 검색'})).toHaveValue('합성');
+  }
+  expect(screen.queryByRole('link', {name: '로그인'})).not.toBeInTheDocument(); expect(screen.queryByText('PRIVATE')).not.toBeInTheDocument();
+});
+it('ignores stale search401 after the user edits query rather than redirecting a newer intent', async () => {
+  let finish!: (value: Response) => void; const router = mountGuardedSearch(() => new Promise(resolve => {finish = resolve;}));
+  const user = userEvent.setup(); const input = await screen.findByRole('searchbox', {name: '원문 검색'});
+  await user.type(input, '합성'); await user.click(screen.getByRole('button', {name: '검색'})); await user.type(input, ' 변경');
+  await act(async () => finish(response({}, 401))); expect(router.state.location.pathname).toBe('/'); expect(input).toHaveValue('합성 변경');
 });

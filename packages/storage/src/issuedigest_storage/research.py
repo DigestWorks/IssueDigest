@@ -36,6 +36,7 @@ from .research_schema import (
     source_presentations,
 )
 from .schema import evidence_snapshots
+from .session_policy import SESSION_IDLE_TIMEOUT_SECONDS
 from .sessions import AuthenticationDenied, token_digest
 
 
@@ -105,7 +106,7 @@ class ResearchRepository:
             session is None
             or session["revoked"]
             or session["expires_at"] <= now
-            or session["last_activity_at"] <= now - timedelta(minutes=30)
+            or session["last_activity_at"] <= now - timedelta(seconds=SESSION_IDLE_TIMEOUT_SECONDS)
         ):
             raise AuthenticationDenied("Authentication required")
         user_id = cast(UUID, session["user_id"])

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { Link } from 'react-router';
+import { Link, useNavigate } from 'react-router';
 import { SearchError, searchEvidence, type EvidenceSearchHit, type EvidenceSearchInput, type EvidenceSearchResult, type SearchFailure } from '@issuedigest/api-client';
 import './search.css';
 import { CollectedDate, sourceKind, TechnicalDetails } from './evidence/presentation';
@@ -9,7 +9,7 @@ const errors: Record<SearchFailure, string> = {
   'invalid-query': '검색어를 확인해 주세요. 공백으로 구분해 중복 없이 1~8개 단어를 입력해 주세요. 단어당 최대 64자입니다.',
   forbidden: '검색 요청을 확인할 수 없습니다. 화면을 새로고침해 주세요.',
   unauthorized: '로그인이 필요합니다.',
-  'not-found': '작업 공간이 없거나 접근 권한이 없습니다.',
+  'not-found': '자료 범위가 없거나 접근 권한이 없습니다.',
   unavailable: '검색이 아직 준비되지 않았거나 서버에 문제가 있습니다.',
   malformed: '응답 형식을 확인할 수 없습니다.',
   network: '서버에 연결하지 못했습니다.',
@@ -24,6 +24,7 @@ function location(hit: EvidenceSearchHit) {
 }
 
 export default function EvidenceSearch({ workspaceId }: { workspaceId: string }) {
+  const navigate = useNavigate();
   const [input, setInput] = useState('');
   const [state, setState] = useState<SearchState>({ kind: 'idle' });
   const controller = useRef<AbortController | null>(null);
@@ -47,7 +48,12 @@ export default function EvidenceSearch({ workspaceId }: { workspaceId: string })
     setState({ kind: 'loading' });
     void searchEvidence(workspaceId, query, { signal: active.signal }).then(
       ({ data }) => { if (sequence.current === request) setState({ kind: 'success', data }); },
-      error => { if (sequence.current === request) setState({ kind: 'failure', error: error instanceof SearchError ? error : new SearchError('network') }); },
+      error => {
+        if (sequence.current !== request) return;
+        const failure = error instanceof SearchError ? error : new SearchError('network');
+        if (failure.kind === 'unauthorized') {void navigate('/login', {replace: true}); return;}
+        setState({kind: 'failure', error: failure});
+      },
     ).finally(() => { if (sequence.current === request) controller.current = null; });
   }
 
@@ -75,7 +81,6 @@ export default function EvidenceSearch({ workspaceId }: { workspaceId: string })
     {state.kind === 'loading' && <p className="search-status" role="status" aria-label="검색 상태" aria-live="polite">원문 검색 중…</p>}
     {state.kind === 'failure' && <div className="search-feedback">
       <p role="status" aria-label="검색 상태" aria-live="polite">{errors[state.error.kind]}</p>
-      {state.error.kind === 'unauthorized' && <Link to="/login" className="action-link">로그인</Link>}
       {submitted.current && state.error.kind !== 'invalid-query' && <button type="button" onClick={() => run(submitted.current!)}>같은 검색 재시도</button>}
       {state.error.requestId && <details className="support-details"><summary>실패 지원 정보</summary><p>요청 ID <code>{state.error.requestId}</code></p></details>}
     </div>}
