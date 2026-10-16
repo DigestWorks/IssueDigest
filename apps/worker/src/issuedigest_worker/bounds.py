@@ -41,8 +41,12 @@ from .models import (
     LicenseAttestation,
     TextCitationRequest,
 )
+from .policy_job import PolicyJob, PolicyQuote, PolicySource
 
 _MODEL_TYPES = {
+    PolicyJob,
+    PolicySource,
+    PolicyQuote,
     AssemblyJob,
     HwpxJob,
     HwpxSource,
@@ -66,12 +70,19 @@ _MODEL_TYPES = {
     NormalizedBox,
 }
 _COLLECTION_LIMITS: dict[tuple[type[BaseModel], str], tuple[int, int]] = {
+    (PolicyJob, "sources"): (1, 2),
+    (PolicySource, "citations"): (1, 10),
     (HwpxJob, "sources"): (1, 10),
     (HwpxSource, "citations"): (1, 100),
     (ProvisioningPlan, "snapshots"): (1, 50),
     (ProvisioningPlan, "invites"): (1, 2),
 }
 _STRING_LIMITS: dict[tuple[type[BaseModel], str], int] = {
+    (PolicyJob, "capture_sha256"): 64,
+    (PolicySource, "news_id"): 9,
+    (PolicySource, "article_sha256"): 64,
+    (PolicySource, "text_sha256"): 64,
+    (PolicyQuote, "quote"): 2000,
     (AssemblyJob, "bill_id"): 80,
     (AssemblyJob, "title"): 300,
     (AssemblyJob, "bill_number"): 10,
@@ -174,7 +185,7 @@ class _Budget:
             raise ValueError("Unsupported model input")
 
 
-def preflight_model(value: HwpxJob | AssemblyJob | ProvisioningPlan) -> None:
+def preflight_model(value: HwpxJob | AssemblyJob | PolicyJob | ProvisioningPlan) -> None:
     """Bound counts, depth and aggregate escaped UTF-8 bytes before full serialization."""
     if type(value) is HwpxJob:
         if type(value.sources) is not tuple or not 1 <= len(value.sources) <= 10:
@@ -189,6 +200,6 @@ def preflight_model(value: HwpxJob | AssemblyJob | ProvisioningPlan) -> None:
             count += len(source.citations)
         if count > 200:
             raise ValueError("Too many citations")
-    elif type(value) not in {AssemblyJob, ProvisioningPlan}:
+    elif type(value) not in {AssemblyJob, PolicyJob, ProvisioningPlan}:
         raise ValueError("Invalid model input")
     _Budget().visit(value)
