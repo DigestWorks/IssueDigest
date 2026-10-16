@@ -22,6 +22,10 @@ _GENERIC = frozenset(
     "대해 대한 관련 소식 최근 현재 what why how please explain summarize the a an is are "
     "this that it and or about".split()
 )
+_TOKEN_PATTERN = re.compile(r"[가-힣A-Za-z0-9]+(?:\.[0-9]+)?%?")
+# Only known prose punctuation may disappear when deciding whether to reuse evidence.
+# Unsupported words, symbols and hidden controls must never become a generic follow-up.
+_FOLLOWUP_PUNCTUATION = frozenset("?!.,;:()[]{}'\"‘’“”…，。！？、-–—")
 _PARTICLES = (
     "에서는",
     "으로는",
@@ -48,9 +52,9 @@ _PARTICLES = (
 
 def _tokens(question: str) -> tuple[str, ...]:
     tokens = []
-    for token in re.findall(r"[가-힣A-Za-z0-9]+(?:\.[0-9]+)?%?", question):
+    for token in _TOKEN_PATTERN.findall(question):
         term = ascii_fold(token)
-        if re.fullmatch(r"[가-힣]+", term):
+        if term not in _GENERIC and re.fullmatch(r"[가-힣]+", term):
             for suffix in _PARTICLES:
                 if term.endswith(suffix) and len(term) - len(suffix) >= 2:
                     term = term[: -len(suffix)]
@@ -70,7 +74,12 @@ def question_terms(question: str) -> tuple[str, ...]:
 def is_generic_followup(question: str) -> bool:
     """Unknown/oversized tokens are new topics, never permission to reuse old evidence."""
     tokens = _tokens(question)
-    return bool(tokens) and all(token in _GENERIC for token in tokens)
+    unmatched = _TOKEN_PATTERN.sub("", question)
+    return (
+        bool(tokens)
+        and all(token in _GENERIC for token in tokens)
+        and all(char.isspace() or char in _FOLLOWUP_PUNCTUATION for char in unmatched)
+    )
 
 
 def retrieve_snapshot_ids(

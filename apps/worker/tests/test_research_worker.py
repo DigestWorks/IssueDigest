@@ -2,6 +2,7 @@
 
 from uuid import uuid4
 
+import pytest
 from dbos import DBOS
 from issuedigest_domain import EvidenceBundle
 from issuedigest_domain.research_journey import ResearchRequest
@@ -558,3 +559,52 @@ def test_corrupt_publication_is_terminal_and_never_retries_the_model(
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert final.status == "failed" and final.error_code == "generation_failed"
     assert final.result is None and final.input_tokens > 0
+
+
+@pytest.mark.parametrize(
+    "question", ["日本について 설명해줘", "💰 설명해줘", "$ 설명해줘", "+ 설명해줘"]
+)
+def test_explicit_unknown_topic_with_parent_never_reaches_provider(engine, database_url, question):
+    from issuedigest_agents.research import AIOutput, build_canvas
+    from issuedigest_domain.research_journey import ResearchResult
+    from issuedigest_storage.search import rebuild_projection
+    from pydantic_ai.models.function import FunctionModel
+
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    with engine.begin() as conn:
+        rebuild_projection(conn, bundle.document.workspace_id, snapshot)
+    identities = IdentityRepository(engine)
+    identities.register_identity(actor, "synthetic", str(actor))
+    identities.set_membership(actor, bundle.document.workspace_id, "owner")
+    token = SessionRepository(engine).issue_session(actor).token
+    repo = ResearchRepository(engine)
+    workspace = bundle.document.workspace_id
+    parent = repo.submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="80% 의미는?")
+    )
+    loaded = repo.worker_load(parent.run_id)
+    output = AIOutput(outcome="insufficient_evidence", message="합성 불충분", modules=())
+    result = ResearchResult(
+        canvas=build_canvas(parent.run_id, workspace, loaded[1], output),
+        source_titles={bundle.document.document_id: "합성 자료"},
+    )
+    repo.worker_transition(parent.run_id, "completed", result=result)
+    child = repo.submit(
+        token,
+        workspace,
+        ResearchRequest(request_id=uuid4(), question=question, parent_run_id=parent.run_id),
+    )
+    calls = []
+
+    def forbidden_provider(messages, info):
+        calls.append(messages)
+        raise AssertionError("explicit unknown topic must not use parent's evidence")
+
+    DBOS.migrate(database_url, application_role=engine.url.username)
+    run_worker(database_url, model=FunctionModel(forbidden_provider), once=True)
+    final = repo.get_run(token, workspace, child.run_id)
+    assert final.status == "failed" and final.error_code == "insufficient_evidence"
+    assert final.snapshot_ids == () and final.result is None
+    assert final.input_tokens == 0 and final.output_tokens == 0 and calls == []

@@ -414,7 +414,11 @@ def test_nohit_and_cancel_never_choose_default_sources(engine):
     assert repo.get_run(token, workspace, cancelled.run_id).snapshot_ids == ()
 
 
-def test_only_topicless_followup_reuses_verified_parent_sources(engine):
+@pytest.mark.parametrize(
+    "followup_question",
+    ["더 자세히 알려줘", "무슨 의미인가?", "그것은 무엇인가?", "“그것은 무엇인가?”…"],
+)
+def test_only_topicless_followup_reuses_verified_parent_sources(engine, followup_question):
     bundle, snapshot, _actor, token = setup_run(engine)
     repo = ResearchRepository(engine)
     workspace = bundle.document.workspace_id
@@ -448,10 +452,12 @@ def test_only_topicless_followup_reuses_verified_parent_sources(engine):
         token,
         workspace,
         ResearchRequest(
-            request_id=uuid4(), question="더 자세히 알려줘", parent_run_id=parent.run_id
+            request_id=uuid4(), question=followup_question, parent_run_id=parent.run_id
         ),
     )
-    assert repo.worker_load(followup.run_id)[0].snapshot_ids == (snapshot,)
+    followup_loaded = repo.worker_load(followup.run_id)
+    assert followup_loaded is not None
+    assert followup_loaded[0].snapshot_ids == (snapshot,)
     repo.cancel(token, workspace, followup.run_id)
     new_topic = repo.submit(
         token,
@@ -618,7 +624,10 @@ def test_worker_rechecks_parent_completion_even_for_a_new_topic(engine):
     assert repo.get_run(token, workspace, child.run_id).snapshot_ids == ()
 
 
-@pytest.mark.parametrize("new_question", ["돈?", "z" * 100 + "?"])
+@pytest.mark.parametrize(
+    "new_question",
+    ["돈?", "z" * 100 + "?", "日本について 설명해줘", "💰 설명해줘", "$ 설명해줘", "+ 설명해줘"],
+)
 def test_unrecognized_new_topic_never_reuses_parent(engine, new_question):
     bundle, _snapshot, _actor, token = setup_run(engine)
     workspace = bundle.document.workspace_id
