@@ -25,6 +25,7 @@ _NOTICE = "이 자료는 텍스트에 한하여 공공누리 제1유형(출처�
 _LICENSE_URL = "https://www.kogl.or.kr/info/license.do"
 _PARSER_NAME = "korea-policy-html"
 _PARSER_VERSION = "1"
+_PARSER_VERSIONS = frozenset({"1", "2"})
 _PROFILE = "korea-policy-paragraphs-v1"
 
 
@@ -106,7 +107,7 @@ class PolicyHtmlExtraction:
                 or not _hash(self.raw_sha256)
                 or not _hash(self.text_sha256)
                 or self.parser_name != _PARSER_NAME
-                or self.parser_version != _PARSER_VERSION
+                or self.parser_version not in _PARSER_VERSIONS
                 or self.normalization_profile != _PROFILE
                 or self.license_notice != _NOTICE
                 or self.license_url != _LICENSE_URL
@@ -141,6 +142,37 @@ def _one(nodes: list[Node], error: str) -> Node:
 
 def _select(node: Node, tag: str, class_name: str) -> list[Node]:
     return [part for part in descendants(node) if part.tag == tag and part.has_class(class_name)]
+
+
+def _publisher_metadata(info: Node, variety: Node) -> tuple[str, str, str]:
+    """Keep anchored v1; accept only the observed two-plain-span v2 alternative."""
+    anchors = _select(info, "a", "gotosite")
+    spans = [child for child in info.children if isinstance(child, Node) and child.tag == "span"]
+    if anchors and len(spans) != 2:
+        publisher = metadata_text(_one(anchors, "policy_html_invalid_metadata"))
+        dates = re.findall(
+            r"(?<![0-9.])[0-9]{4}\.[0-9]{2}\.[0-9]{2}(?![0-9.])",
+            metadata_text(info, omit_publisher=True),
+        )
+        if len(dates) != 1:
+            raise AuditError("policy_html_invalid_metadata")
+        return publisher, dates[0], "1"
+    # No fallback to arbitrary metadata_text. Extra/ignored tags, nested markup,
+    # attributes, mixed anchors and non-whitespace outside these spans all fail.
+    nodes = [child for child in info.children if isinstance(child, Node)]
+    if (
+        not any(child is info for child in variety.children)
+        or info.attrs != {"class": "info"}
+        or len(nodes) != 2
+        or len(spans) != 2
+        or any(isinstance(child, str) and child.strip() for child in info.children)
+        or any(span.attrs or any(isinstance(c, Node) for c in span.children) for span in spans)
+    ):
+        raise AuditError("policy_html_invalid_metadata")
+    date_text = "".join(child for child in spans[0].children if isinstance(child, str))
+    if re.fullmatch(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", date_text) is None:
+        raise AuditError("policy_html_invalid_metadata")
+    return metadata_text(spans[1]), date_text, "2"
 
 
 def extract_policy_html(
@@ -196,16 +228,11 @@ def extract_policy_html(
     title = metadata_text(title_node)
     variety = _one(_select(root, "div", "variety"), "policy_html_invalid_metadata")
     info = _one(_select(variety, "div", "info"), "policy_html_invalid_metadata")
-    publisher_node = _one(_select(info, "a", "gotosite"), "policy_html_invalid_metadata")
-    publisher = metadata_text(publisher_node)
-    dates = re.findall(
-        r"(?<![0-9.])[0-9]{4}\.[0-9]{2}\.[0-9]{2}(?![0-9.])",
-        metadata_text(info, omit_publisher=True),
-    )
-    if not title or not publisher or len(dates) != 1:
+    publisher, date_text, parser_version = _publisher_metadata(info, variety)
+    if not title or not publisher:
         raise AuditError("policy_html_invalid_metadata")
     try:
-        publication_date = date.fromisoformat(dates[0].replace(".", "-"))
+        publication_date = date.fromisoformat(date_text.replace(".", "-"))
     except ValueError:
         raise AuditError("policy_html_invalid_metadata") from None
     license_node = _one(_select(root, "div", "kogl_wrap"), "policy_html_invalid_license")
@@ -241,6 +268,7 @@ def extract_policy_html(
         raw_bytes=len(raw),
         text_sha256=sha256(text.encode("utf-8")).hexdigest(),
         limits=limits,
+        parser_version=parser_version,
     )
 
 
@@ -277,7 +305,7 @@ def locate_policy_html_quote(
         validated = ParsedRepresentation.model_validate(representation.model_dump(warnings=False))
         if (
             validated.parser_name != _PARSER_NAME
-            or validated.parser_version != _PARSER_VERSION
+            or validated.parser_version not in _PARSER_VERSIONS
             or validated.normalization_profile != _PROFILE
             or validated.pages
             or validated.tables

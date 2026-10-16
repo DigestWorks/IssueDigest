@@ -670,3 +670,25 @@ def test_network_cli_preflights_private_output_before_fetch(
     assert module.main(args) == 1
     assert calls == []
     assert capsys.readouterr().err == "Unable to complete policy operation\n"
+
+
+def test_plain_publisher_capture_prepares_version_two_without_changing_job_contract(policy_inputs):
+    job, raw, base, directory = policy_inputs
+    capture = json.loads(raw)
+    html = capture["articles"][0]["html"].replace(
+        '2026.10.16 <a class="gotosite">합성부</a>',
+        "<span>2026.01.15</span><span>합성부처</span>",
+    )
+    capture["articles"][0]["html"] = html
+    changed = json.dumps(capture, ensure_ascii=False).encode()
+    job["capture_sha256"] = sha256(changed).hexdigest()
+    job["sources"][0]["article_sha256"] = sha256(html.encode()).hexdigest()
+    result = prepare((job, changed, base, directory))
+    bundle = result.plan.snapshots[-1].bundle
+    assert bundle.representation.parser_version == "2"
+    assert bundle.representation.normalization_profile == "korea-policy-paragraphs-v1"
+    assert bundle.representation.text_sha256 == job["sources"][0]["text_sha256"]
+    assert bundle.citations[0].selector.quote == "😀한é"
+    assert result.presentations[0].title == "합성 정책"
+    assert bundle.version.raw_sha256 == sha256(changed).hexdigest()
+    assert result == prepare((job, changed, base, directory))
