@@ -4,13 +4,13 @@ import importlib
 import importlib.util
 from concurrent.futures import ThreadPoolExecutor
 from copy import deepcopy
-from threading import Barrier
+from threading import Barrier, Event
 from uuid import uuid4
 
 import pytest
 from issuedigest_domain.public_briefings import PublicBriefingPlan, plan_hash
 from issuedigest_storage.repository import StorageConflict, StorageCorruption
-from sqlalchemy import text, update
+from sqlalchemy import event, text, update
 
 from conftest import public_plan_data
 
@@ -102,6 +102,44 @@ def test_check_is_readonly_and_does_not_publish(repo):
     assert repo.list_latest().items == ()
     repo.publish(first, reviewed_sha256=plan_hash(first))
     assert repo.check(first)["status"] == "already_published"
+
+
+@pytest.mark.parametrize(
+    ("candidate_version", "status"), [(1, "already_published"), (2, "database_checked")]
+)
+def test_check_keeps_consistent_snapshot_during_concurrent_publication(
+    repo, engine, candidate_version, status
+):
+    first = plan()
+    repo.publish(first, reviewed_sha256=plan_hash(first))
+    second = first.model_copy(update={"version": 2, "title": "개정 합성 제목"})
+    candidate = first if candidate_version == 1 else second
+    head_read, resume = Event(), Event()
+
+    def after_head_select(conn, cursor, statement, parameters, context, many):
+        if not statement.startswith("SELECT public_briefing_heads.slug") or head_read.is_set():
+            return
+        head_read.set()
+        assert resume.wait(timeout=10)
+
+    event.listen(engine, "after_cursor_execute", after_head_select)
+    try:
+        with ThreadPoolExecutor(max_workers=1) as pool:
+            checking = pool.submit(repo.check, candidate)
+            try:
+                assert head_read.wait(timeout=5)
+                # The check still owns its connection; publication commits on another one.
+                published = repo.publish(second, reviewed_sha256=plan_hash(second))
+                assert repo.load(first.slug) == published
+                resume.set()
+                assert checking.result(timeout=5) == {
+                    "status": status,
+                    "plan_sha256": plan_hash(candidate),
+                }
+            finally:
+                resume.set()
+    finally:
+        event.remove(engine, "after_cursor_execute", after_head_select)
 
 
 @pytest.mark.parametrize("different", [False, True])

@@ -150,7 +150,7 @@ class PublicBriefingRepository:
         try:
             with (
                 self.engine.connect().execution_options(
-                    isolation_level="READ COMMITTED", postgresql_readonly=True
+                    isolation_level="REPEATABLE READ", postgresql_readonly=True
                 ) as conn,
                 conn.begin(),
             ):
