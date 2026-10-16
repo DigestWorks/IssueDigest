@@ -29,7 +29,7 @@ const runFailures: Record<NonNullable<ResearchRun['error_code']>, string> = {
 const date = (value: string) => new Intl.DateTimeFormat('ko-KR', {timeZone: 'UTC', year: 'numeric', month: 'numeric', day: 'numeric'}).format(new Date(value));
 function normalize(error: unknown) { return error instanceof ResearchError ? error : new ResearchError('network'); }
 
-export default function ResearchDesk({workspaceId, canEdit, view, initialQuestion}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'; initialQuestion?: string}) {
+export default function ResearchDesk({workspaceId, canEdit, view, initialQuestion, onInitialQuestionInitialized}: {workspaceId: string; canEdit: boolean; view: 'research' | 'saved'; initialQuestion?: string; onInitialQuestionInitialized?: () => void}) {
   const drafts = useResearchDrafts();
   const [params, setParams] = useSearchParams();
   const currentParams = useRef(params);
@@ -76,10 +76,13 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
     draftRunId.current = runId;
     const draft = drafts.read(workspaceId, runId);
     selectedRef.current = draft?.selected ?? []; questionRef.current = draft?.question ?? initialDraft.current;
-    if (initialDraft.current && !runId) drafts.write(workspaceId, null, {selected: selectedRef.current, question: questionRef.current});
+    if (initialDraft.current && !runId) {
+      drafts.write(workspaceId, null, {selected: selectedRef.current, question: questionRef.current});
+      onInitialQuestionInitialized?.();
+    }
     initialDraft.current = '';
     setSelected(selectedRef.current); setQuestion(questionRef.current);
-  }, [drafts, workspaceId, runId]);
+  }, [drafts, workspaceId, runId, onInitialQuestionInitialized]);
 
   useEffect(() => () => { postController.current?.abort(); cancelController.current?.abort(); }, []);
   useEffect(() => () => {
@@ -254,6 +257,9 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
       {list.kind === 'failure' && <p role="alert">{failures[list.error.kind]}</p>}
       {list.kind === 'ready' && (list.items.length === 0 ? <p className="research-empty">저장한 조사가 없습니다.</p> : <ul className="research-run-list">{list.items.map(item => <li key={item.run_id}><button type="button" onClick={() => setCurrent(item.run_id)} aria-current={runId === item.run_id ? 'true' : undefined}><strong>{item.question}</strong><span>{date(item.created_at)} · {stage[item.status]}</span></button></li>)}</ul>)}
       {runId && <button type="button" onClick={() => setCurrent(null)}>선택 해제</button>}
+      {runId && runError && <div className="research-feedback" role="alert"><p>{failures[runError.kind]}</p><button type="button" onClick={() => setRunVersion(value => value + 1)}>조사 다시 읽기</button></div>}
+      {runId && !displayedRun && !runError && <p role="status" aria-live="polite">조사를 다시 여는 중…</p>}
+      {displayedRun && (displayedRun.status === 'failed' || displayedRun.status === 'cancelled') && <p role="alert">{displayedRun.error_code ? runFailures[displayedRun.error_code] : stage[displayedRun.status]}</p>}
       {displayedRun?.status === 'completed' && displayedRun.result && <div className="research-saved-result"><CanvasView presentation="briefing" bundle={displayedRun.result.canvas} sourceTitles={displayedRun.result.source_titles} onAction={onCanvasAction} /></div>}
       {displayedRun && active(displayedRun.status) && <p role="status" aria-live="polite">{stage[displayedRun.status]}</p>}
     </section>}

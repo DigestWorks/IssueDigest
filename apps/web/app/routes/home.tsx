@@ -157,7 +157,7 @@ export default function Home() {
               {membership && <span className="role-label" title={`${roles[membership.role]} 권한`}>{roles[membership.role]}</span>}
               {membership && <TechnicalDetails><p>접근 권한: {roles[membership.role]}</p></TechnicalDetails>}
             </div>
-            {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
+            {workspaceId && !logoutPending && researchVisited && <div hidden={view === 'sources'}><ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view === 'saved' ? 'saved' : 'research'} /></div>}
             {workspaceId && !logoutPending && view === 'sources' && <EvidenceSearch key={`search/${workspaceId}`} workspaceId={workspaceId} />}
             {workspaceId && view === 'sources' && <WorkspaceCatalog key={workspaceId} workspaceId={workspaceId} />}
           </>)}

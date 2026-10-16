@@ -51,8 +51,13 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
     }
     return()=>{controller.abort();pending.current?.abort();};
   },[identity,workspaceId,snapshots,hidden]);
+  function cancelLookup() {
+    const controller=pending.current;pending.current=null;controller?.abort();setLookup(null);
+  }
+  function closeReader() {cancelLookup();setReader(null);}
   function show(item:Loaded,citationId:string,origin:HTMLElement|null) {
-    setReader({...item,identity,citationId,origin});setLookup(null);
+    cancelLookup();
+    setReader({...item,identity,citationId,origin});
   }
   async function openCitation(citationId:string) {
     if(!run?.result || hidden || deniedRef.current===identity)return;
@@ -66,16 +71,16 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
     for(const snapshotId of candidates) {
       try {
         const {data}=await getEvidence(workspaceId,snapshotId,{signal:controller.signal});
-        if(controller.signal.aborted || identityRef.current!==identity)return;
+        if(controller.signal.aborted || pending.current!==controller || identityRef.current!==identity)return;
         const citation=data.citations.find(item=>item.citation_id===citationId);
         if(data.document.document_id!==proof.document.document_id || data.version.version_id!==proof.version.version_id || !citation || citation.representation_id!==canonical.representation_id || selectorKey(citation.selector)!==selectorKey(canonical.selector))continue;
         show({snapshotId,data,title:titleFor(data,snapshotId,sources)},citationId,origin);return;
       } catch(error) {
-        if(controller.signal.aborted || identityRef.current!==identity)return;
+        if(controller.signal.aborted || pending.current!==controller || identityRef.current!==identity)return;
         if(error instanceof EvidenceError && ['authentication','not-found'].includes(error.kind)){deny();return;}
       }
     }
-    if(!controller.signal.aborted)setLookup({identity,kind:'failure'});
+    if(!controller.signal.aborted && pending.current===controller){pending.current=null;setLookup({identity,kind:'failure'});}
   }
   const visible=!hidden && preview.identity===identity?preview:null;
   const currentReader=!hidden && reader?.identity===identity?reader:null;
@@ -96,7 +101,7 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
     </section>,
     drawer:<>
       {!hidden && lookup?.identity===identity && <p role={lookup.kind==='failure'?'alert':'status'} className="research-feedback">{lookup.kind==='loading'?'인용의 저장 원문을 여는 중…':'인용의 저장 원문을 열 수 없습니다. 자료를 다시 확인해 주세요.'}</p>}
-      {currentReader && <EvidenceDrawer key={`${identity}/${currentReader.snapshotId}/${currentReader.citationId}`} reader={currentReader} workspaceId={workspaceId} onClose={()=>setReader(null)}/>}
+      {currentReader && <EvidenceDrawer key={`${identity}/${currentReader.snapshotId}/${currentReader.citationId}`} reader={currentReader} workspaceId={workspaceId} onClose={closeReader}/>}
     </>,
   };
 }
