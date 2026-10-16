@@ -9,7 +9,8 @@
 - 실제 AI: 공개 정부 자료의 읽기 전용 복사본과 로컬 합성 신원으로 Responses/gpt-5.4-mini1회(입력730/출력237토큰)를 제한 검증했다. 서버 검색→요약/근거 모듈→정확 인용·저장/동일 요청 재열람과 무근거 종료를 확인했다. 이후 브라우저 생성 검사는 합성 모델이며 실제 사용자 세션·공동 DB 쓰기·전체 품질 평가를 대신하지 않는다.
 - 개발 적용: [개발 앱](https://dev.issuedigest.projects.ai.kr/)에 위 제품 소스의 웹/API/v2 워커를 함께 반영했다. 이전 활성run/workflow0 확인 후 접수를 멈추고 안전하게 전환했다. 정적17파일·이전48자산 보존, HTTPS·화면/login/health/status200·미인증session/research401/no-store·현재6자산 hash/로고 일치를 확인했다. DB 스키마0006·자료12/인용33/색인12/검색21단위·계정/초대를 변경하지 않았다. 시스템 서비스·공용 checkout·main/운영은 변경하지 않았다.
 - 경계/다음: 현재는 연결된 저장 색인의 제한된 문자 검색이다. 최신 외부 수집/탐색·의미 검색·공개 브리핑·개인 소유·추천·알림·공유는 활성 작업 목록의 후속이다. 현재 공유 검증 이력을 개인 보관함이나 공개 자료로 표시하지 않는다. [Draft PR33](https://github.com/DigestWorks/IssueDigest/pull/33)에 변경을 보존하며 main/운영 게시는 유예한다.
-- Sites: 현행 질문 전용 경로·후속 작업으로 갱신 중이며 이전 v54를 보관한다. 게시 결과는 별도 기록한다.
+- 외부 브라우저: 배포된 개발 주소의390/1440 화면에서 자료 선택/준비 중 안내 부재·가로 넘침0·테마 전환·질문→로그인과 pageerror0을 확인했다. 최초 QA 탐색의 networkidle 대기는 종료되지 않아 DOM 준비와 실제 화면/행동 기준으로 재확인했다. 기대된 비회원401과 JavaScript 예외는 구분한다.
+- Sites: [v55 계획판](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded. source `80db41f95d7a5df1722c5ec0e6e85ad334805dea`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_b558693665d08191b35e27e5ffc7ff00`, deployment `appgdep_6ad1d72fbd30819187d9c742b17c8e16`. 문서 사본3946250·이전v54 보관·HTML40/내부 링크·자산·앵커1049개/공개 텍스트104파일의 실제 비밀값 제외를 확인했다. 사용자의 브라우저 탭을 열거나 이동하지 않았다.
 
 ## 이전 작업 · B2C 화면·활성 계획·로그인 유지 · 2026-10-16
 
