@@ -348,9 +348,9 @@ def test_session_current_authority_rechecked(engine, signing, mutation):
         elif mutation == "idle":
             conn.execute(
                 text(
-                    "UPDATE auth_sessions SET issued_at=issued_at-interval '31 minutes', "
-                    "expires_at=expires_at-interval '31 minutes', "
-                    "last_activity_at=last_activity_at-interval '31 minutes'"
+                    "UPDATE auth_sessions SET issued_at=issued_at-interval '8 days', "
+                    "expires_at=expires_at-interval '8 days', "
+                    "last_activity_at=last_activity_at-interval '8 days'"
                 )
             )
         elif mutation == "revoked":

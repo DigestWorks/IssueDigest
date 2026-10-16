@@ -21,6 +21,7 @@ from .auth_schema import auth_sessions, auth_users, auth_workspace_memberships
 from .engine import verify_engine
 from .repository import EvidenceRepository, StorageError, _uuid4
 from .schema import evidence_snapshots
+from .session_policy import SESSION_IDLE_TIMEOUT_SECONDS
 from .sessions import AuthenticationDenied, token_digest
 
 
@@ -67,7 +68,7 @@ class WorkspaceAccessRepository:
             session is None
             or session["revoked"]
             or session["expires_at"] <= now
-            or session["last_activity_at"] <= now - timedelta(seconds=1800)
+            or session["last_activity_at"] <= now - timedelta(seconds=SESSION_IDLE_TIMEOUT_SECONDS)
         ):
             raise AuthenticationDenied("Authentication required")
         user = (

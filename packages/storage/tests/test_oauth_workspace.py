@@ -223,7 +223,8 @@ def test_oauth_migration_preserves_existing_identity_evidence_and_sessions(engin
     repo = oauth(engine)
     user = uuid4()
     storage.IdentityRepository(engine).register_identity(user, "existing", "subject")
-    issued = storage.SessionRepository(engine).issue_session(user)
+    # This fixture represents a session created under the historical 8-hour policy.
+    issued = storage.SessionRepository(engine).issue_session(user, 28800)
     data = EvidenceBundle.model_validate(bundle_data())
     snap = uuid4()
     storage.EvidenceRepository(engine).save(snap, data)
@@ -285,9 +286,9 @@ def test_workspace_rechecks_session_authority(engine, method, mutation):
             else:
                 conn.execute(
                     text(
-                        "UPDATE auth_sessions SET issued_at=issued_at-interval '31 minutes', "
-                        "expires_at=expires_at-interval '31 minutes', "
-                        "last_activity_at=clock_timestamp()-interval '30 minutes'"
+                        "UPDATE auth_sessions SET issued_at=issued_at-interval '8 days', "
+                        "expires_at=expires_at-interval '8 days', "
+                        "last_activity_at=clock_timestamp()-interval '7 days'"
                     )
                 )
     with pytest.raises(storage.AuthenticationDenied):

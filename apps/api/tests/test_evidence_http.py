@@ -124,9 +124,9 @@ def test_actual_database_http_authentication_and_authorization_matrix(engine, st
         with engine.begin() as conn:
             conn.execute(
                 text(
-                    "UPDATE auth_sessions SET issued_at=issued_at-interval '30 "
-                    "minutes',expires_at=expires_at-interval '30 "
-                    "minutes',last_activity_at=clock_timestamp()-interval '1800 seconds'"
+                    "UPDATE auth_sessions SET issued_at=issued_at-interval '7 "
+                    "days',expires_at=expires_at-interval '7 "
+                    "days',last_activity_at=clock_timestamp()-interval '604800 seconds'"
                 )
             )
     elif state == "revoked":
@@ -352,3 +352,19 @@ def test_exhausted_or_nonretryable_database_failures_keep_fixed_private_http_err
         assert private_content_hidden
     finally:
         event.remove(engine, "before_cursor_execute", force_database_failure)
+
+
+@pytest.mark.parametrize("days,want_max", [(14, 1209600), (30, 1209600), (-1, 0)])
+def test_persistent_cookie_is_secure_and_bounded_to_fourteen_days(days, want_max):
+    from email.utils import parsedate_to_datetime
+    from http.cookies import SimpleCookie
+
+    issued = IssuedSession(secrets.token_urlsafe(32), datetime.now(UTC) + timedelta(days=days))
+    response = Response()
+    set_session_cookie(response, issued)
+    cookie = SimpleCookie(response.headers["set-cookie"])[SESSION_COOKIE]
+    assert max(0, want_max - 1) <= int(cookie["max-age"]) <= want_max
+    assert cookie["secure"] and cookie["httponly"] and cookie["samesite"] == "lax"
+    assert cookie["path"] == "/" and cookie["domain"] == ""
+    assert parsedate_to_datetime(cookie["expires"]) <= issued.expires_at
+    assert parsedate_to_datetime(cookie["expires"]) <= datetime.now(UTC) + timedelta(days=14)
