@@ -42,6 +42,7 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   const [runVersion, setRunVersion] = useState(0);
   const [selected, setSelected] = useState<string[]>(() => drafts.read(workspaceId, runId)?.selected ?? []);
   const restoredContext = useRef<string | null>(null);
+  const draftRunId = useRef(runId);
   const initialDraft = useRef(!runId && view === 'research' ? initialQuestion ?? '' : '');
   const [question, setQuestion] = useState(() => drafts.read(workspaceId, runId)?.question ?? initialDraft.current);
   const selectedRef = useRef(selected);
@@ -61,17 +62,18 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
 
   function saveSelected(value: string[]) {
     setSelectionRequired(false); selectedRef.current = value; setSelected(value);
-    drafts.write(workspaceId, runId, {selected: value, question: questionRef.current});
+    drafts.write(workspaceId, draftRunId.current, {selected: value, question: questionRef.current});
   }
   function saveQuestion(value: string) {
     setSelectionRequired(false); questionRef.current = value; setQuestion(value);
-    drafts.write(workspaceId, runId, {selected: selectedRef.current, question: value});
+    drafts.write(workspaceId, draftRunId.current, {selected: selectedRef.current, question: value});
   }
   useEffect(() => {
     const context = `${workspaceId}/${runId ?? 'new'}`;
     // Effect replay must not erase a one-time OAuth question handoff.
     if (restoredContext.current === context) return;
     restoredContext.current = context;
+    draftRunId.current = runId;
     const draft = drafts.read(workspaceId, runId);
     selectedRef.current = draft?.selected ?? []; questionRef.current = draft?.question ?? initialDraft.current;
     if (initialDraft.current && !runId) drafts.write(workspaceId, null, {selected: selectedRef.current, question: questionRef.current});
@@ -143,6 +145,8 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   }
   function newResearch() {
     drafts.clearWorkspace(workspaceId);
+    // Input may arrive before React Router commits the new URL.
+    draftRunId.current = null;
     pendingInput.current = null; setRequestError(null); selectedRef.current = []; questionRef.current = ''; setSelected([]); setQuestion(''); setCurrent(null);
   }
   async function send(input: ResearchRequest) {
@@ -201,7 +205,8 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   const sourceItems = catalog.kind === 'ready' ? catalog.data.items : [];
   const suggested = selected.length ? [] : suggestResearchSources(question, sourceItems);
   const displayedRun = !sending && run?.run_id === runId && run.workspace_id === workspaceId ? run : null;
-  const accessDenied = requestError?.kind === 'unauthorized' || requestError?.kind === 'forbidden' || runError?.kind === 'unauthorized' || runError?.kind === 'forbidden' || catalog.kind === 'failure' && ['unauthorized','forbidden'].includes(catalog.error.kind);
+  const accessDenied = [requestError, runError, catalog.kind === 'failure' ? catalog.error : null, list.kind === 'failure' ? list.error : null]
+    .some(error => error && ['unauthorized','forbidden','not-found'].includes(error.kind));
   const evidence = useResearchEvidence(workspaceId, displayedRun, sourceItems, accessDenied);
   return <div className="research-desk">
     {view === 'research' ? <>

@@ -44,7 +44,7 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
         setPreview(state=>state.identity===identity?{...state,items:[...state.items,{snapshotId,data,title:titleFor(data,snapshotId,sourcesRef.current)}]}:state);
       },error=>{
         if(controller.signal.aborted || deniedRef.current===identity)return;
-        if(error instanceof EvidenceError && error.kind==='authentication') {
+        if(error instanceof EvidenceError && ['authentication','not-found'].includes(error.kind)) {
           controller.abort();deniedRef.current=identity;pending.current?.abort();setReader(null);setLookup(null);setPreview({...idle(identity),denied:true});
         } else setPreview(state=>state.identity===identity?{...state,failures:state.failures+1}:state);
       });
@@ -72,7 +72,7 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
         show({snapshotId,data,title:titleFor(data,snapshotId,sources)},citationId,origin);return;
       } catch(error) {
         if(controller.signal.aborted || identityRef.current!==identity)return;
-        if(error instanceof EvidenceError && error.kind==='authentication'){deny();return;}
+        if(error instanceof EvidenceError && ['authentication','not-found'].includes(error.kind)){deny();return;}
       }
     }
     if(!controller.signal.aborted)setLookup({identity,kind:'failure'});
@@ -83,7 +83,7 @@ export function useResearchEvidence(workspaceId:string, run:ResearchRun|null, so
     openCitation,
     preview:run && visible && <section className="research-preview" aria-label="선택한 원문에서 먼저 읽기">
       <h3>선택한 원문에서 먼저 읽기</h3><p className="research-help">이번 조사에 선택한 저장 원문의 인용입니다. AI 해석과 별도로 읽을 수 있습니다.</p>
-      {visible.denied?<p role="status">원문 접근 권한을 다시 확인해 주세요.</p>:<>
+      {visible.denied?<p role="status">원문을 다시 확인할 수 없습니다. 자료와 접근 권한을 확인해 주세요.</p>:<>
         {visible.items.length===0 && visible.failures===0 && <p role="status">선택한 원문을 읽는 중…</p>}
         {visible.items.map(item=>{
           const citation=item.data.citations[0];const points=Array.from(citation?.selector.quote??'');const shortened=points.length>420;

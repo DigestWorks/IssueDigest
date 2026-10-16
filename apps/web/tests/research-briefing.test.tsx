@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import {createMemoryRouter, RouterProvider} from 'react-router';
 import {expect, it, vi} from 'vitest';
 import Home from '../app/routes/home';
+import App, {HydrateFallback} from '../app/root';
 import {completedRun, queuedRun, runId, session, source, secondSource} from './research-data';
 import {response, snapshot, workspace} from './workspace-data';
 
@@ -92,7 +93,7 @@ it('honors explicit source choices even when the question matches a different ca
  await waitFor(()=>expect(posts).toHaveLength(1));expect(posts[0].snapshot_ids).toEqual([secondSource.snapshot_id]);
 });
 
-it.each([401,403])('clears already readable originals and ignores pending responses on HTTP %s',async(status)=>{
+it.each([401,403,404])('clears already readable originals and ignores pending responses on HTTP %s',async(status)=>{
  let release!:(value:Response)=>void;
  const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot,secondSource.snapshot_id],parent_run_id:null});
  vi.stubGlobal('fetch',async(path:string)=>{
@@ -110,7 +111,7 @@ it.each([401,403])('clears already readable originals and ignores pending respon
  await act(async()=>release(response({},status)));
  await waitFor(()=>expect(screen.queryByRole('blockquote')).not.toBeInTheDocument());
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
- expect(screen.getByText('원문 접근 권한을 다시 확인해 주세요.')).toBeInTheDocument();
+ expect(screen.getByText('원문을 다시 확인할 수 없습니다. 자료와 접근 권한을 확인해 주세요.')).toBeInTheDocument();
  expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('요청 접수');
 });
 
@@ -158,7 +159,7 @@ it('aborts citation lookup on run navigation so a late exact original cannot reo
  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
 });
 
-it.each([401,403])('aborts a pending original on polling HTTP %s and retries originals only after rechecking the run',async(status)=>{
+it.each([401,403,404])('aborts a pending original on polling HTTP %s and retries originals only after rechecking the run',async(status)=>{
  const queued=queuedRun({request_id:completedRun().request_id,question:'법안 질문',snapshot_ids:[snapshot],parent_run_id:null});
  let runReads=0;let originalReads=0;let originalSignal:AbortSignal|null|undefined;let release!:(value:Response)=>void;
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
@@ -174,7 +175,7 @@ it.each([401,403])('aborts a pending original on polling HTTP %s and retries ori
  });
  start(true);const user=userEvent.setup();await waitFor(()=>expect(originalReads).toBe(1));
  await act(async()=>{await new Promise(resolve=>setTimeout(resolve,1650));});
- expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':'이 작업을 할 권한이 없습니다');
+ expect(screen.getByRole('alert')).toHaveTextContent(status===401?'로그인이 필요합니다':status===403?'이 작업을 할 권한이 없습니다':'자료 또는 조사를 찾을 수 없습니다');
  expect(originalSignal?.aborted).toBe(true);
  await act(async()=>release(response(completedRun().result!.canvas.research.evidence[0])));
  expect(screen.queryByRole('blockquote')).not.toBeInTheDocument();
@@ -253,4 +254,75 @@ it('accepts an unchanged canonical citation regardless of JSON property order',a
  start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
  await user.click((await screen.findAllByRole('button',{name:/근거 열기: 공공기록법/}))[0]);
  expect(await screen.findByRole('dialog')).toBeInTheDocument();
+});
+
+it.each([401,403,404])('clears a completed-run original and open drawer and aborts pending reads when the saved list returns HTTP %s',async(status)=>{
+ const completed=completedRun();completed.snapshot_ids=[snapshot,secondSource.snapshot_id];
+ const pendingLists:((value:Response)=>void)[]=[];
+ let evidenceReads=0;let previewSignal:AbortSignal|null|undefined;let lookupSignal:AbortSignal|null|undefined;
+ let releasePreview!:(value:Response)=>void;let releaseLookup!:(value:Response)=>void;
+ const methods:string[]=[];
+ vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
+  methods.push(options.method??'GET');
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source,secondSource]});
+  if(path.endsWith('/research'))return new Promise<Response>(resolve=>{pendingLists.push(resolve);});
+  if(path.endsWith(`/research/${runId}`))return response(completed);
+  if(path.endsWith(`/evidence/${secondSource.snapshot_id}`)){
+   previewSignal=options.signal;return new Promise<Response>(resolve=>{releasePreview=resolve;});
+  }
+  if(path.endsWith(`/evidence/${snapshot}`)){
+   if(evidenceReads++===0)return response(completed.result!.canvas.research.evidence[0]);
+   lookupSignal=options.signal;return new Promise<Response>(resolve=>{releaseLookup=resolve;});
+  }
+  throw Error(path);
+ });
+ start(true);const user=userEvent.setup();await screen.findByRole('blockquote');
+ await waitFor(()=>expect(pendingLists).toHaveLength(2));
+ expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('조사가 자동 저장되었습니다');
+ // Start a protected citation lookup, then open the already-readable same original while it is pending.
+ await user.click(screen.getAllByRole('button',{name:/근거 열기: 공공기록법/})[0]);
+ await waitFor(()=>expect(releaseLookup).toBeTypeOf('function'));
+ await user.click(screen.getByRole('button',{name:/전체 원문과 인용 위치 열기/}));
+ expect(await screen.findByRole('dialog')).toBeInTheDocument();
+ await act(async()=>pendingLists.at(-1)!(response({},status)));
+ expect(screen.queryByRole('region',{name:'선택한 원문에서 먼저 읽기'})).not.toBeInTheDocument();
+ expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+ expect(previewSignal?.aborted).toBe(true);expect(lookupSignal?.aborted).toBe(true);
+ await act(async()=>{
+  releasePreview(response(completed.result!.canvas.research.evidence[0]));
+  releaseLookup(response(completed.result!.canvas.research.evidence[0]));
+ });
+ expect(screen.queryByRole('region',{name:'선택한 원문에서 먼저 읽기'})).not.toBeInTheDocument();expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+ expect(methods.every(method=>method==='GET')).toBe(true);
+});
+
+
+it('retains a new question typed after leaving a failed run while its URL transition is still pending',async()=>{
+ const queued=queuedRun({request_id:completedRun().request_id,question:'실패한 이전 질문',snapshot_ids:[snapshot],parent_run_id:null});
+ const failed={...queued,status:'failed',error_code:'generation_failed',events:[...queued.events,{sequence:2,status:'failed',created_at:queued.created_at}]};
+ const methods:string[]=[];let releaseNavigation!:(value:null)=>void;
+ vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
+  methods.push(options.method??'GET');
+  if(path.endsWith('/session'))return response(session);
+  if(path.endsWith('/research/sources'))return response({workspace_id:workspace,items:[source]});
+  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
+  if(path.endsWith(`/research/${runId}`))return response(failed);
+  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);throw Error(path);
+ });
+ const router=createMemoryRouter([{path:'/',Component:App,HydrateFallback,children:[{index:true,Component:Home,loader:({request})=>new URL(request.url).searchParams.has('run')?null:new Promise<null>(resolve=>{releaseNavigation=resolve;})}]}],{initialEntries:[`/?view=research&run=${runId}`]});
+ render(<RouterProvider router={router}/>);const user=userEvent.setup();
+ await waitFor(()=>expect(screen.getByRole('status',{name:'조사 상태'})).toHaveTextContent('조사를 완료하지 못했습니다'));
+ await user.click(screen.getByRole('button',{name:'새 조사'}));
+ await waitFor(()=>expect(releaseNavigation).toBeTypeOf('function'));
+ await user.click(screen.getByRole('button',{name:'조사할 자료 선택'}));
+ const choice=screen.getByRole('checkbox',{name:source.title});expect(choice).not.toBeChecked();
+ await user.click(choice);
+ await user.type(screen.getByLabelText('무엇을 알아볼까요?'),'새 질문을 유지해 주세요');
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('새 질문을 유지해 주세요');
+ await act(async()=>releaseNavigation(null));
+ await waitFor(()=>expect(router.state.location.search).toBe('?view=research'));
+ expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('새 질문을 유지해 주세요');
+ expect(screen.getByRole('checkbox',{name:source.title})).toBeChecked();
+ expect(methods.every(method=>method==='GET')).toBe(true);
 });
