@@ -130,9 +130,12 @@ it('times out catalog body reading and retries without displaying an old body', 
   await act(async () => finish({ ...catalog(), items: [] })); expect(screen.getByText('첫 공간 합성 원문')).toBeInTheDocument();
 });
 it('opens a catalog record in the existing protected read-only reader and returns home', async () => {
-  const fetch = vi.fn(async (path: string) => response(path.endsWith('/session') ? session() : path.endsWith(`/${snapshot}`) ? canvas.research.evidence[0] : catalog())); vi.stubGlobal('fetch', fetch);
+  const fetch = vi.fn<(path: string, options?: RequestInit) => Promise<Response>>(async path => response(path.endsWith('/session') ? session() : path.endsWith(`/${snapshot}`) ? canvas.research.evidence[0] : catalog())); vi.stubGlobal('fetch', fetch);
   const { router } = mount(); const link = await screen.findByRole('link', { name: '근거 열기' }); link.focus(); await userEvent.setup().keyboard('{Enter}');
   expect(await screen.findByRole('heading', { name: '원문과 인용' })).toBeInTheDocument(); expect(router.state.location.pathname).toBe(`/workspaces/${workspace}/evidence/${snapshot}`);
+  const readerRequest = fetch.mock.calls.find(([path]) => path === `/api/v1/workspaces/${workspace}/evidence/${snapshot}`);
+  expect(readerRequest).toEqual([`/api/v1/workspaces/${workspace}/evidence/${snapshot}`, expect.objectContaining({credentials: 'same-origin', cache: 'no-store'})]);
+  expect(readerRequest?.[1]?.method ?? 'GET').toBe('GET');
   expect(screen.queryByText('첫 공간 합성 원문')).not.toBeInTheDocument();
   expect(screen.queryByRole('button', { name: /생성|저장|수정/ })).not.toBeInTheDocument();
   await userEvent.setup().click(screen.getByRole('link', { name: '작업 공간으로' })); expect(await screen.findByText('첫 공간 합성 원문')).toBeInTheDocument();

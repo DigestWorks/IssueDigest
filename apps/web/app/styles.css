@@ -32,11 +32,6 @@ h1 { margin: 0; font-family: "Noto Serif KR", "Batang", serif; font-size: clamp(
 .empty-index { color: var(--muted); font-size: 22px; line-height: 1.2; }
 h2 { margin: 0; font-size: 16px; font-weight: 550; line-height: 1.6; letter-spacing: -.015em; }
 .empty-state p { margin: 8px 0 0; font-size: 13px; color: var(--muted); line-height: 1.8; word-break: keep-all; }
-.connection { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-top: 24px; }
-.connection-label { margin: 0; font-size: 12px; color: var(--muted); }
-.connection-status { margin: 6px 0 0; font-size: 12px; line-height: 1.7; color: var(--muted); }
-.connection-status.success { color: var(--green); }
-.connection-status.failure { color: var(--danger); }
 button { flex-shrink: 0; min-height: 44px; padding: 8px 17px; border: 1px solid var(--control-border); border-radius: 3px; background: transparent; color: var(--green); font-size: 12px; cursor: pointer; }
 button:hover:enabled { background: var(--hover); border-color: var(--green); }
 button:disabled { opacity: .65; cursor: wait; }
@@ -61,9 +56,6 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
 .catalog-meta time { overflow-wrap: anywhere; }
 .catalog-meta .action-link { margin-left: auto; }
 .action-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--green); text-underline-offset: 4px; }
-.workspace-tools { border-top: 1px solid var(--line); margin-top: 28px; }
-.workspace-tools > summary { cursor: pointer; padding: 18px 0; color: var(--muted); font-size: 12px; }
-.workspace-tools > aside { padding-bottom: 24px; }
 .workspace:not(.login-workspace) .brand { padding: 19px 0; }
 .workspace:not(.login-workspace) > main { padding-top: 34px; }
 .workspace:not(.login-workspace):not(.evidence-workspace) > main > .eyebrow { margin-bottom: 8px; }
@@ -97,13 +89,10 @@ select:focus-visible, a:focus-visible { outline: 2px solid var(--green); outline
   main { padding: 48px 0 40px; }
   .intro { font-size: 14px; }
   .empty-state { margin-top: 40px; gap: 16px; padding: 28px 0; }
-  .connection { align-items: flex-start; gap: 16px; }
   footer { flex-direction: column; gap: 8px; }
   .workspace:not(.login-workspace) > main { padding-top: 28px; }
   .workspace-choice .technical-details { margin-left: 0; width: 100%; }
   .catalog-meta .action-link { margin-left: 0; }
-  .evidence-link-fields { display: flex; flex-wrap: wrap; gap: 8px; }
-  .evidence-link-fields input { min-width: 0; flex: 1 1 190px; }
 }
 
 /* A quiet reading surface: the question leads; account and source tools recede. */
