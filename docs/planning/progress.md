@@ -21,7 +21,15 @@
 - 상세: [공개 앱 배포 상태](../../infra/public-deployment.md). 이 변경은 문서만이며 운영 설정·공용 checkout·자료 변경 없음. 문서3개/상대 링크6개·공개 접속정보 제외·git diff --check 통과. 코드 전체 테스트는 반복하지 않았다.
 - Sites: [v32 배포 상태](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#deployment) 공개 게시 native succeeded·URL 확인. source `d71b41cae7e4282453df8d9a910e9b9ddb7f2dc5`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4b8329f3a14c8191b1b3a35220d84593`, deployment `appgdep_6acde040f0c08191b1b854866d9d7b38`. 사본 기준579e023·이전v31 보존, HTML17개/로컬 링크·anchor248개/manifest/공개 접속정보 제외 통과. 보존본의 상대 링크를 기존 형식에 맞춰 수정 후 재검사했다. 문서 변경의 브라우저 화면 검사는 수행하지 않았다. 서버 개인 worktree도 문서만 fast-forward하며 운영 앱을 게시하지 않는다.
 
-## 현재 작업 · 첫 조사 흐름 · 2026-10-15
+## 현재 작업 · 수집 연결·제품 경험 인터뷰 · 2026-10-16
+
+- 범위: [첫 국회 원문 연결기](../changes/assembly-source-connector.md), [제품 경험 인터뷰](../research/product-experience-interview.md). feat/assembly-source-connector, base feat/research-journey/2439385. 기존 linked worktree를 유지하며 새 branch에서 진행한다.
+- 읽기 조사: 기존 MySQL Bill41,004·제안일2020-06-01~2026-07-10 확인, SELECT만 수행했다. 행수/상한은 현재 수집 실행의 정상·최신성을 보장하지 않는다. 기존 Airflow는 검토 코드의 폐기 경로이며 실제 활성 실행기는 추가 확인 대상이다.
+- 구현 중: 운영자가 지정한 공식 법안1건의 제안 내용 capture→정확 추출→기존 등록 계획 연결. first increment는 원천 HTML2요청과 offline artifact이며 정기 수집·처리 이력/변경 감지·알림은 후속이다. 기존 MySQL/runtime·main·운영 배포는 유지한다.
+- 인터뷰: 질문 우선+최근 이슈 탐색, 사실/주장/미확인 요약, 여론조사/언론/온라인 반응 구분, 근거 부족을 솔직히 인정하는 AI 어조를 사용자 답변으로 기록했다. 분량·상호작용·후속 행동은 질문 중이다. 제안과 확정 답변을 구분하며 새 UI는 아직 구현하지 않는다.
+- Sites: 이번 인터뷰·첫 연결기 내용 반영 대기. 현재 공개 v49의 조사11건·실제AI/저장 흐름은 이전 완료 범위다.
+
+## 이전 작업 · 첫 조사 흐름 · 2026-10-15
 
 - 범위: [명세](../changes/research-journey.md), [실행·비용·검증 경계](../../infra/research-development.md), feat/research-journey, base feat/workspace-clarity-legacy/5fd3824. 사용자 승인 범위는 자료 선택→질문→생성 결과→정확 원문→자동 저장·재열람이다. main/운영 게시 유예(D013)를 유지한다.
 - 화면: **이슈 조사 / 자료 / 저장한 조사**. 실제 자료 제목·의안번호·제안일로 고르고 법안 핵심 정리·질문을 시작한다. 접수/검색/분석/인용 연결 확인과 취소·실패·연결 대기·한도를 구분한다. 질문 전에는 AI 결과를 표시하지 않는다. 생성된 해석·검증된 인용 위치·원문을 구분하고 후속 질문·같은 결과 재열람을 연결했다.
