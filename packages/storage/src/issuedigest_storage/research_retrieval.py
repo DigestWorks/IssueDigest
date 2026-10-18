@@ -14,6 +14,8 @@ from sqlalchemy import Connection
 
 from .search import search_evidence
 
+RETRIEVAL_PROFILE = "question-terms-v1"
+
 _GENERIC = frozenset(
     "질문 무엇 무엇인가 무엇인가요 무엇인지 무슨 어떤 어떻게 왜 알려줘 알려주세요 "
     "설명 설명해줘 설명해주세요 요약 요약해줘 요약해주세요 자세히 더 좀 해줘 주세요 "

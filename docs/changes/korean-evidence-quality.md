@@ -19,9 +19,9 @@
 
 ## Task 1: 같은 자료·질문으로 재현하는 내부 검색 평가
 
-- [ ] packages/storage에 strict private evaluation job/report와 실행 함수를 추가한다. 기존 retrieve_snapshot_ids/question_terms를 호출하고 전략 profile·질문/기대 근거 artifact hash·선언 corpus 및 실제 snapshot/projection fingerprint·모든 case의 rank/정확 family coverage·Hit@1·macro family Recall@5·all-required·no-match 별도 분모를 기록한다. body/기대 근거를 모델로 생성하지 않는다. 기존 검색에 변경 없는 profile 상수만 추가해 baseline을 식별한다.
-- [ ] CLI를 apps/worker에 추가해 기존 private 파일 가드와 ISSUEDIGEST_DATABASE_URL 검증·expected_database 일치·scope 정확 대조·read-only REPEATABLE READ를 적용한다. private report만 새 파일로 쓰고 stdout은 집계만 출력한다. 평가가 조회·DBOS/예산/세션/투영 쓰기를 하지 않음을 실제 PG로 확인한다. SDK의 raw input을 재검증하고 bounded JSON·잘못된 gold/corpus/missing projection·실패/no-partial-output·중복/순위/분모·DB 오류 비노출을 TDD로 검증한다.
-- [ ] tests/evaluation/README와 worker/storage README에 실제 명령·job형식·지표 한계·비공개 gold 보관·baseline/candidate 비교 조건을 적는다. 기존20문항은 별도 미실행 상태로 유지한다. 합성 평가 dataset/PG 회귀·Ruff/format(문서 Python fence 포함)/mypy 후 commit/report. 기존 검색/프롬프트/worker/UI/실제 데이터는 바꾸지 않는다.
+- [x] packages/storage에 strict private evaluation job/report와 실행 함수를 추가한다. 기존 retrieve_snapshot_ids/question_terms를 호출하고 전략 profile·질문/기대 근거 artifact hash·선언 corpus 및 실제 snapshot/projection fingerprint·모든 case의 rank/정확 family coverage·Hit@1·macro family Recall@5·all-required·no-match 별도 분모를 기록한다. body/기대 근거를 모델로 생성하지 않는다. 기존 검색에 변경 없는 profile 상수만 추가해 baseline을 식별한다.
+- [x] CLI를 apps/worker에 추가해 기존 private 파일 가드와 ISSUEDIGEST_DATABASE_URL 검증·expected_database 일치·scope 정확 대조·read-only REPEATABLE READ를 적용한다. private report만 새 파일로 쓰고 stdout은 집계만 출력한다. 평가가 조회·DBOS/예산/세션/투영 쓰기를 하지 않음을 실제 PG로 확인한다. SDK의 raw input을 재검증하고 bounded JSON·잘못된 gold/corpus/missing projection·실패/no-partial-output·중복/순위/분모·DB 오류 비노출을 TDD로 검증한다.
+- [x] tests/evaluation/README와 worker/storage README에 실제 명령·job형식·지표 한계·비공개 gold 보관·baseline/candidate 비교 조건을 적는다. 기존20문항은 별도 미실행 상태로 유지한다. 합성 평가 dataset/PG 회귀·Ruff/format(문서 Python fence 포함)/mypy 후 commit/report. 기존 검색/프롬프트/worker/UI/실제 데이터는 바꾸지 않는다.
 
 ## Task 2: 한국어 변형·문서 균형을 갖춘 제한 검색
 

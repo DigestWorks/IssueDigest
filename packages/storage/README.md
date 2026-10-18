@@ -435,3 +435,21 @@ DB의 payload/hash/행 참조·검토 기록·최대 버전/연속 이력/latest
 모두 `Cache-Control: no-store`, `X-Request-ID`와 검증된 JSON을 반환하며 미설정503,
 없음/철회404, 잘못된 입력422에는 입력을 되돌리지 않습니다. 공개 읽기는 두 공개 테이블만
 SELECT하고 세션·모델·DBOS·예산·비공개 저장소를 호출하지 않습니다. 공개 게시 HTTP API는 없습니다.
+
+## Private retrieval evaluation
+
+`issuedigest_storage.retrieval_evaluation.evaluate(engine, raw_job_bytes)` validates a bounded
+strict JSON job again at the SDK boundary and returns an `EvaluationReport`. It accepts raw
+bytes only, so forged Pydantic models cannot cause an unbounded dump before validation.
+The existing retrieval algorithm is unchanged (`question-terms-v1`). Evaluation verifies the
+exact workspace corpus, every canonical bundle and projection/unit, then runs all cases in
+one read-only PostgreSQL `REPEATABLE READ` transaction. It never writes projections, sessions,
+research runs, budgets or DBOS state. Failures use fixed messages and return no partial report.
+
+`parse_job(raw_bytes)` validates offline; `EvaluationJob.model_json_schema()` and
+`EvaluationReport.model_json_schema()` expose the strict job/report schemas. IDs, questions,
+terms and ranks belong only in private report files, never ordinary logs. The caller owns the
+engine and its logging/lifecycle configuration; the worker CLI supplies silent pool lifecycle
+handling and publishes only after successful disposal. Do not enable SQL parameter logging.
+See [evaluation instructions](../../tests/evaluation/README.md) for the full job example,
+command, fingerprints, metric denominators and baseline/candidate comparison conditions.

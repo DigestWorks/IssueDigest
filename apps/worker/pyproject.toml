@@ -12,6 +12,7 @@ issuedigest-storage = { workspace = true }
 issuedigest-agents = { workspace = true }
 
 [project.scripts]
+issuedigest-evaluate-retrieval = "issuedigest_worker.retrieval_evaluation_cli:main"
 issuedigest-policy = "issuedigest_worker.policy_cli:main"
 issuedigest-capture-assembly = "issuedigest_worker.assembly_cli:capture_main"
 issuedigest-prepare-assembly = "issuedigest_worker.assembly_cli:prepare_main"

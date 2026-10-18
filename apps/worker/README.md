@@ -194,3 +194,21 @@ PostgreSQL session advisory lock을 전용 AUTOCOMMIT 연결에서 획득한 뒤
 DBOS3.2의 공용 `DBOSClient.list_workflows/list_workflow_steps`를 input/output 비로딩으로 조회하고 실제 활성 application row와 정확한 ID로 대응합니다. 최대20개씩 읽어 원래 application_version의 cohort를 순차 launch/회복하고 registry를 destroy한 뒤 현재 버전으로 새 queued 요청을 처리합니다. `DBOS.resume_workflow`만 호출하면 원래 version이 남아 현재 큐가 처리하지 않으므로 같은 기록 version으로 기동합니다. 원래 checkpoint·workflow ID·step 순서를 삭제/수정하지 않습니다. terminal/cancelled/unknown workflow는 resume하지 않고, 실제 application row로 소유를 확인한 불명확/terminal orphan의 PENDING/ENQUEUED만 취소합니다.
 
 generating/validating 재진입은 정확한 원래 `issuedigest_research_v2__model.request` 또는v3의 완료 journal step1개가 있을 때만 재생합니다. metadata 확인은 DBOSClient의 직접 읽기로 수행해 유료 step 앞에 새 durable step를 넣지 않습니다. 요청 중 프로세스가 중단되어 완료 checkpoint가 없으면 generation_failed와 예약 유지로 끝내며 유료 요청을 다시 보내지 않습니다. 이것은 제공자의 실제 접수/과금 여부를 알아낸다는 뜻이 아닙니다. 모델 오류 뒤 자동 retry·새 유료 호출을 추가하지 않습니다.
+
+## Operator-only stored retrieval evaluation
+
+Run `uv run --package issuedigest-worker issuedigest-evaluate-retrieval
+/absolute/private/job.json --output /absolute/private/report.json` from the repository root
+(as one shell command). Alternatively use `uv run --package issuedigest-worker python -m
+issuedigest_worker.retrieval_evaluation_cli ...`. Both require an externally supplied
+`ISSUEDIGEST_DATABASE_URL`, matching the job's `expected_database` exactly. No server, worker
+startup, login, provider or browser is involved. This is an explicit read-only operator action.
+
+Use an owned 600 job file and an owned 700 report parent. The report must be a new file; it is
+published atomically as 600 after the complete evaluation and database pool disposal succeed.
+stdout contains only aggregate retrieval metrics; failures emit a fixed message and no report.
+The job is strict UTF-8 JSON capped at 256KiB with an exact whole-workspace corpus (1..50
+snapshots), 1..40 questions and explicit positive families or negative no-match cases.
+See [the complete job schema, commands and metric limits](../../tests/evaluation/README.md).
+Keep jobs/gold/reports outside Git/PR/Sites. Synthetic regression success does not execute the
+existing 20-question real-material evaluation or establish answer/citation quality.
