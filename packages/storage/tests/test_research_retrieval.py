@@ -203,6 +203,10 @@ def test_each_variant_scans_at_most_200_balanced_rows_and_detects_201(engine):
         ("2026년에는", ("2026년에는", "2026년")),
         ("2026년도", ("2026년도", "2026년")),
         ("2026년", ("2026년",)),
+        ("100만은", ("100만은", "100만")),
+        ("10도는", ("10도는", "10도")),
+        ("10원만", ("10원만", "10원")),
+        ("ai도", ("ai도", "ai")),
         ("80%", ("80%",)),
         ("오픈에이아이", ("오픈에이아이", "오픈에이아")),
     ],
@@ -294,3 +298,62 @@ def test_at_most_twenty_four_search_variants_for_eight_original_topics(engine):
     finally:
         event.remove(engine, "before_cursor_execute", observe)
     assert 8 <= len(statements) <= 24
+
+
+@pytest.mark.parametrize(
+    "term,other",
+    [
+        ("100만", "100원"),
+        ("10도", "10원"),
+        ("100.5만", "100.5원"),
+        ("１００만", "１００원"),
+    ],
+)
+def test_numeric_magnitude_and_unit_endings_are_not_particle_expansions(engine, term, other):
+    workspace = uuid4()
+    wanted = save(engine, workspace, term)
+    save(engine, workspace, other)
+    assert question_terms(term) == (term,)
+    assert topic_variants(term) == (term,)
+    assert retrieve(engine, workspace, term) == (wanted,)
+
+
+def test_all_preserved_originals_receive_one_order_independent_direct_credit(engine):
+    workspace = uuid4()
+    plain = UUID("00000000-0000-4000-8000-000000000001")
+    suffixed = UUID("00000000-0000-4000-8000-000000000002")
+    save(engine, workspace, "AI", identity=plain)
+    save(engine, workspace, "AI는", identity=suffixed)
+    assert retrieve(engine, workspace, "AI AI는") == (plain, suffixed)
+    assert retrieve(engine, workspace, "AI는 AI") == (plain, suffixed)
+
+
+def test_all_group_originals_count_once_with_at_most_three_search_variants(engine):
+    workspace = uuid4()
+    plain = UUID("00000000-0000-4000-8000-000000000001")
+    later_original = UUID("00000000-0000-4000-8000-000000000002")
+    multiple_originals = UUID("00000000-0000-4000-8000-000000000003")
+    save(engine, workspace, "AI", identity=plain)
+    save(engine, workspace, "AI와", identity=later_original)
+    save(engine, workspace, "AI가 AI는 AI를", identity=multiple_originals)
+    statements = []
+
+    def observe(conn, cursor, statement, parameters, context, executemany):
+        if "row_number()" in statement:
+            statements.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        assert retrieve(engine, workspace, "AI는 AI가 AI를 AI와") == (
+            later_original,
+            multiple_originals,
+            plain,
+        )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+    assert 1 <= len(statements) <= 3
+    assert retrieve(engine, workspace, "AI와 AI를 AI가 AI는") == (
+        later_original,
+        multiple_originals,
+        plain,
+    )

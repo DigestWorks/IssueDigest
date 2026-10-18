@@ -38,7 +38,7 @@ _GENERIC = frozenset(
 _TOKEN_PATTERN = re.compile(r"[가-힣A-Za-z0-9]+(?:\.[0-9]+)?%?")
 # Preserve Unicode word/number identity for retrieval; never reinterpret ２０２６년 as 년.
 # The conservative follow-up recognizer below deliberately retains its old grammar.
-_TOPIC_TOKEN_PATTERN = re.compile(r"[^\W_]+(?:\.\d+)?%?")
+_TOPIC_TOKEN_PATTERN = re.compile(r"[^\W_]+(?:\.\d+[^\W_]*)?%?")
 # Only known prose punctuation may disappear when deciding whether to reuse evidence.
 # Unsupported words, symbols and hidden controls must never become a generic follow-up.
 _FOLLOWUP_PUNCTUATION = frozenset("?!.,;:()[]{}'\"‘’“”…，。！？、-–—")
@@ -107,7 +107,11 @@ def topic_variants(term: str) -> tuple[str, ...]:
     variants = [term]
     for suffix in _PARTICLES:
         if term.endswith(suffix) and len(term) - len(suffix) >= 2:
-            variants.append(term[: -len(suffix)])
+            stem = term[: -len(suffix)]
+            # 만/도 immediately following a numeral can be magnitude/temperature,
+            # not a particle. Never erase that numeric unit (including Unicode digits).
+            if suffix not in {"만", "도"} or not stem[-1].isnumeric():
+                variants.append(stem)
             break
     return tuple(variants)
 
@@ -122,17 +126,25 @@ class VariantCandidates:
     truncated: bool
 
 
-def variant_candidates(conn: Connection, workspace_id: UUID, term: str) -> VariantCandidates:
+def variant_candidates(
+    conn: Connection,
+    workspace_id: UUID,
+    term: str,
+    *,
+    original_terms: tuple[str, ...] | None = None,
+) -> VariantCandidates:
     """Round-robin up to 200 actually matching units; canonical-check before selection.
 
     The 201st row detects truncation. Existing projection ngrams only prefilter;
     ASCII-folded literal or explicit-whitespace-compacted full strings must match.
+    Direct-match eligibility includes every supplied original in the topic group.
     No compacted offsets or selectors leave this internal strategy.
     """
     query = EvidenceSearchQuery(terms=(term,))
     if "\x00" in term:
         return VariantCandidates((), frozenset(), 0, False)
     folded = ascii_fold(term)
+    originals_to_match = tuple(ascii_fold(value) for value in (original_terms or (term,)))
     compact = folded.translate(str.maketrans("", "", _SPACES))
     body = func.translate(units.c.text, _UPPER, _LOWER)
     direct = func.strpos(body, folded) > 0
@@ -220,7 +232,7 @@ def variant_candidates(conn: Connection, workspace_id: UUID, term: str) -> Varia
         ):
             continue
         matched.add(identity)
-        if is_direct:
+        if any(original in canonical for original in originals_to_match):
             originals.add(identity)
     pool = tuple(
         sorted(matched, key=lambda identity: (identity not in originals, str(identity)))[:20]
@@ -239,21 +251,24 @@ def retrieve_snapshot_ids(
     """Rank distinct topic coverage, then original literal coverage, then snapshot ID."""
     scores: Counter[UUID] = Counter()
     direct_scores: Counter[UUID] = Counter()
-    seen: set[tuple[str, ...]] = set()
+    groups: dict[str, set[str]] = {}
     for term in terms[:8]:
         variants = topic_variants(term)
-        # Repeated original/particle forms remain one topic, never separate bonuses.
-        key = (variants[-1],)
-        if key in seen:
-            continue
-        seen.add(key)
+        groups.setdefault(variants[-1], set()).add(term)
+    for root, originals in sorted(groups.items()):
+        # All original forms contribute direct-match eligibility, regardless of order.
+        # The root can find every original; two extra literal queries improve coverage
+        # within the per-group three-variant cap. Never award more than one credit.
+        original_terms = tuple(sorted(originals))
+        variants = (root, *sorted(originals - {root})[:2])
         matched: set[UUID] = set()
-        for i, variant in enumerate(variants):
-            result = variant_candidates(conn, workspace_id, variant)
+        direct: set[UUID] = set()
+        for variant in variants:
+            result = variant_candidates(conn, workspace_id, variant, original_terms=original_terms)
             matched.update(result.snapshot_ids)
-            if i == 0:
-                direct_scores.update(result.direct_snapshot_ids)
+            direct.update(result.direct_snapshot_ids)
         scores.update(matched)
+        direct_scores.update(direct)
     ranked = sorted(
         scores, key=lambda identity: (-scores[identity], -direct_scores[identity], str(identity))
     )[:20]
