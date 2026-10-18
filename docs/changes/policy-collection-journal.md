@@ -9,7 +9,7 @@
 - 운영자 job은 소유400/600 절대 경로 private 파일·최대8KiB·엄격 UTF8/중복JSON/비유한/추가필드/불리언 정수 거부를 지킨다. 필드는 schema_version=1, expected_database, collection_id(UUID4), news_ids, minimum_interval_seconds(60..86400), max_age_seconds(최소 interval..604800), max_attempts(1..4096)다. news_ids는 중복 없이 정렬해 collection_id에 불변 결합한다. DB명을 URL과 실제 current_database 모두에서 대조한다. 같은 ID에 다른 설정을 덮지 않는다.
 - 각 poll은 nonblocking PostgreSQL session advisory lock `(104704, 2)`를 전용 연결에서 보유하며 DB/동일backend/잠금 소유를 쓰기 전에 확인한다. 잠금은 연구 worker와 별도다. 중복·최소 간격·횟수 상한 거부는 HTTP/새 attempt를 만들지 않는다. 상태 조회는 read-only 일관된 transaction으로 최신 attempt와 마지막 성공을 분리하고 행/모델/HTTP를 만들지 않는다.
 - poll은 running을 먼저 commit한 뒤 HTTP를 호출한다. 성공은 정확 capture/report bytes·SHA256·시각·비교 요약과 함께 원자적으로 terminal 저장한다. 실패는 고정 stage enum만 기록하고 마지막 성공은 보존한다. 강제 종료의 running은 다음 잠금 획득 시 interrupted로 마감한다. 불명확한 commit은 재시도/실패 덮어쓰기를 하지 않으며 다음 명시 실행에서 실제 상태를 읽는다. 완료 행·원본을 덮거나 지우지 않는다.
-- 원본 최대8MiB+16,384, 비교 보고서 최대64KiB이며 출력/예외/log에 원문·URL/query·기사/collection/attempt ID·계정·경로·DSN을 노출하지 않는다. CLI stdout은 집계·상태·시각·stale만, 실패는 고정 오류다. 직전 실패/미완료를 성공으로 표시하거나 미관측을 삭제/철회로 판정하지 않는다. stale은 마지막 성공 확보 시각 기준이며 발행일/내용 최신성·수집 범위 완전성과 구분한다.
+- 원본 최대8MiB+16,384, 비교 보고서 최대64KiB이며 출력/예외/log에 원문·URL/query·기사/collection/attempt ID·계정·경로·DSN을 노출하지 않는다. CLI stdout은 집계·상태·시각·stale만, 실패는 고정 오류다. 직전 실패/미완료를 성공으로 표시하거나 미관측을 삭제/철회로 판정하지 않는다. stale은 마지막 성공 확보 완료 시각(finished_at) 기준이며 SDK의 요청 시작 수집 시각(collected_at)은 정확 원본에 별도로 보존한다. 실제 완료 시각을 앞당겨 기록하지 않는다. stale은 발행일/내용 최신성·수집 범위 완전성과 구분한다.
 - 하위 구현자는 subagent/reviewer를 만들지 않고 실제 서버·키·DB·네트워크를 다루지 않는다. 전용 합성 PostgreSQL만 사용한다. main/운영 병합은 D013 유예다. controller가 실제 인수·권한 범위 내 개인 개발 적용·기록·Draft PR·Sites를 맡으며 사용자 탭을 열거나 이동하지 않는다.
 
 ## Task 1: PostgreSQL 수집 journal·잠금·불변 실행 저장
