@@ -1,5 +1,15 @@
 # 진행 기록
 
+## 구현·검증 · 공식 자료 변경 감지·마일스톤 · 2026-10-18
+
+- 요구/브랜치: 내부 AI 파이프라인 개발 계속·진척 공유 요청. `feat/policy-change-detection`, [변경 명세](../changes/policy-change-detection.md)·[Draft PR37](https://github.com/DigestWorks/IssueDigest/pull/37). 기존 개발 제품1c0c5ed·PR36을 보존하고 이전 계획판v58은 기록으로 남긴다.
+- 구현: 소스a27a001의 순수 비교 SDK와 `issuedigest-policy compare`가 정확한 이전/현재 capture를 기존 parser로 검증한 뒤 본문·제목·발행 주체/일자·이용 조건·파서 프로필을 비교한다. 정확 artifact SHA/시각·필드별 변경·의미 fingerprint를 private 보고서에 기록하고 stdout은 집계만 낸다. 관측되지 않은 기사를 삭제/철회로 판단하지 않으며 두 비교본 밖의 전역 신규/최신성·사실 여부를 추론하지 않는다. 잘못된 조건/모호한 시각/입력·출력 권한은 고정 오류로 종료한다.
+- 검증: 새74회귀의 RED73실패→GREEN74, 기존 parser/capture/import 포함364개 통과. controller의 실제 전용 합성 PostgreSQL18.6 전체 `npm run check`는 Python2,646·JS568=3,214개와 Ruff/format·mypy105·JS lint/types·SPA build·생성 계약을 통과했다. 경고/skip/실패0. Task1·전체 변경 독립 검토 C0/I0/M0, 보류/미해결 지적 없음. 실제 모델 호출·자료 변경·브라우저 검증은 하지 않았으며 앱 동작/화면은 변경하지 않았다.
+- 계획표: [M1~M6](implementation-plan.md#마일스톤)에 목표·완료 기준·현재 상태·다음 검증을 정리했다. 저장소가 원본이고 작업할 때 Sites를 함께 수동 갱신한다. 자동 동기화·무인 정기 보고는 없다. 완료율을 임의 백분율로 만들지 않는다.
+- 정리: 소유 label·전체 ID·loopback25456을 확인한 자체 합성 PostgreSQL 컨테이너/익명 볼륨을 제거하고 포트 닫힘을 확인했다. 제품 소스 이후 변경은 문서뿐이며 실제 앱·서버·DB·키·사용자 브라우저는 보존했다.
+- 적용 경계: 이번은 내부 도구의 코드 구현이다. 정기 수집/실패·최신성 운영·자동 등록·질문 중 자율 탐색·서비스 출시 완료가 아니다. 앱 실행 경로 변경이 없어 개인 개발 API/worker 재시작·실제 DB 작업을 하지 않는다. main/운영 유예를 유지한다.
+- 다음/Sites: [Sites v59](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#plan) 공개 게시 `succeeded`, 마일스톤/세부 작업/검증 기록·Draft PR37 연결·v58 보존을 확인했다. 원본 사본40c6548, Site source ec39c92414bb6663c769f17966592010f1c0b32f, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_058e8da0f06081918907dbcf90b403c5`, deployment `appgdep_6ad4b5ee8aa08191b0de18bd84c6693c`. HTML44개/로컬 링크·asset·anchor1,085/공개 텍스트109개 비밀값 패턴 검사를 통과했고 사용자 탭은 열거나 이동하지 않았다. 자동 동기화는 없다. 다음은 반복 수집과 실패/최신성 기록, 승인 탐색 도구의 실행 연결이다.
+
 ## 개발 적용 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
 
 - 작업/범위: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md)·[Draft PR36](https://github.com/DigestWorks/IssueDigest/pull/36). 제품 소스 `1c0c5ed`를 개인 개발 HTTPS에 반영했다. main/운영 공개는 유예한다.
