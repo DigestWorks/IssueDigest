@@ -1,6 +1,6 @@
 # IssueDigest 요구사항·설계
 
-2026-10-16 기준. 질문 중심 B2C 브리핑을 위한 현재 요구와 다음 계약이다. 제품 방향은 [D016·D017·D019·D020·D021](decisions.md)·[사용자 인터뷰](../research/product-experience-interview.md), 현재 화면의 검증 범위는 [브리핑 경험](../changes/briefing-experience.md)·[B2C 정리·장기 세션](../changes/b2c-cleanup-persistent-login.md)을 따른다. R1~R7 식별자는 기존 계약·변경 문서 참조를 위해 유지한다. 목표 요구와 현재 구현 완료를 구분한다.
+2026-10-18 기준. 질문 중심 B2C 브리핑을 위한 현재 요구와 다음 계약이다. 제품 방향은 [D016·D017·D019·D020·D021](decisions.md)·[사용자 인터뷰](../research/product-experience-interview.md), 현재 화면의 검증 범위는 [브리핑 경험](../changes/briefing-experience.md)·[B2C 정리·장기 세션](../changes/b2c-cleanup-persistent-login.md)을 따른다. R1~R7 식별자는 기존 계약·변경 문서 참조를 위해 유지한다. 목표 요구와 현재 구현 완료를 구분한다.
 
 ## 기능 요구사항과 수용 시나리오
 

@@ -1,6 +1,6 @@
 # 현재 구현 작업 목록
 
-2026-10-16 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
 ## 완료 기반 · 공개 브리핑 읽기 · D020
 
@@ -32,12 +32,12 @@
 
 - [ ] 공개 이슈·출처 확장/외부 탐색 범위·초기 AI 이용 정책의 미답변 항목을 확인한다. 첫 문서별 텍스트 게시 허용을 불특정 가입/무제한 이용/같은 도메인 전면 재게시로 확대하지 않는다.
 
-## 구현·합성 검증 · 공식 자료 SDK·근거 분류 · D021
+## 개발 적용 · 공식 자료 SDK·근거 분류 · D021
 
 - [x] 고정 공식 목록/기사의 제한 읽기·private capture·정확 본문/조건·명시 job/기존 등록 준비 SDK를 구현했다. 수집/준비는 자동 DB 쓰기·공개 게시를 하지 않는다.
 - [x] private v3 typed category/짧은 설명→정확한 기존 SupportReview1개/claim→작은 펼침 설명을 연결했다. inference/AI 해석·v1/v2/publicv1·기존 hash를 보존한다.
 - [x] 기존v2 유료 checkpoint→이름/기록 version 회복→새v3 실행, 완료 불명확 요청 재호출 금지·예약 유지, worker session lock·중복 기동 거부를 합성 PostgreSQL/DBOS로 확인했다.
-- [ ] controller가 전체 검사·독립 UI·기존 공개 불변/권한·원문·실제 모델의 제한 평가·백업/복원/기존 데이터 보존을 확인한 뒤 개인 개발 환경에 반영하고 명시 승인 자료를 등록한다.
+- [x] controller 전체 Python2,404/JS535·독립 UI/통합 검토·기존 공개 불변/권한·원문·제한된 실제 모델1회·백업/별도 복원을 확인하고 개인 개발 환경에 반영했다. 승인 기사1건을 추가해 자료13/인용37/검색27이며 공개1건은 그대로다. 실제 모델의 다양한 주장 귀속·수치 비교 품질은 후속 평가다.
 - [ ] Draft PR·Sites·최종 진행 기록을 실제 개발 적용 결과로 갱신한다. main/운영은 유예한다.
 
 ## 실제 탐색·점진 브리핑 · R2/R3/R4/R5/R6
