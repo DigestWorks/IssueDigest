@@ -146,29 +146,30 @@ class ResearchRepository:
     def upsert_presentation(self, presentation: SourcePresentation) -> None:
         """Operator-supplied verified metadata; no immutable evidence mutation."""
 
-        def save(conn: Connection) -> None:
-            exists = conn.scalar(
-                select(evidence_snapshots.c.snapshot_id).where(
-                    evidence_snapshots.c.workspace_id == presentation.workspace_id,
-                    evidence_snapshots.c.snapshot_id == presentation.snapshot_id,
-                )
-            )
-            if exists is None:
-                raise ResearchConflict("Unknown snapshot")
-            conn.execute(
-                pg_insert(source_presentations)
-                .values(
-                    snapshot_id=presentation.snapshot_id,
-                    workspace_id=presentation.workspace_id,
-                    payload=presentation.model_dump(mode="json"),
-                )
-                .on_conflict_do_update(
-                    index_elements=[source_presentations.c.snapshot_id],
-                    set_={"payload": presentation.model_dump(mode="json")},
-                )
-            )
+        self._transaction(lambda conn: self._upsert_presentation(conn, presentation))
 
-        self._transaction(save)
+    @staticmethod
+    def _upsert_presentation(conn: Connection, presentation: SourcePresentation) -> None:
+        exists = conn.scalar(
+            select(evidence_snapshots.c.snapshot_id).where(
+                evidence_snapshots.c.workspace_id == presentation.workspace_id,
+                evidence_snapshots.c.snapshot_id == presentation.snapshot_id,
+            )
+        )
+        if exists is None:
+            raise ResearchConflict("Unknown snapshot")
+        conn.execute(
+            pg_insert(source_presentations)
+            .values(
+                snapshot_id=presentation.snapshot_id,
+                workspace_id=presentation.workspace_id,
+                payload=presentation.model_dump(mode="json"),
+            )
+            .on_conflict_do_update(
+                index_elements=[source_presentations.c.snapshot_id],
+                set_={"payload": presentation.model_dump(mode="json")},
+            )
+        )
 
     @staticmethod
     def _run(conn: Connection, row: Mapping[Any, Any]) -> ResearchRun:

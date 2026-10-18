@@ -108,7 +108,8 @@ def engine(migrated):
     with migrated.begin() as connection:
         connection.execute(
             text(
-                "TRUNCATE policy_collection_attempts, policy_collection_channels, "
+                "TRUNCATE policy_intake_receipts, policy_collection_attempts, "
+                "policy_collection_channels, "
                 "public_briefings, public_briefing_heads, research_events, "
                 "research_runs, research_budget_months, "
                 "source_presentations, auth_oauth_flows, auth_identity_invites, auth_sessions, "
