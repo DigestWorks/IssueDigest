@@ -38,7 +38,7 @@
 - [x] private v3 typed category/짧은 설명→정확한 기존 SupportReview1개/claim→작은 펼침 설명을 연결했다. inference/AI 해석·v1/v2/publicv1·기존 hash를 보존한다.
 - [x] 기존v2 유료 checkpoint→이름/기록 version 회복→새v3 실행, 완료 불명확 요청 재호출 금지·예약 유지, worker session lock·중복 기동 거부를 합성 PostgreSQL/DBOS로 확인했다.
 - [x] controller 전체 Python2,404/JS535·독립 UI/통합 검토·기존 공개 불변/권한·원문·제한된 실제 모델1회·백업/별도 복원을 확인하고 개인 개발 환경에 반영했다. 승인 기사1건을 추가해 자료13/인용37/검색27이며 공개1건은 그대로다. 실제 모델의 다양한 주장 귀속·수치 비교 품질은 후속 평가다.
-- [ ] Draft PR·Sites·최종 진행 기록을 실제 개발 적용 결과로 갱신한다. main/운영은 유예한다.
+- [x] Draft PR35·공개 Sites v57·최종 진행 기록을 실제 개발 적용 결과로 갱신했다. 이전v56 보존과 main/운영 유예를 유지한다.
 
 ## 실제 탐색·점진 브리핑 · R2/R3/R4/R5/R6
 
