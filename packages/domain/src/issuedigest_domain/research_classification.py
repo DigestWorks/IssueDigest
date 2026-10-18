@@ -21,7 +21,7 @@ def require_raw_classification_utc(canvas: Any) -> None:
         return  # Generic Canvas validation reports malformed collections.
     if (
         not any(
-            _field(_field(c, "derivation"), "method_version") in {"research-v3", "research-v4"}
+            _field(_field(c, "derivation"), "method_version") in ("research-v3", "research-v4")
             for c in claims
         )
         and not reviews
