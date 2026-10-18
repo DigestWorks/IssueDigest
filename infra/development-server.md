@@ -131,7 +131,7 @@ ssh -N -i /path/to/private-key \
 
 ## 정책뉴스 반복 확보 · 개인 수집기 · 2026-10-18
 
-소스`a908083`의 별도 collector worktree/가상환경과0008 수집 journal을 개인 개발에 적용했다. 기존 개발 앱/API/연구 worker는 유지한다. 승인한 고정 기사1건을 매시17분에 다시 확보하며 최소 간격3,300초·마지막 성공 완료 기준age 한도7,200초·총720시도·프로세스timeout120초/종료 유예10초다. 첫 실제 수동 실행·원본/보고서 해시·상태·즉시 not_due와 scheduler 실행기 smoke를 확인했다. 설치 뒤 미래 tick의 확보 성공은 별도 관측 사항이다.
+소스`a908083`의 별도 collector worktree/가상환경과0008 수집 journal을 개인 개발에 적용했다. 기존 개발 앱/API/연구 worker는 유지한다. 승인한 고정 기사1건을 매시17분에 다시 확보하며 최소 간격3,300초·마지막 성공 완료 기준age 한도7,200초·총720시도·프로세스timeout120초/종료 유예10초다. 첫 실제 수동 실행·원본/보고서 해시·상태·즉시 not_due를 확인했다. 첫 cron tick은 기본 Python3.10으로 시작하며 import 실패했고, 실행기 shebang을 전용 Python3.13 절대 경로로 고정했다. 이후 cron의 최소 HOME/PATH·비로그인 shell에서도 exit0/not_due·외부 요청0을 확인했다. 실패 로그는 보존하고, 수정 후 미래 tick의 확보 성공은 별도 관측 사항이다.
 
 원문/실행 로그·job·기존 소유자 DB 설정은 서버의 private 파일에만 둔다. 실행은 별도 `~/.local/bin/issuedigest-policy-collection`, job은 `~/.config/issuedigest/policy-collection/collection-job.json`, 집계 로그는 `~/.local/state/issuedigest/policy-collection/poll.log`다. source HEAD를 고정 검증하므로 collector 소스 갱신 시 실행기도 함께 검토해야 한다. 키/DSN/기사·collection 식별자를 Git·공개 로그에 복사하지 않는다. 기존 앱 자격/권한을 확대하지 않고 기존 개발자 DB 권한을 사용했다.
 
