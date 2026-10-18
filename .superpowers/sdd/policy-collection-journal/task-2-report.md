@@ -40,3 +40,18 @@ One earlier covering run was639 passed/1 failed: `test_recovery_never_calls_mode
 ## Limits and handoff
 
 Full repository suite and independent review remain controller gates; targeted worker/source/parser regression is recorded above. Real migration/source acceptance/backup/permissions/scheduler were not attempted. README documents the one-shot commands, interval/attempt limits, separate scheduler environment and stop/rerun behavior, retention of successful originals, safe output and absence of automatic discovery/research/evidence registration/publication/deletion/limit reset. Database owners can still bypass repository immutability; this change does not add a tamper-proof trigger/privilege system. No storage API additions or edits were needed.
+
+
+## Mechanical full-suite collection fix
+
+Controller integration found a pytest default basename-import collision between the worker and storage `test_policy_collection.py` modules. Historical commands above retain the then-current path. The worker module is now `apps/worker/tests/test_policy_collection_worker.py`; contents are identical (100% Git rename), and storage/runtime/global pytest configuration were not changed.
+
+RED: `PATH=/home/xinics/.local/bin:$PATH uv run pytest --collect-only -q` exited2, with2699 tests collected and one import-file-mismatch error collecting `packages/storage/tests/test_policy_collection.py`: imported `test_policy_collection` pointed to the worker module. Log: `/tmp/policy-test-module-red.log`.
+
+GREEN after the rename, executed sequentially:
+
+- Same whole-repository collect-only command: exit0, **2724 tests collected in1.07s**. Log: `/tmp/policy-test-module-collect-green.log`.
+- `ISSUEDIGEST_TEST_DATABASE_URL=postgresql+psycopg://issuedigest_test@127.0.0.1:25457/issuedigest_test uv run pytest apps/worker/tests/test_policy_collection_worker.py -q` with the same PATH: exit0, **53 passed in1.36s**, warnings/skips/failures0. Only the leased synthetic DB was used. Log: `/tmp/policy-test-module-tests-green.log`.
+- `git diff --check`: clean; staged diff is one100% rename with zero content additions/deletions.
+
+No subagents, real data/server/keys, external source HTTP, runtime changes or parallel DB fixture runs. Full actual suite remains controller's integration gate. Commit is recorded in `test-module-fix-report.md`.

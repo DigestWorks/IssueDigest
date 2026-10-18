@@ -219,7 +219,7 @@ uv run issuedigest-policy status /absolute/private/policy/collection-job.json
 SDK는 `issuedigest_worker.policy_collection`의 `parse_policy_collection_job(raw)`, `poll_policy_collection(engine, config)`와 `policy_collection_status(engine, config)`다. poll/status 반환값은 private ID 없는 불변 typed 집계이며, engine lifecycle은 호출자가 `private_engine_lifecycle`로 감싼다. CLI는 engine/pool 정리가 성공한 뒤에만 결과를 출력한다. 합성 검사는 실제 PostgreSQL과 MockTransport를 사용한다.
 
 ```sh
-uv run pytest apps/worker/tests/test_policy_collection.py
+uv run pytest apps/worker/tests/test_policy_collection_worker.py
 ```
 
 ## 내구 조사 작업자
