@@ -10,7 +10,10 @@
 - native UI: 자체 headless 브라우저에서320/390/1440×두 테마6조합,44px 조작·분류 설명·정확 원문/강조·Escape/초점·새로고침/기록 재열람·비교 목록·자료 부족 화면을 확인했다. 접수 전 결과 없음·접수/취소 상태를 확인했고 실제 생성 중 별도 화면은 완료가 빨라 확보하지 못했다. 읽기/재열람 추가POST0·pageerror0. 모바일 어두운/PC 밝은 화면을 직접 확인했다. 사용자 탭은 열거나 이동하지 않았다.
 - 개발 적용/보존: 활성run/workflow0 확인 뒤 이전 작업을 정리하고 웹/API/worker·개인 Nginx를 갱신했다. 정적19파일·이전asset68개 유지, 외부 TLS·빌드 asset6개 일치·home/login/health/status200·미인증session/research401/no-store를 확인했다. worker/pane 정상·worker잠금1개. 실제 외부 비회원 브리핑/원문도 POST0/pageerror0으로 읽었다. 브라우저 console1건은 의도된 익명 session401 응답이며 별도 앱 예외가 아니다.
 - 백업/복원: 사전·직전·사후 full/app archive를 서버 밖에 보존하고 별도 소유 PostgreSQL18.6에 사후app archive를 복원했다. schema0007·canonical 자료13/인용37/검색27/공개1·기존 공개v1 byte hash와 계정/세션 포함 앱21테이블 전체 payload 일치를 확인했다. DBOS registry metadata는 별도다. 실제 사용자 세션은 사용/대신 발급하지 않았고 vector/역할을 포함한 완전 재해 복구 검증은 아니다.
-- 남은 품질/다음 행동: 한국어 오탐·미발견, 발표 주체 귀속·수치 비교/한계 설명을 고정 회귀와 별도 실제 평가로 개선한다. 생산 규모 지연·일반화된 정치 이슈 품질·의미 검색/자율 외부 탐색·개인 저장/추천/알림은 미완료다. Sites 요약은 반영 대기이며 실제 원문·개별 ID·질문/gold·계정·접속·키·상세 receipt는 저장소 밖에 보존한다.
+- 남은 품질/다음 행동: 한국어 오탐·미발견, 발표 주체 귀속·수치 비교/한계 설명을 고정 회귀와 별도 실제 평가로 개선한다. 생산 규모 지연·일반화된 정치 이슈 품질·의미 검색/자율 외부 탐색·개인 저장/추천/알림은 미완료다. [Sites v58](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 완료이며 실제 원문·개별 ID·질문/gold·계정·접속·키·상세 receipt는 저장소 밖에 보존한다.
+
+
+- 최종 출판/정리: Sites v58 native `succeeded`, source `8987e058d15f9b05610a99b715e65007ec34d22d`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_23f77f0041488191bcd0ec6984d8c818`, deployment `appgdep_6ad4ac529c0481919376e64f819dd391`. 사본 기준b59f910·이전v57 보존·HTML43/로컬 링크·asset·anchor1,076/공개 텍스트110의 실제 비밀값 제외를 확인했다. 보관판의 상대 링크를 해당 경로에 맞게 고친 후 검사를 통과했다. 제품 CI [39122572945](https://github.com/DigestWorks/IssueDigest/actions/runs/39122572945)·인수 기록 CI [39122899429](https://github.com/DigestWorks/IssueDigest/actions/runs/39122899429) 성공. 자체 headless 브라우저·합성 API·검증/복원 컨테이너4개/익명 볼륨을 전체ID/소유label/loopback 포트 대조 후 종료했고5개 포트 닫힘을 확인했다. pinned image·개인 백업/검증 기록·PR worktree·실제 개발 앱/worker는 보존했다.
 
 ## 개발 적용 · 근거 탐색·AI 평가·브리핑 디자인 · 2026-10-18
 
