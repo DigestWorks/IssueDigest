@@ -2,6 +2,14 @@
 
 2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
+## 현재 변경 · 공식 자료 변경 감지 · M2
+
+[마일스톤](implementation-plan.md#마일스톤)과 [변경 명세](../changes/policy-change-detection.md)를 따른다. 질문·브리핑 기반 M1은 개발 적용됐으며 이번 작업은 M2의 일부다.
+
+- [ ] 기존 private capture의 본문·제목·발행 주체/일자·이용 조건 비교와 new/changed/unchanged/not_observed 보고서를 구현한다. 목록 누락을 삭제/철회로 판단하지 않는다.
+- [ ] 오프라인 CLI·합성 TDD·관련 회귀·독립 검토로 동일 본문 중복 가공과 변경 누락 방지 기반을 검증한다. 자동 수집/등록/게시 완료로 표시하지 않는다.
+- [ ] 단계별 완료 기준·진행 기록·Draft PR·Sites 요약을 갱신한다. 기존 개발 앱을 불필요하게 재시작하지 않으며 main/운영 유예를 유지한다.
+
 ## 현재 변경 · 한국어 근거 품질 · D022
 
 - [x] read-only 내부 검색 평가와 제한 한국어 주제 검색을 구현하고 작업별 독립 검토를 마쳤다. 고정 실제34문항의 positive30은13→28개 발견, negative4의 no-match는2개로 동일하며 검색 이외 품질로 일반화하지 않는다.

@@ -8,11 +8,12 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 | 문서 | 용도 |
 | --- | --- |
-| [구현 계획](planning/implementation-plan.md) | B2C 여정·현재 구현·다음 구현 순서·재사용 구조와 예산 |
+| [구현 계획·마일스톤](planning/implementation-plan.md) | M1~M6 완료 기준·진척·B2C 여정·다음 순서·재사용 구조와 예산 |
 | [요구사항·설계](planning/requirements-design.md) | R1~R7 접근·원문·탐색·브리핑·진행·복구 계약과 현재 제한 |
 | [결정 기록](planning/decisions.md) | 사용자 선택·확정 기술·대체 결정·대기 입력 |
 | [작업 목록](planning/tasks.md) | 실제 다음 작업과 현재 변경의 완료 조건 |
 | [진행 기록](planning/progress.md) | 코드·검증·개인 개발 적용·Sites·운영의 개별 증거와 인계 |
+| [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
 | [한국어 근거 품질](changes/korean-evidence-quality.md) | 제한 한국어 검색·read-only 내부 평가·새 private v4 귀속/수치 지침과 v2/v3 복구 보존 |
 | [공식 자료 확보·AI 근거 분류](changes/evidence-exploration.md) | 수동 공식 정책뉴스 SDK·private v3 AI 평가·v2 복구 호환과 개발 적용 대기 경계 |
 | [공개 브리핑 읽기](changes/public-briefings.md) | 문서별 권리/내용 검토·불변 공개 버전·비회원 읽기/인용·일반 홈 초안 |
@@ -52,3 +53,5 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 5. PR과 인계에는 현재 상태·검증·남은 입력·다음 행동을 남긴다. 과거 완료 상세는 진행 이력으로 옮기고 중복된 미완료 목록을 활성 계획에 남기지 않는다.
 
 진행 기록에는 `작업/관련 요구사항`, `담당/브랜치/PR`, `범위/현재 상태`, `검증/미검증`, `남은 입력`, `다음 행동`, `Sites 반영 상태`를 적는다. Sites 미반영은 대기로 표시하고 사용자가 열어 둔 탭을 자동으로 열거나 이동하지 않는다. 비공개 운영 계정·초대·원자료·자격 증명은 공개 기록에 남기지 않는다.
+
+마일스톤 상태는 `planning/implementation-plan.md`의 표 한 곳에서 관리한다. 작업 목록의 완료 항목과 진행 기록의 검증/적용 증거로 갱신하며 Sites에는 같은 상태를 요약한다. 문서 자동 동기화나 무인 주기 갱신은 구현하지 않았으며, 작업할 때마다 갱신한다.

@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 작업 시작 · 공식 자료 변경 감지·마일스톤 · 2026-10-18
+
+- 요구/브랜치: 내부 AI 파이프라인 개발 계속·진척 공유 요청. `feat/policy-change-detection`, [변경 명세](../changes/policy-change-detection.md). 기존 개발 제품1c0c5ed·PR36/사이트v58은 보존한다.
+- 범위: 승인된 공식 capture의 오프라인 신규/내용·메타데이터 변경/동일/미관측 비교. 출처 하나의 비교를 전체 자동 수집·정정 판단·자율 조사 완료로 표시하지 않는다.
+- 상태: 구현 계획에 M1~M6 완료 기준/현황/다음 검증을 추가했다. Task1 TDD 구현·독립 검토 진행 중이며 실제 서버/자료·모델·공개 게시 변경 없음.
+- 다음/Sites: 관련 회귀/검토·feature Draft PR 후 마일스톤과 요약 갱신. 현재 Sites 반영 대기.
+
 ## 개발 적용 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
 
 - 작업/범위: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md)·[Draft PR36](https://github.com/DigestWorks/IssueDigest/pull/36). 제품 소스 `1c0c5ed`를 개인 개발 HTTPS에 반영했다. main/운영 공개는 유예한다.
