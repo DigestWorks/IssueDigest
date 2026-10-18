@@ -24,10 +24,10 @@
 
 ## Task 2: 승인된 수집본의 SDK·intake CLI
 
-- [ ] `policy_prepare.py`의 기존 순수 기사 준비 body를 공용 순수 후보 준비 경로로 최소 추출한다. prepare_policy_plan의 기존 exact output/ID·base/초대 보존·alias guards와 예외를 유지한다. 새 `prepare_policy_candidates(job,capture_raw,workspace_id)`는 기존 bounded PolicyJob과 정확 artifact를 재검증해 PreparedPolicyCandidates(snapshots,presentations)를 만든다. workspace UUID4/forged graph·기사/전체 hash/시각·권리/본문·인용을 검사하며 DB/HTTP/모델/ID 생성을 하지 않는다.
-- [ ] `policy_intake.py`에 strict envelope parser와 coordinator를 추가한다. storage load_capture→기존 `_baseline` 의미/report 재검증→기존 PolicyJob/candidates→기존 report after_fingerprint digest와 정확 approval canonical SHA→PolicyIntakePlan→check/apply. 모든 source가 정확히 대응해야 하며 실패 시 원문을 로그하지 않는다. 운영자가 명시한 UUID4만 쓰며 runtime이 새 ID를 자동 생성하지 않는다.
-- [ ] `issuedigest-policy intake PRIVATE_APPROVAL --check|--apply`를 required mutually-exclusive flags로 추가한다. 이 명령에서만 환경의 ISSUEDIGEST_DATABASE_URL을 기존 URL guard/lifecycle로 연결하며 예상 DB명/실제 DB를 대조한다. stdout allowlist/고정 오류/cleanup 뒤 출력, exit0=checked/applied/already_applied/busy, exit1=실패/commit불명확, exit2=인수 오류다. 기존 discover/capture/compare/prepare/poll/status 계약을 유지한다. scheduler는 intake를 실행하지 않는다.
-- [ ] TDD 합성 PG+순수 capture: parser bounds/권리/파일/forged baseline·고정 옛 attempt·최신 poll과 독립·동일/변경/revert·exact 원문 인용·원자 검색/receipt·명시 flags·0HTTP/0모델/오류와 비밀 로그·기존 SDK/CLI/유료 checkpoint 회귀를 검증한다. Ruff/format/mypy·관련 suite 후 worker README의 prepare/check/apply·approval·버전/보존·미구현/자동 게시 경계를 기록하고 체크박스·report·commit한다.
+- [x] `policy_prepare.py`의 기존 순수 기사 준비 body를 공용 순수 후보 준비 경로로 최소 추출한다. prepare_policy_plan의 기존 exact output/ID·base/초대 보존·alias guards와 예외를 유지한다. 새 `prepare_policy_candidates(job,capture_raw,workspace_id)`는 기존 bounded PolicyJob과 정확 artifact를 재검증해 PreparedPolicyCandidates(snapshots,presentations)를 만든다. workspace UUID4/forged graph·기사/전체 hash/시각·권리/본문·인용을 검사하며 DB/HTTP/모델/ID 생성을 하지 않는다.
+- [x] `policy_intake.py`에 strict envelope parser와 coordinator를 추가한다. storage load_capture→기존 `_baseline` 의미/report 재검증→기존 PolicyJob/candidates→기존 report after_fingerprint digest와 정확 approval canonical SHA→PolicyIntakePlan→check/apply. 모든 source가 정확히 대응해야 하며 실패 시 원문을 로그하지 않는다. 운영자가 명시한 UUID4만 쓰며 runtime이 새 ID를 자동 생성하지 않는다.
+- [x] `issuedigest-policy intake PRIVATE_APPROVAL --check|--apply`를 required mutually-exclusive flags로 추가한다. 이 명령에서만 환경의 ISSUEDIGEST_DATABASE_URL을 기존 URL guard/lifecycle로 연결하며 예상 DB명/실제 DB를 대조한다. stdout allowlist/고정 오류/cleanup 뒤 출력, exit0=checked/applied/already_applied/busy, exit1=실패/commit불명확, exit2=인수 오류다. 기존 discover/capture/compare/prepare/poll/status 계약을 유지한다. scheduler는 intake를 실행하지 않는다.
+- [x] TDD 합성 PG+순수 capture: parser bounds/권리/파일/forged baseline·고정 옛 attempt·최신 poll과 독립·동일/변경/revert·exact 원문 인용·원자 검색/receipt·명시 flags·0HTTP/0모델/오류와 비밀 로그·기존 SDK/CLI/유료 checkpoint 회귀를 검증한다. Ruff/format/mypy·관련 suite 후 worker README의 prepare/check/apply·approval·버전/보존·미구현/자동 게시 경계를 기록하고 체크박스·report·commit한다.
 
 ## Task 3: 새 질문의 최신 승인 버전 선택
 
