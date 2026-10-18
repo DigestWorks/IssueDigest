@@ -6,7 +6,7 @@
 
 [명세](../changes/policy-collection-journal.md)를 따른다. 비교 도구를 반복 실행 가능한 수집·저장·상태 확인으로 연결한다.
 
-- [ ] PostgreSQL의 분리된 수집 설정/실행 이력·원본 저장·단일 실행 잠금·실패/중단 보존을 구현한다.
+- [x] PostgreSQL의 분리된 수집 설정/실행 이력·원본 저장·단일 실행 잠금·실패/중단 보존을 구현했다. storage 회귀519개와 독립 검토를 통과했다.
 - [ ] 명시 기사1~2개의 bounded poll과 read-only 상태 CLI를 연결하고 최소 간격/한도·last_success/stale·실제 합성 PG/HTTP 회귀를 검증한다.
 - [ ] 전체 검사·독립 검토·개인 개발 실제 인수/가능한 scheduler 연결·Draft PR·Sites/마일스톤을 갱신한다. 수집 성공과 기존 검색/공개 게시 편입은 구분한다.
 

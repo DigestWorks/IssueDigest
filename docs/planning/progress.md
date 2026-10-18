@@ -3,7 +3,7 @@
 ## 작업 시작 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
 
 - 범위/브랜치: `feat/policy-collection-journal`, [명세](../changes/policy-collection-journal.md)·M2. 명시 기사1~2개를 반복 확보하고 PostgreSQL에 실행·마지막 성공·정확 원본/비교와 실패·중단을 기록한다. 이전 PR37 최종 CI39125936064 성공을 확인했다.
-- 현재: Task1 storage migration/journal/lease를 합성 전용 PG에서 TDD 구현 중이다. 기존 앱·자료·유료 실행·DBOS·공개 게시 경계를 보존한다.
+- 현재: Task1 storage 소스9a833b3의 migration/journal/lease를 구현했다. 신규25개 포함519개 storage 회귀·Ruff/format/mypy·독립 검토 C0/I0/M0을 통과했다. 실제 백업 복원본의0008 migration 후 원래20개 앱 테이블 payload와13개 canonical 묶음 보존을 확인했다. Task2 poll/status 연결은 합성 PG/HTTP로 개발 중이며 실제 DB는0007 그대로다.
 - 다음: Task별 독립 검토→poll/status 연결→전체 검증→현재 권한/백업 확인 후 개인 개발 인수·기록/PR/Sites 갱신. 현재 Sites 반영 대기, main/운영 유예 유지.
 
 ## 구현·검증 · 공식 자료 변경 감지·마일스톤 · 2026-10-18
