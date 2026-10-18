@@ -122,4 +122,6 @@ Citation ID를 만들거나 등록된 인용으로 표시하지 않습니다. �
 `research_journey.py`는 자료 표시 sidecar, 질문/선택적 부모 요청, 서버가 찾은0~5개 snapshot의 실행 기록, 증가하는 상태 이벤트, 자동 저장된 `CanvasBundle` 결과를 정의합니다. 완료 결과는1개 이상의 유효 근거를 요구하며 queued/무근거실패는 빈 근거를 허용합니다. 요청의 snapshot_ids/임의 필드는 거부합니다. 기존 불변 SourceDocument/EvidenceBundle 필드는 바꾸지 않습니다. 표시 제목에는 UUID를 허용하지 않으며 알 수 없는 원본에는 자료 종류의 중립적 이름을 사용합니다.
 
 
-새 private research-v3의 분류는 generic Claim에 필드를 추가하지 않고 기존 SupportReview로만 기록합니다. ResearchResult의 조건부 경계는 inference·method_version research-v3 통일·review1개/claim·고정 automated 식별자·동일한 인용 순서·UTC 마이크로초 일치·300자 설명과 세 scope/assessment 조합만 허용합니다. 기존v1/v2는 빈 review로 그대로 읽으며 분류를 소급하지 않습니다. 공개 D020는v1/v2/빈 review만 허용하고 새v3 게시는 지원하지 않습니다. 기존 canonical JSON/hash와 OpenAPI shape를 유지합니다.
+private research-v3/v4의 분류는 generic Claim에 필드를 추가하지 않고 기존 SupportReview로만 기록합니다. ResearchResult의 조건부 경계는 inference·동일 method_version research-v3 또는 research-v4 통일·review1개/claim·고정 automated 식별자·동일한 인용 순서·UTC 마이크로초 일치·300자 설명과 세 scope/assessment 조합만 허용합니다. 기존v1/v2는 빈 review로 그대로 읽으며 분류를 소급하지 않습니다. 공개 D020는v1/v2/빈 review만 허용하고 v3/v4 게시는 지원하지 않습니다. 기존 canonical JSON/hash와 OpenAPI shape를 유지합니다.
+
+private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크로초 검증과 UI를 사용한다. reviewer_id issuedigest-research-v4와 method_version research-v4가 같은 버전의 모든 claim에 정확히 일치해야 하며 v3/v4 혼합·누락·다른 인용/시각은 거부한다. 공개는 계속 v1/v2/빈 reviews만 허용하고 v3/v4는 review를 제거해도 거부한다. generic Claim/default·OpenAPI·과거 canonical JSON/hash는 변경하지 않는다.

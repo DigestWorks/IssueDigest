@@ -50,4 +50,6 @@ npm run check
 소비한다. 제품 예시 데이터·AI 결과·데모 경로로 연결하지 않는다.
 
 
-private research-v3의 엄격 검증을 통과한 자동 평가만 claim별 작은 native details/summary로 표시합니다. 자료에 기록됨·출처의 주장·확인하기 어려움과 AI 해석을 함께 두고 hover 도움말/키보드 초점/펼침에서 선택 인용의 AI 평가·독립 사실 검증 아님을 설명합니다. 모델의300자 설명은 펼칠 때 읽습니다. 기존 source action·정확 인용·Task1 앱의 토큰/읽기 구조를 유지하며 legacy 결과에는 새 label을 추정하지 않습니다. generic Canvas의 인간 검토/다른 도메인 기록은 private v3 분류로 재해석하지 않습니다.
+private research-v3/v4의 엄격 검증을 통과한 자동 평가만 claim별 작은 native details/summary로 표시합니다. 자료에 기록됨·출처의 주장·확인하기 어려움과 AI 해석을 함께 두고 hover 도움말/키보드 초점/펼침에서 선택 인용의 AI 평가·독립 사실 검증 아님을 설명합니다. 모델의300자 설명은 펼칠 때 읽습니다. 기존 source action·정확 인용·Task1 앱의 토큰/읽기 구조를 유지하며 legacy 결과에는 새 label을 추정하지 않습니다. generic Canvas의 인간 검토/다른 도메인 기록은 private v3/v4 분류로 재해석하지 않습니다.
+
+private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크로초 검증과 UI를 사용한다. reviewer_id issuedigest-research-v4와 method_version research-v4가 같은 버전의 모든 claim에 정확히 일치해야 하며 v3/v4 혼합·누락·다른 인용/시각은 거부한다. 공개는 계속 v1/v2/빈 reviews만 허용하고 v3/v4는 review를 제거해도 거부한다. generic Claim/default·OpenAPI·과거 canonical JSON/hash는 변경하지 않는다.

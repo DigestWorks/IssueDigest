@@ -1,5 +1,20 @@
 # 진행 기록
 
+## 개발 적용 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
+
+- 작업/범위: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md)·[Draft PR36](https://github.com/DigestWorks/IssueDigest/pull/36). 제품 소스 `1c0c5ed`를 개인 개발 HTTPS에 반영했다. main/운영 공개는 유예한다.
+- 검색: 원형·단위 보존, 알려진 조사/명시 공백 대응, 문서별 후보 균형과 주제 중복 가산 방지를 구현했다. 내부 read-only 평가의 실제13자료/고정34문항·동일 job/corpus fingerprint에서 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견은13/30→28/30, negative4의 no-match는2/4→2/4였다. 남은 미발견2·오탐2를 분모에 유지했다. 작은 저장 문자 검색 표본이며 정답률·인용 지지·일반화된 품질이 아니다. 원래20문항은 미실행이다.
+- v4/호환: 새 질문만v4 지침/agent/workflow를 사용하고 v2/v3의 실제 지침·schema·prompt bytes·유료 namespace/정수slot1·원래 ID/application_version 재생을 보존한다. 단일worker·불명확 호출 재시도 금지·취소/현재 권한·세 분류와 정확 SupportReview·공개v1/v2/빈 reviews·Claim/default·canonical hash·OpenAPI·schema·세션·예산을 유지했다. 새 디버그/자료 관리 화면은 없다.
+- 전체 검증: 정확 소스 `1c0c5ed`에서 Python2,572개·JS568개/28파일=3,140개, Ruff235/format·mypy104·JS lint/types·SPA build·생성 계약 통과, 경고/skip/실패0. 독립 작업별/전체 검토와 최종 보완 재검토 C0/I0/M0. 수량 단위·원형 순서와 잘못된 raw version의 검증 예외를 회귀로 보완했다. 합성 모델 테스트의 Python3.13 이벤트 루프 경고는 명시 test-only Runner 소유/종료로 해결했고 필터/production/dependency 변경은 없다.
+- 실제 모델: 실제 사용자와 분리한 합성 신원·검토한 공개 텍스트2건에서 고정 gpt-5.4-mini Responses3회, 재시도0·입력4,744/출력849토큰으로 확인했다. 두 수치 질문의6문장은 선택 원문의 수치를 보존하고 목표/실적/전망·예산안의 예정 성격을 바꾸지 않았다. 하지만 모두 content/supported였고 기관 귀속 분류의 실제 사례는 관측하지 못했다. 실적 문장의 발표 주체 명시와 비교 결론·질문에서 요구한 한계 설명은 불충분해 두 사례를 부분 충족으로 남긴다. 세 번째는 없는 전국 찬성률/인지도를 만들지 않고 제공 근거 부족으로 종료했다. 호출 성공을 의미 품질 통과로 바꾸지 않으며 청구액/독립 사실 검증도 아니다.
+- native UI: 자체 headless 브라우저에서320/390/1440×두 테마6조합,44px 조작·분류 설명·정확 원문/강조·Escape/초점·새로고침/기록 재열람·비교 목록·자료 부족 화면을 확인했다. 접수 전 결과 없음·접수/취소 상태를 확인했고 실제 생성 중 별도 화면은 완료가 빨라 확보하지 못했다. 읽기/재열람 추가POST0·pageerror0. 모바일 어두운/PC 밝은 화면을 직접 확인했다. 사용자 탭은 열거나 이동하지 않았다.
+- 개발 적용/보존: 활성run/workflow0 확인 뒤 이전 작업을 정리하고 웹/API/worker·개인 Nginx를 갱신했다. 정적19파일·이전asset68개 유지, 외부 TLS·빌드 asset6개 일치·home/login/health/status200·미인증session/research401/no-store를 확인했다. worker/pane 정상·worker잠금1개. 실제 외부 비회원 브리핑/원문도 POST0/pageerror0으로 읽었다. 브라우저 console1건은 의도된 익명 session401 응답이며 별도 앱 예외가 아니다.
+- 백업/복원: 사전·직전·사후 full/app archive를 서버 밖에 보존하고 별도 소유 PostgreSQL18.6에 사후app archive를 복원했다. schema0007·canonical 자료13/인용37/검색27/공개1·기존 공개v1 byte hash와 계정/세션 포함 앱21테이블 전체 payload 일치를 확인했다. DBOS registry metadata는 별도다. 실제 사용자 세션은 사용/대신 발급하지 않았고 vector/역할을 포함한 완전 재해 복구 검증은 아니다.
+- 남은 품질/다음 행동: 한국어 오탐·미발견, 발표 주체 귀속·수치 비교/한계 설명을 고정 회귀와 별도 실제 평가로 개선한다. 생산 규모 지연·일반화된 정치 이슈 품질·의미 검색/자율 외부 탐색·개인 저장/추천/알림은 미완료다. [Sites v58](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 완료이며 실제 원문·개별 ID·질문/gold·계정·접속·키·상세 receipt는 저장소 밖에 보존한다.
+
+
+- 최종 출판/정리: Sites v58 native `succeeded`, source `8987e058d15f9b05610a99b715e65007ec34d22d`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_23f77f0041488191bcd0ec6984d8c818`, deployment `appgdep_6ad4ac529c0481919376e64f819dd391`. 사본 기준b59f910·이전v57 보존·HTML43/로컬 링크·asset·anchor1,076/공개 텍스트110의 실제 비밀값 제외를 확인했다. 보관판의 상대 링크를 해당 경로에 맞게 고친 후 검사를 통과했다. 제품 CI [39122572945](https://github.com/DigestWorks/IssueDigest/actions/runs/39122572945)·인수 기록 CI [39122899429](https://github.com/DigestWorks/IssueDigest/actions/runs/39122899429) 성공. 자체 headless 브라우저·합성 API·검증/복원 컨테이너4개/익명 볼륨을 전체ID/소유label/loopback 포트 대조 후 종료했고5개 포트 닫힘을 확인했다. pinned image·개인 백업/검증 기록·PR worktree·실제 개발 앱/worker는 보존했다.
+
 ## 개발 적용 · 근거 탐색·AI 평가·브리핑 디자인 · 2026-10-18
 
 - 작업/관련 요구: R2/R3/R4/R6·D021, `feat/evidence-exploration`, [명세](../changes/evidence-exploration.md), [Draft PR35](https://github.com/DigestWorks/IssueDigest/pull/35). main/운영 유예(D013)를 유지하며 개인 개발 HTTPS만 갱신했다.

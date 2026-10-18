@@ -78,6 +78,12 @@ INPUT_PROMPT_BYTE_LIMIT_V3 = (
 
 def create_agent_v3(model: Model | None = None) -> Agent[None, AIOutputV3]:
     """Register a distinct agent/durable step namespace before launch, without any request."""
+    return _create_classified_agent(model, version="v3", instructions=SYSTEM_INSTRUCTIONS_V3)
+
+
+def _create_classified_agent(
+    model: Model | None, *, version: Literal["v3", "v4"], instructions: str
+) -> Agent[None, AIOutputV3]:
     selected = (
         model
         if model is not None
@@ -90,11 +96,11 @@ def create_agent_v3(model: Model | None = None) -> Agent[None, AIOutputV3]:
     )
     return Agent(
         selected,
-        name="issuedigest_research_v3",
+        name=f"issuedigest_research_{version}",
         output_type=AIOutputV3,
-        instructions=SYSTEM_INSTRUCTIONS_V3,
+        instructions=instructions,
         retries=0,
-        capabilities=[DBOSDurability(name="issuedigest_research_v3")],
+        capabilities=[DBOSDurability(name=f"issuedigest_research_{version}")],
     )
 
 
@@ -118,6 +124,17 @@ def build_canvas_v3(
     workspace_id: UUID,
     sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
     output: AIOutputV3,
+) -> CanvasBundle:
+    return _build_classified_canvas(run_id, workspace_id, sources, output, version="v3")
+
+
+def _build_classified_canvas(
+    run_id: UUID,
+    workspace_id: UUID,
+    sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
+    output: AIOutputV3,
+    *,
+    version: Literal["v3", "v4"],
 ) -> CanvasBundle:
     if not 1 <= len(sources) <= 5:
         raise ValueError("Invalid selected sources")
@@ -143,15 +160,15 @@ def build_canvas_v3(
     }
     proposals = [claim for module in output.modules for claim in module.claims]
     for claim, proposal in zip(payload["research"]["claims"], proposals, strict=True):
-        claim["derivation"]["method_version"] = "research-v3"
+        claim["derivation"]["method_version"] = f"research-{version}"
         scope, assessment = assessments[proposal.category]
         reviews.append(
             {
                 "review_id": uuid4(),
                 "reviewer_kind": "automated",
-                "reviewer_id": "issuedigest-research-v3",
+                "reviewer_id": f"issuedigest-research-{version}",
                 "method": "pydantic-ai",
-                "method_version": "research-v3",
+                "method_version": f"research-{version}",
                 "reviewed_at": canvas.revision.validated_at,
                 "rationale": proposal.rationale,
                 "citation_ids": claim["citation_ids"],

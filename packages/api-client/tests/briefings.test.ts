@@ -51,13 +51,13 @@ test('rejects missing cache boundary and distinguishes interruption from offline
  vi.useFakeTimers();vi.stubGlobal('fetch',()=>new Promise(()=>{}));const pending=expect(api.getPublicBriefing(fixture.slug,1,{timeoutMs:5})).rejects.toMatchObject({kind:'timeout'});await vi.advanceTimersByTimeAsync(6);await pending;
 });
 
-test.each([false, true])('public profile rejects private v3 even when reviews are removed: %s',async stripped=>{
+test.each(['v3', 'v4'].flatMap(version => [false, true].map(stripped => ({version, stripped}))))('public profile rejects private $version when stripped=$stripped',async ({version, stripped})=>{
  const value=structuredClone(fixture) as unknown as api.PublicBriefingDetail;
  const claim=value.canvas.research.claims[0]!;
- claim.derivation!.method_version='research-v3';
+ claim.derivation!.method_version=`research-${version}`;
  if(!stripped) value.canvas.research.support_reviews=[{
   review_id:'00000000-0000-4000-8000-000000000999', reviewer_kind:'automated',
-  reviewer_id:'issuedigest-research-v3', method:'pydantic-ai', method_version:'research-v3',
+  reviewer_id:`issuedigest-research-${version}`, method:'pydantic-ai', method_version:`research-${version}`,
   reviewed_at:value.canvas.revision.validated_at, rationale:'합성 설명', citation_ids:claim.citation_ids,
   target:{kind:'claim',claim_id:claim.claim_id},scope:'content',assessment:'supported',
  }];

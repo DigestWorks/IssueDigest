@@ -58,3 +58,20 @@ test('accepts equivalent UTC spellings without truncating microseconds', async (
   value.result!.canvas.research.support_reviews[0]!.reviewed_at = '2026-10-13T00:00:00.123456+00:00';
   expect((await read(value)).data).toEqual(value);
 });
+
+test.each(['documented', 'attributed', 'uncertain'] as const)('accepts exact private v4 %s', async category => {
+  const value = classifiedRun(category, 'v4');
+  expect((await read(value)).data).toEqual(value);
+});
+test.each(malformed)('v4 rejects malformed classification: %s', async (_name, mutate) => {
+  const value = classifiedRun('documented', 'v4');
+  mutate(value, value.result!.canvas.research.support_reviews[0]!);
+  await expect(read(value)).rejects.toMatchObject({kind:'malformed'});
+});
+test.each(['review version', 'review identity', 'claim version'])(`rejects mixed v3/v4 %s`, async kind => {
+  const value = classifiedRun('attributed', 'v4'), research = value.result!.canvas.research;
+  if (kind === 'review version') research.support_reviews[0]!.method_version = 'research-v3';
+  if (kind === 'review identity') research.support_reviews[0]!.reviewer_id = 'issuedigest-research-v3';
+  if (kind === 'claim version') research.claims[0]!.derivation!.method_version = 'research-v3';
+  await expect(read(value)).rejects.toMatchObject({kind:'malformed'});
+});

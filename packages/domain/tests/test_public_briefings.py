@@ -163,19 +163,22 @@ def test_plan_rejects_raw_document_url_before_url_library_normalizes_it():
         pb.PublicBriefingPlan.model_validate(data)
 
 
+@pytest.mark.parametrize("version", ["v3", "v4"])
 @pytest.mark.parametrize("stripped", [False, True])
-def test_public_profile_never_accepts_private_v3_even_without_reviews(stripped):
+def test_public_profile_never_accepts_private_classification_even_without_reviews(
+    stripped, version
+):
     data = plan_data()
     claim = data["canvas"]["research"]["claims"][0]
-    claim["derivation"]["method_version"] = "research-v3"
+    claim["derivation"]["method_version"] = f"research-{version}"
     if not stripped:
         data["canvas"]["research"]["support_reviews"] = [
             {
                 "review_id": str(uuid4()),
                 "reviewer_kind": "automated",
-                "reviewer_id": "issuedigest-research-v3",
+                "reviewer_id": f"issuedigest-research-{version}",
                 "method": "pydantic-ai",
-                "method_version": "research-v3",
+                "method_version": f"research-{version}",
                 "reviewed_at": data["canvas"]["revision"]["validated_at"],
                 "rationale": "합성 평가",
                 "citation_ids": claim["citation_ids"],

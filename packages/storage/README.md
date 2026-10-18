@@ -374,7 +374,7 @@ coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분�
 
 운영자가 검증한 외부 제목은 `ResearchRepository.upsert_presentation(SourcePresentation(..., profile="operator-verified-v1"))`로 snapshot/workspace별 저장합니다. 자료 종류 기본 제목 외의 임의 본문 첫 줄을 제목으로 추정하지 않습니다. 기존 `legacy-bill-metadata-v1`만 정해진 첫 줄·의안번호·제안일을 검증해 자동으로 표시합니다.
 
-새 요청은 질문/부모 맥락의 멱등 해시와queued/빈 근거를 저장합니다. `research_retrieval`은 기존 `search_evidence`의 실제 색인을 최대8개 검색어로 조회해 일치도/결정적 동률 순서로 최대5개 snapshot을 찾습니다. `worker_load`는 현재 권한·run잠금 아래 검색/정확 원문 로드·근거 기록·retrieving 전환을 한 트랜잭션으로 고정합니다. 복구에서는 고정된 근거만 읽으며 무근거는0모델호출/insufficient_evidence로 종료합니다. 부모 근거 재사용은 완료된 부모와 유효 검색어 없는 일반 후속 질문으로 제한하며 명시 새 주제의 실패에 임의 적용하지 않습니다. 과거 저장 결과를 다시 쓰지 않습니다.
+새 요청은 질문/부모 맥락의 멱등 해시와queued/빈 근거를 저장합니다. `research_retrieval`의 `question-topics-ko-v2`는 기존 canonical 투영에서 최대8개 질문 원형과 원형별 최대1개 조사 변형을 조회합니다. 변형별 실제 문자열 일치 문단을 snapshot별로 번갈아 최대200개 검증하고201번째로 잘림을 감지하며, 변형별20개 snapshot·전체 상위20개·최종5개를 제한합니다. 주제별 중복 가산 없이 일치 주제 수, 원형 직접 일치 수, 안정된 snapshot ID 순으로 정렬합니다. 길이4 이상 문자열은 명시한 ASCII 공백6종만 제거한 전체 문자열 실제 포함도 확인하며 원문 위치로 사용하지 않습니다. 기존 공개 문자 검색 API와 `literal-ngrams-v1` 투영은 유지합니다. `worker_load`는 현재 권한·run잠금 아래 검색/정확 원문 로드·근거 기록·retrieving 전환을 한 트랜잭션으로 고정합니다. 복구에서는 고정된 근거만 읽으며 무근거는0모델호출/insufficient_evidence로 종료합니다. 부모 근거 재사용은 완료된 부모와 유효 검색어 없는 일반 후속 질문으로 제한하며 명시 새 주제의 실패에 임의 적용하지 않습니다. 과거 저장 결과를 다시 쓰지 않습니다.
 
 ## 검토한 공개 브리핑
 
@@ -435,3 +435,22 @@ DB의 payload/hash/행 참조·검토 기록·최대 버전/연속 이력/latest
 모두 `Cache-Control: no-store`, `X-Request-ID`와 검증된 JSON을 반환하며 미설정503,
 없음/철회404, 잘못된 입력422에는 입력을 되돌리지 않습니다. 공개 읽기는 두 공개 테이블만
 SELECT하고 세션·모델·DBOS·예산·비공개 저장소를 호출하지 않습니다. 공개 게시 HTTP API는 없습니다.
+
+## Private retrieval evaluation
+
+`issuedigest_storage.retrieval_evaluation.evaluate(engine, raw_job_bytes)` validates a bounded
+strict JSON job again at the SDK boundary and returns an `EvaluationReport`. It accepts raw
+bytes only, so forged Pydantic models cannot cause an unbounded dump before validation.
+The retrieval profile is `question-topics-ko-v2`; pre-change baseline reports identify
+`question-terms-v1`. The literal projection profile remains unchanged. Evaluation verifies the
+exact workspace corpus, every canonical bundle and projection/unit, then runs all cases in
+one read-only PostgreSQL `REPEATABLE READ` transaction. It never writes projections, sessions,
+research runs, budgets or DBOS state. Failures use fixed messages and return no partial report.
+
+`parse_job(raw_bytes)` validates offline; `EvaluationJob.model_json_schema()` and
+`EvaluationReport.model_json_schema()` expose the strict job/report schemas. IDs, questions,
+terms and ranks belong only in private report files, never ordinary logs. The caller owns the
+engine and its logging/lifecycle configuration; the worker CLI supplies silent pool lifecycle
+handling and publishes only after successful disposal. Do not enable SQL parameter logging.
+See [evaluation instructions](../../tests/evaluation/README.md) for the full job example,
+command, fingerprints, metric denominators and baseline/candidate comparison conditions.

@@ -96,7 +96,7 @@ run_worker(os.environ['ISSUEDIGEST_TEST_DATABASE_URL'],
 """
 
 
-def crash_worker(database_url, tmp_path, proposal, *, legacy=True, checkpoint=True):
+def crash_worker(database_url, tmp_path, proposal, *, legacy="v2", checkpoint=True):
     marker = tmp_path / "synthetic-provider-calls"
     env = {
         **os.environ,
@@ -107,7 +107,7 @@ def crash_worker(database_url, tmp_path, proposal, *, legacy=True, checkpoint=Tr
         "CRASH_AFTER_MODEL" if checkpoint else "CRASH_INSIDE_MODEL": "1",
     }
     if legacy:
-        env["LEGACY_WORKER"] = str(Path(__file__).parent / "fixtures/research_worker_v2.py")
+        env["LEGACY_WORKER"] = str(Path(__file__).parent / f"fixtures/research_worker_{legacy}.py")
     proc = subprocess.run(
         [sys.executable, "-c", CRASH_SCRIPT], env=env, capture_output=True, timeout=20
     )
@@ -120,13 +120,18 @@ def client(database_url):
     return DBOSClient(system_database_url=database_url, application_name="issuedigest-research")
 
 
-def test_real_legacy_v2_checkpoint_recovers_under_recorded_version_then_new_requests_use_v3(
+@pytest.mark.parametrize("legacy", ["v2", "v3", None])
+def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v4(
     engine,
     database_url,
     tmp_path,
+    legacy,
 ):
+    version = legacy or "v4"
     bundle, token, repo, old = seed(engine, database_url)
-    marker = crash_worker(database_url, tmp_path, output(bundle))
+    marker = crash_worker(
+        database_url, tmp_path, output(bundle, classified=version != "v2"), legacy=legacy
+    )
     inspector = client(database_url)
     try:
         before = inspector.list_workflows(
@@ -134,7 +139,7 @@ def test_real_legacy_v2_checkpoint_recovers_under_recorded_version_then_new_requ
         )[0]
         checkpoints = inspector.list_workflow_steps(before.workflow_id, load_output=False)
         assert [(step["function_id"], step["function_name"]) for step in checkpoints] == [
-            (1, "issuedigest_research_v2__model.request"),
+            (1, f"issuedigest_research_{version}__model.request"),
         ]
         assert checkpoints[0]["completed_at_epoch_ms"] is not None
         assert repo.get_run(token, old.workspace_id, old.run_id).status == "generating"
@@ -156,20 +161,25 @@ def test_real_legacy_v2_checkpoint_recovers_under_recorded_version_then_new_requ
         recovered = repo.get_run(token, old.workspace_id, old.run_id)
         assert recovered.status == "completed"
         assert recovered.result.canvas.research.claims[0].text == "첫 모델의 해석"
-        assert recovered.result.canvas.research.claims[0].derivation.method_version == "research-v2"
-        assert recovered.result.canvas.research.support_reviews == ()
+        assert (
+            recovered.result.canvas.research.claims[0].derivation.method_version
+            == f"research-{version}"
+        )
+        assert len(recovered.result.canvas.research.support_reviews) == (version != "v2")
         current = repo.get_run(new_token, new.workspace_id, new.run_id)
         assert current.status == "completed"
-        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v3"
+        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v4"
         assert len(current.result.canvas.research.support_reviews) == 1
         after = inspector.list_workflows(
             workflow_ids=[before.workflow_id, f"research-{new.run_id}"],
             load_input=False,
             load_output=False,
         )
-        by_name = {workflow.name: workflow for workflow in after}
-        assert by_name["issuedigest_research_run_v2"].app_version == before.app_version
-        assert by_name["issuedigest_research_run_v3"].app_version != before.app_version
+        by_id = {workflow.workflow_id: workflow for workflow in after}
+        assert by_id[before.workflow_id].app_version == before.app_version
+        assert by_id[before.workflow_id].name == f"issuedigest_research_run_{version}"
+        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v4"
+        assert by_id[f"research-{new.run_id}"].app_version != before.app_version
         assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == checkpoints
         assert marker.read_text() == "called\n"
         # Another full registry destroy/relaunch must only read completed application rows.
@@ -183,7 +193,7 @@ def test_real_legacy_v2_checkpoint_recovers_under_recorded_version_then_new_requ
         inspector.destroy()
 
 
-@pytest.mark.parametrize("legacy", [True, False])
+@pytest.mark.parametrize("legacy", ["v2", "v3", None])
 def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     engine,
     database_url,
@@ -196,7 +206,7 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     marker = crash_worker(
         database_url,
         tmp_path,
-        output(bundle, classified=not legacy),
+        output(bundle, classified=legacy != "v2"),
         legacy=legacy,
         checkpoint=False,
     )
@@ -224,7 +234,10 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
         inspector.destroy()
 
 
-@pytest.mark.parametrize("name", ["issuedigest_research_run_v2", "issuedigest_research_run_v3"])
+@pytest.mark.parametrize(
+    "name",
+    ["issuedigest_research_run_v2", "issuedigest_research_run_v3", "issuedigest_research_run_v4"],
+)
 def test_existing_queued_workflow_dispatches_registered_original_name(engine, database_url, name):
     bundle, token, repo, run = seed(engine, database_url)
     inspector = client(database_url)
@@ -240,7 +253,7 @@ def test_existing_queued_workflow_dispatches_registered_original_name(engine, da
         )
         run_worker(
             database_url,
-            model=TestModel(custom_output_args=output(bundle, classified=name.endswith("v3"))),
+            model=TestModel(custom_output_args=output(bundle, classified=not name.endswith("v2"))),
             once=True,
         )
         completed = repo.get_run(token, run.workspace_id, run.run_id)
@@ -253,6 +266,7 @@ def test_existing_queued_workflow_dispatches_registered_original_name(engine, da
         inspector.destroy()
 
 
+@pytest.mark.parametrize("profile", ["v2", "v3", "v4"])
 @pytest.mark.parametrize(
     "case", ["unknown-name", "cancelled-workflow", "cancelled-run", "revoked-membership"]
 )
@@ -261,6 +275,7 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
     database_url,
     tmp_path,
     case,
+    profile,
 ):
     from pydantic_ai.models.function import FunctionModel
 
@@ -269,7 +284,12 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
     try:
         if case == "revoked-membership":
             # A real paid checkpoint exists; reloading still checks current authorization.
-            crash_worker(database_url, tmp_path, output(bundle))
+            crash_worker(
+                database_url,
+                tmp_path,
+                output(bundle, classified=profile != "v2"),
+                legacy=None if profile == "v4" else profile,
+            )
             from issuedigest_storage.auth_schema import auth_workspace_memberships
             from sqlalchemy import delete
 
@@ -283,7 +303,7 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
             name = (
                 "unknown-synthetic-name"
                 if case == "unknown-name"
-                else "issuedigest_research_run_v2"
+                else f"issuedigest_research_run_{profile}"
             )
             inspector.enqueue(
                 {
@@ -387,7 +407,7 @@ def test_worker_lock_connection_is_idle_and_loss_fails_closed(engine):
         recovered()
 
 
-@pytest.mark.parametrize("version", ["v2", "v3"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4"])
 @pytest.mark.parametrize("slot", [0, 2, -1, True, False, 1.0, "1", None, "missing"])
 def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
@@ -409,7 +429,7 @@ def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot)
     )
 
 
-@pytest.mark.parametrize("version", ["v2", "v3"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4"])
 def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
 

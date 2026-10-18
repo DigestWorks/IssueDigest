@@ -101,3 +101,23 @@ def test_legacy_result_canonical_payload_and_hash_are_unchanged(version, digest)
     assert result.model_dump(mode="json") == payload
     assert canonical_hash(result.model_dump(mode="json")) == digest
     assert result.canvas.research.support_reviews == ()
+
+
+@pytest.mark.parametrize("method_version", [[], {}])
+@pytest.mark.parametrize("entrypoint", ["research-result", "canvas"])
+def test_unhashable_raw_method_version_raises_validation_error(method_version, entrypoint):
+    from issuedigest_domain.canvas import CanvasBundle
+    from issuedigest_domain.research_journey import ResearchResult
+
+    path = (
+        Path(__file__).resolve().parents[3]
+        / "packages/api-client/tests/fixtures/research-run-generated.json"
+    )
+    payload = json.loads(path.read_text())["result"]
+    payload["canvas"]["research"]["claims"][0]["derivation"]["method_version"] = method_version
+
+    with pytest.raises(ValidationError):
+        if entrypoint == "research-result":
+            ResearchResult.model_validate(payload)
+        else:
+            CanvasBundle.model_validate(payload["canvas"])

@@ -64,7 +64,11 @@ def research_worker_lock(engine: Engine) -> Iterator[Callable[[], None]]:
             connection.close()
 
 
-WORKFLOW_NAMES = {"issuedigest_research_run_v2", "issuedigest_research_run_v3"}
+WORKFLOW_NAMES = {
+    "issuedigest_research_run_v2",
+    "issuedigest_research_run_v3",
+    "issuedigest_research_run_v4",
+}
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}
 
