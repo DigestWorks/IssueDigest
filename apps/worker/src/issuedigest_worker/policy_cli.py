@@ -1,6 +1,7 @@
-"""Explicit private operator discovery/capture and offline preparation; no DB commands."""
+"""Explicit private operator policy capture, preparation and bounded journal commands."""
 
 import json
+import os
 import sys
 from collections.abc import Sequence
 from datetime import datetime
@@ -15,11 +16,20 @@ from issuedigest_connectors import (
     serialize_policy_capture,
     serialize_policy_discovery,
 )
+from issuedigest_storage.operator_security import private_engine_lifecycle
 from issuedigest_storage.provisioning import MAX_PLAN_BYTES, parse_plan
+from issuedigest_storage.public_briefing_cli import validate_database_url
+from sqlalchemy import create_engine
 
 from .cli import _ArgumentError, _Parser
 from .files import check_private_output, read_private, write_private
 from .policy_changes import compare_policy_captures
+from .policy_collection import (
+    MAX_POLICY_COLLECTION_JOB_BYTES,
+    parse_policy_collection_job,
+    policy_collection_status,
+    poll_policy_collection,
+)
 from .policy_job import MAX_POLICY_JOB_BYTES, parse_policy_job
 from .policy_prepare import prepare_policy_plan
 
@@ -45,12 +55,17 @@ def main(argv: Sequence[str] | None = None) -> int:
     prepare.add_argument("base", metavar="PRIVATE_BASE_PLAN")
     prepare.add_argument("output", metavar="PRIVATE_NEW_OUTPUT")
     prepare.add_argument("--output-kind", choices=("plan", "presentations"), default="plan")
+    for operation in ("poll", "status"):
+        command = commands.add_parser(operation, allow_abbrev=False)
+        command.add_argument("job", metavar="PRIVATE_COLLECTION_JOB")
     try:
         args = parser.parse_args(argv)
     except _ArgumentError:
         print("Invalid policy arguments", file=sys.stderr)
         return 2
     try:
+        if args.operation in {"poll", "status"}:
+            return _collection_command(args.operation, args.job)
         check_private_output(args.output)
         if args.operation == "discover":
             discovery = discover_policy(collected_at=datetime.fromisoformat(args.collected_at))
@@ -124,3 +139,52 @@ def main(argv: Sequence[str] | None = None) -> int:
     except Exception:
         print("Unable to complete policy operation", file=sys.stderr)
         return 1
+
+
+def _collection_command(operation: str, path: str) -> int:
+    config = parse_policy_collection_job(read_private(path, MAX_POLICY_COLLECTION_JOB_BYTES))
+    url = validate_database_url(os.environ.get("ISSUEDIGEST_DATABASE_URL", ""))
+    if url.database != config.expected_database:
+        raise ValueError("Invalid collection database")
+    engine = create_engine(url, hide_parameters=True, echo=False, pool_pre_ping=False)
+    with private_engine_lifecycle(engine):
+        if operation == "poll":
+            result = poll_policy_collection(engine, config)
+            # An explicit allowlist prevents repository identifiers from becoming CLI output.
+            summary = result.model_dump(
+                mode="json",
+                include={
+                    "schema_version",
+                    "outcome",
+                    "failure_code",
+                    "new",
+                    "changed",
+                    "unchanged",
+                    "started_at",
+                    "finished_at",
+                },
+            )
+            exit_code = 1 if result.outcome == "failed" else 0
+        else:
+            state = policy_collection_status(engine, config)
+            summary = state.model_dump(
+                mode="json",
+                include={
+                    "schema_version": True,
+                    "attempt_count": True,
+                    "age_seconds": True,
+                    "stale": True,
+                    "latest": {"sequence", "state", "started_at", "finished_at", "failure_code"},
+                    "last_success": {
+                        "sequence",
+                        "state",
+                        "started_at",
+                        "finished_at",
+                        "failure_code",
+                    },
+                },
+            )
+            exit_code = 0
+    # No output is published until connection cleanup and pool disposal succeed.
+    print(json.dumps(summary, sort_keys=True, allow_nan=False))
+    return exit_code

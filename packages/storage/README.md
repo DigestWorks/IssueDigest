@@ -454,3 +454,43 @@ engine and its logging/lifecycle configuration; the worker CLI supplies silent p
 handling and publishes only after successful disposal. Do not enable SQL parameter logging.
 See [evaluation instructions](../../tests/evaluation/README.md) for the full job example,
 command, fingerprints, metric denominators and baseline/candidate comparison conditions.
+
+## 명시 정책뉴스 collection journal
+
+`0008_policy_collection`은 기존 근거·공개 게시·세션과 FK를 공유하지 않는
+`policy_collection_channels`와 `policy_collection_attempts`만 추가합니다.
+`issuedigest_storage.policy_collection`의 `PolicyCollectionConfig`는 정렬한9자리 ASCII
+기사 ID1~2개·UUID4 collection·DB명·간격·보존 기준·실행 상한을 불변 결합합니다.
+같은 collection에 설정을 바꾸면 고정 오류로 거부합니다. 새 collection은 별도 운영자 결정입니다.
+
+`PolicyCollectionRepository(engine).lease(config)`의 context에서만 poll을 기록합니다.
+전용 연결의 nonblocking session advisory lock `(104704, 2)`가 사용 중이면 `None`을
+반환합니다. 실제 DB명·backend·lock 소유를 매 쓰기 전에 확인하며 AUTOCOMMIT 엔진도
+READ COMMITTED transaction으로 바꿉니다. `session.start(now=aware_datetime)`은 이전
+running을 interrupted로 마감한 뒤 간격·상한을 확인하고, 허용된 새 running을 HTTP 전에
+commit합니다. 거부 결과는 `not_due`·`attempt_limit`이며 새 attempt가 없습니다.
+
+`session.baseline()`만 마지막 성공의 정확 capture/report bytes를 읽습니다.
+타입·상한·SHA256와 실행 순서를 재검증합니다. capture는 최대8MiB+16,384bytes,
+report는 최대64KiB입니다. 둘 다 비어 있지 않은 bytes만 받습니다. storage는 report를
+해석하지 않으며 SDK의 원본 형식·동일 기사집합·비교 결과 검증은 호출 worker의 책임입니다.
+`session.succeed(attempt_id, capture_bytes, report_bytes, finished_at=...)`는 두 원본과
+SHA를 원자적으로 저장합니다. `session.fail(..., "capture_failed" | "validation_failed",
+finished_at=...)`은 실패 코드만 남기고 마지막 성공을 유지합니다. 완료 행과 원본을
+수정·삭제하는 repository API는 없습니다. 자동 보존 삭제도 없습니다.
+
+`repository.status(config, now=None)`는 REPEATABLE READ·READ ONLY transaction에서
+attempt_count·latest·last_success·age_seconds·stale를 구분하며 raw bytes를 조회하지
+않습니다. 기본 관측 시각은 일관된 snapshot을 확보한 뒤에 읽습니다. 명시한 `now`는
+관측된 시작·완료보다 과거이면 거부합니다. 알려지지 않은 collection도 행을 만들지
+않습니다. age/stale의 기준은 마지막 성공의 `finished_at`이며 SDK 발행일·본문 최신성·전체
+기사 수집 완전성을 뜻하지 않습니다.
+이는 마지막 성공 확보 완료 시각 기준입니다. 상태 모델의 내부 식별자는 CLI 출력 대상이 아닙니다.
+
+모든 시각은 timezone을 가진 datetime이며 저장 경계에서 UTC로 정규화합니다.
+이전 시작·완료보다 과거인 시각, forged Pydantic 모델, 상태/설정/hash 손상,
+연결/lock 상실은 `PolicyCollectionError`의 고정 메시지로 닫습니다. commit 응답이
+불명확하면 `PolicyCollectionCommitUnknown`이 발생하고 해당 lease를 더 사용할 수
+없습니다. HTTP·commit 재시도 또는 `fail` 덮어쓰기를 하지 않고 context를 종료합니다.
+다음 명시 실행에서 실제 저장 상태를 읽고 남은 running만 interrupted로 마감합니다.
+context 종료는 정확 lock을 풀고 연결을 닫으며, 해제 실패 연결은 pool로 반환하지 않습니다.

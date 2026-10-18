@@ -181,6 +181,47 @@ uv run ruff format --check apps/worker
 uv run mypy
 ```
 
+### 고정 기사 반복 확보와 PostgreSQL 이력
+
+`poll`은 명시한 공식 기사1~2개를 한 번 확보하고 원본과 비교 보고서를 내부 journal에 남긴다. 서버 scheduler는 아래의 한 번 실행 명령을 주기적으로 호출할 수 있다. 명령 자체는 반복 loop나 scheduler를 만들지 않는다. 기존 연구 worker와 별도 실행 환경에서 실행하고 `ISSUEDIGEST_DATABASE_URL`을 그 환경에만 제공한다. 해당 DB에는 운영자가 검토한 `0008_policy_collection` migration이 먼저 적용되어 있어야 한다. import/startup/status는 migration을 실행하지 않는다.
+
+소유자가 현재 실행 계정인 절대 경로의400/600 private UTF-8 JSON 파일을 준비한다. 최대8KiB이며 중복 key·비유한 수·추가 필드·불리언 정수·타입 변환을 거부한다. 다음은 합성 예시이며 scope와 한도를 운영자가 명시해야 한다.
+
+```json
+{
+  "schema_version": 1,
+  "expected_database": "issuedigest_test",
+  "collection_id": "00000000-0000-4000-8000-000000000001",
+  "news_ids": ["123456789"],
+  "minimum_interval_seconds": 3600,
+  "max_age_seconds": 7200,
+  "max_attempts": 24
+}
+```
+
+`collection_id`는 UUID4다. `news_ids`는 중복 없는9자리 ASCII 숫자 문자열1~2개로 정렬해 저장한다. 최소 간격은60~86400초, age 한도는 최소 간격 이상604800초 이하, 총 시도 상한은1~4096이다. DB URL의 DB명과 실제 `current_database()`가 모두 `expected_database`와 일치해야 한다. 같은 ID의 scope·간격·한도는 최초 결합 이후 변경할 수 없다.
+
+```sh
+uv run issuedigest-policy poll /absolute/private/policy/collection-job.json
+uv run issuedigest-policy status /absolute/private/policy/collection-job.json
+```
+
+매 poll은 전용 연결의 nonblocking advisory lock `(104704, 2)`를 잡고 `running`을 commit한 뒤 기존 고정 capture SDK를 호출한다. 중복 실행은 `busy`, 최소 간격 전에는 `not_due`, 총 시도 한도 도달 시에는 `attempt_limit` 집계/exit0으로 끝나며 HTTP나 새 attempt를 만들지 않는다. scheduler 주기를 최소 간격 이상으로 설정한다. 중지하려면 연결한 scheduler를 비활성화한다. 다음 명시 poll에서 남은 `running`을 `failed/interrupted`로 마감하며, 재실행도 간격·상한을 따른다. 기존 연구 worker scheduler/잠금은 변경하지 않는다.
+
+성공은 `succeeded`와 `new`/`changed`/`unchanged` 개수/시각만 stdout에 출력한다. 첫 성공은 `new`다. HTTP 실패는 `capture_failed`, 본문·이용 조건·저장 baseline의 의미 검증 실패는 `validation_failed`이며 `failed` 집계/exit1로 끝난다. DB 실패/commit 응답 불명확/cleanup 실패는 집계 출력 없이 고정 오류/exit1이다. 불명확한 commit은 HTTP/commit 재시도나 실패 덮어쓰기를 하지 않는다. 다음 명시 status/poll에서 저장된 실제 상태를 확인한다. 인수 오류는 기존 exit2다.
+
+`status`는 read-only transaction에서 최신 attempt와 마지막 성공을 분리한다. 최초 미실행은 둘 다 null이고 stale이다. 최신 실패/미완료를 과거 성공으로 표시하지 않는다. 마지막 성공이 없으면 `age_seconds=null, stale=true`이며, 있으면 마지막 성공의 실제 확보 완료 시각 `finished_at` 이후 경과 시간이 `max_age_seconds`를 초과할 때 stale이다. SDK 요청 시작의 `collected_at`은 정확 capture bytes에 별도로 보존하며 완료 시각을 대신하지 않는다. 이 age는 확보 작업의 상태이며 발행일/내용 최신성이나 전체 수집 범위의 완전성을 뜻하지 않는다. status는 source HTTP·모델 호출·새 행을 만들지 않는다.
+
+정확 capture bytes(최대8MiB+16384)와 비교 report bytes(최대64KiB), 각 SHA256은 성공 terminal과 함께 원자 저장한다. 기존 성공 원본/완료행은 repository에서 덮거나 지우지 않으며 실패 뒤에도 마지막 성공을 보존한다. 상태 출력은 집계·상태·시각만 담고 기사/collection/attempt ID·URL·경로·DSN·원문을 출력하지 않는다. 입력 파일·DB 원본·상세 receipt는 Git/PR/Sites/공개 로그 밖에 보관한다. DB 소유자의 직접 변경을 방지하는 감사 trigger/권한 정책은 추가하지 않았다.
+
+자동 기사 발견·후보 선정·전체 최신 이슈 수집·자율 조사·EvidenceBundle/검색 자동 편입·공개 게시·자동 삭제/보존 기간·한도 reset·scheduler 설치는 포함하지 않는다. 내용 변경 뒤의 검토/등록/게시에는 기존 명시 승인 절차가 필요하다. scheduler 연결은 운영 인수 단계에서 별도로 기록하며 코드 구현만으로 운영 실행을 완료했다고 표시하지 않는다.
+
+SDK는 `issuedigest_worker.policy_collection`의 `parse_policy_collection_job(raw)`, `poll_policy_collection(engine, config)`와 `policy_collection_status(engine, config)`다. poll/status 반환값은 private ID 없는 불변 typed 집계이며, engine lifecycle은 호출자가 `private_engine_lifecycle`로 감싼다. CLI는 engine/pool 정리가 성공한 뒤에만 결과를 출력한다. 합성 검사는 실제 PostgreSQL과 MockTransport를 사용한다.
+
+```sh
+uv run pytest apps/worker/tests/test_policy_collection_worker.py
+```
+
 ## 내구 조사 작업자
 
 `issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v4 실행합니다. v2/v3/v4 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
