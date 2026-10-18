@@ -1,10 +1,16 @@
 # 진행 기록
 
-## 작업 시작 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
+## 개발 적용 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
 
-- 범위/브랜치: `feat/policy-collection-journal`, [명세](../changes/policy-collection-journal.md)·M2. 명시 기사1~2개를 반복 확보하고 PostgreSQL에 실행·마지막 성공·정확 원본/비교와 실패·중단을 기록한다. 이전 PR37 최종 CI39125936064 성공을 확인했다.
-- 현재: Task1 storage 소스9a833b3의 migration/journal/lease를 구현했다. 신규25개 포함519개 storage 회귀·Ruff/format/mypy·독립 검토 C0/I0/M0을 통과했다. 실제 백업 복원본의0008 migration 후 원래20개 앱 테이블 payload와13개 canonical 묶음 보존을 확인했다. Task2 poll/status 연결은 합성 PG/HTTP로 개발 중이며 실제 DB는0007 그대로다.
-- 다음: Task별 독립 검토→poll/status 연결→전체 검증→현재 권한/백업 확인 후 개인 개발 인수·기록/PR/Sites 갱신. 현재 Sites 반영 대기, main/운영 유예 유지.
+- 범위/브랜치: `feat/policy-collection-journal`, [명세](../changes/policy-collection-journal.md)·M2. 검토한 고정 공식 기사1건의 재확보를 별도 내부 수집기로 연결했다. 첫 실제 확보 성공과 원본/변경 보고서 저장을 확인했고 개인 cron의 시간당 실행을 설치했다. main/운영 공개(D013)는 유예한다. Draft PR·Sites 최종 반영은 아래 출판 기록으로 구분한다.
+- 구현: 제품 소스`a908083`의 명시 poll/status와 PostgreSQL0008의 분리된 두 테이블이 설정·시도·마지막 성공·정확 capture/report bytes와 SHA를 보존한다. 전용 잠금과 running 선행 commit, 최소 간격/횟수 상한, 실패/중단 이력과 불명확 commit 재시도 금지를 연결했다. status는 읽기 전용이며 최신 실패/미완료와 마지막 성공을 구분한다. 새 상태/실패를 보기 위한 사용자 운영 화면은 추가하지 않는다.
+- 검증/검토: 최종 `npm run check`는 Python2,727·JS568=3,295개, Ruff/format245파일·mypy109·JS lint/types·SPA build·API 계약을 통과했다. 경고/skip/실패0. storage519·worker/SDK/parser645·최종 storage+worker941의 해당 단계 회귀와 작업별/전체 독립 검토를 기록했다. 통합 검사에서 중복 테스트 파일명을 구분했고, 전체 검토의 정상 poll/status 경합은 스냅샷 후 기본 시각 확보와 실제 두 연결 회귀3RED→3GREEN으로 보완했다. 최종 재검토 C0/I0/M0, 미해결/보류 지적0.
+- 실제 인수: 별도 백업 복원DB에서0008 migration→공식 기사1건 확보/정확 원본·보고서·해시·시각→read-only 상태→즉시 재실행 not_due를 확인했다. 실제 개발DB에도 직전 full/app 백업 후 소유자 권한으로0008을 적용했다. 실제 poll1회 성공·stale=false·즉시 재실행 not_due·시도1개 보존·정확 해시/기존 canonical13개를 확인했다. 복원본/실제 서버 각1회 외부 확보였으며 모델 호출0이다.
+- 실행 일정/한도: 별도 고정 소스·가상환경의 개인 수집기만 사용한다. cron은 서버 시각 매시17분, 최소 간격3,300초·상태 age 한도7,200초·총 시도720회, 프로세스 timeout120초/종료 유예10초다. 기존 crontab 줄을 보존하고 실행기 smoke는 not_due였다. 설치 직후의 미래 cron 실행 성공은 관측했다고 표시하지 않는다. 실패도 시도 한도에 포함하며 자동 초기화/원본 삭제는 없다. 운영자가 상태·용량·한도에 따라 후속 정책을 검토한다.
+- 보존/복원: 사전·직전·사후 full/app archive를 서버 밖 private 저장소에 보존했다. 사후app archive를 별도 PostgreSQL18.6에 복원해 schema0008·앱/수집22테이블의 전체 count/payload digest 일치와 canonical13묶음을 확인했다. 변경 전 앱20테이블·자료13/인용37/검색27/공개1은 그대로다. vector 확장을 제외한app archive의 복원이며 역할/vector를 포함한 완전 재해 복구 검증은 아니다.
+- 실행 공존: 기존 개인 개발 worktree/실행 소스·API/연구 worker의 PID/command hash·tmux pane을 전후 대조해 유지했고 재시작하지 않았다. 외부 TLS검증·home/login/health/status200을 확인했다. 실제 사용자 세션이나 모델 키를 대신 사용하지 않았다. 기사/collection/attempt ID·원문·DSN·접속 계정·키·상세 receipt는 Git/PR/Sites 밖에 보관한다.
+- 기준 판단: age/stale은 실제 마지막 성공 확보 **완료** 시각(finished_at) 기준이다. 요청 시작의collected_at은 정확 capture 안에 별도로 보존한다. 확보 작업 상태와 기사 발행일/내용 최신성은 다르며 두 시각은 확보 소요 시간만큼 차이 난다. 미래 내용 최신성 판단에는 출처/수집 시각을 별도로 사용한다.
+- 남은 M2/다음: 고정 기사 재확보를 최신 시사 전면 수집으로 부르지 않는다. 반복 확보 원본의 검토·버전/중복 처리·기존 검색 색인 편입, 승인 출처 확대와 실제 최근 이슈 발견은 후속이다. 새 수집본은 EvidenceBundle/브리핑/공개 게시로 자동 승격하지 않는다. M3의 주장 귀속·수치 비교/한계 설명·승인 도구 탐색·점진 전달도 남아 있다. 현재 Sites 반영 대기.
 
 ## 구현·검증 · 공식 자료 변경 감지·마일스톤 · 2026-10-18
 
