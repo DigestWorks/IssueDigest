@@ -13,6 +13,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [결정 기록](planning/decisions.md) | 사용자 선택·확정 기술·대체 결정·대기 입력 |
 | [작업 목록](planning/tasks.md) | 실제 다음 작업과 현재 변경의 완료 조건 |
 | [진행 기록](planning/progress.md) | 코드·검증·개인 개발 적용·Sites·운영의 개별 증거와 인계 |
+| [정책뉴스 반복 확보·실행 이력](changes/policy-collection-journal.md) | 명시 기사 poll·PostgreSQL 원본/성공/실패 보존·중복/간격 제어·상태 조회 |
 | [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
 | [한국어 근거 품질](changes/korean-evidence-quality.md) | 제한 한국어 검색·read-only 내부 평가·새 private v4 귀속/수치 지침과 v2/v3 복구 보존 |
 | [공식 자료 확보·AI 근거 분류](changes/evidence-exploration.md) | 수동 공식 정책뉴스 SDK·private v3 AI 평가·v2 복구 호환과 개발 적용 대기 경계 |
