@@ -78,6 +78,9 @@ def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) 
     return (
         len(steps) <= 20
         and len(model_steps) == 1
+        # DBOS replays by workflow ID and durable slot, then verifies the step name.
+        and type(model_steps[0].get("function_id")) is int
+        and model_steps[0]["function_id"] == 1
         and model_steps[0]["function_name"] == name.replace("_run_", "_") + "__model.request"
         and model_steps[0]["completed_at_epoch_ms"] is not None
     )

@@ -385,3 +385,46 @@ def test_worker_lock_connection_is_idle_and_loss_fails_closed(engine):
             check()
     with research_worker_lock(engine) as recovered:
         recovered()
+
+
+@pytest.mark.parametrize("version", ["v2", "v3"])
+@pytest.mark.parametrize("slot", [0, 2, -1, True, False, 1.0, "1", None, "missing"])
+def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot):
+    from issuedigest_worker.research_recovery import completed_model_checkpoint
+
+    class MetadataClient:
+        def list_workflow_steps(self, workflow_id, *, load_output, limit):
+            assert workflow_id == "research-synthetic"
+            assert load_output is False and limit == 21
+            step = {
+                "function_name": f"issuedigest_research_{version}__model.request",
+                "completed_at_epoch_ms": 1,
+            }
+            if slot != "missing":
+                step["function_id"] = slot
+            return [step]
+
+    assert not completed_model_checkpoint(
+        MetadataClient(), "research-synthetic", f"issuedigest_research_run_{version}"
+    )
+
+
+@pytest.mark.parametrize("version", ["v2", "v3"])
+def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
+    from issuedigest_worker.research_recovery import completed_model_checkpoint
+
+    class MetadataClient:
+        def list_workflow_steps(self, workflow_id, *, load_output, limit):
+            assert workflow_id == "research-synthetic"
+            assert load_output is False and limit == 21
+            return [
+                {
+                    "function_id": 1,
+                    "function_name": f"issuedigest_research_{version}__model.request",
+                    "completed_at_epoch_ms": 1,
+                }
+            ]
+
+    assert completed_model_checkpoint(
+        MetadataClient(), "research-synthetic", f"issuedigest_research_run_{version}"
+    )
