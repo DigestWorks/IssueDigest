@@ -1,5 +1,14 @@
 # 진행 기록
 
+## 구현 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
+
+- 작업/담당: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md). Task1 내부 read-only 평가와 Task2 제한 한국어 검색은 작업별 독립 검토 완료이며 Task3 구현은 controller 인수를 기다린다. 기존 질문 중심 B2C·공개v1/v2/빈 review·자료/계정/세션·canonical JSON/hash·OpenAPI·schema·예산을 유지한다.
+- 구현: 새 요청만 research-v4/issuedigest_research_v4/issuedigest_research_run_v4를 사용한다. 기관 발표 수치·평가·주장을 귀속하고 목표·실적·전망·확정 결과를 분리하며 같은 대상·기간·단위에서 검증 가능한 단순 대소 관계를 설명하도록 지침을 보완했다. v3와 bounded schema/build/검증을 공유하고 각 버전의 고정 SupportReview 식별자·동일 인용 순서/UTC 마이크로초·세 분류·300자 설명을 엄격히 대조한다. 기존 작은 설명/원문/재열람 UI를 소비하며 새 메뉴는 없다.
+- 호환: v2/v3 지침·schema·prompt byte hash와 원래 budget17,309/16,049를 고정 회귀로 확인했다. v4는 static4,639+prompt14,813+framing2,048+output2,500으로 총24,000/단일60초·retry0·Responses/store=False를 유지한다. 실제 전용 합성 PG에서 frozen v2/v3 및 v4의 완료 모델 checkpoint→원래 ID/name/application_version·정수slot1 무과금 재생→새v4 실행, 중간 호출 중단 재호출 없음·예약 유지·세 registry/권한·취소·단일worker/잠금 상실을 확인했다. 실제 provider 접수·청구 검증은 아니다.
+- 검색 집계: controller의 동일13자료/34고정문항에서 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견은13/30→28/30, negative4의 no-match는2/4→2/4였다. positive 미발견2개·negative 오탐2개를 남긴다. 작은 저장 검색 표본이며 정답·인용 지지·전체 제품 품질로 일반화하지 않는다. 원래20문항은 여전히 미실행이다. 실제 질문·원문·개별 ID·job/report는 저장소 밖에 둔다.
+- 검증: 관련 Python/전용 PG958개와 전체 JS568개/28파일, Ruff235/format·mypy104·ESLint·타입·SPA build·생성 계약 drift 및 변경 문서 Python fence3개를 확인했다. 최종 관련 Python958개는 DeprecationWarning도 오류로 처리해 경고/skip/실패0으로 통과했다. 초기 sync 합성 모델 테스트의 Python3.13 implicit event-loop 경고는 명시 test-only asyncio.Runner 소유/종료로 해소했으며 필터/production/dependency 변경은 없다. Node22의 최초 타입/빌드 경고 뒤 고정 Node24.21/npm11.19로 관련 JS 검사를 다시 통과했다. 테스트 고정 출력·지침 문자열 검사는 실제 의미 품질 판정이 아니다.
+- 남은 인수/다음 행동: controller의 독립 Task3/전체 검토·정확 HEAD 전체 검사·최대3회 실제 모델 원문 판정·native320/390/1440/두 테마와 정확 원문/재열람 검증이 남았다. 기존 활성 작업 완료 후 사전/사후 백업·별도 복원·HTTPS/권한/원문 확인을 거쳐 개인 개발 갱신·Draft PR·Sites를 수행한다. 이 구현 에이전트는 실제 계정/DB/서버/키/provider/Sites를 다루지 않았다. Sites 반영 대기, main/운영 유예(D013) 유지.
+
 ## 개발 적용 · 근거 탐색·AI 평가·브리핑 디자인 · 2026-10-18
 
 - 작업/관련 요구: R2/R3/R4/R6·D021, `feat/evidence-exploration`, [명세](../changes/evidence-exploration.md), [Draft PR35](https://github.com/DigestWorks/IssueDigest/pull/35). main/운영 유예(D013)를 유지하며 개인 개발 HTTPS만 갱신했다.

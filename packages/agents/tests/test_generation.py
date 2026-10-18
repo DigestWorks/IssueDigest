@@ -6,6 +6,7 @@ import pytest
 from issuedigest_agents.research import AIClaim, AIModule, AIOutput, build_canvas
 from issuedigest_domain import EvidenceBundle
 from issuedigest_domain.research_journey import SourcePresentation
+from model_loop import sync_model_loop as sync_model_loop
 
 
 def source():
@@ -93,7 +94,7 @@ def test_nonanswer_still_requires_a_nonblank_message(outcome):
     assert canvas.revision.draft.message == "인용할 자료가 부족합니다."
 
 
-def test_agent_usage_is_recorded_without_provider_call():
+def test_agent_usage_is_recorded_without_provider_call(sync_model_loop):
     from issuedigest_agents.research import create_agent, run_agent
     from pydantic_ai.models.test import TestModel
 

@@ -1,6 +1,12 @@
 # 현재 구현 작업 목록
 
-2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+
+## 현재 변경 · 한국어 근거 품질 · D022
+
+- [x] read-only 내부 검색 평가와 제한 한국어 주제 검색을 구현하고 작업별 독립 검토를 마쳤다. 고정 실제34문항의 positive30은13→28개 발견, negative4의 no-match는2개로 동일하며 검색 이외 품질로 일반화하지 않는다.
+- [x] 새 private v4의 귀속/목표·실적·전망 지침과 동일 UI·엄격 검증, v2/v3/v4 원래 이름/version/정수slot1·완료 checkpoint 재생을 구현했다. 합성 모델/전용 PG 증거는 실제 의미 품질 판정과 분리한다.
+- [ ] controller가 독립 Task3/전체 검토·최종 전체 검사·최대3회 실제 모델·native UI를 인수하고 개인 개발 환경과 Draft PR/Sites를 갱신한다. 기존20문항은 미실행이다.
 
 ## 완료 기반 · 공개 브리핑 읽기 · D020
 

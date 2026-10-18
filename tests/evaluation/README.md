@@ -141,3 +141,9 @@ family Recall@5 0.25→0.8333, Hit@1 0.3333→0.8333, 필수 가족 모두 발�
 uv run pytest packages/storage/tests/test_retrieval_evaluation.py \
   apps/worker/tests/test_retrieval_evaluation_cli.py
 ```
+
+## D022 검색 집계와 v4 의미 평가의 경계
+
+controller가 고정한 실제 저장13자료·34문항(positive30/negative4)은 같은 질문/gold/corpus fingerprint로 비교했다. Hit@1·family Recall@5·필수 가족 모두 발견은 모두13/30→28/30(43.33%→93.33%), negative no-match는2/4→2/4(50%)였다. positive 미발견2개·negative 오탐2개를 그대로 분모에 남긴다. 작은 고정 검색 표본이며 위치 일치·주장 지지·정답·전체 제품 품질을 증명하지 않는다. 정확 job/report·질문·ID·원문은 controller만 저장소 밖에서 보관한다. 원래20문항의 **미실행** 상태는 그대로다.
+
+새 research-v4는 기관 발표의 귀속, 목표·현재 실적·전망·확정 결과, 같은 대상·기간·단위의 단순 대소 관계를 지침으로 구분한다. 합성 FunctionModel 출력은 request envelope/원문 전달·분류/인용 연결·불신 입력의 계약 회귀만 검증한다. 문구 키워드 검사를 의미 품질 판정으로 쓰지 않는다. controller는 별도 승인된 최대3회 실제 모델 요청의 모든 성공/실패와 실제 인용·주체·기간·수치/귀속을 직접 읽은 판정을 별도로 기록한다. 현재 Task3 구현으로 그 실행이 완료된 것은 아니다. v2/v3 과거 결과에는 새 평가를 소급하지 않는다.

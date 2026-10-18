@@ -42,3 +42,24 @@ test.each(['missing', 'mixed', 'bad-target'] as const)('rejects %s classificatio
   expect(screen.getByRole('alert')).toBeInTheDocument();
   expect(screen.queryByText('자료에 기록됨')).not.toBeInTheDocument();
 });
+
+test('v4 uses the existing attribution explanation and exact source action', async () => {
+  const result = classifiedRun('attributed', 'v4').result!;
+  const actions: unknown[] = [];
+  render(<CanvasView bundle={result.canvas} sourceTitles={result.source_titles} onAction={action => actions.push(action)}/>);
+  expect(screen.getByText('AI 해석')).toBeInTheDocument();
+  await userEvent.setup().click(screen.getByText('출처의 주장'));
+  expect(screen.getByText(/선택한 인용에 대한 합성 AI 설명/)).toBeVisible();
+  await userEvent.setup().click(screen.getAllByRole('button', {name:/근거 열기/})[0]!);
+  expect(actions).toEqual([{kind:'open_evidence', citation_id:result.canvas.research.claims[0]!.citation_ids[0]}]);
+});
+test.each(['missing', 'mixed', 'reviewer', 'microsecond', 'citation'] as const)('rejects invalid v4 display: %s', kind => {
+  const result = classifiedRun('documented', 'v4').result!, research = result.canvas.research;
+  if (kind === 'missing') research.support_reviews = [];
+  if (kind === 'mixed') research.claims[0]!.derivation!.method_version = 'research-v3';
+  if (kind === 'reviewer') research.support_reviews[0]!.reviewer_id = 'issuedigest-research-v3';
+  if (kind === 'microsecond') research.support_reviews[0]!.reviewed_at = '2026-10-13T00:00:00.123457Z';
+  if (kind === 'citation') research.support_reviews[0]!.citation_ids.reverse().push(research.evidence[0]!.citations[1]!.citation_id);
+  render(<CanvasView bundle={result.canvas} sourceTitles={result.source_titles}/>);
+  expect(screen.getByRole('alert')).toBeInTheDocument();
+});

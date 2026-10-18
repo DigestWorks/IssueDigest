@@ -74,8 +74,8 @@ export function prepareCanvas(bundle: CanvasBundle): PreparedCanvas {
   try {
     const { research, revision } = bundle;
     const draft = revision.draft;
-    if (research.claims.some(claim => /^research-v[123]$/.test(claim.derivation?.method_version ?? ''))
-      || research.support_reviews.some(review => review.reviewer_id === 'issuedigest-research-v3')) {
+    if (research.claims.some(claim => /^research-v[1234]$/.test(claim.derivation?.method_version ?? ''))
+      || research.support_reviews.some(review => ['issuedigest-research-v3', 'issuedigest-research-v4'].includes(review.reviewer_id ?? ''))) {
       requireDisplay(validResearchClassifications(research, revision));
     }
     requireDisplay(research.schema_version === 1 && revision.schema_version === 1

@@ -89,7 +89,7 @@ export function validResearchCanvas(
       || !isObject(claim.derivation)
       || !hasKeys(claim.derivation, ['method', 'method_version', 'rationale'])
       || claim.derivation.method !== 'pydantic-ai'
-      || !['research-v1', 'research-v2', 'research-v3'].includes(claim.derivation.method_version as string)
+      || !['research-v1', 'research-v2', 'research-v3', 'research-v4'].includes(claim.derivation.method_version as string)
       || !nonblank(claim.derivation.rationale, 200)) return false;
     const claimCitations = selectedCitations(claim.citation_ids, citations, 3);
     if (!claimCitations) return false;

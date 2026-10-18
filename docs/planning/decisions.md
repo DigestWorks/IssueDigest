@@ -140,3 +140,16 @@ Google의 서명된 ID Token과 state·PKCE·nonce를 검증한 뒤 운영자가
 새 AI 출력은 각 문장에 documented/attributed/uncertain과 짧은 설명을 필수 제공한다. 모든 문장은 Claim.basis=inference를 유지하며 SupportReview의 content/supported·attribution/supported·content/insufficient로만 기록한다. 화면은 AI 해석과 자료에 기록됨·출처의 주장·확인하기 어려움을 함께 표시한다. 선택한 인용에 대한 AI 평가이며 독립 사실 검증·인간 검토·진실/찬반 점수·여론 판단이 아니다. 인용 배열·대상·고정 자동 검토 식별자·UTC 마이크로초 시각을 엄격히 검증한다. 과거 결과에 분류를 추정해 붙이거나 Claim의 기본 필드·공개 v1 hash를 바꾸지 않는다. 새v3의 공개 게시는 별도 후속이다.
 
 v2/v3 agent와 workflow를 함께 등록한다. 기존 workflow ID는 기록된 이름·application_version으로 먼저 회복하고 새 queued 요청만v3로 시작한다. 완료된 원래 모델 checkpoint만 재생하며 generating/validating에 완료 checkpoint가 없으면 불명확한 유료 요청을 다시 보내지 않고 실패·예약 유지로 끝낸다. 전용 PostgreSQL session advisory lock으로 worker 중복 기동을 거부하고 잠금 소유 상실 시 계속 실행하지 않는다. 잠금을 모르는 최초v2 워커는 안전한 업그레이드 전에 중지·활성 작업 정리가 필요하다. 실행 이름/순서·원래 유료 checkpoint·workflow ID를 바꾸거나 삭제하지 않는다.
+
+
+## D022 · 제한 한국어 검색·내부 평가·귀속/수치 지침 버전 · 2026-10-18
+
+D019~D021의 질문 중심 여정과 기존 계약을 유지하면서 저장 근거의 검색 및 새 private 브리핑 지침을 개선한다. [변경 명세](../changes/korean-evidence-quality.md)의 구현 범위이며 실제 모델 품질·개인 개발 적용·Sites는 controller의 별도 인수다. main/운영 유예(D013)는 유지한다.
+
+검색 전략은 question-topics-ko-v2로 구분한다. 원형을 보존한 최대8주제·주제당3변형/총24변형, 변형당200후보/201번째 잘림 감지·상위20 snapshot·최종5를 제한한다. 알려진 조사와 명시 공백의 실제 전체 문자열 일치만 다루고 단위·숫자·시점·부정·고유명사를 의미상 같다고 합치지 않는다. 동일 주제/문서의 반복 문단은 점수를 중복 가산하지 않는다. 기본 문자 검색 API·literal-ngrams-v1 투영·일반 후속 질문의 보수적 부모 재사용과 고정 근거를 보존한다. 외부 사전·embedding·provider·자동 수집은 추가하지 않는다.
+
+내부 평가 CLI는 운영자의 명시 실행이며 같은 질문/gold/corpus fingerprint의 read-only REPEATABLE READ에서 검색 지표를 비교한다. 질문·개별 ID·원문·정확 job/report는 저장소 밖에 보관하고 집계만 기록한다. controller가 고정한13자료/34문항은 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견이13/30→28/30, negative4의 no-match는2/4→2/4였다. 남은 positive2개 미발견·negative2개 오탐을 분모에 유지한다. 작은 고정 검색 표본의 결과이며 답변 정답·인용 지지·전체 품질이나 원래20문항의 실행 완료가 아니다.
+
+지침 개선은 research-v4/issuedigest_research_v4/issuedigest_research_run_v4에만 기록한다. 문서에 문장이 존재하는 사실과 그 안의 기관 통계·효과·평가·주장의 진실을 구분한다. 기관 발표 수치는 기관에 귀속하고 목표·현재 실적·전망·확정 결과를 분리한다. 같은 대상·기간·단위의 검증 가능한 단순 대소 관계를 자료 부족으로 가리지 않되 계산·인과·상충/양측·정확성을 생성하거나 강제하지 않는다. 기존 세 category와 inference/AI 해석·claim당 SupportReview1개·인용 순서·UTC 마이크로초·300자 설명·5근거/12claims·마지막 근거 모듈을 유지한다. v4 reviewer는 issuedigest-research-v4/method_version research-v4이고 v3와 혼합할 수 없다. 선택 인용의 AI 평가이며 독립 사실 검증은 아니다.
+
+v2/v3의 실제 schema·지침·prompt bytes·agent/workflow 이름·유료 step 이름과 정수slot1은 보존한다. 세 버전을 함께 등록하고 기존 ID는 원래 이름·application_version cohort에서 회복하며 새 queued 요청만v4로 시작한다. 완료 checkpoint 없는 불명확 호출은 재호출하지 않고 예약을 유지한다. 단일worker 잠금·취소·현재 권한·기존 Claim/default·canonical JSON/hash·OpenAPI·D020 공개v1/v2/빈 reviews는 그대로다. gpt-5.4-mini Responses/store=False/retry0·요청1회/60초·총24,000/출력2,500 한도를 늘리지 않는다. v4 static instructions/schema4,639바이트+prompt14,813바이트+framing2,048+출력2,500의 사전 예산을 적용한다. v2/v3 prompt17,309/16,049 및 static2,143/3,403은 그대로다.

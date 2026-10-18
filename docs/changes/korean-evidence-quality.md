@@ -31,10 +31,10 @@
 
 ## Task 3: 귀속·목표/실적/전망을 분리하는 새 실행 버전
 
-- [ ] research-v4 지침과 별도 agent/workflow 이름을 추가하고 static instruction/schema byte budget을 다시 계산한다. 기존v2/v3의 실제 지침/schema/prompt bytes와 유료 namespace/step 순서는 그대로다. 중복 구현 대신 기존 build/validation을 제한 profile 공통 함수로 재사용하며 기존 버전의 결과는 동일하게 유지한다.
-- [ ] domain·TS/private display의 엄격한 동일 버전 SupportReview 검증에 v4를 추가한다. v3/v4 혼합·잘못된 reviewer/version·누락·다른 인용/시각을 거부한다. 공개는 v1/v2/empty만 허용하며 v3/v4 reviews를 제거해도 거부한다. generic Claim·OpenAPI/default/hash는 바꾸지 않는다. 기존 작은 분류 도움말·원문·로그인·실행/재열람 UI를 그대로 소비한다.
-- [ ] worker는 세 버전을 등록해 원래 기록 이름/version을 회복하고 새 요청만v4로 시작한다. frozen v3 worker 완료 모델 checkpoint→새 worker 무과금 재생·새v4 실행과 기존v2 재생, v3/v4 in-provider 중단/불명확 재호출 없음·slot1/단일worker·취소/권한을 실제 PG로 검증한다. 지침/단순 산술 비교·시점/귀속·자료 부족·원문 지시 회귀는 합성 모델로 검증하고 의미 품질을 테스트 고정 출력만으로 보장하지 않는다.
-- [ ] 전체 관련 JS/TS/UI·Python/PG·Ruff/문서format·mypy·build/contracts를 확인하고 D022·활성 계획/작업·실행/평가 안내에 실제 범위/남은 품질을 기록한 뒤 commit/report. 새 UI 메뉴·도구/요금·실제 서버/Sites를 변경하지 않는다.
+- [x] research-v4 지침과 별도 agent/workflow 이름을 추가하고 static instruction/schema byte budget을 다시 계산한다. 기존v2/v3의 실제 지침/schema/prompt bytes와 유료 namespace/step 순서는 그대로다. 중복 구현 대신 기존 build/validation을 제한 profile 공통 함수로 재사용하며 기존 버전의 결과는 동일하게 유지한다.
+- [x] domain·TS/private display의 엄격한 동일 버전 SupportReview 검증에 v4를 추가한다. v3/v4 혼합·잘못된 reviewer/version·누락·다른 인용/시각을 거부한다. 공개는 v1/v2/empty만 허용하며 v3/v4 reviews를 제거해도 거부한다. generic Claim·OpenAPI/default/hash는 바꾸지 않는다. 기존 작은 분류 도움말·원문·로그인·실행/재열람 UI를 그대로 소비한다.
+- [x] worker는 세 버전을 등록해 원래 기록 이름/version을 회복하고 새 요청만v4로 시작한다. frozen v3 worker 완료 모델 checkpoint→새 worker 무과금 재생·새v4 실행과 기존v2 재생, v3/v4 in-provider 중단/불명확 재호출 없음·slot1/단일worker·취소/권한을 실제 PG로 검증한다. 지침/단순 산술 비교·시점/귀속·자료 부족·원문 지시 회귀는 합성 모델로 검증하고 의미 품질을 테스트 고정 출력만으로 보장하지 않는다.
+- [x] 전체 관련 JS/TS/UI·Python/PG·Ruff/문서format·mypy·build/contracts를 확인하고 D022·활성 계획/작업·실행/평가 안내에 실제 범위/남은 품질을 기록한 뒤 commit/report. 새 UI 메뉴·도구/요금·실제 서버/Sites를 변경하지 않는다.
 
 ## Controller acceptance
 

@@ -1,4 +1,4 @@
-"""Bounded private research-v3 profile, separate from generic and public Canvas contracts."""
+"""Bounded private research-v3/v4 profiles, separate from generic and public Canvas contracts."""
 
 import re
 from datetime import datetime, timedelta
@@ -20,7 +20,10 @@ def require_raw_classification_utc(canvas: Any) -> None:
     if not isinstance(claims, (tuple, list)) or not isinstance(reviews, (tuple, list)):
         return  # Generic Canvas validation reports malformed collections.
     if (
-        not any(_field(_field(c, "derivation"), "method_version") == "research-v3" for c in claims)
+        not any(
+            _field(_field(c, "derivation"), "method_version") in {"research-v3", "research-v4"}
+            for c in claims
+        )
         and not reviews
     ):
         return
@@ -42,11 +45,12 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     research, revision = canvas.research, canvas.revision
     claims, reviews = research.claims, research.support_reviews
     versions = {c.derivation.method_version if c.derivation else None for c in claims}
-    if "research-v3" not in versions:
+    classified = {version for version in ("research-v3", "research-v4") if version in versions}
+    if not classified:
         if reviews:
-            raise ValueError("Legacy research cannot carry v3 classification")
+            raise ValueError("Legacy research cannot carry classification")
         return
-    if versions != {"research-v3"} or len(reviews) != len(claims) or len(claims) > 12:
+    if len(versions) != 1 or len(reviews) != len(claims) or len(claims) > 12:
         raise ValueError("Incomplete or mixed research classification")
     if (
         not 1 <= len(research.evidence) <= 5
@@ -59,6 +63,8 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
         or len(revision.selected_version_ids) != len(research.evidence)
     ):
         raise ValueError("Invalid classified research profile")
+    (method_version,) = classified
+    reviewer_id = "issuedigest-" + method_version
     by_id = {c.claim_id: c for c in claims}
     reviewed = set()
     for review in reviews:
@@ -80,9 +86,9 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
             or (review.reviewer_kind, review.reviewer_id, review.method, review.method_version)
             != (
                 "automated",
-                "issuedigest-research-v3",
+                reviewer_id,
                 "pydantic-ai",
-                "research-v3",
+                method_version,
             )
             or (review.scope, review.assessment)
             not in {
