@@ -21,9 +21,9 @@
 
 ## Task 2: bounded poll·상태 CLI와 수집 SDK 연결
 
-- [ ] Task1 API를 이용해 worker에 엄격 job parser와 `poll_policy_collection`/`policy_collection_status`를 구현한다. 명시 scope/간격/상한 확인과 running commit 이후에만 기존 capture SDK를 호출한다. 저장 baseline을 기존 parser/동일 기사집합으로 검증하고 compare로 현재 본문/조건을 검증한 뒤 정확 두 artifact를 저장한다. baseline의 첫 성공은 new다. HTTP/조건·파싱 실패는 각각 capture_failed/validation_failed로 남기며 기존 성공은 보존한다. DB오류/불명확 성공 commit은 추가 HTTP/실패 덮어쓰기 없이 고정 오류로 종료한다. 반환은 typed 집계/시각·상태만이다.
-- [ ] 기존 `issuedigest-policy poll PRIVATE_JOB` 및 `issuedigest-policy status PRIVATE_JOB`를 추가한다. 명시 CLI에서만 ISSUEDIGEST_DATABASE_URL을 읽고 기존 private engine lifecycle/log sink를 재사용한다. 다른 CLI 명령/파일 출력 계약을 보존한다. busy·not_due·attempt_limit는 집계된 정상 거부로 구분하고 실패한 실제 poll은 nonzero, status는 성공/실패/미완료·last_success와 age/stale를 정확히 분리한다. 상태 확인은 row/모델/HTTP를 만들지 않는다.
-- [ ] 실제 전용 PG+합성 MockTransport TDD: 첫 확보/동일 본문 재확보/본문 변경/성공뒤 HTTP오류·허용조건 오류·SIGKILL/running 복구·old/forged baseline·DB상실·동시/간격/상한 거부의0HTTP·상태조회0HTTP/0write·입력파일/중복JSON/불리언/크기·비밀 로그 비노출·기존 discover/capture/compare/prepare와 유료 실행 회귀를 검증한다. 실제 기사/신원은 사용하지 않는다. Ruff/format/mypy·관련 테스트 후 worker README에 한 번 실행/최소 간격/서버 scheduler 연결·중지/반복실행·원본 보존/한도와 미구현 범위를 적는다. lock/dependency/웹/API 계약은 바꾸지 않는다. commit/report·체크박스를 남긴다.
+- [x] Task1 API를 이용해 worker에 엄격 job parser와 `poll_policy_collection`/`policy_collection_status`를 구현한다. 명시 scope/간격/상한 확인과 running commit 이후에만 기존 capture SDK를 호출한다. 저장 baseline을 기존 parser/동일 기사집합으로 검증하고 compare로 현재 본문/조건을 검증한 뒤 정확 두 artifact를 저장한다. baseline의 첫 성공은 new다. HTTP/조건·파싱 실패는 각각 capture_failed/validation_failed로 남기며 기존 성공은 보존한다. DB오류/불명확 성공 commit은 추가 HTTP/실패 덮어쓰기 없이 고정 오류로 종료한다. 반환은 typed 집계/시각·상태만이다.
+- [x] 기존 `issuedigest-policy poll PRIVATE_JOB` 및 `issuedigest-policy status PRIVATE_JOB`를 추가한다. 명시 CLI에서만 ISSUEDIGEST_DATABASE_URL을 읽고 기존 private engine lifecycle/log sink를 재사용한다. 다른 CLI 명령/파일 출력 계약을 보존한다. busy·not_due·attempt_limit는 집계된 정상 거부로 구분하고 실패한 실제 poll은 nonzero, status는 성공/실패/미완료·last_success와 age/stale를 정확히 분리한다. 상태 확인은 row/모델/HTTP를 만들지 않는다.
+- [x] 실제 전용 PG+합성 MockTransport TDD: 첫 확보/동일 본문 재확보/본문 변경/성공뒤 HTTP오류·허용조건 오류·SIGKILL/running 복구·old/forged baseline·DB상실·동시/간격/상한 거부의0HTTP·상태조회0HTTP/0write·입력파일/중복JSON/불리언/크기·비밀 로그 비노출·기존 discover/capture/compare/prepare와 유료 실행 회귀를 검증한다. 실제 기사/신원은 사용하지 않는다. Ruff/format/mypy·관련 테스트 후 worker README에 한 번 실행/최소 간격/서버 scheduler 연결·중지/반복실행·원본 보존/한도와 미구현 범위를 적는다. lock/dependency/웹/API 계약은 바꾸지 않는다. commit/report·체크박스를 남긴다.
 
 ## Controller 인수와 반영
 
