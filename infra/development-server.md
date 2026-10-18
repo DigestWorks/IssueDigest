@@ -138,3 +138,8 @@ ssh -N -i /path/to/private-key \
 상태는 기존 명시 `issuedigest-policy status PRIVATE_JOB`로 읽는다. DB URL은 서버 설정을 메모리에서 psycopg 형식으로 정규화해 전달하며 값을 출력/명령 인수로 노출하지 않는다. status는 row·HTTP·모델 호출을 만들지 않는다. 매 실행을 추가 확보로 오인하지 않고 busy/not_due/attempt_limit와 실제 실패를 구분한다. 운영자 SDK/설정 형식은 [worker 문서](../apps/worker/README.md)와 [변경 명세](../docs/changes/policy-collection-journal.md)를 따른다.
 
 중지하려면 개인 `crontab -e`에서 `# issuedigest-policy-collection` 표시가 붙은 해당 줄만 제거하고 다른 줄을 보존한다. 재개할 때도 같은 불변 job/원본/시도 한도를 유지하며 자동 초기화·원본 삭제를 하지 않는다. 실패 이력·마지막 성공·DB 용량/720회 상한을 확인해 후속 정책을 검토한다. 원본 확보는 검색 색인 편입/브리핑/공개 게시가 아니다. 실제 전후 백업·별도 복원·기존20앱 테이블/추가 journal 포함22테이블 일치와 외부 HTTPS 결과는 [진행 기록](../docs/planning/progress.md)에 남긴다. 역할/vector를 포함한 완전 재해 복구나 main/운영 출시 완료를 뜻하지 않는다.
+
+
+## 2026-10-18 · 승인 편입·최신 검색 개인 개발 적용
+
+제품b63c7fa의 API/조사 worker를 별도 소스·Python3.13 가상환경으로 갱신했다.0009와 기존 앱의 새 receipt SELECT만 적용하고, default grants로 자동 붙은 쓰기는 해당 새 테이블에서만 제거했다. 활성 작업0 확인·정상 종료/기동·단일 worker 잠금·한 건 기준 버전 편입/같은 승인 재실행·앱 계정 최신 검색과 과거 인용·사후23테이블 일치 복원을 확인했다. 원래 정적 웹·collector a908083/config/일정·이전 앱 worktree와 계정/세션·공개v1·main/운영 유예는 보존했다. 수집기 수정 후 실제 예약 성공도 확인했고0009 이후 read-only status가 정상이다. 실행 접속·개별 승인·키는 비공개 보관하며 상세 증거는 진행 기록을 따른다.

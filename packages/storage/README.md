@@ -571,3 +571,6 @@ source ID·생성/재사용 시각을 확인하고 기존 canonical·투영 검�
 일반 literal 검색과 정확 원문 reader는 역사 버전을 계속 읽습니다. 이미 snapshot을 고정한
 run의 재실행, 일반 후속 질문의 검증된 부모 근거 재사용과 과거 유료 checkpoint 복구도
 기존 근거를 유지합니다. 새 주제를 검색하는 질문에만 최신 승인본 선택이 적용됩니다.
+
+
+운영자 권한 확인: 기존 default privileges가 새 테이블에 앱 쓰기를 자동 부여할 수도 있다. 개인 개발 적용에서 이를 확인해 `policy_intake_receipts`에만 비조회 권한을 제거하고 기존 앱의 SELECT 성공·INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER/MAINTAIN 거부를 실측했다. 기존 테이블이나 default grants를 일괄 변경하지 않는다. migration 완료와 최소 권한 검증은 별도 단계다.
