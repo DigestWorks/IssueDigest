@@ -133,11 +133,11 @@ from issuedigest_worker import PreparedPolicy, parse_policy_job, prepare_policy_
 
 
 def prepare_approved_policy(
-	approved_job_raw: bytes, capture_raw: bytes, approved_base_raw: bytes
+    approved_job_raw: bytes, capture_raw: bytes, approved_base_raw: bytes
 ) -> PreparedPolicy:
-	return prepare_policy_plan(
-		parse_policy_job(approved_job_raw), capture_raw, parse_plan(approved_base_raw)
-	)
+    return prepare_policy_plan(
+        parse_policy_job(approved_job_raw), capture_raw, parse_plan(approved_base_raw)
+    )
 ```
 
 반환값의 `plan`과 `presentations`는 private 자료다. CLI는 성공 때 집계 JSON만 출력하고 exit0으로 끝난다. 실패는 `Unable to complete policy operation`/exit1, 인수 오류는 `Invalid policy arguments`/exit2다. 경로·기사 ID·HTML·인용·job·hash·원시 예외를 공개 로그나 Git/PR/Sites에 기록하지 않는다.
