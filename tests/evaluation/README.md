@@ -10,8 +10,9 @@
 ## 운영자용 저장 근거 검색 평가
 
 `issuedigest-evaluate-retrieval`은 운영자가 명시 실행하는 내부 도구다. 기존
-`question_terms`와 `retrieve_snapshot_ids`를 그대로 호출한다. 초기 전략 profile은
-`question-terms-v1`이며, 투영 profile `literal-ngrams-v1`과 구분한다.
+`question_terms`와 `retrieve_snapshot_ids`를 그대로 호출한다. 초기 baseline 전략은
+`question-terms-v1`, 현재 제한 한국어 검색 전략은 `question-topics-ko-v2`이며,
+투영 profile `literal-ngrams-v1`과 구분한다. 이전 전략을 실행 옵션으로 제공하지 않는다.
 합성 PG 회귀는 실제 자료 평가와 별도다. 위 20문항은 여전히 **실제 실행 전**이며,
 이 도구의 합성 테스트 통과가 그 문항의 실행·보류 상태를 바꾸지 않는다.
 
@@ -102,6 +103,29 @@ baseline/candidate 비교는 `question_gold_sha256`, `declared_corpus_sha256`,
 `corpus_sha256`가 같은 report끼리 수행한다. expected DB/workspace와 원래 평가 범위도
 확인하고, 다른 전략은 서로 다른 `retrieval_profile`로 구별한다. 질문 순서나 gold를
 바꾸면 같은 평가가 아니다. 새 report 파일을 사용하고 실제 평가 판정은 운영자가 남긴다.
+
+현재 검색은 최대8개 질문 원형을 보존하고, 알려진 조사 제거를 원형마다 최대1개
+추가한다(최대16개 조회, 계약 상한24개 이내). `AI는`→`AI`, `2026년도`→`2026년`,
+`2026년에는`→`2026년`처럼 ASCII/숫자가 섞인 원형도 다룬다. 원형은 ASCII 대소문자만
+같게 비교하며 숫자·단위·시간·대상·부정·고유명사의 의미 동일성을 추정하지 않는다.
+비교/정리 요청 표현을 검색 주제에서 제외하지만 일반 후속 질문 판정은 확대하지 않는다.
+
+검색 변형별로 실제 전체 문자열 일치가 있는 문단을 snapshot별 순번으로 번갈아
+최대200개 검사하고201번째로 잘림을 감지한다. 길이4 이상 문자열은 ASCII space,
+tab, LF, CR, form feed, vertical tab만 제거한 전체 문자열의 실제 포함도 확인한다.
+제로폭 공백·NBSP 등 다른 문자는 제거하지 않는다. 이 동작은 띄어쓰기 대응이며
+동의어/의미 검색이 아니다. ngram 집합은 전처리 필터이며 실제 일치를 대신하지 않는다.
+원형·변형·동일 snapshot 반복 문단은 같은 주제의 점수를 중복 가산하지 않는다.
+주제 일치 수→원형 직접 일치 수→안정된 snapshot ID 순으로 정렬하고 변형별 상위20개,
+최종 후보 상위20개에서5개를 선택한다. 기존 canonical/투영 hash·selector·workspace
+검증을 통과해야 하며 해석한 query로 원문 위치를 만들지 않는다. 후보 제한·색인 누락
+아래의 미발견과 자료 자체의 부재를 구분한다.
+
+Task2의 고정 합성7문항(positive6/negative1)은 같은 질문/gold/corpus fingerprint에서
+family Recall@5 0.25→0.8333, Hit@1 0.3333→0.8333, 필수 가족 모두 발견
+0.1667→0.8333, negative no-match 1.0→1.0을 기록했다. mixed/year/띄어쓰기/반복 문단
+4문항은 개선, 문자 일치·negative2문항은 동일, 없는 근거를 기대한1문항은 계속0점이다.
+합성 결과는 실제 자료·기존20문항·인용 지지·답변 품질의 판정이 아니다.
 
 합성 회귀 실행(전용 local test DB만 지정):
 

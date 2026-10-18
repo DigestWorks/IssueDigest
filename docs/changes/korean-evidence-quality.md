@@ -25,9 +25,9 @@
 
 ## Task 2: 한국어 변형·문서 균형을 갖춘 제한 검색
 
-- [ ] 주제 원형을 최대8개 보존하고 알려진 조사·혼합 ASCII/숫자+한국어 어미의 제한된 변형을 주제당3개 이하로 만든다. 표현용 단어와 실제 topic을 구분하되 부모 재사용 규칙을 완화하지 않는다. 긴 복합어의 명시 공백 차이를 전체 문자열 실제 일치로 확인하며 폭넓은 유사어·의미·숫자 추정을 하지 않는다.
-- [ ] 내부 research 검색의 후보가 한 문서의 반복 문단으로 잠식되지 않도록 snapshot별 후보를 균형 있게 가져온다. 원형/변형별 최대200후보·상위20 snapshot/최종5와 canonical projection/hash·정확 위치·workspace 검증을 유지한다. 실제 전체 literal/명시 공백 일치가 확인된 row만 후보로 쓰고 ngram 집합 일치를 정답으로 간주하지 않는다. 원형 직접 일치와 distinct topic coverage를 결정적으로 점수화한다. generic/default fallback·시간 최신성·외부 호출을 추가하지 않는다.
-- [ ] TDD: mixed AI는/숫자년도·띄어쓰기·원형 보존/고유명사·반복 문단20개+다른 문서·false-positive ngram·raw/변형 중복 점수·동률·8주제/24변형/200후보/20문서/5결과·권한/부모일반질문/새주제/동결근거·잘못된 투영/인용을 검증한다. Task1 도구로 합성 고정 평가의 baseline/candidate를 비교하고 개선/비개선/실패를 모두 보고한다. 기존 원문 문자 검색 API·projection/hash·생성계약은 그대로이며 관련 PG/검색·Ruff/mypy 후 commit/report.
+- [x] 주제 원형을 최대8개 보존하고 알려진 조사·혼합 ASCII/숫자+한국어 어미의 제한된 변형을 주제당3개 이하로 만든다. 표현용 단어와 실제 topic을 구분하되 부모 재사용 규칙을 완화하지 않는다. 긴 복합어의 명시 공백 차이를 전체 문자열 실제 일치로 확인하며 폭넓은 유사어·의미·숫자 추정을 하지 않는다.
+- [x] 내부 research 검색의 후보가 한 문서의 반복 문단으로 잠식되지 않도록 snapshot별 후보를 균형 있게 가져온다. 원형/변형별 최대200후보·상위20 snapshot/최종5와 canonical projection/hash·정확 위치·workspace 검증을 유지한다. 실제 전체 literal/명시 공백 일치가 확인된 row만 후보로 쓰고 ngram 집합 일치를 정답으로 간주하지 않는다. 원형 직접 일치와 distinct topic coverage를 결정적으로 점수화한다. generic/default fallback·시간 최신성·외부 호출을 추가하지 않는다.
+- [x] TDD: mixed AI는/숫자년도·띄어쓰기·원형 보존/고유명사·반복 문단20개+다른 문서·false-positive ngram·raw/변형 중복 점수·동률·8주제/24변형/200후보/20문서/5결과·권한/부모일반질문/새주제/동결근거·잘못된 투영/인용을 검증한다. Task1 도구로 합성 고정 평가의 baseline/candidate를 비교하고 개선/비개선/실패를 모두 보고한다. 기존 원문 문자 검색 API·projection/hash·생성계약은 그대로이며 관련 PG/검색·Ruff/mypy 후 commit/report.
 
 ## Task 3: 귀속·목표/실적/전망을 분리하는 새 실행 버전
 
