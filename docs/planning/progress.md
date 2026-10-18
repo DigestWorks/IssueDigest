@@ -10,6 +10,9 @@
 - 백업/복원: 사전·직전·사후 full/app archive를 서버 밖 private 저장소에 보존했다. 사후app archive를 별도 소유 PostgreSQL18.6의 빈 DB에 복원해23테이블 전체 row hash/count가 실제 서버와 같고, 적용 전22테이블 원래 행이 전부 남아 있음을 확인했다(정상 사용자 활동의 session last_activity_at만 비교에서 제외). 복원 후에도 최신 질문/역사 인용·14canonical을 재검증했다. 실제 durable7테이블은 전후/복원 모두0행이며 유료 checkpoint 호환성은 합성 복구 검사 증거로 구분한다. 역할/vector 확장 전체를 포함한 재해 복구 검증은 아니다.
 - 경계/다음: 고정 기사 한 건의 시간당 확보·검토 편입 기반이며 광범위한 최근 시사 수집·실제 내용 변경 관측·자동 승인/공개 게시·자율 외부 조사·의미/그래프 검색·전체 응답 품질은 미완료다. 다음 M2는 승인 출처 확대와 최근 이슈 발견, M3는 실제 질문의 귀속/수치/한계 품질과 승인 도구 탐색이다. 개별 원문/ID/권리 승인·접속/계정/키/상세 receipt는 공개 기록 밖에 보존한다. Sites 최종 반영 대기, main/운영 유예(D013)와 사용자 탭 유지.
 
+- 최종 인계: [Sites v61](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시가 native `succeeded`다. source `983bd10a90fc4d5c0105621edafe5d505db546d5`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_303ad8e1c82881919cb0fe91feefc150`, deployment `appgdep_6ad4eb66aacc81918d9ac89876c258ba`. 사본 기준ce25ede·이전v60 보존·HTML46/로컬 링크·자산·앵커1,103/공개 텍스트114파일의 실제 비밀값 제외를 확인했다. 내용/표만 갱신했으며 새 브라우저 QA·사용자 탭 열기/이동은 하지 않았다. [코드와 인수기록 CI39141908139](https://github.com/DigestWorks/IssueDigest/actions/runs/39141908139)는 성공했다. 이후 변경은 실제 적용·출판 기록뿐이며 제품b63c7fa는 동일하다.
+- 정리: 전체ID/소유label/이미지/loopback 포트를 확인한 이번 QA·복원 컨테이너2개/익명 볼륨을 제거하고25460/25461 닫힘을 확인했다. 원본 백업·실제 승인/상세 인수·독립 검토는 private에 보존하며 이번 작업 scratch만 별도 보관 후 정리했다. 실제 개발 API/worker/collector·개발 환경·PR worktree·다른 계획 기록은 유지한다. main/운영은 병합하지 않았다.
+
 ## 구현·통합 검사 · 수집본 검토·버전·검색 편입 · 2026-10-18
 
 - 범위: [명세](../changes/policy-collection-intake.md)·M2·`feat/policy-collection-intake`, 제품 소스b63c7fa. 기존 시간당 확보를 유지하고 명시 승인한 특정 성공 원본→원문/인용/표시/검색/receipt의 원자 편입→새 질문의 최신 승인본 선택을 구현했다. 현재 실제 서버 반영과 Sites는 대기이며 main/운영 유예(D013)를 유지한다.
