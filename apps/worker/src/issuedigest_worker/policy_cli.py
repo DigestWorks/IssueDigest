@@ -19,6 +19,7 @@ from issuedigest_storage.provisioning import MAX_PLAN_BYTES, parse_plan
 
 from .cli import _ArgumentError, _Parser
 from .files import check_private_output, read_private, write_private
+from .policy_changes import compare_policy_captures
 from .policy_job import MAX_POLICY_JOB_BYTES, parse_policy_job
 from .policy_prepare import prepare_policy_plan
 
@@ -34,6 +35,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     capture.add_argument("collected_at", metavar="AWARE_ISO_TIME")
     capture.add_argument("output", metavar="PRIVATE_NEW_CAPTURE")
     capture.add_argument("news_ids", nargs="+", metavar="EXPLICIT_ARTICLE_ID")
+    compare = commands.add_parser("compare", allow_abbrev=False)
+    compare.add_argument("capture", metavar="PRIVATE_CAPTURE")
+    compare.add_argument("output", metavar="PRIVATE_NEW_OUTPUT")
+    compare.add_argument("--previous", metavar="PRIVATE_CAPTURE")
     prepare = commands.add_parser("prepare", allow_abbrev=False)
     prepare.add_argument("job", metavar="PRIVATE_APPROVED_JOB")
     prepare.add_argument("capture", metavar="PRIVATE_CAPTURE")
@@ -73,6 +78,22 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "status": "captured",
                 "requests": len(ids),
                 "sources": len(ids),
+            }
+        elif args.operation == "compare":
+            report = compare_policy_captures(
+                read_private(args.capture, MAX_POLICY_CAPTURE_BYTES),
+                previous_raw=read_private(args.previous, MAX_POLICY_CAPTURE_BYTES)
+                if args.previous is not None
+                else None,
+            )
+            raw = report.model_dump_json(warnings="error").encode("utf-8")
+            summary = {
+                "schema_version": 1,
+                "status": "compared",
+                **{
+                    status: sum(source.status == status for source in report.sources)
+                    for status in ("new", "changed", "unchanged", "not_observed")
+                },
             }
         else:
             job = parse_policy_job(read_private(args.job, MAX_POLICY_JOB_BYTES))

@@ -71,7 +71,7 @@ def prepare(job: HwpxJob, approved_base: ProvisioningPlan) -> ProvisioningPlan:
 
 ## 정책뉴스를 확인하고 비공개 등록 계획을 준비하기
 
-`issuedigest-policy`는 운영자가 명시 실행하는 `discover` → `capture` → `prepare` 명령이다. 발견은 고정 HTTPS 주소 `https://www.korea.kr/news/policyNewsList.do`의 첫 페이지 결과 영역만 읽는다. 확보는 정확한 `https://www.korea.kr/news/policyNewsView.do?newsId=<9자리 ASCII 숫자>` 기사1~2개만 읽는다. 목록의 제목·날짜·순서는 발견 메타데이터이며 근거·인기·사실 판정에 쓰지 않는다. RSS·다른 도메인·redirect·추적 query·인증·JavaScript를 따라가지 않는다.
+`issuedigest-policy`는 운영자가 명시 실행하는 `discover` → `capture` → `compare`/`prepare` 명령이다. 발견은 고정 HTTPS 주소 `https://www.korea.kr/news/policyNewsList.do`의 첫 페이지 결과 영역만 읽는다. 확보는 정확한 `https://www.korea.kr/news/policyNewsView.do?newsId=<9자리 ASCII 숫자>` 기사1~2개만 읽는다. 목록의 제목·날짜·순서는 발견 메타데이터이며 근거·인기·사실 판정에 쓰지 않는다. RSS·다른 도메인·redirect·추적 query·인증·JavaScript를 따라가지 않는다.
 
 ### 발견하고 기사1~2개를 명시 확보하기
 
@@ -145,6 +145,41 @@ def prepare_approved_policy(
 준비 후에는 기존 [비공개 등록 CLI](../../packages/storage/README.md#비공개-작업-공간-등록-cli)의 오프라인 검증 → 대상 DB 검사 → 명시 `--apply` → 같은 계획 반복 확인을 따른다. 필요한 DB/백업/권한은 그 절차에서 따로 확인한다. 등록 뒤 새 snapshot마다 기존 [`EvidenceRepository.rebuild_projection`](../../packages/storage/README.md#명시적-문자-검색-투영보호-sdk)을 명시 호출하고, 준비한 제목은 기존 [`ResearchRepository.upsert_presentation`](../../packages/storage/README.md#조사-저장)으로 저장한다. 새 DB write CLI나 자동 outbox 소비를 추가하지 않는다.
 
 수집·준비·등록은 공개 게시가 아니다. D020의 별도 [전체 내용/권리·계획 hash 검토와 공개 게시](../../packages/storage/README.md#검토한-공개-브리핑)를 그대로 거쳐야 한다. 이 경로를 import/startup·공개 GET·로그인 복원·질문 시 자동 수집에 연결하지 않는다. 전체 웹 탐색·정기 수집·최신/인기 선정이나 자동 게시를 제공하지 않는다.
+
+### 확보한 capture의 변경 비교
+
+`compare`는 이미 확보한 정확 capture bytes만 읽는 오프라인 명령이다. 네트워크·모델·DB를 호출하지 않는다. 첫 비교에서는 `--previous`를 생략하고, 다음 비교에서는 운영자가 이전 capture를 명시한다. 아래 모든 경로는 새 출력이 있는 개인 절대 경로의 구문 예시다.
+
+```sh
+uv run issuedigest-policy compare /absolute/private/policy/current.json /absolute/private/policy/first-report.json
+uv run issuedigest-policy compare /absolute/private/policy/current.json /absolute/private/policy/change-report.json --previous /absolute/private/policy/previous.json
+```
+
+SDK는 `issuedigest_worker.policy_changes.compare_policy_captures(current_raw: bytes, *, previous_raw: bytes | None = None) -> PolicyChangeReport`다. 두 capture의 기존 JSON·개수·식별자·URL·시각 검증과 모든 기사의 HTML SHA·본문·이용 조건 검증을 다시 수행한다. 이전보다 오래된 수집 시각은 거부한다. 같은 instant의 서로 다른 bytes도 거부하며, 정확 동일 bytes는 허용한다. 어느 쪽 기사라도 검증이 실패하면 비교 전체가 실패한다.
+
+| 상태 | 판단 |
+| --- | --- |
+| `new` | 이전 capture가 없거나 해당 기사가 이전에 없음 |
+| `unchanged` | 같은 source ID의 검증된 의미 필드가 모두 같음 |
+| `changed` | 같은 source ID의 검증된 의미 필드가 달라짐 |
+| `not_observed` | 이전 capture에만 있음. 삭제·철회로 해석하지 않음 |
+
+의미 필드는 `text_sha256`, `title`, `publisher`, `publication_date`, `license_notice`, `license_url`, `parser_name`, `parser_version`, `normalization_profile`이다. 날짜는 ISO 날짜 문자열로 만든 뒤 정렬 key·공백 없는 UTF-8 JSON의 SHA-256을 fingerprint로 사용한다. 수집 시각·HTML 장식·사진·추적 token·기사 배열 순서는 의미 변경에 포함하지 않는다. 허용되지 않는 이용 조건은 `changed`로 통과시키지 않고 실패한다. 이 비교는 사실·중요도·정정·철회·최신 전체 수집 여부를 판정하지 않는다.
+
+최대64KiB의 불변·엄격 typed private 보고서는 `schema_version=1`, `profile="policy-change-v1"`, 정확 before/after capture SHA-256·수집 시각과 ID순의 source별 상태·before/after fingerprint·정렬된 `changed_fields`를 담는다. 첫 비교의 before capture 정보와 `new`/`not_observed`의 없는 쪽 fingerprint는 null이다. `changed_fields`는 `changed`에서만 달라진 의미 필드 이름을 담는다. 보고서에 원문 HTML·본문·제목·발행 주체를 복제하지 않는다.
+
+출력 사전 검사·입력400/600·출력 부모700·symlink 거부·새600 파일의 배타적 원자 저장은 기존 private-file helper와 같다. 성공 stdout은 `schema_version`, `status="compared"`, `new`/`changed`/`unchanged`/`not_observed` 개수만 담는다. 작업 실패는 기존 `Unable to complete policy operation`/exit1, 인수 오류는 `Invalid policy arguments`/exit2이며 SDK 실패는 `PreparationError("Unable to compare policy captures")`다.
+
+최초/이전/현재 capture bytes와 각 보고서는 Git·PR·Sites·공개 로그 밖의 private 보관 정책에 따라 함께 보존한다. 공백·재직렬화도 capture hash를 바꾸므로 비교 뒤 기존 capture나 보고서를 덮어쓰지 않는다. 새 비교는 새 파일로 저장하고 이전 원문·인용·승인 계획은 그대로 보존한다. 자동 수집·정기 실행·보존 기간/자동 삭제·새 버전 ID 생성·등록/공개 게시·질문 중 자율 탐색은 추가하지 않는다. `changed`/`new`도 운영자의 내용·이용 조건 검토와 기존 명시 승인/등록·게시 절차를 거쳐야 한다.
+
+합성 회귀는 저장소 루트에서 실행한다.
+
+```sh
+uv run pytest apps/worker/tests/test_policy_changes.py apps/worker/tests/test_policy_import.py packages/connectors/tests/test_policy_sdk.py packages/ingestion/tests/test_policy_html.py
+uv run ruff check apps/worker
+uv run ruff format --check apps/worker
+uv run mypy
+```
 
 ## 내구 조사 작업자
 
