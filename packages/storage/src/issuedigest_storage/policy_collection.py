@@ -126,6 +126,10 @@ def _time(value: datetime) -> datetime:
         raise PolicyCollectionError() from None
 
 
+def _now() -> datetime:
+    return datetime.now(UTC)
+
+
 def _payload(config: PolicyCollectionConfig) -> tuple[dict[str, Any], str]:
     payload = config.model_dump(mode="json")
     raw = json.dumps(payload, sort_keys=True, separators=(",", ":"), ensure_ascii=True).encode()
@@ -246,16 +250,23 @@ class PolicyCollectionRepository:
         except Exception:
             raise PolicyCollectionError() from None
 
-    def status(self, config: PolicyCollectionConfig, *, now: datetime) -> PolicyCollectionStatus:
+    def status(
+        self, config: PolicyCollectionConfig, *, now: datetime | None = None
+    ) -> PolicyCollectionStatus:
         try:
-            config, now = self._validate(config), _time(now)
+            config = self._validate(config)
+            if now is not None:
+                now = _time(now)
             with self._engine.connect().execution_options(
                 isolation_level="REPEATABLE READ", postgresql_readonly=True
             ) as conn:
                 with conn.begin():
                     _database(conn, config)
                     bound = _binding(conn, config)
-                    state = _history(conn, config, now)
+                    # The metadata read has established the consistent snapshot. Sampling
+                    # earlier can falsely reject a healthy poll committed before that read.
+                    observed_at = _time(_now()) if now is None else now
+                    state = _history(conn, config, observed_at)
                     if not bound and state.attempt_count:
                         raise PolicyCollectionError()
                     return state

@@ -248,7 +248,7 @@ def _attempt_summary(
 def policy_collection_status(
     engine: Engine, config: PolicyCollectionConfig, *, now: datetime | None = None
 ) -> PolicyCollectionStatusSummary:
-    state = PolicyCollectionRepository(engine).status(config, now=_now() if now is None else now)
+    state = PolicyCollectionRepository(engine).status(config, now=now)
     return PolicyCollectionStatusSummary(
         attempt_count=state.attempt_count,
         latest=_attempt_summary(state.latest),

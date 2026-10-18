@@ -211,6 +211,51 @@ def test_reversed_clock_does_not_interrupt_or_write(engine):
     assert repo.status(cfg, now=NOW).latest.state == "running"
 
 
+@pytest.mark.parametrize("state", ["running", "succeeded"])
+def test_live_status_samples_time_after_snapshot_and_still_rejects_future_rows(
+    engine, monkeypatch, state
+):
+    a, cfg = api(), config()
+    repo = a.PolicyCollectionRepository(engine)
+    observed_at = NOW
+    monkeypatch.setattr(a, "_now", lambda: observed_at)
+    with repo.lease(cfg) as writer:
+        reader_driver = None
+
+        def commit_before_snapshot(conn, cursor, statement, parameters, context, many):
+            nonlocal observed_at, reader_driver
+            if reader_driver is None and conn is not writer._connection:
+                reader_driver = conn.connection.driver_connection
+                attempt = writer.start(now=NOW + timedelta(seconds=1)).attempt
+                if state == "succeeded":
+                    writer.succeed(
+                        attempt.attempt_id,
+                        b"capture",
+                        b"report",
+                        finished_at=NOW + timedelta(seconds=2),
+                    )
+                observed_at = NOW + timedelta(seconds=3)
+
+        event.listen(engine, "before_cursor_execute", commit_before_snapshot)
+        try:
+            result = repo.status(cfg)
+        finally:
+            event.remove(engine, "before_cursor_execute", commit_before_snapshot)
+        assert reader_driver is not None and reader_driver is not writer._driver
+    assert result.attempt_count == 1 and result.latest.state == state
+    if state == "succeeded":
+        assert result.latest == result.last_success
+        assert result.age_seconds == 1 and not result.stale
+    else:
+        assert result.last_success is None and result.age_seconds is None and result.stale
+    with pytest.raises(a.PolicyCollectionError):
+        repo.status(cfg, now=NOW)
+    observed_at = NOW
+    with pytest.raises(a.PolicyCollectionError):
+        repo.status(cfg)
+    assert repo.status(cfg, now=NOW + timedelta(seconds=3)) == result
+
+
 def test_forged_config_rejection_does_not_emit_private_warnings(engine, recwarn):
     a, cfg = api(), config()
     forged = cfg.model_copy(update={"collection_id": "private-invalid-id"})

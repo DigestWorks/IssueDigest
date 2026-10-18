@@ -357,6 +357,45 @@ def test_status_uses_read_only_transactions_and_creates_no_channels(engine, monk
         assert conn.scalar(text("SELECT count(*) FROM policy_collection_channels")) == 0
 
 
+def test_live_status_observes_poll_committed_before_its_snapshot(engine, monkeypatch):
+    storage_api = importlib.import_module("issuedigest_storage.policy_collection")
+    a, cfg, clock = api(), job(), Clock()
+    a.poll_policy_collection(engine, cfg, clock=clock, transport=source(clock))
+    clock.advance()
+    monkeypatch.setattr(a, "_now", clock)
+    monkeypatch.setattr(storage_api, "_now", clock)
+    reader_driver = None
+    writer_drivers = []
+    pending = True
+
+    def commit_poll_before_snapshot(conn, cursor, statement, parameters, context, many):
+        nonlocal pending, reader_driver
+        if pending and conn.get_execution_options().get("postgresql_readonly"):
+            pending = False
+            reader_driver = conn.connection.driver_connection
+            clock.advance(1)
+            result = a.poll_policy_collection(engine, cfg, clock=clock, transport=source(clock))
+            assert result.outcome == "succeeded"
+        elif "INSERT INTO policy_collection_attempts" in statement:
+            writer_drivers.append(conn.connection.driver_connection)
+
+    event.listen(engine, "before_cursor_execute", commit_poll_before_snapshot)
+    try:
+        result = a.policy_collection_status(engine, cfg)
+    finally:
+        event.remove(engine, "before_cursor_execute", commit_poll_before_snapshot)
+    assert writer_drivers and all(driver is not reader_driver for driver in writer_drivers)
+    assert result.attempt_count == 2
+    assert result.latest == result.last_success
+    assert result.latest.sequence == 2 and result.latest.state == "succeeded"
+    assert result.latest.started_at == AT + timedelta(seconds=63)
+    assert result.latest.finished_at == AT + timedelta(seconds=65)
+    assert result.age_seconds == 0 and not result.stale
+    assert len(rows(engine)) == 2
+    with pytest.raises(storage_api.PolicyCollectionError):
+        a.policy_collection_status(engine, cfg, now=AT + timedelta(seconds=64))
+
+
 def test_sigkill_running_is_recovered(engine):
     a, cfg, clock = api(), job(), Clock()
     code = """

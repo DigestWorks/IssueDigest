@@ -479,10 +479,12 @@ SHA를 원자적으로 저장합니다. `session.fail(..., "capture_failed" | "v
 finished_at=...)`은 실패 코드만 남기고 마지막 성공을 유지합니다. 완료 행과 원본을
 수정·삭제하는 repository API는 없습니다. 자동 보존 삭제도 없습니다.
 
-`repository.status(config, now=...)`는 REPEATABLE READ·READ ONLY transaction에서
+`repository.status(config, now=None)`는 REPEATABLE READ·READ ONLY transaction에서
 attempt_count·latest·last_success·age_seconds·stale를 구분하며 raw bytes를 조회하지
-않습니다. 알려지지 않은 collection도 행을 만들지 않습니다. age/stale의 기준은 마지막
-성공의 `finished_at`이며 SDK 발행일·본문 최신성·전체 기사 수집 완전성을 뜻하지 않습니다.
+않습니다. 기본 관측 시각은 일관된 snapshot을 확보한 뒤에 읽습니다. 명시한 `now`는
+관측된 시작·완료보다 과거이면 거부합니다. 알려지지 않은 collection도 행을 만들지
+않습니다. age/stale의 기준은 마지막 성공의 `finished_at`이며 SDK 발행일·본문 최신성·전체
+기사 수집 완전성을 뜻하지 않습니다.
 이는 마지막 성공 확보 완료 시각 기준입니다. 상태 모델의 내부 식별자는 CLI 출력 대상이 아닙니다.
 
 모든 시각은 timezone을 가진 datetime이며 저장 경계에서 UTC로 정규화합니다.
