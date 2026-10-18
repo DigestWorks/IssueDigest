@@ -12,7 +12,7 @@ IssueDigest는 질문에서 시작해 이슈의 맥락·쟁점·변화를 이해
 
 - [문서 안내·협업 방법](docs/README.md)
 - [에이전트 지침](AGENTS.md)
-- [구현 계획](docs/planning/implementation-plan.md)
+- [구현 계획·마일스톤](docs/planning/implementation-plan.md#마일스톤)
 - [요구사항·설계](docs/planning/requirements-design.md)
 - [결정 기록](docs/planning/decisions.md)
 - [작업 목록](docs/planning/tasks.md)
