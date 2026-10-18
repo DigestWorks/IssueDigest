@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 작업 시작 · 수집본 검토·버전·검색 편입 · 2026-10-18
+
+- 요구/범위: 내부 파이프라인 다음 개발 계속. `feat/policy-collection-intake`, [명세](../changes/policy-collection-intake.md)·M2, PR38 기반9bd61d2에서 시작한다. 시간당 raw 수집기를 유지하고 특정 성공 원본을 검토한 명시 편입·중복 재사용·새 승인 버전·원자 원문/표시/검색/receipt·새 질문의 최신 승인 선택을 연결한다.
+- 경계/판단: 첫 추적은 옛 metadata의 동일성을 추정하지 않고 검증된 기준 버전을 만든다. 이후 source fingerprint와 승인 인용 selector/순서가 같아야 기존 snapshot을 재사용하며 인용 선택이 바뀌면 새 승인 버전이다. 과거 인용/브리핑과 generic 역사 검색을 보존한다.
+- 현재/검증: OpenSpec root=null과 clean isolated worktree를 확인하고 세 task/API/인수 기준을 정리했다. 구현·실제 적용은 미완료, 기존0008·개발 앱·계정/세션·공개 게시와 collector는 아직 변경하지 않았다. 현재 Sites 반영 대기.
+- 다음: 저장 transaction→승인 SDK/CLI→최신 승인 검색을 작업별 TDD/독립 검토로 구현하고 전체 검사를 수행한다. 실제 백업/복원·한 건 승인 적용과 기존 app SELECT/안전 재시작 가능 여부는 controller가 확인한다. main/운영 유예(D013)와 사용자 탭을 유지한다.
+
 ## 개발 적용 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
 
 - 범위/브랜치: `feat/policy-collection-journal`, [명세](../changes/policy-collection-journal.md)·M2. 검토한 고정 공식 기사1건의 재확보를 별도 내부 수집기로 연결했다. 첫 실제 확보 성공과 원본/변경 보고서 저장을 확인했고 개인 cron의 시간당 실행을 설치했다. main/운영 공개(D013)는 유예한다. [Draft PR38](https://github.com/DigestWorks/IssueDigest/pull/38)을 PR37 기반으로 생성했다. Sites 최종 반영은 아래 출판 기록으로 구분한다.

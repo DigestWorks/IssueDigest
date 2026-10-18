@@ -2,7 +2,16 @@
 
 2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 정책뉴스 반복 확보·실행 이력 · M2
+## 현재 변경 · 수집본 검토·버전·검색 편입 · M2
+
+[명세](../changes/policy-collection-intake.md)를 따른다. 기존 수집기의 특정 성공 원본을 검토한 뒤 원문·표시·검색·편입 이력을 한 transaction에 저장한다.
+
+- [ ] 고정 성공 원본 읽기와 receipt·동일 내용/인용 재사용·변경 버전·원자 저장/색인을 구현·검증한다.
+- [ ] 기존 순수 준비 SDK와 엄격 승인 job/명시 check/apply CLI를 연결한다.
+- [ ] 새 질문에서 마지막 승인 snapshot을 사용하고 구판/기존 인용·역사 검색을 보존한다.
+- [ ] 전체/독립 검토·별도 복원과 실제 한 건 적용·안전한 개발 갱신·PR·Sites/마일스톤 기록을 확인한다.
+
+## 완료 기반 · 정책뉴스 반복 확보·실행 이력 · M2
 
 [명세](../changes/policy-collection-journal.md)를 따른다. 비교 도구를 반복 실행 가능한 수집·저장·상태 확인으로 연결한다.
 
