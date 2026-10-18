@@ -14,10 +14,10 @@
 
 ## Task 1: PostgreSQL 수집 journal·잠금·불변 실행 저장
 
-- [ ] `0008_policy_collection` migration·schema를 추가한다. `policy_collection_channels`에는 collection_id·정규화 설정/해시·생성 시각, `policy_collection_attempts`에는 attempt UUID4·channel FK·단조 sequence·running/succeeded/failed·시작/완료 시각·고정 failure_code와 성공 capture/report bytes/SHA를 저장한다. 관계·상태/nullable·양의 sequence/크기/완료시각 제약을 schema와 migration에 함께 둔다. 원본/완료행은 repository에서 append-only이며 기존 테이블은 변경하지 않는다. 합성 fixture reset에 두 테이블을 추가한다.
-- [ ] 새 storage 모듈에 불변 scope/config 모델과 repository/session API를 만든다. DB 검증→명시 lease→설정 결합/검증→현재 상태/마지막 성공 확인→이전 running interrupted 마감→간격/상한 확인→새 running 시작→성공/실패 terminal 저장→unlock/close를 제공한다. 상태 조회는 생성/DDL·네트워크 없이 일관된 read-only transaction, baseline은 저장 SHA와 byte 길이/타입을 재검증한다. 모든 입력은 재검증하며 forged model_construct/model_copy 우회·시각 역전·unknown state·상태 충돌·stored hash/설정 변조·DB/잠금 연결 상실은 고정 오류로 닫는다. 완료 불명확 응답은 자동 재시도하지 않는다.
-- [ ] worker가 다음 Task에서 쓸 최소 API·타입을 정하고 사용 예·transaction 경계·잠금 해제/connection-loss 의미를 report에 적는다. storage에는 connector/worker 의존성을 추가하지 않는다. report는 opaque exact bytes로 저장하고 SDK 비교/semantic 검증 책임은 worker가 맡는다. status에 private raw를 출력하지 않으며 worker가 필요한 때만 검증된 baseline을 읽는다.
-- [ ] TDD RED→GREEN으로 실제 전용 PG의 migration/반복·설정 불변·DB명·최소 간격/상한·성공뒤실패/중단·현재 상태/마지막 성공·hash corruption·동시 lease/다른backend/잠금상실·terminal 불명확 commit·읽기-only/no-write·크기/타입·기존 원문/공개/세션 보존을 검증한다. Ruff/format/mypy와 관련 PG 회귀 후 storage README·체크박스·report·커밋. 전체 suite는 controller가 실행한다.
+- [x] `0008_policy_collection` migration·schema를 추가한다. `policy_collection_channels`에는 collection_id·정규화 설정/해시·생성 시각, `policy_collection_attempts`에는 attempt UUID4·channel FK·단조 sequence·running/succeeded/failed·시작/완료 시각·고정 failure_code와 성공 capture/report bytes/SHA를 저장한다. 관계·상태/nullable·양의 sequence/크기/완료시각 제약을 schema와 migration에 함께 둔다. 원본/완료행은 repository에서 append-only이며 기존 테이블은 변경하지 않는다. 합성 fixture reset에 두 테이블을 추가한다.
+- [x] 새 storage 모듈에 불변 scope/config 모델과 repository/session API를 만든다. DB 검증→명시 lease→설정 결합/검증→현재 상태/마지막 성공 확인→이전 running interrupted 마감→간격/상한 확인→새 running 시작→성공/실패 terminal 저장→unlock/close를 제공한다. 상태 조회는 생성/DDL·네트워크 없이 일관된 read-only transaction, baseline은 저장 SHA와 byte 길이/타입을 재검증한다. 모든 입력은 재검증하며 forged model_construct/model_copy 우회·시각 역전·unknown state·상태 충돌·stored hash/설정 변조·DB/잠금 연결 상실은 고정 오류로 닫는다. 완료 불명확 응답은 자동 재시도하지 않는다.
+- [x] worker가 다음 Task에서 쓸 최소 API·타입을 정하고 사용 예·transaction 경계·잠금 해제/connection-loss 의미를 report에 적는다. storage에는 connector/worker 의존성을 추가하지 않는다. report는 opaque exact bytes로 저장하고 SDK 비교/semantic 검증 책임은 worker가 맡는다. status에 private raw를 출력하지 않으며 worker가 필요한 때만 검증된 baseline을 읽는다.
+- [x] TDD RED→GREEN으로 실제 전용 PG의 migration/반복·설정 불변·DB명·최소 간격/상한·성공뒤실패/중단·현재 상태/마지막 성공·hash corruption·동시 lease/다른backend/잠금상실·terminal 불명확 commit·읽기-only/no-write·크기/타입·기존 원문/공개/세션 보존을 검증한다. Ruff/format/mypy와 관련 PG 회귀 후 storage README·체크박스·report·커밋. 전체 suite는 controller가 실행한다.
 
 ## Task 2: bounded poll·상태 CLI와 수집 SDK 연결
 
