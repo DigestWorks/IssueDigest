@@ -5,6 +5,7 @@
 - 요구/범위: 내부 파이프라인 다음 개발 계속. `feat/policy-collection-intake`, [명세](../changes/policy-collection-intake.md)·M2, PR38 기반9bd61d2에서 시작한다. 시간당 raw 수집기를 유지하고 특정 성공 원본을 검토한 명시 편입·중복 재사용·새 승인 버전·원자 원문/표시/검색/receipt·새 질문의 최신 승인 선택을 연결한다.
 - 경계/판단: 첫 추적은 옛 metadata의 동일성을 추정하지 않고 검증된 기준 버전을 만든다. 이후 source fingerprint와 승인 인용 selector/순서가 같아야 기존 snapshot을 재사용하며 인용 선택이 바뀌면 새 승인 버전이다. 과거 인용/브리핑과 generic 역사 검색을 보존한다.
 - 현재/검증: OpenSpec root=null과 clean isolated worktree를 확인하고 세 task/API/인수 기준을 정리했다. 구현·실제 적용은 미완료, 기존0008·개발 앱·계정/세션·공개 게시와 collector는 아직 변경하지 않았다. 현재 Sites 반영 대기. 추가 read-only 확인에서 기존 수집기는 원래 수동1회와 수정 후 실제 예약1회가 모두 성공했고0008·자료13/인용37/공개1·활성 조사0을 유지했다. 서버 밖 full/app 백업과 별도 복원본의22테이블 전체 row hash 일치를 확인했다.
+- 저장부 중간 인수: 제품5cd29ca의 storage566개(새45개)·Ruff/format/mypy·별도 코드 리뷰 C0/I0/M0을 통과했다. 원자 저장·같은 요청 재실행·변경/동일/되돌림·인용 선택 보존을 확인했다. 실제 데이터의 별도 복원본에서0009를 적용해 기존22테이블 전체 row hash 보존과 새 receipt0을 확인했다. 승인 CLI와 최신 승인 검색은 구현 중이며 실제DB/앱/collector는 그대로다.
 - 다음: 저장 transaction→승인 SDK/CLI→최신 승인 검색을 작업별 TDD/독립 검토로 구현하고 전체 검사를 수행한다. 실제 백업/복원·한 건 승인 적용과 기존 app SELECT/안전 재시작 가능 여부는 controller가 확인한다. main/운영 유예(D013)와 사용자 탭을 유지한다.
 
 ## 개발 적용 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
