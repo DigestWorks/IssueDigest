@@ -222,6 +222,87 @@ SDK는 `issuedigest_worker.policy_collection`의 `parse_policy_collection_job(ra
 uv run pytest apps/worker/tests/test_policy_collection_worker.py
 ```
 
+### 성공 수집본의 명시 검토·편입
+
+`intake`는 journal의 특정 성공 attempt를 기존 `PolicyJob`으로 승인한 뒤 private
+원문·인용·표시·검색·receipt를 함께 편입한다. `poll`과 scheduler는 원본 확보만 수행한다.
+운영자는 정확한 성공 capture와 report를 private 저장소에서 확인하고 기사별 본문 SHA,
+공식 URL의 공공누리1유형 텍스트 조건, 사진·외부 저작물 제외와 정확 인용을 검토한다.
+새 HTTP·모델 호출 없이 기존 parser와 compare가 이 조건과 report의 의미를 다시 검증한다.
+`0009_policy_intake`와 운영자가 검토한 DB 권한이 먼저 적용되어 있어야 한다.
+
+기존 오프라인 `prepare PRIVATE_APPROVED_JOB PRIVATE_CAPTURE PRIVATE_BASE_PLAN PRIVATE_NEW_OUTPUT`
+명령은 base·초대·기존 snapshot을 보존하는 준비 경로로 유지한다. journal 편입에는 base나
+초대가 필요하지 않다. `issuedigest_worker.prepare_policy_candidates(job, capture_raw,
+workspace_id)`는 같은 순수 추출 경로로 `PreparedPolicyCandidates(snapshots, presentations)`를
+반환한다. 두 경로 모두 운영자가 제공한 UUID4만 사용하며 새 식별자를 생성하지 않는다.
+
+새 private approval 파일은 다음 **다섯 필드만** 갖는 UTF-8 JSON 객체다.
+
+| 필드 | 값 |
+| --- | --- |
+| `schema_version` | 정수 `1` |
+| `workspace_id` | 운영자가 명시한 UUID4 |
+| `collection` | 위의 기존 collection job 전체 객체. 최초 결합한 설정과 동일 |
+| `attempt_id` | 검토한 특정 성공 attempt의 UUID4. latest로 대체하지 않음 |
+| `approval` | 위의 기존 `PolicyJob` 전체 객체. 정확 capture SHA·수집 시각·기사1~2개·권리·명시 ID·인용 승인 |
+
+최대256KiB, 소유자가 실행 계정인 절대 경로의 regular400/600 파일이며 기존 private 경로와
+symlink guard를 적용한다. 중복 key·추가 필드·비유한 수·불리언 정수·타입 변환을 거부한다.
+각 기사의 인용은1~10개, 각2,000자 이하다. 기사 집합은 config·원본·보고서·승인과 정확히
+대응해야 한다. 실패/미완료/다른 channel/없는 attempt, 변조된 bytes/hash/시각/의미나 권리는
+편입 전에 거부한다. SDK에 전달한 `model_construct`/`model_copy` 그래프도 다시 검증한다.
+
+```sh
+uv run issuedigest-policy intake /absolute/private/policy/approval.json --check
+uv run issuedigest-policy intake /absolute/private/policy/approval.json --apply
+```
+
+`--check`와 `--apply`는 하나를 명시해야 한다. DB URL은 이 실행 환경의
+`ISSUEDIGEST_DATABASE_URL`에서만 읽으며 URL과 실제 DB명이 `collection.expected_database`와
+일치해야 한다. `--check`는 일관된 read-only 검증과 예상 new/reused 집계만 수행하고 행이나
+advisory lock을 쓰지 않는다. `--apply`는 전용 nonblocking transaction lock `(104704,3)` 아래
+기존 canonical 저장·정확 인용·outbox·표시·검색 투영·receipt를 단일 transaction에 저장한다.
+
+처음 추적하는 기사는 검증된 기준 버전을 새로 만든다. 기존 자료의 본문이 같아 보여도 과거
+의미·권리 metadata를 추정해 승인하지 않는다. 이후 마지막 승인 fingerprint와 인용 selector
+배열(순서 포함, citation ID 제외)이 모두 같으면 기존 snapshot·표시·인용을 재사용한다.
+본문·제목·발행처/일자·이용 조건·parser 또는 인용 선택이 달라지면 같은 문서의 새 버전이다.
+A→B→A도 새 버전이며 기존 인용·브리핑·고정 근거를 덮거나 지우지 않는다.
+기존 기사에는 원래 document ID/payload를 유지하고, 새 버전의 version/raw/representation/
+snapshot/citation UUID4는 새로 명시한다. 승인 수집 시각은 마지막 승인과 기존 canonical
+버전보다 엄격히 나중이어야 한다. 최신 승인 이후 과거 미편입 attempt를 새로 편입하지 않는다.
+
+동일 attempt의 재실행은 동일한 승인·ID·인용 순서의 요청만 허용한다. approval SHA는 검증된
+`PolicyJob.model_dump(mode="json")`의 정렬 key·공백 없는 UTF-8 JSON
+(`ensure_ascii=False`, `allow_nan=False`) SHA256이다. 의미 fingerprint는 기존 보고서의
+`after_fingerprint` SHA256을 그대로 전달한다. storage는 전체 검증 plan의 같은 canonical
+JSON으로 request SHA를 계산한다. 재실행을 위해 원본 bytes·report·승인 파일을 함께 보존한다.
+공백 변경이나 JSON 재직렬화가 원본 SHA를 바꿀 수 있으므로 capture를 덮어쓰지 않는다.
+
+stdout은 `schema_version`, `outcome`, `sources`, `new_versions`, `reused_versions`,
+`receipts_created`만 담으며 engine/pool 정리가 끝난 뒤 출력한다. exit0의 outcome은
+`checked`/`applied`/`already_applied`/`busy`다. 작업/commit 불명확/cleanup 실패는 기존 고정
+오류와 exit1, 인수 오류는 고정 오류와 exit2다. commit 응답이나 이후 cleanup이 실패하면 이미
+저장됐을 수 있으므로 자동 재시도나 실패 덮어쓰기를 하지 않는다. 같은 private 승인으로
+명시 재확인한다. 원문·제목·URL·경로·DSN·계정·식별자는 출력하지 않는다.
+
+SDK `issuedigest_worker.policy_intake`는 `parse_policy_intake_approval(raw)`,
+`prepare_policy_intake_plan(engine, approval)`(read-only 준비),
+`intake_policy_capture(engine, approval, *, apply: bool)`을 제공한다. SDK 호출자는
+`private_engine_lifecycle`로 engine을 정리한다. parser 오류는 고정 `PreparationError`,
+coordinator 오류는 `PolicyIntakeError("Policy intake unavailable")`, 불명확한 commit은
+별도 `PolicyIntakeCommitUnknown("Policy intake commit unknown")`이며 재시도하지 않는다.
+
+편입은 공개 게시·브리핑/모델 생성·새 출처 발견·scheduler 설치·자동 삭제/보존 기간을
+추가하지 않는다. receipt는 repository에서 append-only이며 DB 소유자의 직접 변경을 막는
+trigger/권한 시스템을 주장하지 않는다. 승인 파일·capture/report·상세 receipt는 Git/PR/Sites/
+공개 로그 밖에 보관한다. 실제 권한 부여·운영 적용과 합성 검사 통과는 별도 확인 사항이다.
+
+```sh
+uv run pytest apps/worker/tests/test_policy_intake_worker.py
+```
+
 ## 내구 조사 작업자
 
 `issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v4 실행합니다. v2/v3/v4 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.

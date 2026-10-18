@@ -28,13 +28,20 @@ __all__ = [
 ]
 
 from .policy_job import PolicyJob, PolicyQuote, PolicySource, parse_policy_job
-from .policy_prepare import PreparedPolicy, prepare_policy_plan
+from .policy_prepare import (
+    PreparedPolicy,
+    PreparedPolicyCandidates,
+    prepare_policy_candidates,
+    prepare_policy_plan,
+)
 
 __all__ += [
     "PolicyJob",
     "PolicyQuote",
     "PolicySource",
     "PreparedPolicy",
+    "PreparedPolicyCandidates",
+    "prepare_policy_candidates",
     "parse_policy_job",
     "prepare_policy_plan",
 ]

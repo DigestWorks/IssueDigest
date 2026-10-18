@@ -1,4 +1,4 @@
-"""Bounded question retrieval over the verified, workspace-scoped literal index.
+"""Bounded question retrieval over the current approved, workspace-scoped literal index.
 
 This is lexical retrieval from stored projections, not web or semantic search.
 The interface isolates the strategy so retrieval can improve without changing requests.
@@ -6,13 +6,22 @@ The interface isolates the strategy so retrieval can improve without changing re
 
 import re
 from collections import Counter
+from collections.abc import Mapping
 from dataclasses import dataclass
+from typing import Any
 from uuid import UUID
 
-from issuedigest_domain import EvidenceSearchQuery, build_search_projection, literal_ngrams
+from issuedigest_domain import (
+    EvidenceBundle,
+    EvidenceSearchQuery,
+    build_search_projection,
+    literal_ngrams,
+)
 from issuedigest_domain.search import ascii_fold
+from pydantic import ValidationError
 from sqlalchemy import Connection, and_, func, or_, select
 
+from .policy_intake_schema import PolicyIntakeReceipt, policy_intake_receipts
 from .repository import EvidenceRepository, StorageCorruption
 from .schema import evidence_snapshots
 from .search import _check_manifest, _scope, _unit_values
@@ -134,6 +143,41 @@ class VariantCandidates:
     truncated: bool
 
 
+def _check_intake_receipt(
+    row: Mapping[Any, Any], bundle: EvidenceBundle, snapshot_id: UUID
+) -> None:
+    if row["intake_workspace_id"] is None:
+        return
+    try:
+        receipt = PolicyIntakeReceipt.model_validate(
+            {column.name: row["intake_" + column.name] for column in policy_intake_receipts.c},
+            strict=True,
+        )
+    except ValidationError:
+        raise StorageCorruption("Stored policy intake receipt is inconsistent") from None
+    if (
+        receipt.workspace_id != bundle.document.workspace_id
+        or receipt.document_id != bundle.document.document_id
+        or receipt.version_id != bundle.version.version_id
+        or receipt.representation_id != bundle.representation.representation_id
+        or receipt.snapshot_id != snapshot_id
+        or bundle.document.provider != "korea_policy"
+        or receipt.news_id != bundle.document.source_id
+        or (
+            receipt.decision == "created"
+            and (
+                receipt.capture_collected_at != bundle.version.collected_at
+                or receipt.capture_sha256 != bundle.version.raw_sha256
+            )
+        )
+        or (
+            receipt.decision == "reused"
+            and receipt.capture_collected_at <= bundle.version.collected_at
+        )
+    ):
+        raise StorageCorruption("Stored policy intake receipt is inconsistent")
+
+
 def variant_candidates(
     conn: Connection,
     workspace_id: UUID,
@@ -141,7 +185,7 @@ def variant_candidates(
     *,
     original_terms: tuple[str, ...] | None = None,
 ) -> VariantCandidates:
-    """Round-robin up to 200 actually matching units; canonical-check before selection.
+    """Round-robin up to 200 current matching units; canonical-check before selection.
 
     The 201st row detects truncation. Existing projection ngrams only prefilter;
     ASCII-folded literal or explicit-whitespace-compacted full strings must match.
@@ -162,6 +206,42 @@ def variant_candidates(
     if len(compact) >= 4:
         actual = or_(direct, func.strpos(func.translate(body, _SPACES, ""), compact) > 0)
     scoped, predicates = _scope(workspace_id, query)
+    # Choose the receipt before any term/projection filter. A newer approval without
+    # an index or a matching term must never expose an older version instead.
+    receipt_times = (
+        select(
+            policy_intake_receipts.c.document_id,
+            func.max(policy_intake_receipts.c.capture_collected_at).label("capture_collected_at"),
+        )
+        .where(policy_intake_receipts.c.workspace_id == workspace_id)
+        .group_by(policy_intake_receipts.c.document_id)
+        .subquery()
+    )
+    latest = (
+        select(policy_intake_receipts)
+        .join(
+            receipt_times,
+            and_(
+                policy_intake_receipts.c.document_id == receipt_times.c.document_id,
+                policy_intake_receipts.c.capture_collected_at
+                == receipt_times.c.capture_collected_at,
+            ),
+        )
+        .where(policy_intake_receipts.c.workspace_id == workspace_id)
+        .subquery("latest_policy_intake")
+    )
+    scoped = scoped.outerjoin(
+        latest,
+        and_(
+            latest.c.workspace_id == evidence_snapshots.c.workspace_id,
+            latest.c.document_id == evidence_snapshots.c.document_id,
+        ),
+    )
+    predicates.append(
+        or_(
+            latest.c.document_id.is_(None), latest.c.snapshot_id == evidence_snapshots.c.snapshot_id
+        )
+    )
     joined = scoped.join(
         projections,
         and_(
@@ -178,6 +258,7 @@ def variant_candidates(
     balanced = (
         select(
             *units.c,
+            *(column.label("intake_" + column.name) for column in latest.c),
             direct.label("direct"),
             func.row_number()
             .over(partition_by=units.c.snapshot_id, order_by=units.c.ordinal)
@@ -208,6 +289,7 @@ def variant_candidates(
             bundle = EvidenceRepository._load(conn, workspace_id, identity)
             if bundle is None:
                 raise StorageCorruption("Stored search evidence is inconsistent")
+            _check_intake_receipt(row, bundle, identity)
             try:
                 projection = build_search_projection(bundle)
             except ValueError:

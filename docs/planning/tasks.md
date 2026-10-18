@@ -2,7 +2,17 @@
 
 2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 정책뉴스 반복 확보·실행 이력 · M2
+## 현재 변경 · 수집본 검토·버전·검색 편입 · M2
+
+[명세](../changes/policy-collection-intake.md)를 따른다. 기존 수집기의 특정 성공 원본을 검토한 뒤 원문·표시·검색·편입 이력을 한 transaction에 저장한다.
+
+- [x] 고정 성공 원본·receipt·동일 내용/인용 재사용·변경 버전·원자 저장/색인 구현과 storage566개·독립 검토를 통과했다. 실제 개발 적용은 별도다.
+- [x] 기존 순수 준비 SDK와 엄격 승인 job/명시 check/apply CLI를 연결한다.
+- [x] 새 질문의 최신 승인 snapshot 선택·구판 fallback 차단과 고정 인용/역사 검색 보존을 구현했다. 관련257개·독립 검토와 실제 데이터 복원본 인수를 통과했다.
+- [x] 전체3,397개·작업별/전체 독립 검토·실제 한 건 편입/재실행·최소 조회 권한·안전 API/워커 갱신·사후23테이블 일치 복원과 [Draft PR39](https://github.com/DigestWorks/IssueDigest/pull/39)를 확인했다.
+- [x] Sites v61 요약·이전v60 보존·native succeeded와 최종 출판 기록을 반영했다. M2의 출처 확대·최근 이슈 발견은 남아 있다.
+
+## 완료 기반 · 정책뉴스 반복 확보·실행 이력 · M2
 
 [명세](../changes/policy-collection-journal.md)를 따른다. 비교 도구를 반복 실행 가능한 수집·저장·상태 확인으로 연결한다.
 

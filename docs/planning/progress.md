@@ -1,5 +1,33 @@
 # 진행 기록
 
+## 개발 적용 · 수집본 검토·버전·검색 편입 · 2026-10-18
+
+- 범위/인계: [명세](../changes/policy-collection-intake.md)·M2, 제품 소스b63c7fa·[Draft PR39](https://github.com/DigestWorks/IssueDigest/pull/39)(PR38 기반). 세 작업과 전체 독립 코드 검토는 C0/I0/M0이며 미해결/보류 지적0이다. 정확 소스 전체 `npm run check`는 Python2,829·JS568=3,397개·린트/서식/타입/SPA/API 계약을 통과했다. CI 상태와 Sites 최종 출판은 후속 기록으로 구분한다.
+- 실제 적용: 별도 소스/가상환경에 고정한 Python3.13 API·조사 worker를 준비하고, 직전 full/app 백업·활성run/workflow0을 확인했다. 소유자가0009를 명시 적용한 뒤 새 receipt 테이블에만 기존 앱 계정 SELECT를 남겼다. 기존 default privileges가 새 테이블에 INSERT/UPDATE/DELETE까지 자동 부여하는 것을 실제 조회로 발견해 **이 새 테이블에서만** 비조회 권한을 제거하고 앱의 SELECT 성공·나머지7권한 거부를 확인했다. 기존 테이블/default grants·다른 계정은 바꾸지 않았다.
+- 안전 갱신: API 접수를 중지하고 활성 작업0을 다시 확인한 뒤 기존 worker를 정상 종료·새 API/worker를 기동했다. 단일 worker 잠금1·활성run/workflow0·새 소스 worktree를 확인했다. 기존 정적 웹·collector a908083의 source/config/runner/crontab·이전 앱 worktree의 hash가 전후 동일하다. OAuth/세션 설정·공개 게시·main/운영은 그대로다.
+- 명시 편입: 사전 백업에 포함된 특정 성공 원본을 고정하고, 이전에 전체 검토한 기사의 본문/표제/발행 주체·일자/이용 조건/파서 의미 digest가 같음을 확인했다. 운영자가 새 후보 UUID와 기존 정확 인용을 명시 승인한 check→apply→같은 승인 재실행 결과는 예상 신규1/쓰기0→기준 버전1/receipt1→already_applied/신규0이었다. 최초 추적 기준 버전이며 실제 기사 내용 변경을 관측했다고 부르지 않는다. 수집 HTTP·모델·공개 게시 호출0이다.
+- 실제 읽기/보존: 기존 앱 DB 계정의 읽기 전용 조회에서 새 질문 최신 승인본만·구판 fallback 없음·역사 literal 검색/과거 정확 인용·14개 canonical 재검증을 확인했다. 실제 자료14/인용41/검색33/receipt1/공개1이다. 기존 수집기 status는0009에서도 성공 이력3/마지막 성공 있음/stale=false였다. 외부 TLS·home/login/health/status200, 미인증 session/research401·no-store·세션 쿠키 미발급을 확인했다. 실제 사용자 세션을 대신 발급/사용하지 않았다.
+- 백업/복원: 사전·직전·사후 full/app archive를 서버 밖 private 저장소에 보존했다. 사후app archive를 별도 소유 PostgreSQL18.6의 빈 DB에 복원해23테이블 전체 row hash/count가 실제 서버와 같고, 적용 전22테이블 원래 행이 전부 남아 있음을 확인했다(정상 사용자 활동의 session last_activity_at만 비교에서 제외). 복원 후에도 최신 질문/역사 인용·14canonical을 재검증했다. 실제 durable7테이블은 전후/복원 모두0행이며 유료 checkpoint 호환성은 합성 복구 검사 증거로 구분한다. 역할/vector 확장 전체를 포함한 재해 복구 검증은 아니다.
+- 경계/다음: 고정 기사 한 건의 시간당 확보·검토 편입 기반이며 광범위한 최근 시사 수집·실제 내용 변경 관측·자동 승인/공개 게시·자율 외부 조사·의미/그래프 검색·전체 응답 품질은 미완료다. 다음 M2는 승인 출처 확대와 최근 이슈 발견, M3는 실제 질문의 귀속/수치/한계 품질과 승인 도구 탐색이다. 개별 원문/ID/권리 승인·접속/계정/키/상세 receipt는 공개 기록 밖에 보존한다. Sites 최종 반영 대기, main/운영 유예(D013)와 사용자 탭 유지.
+
+- 최종 인계: [Sites v61](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시가 native `succeeded`다. source `983bd10a90fc4d5c0105621edafe5d505db546d5`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_303ad8e1c82881919cb0fe91feefc150`, deployment `appgdep_6ad4eb66aacc81918d9ac89876c258ba`. 사본 기준ce25ede·이전v60 보존·HTML46/로컬 링크·자산·앵커1,103/공개 텍스트114파일의 실제 비밀값 제외를 확인했다. 내용/표만 갱신했으며 새 브라우저 QA·사용자 탭 열기/이동은 하지 않았다. [코드와 인수기록 CI39141908139](https://github.com/DigestWorks/IssueDigest/actions/runs/39141908139)는 성공했다. 이후 변경은 실제 적용·출판 기록뿐이며 제품b63c7fa는 동일하다.
+- 정리: 전체ID/소유label/이미지/loopback 포트를 확인한 이번 QA·복원 컨테이너2개/익명 볼륨을 제거하고25460/25461 닫힘을 확인했다. 원본 백업·실제 승인/상세 인수·독립 검토는 private에 보존하며 이번 작업 scratch만 별도 보관 후 정리했다. 실제 개발 API/worker/collector·개발 환경·PR worktree·다른 계획 기록은 유지한다. main/운영은 병합하지 않았다.
+
+## 구현·통합 검사 · 수집본 검토·버전·검색 편입 · 2026-10-18
+
+- 범위: [명세](../changes/policy-collection-intake.md)·M2·`feat/policy-collection-intake`, 제품 소스b63c7fa. 기존 시간당 확보를 유지하고 명시 승인한 특정 성공 원본→원문/인용/표시/검색/receipt의 원자 편입→새 질문의 최신 승인본 선택을 구현했다. 현재 실제 서버 반영과 Sites는 대기이며 main/운영 유예(D013)를 유지한다.
+- 검증: 전체 `npm run check`가 Python2,829·JS568=3,397개, Ruff/format253파일·mypy113·JS lint/types·SPA build·API 계약을 통과했다. 경고/skip/실패0. 저장부566개·worker/SDK/parser694개·조회/평가/복구257개의 작업별 회귀와 세 작업의 독립 검토 C0/I0/M0을 확인했다. 전체 변경 독립 검토는 진행 중이다.
+- 복원본 인수: 서버 밖 사전 full/app archive의 별도 PostgreSQL18.6 복원에서 기존22테이블 row hash 일치→0009 적용 후 보존→고정된 이미 수집한 원본1건의 명시 check/apply/재실행을 확인했다. 기준 버전1/receipt1이 추가되고 재실행 신규0이었다. 최신 검색 선택의 RED(구판/신판 동시 후보)→GREEN(최신 승인본만)을 확인했고 기존22테이블 원래 행·역사 literal 검색·정확 인용을 보존했다. 검증한 canonical14/인용41/검색33/receipt1/공개1은 **복원본**의 수치다. 새 HTTP/모델 호출0이며 실제 기사 내용 변경 관측으로 부르지 않는다.
+- 다음: 최종 독립 검토와 실제 직전 백업 후0009·기존 app receipt SELECT·새 소스의 안전 API/워커 갱신·고정 한 건 편입을 확인한다. 기존 수집기 소스/설정/주기·정적 웹·계정/세션·공개 복사본·과거 브리핑은 보존한다. 실제 권한·적용·사후 백업/복원·PR·Sites는 별도 인수 증거로 기록한다.
+
+## 작업 시작 · 수집본 검토·버전·검색 편입 · 2026-10-18
+
+- 요구/범위: 내부 파이프라인 다음 개발 계속. `feat/policy-collection-intake`, [명세](../changes/policy-collection-intake.md)·M2, PR38 기반9bd61d2에서 시작한다. 시간당 raw 수집기를 유지하고 특정 성공 원본을 검토한 명시 편입·중복 재사용·새 승인 버전·원자 원문/표시/검색/receipt·새 질문의 최신 승인 선택을 연결한다.
+- 경계/판단: 첫 추적은 옛 metadata의 동일성을 추정하지 않고 검증된 기준 버전을 만든다. 이후 source fingerprint와 승인 인용 selector/순서가 같아야 기존 snapshot을 재사용하며 인용 선택이 바뀌면 새 승인 버전이다. 과거 인용/브리핑과 generic 역사 검색을 보존한다.
+- 현재/검증: OpenSpec root=null과 clean isolated worktree를 확인하고 세 task/API/인수 기준을 정리했다. 구현·실제 적용은 미완료, 기존0008·개발 앱·계정/세션·공개 게시와 collector는 아직 변경하지 않았다. 현재 Sites 반영 대기. 추가 read-only 확인에서 기존 수집기는 원래 수동1회와 수정 후 실제 예약1회가 모두 성공했고0008·자료13/인용37/공개1·활성 조사0을 유지했다. 서버 밖 full/app 백업과 별도 복원본의22테이블 전체 row hash 일치를 확인했다.
+- 저장부 중간 인수: 제품5cd29ca의 storage566개(새45개)·Ruff/format/mypy·별도 코드 리뷰 C0/I0/M0을 통과했다. 원자 저장·같은 요청 재실행·변경/동일/되돌림·인용 선택 보존을 확인했다. 실제 데이터의 별도 복원본에서0009를 적용해 기존22테이블 전체 row hash 보존과 새 receipt0을 확인했다. 승인 CLI와 최신 승인 검색은 구현 중이며 실제DB/앱/collector는 그대로다.
+- 다음: 저장 transaction→승인 SDK/CLI→최신 승인 검색을 작업별 TDD/독립 검토로 구현하고 전체 검사를 수행한다. 실제 백업/복원·한 건 승인 적용과 기존 app SELECT/안전 재시작 가능 여부는 controller가 확인한다. main/운영 유예(D013)와 사용자 탭을 유지한다.
+
 ## 개발 적용 · 정책뉴스 반복 확보·실행 이력 · 2026-10-18
 
 - 범위/브랜치: `feat/policy-collection-journal`, [명세](../changes/policy-collection-journal.md)·M2. 검토한 고정 공식 기사1건의 재확보를 별도 내부 수집기로 연결했다. 첫 실제 확보 성공과 원본/변경 보고서 저장을 확인했고 개인 cron의 시간당 실행을 설치했다. main/운영 공개(D013)는 유예한다. [Draft PR38](https://github.com/DigestWorks/IssueDigest/pull/38)을 PR37 기반으로 생성했다. Sites 최종 반영은 아래 출판 기록으로 구분한다.

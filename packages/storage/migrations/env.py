@@ -7,6 +7,7 @@ from issuedigest_storage import (
     auth_schema,  # noqa: F401
     create_storage_engine,
     policy_collection_schema,  # noqa: F401
+    policy_intake_schema,  # noqa: F401
     public_briefing_schema,  # noqa: F401
     research_schema,  # noqa: F401
     search_schema,  # noqa: F401

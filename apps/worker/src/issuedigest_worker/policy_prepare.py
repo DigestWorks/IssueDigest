@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass
 from hashlib import sha256
+from uuid import UUID
 
 from issuedigest_connectors import parse_policy_capture, policy_url
 from issuedigest_domain import (
@@ -23,7 +24,7 @@ from issuedigest_storage.provisioning import (
     parse_plan,
     validate_plan,
 )
-from pydantic import AnyHttpUrl
+from pydantic import UUID4, AnyHttpUrl, TypeAdapter
 
 from .bounds import preflight_model
 from .models import PreparationError
@@ -37,22 +38,22 @@ class PreparedPolicy:
     presentations: tuple[SourcePresentation, ...]
 
 
-def prepare_policy_plan(
-    job: PolicyJob, capture_raw: bytes, base: ProvisioningPlan
-) -> PreparedPolicy:
-    """Retain exact artifact hash/time, validate approved quotes/rights, never register or index."""
+@dataclass(frozen=True, repr=False)
+class PreparedPolicyCandidates:
+    snapshots: tuple[ProvisioningSnapshot, ...]
+    presentations: tuple[SourcePresentation, ...]
+
+
+def prepare_policy_candidates(
+    job: PolicyJob, capture_raw: bytes, workspace_id: UUID
+) -> PreparedPolicyCandidates:
+    """Recheck exact approved artifact and quotes without base plans, IO or ID allocation."""
     try:
-        if (
-            type(job) is not PolicyJob
-            or type(base) is not ProvisioningPlan
-            or type(capture_raw) is not bytes
-        ):
+        if type(job) is not PolicyJob or type(capture_raw) is not bytes:
             raise ValueError("Invalid preparation input")
-        # Bound both graphs before serializing any caller-created construct/copy values.
+        workspace_id = TypeAdapter(UUID4).validate_python(workspace_id, strict=True)
         preflight_model(job)
-        preflight_model(base)
         job = parse_policy_job(job.model_dump_json(warnings="error"))
-        base = parse_plan(base.model_dump_json(warnings="error"))
         capture = parse_policy_capture(capture_raw)
         if (
             sha256(capture_raw).hexdigest() != job.capture_sha256
@@ -60,9 +61,7 @@ def prepare_policy_plan(
             or {a.news_id for a in capture.articles} != {s.news_id for s in job.sources}
         ):
             raise ValueError("Capture does not match approved job")
-        _aliases(base.snapshots)
-        snapshots = list(base.snapshots)
-        by_snapshot = {s.snapshot_id: s for s in snapshots}
+        snapshots: list[ProvisioningSnapshot] = []
         articles = {a.news_id: a for a in capture.articles}
         presentations: list[SourcePresentation] = []
         for source in job.sources:
@@ -96,7 +95,7 @@ def prepare_policy_plan(
                 bundle=EvidenceBundle(
                     document=SourceDocument(
                         document_id=source.document_id,
-                        workspace_id=base.workspace_id,
+                        workspace_id=workspace_id,
                         provider="korea_policy",
                         source_id=source.news_id,
                         source_kind="government_document",
@@ -114,21 +113,49 @@ def prepare_policy_plan(
                     citations=tuple(citations),
                 ),
             )
+            snapshots.append(snapshot)
+            # Title comes solely from this article's parsed metadata, never list/lead/job.
+            presentations.append(
+                SourcePresentation(
+                    snapshot_id=source.snapshot_id,
+                    workspace_id=workspace_id,
+                    title=extraction.title,
+                    profile="policy-html-v1",
+                )
+            )
+        _aliases(tuple(snapshots))
+        return PreparedPolicyCandidates(tuple(snapshots), tuple(presentations))
+    except Exception:
+        raise PreparationError("Unable to prepare policy candidates") from None
+
+
+def prepare_policy_plan(
+    job: PolicyJob, capture_raw: bytes, base: ProvisioningPlan
+) -> PreparedPolicy:
+    """Retain exact artifact hash/time, validate approved quotes/rights, never register or index."""
+    try:
+        if (
+            type(job) is not PolicyJob
+            or type(base) is not ProvisioningPlan
+            or type(capture_raw) is not bytes
+        ):
+            raise ValueError("Invalid preparation input")
+        # Bound both graphs before serializing any caller-created construct/copy values.
+        preflight_model(job)
+        preflight_model(base)
+        job = parse_policy_job(job.model_dump_json(warnings="error"))
+        base = parse_plan(base.model_dump_json(warnings="error"))
+        _aliases(base.snapshots)
+        candidates = prepare_policy_candidates(job, capture_raw, base.workspace_id)
+        snapshots = list(base.snapshots)
+        by_snapshot = {s.snapshot_id: s for s in snapshots}
+        for snapshot in candidates.snapshots:
             previous = by_snapshot.get(snapshot.snapshot_id)
             if previous is not None and previous != snapshot:
                 raise ValueError("Conflicting snapshot")
             if previous is None:
                 snapshots.append(snapshot)
                 by_snapshot[snapshot.snapshot_id] = snapshot
-            # Title comes solely from this article's parsed metadata, never list/lead/job.
-            presentations.append(
-                SourcePresentation(
-                    snapshot_id=source.snapshot_id,
-                    workspace_id=base.workspace_id,
-                    title=extraction.title,
-                    profile="policy-html-v1",
-                )
-            )
         result = ProvisioningPlan(
             schema_version=base.schema_version,
             expected_database=base.expected_database,
@@ -140,6 +167,6 @@ def prepare_policy_plan(
         _aliases(result.snapshots)
         result = parse_plan(result.model_dump_json(warnings="error"))
         validate_plan(result)
-        return PreparedPolicy(plan=result, presentations=tuple(presentations))
+        return PreparedPolicy(plan=result, presentations=candidates.presentations)
     except Exception:
         raise PreparationError("Unable to prepare policy plan") from None

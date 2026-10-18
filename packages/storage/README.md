@@ -494,3 +494,83 @@ attempt_count·latest·last_success·age_seconds·stale를 구분하며 raw byte
 없습니다. HTTP·commit 재시도 또는 `fail` 덮어쓰기를 하지 않고 context를 종료합니다.
 다음 명시 실행에서 실제 저장 상태를 읽고 남은 running만 interrupted로 마감합니다.
 context 종료는 정확 lock을 풀고 연결을 닫으며, 해제 실패 연결은 pool로 반환하지 않습니다.
+
+## 검토한 고정 collection attempt의 private 편입
+
+`0009_policy_intake`는 `policy_intake_receipts`만 추가합니다. 기존 journal·canonical·인용·공개
+브리핑·세션을 변경하는 migration은 없습니다. `issuedigest_storage.policy_intake`의 생성자는
+IO 없이 engine만 보관합니다. HTTP·모델·collector·worker 의존성도 없습니다.
+
+- `PolicyIntakeEntry(snapshot_id, bundle, presentation, fingerprint_sha256)`
+- `PolicyIntakePlan(collection, attempt_id, workspace_id, approval_sha256, entries)`
+- `PolicyIntakeRepository(engine).load_capture(collection, attempt_id)`
+- `repository.check(plan)` / `repository.apply(plan)`
+
+`collection`은 기존 `PolicyCollectionConfig`, `attempt_id`는 운영자가 고정한 UUID4입니다.
+`load_capture`는 REPEATABLE READ·READ ONLY에서 정확한 성공 attempt의 원본 bytes·SHA를
+다시 검증해 기존 `PolicyCollectionBaseline`을 반환합니다. latest를 대신 선택하지 않습니다.
+`check`도 READ ONLY이며 advisory lock·자료·표시·투영·receipt를 만들지 않습니다.
+
+`check/apply`는 같은 검증·결정 경로를 사용합니다. bounded strict UTF-8 JSON envelope,
+설정 결합·capture/report SHA·기사집합·시각·성공 상태, 후보와 기존 자료의 graph·정확 인용·
+source/URL·원본 provenance, 마지막 승인·재시도 receipt와 원래 생성된 canonical을 확인합니다.
+HTML 본문·권리·metadata 재추출과 report 의미 재계산은 기존 worker parser/compare의 책임입니다.
+`approval_sha256`도 검증된 worker 승인의 attestation이며 storage가 원래 PolicyJob을 재구성해
+검증하는 서명이 아닙니다. `fingerprint_sha256`은 report의 기존 `after_fingerprint` digest를
+그대로 사용합니다. 이를 JSON 문자열로 다시 hash하지 않습니다.
+
+첫 추적은 새 기준 버전을 만듭니다. 마지막 승인 fingerprint와 인용 selector 배열이 순서까지
+같을 때만 기존 snapshot·인용·표시를 재사용합니다. 인용 선택 변경도 새 승인 버전입니다.
+A→B→A는 새 버전이며 과거/동일 수집 시각의 뒤늦은 편입은 거부합니다. 기존 source는 원래
+문서 ID와 payload를 유지하고 새 버전의 나머지 ID는 새 UUID4여야 합니다. 같은 attempt
+재실행은 전체 검증 plan의 canonical JSON SHA256 request hash가 같을 때만 허용합니다.
+`json.dumps(..., ensure_ascii=False, sort_keys=True, separators=(",", ":"), allow_nan=False)`의
+UTF-8 SHA256이며 entries·인용 순서와 후보 ID·기본값을 포함합니다.
+
+`apply`는 READ COMMITTED에서 nonblocking transaction advisory lock `(104704, 3)`을 얻고
+원래 backend·실제 DB·lock 소유와 현재 scope를 쓰기 전 및 commit 전에 확인합니다.
+기존 `EvidenceRepository._save`, 표시 저장 body와 `rebuild_projection`을 호출해 원문·인용·
+outbox·표시·투영·receipt 전체를 한 번 commit합니다. 실패는 전체 rollback합니다. 재시도도
+원본·canonical 관계·outbox·표시를 다시 확인하며 derived 투영만 재생성할 수 있습니다.
+commit 응답 유실은 `PolicyIntakeCommitUnknown("Policy intake commit unknown")`으로
+구분하고 자동 재시도하지 않습니다. 다른 실패는 `PolicyIntakeError("Policy intake unavailable")`
+고정 오류입니다. 다음 명시적 같은 요청은 실제 commit 여부를 다시 읽습니다.
+
+결과는 `schema_version/outcome/sources/new_versions/reused_versions/receipts_created` 집계만
+포함합니다. outcome은 `checked/applied/already_applied/busy`입니다. check와 기존 적용 재시도는
+`receipts_created=0`, 이미 적용된 요청은 `new_versions=0`입니다. 민감한 입력은 모델 repr에서
+숨기며 engine logging·수명·정리는 호출자가 책임집니다.
+
+receipt PK는 `(workspace_id, attempt_id, news_id)`이고 실제 선택된
+`document_id/version_id/representation_id/snapshot_id`의 기존 복합 관계를 참조합니다.
+`(workspace_id, document_id, capture_collected_at)`도 unique이며 `ix_policy_intake_latest`는
+해당 workspace/문서의 수집 시각 내림차순 조회를 지원합니다. 쿼리 소비자는 journal 권한 없이
+`policy_intake_schema.PolicyIntakeReceipt.model_validate(dict(row), strict=True)`로 구조만
+검증할 수 있습니다. 이는 원본/보고서 검증을 수행하지 않습니다. receipt를 덮어쓰거나 삭제하는
+repository API는 없지만 DB 소유자의 직접 변조를 막는 trigger·권한 시스템은 아닙니다.
+
+새 질문의 `research_retrieval.variant_candidates(conn, workspace_id, term,
+original_terms=...)`는 workspace/문서별 `capture_collected_at`이 가장 큰 receipt의 snapshot만
+후보로 사용합니다. `created`와 `reused` receipt를 모두 포함하며 본문 버전의 수집 시각으로
+대신 선택하지 않습니다. 이 조건은 검색어·round-robin·200개 후보 제한·점수 계산 전에
+적용됩니다. 최신 승인본에 검색어가 없거나 투영이 없어도 구판으로 돌아가지 않습니다.
+receipt가 없는 legacy 문서는 기존 검색을 유지합니다. 정규화·프로필·순위·한도는 같습니다.
+
+반환 후보는 receipt 구조와 canonical의 workspace/문서/버전/representation/snapshot 관계,
+source ID·생성/재사용 시각을 확인하고 기존 canonical·투영 검증을 거칩니다. 생성 receipt는
+원본 hash도 canonical과 비교합니다. 이는 조회된 후보의 구조·관계 검사이며 journal 원본·
+보고서·승인 provenance를 다시 검증하거나 DB 소유자의 일관된 직접 변조를 탐지하는 보장은
+아닙니다. 조회는 자료·receipt·표시·투영을 쓰거나 원본 artifact를 읽지 않습니다.
+
+적용 전 실제 DB에 `0009_policy_intake` migration과 **실제 app 역할의
+`policy_intake_receipts` SELECT 권한**이 필요합니다. 기존 canonical/검색 투영 SELECT 권한에
+이 테이블 SELECT만 추가하며 channel·attempt journal 권한은 필요하지 않습니다. migration만
+실행해서 기존 app 역할에 SELECT가 자동 부여되지는 않습니다. 실제 권한 적용·안전 재시작은
+운영 절차에서 별도로 수행합니다.
+
+일반 literal 검색과 정확 원문 reader는 역사 버전을 계속 읽습니다. 이미 snapshot을 고정한
+run의 재실행, 일반 후속 질문의 검증된 부모 근거 재사용과 과거 유료 checkpoint 복구도
+기존 근거를 유지합니다. 새 주제를 검색하는 질문에만 최신 승인본 선택이 적용됩니다.
+
+
+운영자 권한 확인: 기존 default privileges가 새 테이블에 앱 쓰기를 자동 부여할 수도 있다. 개인 개발 적용에서 이를 확인해 `policy_intake_receipts`에만 비조회 권한을 제거하고 기존 앱의 SELECT 성공·INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER/MAINTAIN 거부를 실측했다. 기존 테이블이나 default grants를 일괄 변경하지 않는다. migration 완료와 최소 권한 검증은 별도 단계다.
