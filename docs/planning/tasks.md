@@ -10,7 +10,7 @@
 - [x] 명시 기사1~2개의 bounded poll과 read-only 상태 CLI, 최소 간격/한도·last_success/stale·실제 합성 PG/HTTP·동시 status 회귀를 검증했다. 최종 전체3,295개 검사와 독립 재검토 C0/I0/M0을 통과했다.
 - [x] 실제 백업/별도 복원·0008 migration·공식 기사1건의 실제 확보·원본/변경/실패 상태·즉시 not_due와 기존 앱/자료 보존을 확인했다. 별도 개인 수집기의 시간당 cron·3,300초 간격·720회 상한을 설치했다.
 - [x] PR37 기반 [Draft PR38](https://github.com/DigestWorks/IssueDigest/pull/38)을 생성하고 마일스톤·개발 적용/검증을 기록했다. main/운영 유예다.
-- [ ] Sites 요약/이전 계획판 보존·최종 출판 기록을 반영한다. 수집 성공과 기존 검색/공개 게시 편입은 구분한다.
+- [x] Sites v60의 M2·검증·다음 단계·PR38과 이전v59 보존·native succeeded/최종 출판 기록을 반영했다. 수집 성공과 기존 검색/공개 게시 편입은 구분한다.
 
 ## 완료 기반 · 공식 자료 변경 감지 · M2
 

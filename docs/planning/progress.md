@@ -10,7 +10,9 @@
 - 보존/복원: 사전·직전·사후 full/app archive를 서버 밖 private 저장소에 보존했다. 사후app archive를 별도 PostgreSQL18.6에 복원해 schema0008·앱/수집22테이블의 전체 count/payload digest 일치와 canonical13묶음을 확인했다. 변경 전 앱20테이블·자료13/인용37/검색27/공개1은 그대로다. vector 확장을 제외한app archive의 복원이며 역할/vector를 포함한 완전 재해 복구 검증은 아니다.
 - 실행 공존: 기존 개인 개발 worktree/실행 소스·API/연구 worker의 PID/command hash·tmux pane을 전후 대조해 유지했고 재시작하지 않았다. 외부 TLS검증·home/login/health/status200을 확인했다. 실제 사용자 세션이나 모델 키를 대신 사용하지 않았다. 기사/collection/attempt ID·원문·DSN·접속 계정·키·상세 receipt는 Git/PR/Sites 밖에 보관한다.
 - 기준 판단: age/stale은 실제 마지막 성공 확보 **완료** 시각(finished_at) 기준이다. 요청 시작의collected_at은 정확 capture 안에 별도로 보존한다. 확보 작업 상태와 기사 발행일/내용 최신성은 다르며 두 시각은 확보 소요 시간만큼 차이 난다. 미래 내용 최신성 판단에는 출처/수집 시각을 별도로 사용한다.
-- 남은 M2/다음: 고정 기사 재확보를 최신 시사 전면 수집으로 부르지 않는다. 반복 확보 원본의 검토·버전/중복 처리·기존 검색 색인 편입, 승인 출처 확대와 실제 최근 이슈 발견은 후속이다. 새 수집본은 EvidenceBundle/브리핑/공개 게시로 자동 승격하지 않는다. M3의 주장 귀속·수치 비교/한계 설명·승인 도구 탐색·점진 전달도 남아 있다. 자체 QA/복원 컨테이너2개와 익명 볼륨은 전체ID/소유label/loopback 포트 대조 후 정리하고 두 포트 닫힘을 확인했다. pinned image·백업/상세 검토·PR worktree·실제 앱/수집기는 보존했다. 작업별 scratch는 비공개 보관 후 해당 계획 폴더만 정리했다. 현재 Sites 반영 대기.
+- 남은 M2/다음: 고정 기사 재확보를 최신 시사 전면 수집으로 부르지 않는다. 반복 확보 원본의 검토·버전/중복 처리·기존 검색 색인 편입, 승인 출처 확대와 실제 최근 이슈 발견은 후속이다. 새 수집본은 EvidenceBundle/브리핑/공개 게시로 자동 승격하지 않는다. M3의 주장 귀속·수치 비교/한계 설명·승인 도구 탐색·점진 전달도 남아 있다. 자체 QA/복원 컨테이너2개와 익명 볼륨은 전체ID/소유label/loopback 포트 대조 후 정리하고 두 포트 닫힘을 확인했다. pinned image·백업/상세 검토·PR worktree·실제 앱/수집기는 보존했다. 작업별 scratch는 비공개 보관 후 해당 계획 폴더만 정리했다. [Sites v60](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#plan) 공개 게시 `succeeded`. M2 실행 상태·다음 단계·PR38과 이전v59를 반영했다.
+
+- 최종 출판: Sites source `1518f4d82e915e09a3006885b89c8442dc0359b6`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ea90e82dc8e08191b7b8a7eefae29377`, deployment `appgdep_6ad4c62e6e588191bbe0e31328d1d846`. 문서 사본 기준f217291·HTML45개/로컬 링크·asset·anchor1,094개/공개 텍스트449개의 실제 비밀값 제외를 확인했다. 내용/표만 바꿨으며 새 브라우저 QA는 수행하지 않았고 사용자 탭은 열거나 이동하지 않았다. 자동 동기화는 없다. [개발 적용 기록 CI39130426786](https://github.com/DigestWorks/IssueDigest/actions/runs/39130426786) 성공을 확인했다. 이후 변경은 출판/검증 기록 문서뿐이다.
 
 ## 구현·검증 · 공식 자료 변경 감지·마일스톤 · 2026-10-18
 
