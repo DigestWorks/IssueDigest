@@ -2,7 +2,15 @@
 
 2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 공식 자료 변경 감지 · M2
+## 현재 변경 · 정책뉴스 반복 확보·실행 이력 · M2
+
+[명세](../changes/policy-collection-journal.md)를 따른다. 비교 도구를 반복 실행 가능한 수집·저장·상태 확인으로 연결한다.
+
+- [ ] PostgreSQL의 분리된 수집 설정/실행 이력·원본 저장·단일 실행 잠금·실패/중단 보존을 구현한다.
+- [ ] 명시 기사1~2개의 bounded poll과 read-only 상태 CLI를 연결하고 최소 간격/한도·last_success/stale·실제 합성 PG/HTTP 회귀를 검증한다.
+- [ ] 전체 검사·독립 검토·개인 개발 실제 인수/가능한 scheduler 연결·Draft PR·Sites/마일스톤을 갱신한다. 수집 성공과 기존 검색/공개 게시 편입은 구분한다.
+
+## 완료 기반 · 공식 자료 변경 감지 · M2
 
 [마일스톤](implementation-plan.md#마일스톤)과 [변경 명세](../changes/policy-change-detection.md)를 따른다. 질문·브리핑 기반 M1은 개발 적용됐으며 이번 작업은 M2의 일부다.
 
