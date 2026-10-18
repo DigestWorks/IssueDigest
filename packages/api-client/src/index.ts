@@ -139,3 +139,5 @@ export { listResearchRuns, getResearchRun, submitResearch, cancelResearchRun, Re
 export type { ResearchRun, ResearchRunList, ResearchRequest, ResearchOptions, ResearchFailure } from './research';
 export {listPublicBriefings, getPublicBriefing, PublicBriefingError} from './briefings';
 export type {PublicBriefingSummary, PublicBriefingDetail, PublicBriefingList, PublicSourceAttribution, PublicBriefingOptions, PublicBriefingFailure, PublicBriefingErrorResponse} from './briefings';
+
+export {validResearchClassifications, claimClassification} from './research-classification';

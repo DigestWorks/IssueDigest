@@ -46,6 +46,8 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
                         "text": "합성 의미",
                         "citation_ids": [str(bundle.citations[0].citation_id)],
                         "event_date": None,
+                        "category": "documented",
+                        "rationale": "선택한 인용의 합성 평가",
                     }
                 ],
             }
@@ -55,6 +57,8 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v3"
+    assert len(completed.result.canvas.research.support_reviews) == 1
     run_worker(database_url, model=TestModel(custom_output_args=output), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert reopened == completed
@@ -96,7 +100,13 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
                 "kind": "summary",
                 "title": "요약",
                 "claims": [
-                    {"text": "첫 모델의 해석", "citation_ids": [citation], "event_date": None}
+                    {
+                        "text": "첫 모델의 해석",
+                        "citation_ids": [citation],
+                        "event_date": None,
+                        "category": "documented",
+                        "rationale": "선택한 인용의 합성 평가",
+                    }
                 ],
             }
         ],
@@ -113,6 +123,8 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
                         "text": "재호출됐다면 보일 해석",
                         "citation_ids": [citation],
                         "event_date": None,
+                        "category": "documented",
+                        "rationale": "선택한 인용의 합성 평가",
                     }
                 ],
             }
@@ -232,7 +244,15 @@ def test_terminal_storage_outage_recovers_without_recalling_model(engine, databa
                 {
                     "kind": "summary",
                     "title": "요약",
-                    "claims": [{"text": text, "citation_ids": [citation], "event_date": None}],
+                    "claims": [
+                        {
+                            "text": text,
+                            "citation_ids": [citation],
+                            "event_date": None,
+                            "category": "documented",
+                            "rationale": "선택한 인용의 합성 평가",
+                        }
+                    ],
                 }
             ],
         }
@@ -387,6 +407,12 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
         def __init__(self, _engine):
             pass
 
+        def worker_states(self, _ids):
+            return {}
+
+        def worker_active_runs(self, _after):
+            return ()
+
         def queued_ids(self):
             return (run_id,)
 
@@ -394,6 +420,7 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
             return (
                 SimpleNamespace(
                     question="합성 질문",
+                    status="queued",
                     workspace_id=workspace_id,
                     snapshot_ids=(snapshot_id,),
                 ),
@@ -416,6 +443,10 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
             return lambda function: function
 
         @staticmethod
+        def get_workflow_status(_workflow_id):
+            return None
+
+        @staticmethod
         def launch():
             pass
 
@@ -431,20 +462,30 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     def fail_validation(*args):
         raise ValueError("synthetic invalid citation")
 
+    monkeypatch.setattr(worker, "research_worker_lock", lambda _engine: nullcontext(lambda: None))
     monkeypatch.setattr(worker, "ResearchRepository", Repository)
     monkeypatch.setattr(
         worker, "create_storage_engine", lambda _url: SimpleNamespace(dispose=lambda: None)
     )
     monkeypatch.setattr(worker, "create_agent", lambda _model: object())
-    monkeypatch.setattr(worker, "DBOS", FakeDBOS)
-    monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
-    monkeypatch.setattr(worker, "model_prompt", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(worker, "create_agent_v3", lambda _model: object())
     monkeypatch.setattr(
         worker,
-        "run_agent",
+        "DBOSClient",
+        lambda **kwargs: SimpleNamespace(
+            list_workflows=lambda **kwargs: [],
+            destroy=lambda: None,
+        ),
+    )
+    monkeypatch.setattr(worker, "DBOS", FakeDBOS)
+    monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
+    monkeypatch.setattr(worker, "model_prompt_v3", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(
+        worker,
+        "run_agent_v3",
         lambda _agent, _prompt: (object(), 123, 45),
     )
-    monkeypatch.setattr(worker, "build_canvas", fail_validation)
+    monkeypatch.setattr(worker, "build_canvas_v3", fail_validation)
 
     run_worker(
         "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True
@@ -549,6 +590,8 @@ def test_corrupt_publication_is_terminal_and_never_retries_the_model(
                         "text": "합성 의미",
                         "citation_ids": [str(bundle.citations[0].citation_id)],
                         "event_date": None,
+                        "category": "documented",
+                        "rationale": "선택한 인용의 합성 평가",
                     }
                 ],
             }

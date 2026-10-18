@@ -95,8 +95,7 @@ export default function Home() {
       <BrandHeader account={session.kind === 'ready' ? 'authenticated' : session.kind === 'loading' ? 'loading' : session.error.kind === 'unauthorized' ? 'guest' : 'unavailable'} onLogout={() => void signOut()} logoutPending={logoutPending} />
       <main>
         <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>브리핑</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>브리핑 기록</button></nav>
-        {view === 'research' && <p className="home-kicker">질문에서 시작해, 근거까지</p>}
-        <h1>{view === 'research' ? '무엇이 궁금한가요?' : '브리핑 기록'}</h1>
+        <h1 className={view === 'research' && viewParams.has('run') && session.kind === 'ready' ? 'visually-hidden' : undefined}>{view === 'research' ? '무엇이 궁금한가요?' : '브리핑 기록'}</h1>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
         <section className="workspace-catalog" aria-label="브리핑">
           {session.kind === 'loading' && <p role="status" aria-label="접근 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}

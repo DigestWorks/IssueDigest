@@ -161,3 +161,28 @@ def test_plan_rejects_raw_document_url_before_url_library_normalizes_it():
     )
     with pytest.raises(ValidationError):
         pb.PublicBriefingPlan.model_validate(data)
+
+
+@pytest.mark.parametrize("stripped", [False, True])
+def test_public_profile_never_accepts_private_v3_even_without_reviews(stripped):
+    data = plan_data()
+    claim = data["canvas"]["research"]["claims"][0]
+    claim["derivation"]["method_version"] = "research-v3"
+    if not stripped:
+        data["canvas"]["research"]["support_reviews"] = [
+            {
+                "review_id": str(uuid4()),
+                "reviewer_kind": "automated",
+                "reviewer_id": "issuedigest-research-v3",
+                "method": "pydantic-ai",
+                "method_version": "research-v3",
+                "reviewed_at": data["canvas"]["revision"]["validated_at"],
+                "rationale": "합성 평가",
+                "citation_ids": claim["citation_ids"],
+                "target": {"kind": "claim", "claim_id": claim["claim_id"]},
+                "scope": "content",
+                "assessment": "supported",
+            }
+        ]
+    with pytest.raises(ValidationError):
+        pb.PublicBriefingPlan.model_validate(data)

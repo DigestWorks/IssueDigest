@@ -129,3 +129,14 @@ Google의 서명된 ID Token과 state·PKCE·nonce를 검증한 뒤 운영자가
 홈의 질문 아래 실제 게시 목록만 표시하고 빈 목록은 생략하며 실패는 조용한 재시도로 구분한다. 비회원 `/briefings/:slug`와 고정 버전 읽기는 기존 CanvasView/정확 인용 원문 창을 재사용한다. 인용/재진입/focus/visible 복귀는 같은 공개 버전의 현재 게시 상태와 불변 hash를 재확인한다.404는 화면/원문을 지우고 일시 오류는 철회로 단정하지 않는다. 서버가 전체 canonical hash와 공개 namespace를 검증하고 브라우저는 schema·참조·출처·정확 인용·고정 버전 hash 일치를 검사한다. 브라우저 암호학적 증명/자동 사실 판정이나 이미 받은 데이터의 원격 삭제를 주장하지 않는다.
 
 공개 질문은 표제/사용자 입력만 일반 홈 초안으로 전달하고 public/private run을 부모로 섞지 않는다. 기존30분 탭 초안→로그인→편집→명시 생성, 현재 계정/권한 상실 시 초안 정리를 유지한다. 한 건의 제한 게시를 최근 이슈·정기 수집/외부 탐색·개인화·알림·사용자 공유·전체 B2C 품질 완료로 확대하지 않는다. 상세 수용 기준과 작업 분담은 [공개 브리핑 명세](../changes/public-briefings.md)를 따른다.
+
+
+## D021 · 공식 근거 확보와 선택 인용의 AI 평가 · 2026-10-16
+
+사용자는 근거 탐색·분류와 브리핑 디자인의 선행 구현을 승인했다. D019의 새 private 실행 버전만v3로 구체화하며 D020의 공개 게시 경계·기존 자료/실행/계정·예산·세션은 유지한다. 코드와 합성 검증, 실제 개발 반영·기사 등록·실제 모델 품질 확인은 분리한다. 작업 명세는 [근거 탐색 확대](../changes/evidence-exploration.md)다.
+
+첫 확보 범위는 고정 HTTPS 정책뉴스 목록과 정확 policyNewsView 기사다. 목록은 발견 메타데이터이며 진실·순위·여론의 근거가 아니다. SDK는 명시 실행하는 제한 읽기·private capture만 수행한다. 정확 공공누리1 텍스트·발행일·본문 SHA·출처와 사진/외부 저작물 제외를 기사별 확인하고, 운영자가 제한 인용·ID·이용 조건을 검토한 private job을 기존 등록/색인 경로로 명시 추가한다. 자동 수집·질문 시 웹 탐색·공개 게시로 확대하지 않는다.
+
+새 AI 출력은 각 문장에 documented/attributed/uncertain과 짧은 설명을 필수 제공한다. 모든 문장은 Claim.basis=inference를 유지하며 SupportReview의 content/supported·attribution/supported·content/insufficient로만 기록한다. 화면은 AI 해석과 자료에 기록됨·출처의 주장·확인하기 어려움을 함께 표시한다. 선택한 인용에 대한 AI 평가이며 독립 사실 검증·인간 검토·진실/찬반 점수·여론 판단이 아니다. 인용 배열·대상·고정 자동 검토 식별자·UTC 마이크로초 시각을 엄격히 검증한다. 과거 결과에 분류를 추정해 붙이거나 Claim의 기본 필드·공개 v1 hash를 바꾸지 않는다. 새v3의 공개 게시는 별도 후속이다.
+
+v2/v3 agent와 workflow를 함께 등록한다. 기존 workflow ID는 기록된 이름·application_version으로 먼저 회복하고 새 queued 요청만v3로 시작한다. 완료된 원래 모델 checkpoint만 재생하며 generating/validating에 완료 checkpoint가 없으면 불명확한 유료 요청을 다시 보내지 않고 실패·예약 유지로 끝낸다. 전용 PostgreSQL session advisory lock으로 worker 중복 기동을 거부하고 잠금 소유 상실 시 계속 실행하지 않는다. 잠금을 모르는 최초v2 워커는 안전한 업그레이드 전에 중지·활성 작업 정리가 필요하다. 실행 이름/순서·원래 유료 checkpoint·workflow ID를 바꾸거나 삭제하지 않는다.

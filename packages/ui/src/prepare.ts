@@ -1,6 +1,7 @@
+import {validResearchClassifications} from '@issuedigest/api-client';
 import type {
   CanvasBundle, CanvasModule, Citation, Claim, Entity, EvidenceBundle, Observation,
-  Relation, SourceDocument,
+  Relation, SourceDocument, SupportReview,
 } from '@issuedigest/api-client';
 
 export type CitationDisplay = { citation: Citation; proof: EvidenceBundle };
@@ -11,6 +12,7 @@ export type DisplayContext = {
   relations: Map<string, Relation>;
   observations: Map<string, Observation>;
   documents: Map<string, SourceDocument>;
+  supportReviews: SupportReview[];
 };
 export type PreparedCanvas =
   | { status: 'rejected' }
@@ -72,6 +74,10 @@ export function prepareCanvas(bundle: CanvasBundle): PreparedCanvas {
   try {
     const { research, revision } = bundle;
     const draft = revision.draft;
+    if (research.claims.some(claim => /^research-v[123]$/.test(claim.derivation?.method_version ?? ''))
+      || research.support_reviews.some(review => review.reviewer_id === 'issuedigest-research-v3')) {
+      requireDisplay(validResearchClassifications(research, revision));
+    }
     requireDisplay(research.schema_version === 1 && revision.schema_version === 1
       && draft.schema_version === 1 && revision.validation_policy === 'issuedigest-canvas-v1'
       && research.workspace_id === revision.workspace_id);
@@ -111,7 +117,7 @@ export function prepareCanvas(bundle: CanvasBundle): PreparedCanvas {
       }
     }
     requireDisplay(revision.selected_version_ids.every(id => versions.has(id)));
-    const context: DisplayContext = {citations, claims, entities, relations, observations, documents};
+    const context: DisplayContext = {citations, claims, entities, relations, observations, documents, supportReviews:research.support_reviews};
     const cite = (ids: string[], selectedOnly = true) => {
       unique(ids, 1);
       requireDisplay(ids.every(id => (selectedOnly ? citations : allCitations).has(id)));

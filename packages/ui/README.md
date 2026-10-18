@@ -48,3 +48,6 @@ npm run check
 `tests/fixtures/canvas-synthetic.json`은 합성 테스트 전용 자료다. Python의 기존
 `CanvasBundle` 검증과 생성 TypeScript 타입을 사용하는 React 테스트가 같은 JSON을
 소비한다. 제품 예시 데이터·AI 결과·데모 경로로 연결하지 않는다.
+
+
+private research-v3의 엄격 검증을 통과한 자동 평가만 claim별 작은 native details/summary로 표시합니다. 자료에 기록됨·출처의 주장·확인하기 어려움과 AI 해석을 함께 두고 hover 도움말/키보드 초점/펼침에서 선택 인용의 AI 평가·독립 사실 검증 아님을 설명합니다. 모델의300자 설명은 펼칠 때 읽습니다. 기존 source action·정확 인용·Task1 앱의 토큰/읽기 구조를 유지하며 legacy 결과에는 새 label을 추정하지 않습니다. generic Canvas의 인간 검토/다른 도메인 기록은 private v3 분류로 재해석하지 않습니다.

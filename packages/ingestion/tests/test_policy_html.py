@@ -273,7 +273,7 @@ def test_empty_paragraph_result_is_rejected():
         ("raw_bytes", True),
         ("raw_bytes", 8 * 1024 * 1024 + 1),
         ("parser_name", "other"),
-        ("parser_version", "2"),
+        ("parser_version", "3"),
         ("normalization_profile", "other"),
         ("limits", {}),
     ],
@@ -382,7 +382,7 @@ def test_overlapping_quotes_require_exact_start_and_context_is_bounded():
     [
         ("text_sha256", "0" * 64),
         ("parser_name", "pypdf"),
-        ("parser_version", "2"),
+        ("parser_version", "3"),
         ("normalization_profile", "other"),
         ("pages", [{"page_number": 1, "start": 0, "end": 2}]),
         ("representation_id", UUID(int=1)),
@@ -489,3 +489,162 @@ def test_block_elements_inside_paragraph_are_ambiguous(body):
 def test_unrelated_info_class_malformed_markup_is_not_selected_metadata():
     raw = page().decode().replace("<nav>PRIVATE MENU</nav>", '<nav><div class="info">menu</nav>')
     assert extract(raw.encode()).publisher == "합성부"
+
+
+def plain_publisher_page(metadata="<span>2026.01.15</span><span>합성부처</span>"):
+    old = '2026.10.01 <a class="gotosite">합성부<span class="tooltip">PRIVATE TOOLTIP</span></a>'
+    return page().decode().replace(old, metadata).encode()
+
+
+def test_plain_publisher_profile_is_explicit_version_two_with_same_body_algorithm():
+    result = extract(plain_publisher_page())
+    assert (result.publisher, result.publication_date, result.parser_version) == (
+        "합성부처",
+        date(2026, 1, 15),
+        "2",
+    )
+    assert result.attribution == f"합성부처 · 대한민국 정책브리핑 · 합성 정책 · 2026-01-15 · {URL}"
+    assert result.normalization_profile == "korea-policy-paragraphs-v1"
+    assert result.text == extract().text
+    assert result.text_sha256 == extract().text_sha256
+    rep = api("to_policy_html_representation")(
+        result,
+        representation_id=REPRESENTATION,
+        document_version_id=VERSION,
+    )
+    assert rep.parser_version == "2"
+    selector = api("locate_policy_html_quote")(rep, quote="😀é")
+    assert (selector.start, selector.end, selector.quote) == (2, 5, "😀é")
+    assert api("locate_policy_html_quote")(representation(), quote="😀é") == selector
+
+
+@pytest.mark.parametrize(
+    "metadata",
+    [
+        "",
+        "<span>2026.01.15</span>",
+        "<span>합성부처</span>",
+        "<span>2026.01.15</span><span></span>",
+        "<span>2026.01.15</span><span>  </span>",
+        "<span>2026.01.15</span><span>합성부처</span><span>duplicate</span>",
+        "<span>2026.01.15</span><span>합성부처</span>PRIVATE",
+        "PRIVATE<span>2026.01.15</span><span>합성부처</span>",
+        '<span>2026.01.15</span><span>합성부처</span><a class="gotosite">mixed</a>',
+        '<span>2026.01.15</span><span><a class="gotosite">mixed</a></span>',
+        "<span>2026.01.15</span><span><b>합성부처</b></span>",
+        "<span><b>2026.01.15</b></span><span>합성부처</span>",
+        '<span>2026.01.15</span><span class="publisher">합성부처</span>',
+        "<span hidden>2026.01.15</span><span>합성부처</span>",
+        "<span>2026.01.15</span><span>합성부처</span><script>ignored?</script>",
+        "<div><span>2026.01.15</span><span>합성부처</span></div>",
+        "<span>2026.01.15 2026.01.16</span><span>합성부처</span>",
+        "<span>2026.02.30</span><span>합성부처</span>",
+        "<span> 2026.01.15 </span><span>합성부처</span>",
+        "<span>２０２６.０１.１５</span><span>합성부처</span>",
+        "<span>2026-01-15</span><span>합성부처</span>",
+        "<span>합성부처</span><span>2026.01.15</span>",
+    ],
+)
+def test_plain_publisher_profile_rejects_unobserved_or_ambiguous_metadata(metadata):
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_metadata$"):
+        extract(plain_publisher_page(metadata))
+
+
+@pytest.mark.parametrize(
+    "change",
+    ["outside_info", "outside_variety", "nested_info", "duplicate_info", "duplicate_variety"],
+)
+def test_plain_publisher_metadata_is_scoped_to_unique_direct_info(change):
+    raw = plain_publisher_page().decode()
+    if change == "outside_info":
+        raw = raw.replace(
+            '<div class="info"><span>2026.01.15</span><span>합성부처</span></div>',
+            '<div class="info"></div><span>2026.01.15</span><span>합성부처</span>',
+        )
+    if change == "outside_variety":
+        raw = raw.replace(
+            '<div class="variety"><div class="info">',
+            '<div class="variety"></div><div class="other"><div class="info">',
+        )
+    if change == "nested_info":
+        raw = raw.replace('<div class="info">', '<div><div class="info">').replace(
+            '</div></div><div class="view_cont">', '</div></div></div><div class="view_cont">'
+        )
+    if change == "duplicate_info":
+        raw = raw.replace(
+            '</span></div></div><div class="view_cont">',
+            '</span></div><div class="info"><span>2026.01.15</span>'
+            '<span>합성부처</span></div></div><div class="view_cont">',
+        )
+    if change == "duplicate_variety":
+        raw = raw.replace(
+            "</body>",
+            '<div class="variety"><div class="info"><span>2026.01.15</span>'
+            "<span>합성부처</span></div></div></body>",
+        )
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_metadata$"):
+        extract(raw.encode())
+
+
+@pytest.mark.parametrize(
+    "notice", ["", "권리자의 별도 허가가 필요합니다.", NOTICE.replace("제1유형", "제2유형")]
+)
+def test_plain_publisher_never_bypasses_exact_license(notice):
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_license$"):
+        extract(plain_publisher_page().decode().replace(NOTICE, notice).encode())
+
+
+def test_legacy_representation_serialization_and_hash_remain_exact():
+    rep = representation()
+    assert rep.parser_version == "1"
+    assert sha256(rep.model_dump_json().encode()).hexdigest() == (
+        "75f3c394487f99212f551801c03dc3f1279df82f7a1222e58d92f9aabc03bc0e"
+    )
+
+
+@pytest.mark.parametrize("version", ["", "0", "3", "2\n", 2, True])
+def test_new_profile_revalidates_unknown_or_forged_parser_versions(version):
+    result = extract(plain_publisher_page())
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_result$"):
+        replace(result, parser_version=version)
+    object.__setattr__(result, "parser_version", version)
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_result$"):
+        api("to_policy_html_representation")(
+            result, representation_id=REPRESENTATION, document_version_id=VERSION
+        )
+
+
+@pytest.mark.parametrize(
+    "mutation", ["no_license_wrapper", "wrong_article", "missing_title", "empty_body"]
+)
+def test_plain_publisher_keeps_article_title_body_and_rights_boundaries(mutation):
+    raw = plain_publisher_page().decode()
+    if mutation == "no_license_wrapper":
+        raw = raw.replace(
+            f'<div class="kogl_wrap"><div class="type"><span>{NOTICE}</span></div></div>',
+            "<p>권리자의 별도 허가가 필요합니다.</p>",
+        )
+    if mutation == "wrong_article":
+        raw = raw.replace(URL, URL.replace("123456789", "234567890"))
+    if mutation == "missing_title":
+        raw = raw.replace("<h1>합성 정책</h1>", "<h1></h1>")
+    if mutation == "empty_body":
+        raw = raw.replace("<p>한글😀é repeat</p><p>repeat tail</p>", "")
+    with pytest.raises(ingestion.AuditError):
+        extract(raw.encode())
+
+
+def test_plain_profile_locator_revalidates_forged_representation_versions():
+    result = extract(plain_publisher_page())
+    rep = api("to_policy_html_representation")(
+        result,
+        representation_id=REPRESENTATION,
+        document_version_id=VERSION,
+    )
+    for version in ["", "3", "2\n", 2, True]:
+        forged = rep.model_copy(update={"parser_version": version})
+        with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
+            api("locate_policy_html_quote")(forged, quote="😀é")
+        constructed = ParsedRepresentation.model_construct(**forged.model_dump(warnings=False))
+        with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
+            api("locate_policy_html_quote")(constructed, quote="😀é")

@@ -1,6 +1,6 @@
 # 문서 안내·협업 방법
 
-IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경험 인터뷰](research/product-experience-interview.md)와 [D016·D017·D019·D020](planning/decisions.md)의 사용자 선택을 기준으로 질문→짧은 브리핑→필요한 비교·변화·반응·근거를 잇는다. 현재 자료·브리핑 기록은 초대된 초기 검증 참여자의 공유 자료 범위이며 공개 피드나 개인 보관함이 아니다.
+IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경험 인터뷰](research/product-experience-interview.md)와 [D016·D017·D019·D020·D021](planning/decisions.md)의 사용자 선택을 기준으로 질문→짧은 브리핑→필요한 비교·변화·반응·근거를 잇는다. 현재 자료·브리핑 기록은 초대된 초기 검증 참여자의 공유 자료 범위이며 공개 피드나 개인 보관함이 아니다.
 
 저장소 문서가 결정 원본이고 PR에서 변경을 검토한다. 별도 이슈 트래커는 사용하지 않는다. Sites는 검증된 현재 상태의 요약이며 독립된 요구사항 원본으로 복제하지 않는다.
 
@@ -13,6 +13,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [결정 기록](planning/decisions.md) | 사용자 선택·확정 기술·대체 결정·대기 입력 |
 | [작업 목록](planning/tasks.md) | 실제 다음 작업과 현재 변경의 완료 조건 |
 | [진행 기록](planning/progress.md) | 코드·검증·개인 개발 적용·Sites·운영의 개별 증거와 인계 |
+| [공식 자료 확보·AI 근거 분류](changes/evidence-exploration.md) | 수동 공식 정책뉴스 SDK·private v3 AI 평가·v2 복구 호환과 개발 적용 대기 경계 |
 | [공개 브리핑 읽기](changes/public-briefings.md) | 문서별 권리/내용 검토·불변 공개 버전·비회원 읽기/인용·일반 홈 초안 |
 | [B2C 화면 정리·로그인 유지](changes/b2c-cleanup-persistent-login.md) | 아이콘 헤더·질문/브리핑 중심 화면·활성 계획 재편·14일/7일 세션 |
 | [브리핑 경험 첫 연결](changes/briefing-experience.md) | 비회원 질문→로그인 복원·원문 선열람·완료 브리핑·본문 내 근거 |

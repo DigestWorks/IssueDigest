@@ -3,7 +3,7 @@
 import re
 import unicodedata
 from datetime import date
-from typing import Literal, Self
+from typing import Any, Literal, Self
 from uuid import UUID
 
 from pydantic import UUID4, AwareDatetime, Field, field_validator, model_validator
@@ -11,6 +11,10 @@ from pydantic import UUID4, AwareDatetime, Field, field_validator, model_validat
 from .canvas import CanvasBundle
 from .contract_values import ContractModel
 from .evidence import EvidenceBundle
+from .research_classification import (
+    require_raw_classification_utc,
+    validate_research_classification,
+)
 
 RunStatus = Literal[
     "queued", "retrieving", "generating", "validating", "completed", "failed", "cancelled"
@@ -64,6 +68,17 @@ class ResearchRunEvent(ContractModel):
 class ResearchResult(ContractModel):
     canvas: CanvasBundle
     source_titles: dict[UUID, str]
+
+    @field_validator("canvas", mode="before")
+    @classmethod
+    def explicit_classification_utc(cls, value: Any) -> Any:
+        require_raw_classification_utc(value)
+        return value
+
+    @model_validator(mode="after")
+    def classified_profile(self) -> Self:
+        validate_research_classification(self.canvas)
+        return self
 
 
 class ResearchRun(ContractModel):

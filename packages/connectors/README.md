@@ -31,3 +31,8 @@ private_artifact_bytes = serialize_capture(capture)
 capture의 두 응답 전체와 지정 수집 시각을 private artifact로 보존한다. 정확 artifact JSON 바이트가 raw hash의 기준이므로 같은 의미의 JSON이라도 재직렬화하면 별개 raw가 될 수 있다. 같은 capture artifact와 같은 job/IDs의 준비·등록은 재실행해도 같은 결과·신규 0이다. **재수집의 HTML·CSRF·수집 시각 변경을 새 법안 버전으로 자동 판정하지 않는다.** 운영자가 원문을 대조하고 새 version/raw_object/representation/snapshot/citation UUID4를 지정한다. 기존 결과는 덮어쓰지 않는다.
 
 [worker의 두 단계 비공개 명령](../../apps/worker/README.md)이 확보·준비를 담당하고 실제 등록은 기존 provision CLI만 사용한다. 발의일·처리 단계·법적 효력·최신 상태·법안 전문·전체 처리 이력·목록 증분 탐색·자동 변경 감지·정기 실행은 이번 연결기의 결과가 아니다. 앱에 연결하는 자료는 마지막 저장 capture이며 실제 제목 대조와 `SourcePresentation` 연결은 운영자가 별도로 수행한다.
+
+
+## 고정 정책뉴스 발견·확보
+
+`discover_policy`·`policy_candidates`와 `capture_policy`는 고정 정책뉴스 첫 목록과 명시한 기사1~2개의 private artifact를 반환한다. 후보 선택·기사별 공공누리1 텍스트 검토·PolicyJob/세 hash·정확 인용·오프라인 준비·기존 명시 등록/검색 투영/표시 제목 연결은 [worker의 정책뉴스 운영 절차](../../apps/worker/README.md#정책뉴스를-확인하고-비공개-등록-계획을-준비하기)를 따른다. import는 수집하지 않으며 SDK는 DB·파일 저장·정기 수집·공개 게시를 실행하지 않는다.

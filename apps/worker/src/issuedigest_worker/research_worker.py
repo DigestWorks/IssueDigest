@@ -2,19 +2,36 @@
 
 import os
 import time
+from collections.abc import Callable
 from uuid import UUID
 
-from dbos import DBOS, SetWorkflowID
+from dbos import DBOS, DBOSClient, SetWorkflowID, WorkflowHandle, WorkflowStatus
 from issuedigest_agents.research import (
+    AIOutput,
     build_canvas,
     create_agent,
     model_prompt,
     run_agent,
 )
+from issuedigest_agents.research_v3 import (
+    AIOutputV3,
+    build_canvas_v3,
+    create_agent_v3,
+    model_prompt_v3,
+    run_agent_v3,
+)
 from issuedigest_domain.research_journey import ResearchResult, RunStatus
 from issuedigest_storage import StorageCorruption, StorageError, create_storage_engine
 from issuedigest_storage.research import ResearchRepository
+from pydantic_ai import Agent
 from sqlalchemy import Engine
+
+from .research_recovery import (
+    cancel_owned_orphans,
+    completed_model_checkpoint,
+    recovery_cohorts,
+    research_worker_lock,
+)
 
 
 def run_worker(
@@ -26,19 +43,28 @@ def run_worker(
     if model is None and not os.environ.get("OPENAI_API_KEY"):
         raise ValueError("OPENAI_API_KEY required")
     engine: Engine = create_storage_engine(database_url)
+    try:
+        with research_worker_lock(engine) as check_ownership:
+            _run_worker(database_url, engine, check_ownership, model, poll_seconds, once)
+    finally:
+        engine.dispose()
+
+
+def _run_worker(
+    database_url: str,
+    engine: Engine,
+    check_ownership: Callable[[], None],
+    model: object | None,
+    poll_seconds: float,
+    once: bool,
+) -> None:
     repository = ResearchRepository(engine)
-    agent = create_agent(model)  # type: ignore[arg-type]
-    DBOS(
-        config={
-            "name": "issuedigest-research",
-            "system_database_url": database_url,
-            "run_migrations": False,
-            "sys_db_pool_size": 3,
-            "enable_otlp": False,
-            "log_level": "ERROR",
-            "console_log_level": "ERROR",
-            "dbos_system_schema": "dbos",
-        }
+    agent_v2: Agent[None, AIOutput]
+    agent_v3: Agent[None, AIOutputV3]
+    client = DBOSClient(
+        system_database_url=database_url,
+        application_name="issuedigest-research",
+        system_database_pool_size=3,
     )
 
     def persist(
@@ -52,6 +78,7 @@ def run_worker(
     ) -> bool:
         """Retry only application writes; never repeat a paid model request here."""
         while True:
+            check_ownership()
             try:
                 return repository.worker_transition(
                     run_id,
@@ -66,8 +93,8 @@ def run_worker(
             except StorageError:
                 time.sleep(poll_seconds)
 
-    @DBOS.workflow(name="issuedigest_research_run_v2", max_recovery_attempts=3)
-    def execute(run_id_text: str) -> None:
+    def execute(run_id_text: str, *, classified: bool) -> None:
+        check_ownership()
         run_id = UUID(run_id_text)
         while True:
             try:
@@ -85,10 +112,17 @@ def run_worker(
         if loaded is None:
             return
         run, sources = loaded
+        if run.status in {"generating", "validating"} and not completed_model_checkpoint(
+            client,
+            f"research-{run_id}",
+            "issuedigest_research_run_v3" if classified else "issuedigest_research_run_v2",
+        ):
+            persist(run_id, "failed", error_code="generation_failed")
+            return
         input_tokens, output_tokens = 0, 0
         try:
             try:
-                prompt = model_prompt(
+                prompt = (model_prompt_v3 if classified else model_prompt)(
                     run.question,
                     sources,
                     repository.worker_parent_context(run_id),
@@ -99,10 +133,17 @@ def run_worker(
             else:
                 if not persist(run_id, "generating"):
                     return
-                output, input_tokens, output_tokens = run_agent(agent, prompt)
+                if classified:
+                    output_v3, input_tokens, output_tokens = run_agent_v3(agent_v3, prompt)
+                else:
+                    output_v2, input_tokens, output_tokens = run_agent(agent_v2, prompt)
             if not persist(run_id, "validating"):
                 return
-            canvas = build_canvas(run_id, run.workspace_id, sources, output)
+            canvas = (
+                build_canvas_v3(run_id, run.workspace_id, sources, output_v3)
+                if classified
+                else build_canvas(run_id, run.workspace_id, sources, output_v2)
+            )
             titles = {
                 bundle.document.document_id: title.title for _snapshot, bundle, title in sources
             }
@@ -123,21 +164,86 @@ def run_worker(
                 output_tokens=output_tokens,
             )
 
-    try:
-        DBOS.launch()
-        while True:
-            handles = []
-            for run_id in repository.queued_ids():
-                with SetWorkflowID(f"research-{run_id}"):
-                    handles.append(DBOS.start_workflow(execute, str(run_id)))
-            if once:
+    def cycle(
+        version: str | None = None,
+        recoveries: tuple[WorkflowStatus, ...] = (),
+        *,
+        dispatch_new: bool = False,
+    ) -> None:
+        nonlocal agent_v2, agent_v3
+        agent_v2 = create_agent(model)  # type: ignore[arg-type]
+        agent_v3 = create_agent_v3(model)  # type: ignore[arg-type]
+        config = {
+            "name": "issuedigest-research",
+            "system_database_url": database_url,
+            "run_migrations": False,
+            "sys_db_pool_size": 3,
+            "enable_otlp": False,
+            "log_level": "ERROR",
+            "console_log_level": "ERROR",
+            "dbos_system_schema": "dbos",
+        }
+        if version is not None:
+            config["application_version"] = version
+        DBOS(config=config)  # type: ignore[arg-type]
+
+        @DBOS.workflow(name="issuedigest_research_run_v2", max_recovery_attempts=3)
+        def execute_v2(run_id_text: str) -> None:
+            execute(run_id_text, classified=False)
+
+        @DBOS.workflow(name="issuedigest_research_run_v3", max_recovery_attempts=3)
+        def execute_v3(run_id_text: str) -> None:
+            execute(run_id_text, classified=True)
+
+        functions = {
+            "issuedigest_research_run_v2": execute_v2,
+            "issuedigest_research_run_v3": execute_v3,
+        }
+        try:
+            # Public resume retains original version and all steps; launch that version's registry.
+            for workflow in recoveries:
+                if workflow.status == "PENDING":
+                    client.resume_workflow(workflow.workflow_id)
+            DBOS.launch()
+            handles: list[WorkflowHandle[None]] = [
+                DBOS.retrieve_workflow(item.workflow_id) for item in recoveries
+            ]
+            if not dispatch_new:
                 for handle in handles:
                     handle.get_result()
                 return
-            time.sleep(poll_seconds)
+            while True:
+                check_ownership()
+                handles = []
+                for run_id in repository.queued_ids():
+                    workflow_id = f"research-{run_id}"
+                    status = DBOS.get_workflow_status(workflow_id)
+                    if status is not None and status.name not in functions:
+                        persist(run_id, "failed", error_code="generation_failed")
+                        if status.status in {"PENDING", "ENQUEUED"}:
+                            client.cancel_workflow(workflow_id)
+                        continue
+                    function = functions[status.name] if status is not None else execute_v3
+                    with SetWorkflowID(workflow_id):
+                        handles.append(DBOS.start_workflow(function, str(run_id)))
+                if once:
+                    for handle in handles:
+                        handle.get_result()
+                    return
+                time.sleep(poll_seconds)
+        finally:
+            DBOS.destroy(destroy_registry=True)
+
+    # Each registry cycle creates both named agents once, then destroys it before the next version.
+    try:
+        check_ownership()
+        cancel_owned_orphans(client, repository)
+        for version, recoveries in recovery_cohorts(client, repository):
+            check_ownership()
+            cycle(version, recoveries)
+        cycle(dispatch_new=True)
     finally:
-        DBOS.destroy(destroy_registry=True)
-        engine.dispose()
+        client.destroy()
 
 
 def main() -> None:

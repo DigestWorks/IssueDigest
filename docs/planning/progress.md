@@ -1,5 +1,39 @@
 # 진행 기록
 
+## 개발 적용 · 근거 탐색·AI 평가·브리핑 디자인 · 2026-10-18
+
+- 작업/관련 요구: R2/R3/R4/R6·D021, `feat/evidence-exploration`, [명세](../changes/evidence-exploration.md), [Draft PR35](https://github.com/DigestWorks/IssueDigest/pull/35). main/운영 유예(D013)를 유지하며 개인 개발 HTTPS만 갱신했다.
+- 화면: 중립색·작은 녹색 강조·한국어 산세리프와 읽기 위계로 홈/로그인/공개·비공개 브리핑/기록/원문을 정리했다. 요약→필요한 비교·변화·근거→후속 질문 순서와 헤더 아이콘·비회원 초안/로그인·기존 세션·권한/취소를 유지한다. 가상 인기·수동 자료 관리·디버그 메뉴는 추가하지 않았다.
+- 공식 확보: 새 SDK의 고정 목록에서 후보10건을 확인하고 정확2기사만 확보했다. 정확한 텍스트 이용 조건을 확인한1건만 운영자 job/인용 검토·기존 등록/표시/색인 경로로 추가했으며, 허용 조건이 없는 나머지1건은 제외했다. 현행 plain-span 발행처를 좁은 파서version2로 지원하고 과거profile1/hash는 보존했다. 수집/준비는 명시 도구이며 질문 시 전체 웹 탐색·정기 수집·자동 공개 게시가 아니다.
+- AI/복구: 새 private v3는 inference/AI 해석을 유지하며 각 문장에 자료에 기록됨·출처의 주장·확인하기 어려움과 짧은 설명을 기록한다. 선택 인용에 대한 자동 평가이고 독립 사실 검증이 아니다. 기존v1/v2·공개v1과 과거 결과를 보존한다. 원래 이름/기록 application_version의 DBOS cohort와 정확한 정수slot1의 완료 모델 checkpoint만 재생하고, 완료가 불명확한 유료 요청은 재호출하지 않는다. 단일worker 잠금·잠금 소유 상실·과거v2 중단/재생을 합성 PostgreSQL/프로세스 종료로 검증했다.
+- 전체 검증: 제품 소스 `9f3086b`에서 Python2,404개·JS535개/28파일, Ruff224/format·mypy101·JS lint/types·생산 SPA·계약 검사 통과. skip/warning0. [제품 소스 CI 성공](https://github.com/DigestWorks/IssueDigest/actions/runs/39115708245). 작업별 독립 검토와 유료 checkpoint slot 보완 재검토 승인, 통합 검토의 운영자 사용 문서 Minor1을 보완한 `532dc71`도 재검토해 최종 Critical/Important/Minor0을 확인했다.
+- 실제 모델/UI: 실제 사용자와 분리한 소유DB·합성 신원·검토한 공개 텍스트에서 gpt-5.4-mini Responses를1회 실행했다(입력1,117/출력646토큰·재시도0·청구액 조회 아님). 요약/비교/근거와5문장·정확5개 평가를 확인했다. 이 응답은 자료에 기록됨3/확인하기 어려움2였고 출처의 주장 분류의 실제 모델 사례는 관측하지 않았다. 320/390/1440×밝은/어두운 테마6조합의 가로 넘침0·44px 조작·분류 펼침 설명·정확 인용·Escape/초점·새로고침·기록 재열람·추가POST0/pageerror0을 확인했다. 요청 전 결과 없음·접수/취소 상태를 확인했으며 실제 생성 중 단계의 별도 스크린샷은 완료가 빨라 확보하지 않았다.
+- 품질 한계: 한 질문의 표본으로 전체 정치 이슈·사실 검증 성능을 주장하지 않는다. 수치의 목표/실적/전망은 구분했지만 전망 상단과 목표의 산술 차이를 명시 설명하지 않았다. 자료에 기록된 내용과 당사자의 주장을 구분하는 보정·수치 비교 완결성·자료 부족·상충 주장 품질은 다음 실제 질문 평가에 포함한다. 현재 검증된 완료 결과를 표시하며 부분 AI 결과 전달·질문 시 자율 외부 탐색은 후속이다.
+- 개인 개발 반영: 활성run/workflow0을 확인하고 API 접수를 중지·기존 작업을 정리한 뒤 웹/API/워커를 제품 소스 `9f3086b`로 반영했다. 정적19파일/source map0·이전asset64개 유지, TLS검증·현재asset6개 빌드 일치·home/login/health/status200·미인증session/research401/no-store를 확인했다. 소유worker1개/잠금1개이며 schema0007·기존 실제 계정/세션·공개v1은 보존했다. 현재 자료13/인용37/검색27/공개1이며 등록 반복 신규0·초대 신규0·기존34테이블payload 집합 보존을 확인했다.
+- 백업/복원: 적용 직전·직후 서버 외부 full/app archive를 보존하고, 별도 소유 PostgreSQL18.6에 사후app archive를 복원해13개 canonical 자료·인용/검색 건수·schema0007·기존 공개v1 일치를 확인했다. 실제 사용자 세션을 대신 발급/사용하지 않았다. vector 확장·전체 역할을 포함한 완전 운영 재해 복구를 검증했다는 뜻은 아니다.
+- 인계: PR35는 Draft이며 main/운영 병합은 하지 않았다. [Sites v57](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)을 이전v56 보존 후 공개 게시했다. 실제 키·계정·개별 자료ID·원문·상세 운영 receipt는 비공개 검증 위치에 보존한다. 사용자 브라우저 탭을 열거나 이동하지 않았다.
+
+
+- Sites 인계: native publish `succeeded`, source `3dc6edd85b594580a9911007ce549ab1be7c9a59`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0755069e87a48191a85c6631f0d071f4`, deployment `appgdep_6ad494d1356081919d7199272eca7024`. 사본 기준5bc059c·HTML42/로컬 링크·anchor1,067/공개 텍스트108파일의 실제 비밀값·계정·개별ID·원문 제외를 확인했다. 사이트의 기존 공개 범위를 유지하고 사용자 탭은 열지 않았다.
+- 문서 검사/정리: 운영자 문서 Python 예제의 들여쓰기가 CI 서식 검사에 걸려 formatter로 보완했다(`c204a04`). 전체 Python lint/format224파일 재검사 통과, 런타임 코드는9f3086b와 동일하다. 자체 합성 브라우저와 QA 서버2그룹을 종료하고 전체ID/소유 label/이미지/loopback 포트를 대조한 자체 QA·복원 컨테이너4개/익명 볼륨을 제거했다. 서버 개인 개발 앱/worker·PR worktree·개인 백업/검증 기록은 유지한다.
+
+## 구현·합성 검사 · 공식 근거·AI 분류 Task3 · 2026-10-16
+
+- 작업/관련 요구: R2/R3/R4/R6·D021, `feat/evidence-exploration`, [변경 명세](../changes/evidence-exploration.md). Task1의 화면 구성을 유지하고 Task2의 명시 수집/준비 경로를 소비한다.
+- 구현: 새 private research-v3 typed category/300자 설명을 기존 SupportReview에 정확1개/claim로 기록하고 접근 가능한 작은 펼침 도움말로 연결했다. inference·AI 해석 label과 선택 인용의 AI 평가임을 유지한다. 기존 Claim/default·v1/v2 canonical 결과·공개v1 hash·D020 공개 경계를 바꾸지 않았다.
+- 복구: 공용 DBOS3.2 API로 원래 이름/기록 application_version cohort를 회복한 뒤 새 queued 요청만v3로 시작한다. 실제 동결v2 worker 모델 checkpoint 뒤 SIGKILL→새 worker의 구 결과 재생·새v3 실행, 모델 요청 안 SIGKILL→재호출 없음·실패/예약 유지, session advisory lock→중복 기동 거부/첫 요청 보존을 합성 PostgreSQL로 확인했다. 최초v2 업그레이드는 중지된 기존 worker·활성 작업 정리가 필요하다.
+- 검증/미검증: 관련 Python/전용 PostgreSQL852개 통과(기존 third-party event-loop deprecation warning1개), 마지막 잠금 연결 상실 보완 후 worker/recovery23개 통과. JS 전체535개/28파일·Ruff/format·mypy101소스·JS lint/types·생산 SPA·계약 검사를 통과했다. 합성 분류·인용/마이크로초 UTC·legacy/public hash·DBOS 복구/중복 기동/취소/권한·기존 원문/로그인/race 회귀를 확인했다. 최종 명령/결과·변경 파일은 `.superpowers/sdd/evidence-exploration/task-3-report.md`에 인계한다. 전체 결합 검사·독립 UI·실제 모델 품질은 controller 후속이다.
+- 실제 적용/남은 입력: active 개발 자료는 기존12건이다. Task2 실제 기사 추가13/37/27 확인은 격리 복원본 검증까지이며 active 등록/새 API·worker·정적 웹 반영은 대기다. 기존 계정/세션·공개1건은 보존하며 실제 private ID/원문·접속/키는 공개 기록에 남기지 않는다.
+- 다음 행동/Sites: controller가 전체 검사·독립 인수·백업/복원·명시 자료 추가·개인 개발 반영 후 Draft PR·Sites를 갱신한다. 현재 Sites 반영 대기, main/운영 유예 유지.
+
+
+## 구현·합성 검사 · 브리핑 디자인 Task1 · 2026-10-16
+
+- 요구사항/담당: [근거 탐색 계획 Task1](../changes/evidence-exploration.md), `feat/evidence-exploration`. 홈·로그인·공개/비공개 브리핑·공유 기록·원문 창의 앱 색상/타이포/간격을 통합했다. 한국어 serif fallback과 중복 시각 제목을 제거하고 기존 로고·테마/계정 아이콘·44px/초점·정확 인용·native details/dialog 계약을 유지한다. 새 폰트/의존성이나 API/데이터 변경은 없다.
+- 읽기 순서: 완료 브리핑 뒤에 후속 질문을 배치했다. DOM/키보드 읽기 순서 검사 RED→GREEN을 확인했고 기존 질문 복원·공개 고정 버전/철회·권한/원문/취소 회귀를 유지했다. 과거 경로 전환 검사의 옛 `질문 ·` 표시문구 의존만 제목 역할 조회로 바꾸었다.
+- 검증/인계: JS 전체 린트·타입·503개/26파일 테스트·생산 SPA 빌드·OpenAPI/TS 계약 검사를 통과했다. 구현자의 별도 headless 브라우저에서 생산 SPA·합성 HTTP로320/390/1440·밝은/어두운 원문 창, 가로 넘침 없음, 표시 버튼 최소44px, 정확 강조·Escape/초점 복원을 확인했다. 컨트롤러의 실제 자료를 사용하는 독립 인수는 대기다. 실제 계정/자료/서버·모델·운영/main을 변경하지 않았다.
+- 다음 행동/Sites: Task2·Task3 및 독립 인수 후 개인 개발 반영·Draft PR·Sites 요약을 컨트롤러가 진행한다. 이 Task1 단계의 개발 반영·Sites 갱신은 대기다.
+
 ## 완료 작업 · 명시 공개 브리핑 읽기 · 2026-10-16
 
 - 요구사항/담당: [D020](decisions.md)·[공개 브리핑 명세](../changes/public-briefings.md), `feat/public-briefings`, [Draft PR34](https://github.com/DigestWorks/IssueDigest/pull/34). 제품 소스 `b82624de2dc342733ced8ad9d8757e9b93d68154`. 기존 비공개 자료·질문·실행·계정/세션은 공개로 전환하지 않는다.

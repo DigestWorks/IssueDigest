@@ -89,11 +89,11 @@ npm test -- packages/api-client/tests/evidence.test.ts apps/web/tests/evidence.t
 `listResearchRuns`, `getResearchRun`, `submitResearch`, `cancelResearchRun`은 OpenAPI 생성 타입과 응답 검증을 사용합니다. 모든 요청은 같은 출처 쿠키·`no-store`·서버 request ID를 확인하고 원시 HTML/JS를 실행하지 않습니다. `ResearchRun.result.canvas`는 기존 `CanvasView`에 전달하고 `source_titles`는 document ID를 실제 제목으로 바꿀 때 사용합니다. `ResearchError.kind`는 `conflict`(409), `budget`(429), `unavailable`(503)을 포함합니다. 사용자 재시도 때 같은 `request_id`를 재사용하면 재과금 없이 같은 run을 얻습니다. GET/새로고침은 모델 호출을 시작하지 않습니다.
 
 
-`submitResearch(workspaceId, {request_id, question, parent_run_id?}, options?)`는 질문과 선택적인 완료 부모 실행만 허용합니다. snapshot_ids/임의 필드·빈 질문·잘못된ID는 전송 전에 거부합니다. `ResearchRun.snapshot_ids`는 서버가 찾은0~5개 근거의 기록입니다. queued/무근거실패의 빈 근거와 완료 결과의1개 이상 근거를 구분하며 잘못된 상태/이벤트/결과는 거부합니다. 저장된 research-v1과 신규 research-v2의 정확 인용/Canvas를 모두 검증해 읽습니다. 전용 research source catalog 클라이언트/타입/endpoint는 없습니다.
+`submitResearch(workspaceId, {request_id, question, parent_run_id?}, options?)`는 질문과 선택적인 완료 부모 실행만 허용합니다. snapshot_ids/임의 필드·빈 질문·잘못된ID는 전송 전에 거부합니다. `ResearchRun.snapshot_ids`는 서버가 찾은0~5개 근거의 기록입니다. queued/무근거실패의 빈 근거와 완료 결과의1개 이상 근거를 구분하며 잘못된 상태/이벤트/결과는 거부합니다. 저장된 research-v1/v2와 새 private research-v3의 정확 인용/Canvas를 검증해 읽습니다. v3는 고정 automated reviewer metadata·1개/claim·정확 인용 순서·300자 설명·허용 scope/assessment와 UTC 시각을6자리 소수초까지 대조합니다. 혼합/누락/중복·다른 대상/인용·잘못된 시각은 거부합니다. 과거 결과에 분류를 추정하지 않습니다. 전용 research source catalog 클라이언트/타입/endpoint는 없습니다.
 
 
 ## 익명 공개 브리핑 GET
 
-`listPublicBriefings(options?)`, `getPublicBriefing(slug, version?, options?)`과 생성 계약의 PublicBriefingSummary/Detail/List·PublicSourceAttribution·PublicBriefingErrorResponse 타입을 제공합니다. slug와 안전한 양의 정수 버전은 fetch 전 검사합니다. GET은 same-origin/no-store이며 JSON·요청 ID/no-store 헤더·정확 필드/형식·최대20목록·5자료/12claims/4모듈·고유 ID/참조·공개 provenance·공식 policyNewsView URL·출처 title/date/hash 대응·정확 인용을 검증합니다. 보호 연구의 bounded Canvas/evidence 검증은 그대로 공유합니다.
+`listPublicBriefings(options?)`, `getPublicBriefing(slug, version?, options?)`과 생성 계약의 PublicBriefingSummary/Detail/List·PublicSourceAttribution·PublicBriefingErrorResponse 타입을 제공합니다. slug와 안전한 양의 정수 버전은 fetch 전 검사합니다. GET은 same-origin/no-store이며 JSON·요청 ID/no-store 헤더·정확 필드/형식·최대20목록·5자료/12claims/4모듈·고유 ID/참조·공개 provenance·공식 policyNewsView URL·출처 title/date/hash 대응·정확 인용을 검증합니다. 보호 연구의 bounded Canvas/evidence 검증은 공유하되 공개는v1/v2·빈 support_reviews만 허용합니다. v3의 review 배열을 제거해도 공개 응답으로 허용하지 않습니다.
 
 기본10초 deadline은 헤더/본문에 적용하며 외부 abort·timeout·network·404·503·malformed를 구분합니다. 원시 오류 본문을 표시하지 않고 자동 재시도/쓰기/모델/세션 요청을 하지 않습니다. 서버가 공개 UUID namespace와 전체 canonical payload digest를 검증합니다. 브라우저는 hash 형식과 같은 고정 버전의 불변 hash를 비교하며 Python canonical 숫자 직렬화를 별도로 재구현하지 않습니다. 클라이언트 암호학적 증명·자동 사실/권리 판정을 주장하지 않습니다. 서버가 검토한 공개 source만 원문 창에 전달합니다.

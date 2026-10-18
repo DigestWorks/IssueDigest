@@ -29,8 +29,7 @@ export default function Login() {
   return <div className="workspace login-workspace">
     <BrandHeader />
     <main>
-      <p className="eyebrow">질문을 이어가는 곳</p>
-      <h1>궁금한 이슈를<br />근거와 함께 살펴보세요.</h1>
+      <h1>질문을 이어가세요.</h1>
       <p className="intro">현재는 운영자가 초대한 Google 계정으로 로그인할 수 있습니다.</p>
       <section className="login-panel" aria-label="로그인">
         {draft && <section className="guest-draft-preview" aria-label="이어갈 질문"><h2>이어갈 질문</h2><p>{draft}</p><small>로그인 후 내용을 고치고 직접 조사를 시작할 수 있습니다.</small></section>}
