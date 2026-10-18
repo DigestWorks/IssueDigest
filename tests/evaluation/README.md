@@ -147,3 +147,9 @@ uv run pytest packages/storage/tests/test_retrieval_evaluation.py \
 controller가 고정한 실제 저장13자료·34문항(positive30/negative4)은 같은 질문/gold/corpus fingerprint로 비교했다. Hit@1·family Recall@5·필수 가족 모두 발견은 모두13/30→28/30(43.33%→93.33%), negative no-match는2/4→2/4(50%)였다. positive 미발견2개·negative 오탐2개를 그대로 분모에 남긴다. 작은 고정 검색 표본이며 위치 일치·주장 지지·정답·전체 제품 품질을 증명하지 않는다. 정확 job/report·질문·ID·원문은 controller만 저장소 밖에서 보관한다. 원래20문항의 **미실행** 상태는 그대로다.
 
 새 research-v4는 기관 발표의 귀속, 목표·현재 실적·전망·확정 결과, 같은 대상·기간·단위의 단순 대소 관계를 지침으로 구분한다. 합성 FunctionModel 출력은 request envelope/원문 전달·분류/인용 연결·불신 입력의 계약 회귀만 검증한다. 문구 키워드 검사를 의미 품질 판정으로 쓰지 않는다. controller는 별도 승인된 최대3회 실제 모델 요청의 모든 성공/실패와 실제 인용·주체·기간·수치/귀속을 직접 읽은 판정을 별도로 기록한다. 현재 Task3 구현으로 그 실행이 완료된 것은 아니다. v2/v3 과거 결과에는 새 평가를 소급하지 않는다.
+
+## 2026-10-18 controller 인수 집계
+
+고정13자료·34문항의 동일 job/corpus fingerprint에서 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견은13/30→28/30, negative4의 no-match는2/4→2/4였다. 미발견/오탐을 분모에 유지했고 read-only 복원본34테이블은 평가 전후 동일했다. 이 좁은 저장 문자 검색 표본은 정답률·인용 지지·일반화된 검색 품질이 아니다.
+
+별도 합성 신원/공개 텍스트의 실제 모델3회는 위 CLI와 다른 수동 의미 평가다. 두 수치 응답은 원문 수치와 예정 성격을 보존했지만 귀속 분류·비교 결론·한계 설명이 불충분해 부분 충족으로 기록했다. 나머지는 없는 전국 찬성률/인지도를 생성하지 않고 제공 근거 부족으로 종료했다. 실제 청구액·독립 사실 검증·기존20문항 완료를 뜻하지 않는다. 제품 소스1c0c5ed, 상세 비공개 job/output/receipt는 저장소 밖에 두고 [진행 기록](../../docs/planning/progress.md)에 집계만 남긴다.

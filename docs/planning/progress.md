@@ -1,13 +1,16 @@
 # 진행 기록
 
-## 구현 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
+## 개발 적용 · 한국어 근거 검색·귀속/수치 지침 · D022 · 2026-10-18
 
-- 작업/담당: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md). Task1 내부 read-only 평가와 Task2 제한 한국어 검색은 작업별 독립 검토 완료이며 Task3 구현은 controller 인수를 기다린다. 기존 질문 중심 B2C·공개v1/v2/빈 review·자료/계정/세션·canonical JSON/hash·OpenAPI·schema·예산을 유지한다.
-- 구현: 새 요청만 research-v4/issuedigest_research_v4/issuedigest_research_run_v4를 사용한다. 기관 발표 수치·평가·주장을 귀속하고 목표·실적·전망·확정 결과를 분리하며 같은 대상·기간·단위에서 검증 가능한 단순 대소 관계를 설명하도록 지침을 보완했다. v3와 bounded schema/build/검증을 공유하고 각 버전의 고정 SupportReview 식별자·동일 인용 순서/UTC 마이크로초·세 분류·300자 설명을 엄격히 대조한다. 기존 작은 설명/원문/재열람 UI를 소비하며 새 메뉴는 없다.
-- 호환: v2/v3 지침·schema·prompt byte hash와 원래 budget17,309/16,049를 고정 회귀로 확인했다. v4는 static4,639+prompt14,813+framing2,048+output2,500으로 총24,000/단일60초·retry0·Responses/store=False를 유지한다. 실제 전용 합성 PG에서 frozen v2/v3 및 v4의 완료 모델 checkpoint→원래 ID/name/application_version·정수slot1 무과금 재생→새v4 실행, 중간 호출 중단 재호출 없음·예약 유지·세 registry/권한·취소·단일worker/잠금 상실을 확인했다. 실제 provider 접수·청구 검증은 아니다.
-- 검색 집계: controller의 동일13자료/34고정문항에서 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견은13/30→28/30, negative4의 no-match는2/4→2/4였다. positive 미발견2개·negative 오탐2개를 남긴다. 작은 저장 검색 표본이며 정답·인용 지지·전체 제품 품질로 일반화하지 않는다. 원래20문항은 여전히 미실행이다. 실제 질문·원문·개별 ID·job/report는 저장소 밖에 둔다.
-- 검증: 관련 Python/전용 PG958개와 전체 JS568개/28파일, Ruff235/format·mypy104·ESLint·타입·SPA build·생성 계약 drift 및 변경 문서 Python fence3개를 확인했다. 최종 관련 Python958개는 DeprecationWarning도 오류로 처리해 경고/skip/실패0으로 통과했다. 초기 sync 합성 모델 테스트의 Python3.13 implicit event-loop 경고는 명시 test-only asyncio.Runner 소유/종료로 해소했으며 필터/production/dependency 변경은 없다. Node22의 최초 타입/빌드 경고 뒤 고정 Node24.21/npm11.19로 관련 JS 검사를 다시 통과했다. 테스트 고정 출력·지침 문자열 검사는 실제 의미 품질 판정이 아니다.
-- 남은 인수/다음 행동: controller의 독립 Task3/전체 검토·정확 HEAD 전체 검사·최대3회 실제 모델 원문 판정·native320/390/1440/두 테마와 정확 원문/재열람 검증이 남았다. 기존 활성 작업 완료 후 사전/사후 백업·별도 복원·HTTPS/권한/원문 확인을 거쳐 개인 개발 갱신·Draft PR·Sites를 수행한다. 이 구현 에이전트는 실제 계정/DB/서버/키/provider/Sites를 다루지 않았다. Sites 반영 대기, main/운영 유예(D013) 유지.
+- 작업/범위: `feat/korean-evidence-quality`, [명세](../changes/korean-evidence-quality.md)·[D022](decisions.md)·[Draft PR36](https://github.com/DigestWorks/IssueDigest/pull/36). 제품 소스 `1c0c5ed`를 개인 개발 HTTPS에 반영했다. main/운영 공개는 유예한다.
+- 검색: 원형·단위 보존, 알려진 조사/명시 공백 대응, 문서별 후보 균형과 주제 중복 가산 방지를 구현했다. 내부 read-only 평가의 실제13자료/고정34문항·동일 job/corpus fingerprint에서 positive30의 Hit@1·family Recall@5·필수 가족 모두 발견은13/30→28/30, negative4의 no-match는2/4→2/4였다. 남은 미발견2·오탐2를 분모에 유지했다. 작은 저장 문자 검색 표본이며 정답률·인용 지지·일반화된 품질이 아니다. 원래20문항은 미실행이다.
+- v4/호환: 새 질문만v4 지침/agent/workflow를 사용하고 v2/v3의 실제 지침·schema·prompt bytes·유료 namespace/정수slot1·원래 ID/application_version 재생을 보존한다. 단일worker·불명확 호출 재시도 금지·취소/현재 권한·세 분류와 정확 SupportReview·공개v1/v2/빈 reviews·Claim/default·canonical hash·OpenAPI·schema·세션·예산을 유지했다. 새 디버그/자료 관리 화면은 없다.
+- 전체 검증: 정확 소스 `1c0c5ed`에서 Python2,572개·JS568개/28파일=3,140개, Ruff235/format·mypy104·JS lint/types·SPA build·생성 계약 통과, 경고/skip/실패0. 독립 작업별/전체 검토와 최종 보완 재검토 C0/I0/M0. 수량 단위·원형 순서와 잘못된 raw version의 검증 예외를 회귀로 보완했다. 합성 모델 테스트의 Python3.13 이벤트 루프 경고는 명시 test-only Runner 소유/종료로 해결했고 필터/production/dependency 변경은 없다.
+- 실제 모델: 실제 사용자와 분리한 합성 신원·검토한 공개 텍스트2건에서 고정 gpt-5.4-mini Responses3회, 재시도0·입력4,744/출력849토큰으로 확인했다. 두 수치 질문의6문장은 선택 원문의 수치를 보존하고 목표/실적/전망·예산안의 예정 성격을 바꾸지 않았다. 하지만 모두 content/supported였고 기관 귀속 분류의 실제 사례는 관측하지 못했다. 실적 문장의 발표 주체 명시와 비교 결론·질문에서 요구한 한계 설명은 불충분해 두 사례를 부분 충족으로 남긴다. 세 번째는 없는 전국 찬성률/인지도를 만들지 않고 제공 근거 부족으로 종료했다. 호출 성공을 의미 품질 통과로 바꾸지 않으며 청구액/독립 사실 검증도 아니다.
+- native UI: 자체 headless 브라우저에서320/390/1440×두 테마6조합,44px 조작·분류 설명·정확 원문/강조·Escape/초점·새로고침/기록 재열람·비교 목록·자료 부족 화면을 확인했다. 접수 전 결과 없음·접수/취소 상태를 확인했고 실제 생성 중 별도 화면은 완료가 빨라 확보하지 못했다. 읽기/재열람 추가POST0·pageerror0. 모바일 어두운/PC 밝은 화면을 직접 확인했다. 사용자 탭은 열거나 이동하지 않았다.
+- 개발 적용/보존: 활성run/workflow0 확인 뒤 이전 작업을 정리하고 웹/API/worker·개인 Nginx를 갱신했다. 정적19파일·이전asset68개 유지, 외부 TLS·빌드 asset6개 일치·home/login/health/status200·미인증session/research401/no-store를 확인했다. worker/pane 정상·worker잠금1개. 실제 외부 비회원 브리핑/원문도 POST0/pageerror0으로 읽었다. 브라우저 console1건은 의도된 익명 session401 응답이며 별도 앱 예외가 아니다.
+- 백업/복원: 사전·직전·사후 full/app archive를 서버 밖에 보존하고 별도 소유 PostgreSQL18.6에 사후app archive를 복원했다. schema0007·canonical 자료13/인용37/검색27/공개1·기존 공개v1 byte hash와 계정/세션 포함 앱21테이블 전체 payload 일치를 확인했다. DBOS registry metadata는 별도다. 실제 사용자 세션은 사용/대신 발급하지 않았고 vector/역할을 포함한 완전 재해 복구 검증은 아니다.
+- 남은 품질/다음 행동: 한국어 오탐·미발견, 발표 주체 귀속·수치 비교/한계 설명을 고정 회귀와 별도 실제 평가로 개선한다. 생산 규모 지연·일반화된 정치 이슈 품질·의미 검색/자율 외부 탐색·개인 저장/추천/알림은 미완료다. Sites 요약은 반영 대기이며 실제 원문·개별 ID·질문/gold·계정·접속·키·상세 receipt는 저장소 밖에 보존한다.
 
 ## 개발 적용 · 근거 탐색·AI 평가·브리핑 디자인 · 2026-10-18
 
