@@ -357,3 +357,35 @@ def test_all_group_originals_count_once_with_at_most_three_search_variants(engin
         multiple_originals,
         plain,
     )
+
+
+@pytest.mark.parametrize(
+    "quantity,other",
+    [
+        ("1천만", "1천원"),
+        ("10여만", "10여원"),
+        ("１천만", "１천원"),
+        ("1가나다만", "1가나다원"),
+        ("1천도", "1천원"),
+    ],
+)
+def test_mixed_numeric_quantity_keeps_ambiguous_magnitude_and_unit(engine, quantity, other):
+    workspace = uuid4()
+    wanted = save(engine, workspace, quantity)
+    save(engine, workspace, other)
+    assert topic_variants(quantity) == (quantity,)
+    assert retrieve(engine, workspace, quantity) == (wanted,)
+
+
+@pytest.mark.parametrize(
+    "term,want",
+    [
+        ("1천만은", ("1천만은", "1천만")),
+        ("10여만에는", ("10여만에는", "10여만")),
+        ("1천만원만", ("1천만원만", "1천만원")),
+        ("10여만명도", ("10여만명도", "10여만명")),
+        ("2026년도", ("2026년도", "2026년")),
+    ],
+)
+def test_known_particles_after_retained_numeric_units_still_expand(term, want):
+    assert topic_variants(term) == want

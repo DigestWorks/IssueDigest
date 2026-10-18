@@ -64,6 +64,9 @@ _PARTICLES = (
     "도",
     "만",
 )
+# These literal endings keep an explicit unit when a numeric base loses 만/도.
+# Unknown mixed quantities keep their full original; no numeric parsing/conversion.
+_RETAINED_NUMERIC_UNIT_ENDINGS = ("원", "년", "월", "일", "명", "개", "건", "회", "도", "%")
 
 
 def _tokens(question: str) -> tuple[str, ...]:
@@ -108,9 +111,14 @@ def topic_variants(term: str) -> tuple[str, ...]:
     for suffix in _PARTICLES:
         if term.endswith(suffix) and len(term) - len(suffix) >= 2:
             stem = term[: -len(suffix)]
-            # 만/도 immediately following a numeral can be magnitude/temperature,
-            # not a particle. Never erase that numeric unit (including Unicode digits).
-            if suffix not in {"만", "도"} or not stem[-1].isnumeric():
+            # A numeral anywhere in a mixed base can introduce magnitude/temperature
+            # (1천만, 10여만). Strip ambiguous 만/도 only after a retained literal unit.
+            ambiguous_quantity = (
+                suffix in {"만", "도"}
+                and any(char.isnumeric() for char in stem)
+                and not stem.endswith(_RETAINED_NUMERIC_UNIT_ENDINGS)
+            )
+            if not ambiguous_quantity:
                 variants.append(stem)
             break
     return tuple(variants)
