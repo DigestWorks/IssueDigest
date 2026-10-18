@@ -548,3 +548,26 @@ receipt PK는 `(workspace_id, attempt_id, news_id)`이고 실제 선택된
 `policy_intake_schema.PolicyIntakeReceipt.model_validate(dict(row), strict=True)`로 구조만
 검증할 수 있습니다. 이는 원본/보고서 검증을 수행하지 않습니다. receipt를 덮어쓰거나 삭제하는
 repository API는 없지만 DB 소유자의 직접 변조를 막는 trigger·권한 시스템은 아닙니다.
+
+새 질문의 `research_retrieval.variant_candidates(conn, workspace_id, term,
+original_terms=...)`는 workspace/문서별 `capture_collected_at`이 가장 큰 receipt의 snapshot만
+후보로 사용합니다. `created`와 `reused` receipt를 모두 포함하며 본문 버전의 수집 시각으로
+대신 선택하지 않습니다. 이 조건은 검색어·round-robin·200개 후보 제한·점수 계산 전에
+적용됩니다. 최신 승인본에 검색어가 없거나 투영이 없어도 구판으로 돌아가지 않습니다.
+receipt가 없는 legacy 문서는 기존 검색을 유지합니다. 정규화·프로필·순위·한도는 같습니다.
+
+반환 후보는 receipt 구조와 canonical의 workspace/문서/버전/representation/snapshot 관계,
+source ID·생성/재사용 시각을 확인하고 기존 canonical·투영 검증을 거칩니다. 생성 receipt는
+원본 hash도 canonical과 비교합니다. 이는 조회된 후보의 구조·관계 검사이며 journal 원본·
+보고서·승인 provenance를 다시 검증하거나 DB 소유자의 일관된 직접 변조를 탐지하는 보장은
+아닙니다. 조회는 자료·receipt·표시·투영을 쓰거나 원본 artifact를 읽지 않습니다.
+
+적용 전 실제 DB에 `0009_policy_intake` migration과 **실제 app 역할의
+`policy_intake_receipts` SELECT 권한**이 필요합니다. 기존 canonical/검색 투영 SELECT 권한에
+이 테이블 SELECT만 추가하며 channel·attempt journal 권한은 필요하지 않습니다. migration만
+실행해서 기존 app 역할에 SELECT가 자동 부여되지는 않습니다. 실제 권한 적용·안전 재시작은
+운영 절차에서 별도로 수행합니다.
+
+일반 literal 검색과 정확 원문 reader는 역사 버전을 계속 읽습니다. 이미 snapshot을 고정한
+run의 재실행, 일반 후속 질문의 검증된 부모 근거 재사용과 과거 유료 checkpoint 복구도
+기존 근거를 유지합니다. 새 주제를 검색하는 질문에만 최신 승인본 선택이 적용됩니다.

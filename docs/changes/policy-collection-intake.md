@@ -31,8 +31,8 @@
 
 ## Task 3: 새 질문의 최신 승인 버전 선택
 
-- [ ] 한국어 variant_candidates의 DB 후보 단계에 workspace+document별 최신 `policy_intake_receipts.capture_collected_at`의 snapshot을 적용한다. 해당 문서의 모든 구판은 terms/후보 limit/점수 이전에 제외하고 최신본 projection이 없거나 term이 없더라도 구판으로 되돌리지 않는다. intake가 없는 legacy 문서는 기존 검색을 유지한다. 일반 literal/reader/고정 run/부모 재사용은 바꾸지 않는다. report에 새 테이블 SELECT 권한의 실제 적용 필요를 적는다.
-- [ ] 실제 합성 PG TDD로 구판에만 있는 단어·동일/변경/revert·최신 미색인·타 workspace/미추적 문서·후속/고정 근거·일반 검색/원문 역사 보존·오염된 receipt/canonical 안전 실패를 검증한다. 기존 한국어 검색·평가·유료 실행/복구 관련 회귀와 static 검사를 마치고 README·체크박스·report·commit한다. 조회가 쓰기를 하지 않으며 새 LLM/웹 계약을 만들지 않는다.
+- [x] 한국어 variant_candidates의 DB 후보 단계에 workspace+document별 최신 `policy_intake_receipts.capture_collected_at`의 snapshot을 적용한다. 해당 문서의 모든 구판은 terms/후보 limit/점수 이전에 제외하고 최신본 projection이 없거나 term이 없더라도 구판으로 되돌리지 않는다. intake가 없는 legacy 문서는 기존 검색을 유지한다. 일반 literal/reader/고정 run/부모 재사용은 바꾸지 않는다. report에 새 테이블 SELECT 권한의 실제 적용 필요를 적는다.
+- [x] 실제 합성 PG TDD로 구판에만 있는 단어·동일/변경/revert·최신 미색인·타 workspace/미추적 문서·후속/고정 근거·일반 검색/원문 역사 보존·오염된 receipt/canonical 안전 실패를 검증한다. 기존 한국어 검색·평가·유료 실행/복구 관련 회귀와 static 검사를 마치고 README·체크박스·report·commit한다. 조회가 쓰기를 하지 않으며 새 LLM/웹 계약을 만들지 않는다.
 
 ## Controller 인수·운영 경계
 
