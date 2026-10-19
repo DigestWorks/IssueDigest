@@ -147,3 +147,52 @@ DBOS journal/정산은 SDK 밖이다. 오류/빈 후보를 자동 수리·재요
 기존 agents 회귀 검사는 `uv run pytest packages/agents/tests -q`, 정적 검사는
 `uv run ruff check packages/agents`, `uv run ruff format --check packages/agents`,
 `uv run mypy packages/agents/src`다. 합성 성공은 실제 모델 의미 품질이나 최종 브리핑 인수가 아니다.
+
+
+## 반복 원문 없는 수치 근거 v2
+
+새 `numeric_evidence_v2`는 기존 v1과 별도인 private SDK다.
+`create_numeric_extractor_v2(model: Model)`, `numeric_evidence_prompt_v2(source)`,
+`run_numeric_extractor_v2(extractor, source)`, `validate_numeric_proposal_v2(source, proposal)`를
+제공한다. source는 위와 같은 정확한 tuple이며 canonical source 검증·정확 resolver·원래 순서의
+whole quote와 `KnownUsage`/`NumericEvidenceError`를 v1에서 재사용한다. 필수 borrowed Model만
+받는 lazy handle이며 키/default client를 읽거나 모델·client를 생성/폐기하지 않는다.
+호출자는 transport의 `max_retries=0`과 현재 원문 접근 권한·client 수명을 책임진다.
+
+provider identity는 `issuedigest_numeric_evidence_v2`, 유일한 strict output tool은
+`propose_numeric_evidence_v2`다. fact/relation의 `citation_id`는 현재 인용 enum이며 각 span에는
+정확 `text`(비공백1..1,000 code points)/엄격한 `occurrence`(0..31)만 있다. fact의 value는
+필수이고 subject/unit/period/qualifier/condition은 nullable이다. status는
+`{kind: observed|planned|conditional_forecast, text: span}` 또는
+`{kind: unknown, text: span|null}`의 nested strict union이다. known text의 null은 실제
+raw/normalized provider JSON Schema에서 허용하지 않는다. 부수적 날짜/식별자를 측정값으로
+만들지 않고 명시된 실질 수치·작은 하위 항목·증감도 후보화하도록 지시한다. 상한 때문에
+전체 추출을 보장하지 않는다.
+
+서버는 겹침을 포함한 occurrence를 whole quote에서 계산한다. resolved fact는 citation_id와
+같은 문자열인 `context`로 `proposal.citations`의 전체 인용을 참조한다. 인용 자체는1,000자를
+넘어도 된다. 각 nullable field와 flattened kind/status_text는 정확한 원문 위치를 보존한다.
+관계 statement/cue는 exact span이며 statement가 두 endpoint의 실제 value·nonnull subject와
+cue 위치를 모두 포함해야 한다. 서로 다른 endpoint는 같은 인용을 참조해야 하며 주체가 불명확하거나
+statement가1,000자를 넘으면 관계를 제안하지 않는다. 모든 kind/방향에 걸친 unordered pair 중복과
+included_in child→parent의 cycle을 각각 거부한다. 사실/관계 상한은12/16이며0facts는0relations다.
+
+frozen strict extra-forbid `NumericEvidenceProposalV2`는 `numeric-evidence-v2`/`unreviewed`만
+허용한다. 현재 Source로 모든 위치/인용·snapshot/workspace·prompt/source SHA256·구조를
+재계산하고 unchecked extra나 stale source를 거부한다. hash는 서명·권한·인간 검토·진실 또는
+외부 usage 인증이 아니다. 원문에 있는 잘못된 subject 연결·상태/조건 해석·cue 지시 대상과 수치
+누락은 구조 검사를 통과할 수 있다. 단위/숫자를 계산·합산·정규화하거나 qualifier 부재를
+정확값으로 해석하지 않는다. 자동 승인·완전 추출·의미 인증·최종 브리핑 품질 보장으로 쓰지 않는다.
+
+독립 한도는 total20,000/output2,500·timeout30초·요청1/retry/repair0·Responses/storeFalse다.
+20UUID schema의 실측 raw4,518/normalized4,363바이트와 지침2,268바이트로 static6,786바이트다.
+framing2,048·출력2,500을 예약해 prompt8,666 UTF-8바이트를 허용한다. 매 요청의 실제
+raw/normalized schema envelope도 Agent 생성 전에 검사하며 인용을 자르거나 정규화하지 않는다.
+canonical1..20인용/총12,000 code points와 후보 최대 수의 동시 수용 보장은 없다.
+성공 usage는 nonbool 비음수 정수·요청정확1·상한을 검사한다. 결과 후 실패는 알려진 raw usage를
+보존하고 결과가 없는 실패는 `known_usage=None`으로 둔다. 이는 무료/예약 반환이 아니다.
+기존 앱24,000/월10만원·DBOS/예산 예약·worker/UI/API/공개와 통합하지 않은 독립 비용이다.
+
+합성 검사는 `uv run pytest packages/agents/tests/test_numeric_evidence_v2.py -q`다. agents 전체와
+Ruff/format/mypy 명령은 위와 같다. 합성 성공과 실제 두 고정 packet의 의미 평가·전체 gate·앱 통합은
+별도로 기록한다. 출력 구조가 짧아졌다는 것만으로 실제 품질이나 누락 원인 해결을 증명하지 않는다.
