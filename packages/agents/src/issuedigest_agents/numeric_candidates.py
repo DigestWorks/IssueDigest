@@ -225,6 +225,9 @@ def _sentences(cid: str, text: str, base: int) -> list[SentenceCandidate]:
 
 
 def _atom(cid: str, text: str, start: int) -> tuple[NumericAtom, int, LexicalKind] | None:
+    # A sign cannot turn a following whole date into an ordinary numeric atom.
+    if text[start : start + 1] in ("+", "-", "−") and _DATE.match(text, start + 1):
+        return None
     match = _RUN.match(text, start)
     if match is None:
         return None
@@ -289,7 +292,6 @@ def _scan(
         date = _DATE.match(text, pos)
         qualifier_spans: list[ExactSpan] = []
         separator = None
-        resume_at = pos
         start = pos
         atoms: tuple[NumericAtom, ...]
         kind: LexicalKind
@@ -311,13 +313,9 @@ def _scan(
             separator_start = _horizontal(text, end)
             if separator_start < len(text) and text[separator_start] in _SEPARATORS:
                 right_start = _horizontal(text, separator_start + 1)
-                prioritized_date = _DATE.match(text, right_start)
-                if prioritized_date is not None:
-                    # This known delimiter must not become the date's leading sign.
-                    resume_at = right_start
                 right = (
                     None
-                    if prioritized_date or _LEGAL.match(text, right_start)
+                    if _DATE.match(text, right_start) or _LEGAL.match(text, right_start)
                     else _atom(cid, text, right_start)
                 )
                 if right is not None:
@@ -361,7 +359,7 @@ def _scan(
         )
         if base + len(result) > 256:
             raise ValueError("Candidate limit exceeded")
-        pos = max(end, resume_at)
+        pos = end
     return result
 
 

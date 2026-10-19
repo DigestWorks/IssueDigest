@@ -728,3 +728,58 @@ def test_date_resume_fix_preserves_normal_ranges_and_negative_endpoints(
     assert candidate.lexical_kind == "number"
     assert tuple(a.number.text for a in candidate.atoms) == (left, right)
     assert candidate.separator.text == separator
+
+
+@pytest.mark.parametrize(
+    "text,expressions,date_start",
+    [
+        ("-2026-10-19", ("2026-10-19",), 1),
+        ("-2026/10/19", ("2026/10/19",), 1),
+        ("+2026-10-19", ("2026-10-19",), 1),
+        ("−2026/10/19", ("2026/10/19",), 1),
+        ("1초과-2026/10/19", ("1초과", "2026/10/19"), 4),
+        ("1초과 -2026-10-19", ("1초과", "2026-10-19"), 5),
+        ("1명미만-2026/10/19", ("1명미만", "2026/10/19"), 5),
+        ("1--2026-10-19", ("1", "2026-10-19"), 3),
+        ("1~-2026/10/19", ("1", "2026/10/19"), 3),
+        ("1만~-2026-10-19", ("1만", "2026-10-19"), 4),
+    ],
+)
+def test_whole_date_priority_survives_signs_at_every_atom_entry(text, expressions, date_start):
+    api = sdk()
+    src = document(text)
+    index = api.build_numeric_candidates(src)
+    assert tuple(c.expression.text for c in index.candidates) == expressions
+    assert tuple(c.candidate_id for c in index.candidates) == tuple(
+        f"n{i}" for i in range(1, len(expressions) + 1)
+    )
+    date = index.candidates[-1]
+    assert date.lexical_kind == "temporal"
+    assert len(date.atoms) == 1 and date.separator is None
+    assert date.atoms[0].unit is None
+    assert (date.atoms[0].number.text, date.atoms[0].number.start, date.atoms[0].number.end) == (
+        expressions[-1],
+        date_start,
+        date_start + 10,
+    )
+    assert date.expression == date.atoms[0].number
+    assert date.sentence_ids == ("s1",)
+    assert (
+        index.sentences[0].span.text,
+        index.sentences[0].span.start,
+        index.sentences[0].span.end,
+    ) == (text, 0, len(text))
+    assert api.validate_numeric_candidates(src, index) == index
+    packet = json.loads(api.numeric_candidates_packet(src, index))
+    assert packet["citations"][0]["quote"] == text
+    assert tuple(c["expression"]["text"] for c in packet["candidates"]) == expressions
+
+
+@pytest.mark.parametrize(
+    "text,number", [("-2026", "-2026"), ("+2026", "+2026"), ("−2026", "−2026")]
+)
+def test_date_priority_does_not_remove_a_real_numeric_leading_sign(text, number):
+    (candidate,) = sdk().build_numeric_candidates(document(text)).candidates
+    assert candidate.lexical_kind == "number"
+    assert candidate.atoms[0].number.text == number
+    assert candidate.expression.text == text
