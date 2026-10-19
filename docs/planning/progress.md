@@ -18,7 +18,20 @@ controller가 원문·모든 raw field/null·관계와 원래 catalog로 해석�
 
 전체 gateb3794da의 Python4,437+JS820=5,257개와 lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이며 Task1 및 전체 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0)다. 실제 sourceb3794da와 전체 gate/검토b3794da는 실행 코드가 같고 문서만 다르다. 이후 출판/정리 변경도 Markdown뿐이다.
 
-[Draft PR52](https://github.com/DigestWorks/IssueDigest/pull/52)은 PR51 기반·미병합이며 앱에 첨부했다. [source CI39244869318](https://github.com/DigestWorks/IssueDigest/actions/runs/39244869318)는b3794da에서 별도 진행 중이다. Sites 현재 요약/사본/native 게시·이전v73 보존과 소유QA1/SDD 정리는 최종 receipt로 확인한다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling2개/비용은 Spec/D022에 보존한다.
+[Draft PR52](https://github.com/DigestWorks/IssueDigest/pull/52)은 PR51 기반·미병합이며 앱에 첨부했다. [source CI39244869318](https://github.com/DigestWorks/IssueDigest/actions/runs/39244869318)는b3794da에서 success다. Sites v74/사본/native 게시·이전v73 보존과 소유QA1/SDD 정리는 아래 최종 기록을 따른다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling2개/비용은 Spec/D022에 보존한다.
+
+
+### 서버 원문 참조 수치 v3 · 최종 게시·CI·정리
+
+[계획 Sites v74](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)는 기존 public 설정으로 native succeeded를 확인했다. source `08586166c7a11a7f528a1b36fc167c8ce3ebaa6a`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2c1005737bf88191a13273509fdc365e`, deployment `appgdep_6ad5ffccad8481919fc9040f1266ede0`, 2026-10-19T11:32:43.883956+00:00이다. 저장소 사본2d8d059·이전v73/전체 기록·과거 실패/미판정 분모·두 판단과 비용을 보존했다. HTML59개·로컬 링크/asset/anchor1,224개·공개 텍스트160개와 private 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 변경으로 새 browser QA·사용자 탭 열기/이동은 없었다. 이 최종 게시/CI/정리 기록은 사이트 사본 이후 저장소 원본이다.
+
+[source CI39244869318](https://github.com/DigestWorks/IssueDigest/actions/runs/39244869318)는b3794da 기준 success다. 같은 실행 코드의 단일 전체 gate5,257개·작업/전체 독립 Spec/품질 PASS(C0I0M0)와 구분한다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 source CI 성공을 섞지 않는다. 실제2SDK/2요청 모두 거부·수용0/완전 충족0이다. 추가 유료 호출·전체 검사 반복은 없다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개/해당 볼륨만 제거하고 포트 닫힘을 확인했다. 작업/전체 검토·동결 manifest·두 Ruling을 private600 archive에 검증 보존한 뒤 이번 SDD 폴더만 제거했다. 다른 컨테이너·worktree·실제 서버/API/worker/수집기·원본 평가 증거는 유지했다. main/운영 병합·배포와 개발 앱 변경은 없었다.
+
+판단1은 원문 전체 글자에 참조를 부여하는 선택이다. 잘못된 의미 경계를 여전히 고를 수 있고 입력 증가로 처리할 whole quote가 줄거나 사전 거부된다. 판단2는 조건 없는 전망도 forecast로 분류하고 조건을 별도로 보존하는 선택이다. 소비자는 condition도 읽어야 하며 향후 v1/v2 mapping·재검증 비용이 남는다. 둘 다 Spec/D022와 최종 인계에 보존한다.
+
+다음은 서버가 확정한 수치·단위/문장 후보 경계를 제공하는 계약과 오프라인 누락/오탐 비교다. 현재 글자 참조의 실패를 성공 재호출·자동 수정으로 숨기거나 최종 브리핑 품질 인수로 확대하지 않는다.
 
 ## 서버 원문 참조 수치 v3 · 착수 · 2026-10-19
 
