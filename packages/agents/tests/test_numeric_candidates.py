@@ -549,3 +549,112 @@ def test_adjacent_prefix_does_not_turn_a_bare_number_into_identifier(prefix):
     assert c.lexical_kind == "number"
     assert c.expression.text == f"{prefix}106.6"
     assert tuple(q.text for q in c.qualifiers) == (prefix,)
+
+
+@pytest.mark.parametrize(
+    "text,left,right,separator,left_bounds,right_bounds,separator_bounds",
+    [
+        ("1만-2만", "1만", "2만", "-", (0, 2), (3, 5), (2, 3)),
+        ("1만 -2만", "1만", "2만", "-", (0, 2), (4, 6), (3, 4)),
+        ("-1만--2만", "-1만", "-2만", "-", (0, 3), (4, 7), (3, 4)),
+        ("−1만 - −2만", "−1만", "−2만", "-", (0, 3), (6, 9), (4, 5)),
+        ("1만~-2만", "1만", "-2만", "~", (0, 2), (3, 6), (2, 3)),
+    ],
+)
+def test_multiplier_continuation_leaves_range_delimiter_and_signed_endpoints(
+    text, left, right, separator, left_bounds, right_bounds, separator_bounds
+):
+    (candidate,) = sdk().build_numeric_candidates(document(text)).candidates
+    assert candidate.expression.text == text
+    assert candidate.lexical_kind == "number"
+    assert len(candidate.atoms) == 2
+    assert [(a.number.text, a.number.start, a.number.end) for a in candidate.atoms] == [
+        (left, *left_bounds),
+        (right, *right_bounds),
+    ]
+    assert tuple(a.unit for a in candidate.atoms) == (None, None)
+    assert (candidate.separator.text, candidate.separator.start, candidate.separator.end) == (
+        separator,
+        *separator_bounds,
+    )
+
+
+def test_unsigned_multiplier_continuation_still_preserves_a_compound_quantity():
+    (candidate,) = sdk().build_numeric_candidates(document("1만 2천명")).candidates
+    assert candidate.expression.text == "1만 2천명"
+    assert len(candidate.atoms) == 1 and candidate.separator is None
+    atom = candidate.atoms[0]
+    assert (atom.number.text, atom.number.start, atom.number.end) == ("1만 2천", 0, 5)
+    assert (atom.unit.text, atom.unit.start, atom.unit.end) == ("명", 5, 6)
+
+
+@pytest.mark.parametrize("date", ["2026/10/19", "2026-10-19"])
+def test_multiplier_continuation_stops_before_a_prioritized_whole_date(date):
+    index = sdk().build_numeric_candidates(document(f"1만 {date}"))
+    assert [(c.candidate_id, c.expression.text, c.lexical_kind) for c in index.candidates] == [
+        ("n1", "1만", "number"),
+        ("n2", date, "temporal"),
+    ]
+    quantity, temporal = index.candidates
+    assert (quantity.atoms[0].number.start, quantity.atoms[0].number.end) == (0, 2)
+    assert len(temporal.atoms) == 1
+    atom = temporal.atoms[0]
+    assert (atom.number.text, atom.number.start, atom.number.end) == (date, 3, 13)
+    assert atom.unit is None
+    assert quantity.separator is None and temporal.separator is None
+    assert temporal.sentence_ids == ("s1",)
+
+
+@pytest.mark.parametrize("qualifier", ["이상", "이하", "초과", "미만"])
+@pytest.mark.parametrize("gap", ["", " "])
+@pytest.mark.parametrize(
+    "prefix,number_bounds,separator_bounds", [("", (0, 1), None), ("0~", (2, 3), (1, 2))]
+)
+def test_complete_suffix_qualifier_precedes_unit_prefix_and_name_hint(
+    qualifier, gap, prefix, number_bounds, separator_bounds
+):
+    text = f"{prefix}1{gap}{qualifier}은"
+    (candidate,) = sdk().build_numeric_candidates(document(text)).candidates
+    assert candidate.lexical_kind == "number"
+    assert candidate.expression.text == text[:-1]
+    assert (candidate.expression.start, candidate.expression.end) == (0, len(text) - 1)
+    atom = candidate.atoms[-1]
+    assert (atom.number.text, atom.number.start, atom.number.end) == ("1", *number_bounds)
+    assert atom.unit is None
+    (span,) = candidate.qualifiers
+    assert (span.text, span.start, span.end) == (
+        qualifier,
+        number_bounds[1] + len(gap),
+        len(text) - 1,
+    )
+    if separator_bounds is None:
+        assert candidate.separator is None and len(candidate.atoms) == 1
+    else:
+        assert len(candidate.atoms) == 2
+        assert (candidate.separator.text, candidate.separator.start, candidate.separator.end) == (
+            "~",
+            *separator_bounds,
+        )
+
+
+@pytest.mark.parametrize(
+    "text,number,unit,qualifier,kind",
+    [
+        ("1초", "1", "초", None, "temporal"),
+        ("1 초", "1", "초", None, "temporal"),
+        ("1초 초과", "1", "초", "초과", "temporal"),
+        ("1명 초과", "1", "명", "초과", "number"),
+        ("1명미만", "1", "명", "미만", "number"),
+    ],
+)
+def test_suffix_precedence_keeps_real_units_and_their_qualifiers(
+    text, number, unit, qualifier, kind
+):
+    (candidate,) = sdk().build_numeric_candidates(document(text)).candidates
+    assert candidate.expression.text == text
+    assert candidate.lexical_kind == kind
+    assert candidate.atoms[0].number.text == number
+    assert candidate.atoms[0].unit.text == unit
+    assert tuple(q.text for q in candidate.qualifiers) == (
+        () if qualifier is None else (qualifier,)
+    )

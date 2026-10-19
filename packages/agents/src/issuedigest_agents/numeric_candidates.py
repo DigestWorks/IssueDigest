@@ -240,23 +240,35 @@ def _atom(cid: str, text: str, start: int) -> tuple[NumericAtom, int, LexicalKin
             if stop == multiplier:
                 break
             end = stop
-            following = _RUN.match(text, _horizontal(text, end))
+            continuation = _horizontal(text, end)
+            # Compound groups are unsigned; leave a hyphen for the range parser.
+            if continuation == len(text) or not "0" <= text[continuation] <= "9":
+                break
+            # Whole-date priority also applies inside a compound's lookahead.
+            if _DATE.match(text, continuation):
+                break
+            following = _RUN.match(text, continuation)
             if following is None or not _NORMAL.fullmatch(following[0]):
                 break
             end = following.end()
     number = _span(cid, text, start, end)
     unit = None
     unit_start = _horizontal(text, end)
-    for spelling in _UNITS:
-        if text.startswith(spelling, unit_start):
-            unit = _span(cid, text, unit_start, unit_start + len(spelling))
-            end = unit.end
-            if kind != "ambiguous":
-                kind = "temporal" if spelling in _TEMPORAL else "number"
-            break
+    # A complete qualifier wins over a partial unit prefix (notably 초과/초).
+    has_suffix = _SUFFIX.match(text, end) is not None
+    if not has_suffix:
+        for spelling in _UNITS:
+            if text.startswith(spelling, unit_start):
+                unit = _span(cid, text, unit_start, unit_start + len(spelling))
+                end = unit.end
+                if kind != "ambiguous":
+                    kind = "temporal" if spelling in _TEMPORAL else "number"
+                break
     if unit is None and kind == "number":
         suffix = text[end:]
-        suffix_name = bool(suffix and suffix[0].isalpha() and not suffix.startswith(_ENDINGS))
+        suffix_name = bool(
+            not has_suffix and suffix and suffix[0].isalpha() and not suffix.startswith(_ENDINGS)
+        )
         prefix_name = (
             start > 0
             and text[start - 1].isalpha()

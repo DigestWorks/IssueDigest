@@ -331,7 +331,8 @@ separator, qualifier0..2개를 담는다. 범위는 두 atom과 정확한 separa
   않는다. 날짜를 범위의 한쪽 숫자로 잘라 합치지 않는다.
 - 숫자는 ASCII digits, 정상 3자리 comma 그룹, 소수, 선행 `+,-,−`, 한국어 배율
   `십/백/천/만/억/조`를 지원한다. `9만 9000`, `3억 5천만`, `-2.5`, `1,200.5`를 계산하지
-  않고 spelling 그대로 보존한다. 배율이 있어야 다음 가로 공백 숫자 그룹을 이어 붙인다.
+  않고 spelling 그대로 보존한다. 배율이 있어야 다음 가로 공백의 부호 없는 숫자 그룹을
+  이어 붙이며, 온전한 날짜 앞에서는 연결을 멈춘다. hyphen은 범위 판정을 위해 남긴다.
 - 범위 separator는 `~,∼,～,–,—,-`다. 수·배율·단위와 범위 양끝 사이에는 space/tab만
   연결하며 LF를 넘지 않는다. `1~2호`, `1호~2호`, `-2~-1`의 각 끝을 그대로 남긴다.
   단위가 다르거나 한쪽에 없어도 보정하지 않는다. 여러 종류가 섞인 범위의 lexical_kind는
@@ -341,7 +342,9 @@ separator, qualifier0..2개를 담는다. 범위는 두 atom과 정확한 separa
   긴 표기부터 고르며 조사/어미를 unit에 넣지 않는다. 정상 숫자의 명시 단위는 일반 이름
   hint보다 우선한다. 지수나 다른 atom의 단위를 추정하지 않고 없으면 null이다.
 - 인접 prefix `약/최대/최소`와 suffix `이상/이하/초과/미만`을 별도 exact qualifier span으로
-  expression에 포함한다. 그 밖의 문장으로 조건이나 열린 하한을 추론하지 않는다.
+  expression에 포함한다. 완전한 suffix는 단위 prefix/이름 hint보다 먼저 확인하므로
+  `1초과`는 unit=null·qualifier=`초과`이며 `1초`의 temporal 단위는 유지한다. 그 밖의
+  문장으로 조건이나 열린 하한을 추론하지 않는다.
 - digit로 시작하고 digit로 끝나는 연속 digit/dot/comma run의 malformed comma·다중 소수점은
   쪼개지 않고 ambiguous atom으로 보존한다. 문장 구간을 넘으면 모든 겹치는 문장을 참조한다.
   terminal dot/comma는 숫자 밖의 구두점이다.
