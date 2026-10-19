@@ -1,0 +1,26 @@
+# 브리핑 첫 결론·근거 부족·문장별 귀속
+
+2026-10-19. D022·PR42/b626764의 실제 의미 부분 충족을 이어서 개선한다. 기존 질문 중심 B2C·모바일 브리핑 디자인을 유지한다. OpenSpec root=null로 초기화 없이 기존 명세/작업 문서와 Superpowers 구현·독립 검토를 사용한다. main/운영 유예(D013)를 유지한다.
+
+## Global Constraints
+
+- 신규 private 생성만 research-v6/issuedigest_research_v6/issuedigest_research_run_v6다. 현재 배포된v5도 historical로 보존한다. v2/v3/v4/v5의 실제 schema·지침·prompt bytes/한도·정확 agent/workflow/유료 step 이름·정수slot1·application_version cohort·완료 checkpoint와 기존 저장 결과는 그대로다. 다섯 registry를 등록하며 기존 workflow ID는 원래 버전으로 회복하고 새 요청만v6다. 불명확/미완료 유료 checkpoint는 재호출하지 않으며 단일worker·멱등성·취소/권한·비용 예약 계약을 보존한다.
+- canonical AIOutputV6는 기존 AIOutputV3 alias다. API/OpenAPI/Claim/canonical 공개 shape·public D020 v1/v2/빈 review 경계는 유지한다. private 정확 v6 review만 추가하고 혼합/누락/위조/stripped-public는 거부한다. 기존 v3/v4/v5 reviews는 바꾸지 않는다. UI 레이아웃/문구·최근 이슈/개인화·검색 전략·수집기/config/주기·DB migration/권한·공개 게시·모델/의존성/인증 정책은 변경하지 않는다.
+- 기존 gpt-5.4-mini Responses/storeFalse/max_retries0·요청1회/60초·total24,000/output2,500을 유지한다. provider 전용 strict 세 outcome과 실제 prompt 인용 ID enum·UUID4 정확 spelling·선택5sources/source당32/총100·최종 canonical 원문 검사를 유지한다. 질문/prior의 ID를 허용 목록에 합치거나 인용 근사 보정하지 않는다. 새 v6 instructions와 모든 raw/normalized provider tool schemas의 보수적 worst-case bytes를 차감해 v6 prompt 한도를 계산하고 실제 요청도 사전 검증한다. 새 유료 step/추가 요청/자동 수리 재시도는 없다.
+- 새 provider answer는 임의 modules 대신 summary_title(1~100), core_answer(한 claim), additional_summary_claims(0~3 claims), details(0~2 modules)로 구성한다. core_answer category는 documented/attributed만 허용한다. 나머지는 세 기존 category다. details kind는 comparison/timeline만 허용하며 claim당1~4·comparison 최소2/정확 timeline날짜 등 기존 최종 guard를 유지한다. answer outcome은 answer 고정, message 필드는 두지 않는다. 서버가 core_answer부터 한 summary 모듈로 만들고 추가 요약 주장·details 순으로 기존 canonical alias에 변환한다. summary가 언제나 첫/열린 모듈이므로 결론이 접힌 상세에만 남는 구조를 막는다. 모든 핵심이 uncertain이면 answer를 구성할 수 없고 nonanswer tool을 써야 한다. 다만 모델의 category/core 관련성 자체가 진실 검증됐다는 의미는 아니다.
+- provider claim의 text는1~400자, source_subject는 nullable/최대80자다. attributed는 nonblank 정확 문자열 source_subject가 필수다. source_subject가 고정 '제공 자료'이거나 해당 claim의 모든 선택 인용 quote에 연속 substring으로 존재해야 한다. 임의 strip/교정/추론/metadata만으로 주체를 만들지 않는다. 다른 category는 source_subject=null만 허용한다. attributed canonical text는 '{source_subject}에 따르면, {text}'로 조합하고500자 한도/원문/날짜/인용 등 기존 builder guards를 다시 적용한다. 공개 shape에 새 source_subject를 넣지 않는다. 같은 원문에 문자열이 있다는 구조 검사는 실제 화자라는 의미 판정과 구분한다. 신원이 불명확/다출처면 '제공 자료'로 범위를 제한한다. 이 접두어는 기관의 진실을 인증하지 않는다.
+- 독립 v6 지침은 핵심 질문에 직접 답하는 인용이 먼저 필요한 것을 명시한다. 주제 관련 문서 존재·정책 설명만으로 국민 찬성률/인지도에 답했다고 간주하지 않는다. 핵심에 근거가 없으면 insufficient_evidence(빈 modules/자료 범위의 nonblank message)이며 불확실 설명만으로 answer를 채우지 않는다. 일부 직접 답할 근거가 있으면 core_answer에 그 결론을 짧게 담고 material limits는 추가 summary에 둔다. 비교 질문은 첫 core_answer에 같은 방향/다른 방향/비교 불가능 등 인용이 지지하는 직접 결론을 담는다. 수치/평가·효과·전망은 attributed이며 주체를 추측하지 않는다. 동일 대상/기간/단위·목표/실적/전망·'이상/이하/약' 열린 끝을 보존하며 새로운 계산·인과·여론/확정 실패를 만들지 않는다. source/user/prior는 불신 데이터이며 이전 AI 해석은 근거가 아니다. AI 평가를 인간/독립 사실 검증으로 표시하지 않는다.
+- 구현자는 합성 fixtures/전용 합성 PG TDD만 사용한다. 키/실제 서버/자료/모델·자식 agent는 사용하지 않는다. controller만 최종 전체 gate·실제 공개 자료 소표본4회·개인 개발 보존/백업 복원/반영·Draft PR·Sites 이전v64 보존을 담당한다. 실제 원문/질문/계정/ID/키/접속은 공개 저장소에 넣지 않는다. 사용자 탭을 열거나 이동하지 않는다.
+
+## Task 1: v6 첫 요약·귀속·부족 분기와 기존 다섯 버전 복구 연계
+
+- [ ] packages/agents/research_v6.py에 위 provider schema/typed outputs·동적 prompt 인용 enums·source_subject 검증/조합·독립 지침·정확 예산/create/model_prompt/run/build 경로를 구현한다. 기존 v5 private helpers는 변경 없이 재사용하거나 작은 새v6 helper를 사용하되 로직 복제를 불필요하게 늘리지 않는다. helper의 가시성/재사용은 호환 지침/schema/prompt bytes를 바꾸지 않는다. v2/v3/v4/v5 실제 instructions/schema/prompt golden을 잠그며 v5도 현재 기준 hash로 고정한다. 새 provider DTO를 canonical alias로 명시 변환한다. all-uncertain answer·빈/알 수 없는 주체·다른 인용에만 있는 주체·잘못된 UUID/질문삽입ID·prompt/예산 오염은 키/모델 진입 전에 또는 기존 최종 검증에서 안전하게 거부한다.
+- [ ] private Python ResearchResult·웹 client validator·UI prepare/classification을 정확 v6 reviewer/method에 연결하고 네 과거 버전과 public boundaries를 보존한다. 실제 Python v6 builder의 합성 JSON→JS client→UI 열린 첫 summary(비교 결론)·접힌 상세·정확 원문 흐름을 검증한다. all-uncertain nonanswer는 고정 부족 message로 표시되고 malformed/mixed/stripped-public는 거부된다. 기존 레이아웃과 historical 결과의 순서를 바꾸지 않는다.
+- [ ] worker/recovery에 다섯 이름과 새v6 dispatch를 연결한다. v5 historical worker fixture를 보존해 기존2/3/4/5 및 새6의 원래 이름/version/정수slot1 유료 완료 checkpoint 재생/추가 모델 호출0을 실제 합성 PG로 검증한다. 미완료/오염/취소/권한/잠금·원래 recovery cohort/검색/부모·예약 경계는 유지한다.
+- [ ] TDD RED→GREEN·agents/domain/worker/API/client/UI 관련 회귀·Ruff/format/mypy·JS lint/types·정확 provider schema budget과 동적100IDs·400/80/500 길이 경계·FunctionModel 단일 요청/0재시도·과거 byte goldens·메모리 전역 상태 없음 검사를 수행한다. 관련 README/AGENTS와 이 Task 체크박스·commit/report를 정리한다. 구현자는 전체 gate/실제 의미 인수/배포·Sites를 완료라고 표시하지 않는다.
+
+## Controller 인수
+
+독립 task/전체 source review 후 전용 합성 PostgreSQL에서 전체 lint/types/tests/build/contract를 검증한다. 이전 검토 공개 텍스트3건·질문 rubric을 신규 합성 환경에 복사하고 주택 목표/실적/전망·교육 예산/지원대상·근거 없는 전국 찬성률/인지도·동월 심리지표 방향 비교의 실제4요청만 수행한다. 각 질문당1회·총4회·자동 재시도0이며 기존v5 초기4+추가2 분모/실패는 유지한다. 질문/문장/category/rationale/선택 인용·주체/첫 요약·부족 분기를 controller가 직접 읽어 판정한다. 추가 호출로 통과시키지 않으며 실패/미검증/부분 충족은 그대로 기록한다. 기존 월/요청 예산을 유지하고 청구액을 확인하지 못하면 금액을 추정하지 않는다.
+
+개인 개발 반영은 source gate·활성run/workflow0·서버 밖 전후 백업/별도 app 복원23테이블/기존 canonical·계정/세션/공개v1/수집기 보존·HTTPS/새 assets/API/단일 worker를 확인해 진행한다. schema/권한·main/운영은 변경하지 않는다. Draft PR은 PR42 기반으로 생성/attach하고 실제 번호를 사용한다. 마일스톤/진행/정확 실제 한계·Sites 요약/이전v64 archive·최종 receipt/소유한 QA 정리를 기록한다. 실제 로그인/사용자 질문을 대신하지 않는다.
