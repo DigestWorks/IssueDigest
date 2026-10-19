@@ -23,7 +23,7 @@ PR48/181bee1 후속이다. [단일 Spec](../changes/briefing-numeric-clarity.md)
 ### v10 검토·검사·보존 receipt
 
 - 구현/실제 source65ffb5c와 문서만 다른 최종 검토/gate6c36cd6을 구분한다. controller 단일 전체 gate는 Python4,067+JS820=4,887개·lint/format/types/build/OpenAPI contract 통과, 실패/skip/warning0이다. Task1 및 전체 브랜치 독립 검토는 각각 구현 Spec/품질 PASS(C0/I0/M0)이며 실제 의미 인수 FAIL/개발 보류를 유지한다.
-- [Draft PR49](https://github.com/DigestWorks/IssueDigest/pull/49), PR48 기반·미병합. [source CI39229760833](https://github.com/DigestWorks/IssueDigest/actions/runs/39229760833)는 별도 진행 중이며 통과를 미리 주장하지 않는다. 추가 커밋은 출판/보존 문서만 변경한다.
+- [Draft PR49](https://github.com/DigestWorks/IssueDigest/pull/49), PR48 기반·미병합. [source CI39229760833](https://github.com/DigestWorks/IssueDigest/actions/runs/39229760833)는6c36cd6에서 성공했다. 추가 커밋은 출판/보존 문서만 변경한다.
 - 개발 웹/API/worker의 source/cwd·프로세스와 수집기 source/config/runner/cron을 재확인했고 재시작하지 않았다. HTTPS 홈/로그인/health/status/공개 복사본200, 비회원 세션401/no-store/쿠키0과 공개 payload 동일성을 확인했다.
 - 사전 read-only 서버 밖 full/app 백업의 별도 복원은23public테이블 일치였다. 전후 read-only 실측은22테이블 정확 일치, 나머지 수집 실행 테이블은 기존 행을 모두 보존하며 정각의 정상 성공1행만 추가됐다. 23테이블 전후 완전 동일이나 새 배포/사후 복원·DBOS/vector/역할 전체 DR을 주장하지 않는다. 일반 브라우저 세션의 last_activity_at만 비교에서 제외했다.
 - 새 Ruling은0이며 D022의 기존 전송 전 실패/예약 유지·적법한 metadata 변경 replay 거절 비용을 보존한다. 실제 원문/질문/ID/키/응답·전체 검토 원본은 private에 보존한다. Sites v70 archive/현재 요약·사본/native 게시와 소유 QA3개/SDD 정리는 별도 최종 receipt를 남긴다. 사용자 탭과 main/운영은 그대로다.
@@ -37,6 +37,15 @@ PR48/181bee1 후속이다. [단일 Spec](../changes/briefing-numeric-clarity.md)
 활성 작업0에서 API/worker를 정상 재기동하고 단일 worker 잠금·새 source/cwd·정적 파일 일치를 확인했다. 이전 소스/정적 자산·수집기 소스/runner/config/cron·자료/계정/세션·공개 복사본/비회원 경계를 보존했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PostgreSQL 복원에서23public테이블 count/rowhash 일치를 확인했다. schema0009 유지·migration0이며 실제 과거 AI 결과0이어서 실제 역사 결과 재생은 주장하지 않는다. DBOS/vector/역할을 포함한 완전 DR은 아니다. main/운영(D013)과 사용자 탭은 유지한다.
 
 Sites/CI/소유 QA·SDD 정리의 최종 receipt는 확인 뒤 추가한다. 실제 모델3/9의 부분 의미 판정·두 Ruling/비용과 원래 분모를 유지한다.
+
+### v10 최종 출판·정리 receipt
+
+- Source CI39229760833/6c36cd6 성공을 확인했다. 이후 커밋은 문서/출판 receipt만 변경했고 실행 코드는65ffb5c와 같다. 전체4,887개·독립 코드 검토 PASS는 실제 의미 인수 FAIL을 바꾸지 않으며 Draft PR49/main·운영 유예/개발v9를 유지한다.
+- Sites v71을 sourcef1578268f07c9f30c7044b81394edd88454fc5bd에서 package/save/native publish해 succeeded를 확인했다. 현재 마일스톤·두 주제 평가와 수치 실패·개발 보류·다음 설계, 저장소 사본dd364ae를 반영하고 이전v70/과거 실패·부분 분모/복구 비용 기록을 보존했다. 이 최종 출판/CI/정리 receipt는 사본 이후 원본 기록이다.
+- HTML56개/로컬 링크·자산·앵커1,194개와 실제 private값/키·질문/ID/긴 인용 유출 부재를 확인했다. 기존 레이아웃의 문서 수정이어서 새 브라우저 UI 검사는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+- 이번 소유 PG3개와 볼륨·포트만 정리했다. 해당 SDD 작업/검토/증거는 private archive한 뒤 소유 폴더만 제거했고 실제 평가/백업·기존 source/worktree·개발 서버·다른 자원은 보존했다. 새 Ruling0, 기존 D022 복구 판단/비용 유지다.
+- 다음 작업은 수치 근거 구조 설계·별도 Spec/고정 평가다. 이번 부분/미충족 결과와 과거 분모는 유지하며 사용자에게 추가 관리자 요청이나 키 입력을 요구할 사항은 없다.
+
 
 ## v9 실제 앱 인수 · 2026-10-19 KST
 
