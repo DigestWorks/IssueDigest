@@ -15,10 +15,12 @@
 
 ## Task 1: 새 v5 생성·검증·복구 경로와 합성 회귀
 
-- [ ] packages/agents의 research_v5.py에 create_agent_v5/model_prompt_v5/run_agent_v5/build_canvas_v5·AIOutputV5 alias·정확 static/prompt byte limit와 독립 SYSTEM_INSTRUCTIONS_V5를 구현한다. 위 우선순위를 충족하는 간결한 지침과 작은 합성 분류 예시를 사용한다. 기존 v2/v3/v4와 불신 입력/선택 quote·단일 요청 envelope를 보존한다. 의미 품질을 단어 포함 assertion으로 인증하지 않는다.
-- [ ] Python private classification·TypeScript validator/분류·UI prepare에v5만 추가하고 기존/공개 경계는 유지한다. 실제 v5 canvas가 웹 경로에서 통과/표시되고 malformed/mixed/stripped-public가 거부되는 교차 경계 회귀를 추가한다. 검증을 느슨하게 하거나 generic Claim/API shape를 변경하지 않는다.
-- [ ] worker에 네 agent/workflow를 등록하고 새 요청만v5로 시작한다. 기존v2/v3/v4의 실제 지침/schema/prompt bytes·이름·application_version cohort·정수slot1에서 완료 checkpoint 재생/유료 재요청0·오류/미완료 거부/잠금·취소·권한·부모/검색 고정 회귀를 검증한다. 기존v4를 historical fixture로 보존한다. 새 회귀가 기존 검사와 같은 수준에서 의미 있는 경계를 확인하도록 기존 parameterization/fixture를 적절히 재사용한다.
-- [ ] TDD RED→GREEN·관련 agents/domain/worker/API/웹 client/UI 검사·Ruff/format/mypy·문서와 체크박스/commit/report를 마무리한다. v4 bytes를 현재기준 golden으로 새 고정하고v2/v3 golden도 유지한다. 외부 모델 의미 품질·실제 적용은 controller 인수로 구분한다.
+- [x] packages/agents의 research_v5.py에 create_agent_v5/model_prompt_v5/run_agent_v5/build_canvas_v5·AIOutputV5 alias·정확 static/prompt byte limit와 독립 SYSTEM_INSTRUCTIONS_V5를 구현한다. 위 우선순위를 충족하는 간결한 지침과 작은 합성 분류 예시를 사용한다. 기존 v2/v3/v4와 불신 입력/선택 quote·단일 요청 envelope를 보존한다. 의미 품질을 단어 포함 assertion으로 인증하지 않는다.
+- [x] Python private classification·TypeScript validator/분류·UI prepare에v5만 추가하고 기존/공개 경계는 유지한다. 실제 v5 canvas가 웹 경로에서 통과/표시되고 malformed/mixed/stripped-public가 거부되는 교차 경계 회귀를 추가한다. 검증을 느슨하게 하거나 generic Claim/API shape를 변경하지 않는다.
+- [x] worker에 네 agent/workflow를 등록하고 새 요청만v5로 시작한다. 기존v2/v3/v4의 실제 지침/schema/prompt bytes·이름·application_version cohort·정수slot1에서 완료 checkpoint 재생/유료 재요청0·오류/미완료 거부/잠금·취소·권한·부모/검색 고정 회귀를 검증한다. 기존v4를 historical fixture로 보존한다. 새 회귀가 기존 검사와 같은 수준에서 의미 있는 경계를 확인하도록 기존 parameterization/fixture를 적절히 재사용한다.
+- [x] TDD RED→GREEN·관련 agents/domain/worker/API/웹 client/UI 검사·Ruff/format/mypy·문서와 체크박스/commit/report를 마무리한다. v4 bytes를 현재기준 golden으로 새 고정하고v2/v3 golden도 유지한다. 외부 모델 의미 품질·실제 적용은 controller 인수로 구분한다.
+
+구현자 검증: 합성 Python1,441개·웹/client/UI149개, Ruff/format263·mypy115·JS lint/types 통과(실패/skip0). v5 static5,109/prompt14,343바이트, 실제 builder의 교차 언어 합성 fixture·v4 byte golden·네 profile의 유료 완료/오류 checkpoint 재생을 포함한다. 전체/독립 검토와 실제 의미 품질·적용은 아래 controller 인수 대기다.
 
 ## Controller 인수·평가
 

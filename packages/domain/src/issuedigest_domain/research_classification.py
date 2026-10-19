@@ -1,4 +1,4 @@
-"""Bounded private research-v3/v4 profiles, separate from generic and public Canvas contracts."""
+"""Bounded private research-v3/v4/v5 profiles, separate from generic and public Canvas contracts."""
 
 import re
 from datetime import datetime, timedelta
@@ -21,7 +21,8 @@ def require_raw_classification_utc(canvas: Any) -> None:
         return  # Generic Canvas validation reports malformed collections.
     if (
         not any(
-            _field(_field(c, "derivation"), "method_version") in ("research-v3", "research-v4")
+            _field(_field(c, "derivation"), "method_version")
+            in ("research-v3", "research-v4", "research-v5")
             for c in claims
         )
         and not reviews
@@ -45,7 +46,9 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     research, revision = canvas.research, canvas.revision
     claims, reviews = research.claims, research.support_reviews
     versions = {c.derivation.method_version if c.derivation else None for c in claims}
-    classified = {version for version in ("research-v3", "research-v4") if version in versions}
+    classified = {
+        version for version in ("research-v3", "research-v4", "research-v5") if version in versions
+    }
     if not classified:
         if reviews:
             raise ValueError("Legacy research cannot carry classification")

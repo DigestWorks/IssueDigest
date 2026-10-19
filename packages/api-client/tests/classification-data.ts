@@ -2,7 +2,7 @@ import type {ResearchRun, SupportReview} from '../src';
 import legacy from './fixtures/research-run-generated.json';
 
 /** Manufactured v3 response, never modifies the historical fixture. */
-export function classifiedRun(category: 'documented' | 'attributed' | 'uncertain' = 'documented', version: 'v3' | 'v4' = 'v3'): ResearchRun {
+export function classifiedRun(category: 'documented' | 'attributed' | 'uncertain' = 'documented', version: 'v3' | 'v4' | 'v5' = 'v3'): ResearchRun {
   const value = structuredClone(legacy) as ResearchRun;
   if (!value.result) throw new Error('Synthetic result required');
   const {research, revision} = value.result.canvas;

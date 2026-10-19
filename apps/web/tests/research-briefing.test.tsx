@@ -215,3 +215,26 @@ it('reads the completed briefing before reaching the follow-up question in keybo
  expect(within(briefing).getByText('근거', {selector: 'summary'})).toHaveFocus();
  expect(screen.getByRole('button', {name: '후속 질문하기'})).toBeDisabled();
 });
+
+it('reads a real Python-built v5 canvas through the client and opens its exact cited original', async () => {
+ const {default: fixture} = await import('../../../packages/api-client/tests/fixtures/research-run-v5-generated.json');
+ const value = structuredClone(fixture), proof = value.result.canvas.research.evidence[0];
+ const reads: string[] = [];
+ vi.stubGlobal('fetch', async (path: string) => {
+  if (path.endsWith('/session')) return response({...session, memberships:[{workspace_id:value.workspace_id, role:'owner'}]});
+  if (path.endsWith('/research')) return response({workspace_id:value.workspace_id, items:[value]});
+  if (path.endsWith(`/research/${value.run_id}`)) return response(value);
+  if (path.endsWith(`/evidence/${value.snapshot_ids[0]}`)) { reads.push(path); return response(proof); }
+  throw Error(path);
+ });
+ const router = createMemoryRouter([{path:'/', Component:Home}], {initialEntries:[`/?view=research&run=${value.run_id}`]});
+ render(<RouterProvider router={router}/>);
+ const article = await screen.findByRole('article', {name:'브리핑 화면'});
+ for (const label of ['자료에 기록됨', '출처의 주장', '확인하기 어려움']) expect(within(article).getByText(label)).toBeInTheDocument();
+ expect(screen.queryByText('화면에 표시하지 않는 보조 message')).not.toBeInTheDocument();
+ expect(reads).toEqual([]);
+ await userEvent.setup().click(within(article).getAllByRole('button', {name:/근거 열기:/})[0]!);
+ const drawer = await screen.findByRole('dialog', {name:'원문과 인용 읽기'});
+ expect(drawer.querySelector('mark')).toHaveTextContent(proof.citations[0].selector.quote);
+ expect(reads).toEqual([`/api/v1/workspaces/${value.workspace_id}/evidence/${value.snapshot_ids[0]}`]);
+});

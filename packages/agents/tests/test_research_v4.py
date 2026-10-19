@@ -128,6 +128,12 @@ def test_legacy_output_cannot_be_read_as_v4_and_v4_cannot_be_read_as_v2():
 )
 def test_private_boundary_rejects_malformed_or_legacy_classification(mutation):
     data = result_data()
+    mutate_result(data, mutation)
+    with pytest.raises(ValidationError):
+        ResearchResult.model_validate(data)
+
+
+def mutate_result(data, mutation):
     canvas = data["canvas"]
     research = canvas["research"]
     reviews = research["support_reviews"]
@@ -174,8 +180,6 @@ def test_private_boundary_rejects_malformed_or_legacy_classification(mutation):
         citation = research["evidence"][0]["citations"][1]["citation_id"]
         claim["citation_ids"].append(citation)
         review["citation_ids"] = list(reversed(claim["citation_ids"]))
-    with pytest.raises(ValidationError):
-        ResearchResult.model_validate(data)
 
 
 def test_v4_prompt_counts_its_schema_and_instructions_before_the_only_request():
@@ -438,15 +442,16 @@ def test_v4_synthetic_model_plumbing_preserves_attribution_status_numeric_limits
     }[category]
 
 
+@pytest.mark.parametrize("version", ["v3", "v5"])
 @pytest.mark.parametrize("field", ["claim", "review", "reviewer"])
-def test_v4_boundary_rejects_v3_metadata(field):
+def test_v4_boundary_rejects_other_profile_metadata(field, version):
     data = result_data()
     research = data["canvas"]["research"]
     if field == "claim":
-        research["claims"][0]["derivation"]["method_version"] = "research-v3"
+        research["claims"][0]["derivation"]["method_version"] = f"research-{version}"
     if field == "review":
-        research["support_reviews"][0]["method_version"] = "research-v3"
+        research["support_reviews"][0]["method_version"] = f"research-{version}"
     if field == "reviewer":
-        research["support_reviews"][0]["reviewer_id"] = "issuedigest-research-v3"
+        research["support_reviews"][0]["reviewer_id"] = f"issuedigest-research-{version}"
     with pytest.raises(ValidationError):
         ResearchResult.model_validate(data)

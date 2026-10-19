@@ -1,6 +1,6 @@
 import {render, screen} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import {expect, test} from 'vitest';
+import {describe, expect, test} from 'vitest';
 import {CanvasView} from '../src';
 import {classifiedRun} from '../../api-client/tests/classification-data';
 import legacy from '../../api-client/tests/fixtures/research-run-generated.json';
@@ -43,8 +43,9 @@ test.each(['missing', 'mixed', 'bad-target'] as const)('rejects %s classificatio
   expect(screen.queryByText('자료에 기록됨')).not.toBeInTheDocument();
 });
 
-test('v4 uses the existing attribution explanation and exact source action', async () => {
-  const result = classifiedRun('attributed', 'v4').result!;
+describe.each(['v4', 'v5'] as const)('%s', version => {
+test('uses the existing attribution explanation and exact source action', async () => {
+  const result = classifiedRun('attributed', version).result!;
   const actions: unknown[] = [];
   render(<CanvasView bundle={result.canvas} sourceTitles={result.source_titles} onAction={action => actions.push(action)}/>);
   expect(screen.getByText('AI 해석')).toBeInTheDocument();
@@ -53,8 +54,8 @@ test('v4 uses the existing attribution explanation and exact source action', asy
   await userEvent.setup().click(screen.getAllByRole('button', {name:/근거 열기/})[0]!);
   expect(actions).toEqual([{kind:'open_evidence', citation_id:result.canvas.research.claims[0]!.citation_ids[0]}]);
 });
-test.each(['missing', 'mixed', 'reviewer', 'microsecond', 'citation'] as const)('rejects invalid v4 display: %s', kind => {
-  const result = classifiedRun('documented', 'v4').result!, research = result.canvas.research;
+test.each(['missing', 'mixed', 'reviewer', 'microsecond', 'citation'] as const)('rejects invalid display: %s', kind => {
+  const result = classifiedRun('documented', version).result!, research = result.canvas.research;
   if (kind === 'missing') research.support_reviews = [];
   if (kind === 'mixed') research.claims[0]!.derivation!.method_version = 'research-v3';
   if (kind === 'reviewer') research.support_reviews[0]!.reviewer_id = 'issuedigest-research-v3';
@@ -62,4 +63,6 @@ test.each(['missing', 'mixed', 'reviewer', 'microsecond', 'citation'] as const)(
   if (kind === 'citation') research.support_reviews[0]!.citation_ids.reverse().push(research.evidence[0]!.citations[1]!.citation_id);
   render(<CanvasView bundle={result.canvas} sourceTitles={result.source_titles}/>);
   expect(screen.getByRole('alert')).toBeInTheDocument();
+});
+
 });

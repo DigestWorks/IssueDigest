@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 구현자 인계 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- `feat/briefing-answer-quality`의 새 private v5 독립 지침·정확 byte 예산(static5,109/prompt14,343)·기존 schema alias·private Python/웹/UI 경로와 네 agent/workflow 등록을 구현했다. 한국어 결론·비교·선택 인용의 한계를 표시 claim에 담고 기관 수치/평가 귀속·계획/실적/전망·'이상' 열린 끝을 구분하도록 지시한다. 지침이 실제로 지켜졌다는 의미 품질 판정은 아니다.
+- 합성 TDD: v5 생성 미구현·클라이언트 거부·UI 분류 미표시/불완전 결과 미거부·새 요청v4 잔류의 RED를 먼저 확인했다. 관련 agents/domain/worker/API/UI Python1,441개·웹/client/UI JS149개 GREEN, Ruff/format263·mypy115·JS lint/types·diff 검사를 통과했다. 실패/skip0이며 최종 소스 지침 정리 뒤 agents77개도 재확인했다. 전체 gate는 controller가 따로 수행한다.
+- 보존: v2/v3 golden을 유지하고 v4 지침/schema/인용 선택 bytes를 기준2ed2bc7 SHA로 고정했다. 실제 전용 합성 PostgreSQL에서 v2/v3/v4/v5 원래 workflow/agent/정수slot1·application_version cohort의 완료/오류 checkpoint를 재생하고 유료 재요청0, 미완료/잘못된 slot·취소/권한·단일 잠금·부모/검색 고정을 확인했다. Python 실제 builder의 고정 합성 JSON→웹 client→표시/정확 원문 열기를 검사했다. generic Claim/API/OpenAPI·public v1/v2/빈 reviews·수집기/예산/세션은 유지했다.
+- 다음/경계: 독립 리뷰·전체 gate·검토 공개 자료 최대4회 의미 품질 평가·개인 개발 적용/복원·PR·Sites는 controller 인수 대기다. 구현자는 실제 원문/계정/키/모델/서버·컨테이너·사용자 탭에 접근하거나 외부 게시/배포를 수행하지 않았다. Sites 미반영(이전v63 유지), main/운영 유예다.
+
 ## 작업 시작 · 브리핑 답변 품질 · 2026-10-19 KST
 
 - PR41/d0d3fdf 기반 `feat/briefing-answer-quality`·[명세](../changes/briefing-answer-quality.md). 이전 실제 수치 답변의 귀속 분류·비교/한계 설명 부분 충족을 개선한다. 기존v2/v3/v4 생성/복구와 결과·공개 경계를 유지하는 새v5를 구현한다.
