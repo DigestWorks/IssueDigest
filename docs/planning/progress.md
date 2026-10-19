@@ -1,5 +1,39 @@
 # 진행 기록
 
+## 최종 게시·정리 · 관련성 선택 SDK · 2026-10-19 KST
+
+- [Sites v69](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T07:32:19.045389+00:00. source `89d6ae0138e2655f7a9d4d6ef201e7b4c3e84019`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c3749dfa400c819189331d5377f42f3a`, deployment `appgdep_6ad5c77419d081918ec0dba69a71e774`. 이전v68과 모든 과거 기록/모델 평가 분모를 보존했다. 사본 기준1ed12e0·실제 selector source384608d·최종 source50f0552·실제 앱f839ae0을 구분한다. 이 최종 출판/정리 receipt는 사본 이후 저장소 원본에 남긴다.
+- [Draft PR47](https://github.com/DigestWorks/IssueDigest/pull/47)(PR46 기반·미병합). source50f0552의 로컬 단일 gate Python3,725+JS744=4,469개/static/build/contract·실패/skip/warning0, 작업 검토·전체 검토 지적 수정/한정 재검토 C0/I0/M0다. [CI39216236587](https://github.com/DigestWorks/IssueDigest/actions/runs/39216236587)는941a86e 기준 success를 확인했다. 이후 최종 출판/정리 문서는 실행 코드를 바꾸지 않으며 이 source CI와 구분한다. source50f0552 이후 변경은 Markdown뿐이다. 앱의 PR 첨부 도구는 두 번 시간초과로 완료 확인을 못 했으며 PR URL은 보존했다.
+- 문서10파일/로컬링크253·diff 공백·접속값 제외, Sites HTML54/로컬링크·anchor·asset1,175/공개텍스트144파일·실제 비밀값 제외 검사를 통과했다. 별도48개 실제 질문/ID/인용 값이 저장소 변경/Sites 공개파일에 없음을155파일에서 확인했다. 기존 레이아웃의 텍스트·문서 사본 갱신으로 별도 브라우저 검사는 하지 않았다. 사용자 탭을 열거나 이동하지 않았다.
+- 전체ID/pinnedimage/소유label/loopback을 대조한 자체 합성PG1개/익명볼륨만 제거하고25493 닫힘을 확인했다. 이 변경의 ignored SDD만 private archive 후 제거했다. 다른 컨테이너/worktree·실제 개발 앱/서버/DB·로그인·자료/수집기·기존 백업은 보존했다. 실제 고정3/3·재시도0 및 lifecycle RED/GREEN·독립 검토/계약 동일성 증거도 비공개 보존한다. 열린/보류 지적·새 Ruling0이다.
+- 다음은 별도 새 실행 경로에서 selector 실제 사용량을 전체24,000/출력2,500·월 예약에 합산하고 현재 권한/원문·취소·중단 복구/모호한 유료 요청 재실행 금지를 보존하는 앱 연결이다. 실제3회는 선택기 단독 소표본이며 최종 답변 품질·다양한 정치 쟁점/중립성/실제 uncertain을 인증하지 않는다. main/운영 유예(D013)를 유지한다.
+
+## 전체 검사·독립 검토 · 관련성 선택 SDK · 2026-10-19 KST
+
+- source/검증 head `50f0552193de0cb2c0007024552eac5a43dc1da0`. 단일 전체 gate Python3,725+JS744=4,469개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0이다. 작업 독립 검토 C0/I0/M0, 전체 검토의 I1(기본 소유 클라이언트 정리)을 한 차례 수정하고 한정 재검토 PASS C0/I0/M0를 확인했다. 열린/보류 지적·새 Ruling0이다. lifecycle RED9→GREEN13, 관련562/selector94·지침/schema/예산/합성 결정 결과 동일성 증거를 보존했다.
+- 실제 selector3요청은 source384608d의 호출자 관리 client로 수행한 결과이며 새 source의 실제 호출로 재표기하지 않는다. 기존7개 결정/제공 인용15종 직접 대조·positive2의 동일 핵심 자료 보존·명시 무관2→0·셋째 human 미판정3 보존과 좁은 한계를 유지한다. 추가 유료 호출0, 총3/3완료·retry0이다. 앱f839ae0/v8·과거 provider/workflow/검색/저장/API/auth/UI/schema bytes를 보존했으며 실제 개발 앱/서버/DB·수집기 변경0이다.
+- [Draft PR47](https://github.com/DigestWorks/IssueDigest/pull/47)(PR46 기반·미병합). 검증 source50f0552 이후941a86e는 Markdown만 변경했다. source CI·Sites v68 보존/새 게시·소유 QA 정리 receipt는 뒤에 기록한다. 앱 실행기/전체24,000/출력2,500·월 예약/취소/권한/복구 연결은 후속이며 이번에 구현 완료로 표시하지 않는다. main/운영 유예(D013)·사용자 탭 유지다.
+
+## SDK 구현·실제3회 선택 인수 · 2026-10-19 KST
+
+질문·제공 인용을 함께 읽는 재사용 선택기 `evidence-relevance-v1`을 agents SDK로 구현했다. 정확한 모든 후보에 retain/exclude/uncertain을1회씩 받고, retain+uncertain은 원래 순서로 보존하며 exclude만 제외한다. 실제 후보 UUID enum/전체 coverage·원문 전체 인용·question/prompt UTF-8 hash·불변 결정/사용량과 raw/합산 검증을 적용한다. strict preflight 전에는 기본 key/model/Agent를 초기화하지 않는 lazy handle이다. 제목/metadata만으로 관련성을 증명하거나 관련성을 진실·독립 사실 검증·정치적 동의로 대신하지 않는다.
+
+실제 요청의 source는 `384608d`이며 캡처용 주입 모델과 호출자 소유 클라이언트를 사용했다. 이후 `50f0552`는 기본 생성 클라이언트의 수명 관리만 수정했고 지침·모든 후보 수의 raw/normalized schema·prompt·예산과 합성 결정 결과의 동일성을 확인했다. 기본 경로의 성공·실패·생성 오류 정리와 주입 클라이언트 소유권은 합성 회귀로 검증했으며 실제3요청을 새 source로 재표기하거나 유료 재실행하지 않았다.
+
+기존 고정3질문·같은 기검토 공식 원문3건·이전 계획후 후보1/3/3으로 실제 selector3요청을 한 번씩 실행했다. 모두 완료했고 retry0이다. 동일 주택 자료를 필수로 지정한 positive2문항에서 해당 자료를 모두 보존했다. 둘째는 명시 무관한 경제·교육 후보2개를 모두 제외해2→0이 됐다. 셋째는 주제 관련 주택 자료를 retain하고 다른2개를 exclude했다. 이 문항의 기존 human relevance 미판정3개는 그대로이며 선택 후1개가 남았다. 전국 찬성률/인지도 직접 근거가 없다는 것과 주제 자체의 무관함을 같게 보지 않았고 미판정 제외에 정답/precision 가점을 주지 않았다.
+
+controller가 모든7개 판단과 제공된 정확 인용15종(문항별4/15/15)을 직접 대조했다. 현재 판정은 이번 목표의 좁은 소표본 충족이다. 전부 같은 주택 주제/정부 자료이며 다양한 이슈·상반 입장/다중주제·공격적 주입에 대한 실제 모델 견고성은 검증하지 않았다. 실제 uncertain 응답은0으로 그 보존 분기는 합성 검증만 했다. 선택기는 제한된 제공 인용을 읽으며 원문 전체의 의미나 답변 품질/중립성·전반 검색 정확도를 인증하지 않는다.
+
+실제 입력5,087/출력282토큰·지연2.62/3.32/1.61초이며3응답의 알려진 사용량을 확인했다. 청구 금액은 미검증이다. 실제 app workflow/실제 사용자 세션 대행/개발 서버·DB 변경은0이다. 이3 selector요청은 기존v8의3앱/6요청(의미 부분1/목표 소표본 충족1/부족1), v7 3/6, v6 초기4+별도2, v5 초기4+별도2의 분모와 별개이며 기록 계획 재현의 추가 모델0과도 구분한다. 실제 질문/원문·ID·raw응답/입력prompt·시도 receipt는 private에만 보존한다.
+
+SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 instructions1,019+worst tool raw842/normalized789 중 큰 값의 static1,861·framing2,048·출력500을 뺀 prompt7,591바이트와 실제 envelope를 사전 검사한다. 최대5후보/100인용은 상한이며 모든 원문 조합의 동시 적재 보장이 아니다. 후보가 prompt에서 빠지면 모델 호출 전에 거부한다. 기존 앱 전체24,000/출력2,500·월 예약·내구 checkpoint/취소·권한/원문 재검증과 연결한 것은 아니다. 앱은 f839ae0/v8·기존 provider/검색/공개/UI/DB/수집기를 유지하며 재시작·배포하지 않았다. 다음은 실제 사용량을 합산해 예약/실패/불명확 호출 재요청 금지·모든 과거 workflow 회복을 보존하는 실행기 연결이다. 기존 D022의 input capacity 판단/비용·남은 수치 표현·실제 날짜 양성 미검증도 그대로다. main/운영은 D013에 따라 유예한다.
+
+- source384608d·합성81/관련549·작업 독립 specPASS/qualityPASS(C0/I0/M0). 단일 전체gate/새 전체 변경 검토·Draft PR/Sitesv68보존/자체QA 정리 receipt는 후속 기록이다. 실제 selector3회는 controller가 소유 파일/시도 receipt와 캡처한3 ModelResponse를 직접 확인했고 결과를 성공 재요청하지 않았다.
+
+## 작업 시작 · 질문·근거 후보 관련성 선택 · 2026-10-19 KST
+
+- PR46/a76a37f에서 이어간다. 임의 keyword 임계값 대신 질문·정확 제공 인용을 읽는 단일 bounded 선택기를 구현한다. retain/exclude/uncertain으로 모든 후보를 평가하고 uncertain은 보존한다. 기존 고정3질문/계획후 후보1/3/3/원문과 gold·미판정을 유지해 실제selector 최대3요청/추가재시도0으로 비교한다. 이번은 SDK/선택 단계 자체의 비용·누락 검증이며 기존 앱f839ae0/v8·worker/전체예산/검색정책을 바꾸거나 실제서버/DB에 배포/재시작하지 않는다. 향후 내구 실행·전역 예산과 연결은 별도다. 검토/전체gate·실제3/PR/Sites receipt는 증거 후 기록한다.
+
 ## 최종 게시·정리 · 계획 검색 비교 평가 · 2026-10-19 KST
 
 - [Sites v68](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:46:20.931499+00:00. source `b61add725d924bd9f559ea71cbf92dbe8fe4f197`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_9819e21fb7e0819199a20c8069772bdc`, deployment `appgdep_6ad5bcad7a248191aaf85da62f3f87fb`. 이전v67과 전체 기록·v8/v7/v6/v5 실제 실패/부분 분모를 보존했다. 사본f6b947f·내부 도구source7e8138f·실제 앱f839ae0·[Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46)(PR45 기반)이며 사본 이후의 이 최종 receipt는 저장소 원본이다.
