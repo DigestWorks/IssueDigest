@@ -19,6 +19,8 @@
 - [x] worker/recovery에 다섯 이름과 새v6 dispatch를 연결한다. v5 historical worker fixture를 보존해 기존2/3/4/5 및 새6의 원래 이름/version/정수slot1 유료 완료 checkpoint 재생/추가 모델 호출0을 실제 합성 PG로 검증한다. 미완료/오염/취소/권한/잠금·원래 recovery cohort/검색/부모·예약 경계는 유지한다.
 - [x] TDD RED→GREEN·agents/domain/worker/API/client/UI 관련 회귀·Ruff/format/mypy·JS lint/types·정확 provider schema budget과 동적100IDs·400/80/500 길이 경계·FunctionModel 단일 요청/0재시도·과거 byte goldens·메모리 전역 상태 없음 검사를 수행한다. 관련 README/AGENTS와 이 Task 체크박스·commit/report를 정리한다. 구현자는 전체 gate/실제 의미 인수/배포·Sites를 완료라고 표시하지 않는다.
 
+v6 nonblank는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator의 합집합을 공백으로 정의한다. U+0009~000D·001C~0020·0085·00A0·1680·2000~200A·2028·2029·202F·205F·3000·FEFF만으로 이루어진 본문/source_subject는 거부하며, 하나 이상의 다른 문자가 있으면 정확 원문·앞뒤 공백을 변경하지 않는다. provider와 최종 domain은 같은 Python 판정 함수를, JS v6 분류는 동등한 명시 판정을 공유한다. historical 공통 필드·비답변 marker/shape는 변경하지 않는다.
+
 ## Controller 인수
 
 독립 task/전체 source review 후 전용 합성 PostgreSQL에서 전체 lint/types/tests/build/contract를 검증한다. 이전 검토 공개 텍스트3건·질문 rubric을 신규 합성 환경에 복사하고 주택 목표/실적/전망·교육 예산/지원대상·근거 없는 전국 찬성률/인지도·동월 심리지표 방향 비교의 실제4요청만 수행한다. 각 질문당1회·총4회·자동 재시도0이며 기존v5 초기4+추가2 분모/실패는 유지한다. 질문/문장/category/rationale/선택 인용·주체/첫 요약·부족 분기를 controller가 직접 읽어 판정한다. 추가 호출로 통과시키지 않으며 실패/미검증/부분 충족은 그대로 기록한다. 기존 월/요청 예산을 유지하고 청구액을 확인하지 못하면 금액을 추정하지 않는다.

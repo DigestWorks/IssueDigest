@@ -25,3 +25,6 @@ provider claim text는1~400자, source_subject는 nullable/최대80자다. attri
 동적 UUID enum은 요청마다 native TypeAliasType 공유 참조로 한 번 정의하며 질문/prior ID를 합치지 않는다. 최대100개 인용에서 실제 세 tool 직렬화는 raw7,565/normalized7,485바이트, 독립 지침2,912바이트, 예약 static10,477바이트·prompt8,975바이트다. 실제 요청에서도 총24,000(출력2,500·framing2,048 포함)을 사전 검증하며 gpt-5.4-mini Responses/storeFalse/max_retries0·요청1회/60초는 유지한다. v5의 실제 지침/schema/raw·normalized provider schemas/prompt 선택은 SHA-256 golden으로 동결한다. `tests/v6_fixture.py`가 실제 provider DTO 변환과 builder를 거친 합성 JSON을 웹 client→열린 첫 요약/접힌 상세→정확 원문 검사에 제공한다. 실제 모델·자료·전체 gate·개인 개발 반영은 controller 인수다.
 
 v6 본문은 접두어를 붙이기 전부터 공백이 아닌 문자를 포함해야 한다. 최종 canonical 귀속문도1~400자 suffix의 nonblank를 다시 검증하며 유효한 앞뒤 공백은 변경하지 않는다. Python 문자 제한과 같은 Unicode code-point 기준을 v6 웹 claim500자·module title100자에도 적용한다. 과거 raw-client의 UTF-16 길이 동작과 profile 식별자가 없는 비답변 경계는 유지한다. 검증자만 추가했으므로 provider schema/instructions와 위 예산 바이트는 변하지 않는다.
+
+
+v6 본문/source_subject의 nonblank는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator 합집합으로 통일한다. NEL(U+0085)·BOM(U+FEFF) 단독/혼합 공백만 있으면 거부한다. 공유 명시 predicate는 검사만 하며 유효한 원문과 앞뒤 공백은 변경하지 않는다. 과거 공통 필드·비답변 경계는 유지한다.

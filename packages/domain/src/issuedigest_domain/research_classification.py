@@ -6,6 +6,7 @@ from typing import Any
 from uuid import UUID
 
 from .canvas import CanvasBundle
+from .research_text import has_v6_text
 
 
 def _field(value: Any, key: str, default: Any = None) -> Any:
@@ -125,17 +126,21 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
             raise ValueError("v6 core answer must be supported")
         quotes = {c.citation_id: c.selector.quote for e in research.evidence for c in e.citations}
         for review in reviews:
-            if review.scope != "attribution" or review.target.kind != "claim":
+            if review.target.kind != "claim":
                 continue
             claim = by_id[review.target.claim_id]
+            if review.scope != "attribution":
+                if not has_v6_text(claim.text):
+                    raise ValueError("v6 claim body must be nonblank")
+                continue
             # The exact subject may itself contain the separator. Accept any exact
             # bounded decomposition; never strip or infer a speaker from metadata.
             separator = "에 따르면, "
             if not any(
                 claim.text.startswith(separator, end)
-                and claim.text[:end].strip()
+                and has_v6_text(claim.text[:end])
                 and 1 <= len(claim.text[end + len(separator) :]) <= 400
-                and claim.text[end + len(separator) :].strip()
+                and has_v6_text(claim.text[end + len(separator) :])
                 and (
                     claim.text[:end] == "제공 자료"
                     or all(claim.text[:end] in quotes[c] for c in claim.citation_ids)

@@ -2,6 +2,7 @@
 import type {Claim, SupportReview} from './index';
 import {hasKeys, isId, isObject} from './protected-request';
 import {exactTimestamp} from './research-time';
+import {hasV6Text} from './research-text';
 
 export const classificationLabels = {
   documented: '자료에 기록됨', attributed: '출처의 주장', uncertain: '확인하기 어려움',
@@ -74,12 +75,15 @@ export function validResearchClassifications(research: Record<string, unknown>, 
       if (!isObject(review) || !isObject(review.target) || !isId(review.target.claim_id)) return false;
       const claim = claimById.get(review.target.claim_id.toLowerCase());
       if (!claim || typeof claim.text !== 'string') return false;
-      if (review.scope !== 'attribution') continue;
+      if (review.scope !== 'attribution') {
+        if (!hasV6Text(claim.text)) return false;
+        continue;
+      }
       const separator = '에 따르면, ';
       let validAttribution = false;
       for (let split = claim.text.indexOf(separator); split >= 0; split = claim.text.indexOf(separator, split + 1)) {
         const subject = claim.text.slice(0, split), text = claim.text.slice(split + separator.length);
-        if (subject.trim() && text.trim() && Array.from(subject).length <= 80 && Array.from(text).length >= 1 && Array.from(text).length <= 400
+        if (hasV6Text(subject) && hasV6Text(text) && Array.from(subject).length <= 80 && Array.from(text).length >= 1 && Array.from(text).length <= 400
           && Array.isArray(claim.citation_ids) && (subject === '제공 자료' || claim.citation_ids.every(id => isId(id) && quotes.get(id.toLowerCase())?.includes(subject)))) {
           validAttribution = true; break;
         }

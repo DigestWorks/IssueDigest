@@ -583,7 +583,9 @@ def test_subject_in_unselected_quote_cannot_authorize_attribution(sync_model_loo
     assert calls == [True]
 
 
-@pytest.mark.parametrize("body", ["     ", "\t\n", "\u3000"])
+@pytest.mark.parametrize(
+    "body", ["     ", "\t\n", "\u3000", "\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"]
+)
 def test_provider_rejects_blank_attributed_body_before_prefix_without_retry(sync_model_loop, body):
     v6 = profile()
     selected, response = proposal()
@@ -595,7 +597,9 @@ def test_provider_rejects_blank_attributed_body_before_prefix_without_retry(sync
     assert calls == [True]
 
 
-@pytest.mark.parametrize("body", ["     ", "\t\n", "\u3000"])
+@pytest.mark.parametrize(
+    "body", ["     ", "\t\n", "\u3000", "\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"]
+)
 def test_final_canonical_v6_rejects_blank_attribution_suffix(body):
     from v6_fixture import build_fixture
 
@@ -624,3 +628,53 @@ def test_provider_body_validation_preserves_valid_whitespace(sync_model_loop):
     agent, _ = run_synthetic(prompt, response)
     output, _, _ = v6.run_agent_v6(agent, prompt)
     assert output.modules[0].claims[0].text == "제공 자료에 따르면,  \t합성 본문 😀 \n "
+
+
+@pytest.mark.parametrize("subject", ["\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"])
+def test_provider_rejects_v6_union_whitespace_subject_without_retry(sync_model_loop, subject):
+    v6 = profile()
+    selected, response = proposal(subject=subject)
+    payload = json.loads(v6.model_prompt_v6("합성", (selected,)))
+    payload["sources"][0]["citations"][0]["quote"] = subject + "합성"
+    prompt = json.dumps(payload, ensure_ascii=False)
+    agent, calls = run_synthetic(prompt, response)
+    with pytest.raises(UnexpectedModelBehavior):
+        v6.run_agent_v6(agent, prompt)
+    assert calls == [True]
+
+
+@pytest.mark.parametrize("subject", ["\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"])
+def test_final_canonical_v6_rejects_union_whitespace_subject(subject):
+    from v6_fixture import build_fixture
+
+    data = build_fixture(quote=subject + "합성")["result"]
+    data["canvas"]["research"]["claims"][0]["text"] = subject + "에 따르면, 합성 본문"
+    with pytest.raises(ValidationError):
+        ResearchResult.model_validate(data)
+
+
+def test_actual_provider_and_builder_preserve_union_whitespace_around_real_text():
+    from v6_fixture import build_fixture
+
+    subject = "\u0085\ufeff \t합성 주체\u3000\x1c"
+    body = "\ufeff\u0085 합성 본문 😀 \x1f"
+    data = build_fixture(subject=subject, body=body, quote=subject + " 합성 원문")
+    assert (
+        data["result"]["canvas"]["research"]["claims"][0]["text"] == subject + "에 따르면, " + body
+    )
+
+
+@pytest.mark.parametrize("category", ["documented", "uncertain"])
+@pytest.mark.parametrize("body", ["\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"])
+def test_final_canonical_v6_rejects_union_whitespace_unprefixed_body(category, body):
+    from v6_fixture import build_fixture
+
+    data = build_fixture()["result"]
+    index = 1 if category == "uncertain" else 0
+    research = data["canvas"]["research"]
+    research["claims"][index]["text"] = body
+    research["support_reviews"][index].update(
+        scope="content", assessment="insufficient" if category == "uncertain" else "supported"
+    )
+    with pytest.raises(ValidationError):
+        ResearchResult.model_validate(data)

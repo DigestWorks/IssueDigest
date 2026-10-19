@@ -55,7 +55,7 @@ test.each(['v2', 'v3', 'v4', 'v5'])('preserves historical %s UTF16 raw validatio
   run.result!.canvas.revision.draft.modules[0]!.title = '요약';
   expect(valid(run)).toBe(false);
 });
-test.each([' ', '\t\n', '\u3000'])('rejects canonical blank attribution suffix %j', async body => {
+test.each([' ', '\t\n', '\u3000', '\u0085', '\ufeff', ' \t\u0085\ufeff\u3000\n'])('rejects canonical blank attribution suffix %j', async body => {
   const run = value(), {research, revision} = run.result!.canvas;
   research.claims[0]!.text = '제공 자료에 따르면, ' + body;
   expect(validResearchClassifications(research, revision)).toBe(false);
@@ -70,4 +70,37 @@ test.each(['body401', 'subject81'])('rejects oversized v6 astral %s', async muta
   research.claims[0]!.text = subject + '에 따르면, ' + '🚀'.repeat(mutation === 'body401' ? 401 : 400);
   expect(validResearchClassifications(research, run.result!.canvas.revision)).toBe(false);
   expect(valid(run)).toBe(false);
+});
+
+
+async function subjectCase(subject: string, body = '합성 본문') {
+  const {default: astral} = await import('./fixtures/research-run-v6-astral-generated.json');
+  const run = structuredClone(astral) as ResearchRun, research = run.result!.canvas.research;
+  const proof = research.evidence[0]!, quote = subject + ' 합성 원문';
+  proof.representation.text = quote;
+  proof.citations[0]!.selector = {kind:'text', start:0, end:Array.from(quote).length, quote, prefix:null, suffix:null};
+  const attributed = new Set(research.support_reviews.filter(review => review.scope === 'attribution').map(review => review.target.kind === 'claim' ? review.target.claim_id : ''));
+  research.claims.forEach(claim => { if (attributed.has(claim.claim_id)) claim.text = subject + '에 따르면, ' + body; });
+  return run;
+}
+test.each(['\u0085', '\ufeff', ' \t\u0085\ufeff\u3000\n'])('rejects v6 union-whitespace subject %j through full client', async subject => {
+  const run = await subjectCase(subject), {research, revision} = run.result!.canvas;
+  expect(validResearchClassifications(research, revision)).toBe(false);
+  expect(valid(run)).toBe(false);
+  await expect(read(run)).rejects.toMatchObject({kind:'malformed'});
+});
+test('preserves union whitespace around real subject and body through full client', async () => {
+  const subject = '\u0085\ufeff \t합성 주체\u3000\u001c', body = '\ufeff\u0085 합성 본문 😀 \u001f';
+  const run = await subjectCase(subject, body);
+  expect((await read(run)).data).toEqual(run);
+  expect(run.result!.canvas.research.claims[0]!.text).toBe(subject + '에 따르면, ' + body);
+});
+
+test.each(['documented', 'uncertain'].flatMap(category => ['\u0085', '\ufeff', ' \t\u0085\ufeff\u3000\n'].map(body => ({category, body}))))('rejects v6 unprefixed $category union-whitespace body $body', async ({category, body}) => {
+  const run = value(), {research, revision} = run.result!.canvas, index = category === 'uncertain' ? 1 : 0;
+  research.claims[index]!.text = body;
+  Object.assign(research.support_reviews[index]!, {scope:'content', assessment:category === 'uncertain' ? 'insufficient' : 'supported'});
+  expect(validResearchClassifications(research, revision)).toBe(false);
+  expect(valid(run)).toBe(false);
+  await expect(read(run)).rejects.toMatchObject({kind:'malformed'});
 });

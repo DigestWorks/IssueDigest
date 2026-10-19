@@ -5,6 +5,7 @@ from uuid import UUID
 
 from issuedigest_domain import CanvasBundle, EvidenceBundle
 from issuedigest_domain.research_journey import SourcePresentation
+from issuedigest_domain.research_text import has_v6_text
 from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
 from pydantic_ai import Agent, AgentRunResult, ToolOutput, UsageLimits
 from pydantic_ai.models import Model
@@ -70,10 +71,10 @@ class _ProviderClaimV6(AIClaimV3):
 
     @model_validator(mode="after")
     def attribution_subject(self) -> "_ProviderClaimV6":
-        if not self.text.strip():
+        if not has_v6_text(self.text):
             raise ValueError("Provider claim body must be nonblank before attribution")
         if self.category == "attributed":
-            if self.source_subject is None or not self.source_subject.strip():
+            if self.source_subject is None or not has_v6_text(self.source_subject):
                 raise ValueError("Attributed claim requires nonblank source_subject")
         elif self.source_subject is not None:
             raise ValueError("Only attributed claims may carry source_subject")
