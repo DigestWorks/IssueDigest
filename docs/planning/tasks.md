@@ -2,7 +2,14 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 원문 날짜·포함 관계 보존
+## 현재 변경 · 계획 검색의 누락·무관 자료 평가
+
+[명세](../changes/planned-retrieval-evaluation.md). 기존 실행의 질문·계획·원문을 그대로 재현해 원래 검색/계획 검색의 필수 자료 발견·명시 무관 자료·미판정을 분리한다. 추가 모델/실제 앱 변경은 없다.
+
+- [ ] 읽기 전용 비교 SDK·private CLI·합성 TDD·기존v1/앱 계약 보존과 독립 검토를 완료한다.
+- [ ] 전체gate·고정 실제3질문의 기록 계획 재현(추가 모델0)·검토 PR·마일스톤/Sitesv67보존·소유QA정리를 기록한다.
+
+## 완료 기반 · 원문 날짜·포함 관계 보존
 
 [명세](../changes/briefing-source-fidelity.md). v7 실제 실패의 근거 없는 날짜 선택을 provider 구조에서 막고 포함 관계/계획·실적·전망 표현을 보완한다.
 

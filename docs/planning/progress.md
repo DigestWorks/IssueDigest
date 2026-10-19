@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 작업 시작 · 계획 검색의 누락·무관 자료 평가 · 2026-10-19 KST
+
+- PR45/b1f4c85·실행f839ae0에서 이어간다. 원래 검색과 AI 계획 검색을 같은 질문/gold/원문에서 비교하는 내부 read-only 도구를 만든다. 명시 무관 자료와 미판정을 분리해 전체 precision으로 과장하지 않는다. 기록된v8 실제3계획을 추가 모델 호출0으로 재현하며 앱 workflow/provider/검색 정책·실제 개발 서버/DB/사용자 탭은 유지한다. 수치 문장의 의미 한계는 이번 도구로 해결했다고 표시하지 않는다. 검증/검토/PR/Sites receipt는 이후 기록한다.
+
 ## 최종 출판·정리 · 원문 날짜·포함 관계 보존 · 2026-10-19 KST
 
 - [Sites v67](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:19:04.219193+00:00. source `1c6d36c66242d0763eb79c1b01df39ad784ba936`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_80a5a589463c81918cbf0b31ad363cc8`, deployment `appgdep_6ad5b649d49c81918eabf35084930723`. 이전v66과 전체 역사·v7/v6/v5 실패 분모를 보존했다. 저장소 사본 기준bc24068·실행f839ae0·[Draft PR45](https://github.com/DigestWorks/IssueDigest/pull/45)(PR44 기반)이며 이후의 이 출판/정리 receipt는 저장소 원본이다.
