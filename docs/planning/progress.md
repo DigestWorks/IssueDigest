@@ -1,5 +1,15 @@
 # 진행 기록
 
+## 개발 적용 · 공식 목록 후보·새 공식 자료 검색 · 2026-10-19 KST
+
+- 변경/검토: [명세](../changes/policy-source-candidates.md)·`feat/policy-source-candidates`·[Draft PR41](https://github.com/DigestWorks/IssueDigest/pull/41)(PR40 기반). 제품93ab7c8, 작업별/보완/전체 독립 검토 C0/I0/M0. 새 HTML metadata의 숨김 조상 누락1건을 TDD로 수정했고 미해결/보류 지적은 없다.
+- 구현: 기존 title-only discovery/capture bytes를 유지하는 날짜/발행처 SDK, 기간·이전 관측의 순수 후보 보고서와 private CLI를 추가했다. 현재 전체 목록을 먼저 대조해 범위 밖 날짜 이동을 누락으로 오분류하지 않는다. 관측된 발행처 링크 형태만 HTML parser3으로 지원하며 기존1/2·본문/인용/권리를 보존한다. AI workflow3과 별개이며 schema/API/웹/세션·유료 지침/복구 계약 변경은 없다.
+- 실제 확보/내용 검토: 기존 SDK의 목록1+기사3=4 GET, 서로 다른 기사2건. 원래2건 capture는 보존하고 이미 있는 기사는 중복을 피했다. 정확 batch 계약 때문에 새 기사만1회 더 확보했다. 이전 관측 대비 후보10/신규1/동일9/미관측1/metadata변경0이며 전역 신규·주목도·철회로 해석하지 않는다. 목록 날짜와 원문 발행일을 따로 확인했다. 새 공식 텍스트1건의 전체 본문·발행 주체/일자·정확 URL/SHA·공공누리1 조건/사진·외부 저작물 제외·8개 정확 인용을 controller가 검토했다. 기관 평가를 독립 사실로 인증하지 않았다.
+- 개발 등록: 기존 provision/check/apply·표시/검색 경로로 신규1, 같은 계획 재실행 신규0/초대0. 기존 초대2개는 유지했다. 기존 앱 계정 read-only로3문항이 새 자료를 검색하고 정확 인용8/모든15canonical을 읽는 것을 확인했다. 자료 버전15/인용49/검색36/편입receipt1/공개브리핑1이다. 이번 자료는 private 검색 추가이며 자동 승인·공개 게시가 아니다. 모델0/사용자 세션 발급0이므로 생성 의미 품질 인수로 부르지 않는다.
+- 전체 검사: 최종93ab7c8에서 Python3,035·JS568/28파일=3,603개와 Ruff/format258·mypy114·JS lint/types·SPA build·생성 API 계약 통과, 경고/skip/실패0. [실제 소스 CI39187839563](https://github.com/DigestWorks/IssueDigest/actions/runs/39187839563)도success다. 기존 실제 모델3회에서 남긴 귀속·수치 비교/한계 설명의 부분 충족은 아직 해소하지 않았다.
+- 보존/복원: 사전·직전·사후 full/app archive를 서버 밖에 보존했다. 실제23테이블의 기존 모든 행·schema0009·receipt/공개본을 유지했고 사후 app archive를 별도PG18.6에 복원해23테이블 rowhash/count 전체 일치·정확 원문/검색을 확인했다. vector/역할까지의 완전 재해복구는 아니다. 정적웹4cd8f62·API/조사worker b63c7fa의2PID/명령/cwd·collector a908083/source/config/runner/cron은 전후 같다. HTTPS web/login/health/status/공개200, 비회원401/no-store/noCookie와 화면/공개v1 hash도 동일했다.
+- 경계/다음: 독립 도구 worktree/venv만 새로 준비했고 앱 재시작·새 cron/권한·OAuth/모델·공개 게시·main 병합은 없다(D013). 실제 원문/개별ID/승인/계정/접속/키·상세 receipt는 private에 보존한다. 다음은 실제 질문의 귀속·수치/한계 설명 개선과 승인 도구 탐색·자료 확대다. Sites 요약/이전v62 보존·최종 출판은 반영 대기다.
+
 ## 작업 시작 · 공식 목록 후보 선별·출처 확대 · 2026-10-19 KST
 
 - PR40/e05aac6 기반 `feat/policy-source-candidates`, [명세](../changes/policy-source-candidates.md). 고정 목록1회에서 canonical 후보10개를 확인하고 정확 원본을 private에 보존했다. 날짜/발행처가 있는 목록 후보를 원문 검토와 연결한다.

@@ -36,3 +36,10 @@ Task2 독립 검토 보완(2026-10-19): 새 profile의 숨김 조상 판정 누�
 ## Controller 인수·공유
 
 작업별/전체 독립 검토·전용 합성 PostgreSQL 전체 검사를 통과한다. 실제 확보는 기존 SDK로 목록1회+기사2건을 bounded GET하고, 원래 DB에 있는 기사와 새 기사를 분리한 뒤 기존 CLI의 정확 batch 계약을 유지하기 위해 새 기사1건만 한 번 더 확보할 수 있다. HTTP 총4회 이하이며 보고서와 개별 원문/권리/인용은 private에 보존한다. 목록의 후보를 무검토 최신 이슈나 공개 브리핑으로 노출하지 않는다. 가능하면 검토한 새 자료를 기존 명시 등록·표시/검색 경로로 개인 개발에 추가하고 DB/앱/수집기·과거 인용을 보존한다. 실제 적용/복원·질문 검색 확인과 코드 완료를 구분하고 Draft PR·마일스톤·Sites를 갱신한다. 도메인 전체·언론/여론/최근 인기·자율 조사 완료로 확대하지 않는다.
+
+
+Controller 인수(2026-10-19): 최종 제품93ab7c8에서 전용 PostgreSQL18.6 전체 Python3,035+JS568=3,603개·Ruff/format258·mypy114·JS lint/types·SPA build·API 계약과 [CI39187839563](https://github.com/DigestWorks/IssueDigest/actions/runs/39187839563)가 통과했다. 경고/skip/실패0. Task2 숨김 조상1건을 수정하고 작업별/보완/전체 독립 검토 C0/I0/M0, 미해결/보류 지적0이다.
+
+실제 기존 SDK GET은 목록1+기사3=4회(서로 다른 기사2건)다. 원래2건 capture는 유지하고 이미 있던 자료는 중복 등록하지 않았다. 기존 exact-batch 계약에 맞게 새 기사만1회 재확보했다. 실제 후보10/이전 대비신규1/동일9/미관측1/metadata변경0이며 첫 관측·목록 날짜·본문 발행일·DB신규는 구분한다. 개별 원문/공공누리1 텍스트/사진·외부 저작물 제외·발행일·본문 SHA·8개 정확 인용을 controller가 검토하고 기존 명시 등록·표시/검색으로 새1건을 개발 DB에 추가했다. 같은 계획 재실행은0신규/0초대이며 앱 계정 read-only로3질문 검색/원문·모든15canonical을 확인했다. 출처의 정부 평가는 독립 사실 검증으로 승격하지 않는다.
+
+기존23테이블의 모든 행·schema0009/공개1/receipt1을 보존하고 자료 버전15/인용49/검색36을 확인했다. 서버 밖 사전·직전·사후 full/app archive·별도 사후PG18.6 app 복원의23테이블 rowhash/count가 실제 사후 DB와 일치했다. vector/역할 포함 완전 재해복구는 아니다. 도구 전용 소스/venv만 분리 준비했고 정적웹4cd8f62·API/worker b63c7fa/PID·수집기a908083/config/주기는 변경하지 않았다. HTTPS/비회원 경계와 화면/공개본 hash도 동일하다. 모델/OAuth/새 cron/공개 게시0, main/운영 유예. [Draft PR41](https://github.com/DigestWorks/IssueDigest/pull/41)은 PR40 기반으로 미병합이며 Sites 출판 상태는 진행 기록을 따른다.
