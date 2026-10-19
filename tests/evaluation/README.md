@@ -197,3 +197,101 @@ cached 실제 사용량은 입력9,413/출력2,087토큰이며3실행 지연은8
 판단: 최대100인용·16날짜는 상한이며 모든 최대 조합의 동시 입력을 보장하지 않는다. 의미 보존 지침·원문 전체와 합산24,000 예산을 유지하고 실제 사전 검사에서 초과 입력을 거절한다. 잘못된 판단이면 큰 맥락·planner 사용량이 많은 질문이 최종 생성 전에 자료 부족으로 더 자주 끝날 수 있으며, 추가 유료 재시도 없이 자료 선택/예산 정책과 테스트를 재설계해야 한다.
 
 검토한 기존 공개 텍스트3건을 그대로 복사한 합성 신원의 전용 평가 DB에서 수행했다. 실제 사용자 세션은 사용하지 않았다. 원래 후보0/2/3에서 계획 후 고정1/3/3이었다. 첫 답변6문장/6평가/정확 인용3개, 둘째7문장/7평가/정확 인용3개와 전체 검색 계획/선택을 직접 읽었다. 날짜0인 실제3건과 날짜양성 합성 fixture를 구분하며 추가 성공 재시도는 없다. 실제 입력/출력·원문·계정/접속·ID는 private 증거에만 보존한다.
+
+## 기록된 계획 검색과 원래 검색 비교
+
+`issuedigest-evaluate-planned-retrieval`은 새 내부 비교 도구다. 기존 v1 명령·job·report는
+그대로 유지한다. 같은 검증 corpus에서 원래 `question_terms`/`retrieve_snapshot_ids`와
+실제 `research_search.search_candidates(conn, {workspace_id, question}, queries, None)`를
+한 읽기 전용 `REPEATABLE READ` transaction으로 비교한다. 원래 질문도 계획 경로에
+포함되며 원래 검색 우선 round-robin·중복 제거·최대5개 선택은 기존 검색 구현을 따른다.
+부모 없는 독립 질문만 평가한다. 과거 workflow/journal이나 모델 실행을 재생하지 않으며
+provider·키 로딩·모델 호출·수집·색인 수정·게시를 수행하지 않는다.
+
+새 job은 다음 세 필드만 가진다. `baseline`은 위의 기존 v1 job **전체**다. `plans`는
+baseline의 cases와 개수·순서·case_id가 정확히 같아야 한다. 아래 예시는 한 질문짜리
+baseline을 사용한 합성 JSON이다.
+
+```json
+{
+  "schema_version": 1,
+  "baseline": {
+    "schema_version": 1,
+    "expected_database": "issuedigest_test",
+    "workspace_id": "00000000-0000-4000-8000-000000000001",
+    "corpus_snapshot_ids": [
+      "00000000-0000-4000-8000-000000000002",
+      "00000000-0000-4000-8000-000000000003"
+    ],
+    "cases": [{
+      "case_id": "q01",
+      "question": "등록금 지원 대상은 누구인가요?",
+      "expected_families": [["00000000-0000-4000-8000-000000000002"]],
+      "no_match": false
+    }]
+  },
+  "plans": [{
+    "case_id": "q01",
+    "origin": "recorded_planner_output",
+    "queries": ["등록금 지원", "지원 대상"],
+    "irrelevant_snapshot_ids": ["00000000-0000-4000-8000-000000000003"]
+  }]
+}
+```
+
+`origin`은 실제로 기록한 계획의 `recorded_planner_output` 또는 운영자가 명시 작성한
+`operator_authored`다. 후자를 실제 모델 품질로 해석하지 않는다. queries는 비공백
+1..64자 문자열1..3개이며 Unicode control/category C 문자는 거부한다. 명시 무관
+`irrelevant_snapshot_ids`는 중복 없는 corpus 내 UUID4 0..50개다. 해당 질문의 어느
+expected family member와도 겹칠 수 없다. 사람이 명시한 gold·무관만 판정하고 나머지는
+미판정으로 남긴다. 전체 파일 최대256KiB와 기존 baseline의 엄격한 상한·타입 규칙을
+동일하게 적용한다. 한 문항의 오류·잘못된 검색 결과도 전체 실패이며 임의 수정하지 않는다.
+
+```sh
+uv run --package issuedigest-worker issuedigest-evaluate-planned-retrieval \
+  /absolute/private/evaluation/planned-job.json \
+  --output /absolute/private/evaluation/comparison.json
+```
+
+모듈 진입점은 `issuedigest_worker.planned_retrieval_evaluation_cli`, SDK는
+`issuedigest_storage.planned_retrieval_evaluation.parse_job(raw_bytes)`와
+`evaluate(engine, raw_bytes)`다. `PlannedEvaluationJob.model_json_schema()`와
+`PlannedEvaluationReport.model_json_schema()`로 형식을 확인한다. SDK engine은 호출자가
+관리한다. CLI는 기존 private 파일·DB URL·조용한 pool lifecycle을 공유한다. 입력400/600,
+report 부모700, 신규 report600·symlink 거부·덮어쓰기 금지·원자 발행을 지키며 transaction,
+connection, engine disposal이 모두 성공한 뒤에만 발행한다. stdout에는 baseline/planned
+집계와 `origin_case_counts`만, stderr에는 고정 오류만 나온다. 질문·계획·ID·terms·rank와
+DB 진단은 stdout/stderr에 넣지 않는다.
+
+report의 `profile`은 `planned-retrieval-comparison-v1`이고 `retrieval_profile`은 underlying
+문자 검색 전략이다. 전체 검증 `job`, 전체 `job_sha256`, baseline cases의
+`question_gold_sha256`, 순서 있는 계획·origin·무관 labels의 `plans_labels_sha256`, 선언
+corpus의 `declared_corpus_sha256`, 검증 canonical/투영 fingerprint의 `corpus_sha256`과
+`fingerprints`를 기록한다. JSON 공백·객체 key 순서는 hash를 바꾸지 않는다. labels·계획·
+origin 변경은 plans/labels hash와 job hash를 바꾸고, 질문·gold 변경은 question/gold와
+job hash를 바꾼다. 자료 내용과 선언 corpus hash를 구분해 비교한다.
+
+각 `cases` 항목에는 case·plan·`original_terms`·query별 `query_terms`, `baseline`과
+`planned`의 실제 `ranked_snapshot_ids`·family ranks·기존 지표·아래 반환수를 기록한다.
+`summary.baseline`/`summary.planned`는 기존 positive/negative 분모와 같은 반환수 합계를
+제공한다. 빈 positive/negative 분모는 null이며 누락 질문은 분모에 남긴다.
+
+| 필드 | 판정 / 분모 |
+| --- | --- |
+| `returned_count` | 실제 반환 snapshot 수 |
+| `relevant_count` | expected의 어느 family member에든 속한 반환수 |
+| `irrelevant_count` | 사람이 명시한 irrelevant에 속한 반환수 |
+| `unjudged_count` | 어느 labels에도 속하지 않는 반환수 |
+| `judged_precision` | relevant / (relevant + irrelevant), 분모0은 null |
+
+동일 family의 여러 member를 반환하면 relevant 반환수는 각각1로 세지만 recall은
+family당1로 센다. 집계 judged_precision은 case별 비율의 평균이 아니라 전체 relevant /
+전체(relevant+irrelevant)인 micro 값이다. **미판정은 precision 분모에서 제외된다.**
+report의 `judged_precision_denominator`도 이를 명시한다. 전부 미판정이거나 빈 결과면
+precision은 null이다. negative no-match case에서 미판정 결과가 반환돼도
+negative_no_match는 false지만 그것을 자동 irrelevant로 바꾸지 않는다.
+
+이 숫자는 명시 corpus·고정 질문·사람 labels·기존 검색 후보 한도 안의 비교다. 전체
+precision, 의미적 주장 지지, 최신 정보의 충분성, 여론·중립성·공정성 또는 답변 품질을
+인증하지 않는다. 회복된 gold와 추가 irrelevant·unjudged를 함께 검토한다. 합성 테스트
+통과와 실제 자료의 별도 운영자 인수를 구분한다.

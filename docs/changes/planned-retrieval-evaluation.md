@@ -15,9 +15,9 @@ v8 실제 고정3회에서 원래검색0→정확 자료1 회복과 무관한 �
 
 ## Task 1: 읽기 전용 계획 검색 비교 SDK·CLI와 합성 TDD
 
-- [ ] packages/storage에 strict planned job/report와 read-only evaluation SDK를 추가한다. 기존 EvaluationCase/Job·fingerprint·case metric·summary·transaction 검증을 좁게 재사용/추출하고 기존v1 결과를 변경하지 않는다. 위 exact constraints와 hash·origin·판정 분모를 지킨다. 실물 PG에서 원래 미발견→계획 발견/무관 동시 선택·부분 gold family·unknown/빈결과·최대5 원래우선·gold/irrelevant overlap·control/query/case순서/DB범위/투영오염·잘못된 runtime결과·동일내용 hash/labels변경 hash·읽기 transaction/쓰기0을 RED→GREEN으로 검증한다.
-- [ ] worker에 새 private CLI와 project script를 추가하고 기존 runner를 좁게 공유한다. 기존 CLI/report bytes/aggregate/error 보존과 새 입력/출력400/600/700·symlink/overwrite·부분실패/DB/pool정리 실패 시 report0/고정출력·실제 installed entrypoint를 검증한다. 적절한 README/평가 문서에 job/해석·한계와 미판정 precision의 분모를 설명한다. dependency변경 없는 script등록이면 lock만 일치시킨다. 기존 HTTP/worker 경로를 손대지 않는다.
-- [ ] 관련 storage/worker 회귀·ruff/format/mypy/lock·diff 검사를 통과하고 위 체크박스·명시파일 source commit을 남긴다. 보고서는 ignored SDD scratch에만 두며 강제추적하지 않는다. controller 인수/실제 평가/PR/Sites/개발앱 반영을 완료로 표시하지 않는다.
+- [x] packages/storage에 strict planned job/report와 read-only evaluation SDK를 추가한다. 기존 EvaluationCase/Job·fingerprint·case metric·summary·transaction 검증을 좁게 재사용/추출하고 기존v1 결과를 변경하지 않는다. 위 exact constraints와 hash·origin·판정 분모를 지킨다. 실물 PG에서 원래 미발견→계획 발견/무관 동시 선택·부분 gold family·unknown/빈결과·최대5 원래우선·gold/irrelevant overlap·control/query/case순서/DB범위/투영오염·잘못된 runtime결과·동일내용 hash/labels변경 hash·읽기 transaction/쓰기0을 RED→GREEN으로 검증한다.
+- [x] worker에 새 private CLI와 project script를 추가하고 기존 runner를 좁게 공유한다. 기존 CLI/report bytes/aggregate/error 보존과 새 입력/출력400/600/700·symlink/overwrite·부분실패/DB/pool정리 실패 시 report0/고정출력·실제 installed entrypoint를 검증한다. 적절한 README/평가 문서에 job/해석·한계와 미판정 precision의 분모를 설명한다. dependency변경 없는 script등록이면 lock만 일치시킨다. 기존 HTTP/worker 경로를 손대지 않는다.
+- [x] 관련 storage/worker 회귀·ruff/format/mypy/lock·diff 검사를 통과하고 위 체크박스·명시파일 source commit을 남긴다. 보고서는 ignored SDD scratch에만 두며 강제추적하지 않는다. controller 인수/실제 평가/PR/Sites/개발앱 반영을 완료로 표시하지 않는다.
 
 ## Controller 인수
 
