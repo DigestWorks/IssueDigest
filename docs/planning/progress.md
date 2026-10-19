@@ -8,7 +8,9 @@
 - 개발 등록: 기존 provision/check/apply·표시/검색 경로로 신규1, 같은 계획 재실행 신규0/초대0. 기존 초대2개는 유지했다. 기존 앱 계정 read-only로3문항이 새 자료를 검색하고 정확 인용8/모든15canonical을 읽는 것을 확인했다. 자료 버전15/인용49/검색36/편입receipt1/공개브리핑1이다. 이번 자료는 private 검색 추가이며 자동 승인·공개 게시가 아니다. 모델0/사용자 세션 발급0이므로 생성 의미 품질 인수로 부르지 않는다.
 - 전체 검사: 최종93ab7c8에서 Python3,035·JS568/28파일=3,603개와 Ruff/format258·mypy114·JS lint/types·SPA build·생성 API 계약 통과, 경고/skip/실패0. [실제 소스 CI39187839563](https://github.com/DigestWorks/IssueDigest/actions/runs/39187839563)도success다. 기존 실제 모델3회에서 남긴 귀속·수치 비교/한계 설명의 부분 충족은 아직 해소하지 않았다.
 - 보존/복원: 사전·직전·사후 full/app archive를 서버 밖에 보존했다. 실제23테이블의 기존 모든 행·schema0009·receipt/공개본을 유지했고 사후 app archive를 별도PG18.6에 복원해23테이블 rowhash/count 전체 일치·정확 원문/검색을 확인했다. vector/역할까지의 완전 재해복구는 아니다. 정적웹4cd8f62·API/조사worker b63c7fa의2PID/명령/cwd·collector a908083/source/config/runner/cron은 전후 같다. HTTPS web/login/health/status/공개200, 비회원401/no-store/noCookie와 화면/공개v1 hash도 동일했다.
-- 경계/다음: 독립 도구 worktree/venv만 새로 준비했고 앱 재시작·새 cron/권한·OAuth/모델·공개 게시·main 병합은 없다(D013). 실제 원문/개별ID/승인/계정/접속/키·상세 receipt는 private에 보존한다. 다음은 실제 질문의 귀속·수치/한계 설명 개선과 승인 도구 탐색·자료 확대다. Sites 요약/이전v62 보존·최종 출판은 반영 대기다.
+- 경계/다음: 독립 도구 worktree/venv만 새로 준비했고 앱 재시작·새 cron/권한·OAuth/모델·공개 게시·main 병합은 없다(D013). 실제 원문/개별ID/승인/계정/접속/키·상세 receipt는 private에 보존한다. 다음은 실제 질문의 귀속·수치/한계 설명 개선과 승인 도구 탐색·자료 확대다. [Sites v63](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#plan)의 공개 요약·이전v62 보존·native succeeded를 확인했다.
+
+- 최종 출판/정리: 사본 기준7781216, Site source f1480ae8831c96a77084fb78423d9b38bcd8165c, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4348bec585c88191838a5eb352f56495`, deployment `appgdep_6ad57bbad5e08191b77b3314171a85a3`, native succeeded. HTML48개·로컬 링크/asset/anchor1,121개·공개 텍스트118개와 실제 접속/키 비포함을 확인했다. 기존 레이아웃의 문구/기록 변경이며 브라우저 QA를 반복하거나 사용자 탭을 열지 않았다. 자체 합성/복원 컨테이너2개·익명 볼륨을 전체ID/소유label/image/loopback 대조 후 제거하고 두 포트 닫힘을 확인했다. pinned image·서버 밖 백업·PR worktree·실제 개발 앱/수집기를 보존했다. 새 생산 변경 없이 문서만 정리했으며 이후 출판 기록의 원본은 이 저장소다.
 
 ## 작업 시작 · 공식 목록 후보 선별·출처 확대 · 2026-10-19 KST
 
