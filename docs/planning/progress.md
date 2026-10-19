@@ -20,6 +20,14 @@ v10 수치 설명 지침은 구현했으나 실제 의미 인수는 통과하지
 
 PR48/181bee1 후속이다. [단일 Spec](../changes/briefing-numeric-clarity.md)에 따라 새 finalv10만 첫 요약의 포함 관계·목표/실적/조건부 전망·상하한과 출처별 비교 기준을 개선한다. v9 자료 선택 protocol·과거 provider/복구/결과·디자인/로그인/데이터를 보존하고 기존4,655개/sourceCI를 baseline으로 재사용한다. 원래3질문과 신규 다중주제1의 실제4앱/최대12요청·추가 성공 재시도0을 별도 인수한다. 코드/검토/전체gate/개발반영·PR/CI/Sites/정리는 아직 완료 전이다. 실제 앱ab6654e/v9·Sitesv70·main/운영 유예는 현재 유지한다.
 
+### v10 검토·검사·보존 receipt
+
+- 구현/실제 source65ffb5c와 문서만 다른 최종 검토/gate6c36cd6을 구분한다. controller 단일 전체 gate는 Python4,067+JS820=4,887개·lint/format/types/build/OpenAPI contract 통과, 실패/skip/warning0이다. Task1 및 전체 브랜치 독립 검토는 각각 구현 Spec/품질 PASS(C0/I0/M0)이며 실제 의미 인수 FAIL/개발 보류를 유지한다.
+- [Draft PR49](https://github.com/DigestWorks/IssueDigest/pull/49), PR48 기반·미병합. [source CI39229760833](https://github.com/DigestWorks/IssueDigest/actions/runs/39229760833)는 별도 진행 중이며 통과를 미리 주장하지 않는다. 추가 커밋은 출판/보존 문서만 변경한다.
+- 개발 웹/API/worker의 source/cwd·프로세스와 수집기 source/config/runner/cron을 재확인했고 재시작하지 않았다. HTTPS 홈/로그인/health/status/공개 복사본200, 비회원 세션401/no-store/쿠키0과 공개 payload 동일성을 확인했다.
+- 사전 read-only 서버 밖 full/app 백업의 별도 복원은23public테이블 일치였다. 전후 read-only 실측은22테이블 정확 일치, 나머지 수집 실행 테이블은 기존 행을 모두 보존하며 정각의 정상 성공1행만 추가됐다. 23테이블 전후 완전 동일이나 새 배포/사후 복원·DBOS/vector/역할 전체 DR을 주장하지 않는다. 일반 브라우저 세션의 last_activity_at만 비교에서 제외했다.
+- 새 Ruling은0이며 D022의 기존 전송 전 실패/예약 유지·적법한 metadata 변경 replay 거절 비용을 보존한다. 실제 원문/질문/ID/키/응답·전체 검토 원본은 private에 보존한다. Sites v70 archive/현재 요약·사본/native 게시와 소유 QA3개/SDD 정리는 별도 최종 receipt를 남긴다. 사용자 탭과 main/운영은 그대로다.
+
 ## v9 전체 검사·개인 개발 적용 · 2026-10-19 KST
 
 현재 개인 개발 웹/API/조사 worker는 `ab6654e`/private v9이며 [Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)(PR47 기반·미병합)다. 원래 질문→planner7→승인 저장 검색→관련성 선택→선택 원문 고정→최종 생성으로 연결했다. 불확실 후보는 남기고 명확한 무관만 제외한다. 선택은 진실/정치적 동의 판정이 아니다. API/공개 읽기/DB schema·로그인·선택한 모바일 디자인과 역사v2~v8 provider·원래 checkpoint를 유지한다.
