@@ -1,5 +1,35 @@
 # 진행 기록
 
+## 서버 수치·단위 후보 · 오프라인 비교 · 2026-10-19
+
+source515aa26의 순수 후보 SDK를 기존과 byte-identical인 두 whole quote packet(인용2/1)에 오프라인 적용했다. 원문을 다시 수집하지 않았고 신규 provider/사용자 세션/앱 실행은 모두0이다. controller가 원문·모든 문장/후보의 expression/각 atom·unit/null·separator/qualifier·lexical hint/ID/원문 위치와 현재 Source 검증 결과를 직접 읽었다.
+
+사전 고정 수치 gold6/5개는 모두 정확 후보로 보존됐다(11/11). 별도 날짜/식별자4/2개도 모두 남아 총 후보10/7개다. 하위 항목을 숫자 후보로 남기고 단위·하한/범위 양끝/명시 수식어를 원문과 연결했다. 지수 표기의 단위 부재는 null이며 증감의 명시 p를 다른 값에 복사하지 않았다. 이 결과는 수치 표기/위치 보존이며 대상·시점의 의미 연결/관측·전망/조건·포함 관계의 인수가 아니다.
+
+별도 사전 고정 반례10건의 지원 표기 후보37개도 expression/atom/단위/수식어/종류/원문 위치가 기준과 일치했다. 범위·음수·배율·comma/소수·긴 단위/조사 배제·날짜/법령/이름 식별자·모호 표기·반복/Unicode/control/CRLF·줄바꿈 범위 분리를 확인했다. malformed comma/다중 점은 ambiguous로 보존하고 실제 달력에 없는 날짜도 temporal 표기 힌트일 뿐 날짜 진실로 인증하지 않는다. 지원 밖 한글 수사·전각 숫자 두 건은 추출0으로 따로 남겼다. 따라서 관측된 지원 후보의 누락/오탐0을 한국어 전체 수치 recall100%로 확대하지 않는다. 원래 gold·자료·분모를 수정해 성공시키지 않았다.
+
+순수 index JSON은 두 자료에서6,012/3,593 UTF-8바이트이며 같은 자료의 v3 prompt3,548/1,567바이트보다 크다. 출처/위치 구조를 가진 저장·검증 packet이므로 provider-ready나 토큰/청구 절감으로 부르지 않는다. 향후 짧은 후보ID의 provider 계약과 전체 schema/instructions/framing/원문 budget preflight를 별도로 검증해야 한다. 이번 모델 사용량은 호출 자체가0이며 이전 v3 input4,485/output947의 실패 사용량·v3/v2 각각 거부2·v1 부분1/거부1·앱4/12와 모든 과거 실패/미판정은 보존한다.
+
+작업 검토에서 배율 continuation의 하이픈 범위 흡수/날짜 우선순위 우회, 초과·미만 suffix 충돌3건을 찾았다. 각 RED→GREEN으로 수정하고 수정 범위 재검토에서 모두 해결(C0I0M0)됐다. 신규151/agents1074·Ruff/format42/mypy16와 기존409파일 base/fix byte동일을 확인했다. 수정 전의 사전 전체 검사는 중단하고 구 source CI39248144627은 cancelled로 보존했다. 이들은 최종 gate/CI 성공 증거가 아니며 수정 후 단일 최종 전체 검사·전체 독립 검토/CI는 별도 인수한다.
+
+다음은 서버가 확정한 후보ID를 모델이 선택하는 출력 계약을 만들고, 수치 대상·시점·상태/조건·관계 의미와 누락을 같은 자료에서 검증하는 것이다. 그 뒤 앱의 전역 예산/예약·DBOS 실행/중단 복구·현재 권한/취소·최종 브리핑을 함께 인수한다. 유한 문법/단위 사전의 누락/잡음·cap256 전체 거부와 구두점/LF 문장 경계의 문맥 비용은 Spec/D022에 남긴다. 개발ab6654e/v9·API/DB/공개/UI/수집기/월 예약은 유지하며 main/운영은 D013 유예다.
+
+
+### 날짜 경계 최종 수정과 고정 대조 재검증
+
+전체 독립 검토에서 범위 우측의 날짜를 거절한 뒤 하이픈을 음수로 다시 읽는 추가1건을 찾았다. 같은 최종 수정 wave에서 suffix·부호 경로도 회귀로 묶고 공통 atom 진입점에서 온전한 날짜 우선순위를 지켰다. source b8987c6의 신규180/agents1103·Ruff/format/mypy와 한정 최종 재검토 Spec/품질 PASS(C0I0M0)를 확인했다. 원래 작업 Rework3건/수정 재검토와 전체 Rework1건/최종 재검토를 모두 보존한다. 구 source515aa26의 두 번째 전체 검사도 수정 전에 중단했고 CI39248752093은 cancelled다. 처음의 source5f9df97 중단/CI39248144627 cancelled와 함께 최종 성공에서 제외한다.
+
+같은 source b8987c6로 사전 고정 gold를 바꾸지 않고 다시 대조했다. 원문/문장/후보와 비교24파일은 이전515aa26과 byte-identical이므로 controller의54후보 전 필드 직접 검토가 유지된다. 수치11/11·부수6/6·지원 반례37/37·미지원2건·모델0/앱0·의미 미검증은 같다. 기존409 git blob의 baseline/final source 동일성도 확인했다(이후 controller Markdown 제외). 새 최종 전체 검사/source CI39251010224와 Sites/정리는 별도 결과를 기록한다.
+
+세 번째 판단은 +,-,− 바로 뒤 완전 날짜를 우선하는 것이다. 음수 연도·식별자 부호의 의미는 날짜 후보에 없으므로 원문 확인이 필요하다. 유한 문법/잡음·cap256 거부, 구두점/LF의 실제 문맥 경계 차이라는 앞선 두 판단의 비용도 유지한다.
+
+
+### 서버 수치 후보 · 최종 전체 검사·검토
+
+sourceb8987c6의 최종 전체 Python4,617+JS820=5,437개·lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이다. 작업 검토의3건을 수정 후 재검토 PASS(C0I0M0)했고 전체 독립 검토의 추가1건도 같은 최종 수정 wave에서 수정해 한정 재검토 PASS(C0I0M0)다. 초기 Rework와 두 수정 검토를 모두 보존했다. 기존 baseline5,257/sourceCI39244869318은 재사용했으며 수정 전 사전 검사 중단/구CI39248144627/39248752093 cancelled와 두 중단 검사를 최종 성공에 포함하지 않는다. sourceb8987c6 이후 변경은 Markdown뿐이다.
+
+[Draft PR53](https://github.com/DigestWorks/IssueDigest/pull/53)은 PR52 기반·미병합이며 앱에 첨부했다. [source CI39251010224](https://github.com/DigestWorks/IssueDigest/actions/runs/39251010224)는b8987c6에서 진행 중이며 별도 결과를 기록한다. Sites v74보존/현재 요약·사본/native 게시와 소유QA1/SDD 정리는 최종 기록을 따른다. 순수 후보의 수치11/11·부수6/6·지원 반례37/37·미지원2건을 의미·앱 인수로 확대하지 않는다. 모델0·앱0/개발v9·세 Ruling과 비용·D013 유예는 유지한다.
+
 ## 서버 수치 후보 인덱스 · 착수 · 2026-10-19
 
 PR52/97c4e61 후속 feat/numeric-candidate-index, [명세](../changes/numeric-candidate-index.md), D022/M3. OpenSpec root=null·기존 linked worktree/baseline5257/sourceCI39244869318을 재사용한다. 서버가 숫자 표기·단위·수식어/범위·문장 구간을 보존하는 순수 SDK를 구현하고, 기존 두 packet과 고정 반례를 모델0/추가 수집0으로 비교한다. 구현/후보 coverage·의미/앱 인수를 구분하며 기존 v3/v2/v1/앱 실패 분모·개발v9/운영 유예는 유지한다. 전체 gate/독립 검토/PR·CI·Sites v74보존/요약/소유QA·SDD 정리는 후속 기록으로 확인한다.
