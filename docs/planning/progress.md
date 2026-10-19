@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 작업 시작 · 관련성 선택기의 조사 흐름 연결 · 2026-10-19 KST
+
+- PR47/0a63987에서 새 privatev9를 구현한다. 기존 selector를 paid checkpoint로 연결하고 planner/selector/final usage를 전체24,000·출력2,500/월 예약에 합산한다. 명확한 무관만 제외·불확실 보존, 현재 권한/정확 원문·취소·모호 요청 재호출 금지와 기존v2~v8/version/slot을 보존한다. 같은 고정3질문/원문·최대9provider요청/실패 포함/추가 재시도0으로 종단 평가한다. 현재 앱f839ae0과 main/운영 유예·사용자 탭은 유지하고 실제 개발 적용은 안전 인수 후 별도 기록한다. 상세 명세/검토/전체gate/PR/Sites·정리 receipt는 확인 뒤 누적한다.
+
 ## 최종 게시·정리 · 관련성 선택 SDK · 2026-10-19 KST
 
 - [Sites v69](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T07:32:19.045389+00:00. source `89d6ae0138e2655f7a9d4d6ef201e7b4c3e84019`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c3749dfa400c819189331d5377f42f3a`, deployment `appgdep_6ad5c77419d081918ec0dba69a71e774`. 이전v68과 모든 과거 기록/모델 평가 분모를 보존했다. 사본 기준1ed12e0·실제 selector source384608d·최종 source50f0552·실제 앱f839ae0을 구분한다. 이 최종 출판/정리 receipt는 사본 이후 저장소 원본에 남긴다.
