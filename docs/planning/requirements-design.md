@@ -115,3 +115,7 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### 내부 계획 검색 비교
 
 [명세](../changes/planned-retrieval-evaluation.md). 운영자의 private strict job/corpus와 명시 expected/irrelevant만 판단 기준으로 삼는다. 원래/계획 경로를 동일 읽기 전용 transaction에서 검증하며 미판정과 origin을 보존한다. 이 도구는 앱의 검색/생성·공개·권한을 바꾸거나 의미 판단을 인증하지 않는다.
+
+### 관련성 선택 SDK와 실행기 연결 경계
+
+[명세](../changes/evidence-relevance-selection.md). 관련성은 실제 제공 인용으로 판단하고 후보별 불확실은 보존한다. 전체 후보 coverage/예산 누락·불명확 usage는 전체 거부하며 freeform 사실 판정을 만들지 않는다. SDK의 단일12,000 상한을 앱의 전역24,000/출력2,500이나 신규 durable 단계 연결로 대신하지 않는다. 실제 연결 때 현재 권한/부모/원문·취소·중복/복구와 과거 이름/slot을 별도 보존해야 한다.

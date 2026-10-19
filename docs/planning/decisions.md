@@ -202,3 +202,8 @@ planner7은 동결하고 새v8만 paid1/search_v8-step2/final_v8-paid3으로 실
 ### D022 후속 · 계획 검색의 판정·미판정 비교 · 2026-10-19 KST
 
 [명세](../changes/planned-retrieval-evaluation.md). 원래 검색과 실제 계획 검색을 같은 질문/gold/corpus로 비교하는 read-only 내부 도구를 추가한다. 사람이 명시한 relevant/irrelevant와 unjudged를 분리하고 judged precision의 분모를 드러낸다. 미판정/음성 사례를 숨기거나 새 모델 호출로 결과를 개선하지 않는다. 기록된/운영자 작성 계획을 구분하며 자료의 주제 연관성과 직접 답변 근거를 같게 보지 않는다. 앱 정책/생성 형식·DB/권한/공개·수집기는 그대로다. 실제 고정3 재현의 핵심 발견 개선과 무관 유입 증가를 후속 재순위화 비교의 baseline으로 보존한다. 새 모델/임계값/순위 정책을 확정하지 않았고 별도 Ruling은 없다. 상세 증거와 과거 분모는 [진행 기록](progress.md)을 따른다.
+
+
+### D022 후속 · 인용 기반 관련성 선택 SDK · 2026-10-19 KST
+
+[명세](../changes/evidence-relevance-selection.md). 질문·정확 제공 인용에서 후보 전체 retain/exclude/uncertain을 생성하고 uncertain은 보존한다. 명시 무관만 제외하며 관련성은 답변 지지/진실/입장 동의를 인증하지 않는다. SDK를 먼저 구현·단일12,000/출력500/15초·실제3회/재시도0으로 검증하고, 앱의 전체24,000/출력2,500/예약·durable paid checkpoint 연결을 별도 진행한다. 기존 예산을 이미 확대/변경한 것으로 표시하지 않는다. 작은 동일 주택 표본의 positive2 필수 보존/명시무관2→0과 다른 문항의 미판정 선택을 구분한다. 새 Ruling은 없으며 과거 capacity 판단/비용과 실제 실패 분모를 보존한다. 상세 source/검증·인수/출판은 [진행 기록](progress.md)을 따른다.

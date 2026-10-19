@@ -6,7 +6,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
-현재 변경: [계획 검색의 누락·무관 자료 평가](changes/planned-retrieval-evaluation.md). 같은 질문/gold/corpus에서 기록된 검색 계획의 발견·명시 무관 자료·미판정을 비교한다. 앱의v8 날짜 제약·생성/검색 정책은 그대로다. 실제 인수/검토/게시 범위는 진행 기록을 따른다.
+현재 변경: [질문·근거 후보 관련성 선택](changes/evidence-relevance-selection.md). 불확실 후보를 보존하는 bounded SDK와 실제3회 선택/비용을 검증한다. 기존 앱v8·내구 실행기/전체 예산 연결과 구분한다. 검토/gate/출판 receipt는 진행 기록을 따른다.
 
 ## 현재 계획과 작업
 
@@ -20,6 +20,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [수집본 검토·버전·검색 편입](changes/policy-collection-intake.md) | 고정 성공 원본의 승인·중복/버전·원자 저장/검색·최신 승인 선택 |
 | [정책뉴스 반복 확보·실행 이력](changes/policy-collection-journal.md) | 명시 기사 poll·PostgreSQL 원본/성공/실패 보존·중복/간격 제어·상태 조회 |
 | [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
+| [질문·근거 후보 관련성 선택](changes/evidence-relevance-selection.md) | 인용에 묶인 후보 전체 triage·불확실 보존·bounded usage·실제3회와 연결 전 경계 |
 | [계획 검색의 누락·무관 자료 평가](changes/planned-retrieval-evaluation.md) | 읽기 전용 원래/계획 검색 비교·명시 판정/미판정·출처/분모·private report |
 | [원문 날짜·포함 관계 보존](changes/briefing-source-fidelity.md) | private v8의 실제 날짜 후보·날짜0 비교/요약·수치 관계/상태와 실제 의미 한계 |
 | [질문별 조사 계획·승인 자료 검색](changes/briefing-search-agent.md) | 새 private v7의 계획/검색/생성·원자 근거 고정·합산 비용·단계별 복구 |
