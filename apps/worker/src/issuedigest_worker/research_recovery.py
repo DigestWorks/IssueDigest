@@ -1,5 +1,6 @@
 """Public DBOS 3.2 APIs: replay only completed paid checkpoints under their recorded version."""
 
+import re
 from collections import defaultdict
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
@@ -8,6 +9,7 @@ from uuid import UUID
 
 from dbos import DBOSClient, WorkflowStatus
 from issuedigest_storage.research import ResearchRepository
+from pydantic_ai.messages import ModelResponse
 from sqlalchemy import Engine, text
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -72,6 +74,7 @@ WORKFLOW_NAMES = {
     "issuedigest_research_run_v6",
     "issuedigest_research_run_v7",
     "issuedigest_research_run_v8",
+    "issuedigest_research_run_v9",
 }
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}
@@ -82,6 +85,7 @@ def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) 
     if name not in WORKFLOW_NAMES or name in {
         "issuedigest_research_run_v7",
         "issuedigest_research_run_v8",
+        "issuedigest_research_run_v9",
     }:
         return False
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
@@ -132,12 +136,172 @@ def _completed_planned_checkpoint(
     )
 
 
+def completed_v9_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
+    """Inspect exact completed prefixes before any raw response is deserialized."""
+    steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
+    expected = [
+        (1, "issuedigest_research_plan_v7__model.request"),
+        (2, "issuedigest_research_search_v9"),
+        (3, "issuedigest_research_select_v9__model.request"),
+        (4, "issuedigest_research_apply_v9"),
+        (5, "issuedigest_research_v9__model.request"),
+    ]
+    if stage == "queued":
+        return not steps
+    if stage == "retrieving":
+        if not 1 <= len(steps) <= 4:
+            return False
+        expected = expected[: len(steps)]
+    elif stage not in {"generating", "validating"}:
+        return False
+    return len(steps) == len(expected) and all(
+        type(step.get("function_id")) is int
+        and (step["function_id"], step.get("function_name")) == required
+        and step.get("completed_at_epoch_ms") is not None
+        for step, required in zip(steps, expected, strict=True)
+    )
+
+
+SELECTOR_V9_STARTED: dict[str, object] = {"issuedigest_select_v9_started": True}
+
+
+def v9_attributes(client: DBOSClient, workflow_id: str) -> dict[str, object] | None:
+    workflows = client.list_workflows(
+        workflow_ids=[workflow_id],
+        application_name="issuedigest-research",
+        load_input=False,
+        load_output=False,
+    )
+    if (
+        len(workflows) != 1
+        or workflows[0].workflow_id != workflow_id
+        or workflows[0].name != "issuedigest_research_run_v9"
+    ):
+        raise ValueError("Invalid relevance workflow identity")
+    attributes = workflows[0].attributes
+    if attributes is None or attributes == {}:
+        return None
+    if (
+        type(attributes) is not dict
+        or set(attributes)
+        != {"issuedigest_select_v9_started", "issuedigest_select_v9_prompt_sha256"}
+        or attributes["issuedigest_select_v9_started"] is not True
+        or type(attributes["issuedigest_select_v9_prompt_sha256"]) is not str
+        or re.fullmatch(r"[0-9a-f]{64}", attributes["issuedigest_select_v9_prompt_sha256"]) is None
+    ):
+        raise ValueError("Invalid relevance workflow attributes")
+    return dict(attributes)
+
+
+def recoverable_v9_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
+    if not completed_v9_checkpoint(client, workflow_id, stage):
+        return False
+    try:
+        attributes = v9_attributes(client, workflow_id)
+    except ValueError:
+        return False
+    steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
+    # DBOSModel records the raw result only upon completion. The public client's
+    # unjournaled attribute claim distinguishes never-started from ambiguous paid3.
+    if len(steps) < 3:
+        return attributes is None
+    return attributes is not None
+
+
+def known_v9_usage(client: DBOSClient, workflow_id: str) -> tuple[int, int]:
+    """Only exact completed journal prefixes permit raw-response accounting reads."""
+    metadata = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
+    count = len(metadata)
+    if not count:
+        return 0, 0
+    stage = "generating" if count == 5 else "retrieving"
+    if not completed_v9_checkpoint(client, workflow_id, stage):
+        return 0, 0
+    try:
+        attributes = v9_attributes(client, workflow_id)
+    except ValueError:
+        return 0, 0
+    # Prefix2 with the exact started marker is not replayable, but its completed
+    # planner response is still valid known-cost evidence for terminal repair.
+    if (count < 2 and attributes is not None) or (count >= 3 and attributes is None):
+        return 0, 0
+    steps = client.list_workflow_steps(workflow_id, load_output=True, limit=21)
+    if [
+        (s.get("function_id"), s.get("function_name"), s.get("completed_at_epoch_ms"))
+        for s in steps
+    ] != [
+        (s.get("function_id"), s.get("function_name"), s.get("completed_at_epoch_ms"))
+        for s in metadata
+    ]:
+        return 0, 0
+    inputs, outputs = 0, 0
+    bounds = {1: (8_000, 500), 3: (12_000, 500), 5: (24_000, 2_000)}
+    for step in steps:
+        slot = step["function_id"]
+        response = step.get("output")
+        if slot not in bounds or not isinstance(response, ModelResponse):
+            continue
+        usage = response.usage
+        incoming, outgoing = usage.input_tokens, usage.output_tokens
+        total, cap = bounds[slot]
+        if slot == 5:
+            total, cap = 24_000 - inputs - outputs, min(2_000, 2_500 - outputs)
+        if (
+            type(incoming) is int
+            and type(outgoing) is int
+            and incoming >= 0
+            and outgoing >= 0
+            and outgoing <= cap
+            and incoming + outgoing <= total
+        ):
+            inputs += incoming
+            outputs += outgoing
+    return inputs, outputs
+
+
 def recoverable_checkpoint(client: DBOSClient, workflow_id: str, name: str, stage: str) -> bool:
+    if name == "issuedigest_research_run_v9":
+        return recoverable_v9_checkpoint(client, workflow_id, stage)
     if name in {"issuedigest_research_run_v7", "issuedigest_research_run_v8"}:
         return _completed_planned_checkpoint(client, workflow_id, stage, profile=name[-2:])
     return stage not in {"generating", "validating"} or completed_model_checkpoint(
         client, workflow_id, name
     )
+
+
+def reconcile_v9_accounting(client: DBOSClient, repository: ResearchRepository) -> None:
+    """Bounded terminal-only repair; no status, result, reservation or provider action."""
+    offset = 0
+    while workflows := client.list_workflows(
+        name="issuedigest_research_run_v9",
+        application_name="issuedigest-research",
+        load_input=False,
+        load_output=False,
+        limit=20,
+        offset=offset,
+    ):
+        offset += len(workflows)
+        owned = {}
+        for workflow in workflows:
+            try:
+                run_id = UUID(workflow.workflow_id.removeprefix("research-"))
+            except ValueError:
+                continue
+            if (
+                run_id.version == 4
+                and workflow.workflow_id == f"research-{run_id}"
+                and workflow.name == "issuedigest_research_run_v9"
+                and workflow.application_name == "issuedigest-research"
+            ):
+                owned[run_id] = workflow
+        states = repository.worker_states(tuple(owned))
+        for run_id, stage in states.items():
+            if stage in {"completed", "failed", "cancelled"}:
+                inputs, outputs = known_v9_usage(client, owned[run_id].workflow_id)
+                if inputs or outputs:
+                    repository.worker_record_relevance_usage(
+                        run_id, input_tokens=inputs, output_tokens=outputs
+                    )
 
 
 def cancel_owned_orphans(client: DBOSClient, repository: ResearchRepository) -> None:
@@ -194,7 +358,19 @@ def recovery_cohorts(
                 and recoverable_checkpoint(client, workflow_id, workflow.name, state)
             )
             if not safe:
-                repository.worker_transition(run_id, "failed", error_code="generation_failed")
+                if workflow is not None and workflow.name == "issuedigest_research_run_v9":
+                    inputs, outputs = repository.worker_record_relevance_usage(
+                        run_id, input_tokens=0, output_tokens=0
+                    )
+                    repository.worker_transition(
+                        run_id,
+                        "failed",
+                        error_code="generation_failed",
+                        input_tokens=inputs,
+                        output_tokens=outputs,
+                    )
+                else:
+                    repository.worker_transition(run_id, "failed", error_code="generation_failed")
                 if workflow is not None and workflow.status in RECOVERABLE:
                     client.cancel_workflow(workflow_id)
                 continue

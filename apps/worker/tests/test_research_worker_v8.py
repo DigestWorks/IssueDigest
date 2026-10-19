@@ -3,6 +3,7 @@
 import json
 
 import pytest
+from frozen_v8 import run_worker as run_frozen_worker
 from issuedigest_worker import research_recovery
 from issuedigest_worker.research_worker import run_worker
 from pydantic_ai.messages import ModelResponse, ToolCallPart
@@ -90,7 +91,7 @@ def test_v8_worker_plans_then_searches_and_sums_actual_usage(engine, database_ur
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    run_frozen_worker(database_url, model=FunctionModel(respond), once=True)
     completed = repo.get_run(token, run.workspace_id, run.run_id)
     assert completed.status == "completed" and completed.result
     assert (completed.input_tokens, completed.output_tokens) == (200, 100)
@@ -133,7 +134,7 @@ def test_v8_no_match_records_planner_usage_and_never_calls_final(engine, databas
             usage=RequestUsage(input_tokens=123, output_tokens=45),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    run_frozen_worker(database_url, model=FunctionModel(respond), once=True)
     failed = repo.get_run(token, run.workspace_id, run.run_id)
     assert failed.status == "failed" and failed.error_code == "insufficient_evidence"
     assert (failed.input_tokens, failed.output_tokens) == (123, 45)
@@ -143,7 +144,14 @@ def test_v8_no_match_records_planner_usage_and_never_calls_final(engine, databas
 CRASH_V8 = r"""
 import json, os, signal
 from issuedigest_storage.research import ResearchRepository
-from issuedigest_worker.research_worker import run_worker
+import importlib.util
+from pathlib import Path
+spec = importlib.util.spec_from_file_location(
+    "issuedigest_worker.frozen_v8", Path("apps/worker/tests/fixtures/research_worker_v8.py")
+)
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+run_worker = module.run_worker
 from pydantic_ai.messages import ModelResponse, ToolCallPart
 from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.usage import RequestUsage
@@ -417,7 +425,7 @@ def test_v8_planned_search_can_supply_evidence_after_original_question_has_no_hi
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    run_frozen_worker(database_url, model=FunctionModel(respond), once=True)
     completed = repo.get_run(token, run.workspace_id, run.run_id)
     assert completed.status == "completed" and len(completed.snapshot_ids) == 1
     assert completed.question == "different wording"

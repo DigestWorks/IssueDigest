@@ -1,5 +1,31 @@
 # 진행 기록
 
+## v9 전체 검사·개인 개발 적용 · 2026-10-19 KST
+
+현재 개인 개발 웹/API/조사 worker는 `ab6654e`/private v9이며 [Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)(PR47 기반·미병합)다. 원래 질문→planner7→승인 저장 검색→관련성 선택→선택 원문 고정→최종 생성으로 연결했다. 불확실 후보는 남기고 명확한 무관만 제외한다. 선택은 진실/정치적 동의 판정이 아니다. API/공개 읽기/DB schema·로그인·선택한 모바일 디자인과 역사v2~v8 provider·원래 checkpoint를 유지한다.
+
+단일 전체 gate sourceab6654e의 Python3,891+JS764=4,655개·lint/format/types/build/contract가 통과했고 실패/skip/warning0이다. 작업별/전체 백지 검토는 각각 명세/품질 PASS(C0/I0/M0)다. 실제 모델 source5fcdc42와 이후 문서만 다른 검증/개발 source를 구분한다.
+
+활성 작업0에서 API/worker를 정상 재기동하고 단일 worker 잠금·새 source/cwd·정적 파일 일치를 확인했다. 이전 소스/정적 자산·수집기 소스/runner/config/cron·자료/계정/세션·공개 복사본/비회원 경계를 보존했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PostgreSQL 복원에서23public테이블 count/rowhash 일치를 확인했다. schema0009 유지·migration0이며 실제 과거 AI 결과0이어서 실제 역사 결과 재생은 주장하지 않는다. DBOS/vector/역할을 포함한 완전 DR은 아니다. main/운영(D013)과 사용자 탭은 유지한다.
+
+Sites/CI/소유 QA·SDD 정리의 최종 receipt는 확인 뒤 추가한다. 실제 모델3/9의 부분 의미 판정·두 Ruling/비용과 원래 분모를 유지한다.
+
+## v9 실제 앱 인수 · 2026-10-19 KST
+
+v9 source5fcdc42에서 기존 고정3질문·기검토 공개 텍스트3건으로 실제 앱3회/공급자9요청을 한 번씩 실행했다. 자동 재시도0·완료3(답변2/자료 부족1)/실패0이다. 선택 전 후보1/3/3→선택 후1/1/1이며 필요한 동일 핵심 자료는 positive2문항 모두 보존했다. 둘째의 명시 무관2개는0개로 줄었다. 셋째는 주제 자료1개를 남겼지만 human 미판정3개를 그대로 보존하며 제외2개에 정답/precision 가점을 주지 않는다.
+
+controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종·답변 주장12개/AI평가12개·선택 인용을 모두 직접 대조했다. 첫 답변은 하한을 정확 비율/상한으로 바꾸지 않고 중간 실적·목표·전망을 구분했으나 첫 요약에서 공정 관리 조건은 압축됐다. 둘째는 포함 관계/중복 합산 금지·조건부 전망을 설명했지만 전체 목표를 합산 대상으로 오해할 수 있는 문구가 남았다. 의미 판정은 좁은 목표 충족1·부분 충족1·제공 자료 한정의 적절한 부족1로 기록하며 모델 완료3을 전체 의미 품질 통과로 대신하지 않는다.
+
+선택3과 최종3의 실제 입력·고정 snapshot/evidence를 대조해 선택 자료만 최종 입력과 저장 근거에 포함됨을 확인했다. 실제 known usage는 입력11,502/출력2,207토큰, 실행 지연8.38/8.93/4.32초이며 앱 토큰과 완료 raw응답9개의 합계가 일치했다. 실제 청구 금액은 미검증이다. 기존 selector단독3·v8 3앱/6요청·v7 3/6·v6/v5 초기4+별도2의 실패/부분 분모와 별개다.
+
+같은 주택 주제/정부 자료의 소표본이며 다양한 정치 이슈·상반 입장·복합 주제·실제 공격적 입력·중립성을 인증하지 않는다. 실제 uncertain 결정과 정확 날짜 후보는0이므로 그 양성 분기는 합성 검증만 했다. 원래 질문/원문·ID·raw응답/요청·자체 합성 신원과 시도 receipt는 private에 보존하며 실제 사용자 세션은 사용하지 않았다. main/운영 출시는 D013에 따라 유예한다.
+
+작업별321b92f..5fcdc42와 전체 브랜치0a63987..ab6654e 독립 검토는 각각 명세/코드 품질 PASS(C0/I0/M0)다. controller 단일 전체 gate ab6654e의 Python3,891+JS764=4,655개·lint/format/types/build/OpenAPI contract가 통과했다(실패/skip/warning0). 개인 개발 적용·새 PR/CI·Sites 게시와 소유 QA 정리는 아직 인수 전이다. 현재 실제 앱f839ae0/v8과 main/운영 유예·사용자 탭을 유지한다.
+
+## 작업 시작 · 관련성 선택기의 조사 흐름 연결 · 2026-10-19 KST
+
+- PR47/0a63987에서 새 privatev9를 구현한다. 기존 selector를 paid checkpoint로 연결하고 planner/selector/final usage를 전체24,000·출력2,500/월 예약에 합산한다. 명확한 무관만 제외·불확실 보존, 현재 권한/정확 원문·취소·모호 요청 재호출 금지와 기존v2~v8/version/slot을 보존한다. 같은 고정3질문/원문·최대9provider요청/실패 포함/추가 재시도0으로 종단 평가한다. 현재 앱f839ae0과 main/운영 유예·사용자 탭은 유지하고 실제 개발 적용은 안전 인수 후 별도 기록한다. 상세 명세/검토/전체gate/PR/Sites·정리 receipt는 확인 뒤 누적한다.
+
 ## 최종 게시·정리 · 관련성 선택 SDK · 2026-10-19 KST
 
 - [Sites v69](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T07:32:19.045389+00:00. source `89d6ae0138e2655f7a9d4d6ef201e7b4c3e84019`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c3749dfa400c819189331d5377f42f3a`, deployment `appgdep_6ad5c77419d081918ec0dba69a71e774`. 이전v68과 모든 과거 기록/모델 평가 분모를 보존했다. 사본 기준1ed12e0·실제 selector source384608d·최종 source50f0552·실제 앱f839ae0을 구분한다. 이 최종 출판/정리 receipt는 사본 이후 저장소 원본에 남긴다.
@@ -856,3 +882,17 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 - C1~C5의 구현·독립 작업/수정 범위/전체 변경 리뷰·Draft PR #6·사용자 폴더/실제 API 확인·Sites 공개 게시를 마쳤다. 최종 code 검증은 `e2255d7`의 컨트롤러 전체 672 Python + 60 JS 및 lint/타입/SPA/drift. 공급자 호출·실제 과금·저장·SSE·인증·renderer/AI·전체 P1은 미완료다.
 - [Sites v21](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 성공. source `2d5d6afc7ab659985e71bd9439b972b73ab4f5a0`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2819fa8720c481918101b0b01fab19dc`, deployment `appgdep_6acba95b486c8191b665b1b05bd473f8`의 native succeeded를 확인했다. 이전 v20을 추가 보존하고 v14/v18/v19·데이터/와이어프레임 기록을 유지했다. docs 사본은 `cac6258` 기준이며 대기 표시는 그 시점의 상태다. 최신 상태는 이 원본/PR에서 확인한다. 데스크톱1366/모바일390·가로 넘침 없음·계약4행·672/60·PR6/이전 기록·console0·로컬 링크/anchor 검사 통과.
 - 구현·Root 연결 문서 커밋 `cac6258`의 [CI #38150676791](https://github.com/DigestWorks/IssueDigest/actions/runs/38150676791) 성공. 마지막 게시 기록 커밋의 exact-HEAD check는 PR에서 확인한다. 앱 자동 PR 첨부/사이트 열기 요청이 응답하지 않아 직접 URL을 공유한다. PR을 병합하지 않았다. 격리 폴더와 이 작업의 검토/실행 증거를 보존한다.
+
+## Sites 최종 게시 · v9 조사 연결 · 2026-10-19 KST
+
+[Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)은 PR47 기반·미병합이며 앱 첨부를 완료했다. 개발 앱은ab6654e/v9, 실제 모델 인수는5fcdc42의3앱/9요청, 단일 gate sourceab6654e/4,655개로 구분한다. 이후 변경은 Markdown뿐이다.
+
+[계획 Sites v70](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T08:42:39.537151+00:00. source `aa02f421386002506687d053b91a63f2a1439981`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_e8ed969be0b48191b04e2f5acebdd8d9`, deployment `appgdep_6ad5d7f08c1c81918ad705eb25dbfe11`. 저장소 사본aafb655를 반영했고 이전v69/전체 기록·원래 실패/부분/미판정 분모와 두 Ruling/비용을 보존했다. HTML55개·로컬 링크/asset/anchor1,184·공개 텍스트148개·실제 비밀/연결값·private 질문/ID/인용93종 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신이어서 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 출판/자원 정리 receipt는 사본 이후 이 저장소 원본이다. CI·소유 QA/SDD 정리는 아래 최종 기록을 따른다.
+
+## 최종 CI·정리 · v9 조사 연결 · 2026-10-19 KST
+
+[source CI39224270248](https://github.com/DigestWorks/IssueDigest/actions/runs/39224270248)는259c6f0 기준 success다. 실제 source5fcdc42·gate/개발ab6654e 이후 현재까지 변경은 Markdown뿐이며 최종 출판/정리 문서 push의 새 CI와 이 성공을 구분한다. 전체4,655개·작업별/전체 독립 명세/품질 PASS(C0/I0/M0), 실제3앱/9요청·부분 의미 판정과 한계를 그대로 보존한다. 한 차례 CI 조회의 일시 네트워크 실패는 설정 변경 없이 재조회해 성공 상태를 확인했다.
+
+소유 label·전체ID·pinned image·loopback 포트로 대조한 자체 PostgreSQL3개와 각 볼륨만 정리했고 세 검증 포트 닫힘을 확인했다. 작업별 SDD 검토/증거는 private600 archive로 보존한 뒤 해당 폴더만 삭제했다. 두 Ruling/비용은 변경 Spec·D022와 최종 인계에 남긴다. 다른 QA·worktree·브랜치, 실제 개발 API/worker·수집기·외부 백업/원본 평가 receipt는 유지했다. 사용자 탭은 열거나 이동하지 않았다.
+
+다음은 전체 목표를 합산 대상으로 오해할 표현·조건/하한 보존의 실제 질문 품질, 상반 출처/다중 주제·정확 날짜/불확실의 실제 양성 평가와 승인 탐색/모듈 점진 전달이다. 실제3건을 일반 시사·중립성 통과로 확대하지 않고 main/운영 출시는 D013에 따라 유예한다.

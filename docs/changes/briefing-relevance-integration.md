@@ -1,0 +1,59 @@
+# 관련성 선택기를 실제 조사 흐름에 연결
+
+2026-10-19 KST. PR47/0a63987 기반 M3 후속이다. 사용자 승인에 따라 검증한 SDK를 실제 새 질문의 조사 흐름에 연결한다. 같은 원문/질문 고정3개로 앱 종단 선택·답변 품질을 별도 검증한다. OpenSpec root=null이므로 init 없이 이 Spec/Global Constraints와 단일 SDD 작업을 사용한다. main/운영은 D013에 따라 유예한다.
+
+## Spec · 목적
+
+질문→계획→승인 자료 검색→인용 기반 관련성 선택→선택 자료 고정→최종 브리핑으로 처리한다. 명확히 무관한 자료만 제외하고 불확실은 보존한다. 선택은 진실/주장 지지/정치적 동의 판정이 아니다. 사용자에게 후보 선택·기술 체크포인트를 요구하지 않는다. 현재 모바일 브리핑 디자인·기존 상태 표시/로그인/정확 인용을 유지한다.
+
+## Global Constraints
+
+- 기준0a63987cfb52490f37e38821ded0a345c99f985d. 전체4,469개/CI39216236587·source50f0552 baseline을 반복 실행하지 않는다. 새 브랜치 feat/briefing-relevance-integration이며 PR47 기반 Draft PR을 만든다. 기존 앱f839ae0/v8·과거v2~v8/planner7의 실제 provider 지침/schema/prompt/한도·명칭/version/slot/저장 결과를 보존한다. 기존 SDK relevance_selection.py의 actual instructions/tool/prompt/usage/retention/owned-client 계약도 그대로 사용한다. 기존 Literal/helper에 정확v9를 좁게 추가하는 것은 허용하되 기존 버전의 동작/bytes를 바꾸거나 긴 DTO·검증·검색 로직을 복제하지 않는다.
+- 새 private profile/reviewer research-v9/issuedigest-research-v9, final agent issuedigest_research_v9, workflow issuedigest_research_run_v9다. planner7를 그대로 재사용한다. 정확 순서는 paid planner7 slot1→issuedigest_research_search_v9 step2→issuedigest_research_select_v9__model.request paid3→issuedigest_research_apply_v9 step4→issuedigest_research_v9__model.request paid5다. 기존 일곱 workflow도 원래 이름/application_version/cohort로 모두 등록·재생하며 신규 queued만v9로 시작한다. v8 worker를 byte-identical fixture로 동결하고 실제 역사 checkpoint를 합성 PG로 재생한다. v7/v8 body를 덮어 새 단계를 삽입하지 않는다. 모델 자동 retry/수리0, 실제 모호/미완료 요청은 재호출하지 않고 실패·예약 유지다.
+- selector는 기존 create_selector/selection_prompt/run_selector를 재사용한다. 공개 DBOSModel wrapper를 caller-injected model로 제공해 raw ModelResponse를 정확 select_v9 namespace/paidslot3에 보존한다. retries_allowed=False·get_event_stream_handler는None이며 다른 tool/stream/request를 만들지 않는다. DBOS 초기화 후 launch 전에 등록한다. 기존 worker가 생성한 base model(예: agent_v8.model)을 빌려 새 default client를 만들거나 ownership을 넘겨받지 않는다. standalone SDK를 수정/복제하지 않는다. SDK 반환은 model_validate로 재검증하고 exact question/prompt UTF-8 hash·전체 후보순서·원래 snapshot IDs와 일치해야 한다. 불확실은 보존·exclude만 제외·모두 제외면 최종 호출 없이 insufficient_evidence와 알려진 planner+selector usage를 저장한다.
+- 새 storage 내부 메서드 worker_load_relevance_candidates(run_id,candidate_ids)와 worker_apply_relevance_selection(run_id,candidate_ids,selected_ids,*,input_tokens,output_tokens)를 추가한다. 기존 worker_search_and_fix/worker_load 동작은 바꾸지 않는다. 최초 search9는 기존 원자 검색/고정을 사용하고 DBOS search2 결과가 원래 후보의 journal 근거다. 새 load는 canonical UUID4/unique1..5·singleworkspace/currentactor/parent·모든 원문과 현재 row 고정값이 후보 또는 그 ordered subset인지를 재검사한다. 선택 적용은 row/membership lock 순서·취소·권한을 재검사하고 row 고정값이 원래 후보 또는 정확 동일 selected인 경우에만 원래 순서 subset으로 원자 축소한다. 선택 후 run.snapshot_ids/result evidence/source_titles는 실제 selected만 사용하며 기존 완료 provenance 검사를 완화하지 않는다. 원래 후보와 모든 결정/정확 prompt identity는 기존 DBOS journal에 남긴다. DB schema/HTTP/공개 API에 후보/내부 결정을 추가하지 않는다. 이 내부 메서드는 journal provenance를 검증한 신뢰 worker만 호출하고 권한을 부여하지 않는다.
+- apply step의 cached 반환도 그대로 신뢰하지 않고 동일 internal storage 메서드로 uncached reauthorize/revalidate한다. search cached tuple·selection full candidate coverage/hash·apply selected tuple·현재 snapshot_ids가 일치해야 한다. 취소/권한·원문/부모 변경 뒤 새 유료 단계/완료 게시를 하지 않는다. 검색0이면 planner 비용만, 모두 제외면 planner+selector 비용만 기록한다. application write만 재시도하고 모델 요청을 묶어 재시도하지 않는다. row의 고정 값은 한 번 후보→선택으로 축소하며 replay는 동일값만 허용한다. 새 권한/역할·SQL 공개·동적 URL/외부 검색·자료 등록/자동 게시는 추가하지 않는다.
+- v9의 신뢰 worker 내부 회계 메서드는 현재 모델 호출의 exact journal metadata/완료 raw ModelResponse를 검증한 알려진 usage만 누적한다. 취소/권한 변경/잘못된 모델 DTO 뒤에도 token 필드만 단조 증가시키며 status/result/예약·권한을 바꾸거나 새 호출을 만들지 않는다. cached 재생의 앞 단계 소계가 이미 기록한 뒷 단계 합계를 지우지 않게 한다. usage가 불명확하면 임의 추정/무료/예약 반환을 하지 않는다. 취소/실패 뒤 finally 기록 전 SIGKILL에도 알려진 usage를 잃지 않도록 시작 시 orphan 취소 전에 v9 terminal accounting만 한정 재조정한다. public client의 exact v9 name/application/prefix·bounded pagination/소유 UUID와 terminal app row·정확 journal을 검증하고 알려진 토큰만 단조 복원한다. status/result/예약·과거 profile은 건드리지 않고 새 모델 호출0이다. 기존 worker_transition과 v2~v8 경로의 동작은 그대로다.
+- recovery metadata는 raw deserialize 전에 exact namespace/정수 nonbool slot/complete/개수/순서를 검증한다. queued는 step0, retrieving은 위 exact 완료 prefix길이1..4만 허용한다. generating/validating은 정확5개 완료가 필수다. 누락·중복·추가·잘못된 paid/search/apply·미완료/stream/다른namespace는 재요청 없이 실패한다. 이미 완료한 단계만 replay하고 아직 시작하지 않은 다음 단계의 최초 호출만 허용한다. 기존 v2~v8의 paidslot/recovery 정책과 단일worker ownership을 유지한다.
+- selector 전송 직전 public DBOSClient.update_workflow_attributes로 exact private `{issuedigest_select_v9_started: true, issuedigest_select_v9_prompt_sha256: <실제 selection_prompt UTF-8 SHA256>}`를 먼저 저장한다. 이 API는 기존 workflow attributes만 갱신하고 durable operation slot을 추가하지 않는다. client.list_workflows의 exact owned workflow/metadata-only 조회로 읽고 None/빈dict(미시작) 또는 정확 두 key·bool-True/소문자64hex SHA marker만 허용한다. 다른 attrs를 조용히 덮거나 workflow-level DBOS metadata 호출로 slot을 추가하지 않는다. marker 저장 실패에는 모델을 보내지 않는다. retrieving 완료 prefix2+markerTrue는 응답 유실 가능성이 있어 실패·재요청0이며, prefix3 이상은 유효 marker가 있고 다시 만든 실제 prompt hash가 저장 hash와 같아야 cached selector replay/projection/apply한다. 회계만 복원할 때는 유효한 원래 hash 형식/namespace를 검증하되 현재 입력으로 재실행하거나 결과를 공개하지 않는다. 잘못된/누락 marker는 안전하게 거부한다. planner/final은 기존 상태 전이와 checkpoint guard로 모호 요청 재실행을 막는다.
+- 모든 호출은 gpt-5.4-mini Responses/storeFalse·provider/PydanticAI retry0다. 전체 input+output24,000/출력2,500·월USD10/건USD0.25/최대40건·사용자 월10만원 상한을 바꾸지 않는다. planner7≤8,000/출력500/15초, selector SDK≤12,000/출력500/15초를 유지하고 알려진 실제 usage를 합산한다. finalv9는 frozenv8 instructions/strict date tools/canonical output을 재사용하되 combined prior exact nonbool/nonnegative ≤20,000/출력≤1,000을 검증해 전체24,000에서 차감한다. 최종 출력 cap은 min(2,000,2,500-prior_output_tokens)로1,500..2,000이며 동일cap을 prompt/envelope와 실제 설정/usage 검사에 사용한다. source 최대5/100 wholequotes·exactdate16은 상한이며 동시 적재를 보장하지 않는다. 원래 질문/최종 원문 인용을 자르지 않고 static/actual raw+normalized schema/framing2,048/출력을 뺀 UTF-8 예산이 안 되면 유료 호출 전에 자료 부족으로 끝낸다. 실패/취소·권한변경/전송유실의 알려진 usage를 누적하고 미확인0을 무료/예약반환으로 처리하지 않는다.
+- agents/research_v9.py는 create_agent_v9(model:Model 필수)/model_prompt_v9/run_agent_v9/build_canvas_v9를 제공한다. 새 default client를 만들지 않으며 기존 v8 _provider_tools_v8/_prompt_dates_v8·v6 canonical·common builder를 재사용한다. final priors는 selector까지의 합계다. Python/domain/client/UI에 exactprivatev9만 확장해 기존 core-first/attributed prefix/Unicode/quote/date/AI review guard를 그대로 적용한다. v9 builder 실제 fixture→full client/UI·nonanswer/정확 날짜/날짜0·public/stripped/mixed/forged 거부를 검증한다. publicv1/v2·HTTP/OpenAPI·DBschema·제품 레이아웃/수집기/로그인 계약은 바꾸지 않는다.
+- 구현자는 합성 fixture/FunctionModel·controller 지정 loopback PG만 사용한다. 실제 키/원문/서버/network/provider·자식agent·container 관리·전체gate/푸시/배포를 금지한다. source/test/관련 README/AGENTS·Task1만 명시 commit/report한다. controller가 단일 최종 gate/작업/전체 독립 검토·기존 질문/원문/gold 그대로3앱실행/최대9provider요청(질문당 최대3)/추가 성공 재시도0을 수행한다. 각 실행 전 private attempt receipt를 만들고 모든 실패를 분모에 남긴다. 모든 계획/후보/선택/최종 문장/AI평가/인용을 직접 대조하고 셋째 human미판정을 무관 gold로 바꾸지 않는다. 과거v8/v7/v6/v5와 selector단독3의 분모를 섞지 않는다. 알려진 토큰/지연/실패·실제 청구 미확인을 명시한다. 실제 사용자 세션을 대행하지 않는다. main/운영 병합·배포는 하지 않는다. 개인개발 반영은 활성0/외부전후백업/별도복원·자료/로그인/공개/수집기/역사결과 보존을 확인할 때만 수행하며 완료 여부를 별도로 기록한다. Sites v69 archive·요약/사본/native게시·소유QA/SDD 정리와 상세 한계를 남긴다. 사용자 탭은 열거나 이동하지 않는다. 공개 repo/PR/Sites에 실제 질문/원문/IDs/키/접속값을 넣지 않는다.
+
+## Task 1: v9 관련성 선택·예산·고정 원문·역사 복구를 결합
+
+- [x] 새 finalv9 SDK와 caller-injected durable selector를 기존 helper로 구현한다. 실제 selector 지침/도구/bytes는 그대로이며 raw durable response와 report coverage/hash/usage를 재검증한다. combined prior/final 동적 outputcap·UTF-8 static/actual budget·선택 후 인용/정확 날짜·uncertain 보존/모두 제외 경계를 TDD로 잠근다.
+- [x] 새 storage의 명시 후보 재열람·원자 선택 적용/동일 replay를 구현한다. 현재 권한/부모/모든 원문/unique orderedsubset·초과/unknown/reorder/다른 row·terminal/cancel·atomic fixed result provenance와 알려진 usage를 합성 실제PG로 검증한다. 기존 storage 메서드·schema는 유지한다.
+- [x] 새 worker/search9/select9/apply9/final9·정확1/2/3/4/5 recoverymetadata·등록/cohort/newdefault를 연결한다. 완료 checkpoint만 재생하고 불명확 paid0재호출·권한/취소/원문 변경·검색0/모두제외·선택 전후/적용commit/생성/검증 중단·추가 모델0·누적 비용/예약을 실제PG/DBOS로 검증한다. v8 fixture를 바이트 동일 동결하고 기존2~8 원래version checkpoint/slot/결과 회복을 유지한다. 기존 default worker tests는 신버전3콜 합성응답으로 조정하되 역사v8 tests는 frozen worker로 원래 의미를 유지한다.
+- [x] exactprivatev9를 domain/client/UI에 추가하고 실제builder fixture→fullclient/UI·첫 열린 요약/접힌상세·출처/귀속/날짜·nonanswer·stripped/public/mixed/forged를 검증한다. API/OpenAPI·디자인·공개v1/v2 경계는 유지한다.
+- [x] 관련Python/JS·Ruff/format/mypy/types/contract/diff를 통과하고 실제 static/actual schema/지침/한도/hash·역사 bytes 증거와 RED/GREEN·명시 source commit/report를 남긴다. README/AGENTS는 구현된 계약대로 정리하고 Task1만 완료 체크한다. controller의 전체gate/실제모델/개발적용/PR/Sites를 완료로 체크하지 않는다.
+
+## Controller 인수
+
+작업별/전체 백지 독립 검토·단일 전체gate, 같은3질문·기검토 원문/평가 분모의 실제3앱실행(최대9요청/실패 포함/재시도0)과 최종 답변 직접 읽기를 수행한다. 일반 의미 품질/중립성 통과로 확대하지 않는다. 개인 개발 적용·운영유예·nativeSites·QA 정리와 다음 제한은 진행 기록에서 구분한다.
+
+## Ruling · selector 시작 기록 · 2026-10-19 KST
+
+실제 SIGKILL 합성 검사에서 DBOSModel은 응답 전에는 operation 행을 만들지 않아 retrieving+완료 prefix2만으로 미시작/전송 유실을 구분할 수 없었다. public client의 기존 workflow attributes에 selector 시작 marker를 먼저 저장하고 모호하면 자동 복구보다 중복 과금 방지를 우선한다. 지침/schema·slot1/2/3/4/5·app schema는 유지한다. 잘못된 판단의 비용: marker 저장 직후 실제 전송 전 중단도 미과금 실행을 실패로 끝내고 예약을 유지할 수 있어 이용 가능한 실행 수가 줄고 사용자의 새 명시 실행이 필요할 수 있다. marker 삭제/불명확 요청 자동 재시도나 예약 자동 반환으로 보정하지 않는다.
+
+## Ruling · 선택 원래 입력의 동일성 · 2026-10-19 KST
+
+SDK가 cached raw response로부터 결과를 재구성할 때 prompt/question hash를 현재 입력에서 계산하므로, 그 보고서끼리의 비교만으로는 원래 유료 선택 요청과의 동일성을 증명하지 못한다. started marker를 정확 두 key(시작 bool+원래 prompt SHA256)로 확장해 전송 전에 원자 저장하고 cached 선택 재생 전에 현재 입력과 대조한다. provider ModelResponse metadata를 인위 수정하는 wrapper는 추가하지 않는다. 잘못된 판단의 비용: 자료 내용이 같더라도 제목 같은 적법한 metadata가 바뀌면 기존 유료 응답 재생을 거절하고 예약을 유지해 새 명시 실행이 필요할 수 있다. 입력 integrity를 우선하며 원래 응답을 새로운 질문/인용에 맞춰 보정하지 않는다.
+
+## Controller 실제 앱 인수 · 2026-10-19 KST
+
+v9 source5fcdc42에서 기존 고정3질문·기검토 공개 텍스트3건으로 실제 앱3회/공급자9요청을 한 번씩 실행했다. 자동 재시도0·완료3(답변2/자료 부족1)/실패0이다. 선택 전 후보1/3/3→선택 후1/1/1이며 필요한 동일 핵심 자료는 positive2문항 모두 보존했다. 둘째의 명시 무관2개는0개로 줄었다. 셋째는 주제 자료1개를 남겼지만 human 미판정3개를 그대로 보존하며 제외2개에 정답/precision 가점을 주지 않는다.
+
+controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종·답변 주장12개/AI평가12개·선택 인용을 모두 직접 대조했다. 첫 답변은 하한을 정확 비율/상한으로 바꾸지 않고 중간 실적·목표·전망을 구분했으나 첫 요약에서 공정 관리 조건은 압축됐다. 둘째는 포함 관계/중복 합산 금지·조건부 전망을 설명했지만 전체 목표를 합산 대상으로 오해할 수 있는 문구가 남았다. 의미 판정은 좁은 목표 충족1·부분 충족1·제공 자료 한정의 적절한 부족1로 기록하며 모델 완료3을 전체 의미 품질 통과로 대신하지 않는다.
+
+선택3과 최종3의 실제 입력·고정 snapshot/evidence를 대조해 선택 자료만 최종 입력과 저장 근거에 포함됨을 확인했다. 실제 known usage는 입력11,502/출력2,207토큰, 실행 지연8.38/8.93/4.32초이며 앱 토큰과 완료 raw응답9개의 합계가 일치했다. 실제 청구 금액은 미검증이다. 기존 selector단독3·v8 3앱/6요청·v7 3/6·v6/v5 초기4+별도2의 실패/부분 분모와 별개다.
+
+같은 주택 주제/정부 자료의 소표본이며 다양한 정치 이슈·상반 입장·복합 주제·실제 공격적 입력·중립성을 인증하지 않는다. 실제 uncertain 결정과 정확 날짜 후보는0이므로 그 양성 분기는 합성 검증만 했다. 원래 질문/원문·ID·raw응답/요청·자체 합성 신원과 시도 receipt는 private에 보존하며 실제 사용자 세션은 사용하지 않았다. main/운영 출시는 D013에 따라 유예한다.
+
+Task1 독립 검토 명세/품질 PASS(C0/I0/M0). 실제 호출은5fcdc42이며 전체 gate·브랜치 검토·개발 반영·PR/CI/Sites/정리 receipt는 [진행 기록](../planning/progress.md)에서 구분한다.
+
+## Controller 구조·개발·출판 인수
+
+단일 gate ab6654e: Python3,891+JS764=4,655개/static/build/contract·실패/skip/warning0, 작업별/전체 명세·품질 PASS(C0/I0/M0). 활성0에서 개인 개발ab6654e/v9를 정상 반영하고 외부 사전/직전/사후 백업·별도 복원의23public테이블 일치, 기존 데이터/세션/공개 경계·수집기·이전 소스/asset 보존을 확인했다. native Sitesv70(public succeeded)/이전v69 보존·Draft PR48(PR47 기반·미병합·앱 첨부)를 기록했다. 실제3/9의 부분 의미 판정과 두 Ruling/비용·main/운영 유예를 유지하며 최종 CI/정리 receipt는 진행 기록을 따른다.
+
+최종 source CI39224270248/259c6f0 success, 소유QA3/볼륨·포트 정리와 SDD 비공개 보관 후 해당 폴더 제거를 확인했다. 다른 자원/실제 runtime은 유지한다. 상세 receipt는 진행 기록이 원본이다. 두 Ruling/비용과 부분 의미 판정은 이 완료 뒤에도 유효하다.

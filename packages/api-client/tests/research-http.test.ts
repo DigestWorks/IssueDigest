@@ -160,3 +160,29 @@ test('total usage respects the 24,000-token bound as well as output bound', asyn
   }
   finally { globalThis.fetch = original; }
 });
+
+
+test.each(['generated', 'timeline-generated', 'nonanswer-generated', 'astral-generated'])('accepts actual Python v9 %s fixture through full client', async kind => {
+  const value = (await import(`./fixtures/research-run-v9-${kind}.json`)).default;
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+  try { expect((await getResearchRun(value.workspace_id, value.run_id)).data).toEqual(value); }
+  finally { globalThis.fetch = original; }
+});
+
+test.each(['stripped', 'mixed', 'reviewer', 'core', 'prefix', 'unicode', 'date'])('rejects forged v9 %s through full client', async mutation => {
+  const value = structuredClone((await import('./fixtures/research-run-v9-generated.json')).default);
+  const claim = objectAt(research(value), 'claims', 0);
+  const review = objectAt(research(value), 'support_reviews', 0);
+  if (mutation === 'stripped') research(value).support_reviews = [];
+  if (mutation === 'mixed') objectAt(claim, 'derivation').method_version = 'research-v8';
+  if (mutation === 'reviewer') review.reviewer_id = 'issuedigest-research-v8';
+  if (mutation === 'core') { review.scope = 'content'; review.assessment = 'insufficient'; }
+  if (mutation === 'prefix') claim.text = '없는기관에 따르면, 합성';
+  if (mutation === 'unicode') claim.text = '제공 자료에 따르면, \ufeff\u0085';
+  if (mutation === 'date') claim.valid_period = {start_date:'2026-01-01',end_date:'2026-01-01'};
+  const original = globalThis.fetch;
+  globalThis.fetch = (async () => new Response(JSON.stringify(value), {headers})) as typeof fetch;
+  try { await expect(getResearchRun(value.workspace_id, value.run_id)).rejects.toMatchObject({kind:'malformed'}); }
+  finally { globalThis.fetch = original; }
+});

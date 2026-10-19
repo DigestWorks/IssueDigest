@@ -58,4 +58,11 @@ planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 �
 
 유일한 strict tool `classify_relevance`는 prompt 후보 UUID 문자열 Literal enum과 `retain|exclude|uncertain`만 받는다. 모든 후보를 정확1회 분류해야 하며 unknown/duplicate/missing/extra/잘못된 결정을 수리하지 않는다. 서버는 응답 순서를 원래 후보 순서로 투영하며 uncertain을 포함해 retain+uncertain만 선택하고 exclude만 제외한다. frozen `RelevanceSelection`은 `evidence-relevance-v1`, 정확 prompt/질문 UTF-8 SHA256, 원래 후보 IDs·전체 결정·선택/제외 IDs와 검증된 input/output tokens를 보존한다. raw 응답과 aggregate의 exact-int/nonbool/nonnegative 사용량·한도·일치를 기존 helper로 검사하며, 불확실 사용량을0으로 치환하지 않는다. 입력 오류는 고정 `Invalid relevance selection input`, 실행/결정/usage/network 오류는 고정 `Relevance selection failed`로 실패한다.
 
-선택기는 독립 SDK다. 검색·외부 도구·DBOS·worker/HTTP·UI·공개 API·자동 SupportReview와 연결하지 않는다. 현재 앱 전체24,000/출력2,500 예산이나 내구 복구를 구현한 것이 아니며 기존 v2~v8/planner7의 지침·schema·한도·결과를 변경하지 않는다. 실제3질문 인수와 전체 gate는 controller가 별도로 수행한다.
+선택기 자체는 독립 SDK다. 검색·외부 도구·DBOS·HTTP·UI·공개 API·자동 SupportReview를 소유하지 않는다. 앱 통합은 아래 v9 worker가 caller-injected model로 제공한다. 기본 모델의 생성/폐기 계약과 SDK bytes는 그대로이며 기존 v2~v8/planner7의 지침·schema·한도·결과를 변경하지 않는다. 실제3질문 인수와 전체 gate는 controller가 별도로 수행한다.
+
+
+## Private v9 관련성 선택 통합
+
+`research_v9`는 `create_agent_v9(model)`의 필수 caller model을 빌리고 별도 client를 생성하거나 닫지 않는다. `model_prompt_v9`/`run_agent_v9`는 planner+selector의 정확한 비음수 정수(nonbool) 합계≤20,000/출력≤1,000을 받는다. 전체24,000에서 이를 차감하고 `min(2,000, 2,500-prior_output_tokens)`의 동적 출력1,500..2,000을 prompt/static/actual envelope·요청 설정·usage 검사에 동일하게 사용한다. frozen v8 지침·exact date 도구·v6 canonical 변환을 재사용한다.
+
+기존 공통 helper가 선택한 whole quote들을 dynamic 예산 때문에 다시 버리지 않는다. 그 prompt 전체·최악 raw/normalized schema·지침·framing2,048·출력이 남은 UTF-8 예산을 넘으면 유료 호출 전에 거부한다. 최대5자료/100인용/16날짜는 동시 적재 보장이 아니다. 정확 private reviewer `issuedigest-research-v9`/`research-v9`만 추가하며 실제 builder 기반 `v9_fixture.py`의 비교/날짜/astral/비답변을 클라이언트와 UI에서 검증한다. 실제 의미·중립성·모델·개발 배포 인수를 의미하지 않는다.
