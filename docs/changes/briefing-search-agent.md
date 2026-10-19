@@ -21,6 +21,8 @@
 
 ## Task 2: v7 계획→검색→생성·비용/복구/읽기 결합
 
+내부 함수 경계는 create_planner_v7/planning_prompt_v7(question,parent=None)/run_planner_v7(agent,prompt), create_agent_v7/model_prompt_v7(question,sources,parent=None,*,prior_input_tokens,prior_output_tokens)/run_agent_v7(agent,prompt,*,prior_input_tokens,prior_output_tokens)/build_canvas_v7다. 두 runner는 해당 요청의 output/input_tokens/output_tokens를 반환하며 합산은 worker 책임이다. SYSTEM_INSTRUCTIONS_V7=SYSTEM_INSTRUCTIONS_V6, AIOutputV7=AIOutputV3를 내보낸다. 기존 _create_classified_agent의 name version Literal을 v7/plan_v7로 좁게 확장해 모델 선택·DBOSDurability를 재사용할 수 있다. planner도 run_sync output_type을 실제 strict SearchPlanV7 tool로 override해 기본 canonical 출력 schema를 전송하지 않는다.
+
 - [ ] agents에 strict planner와v7 최종 경로를 TDD로 추가한다. provider 선택/DBOSDurability/PydanticAI one-request 경계를 재사용하되 과거 provider bytes는 바꾸지 않는다. planner queries만 받으며 실제 tool schema와 strict OpenAI normalized envelope/8,000 bound·prompt·1request/0retry를 검증한다. 최종은 v6 provider helpers/지침·변환을 재사용하고 planner 실제 usage를 차감한 dynamic prompt/remaining-token/max2,000/45초를 호출 전에 검사한다. 전체24,000/출력2,500·음수/가짜usage/형식실패/과대prompt/인용오염을 안전하게 거부한다.
 - [ ] worker에 여섯 profile과 planner·v7 workflow를 등록하고 기존v2~v6 execute 경로를 유지한다. v7은 prepare/current-state metadata guard→retrieving→planner1→검색 durablestep2→고정 원문 재검사→generating→최종3→검증/저장 순서다. 알려진 양쪽 usage를 합산하고 검색0은 최종 호출0, 취소/권한/검색오염·부모 불일치/불명확 유료 step 뒤 추가 모델0을 보장한다. recovery metadata guard는 v7 stage별 정확 순서와 모든 과거slot1을 구분한다. registry/cohort/orphan/single-worker 계약을 유지한다.
 - [ ] Python private validation·웹 client·UI classification에 정확v7 profile을 추가하되 canonical/API/public/기존v6 의미 guards·디자인은 보존한다. 실제 Python v7 builder 생성 합성 fixture→전체 client→열린 첫 요약/접힌 상세/정확 원문·nonanswer 경로를 검증한다. public v7 stripped reviews·혼합/누락/위조와 Unicode·prefix·날짜 경계를 거부한다.
