@@ -1,5 +1,13 @@
 # 진행 기록
 
+## 최종 게시·정리 · 계획 검색 비교 평가 · 2026-10-19 KST
+
+- [Sites v68](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:46:20.931499+00:00. source `b61add725d924bd9f559ea71cbf92dbe8fe4f197`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_9819e21fb7e0819199a20c8069772bdc`, deployment `appgdep_6ad5bcad7a248191aaf85da62f3f87fb`. 이전v67과 전체 기록·v8/v7/v6/v5 실제 실패/부분 분모를 보존했다. 사본f6b947f·내부 도구source7e8138f·실제 앱f839ae0·[Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46)(PR45 기반)이며 사본 이후의 이 최종 receipt는 저장소 원본이다.
+- 검증head4a82706의 [CI39211130090](https://github.com/DigestWorks/IssueDigest/actions/runs/39211130090) success 확인. Sites 사본에는 당시 진행 중 상태가 남아 있으며 이 이후 성공 receipt는 원본에서 확인한다. 로컬 단일 gate Python3,631+JS744=4,375개/static/build/contract·실패/skip/warning0, 작업/전체 독립 검토 C0/I0/M0이다. 이후 변경은 Markdown 인수/출판 기록뿐이며 실행 코드는 그대로다.
+- 문서11파일/로컬링크260·diff/실제 접속값 제외, Sites HTML53/로컬링크·anchor·asset1,166/공개텍스트140파일·실제 비밀값 제외 검사 통과. 기존 레이아웃의 텍스트·사본 갱신으로 Sites 별도 화면 검사는 하지 않았다. 앱/UI는 변경하지 않았고 브라우저를 열거나 사용자 탭을 이동하지 않았다.
+- 전체ID/pinnedimage/소유label/loopback 대조 후 자체 합성PG2개/익명볼륨만 제거하고25491/25492 닫힘을 확인했다. 실제 개발 앱·서버/DB·로그인·수집기·다른컨테이너/worktree는 변경하지 않았다. 실제 운영 소스/복귀 경로·기존 백업·상세 평가/RED·GREEN·독립 검토 증거를 보존하고 이 변경의 SDD ignored scratch만 private archive 후 제거했다. 새 Ruling/보류 지적0이다. main/운영 미병합·미배포(D013)를 유지한다.
+- 결과는 기록된3질문/계획의 비교다(추가 paid모델0/앱workflow0). positive2의 핵심 자료 발견률 개선과 둘째 질문의 명시 무관 자료1→2, 셋째의 미판정3을 함께 보존한다. 전체 검색/중립성·실제 답변 의미 품질 통과나 수치 문장 문제 해결을 주장하지 않는다. 다음은 동일 평가 범위에서 후보 관련성 정책을 비교하는 구현이다.
+
 ## 전체 검사·독립 검토 · 계획 검색 비교 평가 · 2026-10-19 KST
 
 - source7e8138f·검증/전체 검토head4a82706. 단일 최종 gate Python3,631+JS744=4,375개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0. 별도 백지 맥락의 작업/전체 변경 검토 모두 specPASS/sourceApproved(C0/I0/M0), 열린/보류 지적·새 Ruling0이다. 기존v1 SDK의 mixed/positive-only/negative-only serialized bytes와 CLI stdout/report bytes 호환 증거도 보존한다.
