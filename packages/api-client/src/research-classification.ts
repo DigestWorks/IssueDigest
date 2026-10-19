@@ -2,6 +2,7 @@
 import type {Claim, SupportReview} from './index';
 import {hasKeys, isId, isObject} from './protected-request';
 import {exactTimestamp} from './research-time';
+import {hasV6Text} from './research-text';
 
 export const classificationLabels = {
   documented: '자료에 기록됨', attributed: '출처의 주장', uncertain: '확인하기 어려움',
@@ -18,7 +19,7 @@ export function validResearchClassifications(research: Record<string, unknown>, 
   if (!Array.isArray(research.claims) || !Array.isArray(research.support_reviews)) return false;
   const claims = research.claims;
   const versions = new Set(claims.map(claim => isObject(claim) && isObject(claim.derivation) ? claim.derivation.method_version : null));
-  if (!versions.has('research-v3') && !versions.has('research-v4') && !versions.has('research-v5')) return research.support_reviews.length === 0;
+  if (!versions.has('research-v3') && !versions.has('research-v4') && !versions.has('research-v5') && !versions.has('research-v6')) return research.support_reviews.length === 0;
   if (versions.size !== 1 || claims.length > 12 || research.support_reviews.length !== claims.length) return false;
   const version = [...versions][0] as string;
   const claimById = new Map<string, Record<string, unknown>>();
@@ -50,12 +51,52 @@ export function validResearchClassifications(research: Record<string, unknown>, 
       || review.citation_ids.some((citation, index) => !isId(citation) || citation.toLowerCase() !== (claim.citation_ids as string[])[index]?.toLowerCase())) return false;
     reviewed.add(id); reviewIds.add(review.review_id.toLowerCase());
   }
+  if (version === 'research-v6') {
+    if (!isObject(revision.draft) || revision.draft.outcome !== 'answer'
+      || !Array.isArray(revision.draft.modules)) return false;
+    const [first, ...rest] = revision.draft.modules;
+    if (!isObject(first) || first.kind !== 'summary' || !Array.isArray(first.claim_ids)
+      || !isId(first.claim_ids[0]) || rest.some(module => !isObject(module) || !['comparison', 'timeline', 'evidence'].includes(module.kind as string))) return false;
+    const coreId = first.claim_ids[0].toLowerCase();
+    if (!research.support_reviews.some(review => isObject(review) && isObject(review.target)
+      && isId(review.target.claim_id) && review.target.claim_id.toLowerCase() === coreId
+      && review.assessment === 'supported')) return false;
+    const quotes = new Map<string, string>();
+    if (!Array.isArray(research.evidence)) return false;
+    for (const proof of research.evidence) {
+      if (!isObject(proof) || !Array.isArray(proof.citations)) return false;
+      for (const citation of proof.citations) {
+        if (!isObject(citation) || !isId(citation.citation_id) || !isObject(citation.selector)
+          || typeof citation.selector.quote !== 'string') return false;
+        quotes.set(citation.citation_id.toLowerCase(), citation.selector.quote);
+      }
+    }
+    for (const review of research.support_reviews) {
+      if (!isObject(review) || !isObject(review.target) || !isId(review.target.claim_id)) return false;
+      const claim = claimById.get(review.target.claim_id.toLowerCase());
+      if (!claim || typeof claim.text !== 'string') return false;
+      if (review.scope !== 'attribution') {
+        if (!hasV6Text(claim.text)) return false;
+        continue;
+      }
+      const separator = '에 따르면, ';
+      let validAttribution = false;
+      for (let split = claim.text.indexOf(separator); split >= 0; split = claim.text.indexOf(separator, split + 1)) {
+        const subject = claim.text.slice(0, split), text = claim.text.slice(split + separator.length);
+        if (hasV6Text(subject) && hasV6Text(text) && Array.from(subject).length <= 80 && Array.from(text).length >= 1 && Array.from(text).length <= 400
+          && Array.isArray(claim.citation_ids) && (subject === '제공 자료' || claim.citation_ids.every(id => isId(id) && quotes.get(id.toLowerCase())?.includes(subject)))) {
+          validAttribution = true; break;
+        }
+      }
+      if (!validAttribution) return false;
+    }
+  }
   return reviewed.size === claims.length;
 }
 
-/** Only call after the private v3/v4/v5 profile has been validated. */
+/** Only call after the private v3/v4/v5/v6 profile has been validated. */
 export function claimClassification(claim: Claim, reviews: SupportReview[]) {
-  if (!['research-v3', 'research-v4', 'research-v5'].includes(claim.derivation?.method_version ?? '')) return null;
+  if (!['research-v3', 'research-v4', 'research-v5', 'research-v6'].includes(claim.derivation?.method_version ?? '')) return null;
   const review = reviews.find(item => item.target.kind === 'claim' && item.target.claim_id.toLowerCase() === claim.claim_id.toLowerCase());
   if (!review) return null;
   const category = review.scope === 'attribution' ? 'attributed' : review.assessment === 'insufficient' ? 'uncertain' : 'documented';

@@ -1,0 +1,327 @@
+{
+  "run_id": "00000000-0000-4000-8000-000000000032",
+  "workspace_id": "00000000-0000-4000-8000-000000000001",
+  "request_id": "00000000-0000-4000-8000-000000000041",
+  "question": "두 합성 지표는 같은 방향인가요?",
+  "snapshot_ids": [
+    "00000000-0000-4000-8000-000000000040"
+  ],
+  "parent_run_id": null,
+  "status": "completed",
+  "error_code": null,
+  "created_at": "2026-10-15T00:00:00Z",
+  "updated_at": "2026-10-15T00:00:00Z",
+  "events": [
+    {
+      "sequence": 1,
+      "status": "queued",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 2,
+      "status": "retrieving",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 3,
+      "status": "generating",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 4,
+      "status": "validating",
+      "created_at": "2026-10-15T00:00:00Z"
+    },
+    {
+      "sequence": 5,
+      "status": "completed",
+      "created_at": "2026-10-15T00:00:00Z"
+    }
+  ],
+  "result": {
+    "canvas": {
+      "research": {
+        "schema_version": 1,
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "evidence": [
+          {
+            "schema_version": 1,
+            "document": {
+              "document_id": "00000000-0000-4000-8000-000000000002",
+              "workspace_id": "00000000-0000-4000-8000-000000000001",
+              "provider": "synthetic-test",
+              "source_id": "합성 문서 A",
+              "source_kind": "other",
+              "canonical_url": null
+            },
+            "version": {
+              "version_id": "00000000-0000-4000-8000-000000000003",
+              "document_id": "00000000-0000-4000-8000-000000000002",
+              "raw_object_id": "00000000-0000-4000-8000-000000000005",
+              "raw_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "media_type": "application/pdf",
+              "collected_at": "2026-01-01T00:00:00Z"
+            },
+            "representation": {
+              "representation_id": "00000000-0000-4000-8000-000000000004",
+              "document_version_id": "00000000-0000-4000-8000-000000000003",
+              "parser_name": "synthetic-test",
+              "parser_version": "1",
+              "normalization_profile": "identity",
+              "text": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+              "text_sha256": "f84978389fab1f970b5a96465440c9355994ed70679be290f277c3f1b317e962",
+              "pages": [],
+              "tables": []
+            },
+            "citations": [
+              {
+                "citation_id": "00000000-0000-4000-8000-000000000006",
+                "document_version_id": "00000000-0000-4000-8000-000000000003",
+                "representation_id": "00000000-0000-4000-8000-000000000004",
+                "selector": {
+                  "start": 0,
+                  "end": 80,
+                  "quote": "😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀😀",
+                  "prefix": null,
+                  "suffix": null,
+                  "kind": "text"
+                }
+              }
+            ]
+          }
+        ],
+        "entities": [],
+        "claims": [
+          {
+            "claim_id": "00000000-0000-4000-8000-0000000003e8",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "제공 자료에 따르면, 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v6",
+              "rationale": "AI interpretation of exact server-retrieved quotations"
+            }
+          },
+          {
+            "claim_id": "00000000-0000-4000-8000-0000000003e9",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "이 인용으로 전국 인지도는 확인하기 어렵습니다.",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v6",
+              "rationale": "AI interpretation of exact server-retrieved quotations"
+            }
+          },
+          {
+            "claim_id": "00000000-0000-4000-8000-0000000003eb",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "제공 자료에 따르면, 합성 문서에 기록되어 있습니다.",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v6",
+              "rationale": "AI interpretation of exact server-retrieved quotations"
+            }
+          },
+          {
+            "claim_id": "00000000-0000-4000-8000-0000000003ec",
+            "workspace_id": "00000000-0000-4000-8000-000000000001",
+            "text": "제공 자료에 따르면, 🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀🚀",
+            "basis": "inference",
+            "speaker_entity_id": null,
+            "subject_entity_ids": [],
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "valid_period": null,
+            "raw_event_time_text": null,
+            "derivation": {
+              "method": "pydantic-ai",
+              "method_version": "research-v6",
+              "rationale": "AI interpretation of exact server-retrieved quotations"
+            }
+          }
+        ],
+        "relations": [],
+        "observations": [],
+        "support_reviews": [
+          {
+            "review_id": "00000000-0000-4000-8000-0000000003f1",
+            "reviewer_kind": "automated",
+            "reviewer_id": "issuedigest-research-v6",
+            "method": "pydantic-ai",
+            "method_version": "research-v6",
+            "reviewed_at": "2026-10-15T00:00:00.123456Z",
+            "rationale": "선택 인용에 대한 합성 AI 설명입니다.",
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "target": {
+              "kind": "claim",
+              "claim_id": "00000000-0000-4000-8000-0000000003e8"
+            },
+            "scope": "attribution",
+            "assessment": "supported"
+          },
+          {
+            "review_id": "00000000-0000-4000-8000-0000000003f2",
+            "reviewer_kind": "automated",
+            "reviewer_id": "issuedigest-research-v6",
+            "method": "pydantic-ai",
+            "method_version": "research-v6",
+            "reviewed_at": "2026-10-15T00:00:00.123456Z",
+            "rationale": "선택 인용에 대한 합성 AI 설명입니다.",
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "target": {
+              "kind": "claim",
+              "claim_id": "00000000-0000-4000-8000-0000000003e9"
+            },
+            "scope": "content",
+            "assessment": "insufficient"
+          },
+          {
+            "review_id": "00000000-0000-4000-8000-0000000003f3",
+            "reviewer_kind": "automated",
+            "reviewer_id": "issuedigest-research-v6",
+            "method": "pydantic-ai",
+            "method_version": "research-v6",
+            "reviewed_at": "2026-10-15T00:00:00.123456Z",
+            "rationale": "선택 인용에 대한 합성 AI 설명입니다.",
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "target": {
+              "kind": "claim",
+              "claim_id": "00000000-0000-4000-8000-0000000003eb"
+            },
+            "scope": "attribution",
+            "assessment": "supported"
+          },
+          {
+            "review_id": "00000000-0000-4000-8000-0000000003f4",
+            "reviewer_kind": "automated",
+            "reviewer_id": "issuedigest-research-v6",
+            "method": "pydantic-ai",
+            "method_version": "research-v6",
+            "reviewed_at": "2026-10-15T00:00:00.123456Z",
+            "rationale": "선택 인용에 대한 합성 AI 설명입니다.",
+            "citation_ids": [
+              "00000000-0000-4000-8000-000000000006"
+            ],
+            "target": {
+              "kind": "claim",
+              "claim_id": "00000000-0000-4000-8000-0000000003ec"
+            },
+            "scope": "attribution",
+            "assessment": "supported"
+          }
+        ]
+      },
+      "revision": {
+        "schema_version": 1,
+        "revision_id": "00000000-0000-4000-8000-0000000003ef",
+        "workspace_id": "00000000-0000-4000-8000-000000000001",
+        "run_id": "00000000-0000-4000-8000-000000000032",
+        "revision_number": 1,
+        "parent_revision_id": null,
+        "selected_version_ids": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "draft": {
+          "schema_version": 1,
+          "draft_id": "00000000-0000-4000-8000-0000000003f0",
+          "outcome": "answer",
+          "modules": [
+            {
+              "module_id": "00000000-0000-4000-8000-0000000003ea",
+              "title": "🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏🌏",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000006"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000006"
+                }
+              ],
+              "kind": "summary",
+              "claim_ids": [
+                "00000000-0000-4000-8000-0000000003e8",
+                "00000000-0000-4000-8000-0000000003e9"
+              ]
+            },
+            {
+              "module_id": "00000000-0000-4000-8000-0000000003ed",
+              "title": "합성 비교 상세",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000006"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000006"
+                }
+              ],
+              "kind": "comparison",
+              "claim_ids": [
+                "00000000-0000-4000-8000-0000000003eb",
+                "00000000-0000-4000-8000-0000000003ec"
+              ]
+            },
+            {
+              "module_id": "00000000-0000-4000-8000-0000000003ee",
+              "title": "근거",
+              "span": "full",
+              "citation_ids": [
+                "00000000-0000-4000-8000-000000000006"
+              ],
+              "actions": [
+                {
+                  "kind": "open_evidence",
+                  "citation_id": "00000000-0000-4000-8000-000000000006"
+                }
+              ],
+              "kind": "evidence"
+            }
+          ],
+          "message": null
+        },
+        "validated_at": "2026-10-15T00:00:00.123456Z",
+        "validation_policy": "issuedigest-canvas-v1"
+      }
+    },
+    "source_titles": {
+      "00000000-0000-4000-8000-000000000002": "합성 자료"
+    }
+  },
+  "model": "gpt-5.4-mini",
+  "input_tokens": 10,
+  "output_tokens": 20
+}

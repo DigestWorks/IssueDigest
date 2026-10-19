@@ -1,5 +1,40 @@
 # 진행 기록
 
+## 최종 출판·정리 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19 KST
+
+- [Sites v65](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 유지·native succeeded. source `f0ffc035de158829687e9ff89727cbf5fd007b1b`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6a21a3dd69d481919321da0d314bed57`, deployment `appgdep_6ad596344d24819195b292edcbb948cb` (2026-10-19 04:02:11 UTC). 이전v64와 그 이전 기록을 보존했다. 저장소 사본 기준6584471·실행7566c3a·Draft PR43이며 사본 이후의 이 최종 receipt는 저장소가 원본이다.
+- 기존 레이아웃의 요약/마일스톤·실제 초기4+별도2/남은 한계·문서8개를 갱신했다. HTML50개·로컬 링크/asset/anchor1,139개·공개 텍스트131개와 실제 접속/키 비포함 검사를 통과했다. 텍스트 변경에 Sites 브라우저 QA를 반복하지 않았으며 native 성공 응답으로 게시를 확인했다. 사용자 탭을 열거나 이동하지 않았다.
+- 자체 검증 브라우저·합성 HTTPS API와 소유label/전체ID/pinnedimage/loopback이 일치하는 합성·모델·복원PG3개/익명 볼륨만 정리했다.34546/25482/25483/25484 닫힘을 확인했다. pinned image·다른 컨테이너/worktree·실제 개발 앱/수집기·원래 소스/복귀 경로·서버 밖 백업/상세 증거는 보존한다. 이 계획의 SDD 검토/두 판단/실행 기록은 private에 archive한 후 해당 ignored scratch만 제거했다.
+- 최종 실행 코드는7566c3a의 전체3,967개·독립 source 검토·[CI39196768625](https://github.com/DigestWorks/IssueDigest/actions/runs/39196768625) success다. 이후ee62ee6/6584471과 이 receipt는 문서만 변경했다. 코드 검사 반복 없이 문서 링크/개인 접속값/표현 정합성과 Git diff를 확인한다. main 병합·운영 게시·새 모델 호출/권한/수집기 변경은 없다.
+
+## 개발 적용 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19 KST
+
+- 현재 소스: 개인 개발 웹/API/조사 worker7566c3a·[Draft PR43](https://github.com/DigestWorks/IssueDigest/pull/43)(PR42 기반). 첫 열린 요약의 core conclusion·제공 자료에 대한 보수적 귀속·핵심 근거 부족 비답변을 연결했다. provider에 category/source_subject와 일반 claim의 event_date를 요구하지 않고 typed timeline만 정확 날짜를 받는다. canonical documented/최종 원문/인용/prefix/날짜·공개v1/v2/빈 reviews·기존2/3/4/5 지침/이름/version/정수slot1·저장 결과/복구와 소비자 디자인은 유지한다.
+- 구조 검증: 최종7566의 전체 Python3,316+JS651=3,967개·Ruff/format·mypy117·JS lint/types·SPA/생성 계약 통과, 경고/skip/실패0. [소스 CI39196768625](https://github.com/DigestWorks/IssueDigest/actions/runs/39196768625) success. Task1 두 Important는 Unicode code-point/공백 회귀로 해결했고 Task2·변경 전체 독립 검토 C0/I0다. 최종 README Minor와 후속 custom-subject 예외 문구를 문서 정합화에서 수정했고 실행 코드는 바꾸지 않았다. 기존 공통 출처 제목/비답변의 언어별 Unicode 경계는 그대로이며 별도 한계다.
+- 실제 초기4회(f462): 완료1은 제공 자료에 없는 전국 찬성률/인지도를 만들지 않는 정확 insufficient_evidence였고3건은 형식/주체/일반 날짜 검증에서 실패해 표시되지 않았다. 유료 checkpoint를 추가 호출 없이 읽었으며 초기 입력13,420/출력2,410토큰을 확인했다. 실패 앱 usage0은 무료라는 뜻이 아니다. 주택의 열린 전망을 확정 상한으로 읽은 cached 의미 오류도 기록했다. 실패 분모와 이전v5 초기4+별도2 기록은 보존한다.
+- 실제 별도2회(7566): 주택 목표/실적/전망은 첫 요약에서 기준 기간·이상/예상 조건과 단정할 수 없는 한계를 보존했고, 같은9월 CSI/CBSI는 상승/하락의 다른 방향을 첫 요약에 제시했다. 후자는 원인/미래를 알 수 없다는 uncertain 설명도 담았다. controller가 전체7/6문장·동일 인용 평가·선택 원문을 직접 읽어 이 두 표본에서 충족으로 기록했다. 초기4+별도2 합계 입력20,185/출력3,867토큰·자동 재시도0·청구 금액 미검증이다. 성공할 때까지 재호출하지 않았다. 새 DTO 교육 예산과 현재 provider 비답변의 추가 실제 재호출은 미실행이며 일반 의미 품질 통과는 아니다.
+- 화면/읽기: 별도 합성 신원·실제 빌드/API/평가 PG에서6상태(3실패/부족1/답변2), 첫 요약·접힌 상세·분류/설명·390/1440 두 테마·정확 원문 highlight/Escape/focus·가로 넘침 없음·reload/기록과 읽기POST0/페이지오류0을 확인하고 모바일 화면을 직접 검토했다. 실제 사용자를 대신 로그인하거나 질문하지 않았다. 외부 HTTPS web/login/health/status/공개200·비회원401/noCookie/no-store·공개payload 동일, 배포 index/6asset가 로컬 빌드와 정확히 같았다. 첫 외부 확인의 임시 DNS 실패 후 정상 DNS/TLS 재확인이 성공했으며 설정 변경/인증 우회는 없었다.
+- 반영/보존: 새 격리 source/venv/static19개를 준비한 뒤 활성run/workflow0에서 API/worker를 정상 중지·재기동했다. 단일 advisory worker lock1·새 cwd/source와v6 지침 hash를 확인했다. 이전86assets·원래 source/복귀 경로는 유지한다. schema0009·자료15/인용49/검색36/receipt1/공개1·계정/세션과 수집기a908083/source/config/runner/cron은 보존했다. 서버 밖 사전·직전·사후 full/app archive를 보존하고 직전/사후/백업 직후/별도PG18.6복원의23public테이블 rowhash/count 전체 일치·15canonical을 확인했다. 기존 실제 AI 결과는0개로 과거 실제 결과 재생을 주장하지 않는다. 역사 결과는 합성 복구 증거다. public 행 비교는 DBOS registry 밖이며 vector/역할까지 포함한 완전 DR은 아니다.
+- 판단 기록: v6 nonblank는 Python/ECMAScript 공백 합집합·원문 불변으로 통일했다. 잘못되면 좁은 판정/테스트 수정 비용이며 migration/추가 호출은 없다. 아직 미배포였던 v6의 긍정 해석을 고정 제공 자료 attribution으로 단순화하고 별도2회를 허용했다. 잘못되면 documented 세분화 감소·구현/검토 재작업·최대2API 비용이 생긴다. canonical/historical documented는 보존한다. [D022 후속 판단](decisions.md)을 따른다.
+- 남은 경계: 질문 중 승인 도구 탐색·점진 전달·다매체 발견·개인 관심/변화/공유/추천·일반화된 의미 품질과 main/운영 출시는 후속(D013)이다. 실제 원문/질문/ID/키/접속/backup/상세 결과는 비공개에 보존한다. Sites 요약/이전v64 보존·소유 QA 정리·최종 출판 receipt는 다음 기록에서 확인한다. 사용자 탭은 열거나 이동하지 않았다.
+
+## 전체 검사 통과 · v6 provider 단순화 · 2026-10-19 KST
+
+- 최종 소스7566c3a에서 전체 Python3,316+JS651=3,967개·Ruff/format·mypy117·JS lint/types·SPA build·API 계약 검사를 통과했다. 경고/skip/실패0이다. 초기f462의 전체3,956개 기록도 별도로 보존한다.
+- Task2 독립 검토는 명세 PASS/품질 Approved·C0/I0/M0이며 변경 전체 검토·별도 실제2회·개인 개발 반영은 이 시점 대기다. [Draft PR43](https://github.com/DigestWorks/IssueDigest/pull/43)은 PR42 기반으로 만들고 첨부했으며 main에 병합하지 않았다.
+- 합성 v6 provider/날짜/인용/공백 검증과 기존 다섯 workflow/유료 checkpoint 재생이 통과했다. 역사2/4/5 파일 bytes·v3 schema/지침/예산 AST·기존 CanvasView·생성 API 계약은 그대로다. 실제 자료에서 의미가 맞는지에 대한 인증은 아니다.
+
+## 실제 인수·생성 형식 보완 · 2026-10-19
+
+- 제품f462b7b의 전체3,956개·독립 전체 검토 C0/I0/M0을 통과한 뒤, 사용자와 분리된 실제4요청을 실행했다. 자료 부족1건만 정상 완료했고 나머지3건은 category/source_subject 모순·인용에 없는 주체·non-timeline 날짜 때문에 안전하게 거부됐다. 응답은 표시하지 않았다. cached ModelResponse를 추가 호출 없이 읽어 입력13,420/출력2,410토큰을 확인했으며 실패의 앱 사용량0을 무료로 해석하지 않는다.
+- [Task2 명세](../changes/briefing-core-answer.md)에 따라 pre-release v6 provider만 단순화한다. 새 AI 긍정 해석은 제공 자료에 귀속하고, 독립 사실의 자동 확정으로 삼지 않는다. core/summary/comparison의 날짜 필드를 없애고 timeline만 정확 날짜를 요구한다. documented canonical/과거 결과·최종 원문 검사·기존v2/v3/v4/v5는 유지한다. 초기4회 분모/실패를 보존하고 수정 후 별도2회만 추가해 총6회로 제한한다.
+- 개발 서버 웹/API/worker가 여전히f90839e임을 직접 재확인했다. v6실사용/배포는0이며 Sites64는 그대로다. 새 독립/전체·구조/의미 인수 후 개발 적용과 출판 결과를 기록한다. main/운영 유예·사용자 탭 유지.
+
+## 작업 시작 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19
+
+- PR42/b626764 기반 `feat/briefing-core-answer`·[명세](../changes/briefing-core-answer.md). 현재 렌더러가 summary를 먼저 펼치지만 모델이 비교 결론을 details에 두는 경로, 본문 주체 누락과 핵심 근거 없이 uncertain만 채운 answer를 확인했다. 새v6의 첫 결론과 구조 제약을 구현하며 실제 의미 판단은 별도 인수한다.
+- 기존v5도 historical로 고정하고2/3/4/5/6 원래 이름/version/정수slot1을 보존한다. 합성 TDD·독립/전체 검사 뒤 사용자와 분리된 검토 공개 텍스트/실제4회만 평가하며 이전 실패 기록을 지우지 않는다. 사전 백업/별도 app 복원23테이블·canonical15 보존을 확인했다. 현재 개발f90839e·Sites64는 그대로이며 반영은 인수 후 기록한다. main/운영 유예·사용자 탭 유지.
+
 ## 출판·최종 인계 · 브리핑 답변 품질 · 2026-10-19 KST
 
 - Sites v64 공개 배포 native `succeeded`: https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/ . 원본 소스 `b6a96ac20de502c15588c680fa1a8fcc5dfa7066`, 문서 사본 기준 `6b50776e339875cbc457216e64f6bc62979f5c8d`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_63a8da8c1980819191854e19939998b5`, deployment `appgdep_6ad5869f34e4819186588b910ef3c211`. audience public을 유지하고 이전v63을 archive로 보존했다. HTML49개·로컬 링크/asset/anchor1,130개·공개 텍스트129개와 실제 비밀값 부재를 확인했다. 문구/상태만 갱신했으므로 기존 레이아웃의 Sites 브라우저 QA를 반복하지 않았다. 사용자 탭을 열거나 이동하지 않았다.

@@ -56,3 +56,6 @@ private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크
 
 
 새 private v5의 고정 reviewer_id는 `issuedigest-research-v5`, method_version은 `research-v5`다. 같은 엄격 분류·UTC 마이크로초·인용 순서·claim당1개 규칙을 적용한다. v3/v4/v5를 서로 섞지 않고 public v1/v2/빈 reviews 경계를 유지한다. 과거 결과를 새 분류로 다시 쓰지 않는다.
+
+
+새 private v6는 동일 레이아웃·문구에서 첫 summary의 core 결론과 추가 요약을 열어 보이고 comparison/timeline 상세는 접어 둔다. prepare/classification은 정확 issuedigest-research-v6/research-v6만 인식하며 누락·혼합·위조·불확실한 첫 core를 거부한다. 비답변은 기존 '근거가 부족합니다'와 자료 범위 메시지를 표시한다. 실제 Python v6 builder→웹 client→첫 요약/접힌 상세→정확 원문 합성 검사를 공유하고 과거 결과의 순서를 바꾸지 않는다. 실제 문장 의미·주체 판단은 별도 인수 대상이다.

@@ -14,6 +14,21 @@ from pydantic_ai.models.test import TestModel
 from conftest import bundle_data
 
 
+def v6_output(value):
+    """Keep fixed synthetic worker scenarios while using the new provider envelope."""
+    return {
+        "outcome": "answer",
+        "summary_title": value["modules"][0]["title"],
+        "core_answer": {
+            k: v
+            for k, v in value["modules"][0]["claims"][0].items()
+            if k not in {"category", "event_date"}
+        },
+        "additional_summary_claims": [],
+        "details": [],
+    }
+
+
 def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine, database_url):
     bundle = EvidenceBundle.model_validate(bundle_data())
     snapshot, actor = uuid4(), uuid4()
@@ -53,13 +68,13 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
             }
         ],
     }
-    run_worker(database_url, model=TestModel(custom_output_args=output), once=True)
+    run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
-    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v5"
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v6"
     assert len(completed.result.canvas.research.support_reviews) == 1
-    run_worker(database_url, model=TestModel(custom_output_args=output), once=True)
+    run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert reopened == completed
 
@@ -148,7 +163,7 @@ run_worker(
     env = {
         **os.environ,
         "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
-        "SYNTHETIC_OUTPUT": __import__("json").dumps(first_output),
+        "SYNTHETIC_OUTPUT": __import__("json").dumps(v6_output(first_output)),
         "CRASH_AFTER_MODEL": "1",
         "PYDANTIC_AI_NO_BANNER": "1",
     }
@@ -171,7 +186,7 @@ run_worker(
             from issuedigest_storage.search import rebuild_projection
 
             rebuild_projection(conn, bundle.document.workspace_id, new_snapshot)
-        env["SYNTHETIC_OUTPUT"] = __import__("json").dumps(second_output)
+        env["SYNTHETIC_OUTPUT"] = __import__("json").dumps(v6_output(second_output))
         env.pop("CRASH_AFTER_MODEL")
         second = subprocess.Popen(
             [sys.executable, "-c", script],
@@ -188,7 +203,10 @@ run_worker(
                 time.sleep(0.1)
             assert completed is not None and completed.status == "completed"
             assert completed.result is not None
-            assert completed.result.canvas.research.claims[0].text == "첫 모델의 해석"
+            assert (
+                completed.result.canvas.research.claims[0].text
+                == "제공 자료에 따르면, 첫 모델의 해석"
+            )
             assert completed.snapshot_ids == (snapshot,)
             assert len(completed.result.canvas.research.evidence) == 1
             assert [event.status for event in completed.events] == [
@@ -281,7 +299,7 @@ run_worker(
     env = {
         **os.environ,
         "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
-        "SYNTHETIC_OUTPUT": json.dumps(output("첫 모델의 해석")),
+        "SYNTHETIC_OUTPUT": json.dumps(v6_output(output("첫 모델의 해석"))),
         "FAIL_TERMINAL": "1",
         "FAULT_MARKER": str(marker),
         "PYDANTIC_AI_NO_BANNER": "1",
@@ -302,7 +320,7 @@ run_worker(
         first.send_signal(signal.SIGKILL)
         assert first.wait(timeout=10) == -signal.SIGKILL
         env.pop("FAIL_TERMINAL")
-        env["SYNTHETIC_OUTPUT"] = json.dumps(output("재호출됐다면 보일 해석"))
+        env["SYNTHETIC_OUTPUT"] = json.dumps(v6_output(output("재호출됐다면 보일 해석")))
         second = subprocess.Popen(
             [sys.executable, "-c", script],
             env=env,
@@ -318,7 +336,9 @@ run_worker(
                 time.sleep(0.1)
             assert final is not None and final.status == "completed"
             assert final.result is not None
-            assert final.result.canvas.research.claims[0].text == "첫 모델의 해석"
+            assert (
+                final.result.canvas.research.claims[0].text == "제공 자료에 따르면, 첫 모델의 해석"
+            )
         finally:
             second.terminate()
             second.wait(timeout=10)
@@ -471,6 +491,7 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     monkeypatch.setattr(worker, "create_agent_v3", lambda _model: object())
     monkeypatch.setattr(worker, "create_agent_v4", lambda _model: object())
     monkeypatch.setattr(worker, "create_agent_v5", lambda _model: object())
+    monkeypatch.setattr(worker, "create_agent_v6", lambda _model: object())
     monkeypatch.setattr(
         worker,
         "DBOSClient",
@@ -481,13 +502,13 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     )
     monkeypatch.setattr(worker, "DBOS", FakeDBOS)
     monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
-    monkeypatch.setattr(worker, "model_prompt_v5", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(worker, "model_prompt_v6", lambda *args, **kwargs: "{}")
     monkeypatch.setattr(
         worker,
-        "run_agent_v5",
+        "run_agent_v6",
         lambda _agent, _prompt: (object(), 123, 45),
     )
-    monkeypatch.setattr(worker, "build_canvas_v5", fail_validation)
+    monkeypatch.setattr(worker, "build_canvas_v6", fail_validation)
 
     run_worker(
         "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True
@@ -600,7 +621,7 @@ def test_corrupt_publication_is_terminal_and_never_retries_the_model(
         ],
     }
     DBOS.migrate(database_url, application_role=engine.url.username)
-    run_worker(database_url, model=TestModel(custom_output_args=output), once=True)
+    run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert final.status == "failed" and final.error_code == "generation_failed"
     assert final.result is None and final.input_tokens > 0

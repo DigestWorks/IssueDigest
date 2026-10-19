@@ -131,3 +131,52 @@ def test_historical_v4_prompt_selection_matches_baseline_2ed2bc7():
     assert hashlib.sha256(prompt.encode()).hexdigest() == (
         "3d84c960bbc64ee1725560c2f9c20a1f579fa693b621853694b384b860080bb9"
     )
+
+
+def test_historical_v5_schema_instructions_and_prompt_are_frozen():
+    from issuedigest_agents import research_v5 as v5
+
+    assert hashlib.sha256(v5.SYSTEM_INSTRUCTIONS_V5.encode()).hexdigest() == (
+        "d6c638701a31af0ab0e4015eec4bb406174173af72cff546dff70ea02e42cd75"
+    )
+    assert hashlib.sha256(
+        json.dumps(v5.AIOutputV5.model_json_schema(), ensure_ascii=False).encode()
+    ).hexdigest() == ("ba983870e35d5a59fb4d16b3f7977b9cae03e055649b9bbc724eaa7127f28e3d")
+    assert (v5.STATIC_INPUT_BYTES_V5, v5.INPUT_PROMPT_BYTE_LIMIT_V5) == (10012, 9440)
+    for repetitions, size, digest in [
+        (28, 7668, "05eb4cf8b8acbf75736cae5e7498037a8c87e3be66658055f8e7f3d72f71b1e2"),
+        (30, 7936, "83a7a1913c4b5e90eebf003ea55d515b8f6de6d55aa3aecbb6bad2df51a13e82"),
+    ]:
+        prompt = v5.model_prompt_v5(
+            "목표와 실적 및 전망을 비교해 주세요.", prompt_sources(repetitions), "이전 해석 " * 400
+        )
+        assert len(prompt.encode()) == size
+        assert hashlib.sha256(prompt.encode()).hexdigest() == digest
+
+
+def test_historical_v5_raw_and_normalized_provider_tools_are_frozen():
+    from issuedigest_agents import research_v5 as v5
+    from pydantic_ai.profiles.openai import OpenAIJsonSchemaTransformer
+    from pydantic_ai.tools import GenerateToolJsonSchema
+
+    raw, normalized = [], []
+    ids = tuple(str(UUID(int=i, version=4)) for i in range(1, 101))
+    for tool in v5._provider_tools_v5(ids):
+        schema = tool.output.model_json_schema(schema_generator=GenerateToolJsonSchema)
+        envelope = dict(
+            type="function",
+            name=tool.name,
+            description=tool.description,
+            strict=True,
+            parameters=schema,
+        )
+        raw.append(envelope)
+        normalized.append(
+            {**envelope, "parameters": OpenAIJsonSchemaTransformer(schema, strict=True).walk()}
+        )
+    assert hashlib.sha256(json.dumps(raw, ensure_ascii=False).encode()).hexdigest() == (
+        "28ccec2d760237d1a8854e646593619f0dc4d1c7615375273542b84f8f4383ac"
+    )
+    assert hashlib.sha256(json.dumps(normalized, ensure_ascii=False).encode()).hexdigest() == (
+        "d591a6df9adf220815bacb4f20cd82ac87ebbe96b21dda4819279e2a98471a9e"
+    )

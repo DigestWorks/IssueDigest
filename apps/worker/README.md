@@ -335,7 +335,7 @@ uv run pytest apps/worker/tests/test_policy_intake_worker.py
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v5 실행합니다. v2/v3/v4/v5 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v6 실행합니다. v2/v3/v4/v5/v6 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 
@@ -403,6 +403,11 @@ existing 20-question real-material evaluation or establish answer/citation quali
 역사 v4는 기관의 발표 수치·평가를 귀속하고 목표·실적·전망을 구분하도록 지침만 개선한다. 같은 대상·기간·단위가 확인되는 단순 대소 관계는 설명하되 계산·인과·양측을 생성/강제하지 않는다. v3와 같은 bounded output schema/build·validation을 공유하며 reviewer만 issuedigest-research-v4/research-v4로 엄격히 구분한다. v2/v3 지침/schema/prompt bytes는 보존하고 v4 prompt14,813+static4,639+framing2,048+output2,500으로24,000 한도를 지킨다. 합성 모델/PG 검사는 실제 모델 품질 판정이 아니다. 실제 검증·적용 상태는 진행 기록을 따른다.
 
 
-## 새 private v5와 역사 실행 보존
+## 역사 private v5와 실행 보존
 
-새 workflow만 `issuedigest_research_run_v5`/`issuedigest_research_v5`로 시작한다. v2/v3/v4/v5를 모두 등록하며 기존 queued workflow는 기록된 이름을 사용한다. 과거 v4 worker는 합성 복구 fixture로 보존한다. application_version별 registry 재구성과 원래 정수 slot1 완료 checkpoint를 재생하고, 모호한 미완료·모르는 이름·권한 상실·취소는 유료 요청 없이 종료한다. 완료된 유료 오류도 같은 오류를 재생해 실패로 종료한다. 새 durable step을 모델 요청 앞에 삽입하지 않는다. 기존 검색/부모 근거 고정·예약·단일 worker 잠금은 유지한다. 실제 모델/개발 적용 인수는 [답변 품질 명세](../../docs/changes/briefing-answer-quality.md)에 별도로 기록한다.
+역사 v5 workflow는 `issuedigest_research_run_v5`/`issuedigest_research_v5`로 시작한다. v2/v3/v4/v5를 모두 등록하며 기존 queued workflow는 기록된 이름을 사용한다. 과거 v4 worker는 합성 복구 fixture로 보존한다. application_version별 registry 재구성과 원래 정수 slot1 완료 checkpoint를 재생하고, 모호한 미완료·모르는 이름·권한 상실·취소는 유료 요청 없이 종료한다. 완료된 유료 오류도 같은 오류를 재생해 실패로 종료한다. 새 durable step을 모델 요청 앞에 삽입하지 않는다. 기존 검색/부모 근거 고정·예약·단일 worker 잠금은 유지한다. 실제 모델/개발 적용 인수는 [답변 품질 명세](../../docs/changes/briefing-answer-quality.md)에 별도로 기록한다.
+
+
+## 새 private v6와 다섯 버전 복구
+
+새 workflow만 `issuedigest_research_run_v6`/`issuedigest_research_v6`로 시작한다. v2/v3/v4/v5/v6를 모두 등록하며 기존 workflow ID는 원래 이름·application_version으로 재생한다. 배포된 v5 worker는 `tests/fixtures/research_worker_v5.py`로 보존한다. 실제 지침/schema/prompt와 유료 정수slot1을 바꾸지 않으며 미완료·오염 checkpoint/완료 오류·취소/권한/단일 worker 잠금·원래 recovery cohort/검색/부모·예약 경계를 유지한다. v6 provider 전용 core_answer와 additional/detail assessment(source_statement/uncertain)를 검증한 뒤 서버 고정 제공 자료 접두어로 기존 canonical alias에 변환하고 최종 원문 grounding을 다시 검증한다. 별도 유료 step·추가 요청·자동 수리 재시도는 없다. core/summary/comparison에는 event_date 키가 없고 typed timeline만 exact 날짜를 받는다. 구 DTO를 수동 수리하지 않는다. 합성 PG의 다섯 원래 버전 checkpoint 재생과 실제 모델 의미 인수는 구분한다.
