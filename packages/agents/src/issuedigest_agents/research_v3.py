@@ -82,7 +82,10 @@ def create_agent_v3(model: Model | None = None) -> Agent[None, AIOutputV3]:
 
 
 def _create_classified_agent(
-    model: Model | None, *, version: Literal["v3", "v4", "v5", "v6"], instructions: str
+    model: Model | None,
+    *,
+    version: Literal["v3", "v4", "v5", "v6", "v7", "plan_v7"],
+    instructions: str,
 ) -> Agent[None, AIOutputV3]:
     selected = (
         model
@@ -134,7 +137,7 @@ def _build_classified_canvas(
     sources: tuple[tuple[UUID, EvidenceBundle, SourcePresentation], ...],
     output: AIOutputV3,
     *,
-    version: Literal["v3", "v4", "v5", "v6"],
+    version: Literal["v3", "v4", "v5", "v6", "v7"],
 ) -> CanvasBundle:
     if not 1 <= len(sources) <= 5:
         raise ValueError("Invalid selected sources")

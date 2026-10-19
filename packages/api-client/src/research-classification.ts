@@ -19,7 +19,7 @@ export function validResearchClassifications(research: Record<string, unknown>, 
   if (!Array.isArray(research.claims) || !Array.isArray(research.support_reviews)) return false;
   const claims = research.claims;
   const versions = new Set(claims.map(claim => isObject(claim) && isObject(claim.derivation) ? claim.derivation.method_version : null));
-  if (!versions.has('research-v3') && !versions.has('research-v4') && !versions.has('research-v5') && !versions.has('research-v6')) return research.support_reviews.length === 0;
+  if (!versions.has('research-v3') && !versions.has('research-v4') && !versions.has('research-v5') && !versions.has('research-v6') && !versions.has('research-v7')) return research.support_reviews.length === 0;
   if (versions.size !== 1 || claims.length > 12 || research.support_reviews.length !== claims.length) return false;
   const version = [...versions][0] as string;
   const claimById = new Map<string, Record<string, unknown>>();
@@ -51,7 +51,7 @@ export function validResearchClassifications(research: Record<string, unknown>, 
       || review.citation_ids.some((citation, index) => !isId(citation) || citation.toLowerCase() !== (claim.citation_ids as string[])[index]?.toLowerCase())) return false;
     reviewed.add(id); reviewIds.add(review.review_id.toLowerCase());
   }
-  if (version === 'research-v6') {
+  if (['research-v6', 'research-v7'].includes(version)) {
     if (!isObject(revision.draft) || revision.draft.outcome !== 'answer'
       || !Array.isArray(revision.draft.modules)) return false;
     const [first, ...rest] = revision.draft.modules;
@@ -94,9 +94,9 @@ export function validResearchClassifications(research: Record<string, unknown>, 
   return reviewed.size === claims.length;
 }
 
-/** Only call after the private v3/v4/v5/v6 profile has been validated. */
+/** Only call after the private v3/v4/v5/v6/v7 profile has been validated. */
 export function claimClassification(claim: Claim, reviews: SupportReview[]) {
-  if (!['research-v3', 'research-v4', 'research-v5', 'research-v6'].includes(claim.derivation?.method_version ?? '')) return null;
+  if (!['research-v3', 'research-v4', 'research-v5', 'research-v6', 'research-v7'].includes(claim.derivation?.method_version ?? '')) return null;
   const review = reviews.find(item => item.target.kind === 'claim' && item.target.claim_id.toLowerCase() === claim.claim_id.toLowerCase());
   if (!review) return null;
   const category = review.scope === 'attribution' ? 'attributed' : review.assessment === 'insufficient' ? 'uncertain' : 'documented';
