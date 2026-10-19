@@ -6,7 +6,7 @@
 
 [명세](../changes/briefing-source-fidelity.md). v7 실제 실패의 근거 없는 날짜 선택을 provider 구조에서 막고 포함 관계/계획·실적·전망 표현을 보완한다.
 
-- [ ] v8 날짜 제한 strict provider·현재 검색/비용/복구·역사v2~v7·private 읽기/공개 거부를 합성 TDD로 구현/독립 검토한다.
+- [x] v8 날짜 제한 strict provider·현재 검색/비용/복구·역사v2~v7·private 읽기/공개 거부를 합성 TDD로 구현/독립 검토한다.
 - [ ] 전체gate·실제 고정3앱/최대6provider 의미평가·개인개발 보존/반영·Draft PR·마일스톤/Sitesv66보존/소유QA정리를 기록한다.
 
 ## 완료 기반 · 질문별 조사 계획·승인 자료 검색
