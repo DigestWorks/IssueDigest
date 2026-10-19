@@ -515,6 +515,12 @@ IO 없이 engine만 보관합니다. HTTP·모델·collector·worker 의존성�
 설정 결합·capture/report SHA·기사집합·시각·성공 상태, 후보와 기존 자료의 graph·정확 인용·
 source/URL·원본 provenance, 마지막 승인·재시도 receipt와 원래 생성된 canonical을 확인합니다.
 HTML 본문·권리·metadata 재추출과 report 의미 재계산은 기존 worker parser/compare의 책임입니다.
+고정 intake는 `korea-policy-html` parser version `"1"`, `"2"`, `"3"`만 허용합니다. `"3"`은
+관측된 두 span·상대 부처 링크 metadata 형식이며 AI workflow v3와 별개입니다. 본문 정규화는
+기존 `korea-policy-paragraphs-v1`을 유지하고 다른 parser version은 계속 거부합니다.
+parser version도 기존 의미 fingerprint에 포함하므로 같은 본문이라도 version2→3은 새 승인
+버전이며 이후 같은 metadata/인용의 version3 수집은 기존 버전을 재사용합니다. 과거 인용은
+기존 canonical reader로 계속 검증합니다.
 `approval_sha256`도 검증된 worker 승인의 attestation이며 storage가 원래 PolicyJob을 재구성해
 검증하는 서명이 아닙니다. `fingerprint_sha256`은 report의 기존 `after_fingerprint` digest를
 그대로 사용합니다. 이를 JSON 문자열로 다시 hash하지 않습니다.

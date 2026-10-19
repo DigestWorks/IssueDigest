@@ -672,12 +672,26 @@ def test_network_cli_preflights_private_output_before_fetch(
     assert capsys.readouterr().err == "Unable to complete policy operation\n"
 
 
-def test_plain_publisher_capture_prepares_version_two_without_changing_job_contract(policy_inputs):
+@pytest.mark.parametrize(
+    ("metadata", "parser_version"),
+    [
+        ("<span>2026.01.15</span><span>합성부처</span>", "2"),
+        (
+            '<span>2026.01.15</span><span><a class="gotosite" '
+            'href="/news/ministryNewsList.do?repCode=A12345">합성부처'
+            '<i class="tooltip">PRIVATE TOOLTIP</i></a></span>',
+            "3",
+        ),
+    ],
+)
+def test_span_publisher_capture_prepares_without_changing_job_contract(
+    policy_inputs, metadata, parser_version
+):
     job, raw, base, directory = policy_inputs
     capture = json.loads(raw)
     html = capture["articles"][0]["html"].replace(
         '2026.10.16 <a class="gotosite">합성부</a>',
-        "<span>2026.01.15</span><span>합성부처</span>",
+        metadata,
     )
     capture["articles"][0]["html"] = html
     changed = json.dumps(capture, ensure_ascii=False).encode()
@@ -685,7 +699,7 @@ def test_plain_publisher_capture_prepares_version_two_without_changing_job_contr
     job["sources"][0]["article_sha256"] = sha256(html.encode()).hexdigest()
     result = prepare((job, changed, base, directory))
     bundle = result.plan.snapshots[-1].bundle
-    assert bundle.representation.parser_version == "2"
+    assert bundle.representation.parser_version == parser_version
     assert bundle.representation.normalization_profile == "korea-policy-paragraphs-v1"
     assert bundle.representation.text_sha256 == job["sources"][0]["text_sha256"]
     assert bundle.citations[0].selector.quote == "😀한é"

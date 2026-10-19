@@ -463,7 +463,16 @@ URL·이미지를 가져오거나 JS·외부 본문 속 지시를 실행하지 �
 `PolicyHtmlExtraction`과 `PolicyHtmlLimits`는 frozen dataclass다. 결과는 `source_id`(9자리 뉴스 ID),
 `canonical_url`, `title`, `publisher`, `publication_date`, `attribution`, `license_notice`,
 `license_url`, `text`, `raw_sha256`, `raw_bytes`(원문 byte 수), `text_sha256`을 담는다.
-파서 식별자는 `parser_name="korea-policy-html"`, `parser_version="1"`이다.
+파서 식별자는 `parser_name="korea-policy-html"`이며 기존 앵커 metadata는 `parser_version="1"`,
+두 plain span의 날짜·발행처는 `"2"`를 유지한다. 새 `"3"`은 unique `div.variety`의 직접
+`div.info`(정확 class 속성만)에 두 무속성 span이 있는 관측 형태만 지원한다. 첫 span은
+중첩 없는 정확 ASCII `YYYY.MM.DD` 달력 날짜, 둘째 span은 whitespace와 단일 앵커뿐이다.
+앵커 속성은 정확 `class="gotosite"`와 상대
+`href="/news/ministryNewsList.do?repCode=A12345"` 형태(ASCII 대문자1개·숫자5개)만 허용한다.
+발행처 text와 선택적 단일 `<i class="tooltip">`의 plain text만 허용하며 tooltip은 발행처에서
+제외한다. 빈 발행처·추가/중첩/숨김 metadata·중복·다른 링크는 거부한다. HTML parser version3은
+AI workflow v3와 별개다. 기존1/2의 결과·직렬화·hash와 본문/정확 인용 알고리즘을 보존한다.
+새 profile도 정확한 기사 URL·권리 문구 검증을 거치며 tooltip에서 이용권을 추정하지 않는다.
 결과의 `limits`에는 적용한 불변 한도를 보존한다.
 결과 생성과 어댑터 경계는 타입·URL/ID 대응·출처표시·라이선스·정규화·텍스트 해시·한도를 검증한다.
 원문 bytes는 결과에 복제하지 않으므로, 직접 생성한 결과의 원문 해시는 형식만 검증할 수 있다.

@@ -259,7 +259,7 @@ def _candidate(
         or version.collected_at != capture.collected_at
         or version.media_type != "application/vnd.issuedigest.policy-capture+json"
         or parsed.parser_name != "korea-policy-html"
-        or parsed.parser_version not in {"1", "2"}
+        or parsed.parser_version not in {"1", "2", "3"}
         or parsed.normalization_profile != "korea-policy-paragraphs-v1"
         or len(parsed.text) > 100000
         or parsed.tables
