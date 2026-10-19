@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 전체 검사·독립 검토 · 계획 검색 비교 평가 · 2026-10-19 KST
+
+- source7e8138f·검증/전체 검토head4a82706. 단일 최종 gate Python3,631+JS744=4,375개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0. 별도 백지 맥락의 작업/전체 변경 검토 모두 specPASS/sourceApproved(C0/I0/M0), 열린/보류 지적·새 Ruling0이다. 기존v1 SDK의 mixed/positive-only/negative-only serialized bytes와 CLI stdout/report bytes 호환 증거도 보존한다.
+- [Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46), PR45 기반·미병합·앱 첨부. [CI39211130090](https://github.com/DigestWorks/IssueDigest/actions/runs/39211130090)는4a82706 기준 진행 중으로 확인했으며 로컬 통과와 구분한다. 이후 변경은 문서·출판 receipt뿐이다.
+- controller 고정3 recorded 계획 재현·질문/계획 byte동일/원래 선택순서·명시 relevant/irrelevant/unjudged·887SELECT/SHOW/쓰기0을 직접 확인했다. source 경로 비교에서 provider/workflow/search정책/API/OpenAPI/auth/DBschema/소비자UI의 변경0을 확인했다. 실제 개발 앱f839ae0·서버/DB/수집기 변경이나 배포/재시작·새 paid모델/실제workflow0이다. 소표본 검색 비교를 답변 의미 품질 개선이나 일반 precision으로 확대하지 않는다.
+- 이전 Sites v67을 archive하고 현재 사본/요약·native 게시·소유 합성PG2개 정리 receipt는 마무리 후 아래 기록과 구분해 남긴다. 새 브라우저 UI 검사는 하지 않았으며 앱/UI 변경이 없다. 사용자 탭을 열거나 이동하지 않았다. main/운영 유예다.
+
 ## 구현·기록된 계획 재현 · 계획 검색 비교 평가 · 2026-10-19 KST
 
 내부 계획 검색 비교 SDK와 `issuedigest-evaluate-planned-retrieval` CLI를 추가했다. 원래 검색과 실제 original-first round-robin 계획 검색을 같은 strict job/corpus·읽기 전용 REPEATABLE READ transaction에서 비교한다. 필수 family·사람이 명시한 무관 자료·미판정을 구분하며 `judged_precision`은 판정된 relevant/(relevant+irrelevant)만 사용한다. 미판정은 분모에서 빠지므로 전체 precision이 아니다. 기록된 계획/운영자 작성 계획의 출처를 따로 보존하며 provenance 자체를 자동 인증하지 않는다.
