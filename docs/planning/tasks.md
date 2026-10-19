@@ -8,7 +8,7 @@
 
 - [x] compact span·whole 인용 참조·known 상태 근거의 nonnull provider union·관계 statement/주체·lazy bounded SDK/현재 Source 검증을 TDD로 구현했다. 신규121/agents790·Ruff/format/mypy와 Task1 독립 Spec/품질 PASS(C0I0M0), 기존405파일의 base/task byte동일 proof를 확인했다.
 - [x] 동일 두 packet의 실제2SDK/2요청을 직접 읽고 두 제안 모두 거부·완전 충족0과 알려진 실패 비용을 보존했다. raw 수치6/5·관계3/2를 수용된 후보로 집계하지 않는다. 기존 v1 부분1/거부1·앱4/12는 유지한다.
-- [ ] 전체 gate·전체 독립 검토·PR50 기반 Draft PR/CI·Sites 갱신/이전v72보존·소유QA/SDD 정리를 별도 확인한다.
+- [x] 전체5,124개·전체 독립 Spec/품질 PASS(C0I0M0)·PR50 기반 Draft PR51/source CI39239596381 성공·Sites v73/이전v72보존·소유QA1/SDD 정리를 확인했다. 실제 의미 품질/앱 연결은 미완료다.
 - [ ] occurrence 계산/관계 원문 재출력 대신 서버가 확정한 위치 참조 선택을 검토하고 상태/단위·시점/관계 의미를 고정 실제 평가로 검증한다.
 - [ ] 앱 전역 예산·내구 실행/회계·복구·현재 권한과 연결한 최종 브리핑 인수는 별도다. 기존 개발v9·운영 유예를 유지한다.
 

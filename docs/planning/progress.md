@@ -2,7 +2,7 @@
 
 ## compact 수치 후보 v2 · 실제2회 전체 거부 · 2026-10-19
 
-- 담당/controller·feat/numeric-evidence-compact, PR50/805e154 기반. [명세](../changes/numeric-evidence-compact.md)·D022/M3. OpenSpec root=null·linked worktree 재사용·baseline5,003/sourceCI39235962771 재사용. 구현 및 실제5592d9c. 기존405파일의 base/task git object 일치·Task1 독립 Spec/품질 PASS(C0I0M0), agents790(신규121)·Ruff/format38/mypy14 통과를 확인했다. 전체 gate/전체 검토·Draft PR/CI·Sites v72archive/갱신/native 게시·소유QA/SDD 정리는 별도 인수 중이다.
+- 담당/controller·feat/numeric-evidence-compact, PR50/805e154 기반. [명세](../changes/numeric-evidence-compact.md)·D022/M3. OpenSpec root=null·linked worktree 재사용·baseline5,003/sourceCI39235962771 재사용. 구현 및 실제5592d9c. 기존405파일의 base/task git object 일치·Task1 독립 Spec/품질 PASS(C0I0M0), agents790(신규121)·Ruff/format38/mypy14 통과를 확인했다. 전체5,124개·전체 독립 검토·Draft PR51/source CI 성공·Sites v73/이전v72보존·소유QA1/SDD 정리는 아래 최종 receipt에서 확인했다.
 
 새 v2를 이전과 byte-identical인 두 원문 packet(whole 인용2개/1개)에 각각1회 실행했다. 실제 source5592d9c·독립SDK2/공급자2요청·재시도0이며 반환0·전체 거부2·의미 완전 충족0이다. 기존 v1의 부분1/거부1, 기존 앱4건/12요청과 모든 과거 실패/미판정 분모를 유지했다. 앱·실제 사용자 세션은0이다.
 
@@ -19,7 +19,18 @@ controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/nu
 
 전체 gate49fd20d의 Python4,304+JS820=5,124개와 lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이며 Task1 및 전체 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0)다. 실제 source5592d9c와 전체 gate/검토49fd20d는 실행 코드가 같고 문서만 다르다. 이후 출판/정리 변경도 Markdown뿐이다.
 
-[Draft PR51](https://github.com/DigestWorks/IssueDigest/pull/51)은 PR50 기반·미병합이며 앱에 첨부했다. [source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d에서 별도 진행 중이다. Sites 현재 요약/사본/native 게시·이전v72 보존과 소유QA1/SDD 정리는 최종 receipt로 확인한다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling1/비용은 Spec/D022에 보존한다.
+[Draft PR51](https://github.com/DigestWorks/IssueDigest/pull/51)은 PR50 기반·미병합이며 앱에 첨부했다. [source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d에서 success를 확인했다. Sites v73/사본/native 게시·이전v72 보존과 소유QA1/SDD 정리는 아래 최종 receipt에서 확인했다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling1/비용은 Spec/D022에 보존한다.
+
+
+### compact 수치 v2 · 최종 게시·CI·정리 receipt
+
+[계획 Sites v73](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)는 기존 public 설정으로 native succeeded를 확인했다. source `193111151806a5630a6b477984294237cb23d357`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_42ad33dc06608191b74762b3d591ecbd`, deployment `appgdep_6ad5f611d33c8191852448eb991c2adc`, 2026-10-19T10:51:12.942124+00:00이다. 저장소 사본77e4a61·이전v72/전체 기록·원래 v1/앱/과거 실패·미판정 분모·Ruling1/비용을 보존했다. HTML58개·로컬 링크/asset/anchor1,214개·공개 텍스트157개와 실제 private ID/인용 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신으로 새 browser QA와 사용자 탭 열기/이동은 하지 않았다. 이 최종 게시/CI/정리 receipt는 사이트 사본 이후 저장소 원본이다.
+
+[source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d 기준 success를 확인했다. 단일 전체 gate5,124개·작업 및 전체 독립 Spec/품질 PASS(C0I0M0)와 구분해 기록한다. 실제 source5592d9c 이후 변경은 Markdown뿐이며 마지막 문서 push에서 시작하는 새 CI와 이 성공을 구분한다. 실제2SDK/2요청은 여전히 거부2/수용0·의미 완전 충족0이며 추가 모델 호출/전체 검사 반복은 없었다.
+
+전체ID·pinned image·전용 label·loopback 포트로 대조한 이번 소유 PostgreSQL1개와 해당 볼륨만 정리하고 포트 닫힘을 확인했다. 작업별/전체 SDD 검토 기록은 private600 archive에 검증·보존한 뒤 이번 폴더만 제거했다. Ruling1은 Spec/D022와 최종 인계에 남겼다. whole 인용 참조의 field 오연결 가능성과 명시 주체/긴 관계의 누락·전체 거부 및 남는 호출 비용을 보존한다. 다른 컨테이너·worktree·브랜치·실제 서버/API/worker/수집기·원본 평가 증거는 변경하지 않았다. main/운영은 D013에 따라 병합·배포하지 않았고 이번 increment에서 개발 앱도 바꾸지 않았다.
+
+다음은 서버가 확정한 원문 위치 참조를 모델이 선택하는 계약을 검토하고, 상태/단위·시점/관계 의미와 필수 수치 누락을 고정 평가에서 확인하는 것이다. 모델에 occurrence 계산/원문 재작성을 맡기는 현재 방식은 이 두 자료에서 인수하지 못했다. 새 설계의 효과를 검증하기 전에 성공을 가정하거나 앱 전역 예산/내구 복구·최종 브리핑 인수로 확대하지 않는다.
 
 ## compact 수치 근거 v2 · 착수 · 2026-10-19
 
