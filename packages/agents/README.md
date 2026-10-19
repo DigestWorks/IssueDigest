@@ -45,3 +45,15 @@ planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 �
 지침은 수치의 포함/부분/하위 항목을 독립 총량처럼 더하지 않고 정확 인용으로 포함 관계를 설명하도록 한다. 목표/중간실적/조건부 전망과 단위·시점·열린 상한을 보존한다. 이는 사실 인증이나 의미 자동 수정이 아니며 추가 모델·self-review·재시도는 없다. static과 실제 raw/OpenAI strict normalized envelope를 모두 검사하고 예산을 넘으면 질문/원문을 자르지 않고 요청 전에 실패한다. planner8,000/출력500/15초와 final출력2,000/45초·provider retry0/storeFalse는 유지한다.
 
 정확 reviewer는 `issuedigest-research-v8`/`research-v8`이며 기존 canonical alias·API·OpenAPI·공개v1/v2·빈 reviews 경계는 그대로다. `tests/v8_fixture.py`는 실제 DTO와 builder로 비교/정확 날짜 timeline/astral/비답변 합성 JSON을 만들고 client/UI가 소비한다. 합성 성공은 실제 모델의 문장 의미 품질 인수가 아니다.
+
+## 독립 관련성 선택 SDK
+
+`relevance_selection`의 `create_selector(model=None)`는 frozen lazy handle만 만든다. import·handle 생성·실패한 preflight는 Agent/기본 모델/client/key를 초기화하지 않는다. `selection_prompt(question, sources)`는 strict 비공백1..1500자 질문과 현재 권한으로 호출자가 공급한1..5개 `(snapshot_id, EvidenceBundle, SourcePresentation)`를 받는다. UUID4·고유 snapshot·단일 workspace·presentation 연결과 기존 bundle의 version/hash/정확 인용 provenance를 재검증한다. 이 SDK는 권한을 부여하거나 현재 권한을 조회하지 않는다.
+
+기존 whole-quote prompt builder와 `_PromptV5`를 재사용한다. 질문·인용을 그대로 보존하고 부모 AI 맥락은 받지 않는다. 최대5자료·자료별32/총100인용·본문12,000자 이내에서 전체 인용 단위로 구성하며, 한 후보라도 비어 있거나 예산 때문에 빠지면 요청 전체를 거부한다. 제목/metadata는 안내이며 질문/원문/제목은 비신뢰 데이터다. 직접 답변 통계가 없더라도 주제·다중 비교 중 일부에 관련된 자료를 보존하도록 지시한다. 지침·합성 출력·schema 통과는 실제 관련성 품질이나 중립성 인증이 아니다.
+
+`run_selector(handle, prompt)`는 strict JSON·후보 coverage·UTF-8 byte 예산과 실제 요청 envelope를 검사한 다음에만 Agent를 만든다. 주입된 `FunctionModel`도 같은 경로를 사용하며 기본 client/key는 만들지 않는다. 기본 모델은 gpt-5.4-mini Responses/store=False·client max_retries0이며 요청1회·PydanticAI retry0·최대 입력+출력12,000/출력500/timeout15초다. 최악5UUID의 실제 tool raw842/normalized789바이트 중 큰 값과 지침1,019바이트, framing2,048·출력500을 예약해 prompt는7,591 UTF-8바이트다. 매 요청의 실제 raw/normalized envelope도 다시 검사한다.
+
+유일한 strict tool `classify_relevance`는 prompt 후보 UUID 문자열 Literal enum과 `retain|exclude|uncertain`만 받는다. 모든 후보를 정확1회 분류해야 하며 unknown/duplicate/missing/extra/잘못된 결정을 수리하지 않는다. 서버는 응답 순서를 원래 후보 순서로 투영하며 uncertain을 포함해 retain+uncertain만 선택하고 exclude만 제외한다. frozen `RelevanceSelection`은 `evidence-relevance-v1`, 정확 prompt/질문 UTF-8 SHA256, 원래 후보 IDs·전체 결정·선택/제외 IDs와 검증된 input/output tokens를 보존한다. raw 응답과 aggregate의 exact-int/nonbool/nonnegative 사용량·한도·일치를 기존 helper로 검사하며, 불확실 사용량을0으로 치환하지 않는다. 입력 오류는 고정 `Invalid relevance selection input`, 실행/결정/usage/network 오류는 고정 `Relevance selection failed`로 실패한다.
+
+선택기는 독립 SDK다. 검색·외부 도구·DBOS·worker/HTTP·UI·공개 API·자동 SupportReview와 연결하지 않는다. 현재 앱 전체24,000/출력2,500 예산이나 내구 복구를 구현한 것이 아니며 기존 v2~v8/planner7의 지침·schema·한도·결과를 변경하지 않는다. 실제3질문 인수와 전체 gate는 controller가 별도로 수행한다.

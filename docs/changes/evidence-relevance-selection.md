@@ -15,9 +15,9 @@
 
 ## Task 1: 인용에 묶인 bounded 관련성 선택기 SDK·합성 TDD
 
-- [ ] 위 `relevance_selection.py` SDK·실제 strict tool/result DTO·정확 후보 coverage와 원래 순서 선택/불확실 보존·원문 prompt/정확 hash·request envelope/usage/비민감 오류를 구현한다. 기존 agent helper/body/DTO/지침은 변경하지 않고 새 모델 기본 생성 설정만 필요한 좁은 범위로 구성한다(기존 모델 설정 코드의 짧은 구성 반복은 허용하되 기존 긴 생성/검색/검증 로직 복제는 금지).
-- [ ] 실제 FunctionModel 경로를 사용하는 합성 TDD로 retain/exclude/uncertain 혼합·모두exclude·모두uncertain·다중주제 일부보존 fixture·source순서 projection·잘못된 후보/UUID4/교차공간/provenance·질문/인용 누락·예산 byte경계/UTF-8·unknown/duplicate/missing/extra DTO·raw/aggregate usage bool/음수/불일치/overflow·단일call/retry0·key없는 import/preflight·주입 데이터/정확인용 보존을 검증한다. 실제 모델 의미 품질을 합성 label 문자열 검사로 인증하지 않는다. 원래 v7/v8 지침/schema/예산·app/client/공개는 byte동일로 유지한다.
-- [ ] agents README에 계약·예산/부작용·미연결 경계·한계를 기록하고, 관련 agents/usage 회귀·Ruff/format/mypy/diff를 통과한다. 위 Task1만 완료 표시하고 명시파일 source commit/report를 남긴다. scratch보고서는 ignored로 두며 강제추적하지 않는다. controller의 실제3/전체gate/검토/PR/Sites/서버 적용을 완료로 표시하지 않는다.
+- [x] 위 `relevance_selection.py` SDK·실제 strict tool/result DTO·정확 후보 coverage와 원래 순서 선택/불확실 보존·원문 prompt/정확 hash·request envelope/usage/비민감 오류를 구현한다. 기존 agent helper/body/DTO/지침은 변경하지 않고 새 모델 기본 생성 설정만 필요한 좁은 범위로 구성한다(기존 모델 설정 코드의 짧은 구성 반복은 허용하되 기존 긴 생성/검색/검증 로직 복제는 금지).
+- [x] 실제 FunctionModel 경로를 사용하는 합성 TDD로 retain/exclude/uncertain 혼합·모두exclude·모두uncertain·다중주제 일부보존 fixture·source순서 projection·잘못된 후보/UUID4/교차공간/provenance·질문/인용 누락·예산 byte경계/UTF-8·unknown/duplicate/missing/extra DTO·raw/aggregate usage bool/음수/불일치/overflow·단일call/retry0·key없는 import/preflight·주입 데이터/정확인용 보존을 검증한다. 실제 모델 의미 품질을 합성 label 문자열 검사로 인증하지 않는다. 원래 v7/v8 지침/schema/예산·app/client/공개는 byte동일로 유지한다.
+- [x] agents README에 계약·예산/부작용·미연결 경계·한계를 기록하고, 관련 agents/usage 회귀·Ruff/format/mypy/diff를 통과한다. 위 Task1만 완료 표시하고 명시파일 source commit/report를 남긴다. scratch보고서는 ignored로 두며 강제추적하지 않는다. controller의 실제3/전체gate/검토/PR/Sites/서버 적용을 완료로 표시하지 않는다.
 
 ## Controller 인수
 
