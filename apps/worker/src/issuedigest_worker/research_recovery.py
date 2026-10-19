@@ -71,6 +71,7 @@ WORKFLOW_NAMES = {
     "issuedigest_research_run_v5",
     "issuedigest_research_run_v6",
     "issuedigest_research_run_v7",
+    "issuedigest_research_run_v8",
 }
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}
@@ -78,7 +79,10 @@ ACTIVE = {"queued", "retrieving", "generating", "validating"}
 
 def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) -> bool:
     """Metadata only: no checkpoint deserialization, new durable step or payload logging."""
-    if name not in WORKFLOW_NAMES or name == "issuedigest_research_run_v7":
+    if name not in WORKFLOW_NAMES or name in {
+        "issuedigest_research_run_v7",
+        "issuedigest_research_run_v8",
+    }:
         return False
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
     model_steps = [step for step in steps if "__model.request" in step["function_name"]]
@@ -95,11 +99,22 @@ def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) 
 
 def completed_v7_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
     """Exact ordered v7 metadata; no deserialization or additional durable operations."""
+    return _completed_planned_checkpoint(client, workflow_id, stage, profile="v7")
+
+
+def completed_v8_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
+    """Same planner7 paid slot1, distinct search8 slot2 and final8 paid slot3."""
+    return _completed_planned_checkpoint(client, workflow_id, stage, profile="v8")
+
+
+def _completed_planned_checkpoint(
+    client: DBOSClient, workflow_id: str, stage: str, *, profile: str
+) -> bool:
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
     expected = [
         (1, "issuedigest_research_plan_v7__model.request"),
-        (2, "issuedigest_research_search_v7"),
-        (3, "issuedigest_research_v7__model.request"),
+        (2, f"issuedigest_research_search_{profile}"),
+        (3, f"issuedigest_research_{profile}__model.request"),
     ]
     if stage == "queued":
         return not steps
@@ -118,8 +133,8 @@ def completed_v7_checkpoint(client: DBOSClient, workflow_id: str, stage: str) ->
 
 
 def recoverable_checkpoint(client: DBOSClient, workflow_id: str, name: str, stage: str) -> bool:
-    if name == "issuedigest_research_run_v7":
-        return completed_v7_checkpoint(client, workflow_id, stage)
+    if name in {"issuedigest_research_run_v7", "issuedigest_research_run_v8"}:
+        return _completed_planned_checkpoint(client, workflow_id, stage, profile=name[-2:])
     return stage not in {"generating", "validating"} or completed_model_checkpoint(
         client, workflow_id, name
     )

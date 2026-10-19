@@ -36,3 +36,12 @@ provider 본문은1~400자, rationale은1~300자이며 공통 Unicode nonblank �
 planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 값과 framing2,048·출력500을 예약해 prompt4,361바이트를 허용한다. 실제 요청 tool bytes도 다시 검사하며 전체8,000·출력500·15초·요청1회/retry0이다. 질문을 그대로 보존하고 선택적인 이전 AI 맥락만 최대1,500자·실제 UTF-8/JSON 예산의 code-point 경계에서 줄인다. `prior_interpretation_context_truncated`가 잘림을 명시하며 질문과 기본 envelope 자체가 크면 호출 전에 실패한다.
 
 최종은 `SYSTEM_INSTRUCTIONS_V7=SYSTEM_INSTRUCTIONS_V6`, `AIOutputV7=AIOutputV3`이며 실제 v6 provider tools/변환을 재사용한다. final prompt는24,000에서 실제 planner input+output, v6 static11,101, framing2,048, 최종 출력2,000을 차감한 동적 한도를 사용한다. final은45초·요청1회/retry0이다. 음수/bool/가짜/초과 usage를 거부하며 두 출력은 합계2,500이하다. 최종에는 계획을 근거로 전달하지 않고 질문·기존 bounded parent·고정 원문만 전달한다. 원문/인용/날짜·Unicode guards와 첫 summary·attributed/uncertain 의미를 보존하고 reviewer만 정확 issuedigest-research-v7/research-v7로 구분한다. 실제 builder가 만든 `tests/v7_fixture.py`의 JSON을 client/UI가 함께 검증한다. v6와 그 이전 provider bytes·단일 유료 slot1은 그대로 동결한다.
+
+
+## Private v8 원문 날짜와 수치 관계
+
+새 최종 agent는 `research_v8`의 `create_agent_v8`/`model_prompt_v8`/`run_agent_v8`/`build_canvas_v8`다. planner는 원래 `research_v7`을 그대로 사용한다. 최종 함수는 v7과 동일한 필수 `prior_input_tokens`/`prior_output_tokens`를 받으며 검증된 실제 planner 사용량을 전체24,000에서 차감한다. frozen v6의 세 strict tool·DTO·canonical 변환을 재사용하고 실제 Pydantic class를 파생해 details/event_date만 좁힌다. 날짜0이면 comparison만, 날짜가 있으면 source→citation→quote 순서의 처음16개 고유·유효 YYYY-MM-DD literal만 timeline enum으로 허용한다. 질문·이전 AI·제목·공급자/시각 metadata는 날짜 후보가 아니다. 월/주/연말/상대 시점을 날짜로 보정하지 않으며 최종 canonical 검사는 해당 claim의 선택 인용에 날짜가 있는지 다시 확인한다.
+
+지침은 수치의 포함/부분/하위 항목을 독립 총량처럼 더하지 않고 정확 인용으로 포함 관계를 설명하도록 한다. 목표/중간실적/조건부 전망과 단위·시점·열린 상한을 보존한다. 이는 사실 인증이나 의미 자동 수정이 아니며 추가 모델·self-review·재시도는 없다. static과 실제 raw/OpenAI strict normalized envelope를 모두 검사하고 예산을 넘으면 질문/원문을 자르지 않고 요청 전에 실패한다. planner8,000/출력500/15초와 final출력2,000/45초·provider retry0/storeFalse는 유지한다.
+
+정확 reviewer는 `issuedigest-research-v8`/`research-v8`이며 기존 canonical alias·API·OpenAPI·공개v1/v2·빈 reviews 경계는 그대로다. `tests/v8_fixture.py`는 실제 DTO와 builder로 비교/정확 날짜 timeline/astral/비답변 합성 JSON을 만들고 client/UI가 소비한다. 합성 성공은 실제 모델의 문장 의미 품질 인수가 아니다.

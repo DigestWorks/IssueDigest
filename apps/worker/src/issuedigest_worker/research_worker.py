@@ -48,6 +48,12 @@ from issuedigest_agents.research_v7 import (
     run_agent_v7,
     run_planner_v7,
 )
+from issuedigest_agents.research_v8 import (
+    build_canvas_v8,
+    create_agent_v8,
+    model_prompt_v8,
+    run_agent_v8,
+)
 from issuedigest_domain.research_journey import ResearchResult, RunStatus
 from issuedigest_storage import StorageCorruption, StorageError, create_storage_engine
 from issuedigest_storage.research import ResearchRepository
@@ -58,6 +64,7 @@ from .research_recovery import (
     cancel_owned_orphans,
     completed_model_checkpoint,
     completed_v7_checkpoint,
+    completed_v8_checkpoint,
     recovery_cohorts,
     research_worker_lock,
 )
@@ -94,6 +101,7 @@ def _run_worker(
     agent_v5: Agent[None, AIOutputV3]
     agent_v6: Agent[None, AIOutputV3]
     agent_v7: Agent[None, AIOutputV3]
+    agent_v8: Agent[None, AIOutputV3]
     planner_v7: Agent[None, AIOutputV3]
     client = DBOSClient(
         system_database_url=database_url,
@@ -221,7 +229,9 @@ def _run_worker(
 
     search_v7: Callable[[str, tuple[str, ...], int, int], tuple[UUID, ...] | None]
 
-    def execute_v7_body(run_id_text: str) -> None:
+    search_v8: Callable[[str, tuple[str, ...], int, int], tuple[UUID, ...] | None]
+
+    def execute_planned_body(run_id_text: str, *, profile: Literal["v7", "v8"]) -> None:
         check_ownership()
         run_id = UUID(run_id_text)
         input_tokens, output_tokens = 0, 0
@@ -237,7 +247,9 @@ def _run_worker(
                     time.sleep(poll_seconds)
             if run is None:
                 return
-            if not completed_v7_checkpoint(client, f"research-{run_id}", run.status):
+            if not {"v7": completed_v7_checkpoint, "v8": completed_v8_checkpoint}[profile](
+                client, f"research-{run_id}", run.status
+            ):
                 persist(run_id, "failed", error_code="generation_failed")
                 return
             parent = repository.worker_parent_context(run_id)
@@ -245,7 +257,9 @@ def _run_worker(
             if not persist(run_id, "retrieving"):
                 return
             plan, input_tokens, output_tokens = run_planner_v7(planner_v7, prompt)
-            fixed = search_v7(run_id_text, plan.queries, input_tokens, output_tokens)
+            fixed = {"v7": search_v7, "v8": search_v8}[profile](
+                run_id_text, plan.queries, input_tokens, output_tokens
+            )
             if fixed is None:
                 return
             # Cached search results never bypass current authority, parent, or exact originals.
@@ -263,7 +277,7 @@ def _run_worker(
             if current.snapshot_ids != fixed:
                 raise ValueError("Fixed search provenance changed")
             try:
-                prompt = model_prompt_v7(
+                prompt = {"v7": model_prompt_v7, "v8": model_prompt_v8}[profile](
                     run.question,
                     sources,
                     parent,
@@ -281,14 +295,19 @@ def _run_worker(
                 return
             if not persist(run_id, "generating"):
                 return
-            output, final_input, final_output = run_agent_v7(
-                agent_v7, prompt, prior_input_tokens=input_tokens, prior_output_tokens=output_tokens
+            output, final_input, final_output = {"v7": run_agent_v7, "v8": run_agent_v8}[profile](
+                {"v7": agent_v7, "v8": agent_v8}[profile],
+                prompt,
+                prior_input_tokens=input_tokens,
+                prior_output_tokens=output_tokens,
             )
             input_tokens += final_input
             output_tokens += final_output
             if not persist(run_id, "validating"):
                 return
-            canvas = build_canvas_v7(run_id, run.workspace_id, sources, output)
+            canvas = {"v7": build_canvas_v7, "v8": build_canvas_v8}[profile](
+                run_id, run.workspace_id, sources, output
+            )
             titles = {bundle.document.document_id: title.title for _, bundle, title in sources}
             persist(
                 run_id,
@@ -312,13 +331,15 @@ def _run_worker(
         *,
         dispatch_new: bool = False,
     ) -> None:
-        nonlocal agent_v2, agent_v3, agent_v4, agent_v5, agent_v6, agent_v7, planner_v7, search_v7
+        nonlocal agent_v2, agent_v3, agent_v4, agent_v5, agent_v6, agent_v7, agent_v8
+        nonlocal planner_v7, search_v7, search_v8
         agent_v2 = create_agent(model)  # type: ignore[arg-type]
         agent_v3 = create_agent_v3(model)  # type: ignore[arg-type]
         agent_v4 = create_agent_v4(model)  # type: ignore[arg-type]
         agent_v5 = create_agent_v5(model)  # type: ignore[arg-type]
         agent_v6 = create_agent_v6(model)  # type: ignore[arg-type]
         agent_v7 = create_agent_v7(model)  # type: ignore[arg-type]
+        agent_v8 = create_agent_v8(model)  # type: ignore[arg-type]
         planner_v7 = create_planner_v7(model)  # type: ignore[arg-type]
         config = {
             "name": "issuedigest-research",
@@ -365,7 +386,20 @@ def _run_worker(
 
         @DBOS.workflow(name="issuedigest_research_run_v7", max_recovery_attempts=3)
         def execute_v7(run_id_text: str) -> None:
-            execute_v7_body(run_id_text)
+            execute_planned_body(run_id_text, profile="v7")
+
+        @DBOS.step(name="issuedigest_research_search_v8", retries_allowed=False)
+        def search_v8(
+            run_id_text: str, queries: tuple[str, ...], input_tokens: int, output_tokens: int
+        ) -> tuple[UUID, ...] | None:
+            check_ownership()
+            return repository.worker_search_and_fix(
+                UUID(run_id_text), queries, input_tokens=input_tokens, output_tokens=output_tokens
+            )
+
+        @DBOS.workflow(name="issuedigest_research_run_v8", max_recovery_attempts=3)
+        def execute_v8(run_id_text: str) -> None:
+            execute_planned_body(run_id_text, profile="v8")
 
         functions = {
             "issuedigest_research_run_v2": execute_v2,
@@ -374,6 +408,7 @@ def _run_worker(
             "issuedigest_research_run_v5": execute_v5,
             "issuedigest_research_run_v6": execute_v6,
             "issuedigest_research_run_v7": execute_v7,
+            "issuedigest_research_run_v8": execute_v8,
         }
         try:
             # Public resume retains original version and all steps; launch that version's registry.
@@ -399,7 +434,7 @@ def _run_worker(
                         if status.status in {"PENDING", "ENQUEUED"}:
                             client.cancel_workflow(workflow_id)
                         continue
-                    function = functions[status.name] if status is not None else execute_v7
+                    function = functions[status.name] if status is not None else execute_v8
                     with SetWorkflowID(workflow_id):
                         handles.append(DBOS.start_workflow(function, str(run_id)))
                 if once:

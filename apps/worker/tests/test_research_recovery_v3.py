@@ -140,7 +140,7 @@ def client(database_url):
 
 
 @pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", "v6"])
-def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v7(
+def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v8(
     engine,
     database_url,
     tmp_path,
@@ -192,7 +192,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         assert len(recovered.result.canvas.research.support_reviews) == (version != "v2")
         current = repo.get_run(new_token, new.workspace_id, new.run_id)
         assert current.status == "completed"
-        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v7"
+        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v8"
         assert len(current.result.canvas.research.support_reviews) == 1
         after = inspector.list_workflows(
             workflow_ids=[before.workflow_id, f"research-{new.run_id}"],
@@ -202,7 +202,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         by_id = {workflow.workflow_id: workflow for workflow in after}
         assert by_id[before.workflow_id].app_version == before.app_version
         assert by_id[before.workflow_id].name == f"issuedigest_research_run_{version}"
-        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v7"
+        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v8"
         assert by_id[f"research-{new.run_id}"].app_version != before.app_version
         assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == checkpoints
         assert marker.read_text() == "called\n"

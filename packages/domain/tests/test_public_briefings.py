@@ -163,7 +163,7 @@ def test_plan_rejects_raw_document_url_before_url_library_normalizes_it():
         pb.PublicBriefingPlan.model_validate(data)
 
 
-@pytest.mark.parametrize("version", ["v3", "v4", "v5", "v6", "v7"])
+@pytest.mark.parametrize("version", ["v3", "v4", "v5", "v6", "v7", "v8"])
 @pytest.mark.parametrize("stripped", [False, True])
 def test_public_profile_never_accepts_private_classification_even_without_reviews(
     stripped, version
