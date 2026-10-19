@@ -51,3 +51,9 @@ controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종
 같은 주택 주제/정부 자료의 소표본이며 다양한 정치 이슈·상반 입장·복합 주제·실제 공격적 입력·중립성을 인증하지 않는다. 실제 uncertain 결정과 정확 날짜 후보는0이므로 그 양성 분기는 합성 검증만 했다. 원래 질문/원문·ID·raw응답/요청·자체 합성 신원과 시도 receipt는 private에 보존하며 실제 사용자 세션은 사용하지 않았다. main/운영 출시는 D013에 따라 유예한다.
 
 Task1 독립 검토 명세/품질 PASS(C0/I0/M0). 실제 호출은5fcdc42이며 전체 gate·브랜치 검토·개발 반영·PR/CI/Sites/정리 receipt는 [진행 기록](../planning/progress.md)에서 구분한다.
+
+## Controller 구조·개발·출판 인수
+
+단일 gate ab6654e: Python3,891+JS764=4,655개/static/build/contract·실패/skip/warning0, 작업별/전체 명세·품질 PASS(C0/I0/M0). 활성0에서 개인 개발ab6654e/v9를 정상 반영하고 외부 사전/직전/사후 백업·별도 복원의23public테이블 일치, 기존 데이터/세션/공개 경계·수집기·이전 소스/asset 보존을 확인했다. native Sitesv70(public succeeded)/이전v69 보존·Draft PR48(PR47 기반·미병합·앱 첨부)를 기록했다. 실제3/9의 부분 의미 판정과 두 Ruling/비용·main/운영 유예를 유지하며 최종 CI/정리 receipt는 진행 기록을 따른다.
+
+최종 source CI39224270248/259c6f0 success, 소유QA3/볼륨·포트 정리와 SDD 비공개 보관 후 해당 폴더 제거를 확인했다. 다른 자원/실제 runtime은 유지한다. 상세 receipt는 진행 기록이 원본이다. 두 Ruling/비용과 부분 의미 판정은 이 완료 뒤에도 유효하다.

@@ -882,3 +882,17 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 - C1~C5의 구현·독립 작업/수정 범위/전체 변경 리뷰·Draft PR #6·사용자 폴더/실제 API 확인·Sites 공개 게시를 마쳤다. 최종 code 검증은 `e2255d7`의 컨트롤러 전체 672 Python + 60 JS 및 lint/타입/SPA/drift. 공급자 호출·실제 과금·저장·SSE·인증·renderer/AI·전체 P1은 미완료다.
 - [Sites v21](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 성공. source `2d5d6afc7ab659985e71bd9439b972b73ab4f5a0`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_2819fa8720c481918101b0b01fab19dc`, deployment `appgdep_6acba95b486c8191b665b1b05bd473f8`의 native succeeded를 확인했다. 이전 v20을 추가 보존하고 v14/v18/v19·데이터/와이어프레임 기록을 유지했다. docs 사본은 `cac6258` 기준이며 대기 표시는 그 시점의 상태다. 최신 상태는 이 원본/PR에서 확인한다. 데스크톱1366/모바일390·가로 넘침 없음·계약4행·672/60·PR6/이전 기록·console0·로컬 링크/anchor 검사 통과.
 - 구현·Root 연결 문서 커밋 `cac6258`의 [CI #38150676791](https://github.com/DigestWorks/IssueDigest/actions/runs/38150676791) 성공. 마지막 게시 기록 커밋의 exact-HEAD check는 PR에서 확인한다. 앱 자동 PR 첨부/사이트 열기 요청이 응답하지 않아 직접 URL을 공유한다. PR을 병합하지 않았다. 격리 폴더와 이 작업의 검토/실행 증거를 보존한다.
+
+## Sites 최종 게시 · v9 조사 연결 · 2026-10-19 KST
+
+[Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)은 PR47 기반·미병합이며 앱 첨부를 완료했다. 개발 앱은ab6654e/v9, 실제 모델 인수는5fcdc42의3앱/9요청, 단일 gate sourceab6654e/4,655개로 구분한다. 이후 변경은 Markdown뿐이다.
+
+[계획 Sites v70](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T08:42:39.537151+00:00. source `aa02f421386002506687d053b91a63f2a1439981`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_e8ed969be0b48191b04e2f5acebdd8d9`, deployment `appgdep_6ad5d7f08c1c81918ad705eb25dbfe11`. 저장소 사본aafb655를 반영했고 이전v69/전체 기록·원래 실패/부분/미판정 분모와 두 Ruling/비용을 보존했다. HTML55개·로컬 링크/asset/anchor1,184·공개 텍스트148개·실제 비밀/연결값·private 질문/ID/인용93종 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신이어서 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 출판/자원 정리 receipt는 사본 이후 이 저장소 원본이다. CI·소유 QA/SDD 정리는 아래 최종 기록을 따른다.
+
+## 최종 CI·정리 · v9 조사 연결 · 2026-10-19 KST
+
+[source CI39224270248](https://github.com/DigestWorks/IssueDigest/actions/runs/39224270248)는259c6f0 기준 success다. 실제 source5fcdc42·gate/개발ab6654e 이후 현재까지 변경은 Markdown뿐이며 최종 출판/정리 문서 push의 새 CI와 이 성공을 구분한다. 전체4,655개·작업별/전체 독립 명세/품질 PASS(C0/I0/M0), 실제3앱/9요청·부분 의미 판정과 한계를 그대로 보존한다. 한 차례 CI 조회의 일시 네트워크 실패는 설정 변경 없이 재조회해 성공 상태를 확인했다.
+
+소유 label·전체ID·pinned image·loopback 포트로 대조한 자체 PostgreSQL3개와 각 볼륨만 정리했고 세 검증 포트 닫힘을 확인했다. 작업별 SDD 검토/증거는 private600 archive로 보존한 뒤 해당 폴더만 삭제했다. 두 Ruling/비용은 변경 Spec·D022와 최종 인계에 남긴다. 다른 QA·worktree·브랜치, 실제 개발 API/worker·수집기·외부 백업/원본 평가 receipt는 유지했다. 사용자 탭은 열거나 이동하지 않았다.
+
+다음은 전체 목표를 합산 대상으로 오해할 표현·조건/하한 보존의 실제 질문 품질, 상반 출처/다중 주제·정확 날짜/불확실의 실제 양성 평가와 승인 탐색/모듈 점진 전달이다. 실제3건을 일반 시사·중립성 통과로 확대하지 않고 main/운영 출시는 D013에 따라 유예한다.
