@@ -1,5 +1,10 @@
 # 진행 기록
 
+## 작업 시작 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- PR41/d0d3fdf 기반 `feat/briefing-answer-quality`·[명세](../changes/briefing-answer-quality.md). 이전 실제 수치 답변의 귀속 분류·비교/한계 설명 부분 충족을 개선한다. 기존v2/v3/v4 생성/복구와 결과·공개 경계를 유지하는 새v5를 구현한다.
+- 단일 요청/예산을 유지하고 합성 TDD·독립/전체 검사 뒤 별도 합성 신원/검토 공개 텍스트에서 최대4회 실제 평가한다. 자료의 '이상'·기간 차이로 최종 실패를 확정하지 않으며, 실제 결과가 부족하면 그대로 남긴다. 개인 개발 적용/복원·PR·Sites는 인수 후 기록한다. main/운영 유예·수집기/자료 보존·사용자 탭 유지.
+
 ## 개발 적용 · 공식 목록 후보·새 공식 자료 검색 · 2026-10-19 KST
 
 - 변경/검토: [명세](../changes/policy-source-candidates.md)·`feat/policy-source-candidates`·[Draft PR41](https://github.com/DigestWorks/IssueDigest/pull/41)(PR40 기반). 제품93ab7c8, 작업별/보완/전체 독립 검토 C0/I0/M0. 새 HTML metadata의 숨김 조상 누락1건을 TDD로 수정했고 미해결/보류 지적은 없다.

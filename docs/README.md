@@ -6,7 +6,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
-현재 변경: [공식 목록 후보 선별·출처 확대](changes/policy-source-candidates.md).
+현재 변경: [브리핑 답변 품질](changes/briefing-answer-quality.md). 공식 목록 후보·출처 확대는 완료 기반이다.
 
 ## 현재 계획과 작업
 
