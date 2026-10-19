@@ -196,3 +196,91 @@ canonical1..20인용/총12,000 code points와 후보 최대 수의 동시 수용
 합성 검사는 `uv run pytest packages/agents/tests/test_numeric_evidence_v2.py -q`다. agents 전체와
 Ruff/format/mypy 명령은 위와 같다. 합성 성공과 실제 두 고정 packet의 의미 평가·전체 gate·앱 통합은
 별도로 기록한다. 출력 구조가 짧아졌다는 것만으로 실제 품질이나 누락 원인 해결을 증명하지 않는다.
+
+
+## 서버 문자 참조 수치 근거 v3
+
+`numeric_evidence_refs`는 원문을 다시 쓰지 않고 서버가 만든 문자 ID를 선택하는 독립 private
+SDK다. 기존 v1/v2와 조사 worker·DBOS·API·공개·UI는 그대로 유지한다.
+
+```python
+from issuedigest_agents.numeric_evidence_refs import (
+    create_numeric_extractor_v3,
+    numeric_evidence_prompt_v3,
+    run_numeric_extractor_v3,
+    validate_numeric_proposal_v3,
+)
+
+extractor = create_numeric_extractor_v3(model)  # 필수 borrowed PydanticAI Model
+prompt = numeric_evidence_prompt_v3(source)  # 요청 없이 전체 원문·문자표·예산 검사
+proposal = run_numeric_extractor_v3(extractor, source)
+checked = validate_numeric_proposal_v3(source, proposal)  # 현재 Source로 재계산
+```
+
+Source는 v1과 같은 정확한 `(UUID4 snapshot, EvidenceBundle, SourcePresentation)` tuple이다.
+canonical 원문·hash·selector·snapshot/workspace·unchecked extra를 다시 검증한다. 원래 순서의
+1..20개 whole quote·합계12,000 code points를 유지하며 별도의 작은 문자 수 상한은 없다.
+제목/metadata는 근거에 포함하지 않는다. 호출자가 현재 접근 권한, transport `max_retries=0`,
+model/client 수명을 관리한다. SDK import·handle 생성·실패한 preflight는 키를 읽거나
+Agent/client를 만들지 않으며 빌린 model/client를 닫지 않는다.
+
+prompt는 `profile="numeric-evidence-v3"`, 원래 `source`, 인용별 `references`를 포함한다.
+각 references 항목의 `characters`는 `[id, exact_one_codepoint_character]` 행이다. 인용 순서와
+Python code-point 순서로 모든 글자에 전역 연속 정수1..N을 부여한다. 내부 공백·control·NEL·BOM·
+결합문자·astral을 생략하거나 정규화하지 않는다. ID는 현재 Source/prompt에서만 의미가 있다.
+원문과 표 전체를 함께 전송하며 자르거나 일부 인용을 버려 예산을 맞추지 않는다.
+
+provider identity는 `issuedigest_numeric_evidence_v3`, 유일한 strict output tool은
+`propose_numeric_evidence_v3`다. 각 ReferenceSpan은 `start_ref/end_ref` 양 끝 포함 정수만 받으며
+실제 schema가 두 값의 최소1/최대현재N을 제한한다. bool/string/float·추가 text/occurrence/offset/
+citation UUID는 거부한다. 서버는 실제 catalog로 재검증해 같은 인용의 연속 비공백1..1,000자만
+해결하고 citation_id/text/반열린 code-point start/end를 확정한다. 근처 문자열로 이동하거나
+합성·보정하지 않는다.
+
+fact0..12의 value는 필수이고 subject/unit/period/qualifier/condition은 nullable reference다.
+status는 `{kind: observed|planned|forecast, text: reference}` 또는
+`{kind: unknown, text: reference|null}`이다. known text의 null은 raw/OpenAI-normalized schema와
+runtime 모두 거부한다. forecast는 조건이 없는 전망도 포함하며 명시 조건만 condition에 따로
+보존한다. 소비자는 condition도 읽어야 하며 향후 v1/v2와 결합하려면 명시 mapping·재검증이
+필요하다. 기존 conditional_forecast 분류/결과를 자동 변환하지 않는다. 명시 실질 수치·작은
+하위 항목·증감을 후보화하고 부수적 날짜/식별자를 측정값으로 만들지 않으며 조사/어미를 단위로
+선택하지 않도록 지시한다. 원문 단위가 없으면 null이다. 이 의미를 regex로 인증하지 않는다.
+
+모든 fact field는 value와 같은 인용이어야 하며 중복 local_id/물리 value 구간을 거부한다.
+kind/status_text를 서버가 flatten하고 citation_id/context를 value의 whole quote 참조로 정한다.
+relation0..16은 kind(included_in/parallel/unknown), from_id/to_id, statement/cue reference다.
+연속 statement는 같은 인용의 두 다른 endpoint value와 nonnull subject·cue의 실제 위치를
+모두 포함해야 한다. 모든 kind/방향을 합쳐 unordered pair당 하나만 허용하며 included_in의
+child→parent cycle을 거부한다. facts0이면 relations0이다. 시점이 다른 관측/전망·근접·같은 단위·
+산술로 포함을 추론하지 말고 직접 관계 근거가 없으면 생략하도록 지시한다.
+
+strict/frozen/extra-forbid `NumericEvidenceProposalV3`는 profile=`numeric-evidence-v3`,
+status=`unreviewed`, 서버 prompt/source SHA256·snapshot/workspace·원래 전체 인용·resolved facts/
+relations·KnownUsage를 보존한다. validate는 현재 Source/catalog의 ID부터 모든 text/offset/
+provenance/context/구조를 재계산하고 stale/tamper/unchecked extra를 거부한다. hash는 서명·권한·
+진실·인간 검토나 외부 usage/모델 이력 인증이 아니다. 유효 참조를 선택해도 잘못된 주체·단위·
+kind/조건·cue/관계 의미와 후보 누락은 통과할 수 있다. 빈 후보도 완전 추출이나 의미 품질 통과를
+뜻하지 않는다.
+
+독립 한도는 total20,000/output2,500·30초·요청1/retry/repair0·Responses/storeFalse다.
+최대N=12,000 schema는 raw2,867/normalized2,674 UTF-8바이트이며 지침2,561·static5,428바이트다.
+framing2,048·출력2,500을 예약해 prompt는10,024 UTF-8바이트를 허용하고 실제 N의 schema+
+whole quote+문자표 envelope도 Agent 생성 전에 다시 검사한다. 정수 최대값의 decimal 길이
+경계1/9/10/99/100/999/1000/9999/10000/12000을 검증한다. 단일 반복 ASCII quote는892자
+prompt10,020바이트까지 들어가고893자는10,031바이트로 사전 거부된다. 이 예시는 별도 문자 cap이
+아니며 인용 수·문자 종류·escape·ID 자릿수에 따라 달라진다. 같은12,000자 Source도 전체 표
+때문에 거부될 수 있으므로 source/candidate 상한의 동시 수용을 보장하지 않는다. 기존
+앱24,000/월10만원·예약·DBOS journal은 변경하지 않는다.
+
+성공 usage는 strict nonbool 비음수 정수·요청정확1·total/output 상한을 검사한다. 결과를 받은
+뒤 구조/usage/source 변경 검사가 실패하면 알려진 raw usage를 상한 초과도 포함해 보존한다.
+AgentRunResult가 없는 실패/timeout·잘못된 raw usage는 `known_usage=None`이며 무료/예약 반환이
+아니다. 오류는 기존 sanitized `NumericEvidenceError`를 사용하고 수리·추가 모델 검수·검색·
+embedding·재시도를 하지 않는다.
+
+합성 검사는 `uv run pytest packages/agents/tests/test_numeric_evidence_refs.py -q`다.
+패키지 검사는 `uv run pytest packages/agents/tests -q`, `uv run ruff check packages/agents`,
+`uv run ruff format --check packages/agents`, `uv run mypy packages/agents/src`다.
+합성 통과와 고정 실제2회 전 field 의미 평가·전체 gate·독립 검토·앱/최종 브리핑 인수는 별도다.
+입출력 구조·taxonomy·지침이 함께 달라졌으므로 실제 평가에서도 단일 변경의 인과 효과로
+해석하지 않는다.
