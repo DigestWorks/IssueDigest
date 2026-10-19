@@ -9,6 +9,7 @@ from issuedigest_domain import CanvasBundle, EvidenceBundle
 from issuedigest_domain.research_journey import SourcePresentation
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
 from pydantic_ai import Agent, AgentRunResult, ToolOutput, UsageLimits
+from pydantic_ai.messages import ModelResponse
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIResponsesModelSettings
 
@@ -90,6 +91,24 @@ def _validate_usage(inputs: int, outputs: int, *, total: int, output: int) -> No
         raise ValueError("Invalid or overbudget model usage")
 
 
+def _validate_result_usage(result: AgentRunResult[BaseModel], *, total: int, output: int) -> None:
+    # RunUsage aggregation turns bool into int; inspect the exact current response
+    # as well. new_messages includes the original response on durable replay.
+    responses = [message for message in result.new_messages() if isinstance(message, ModelResponse)]
+    if len(responses) != 1:
+        raise ValueError("Expected exactly one model response")
+    raw = responses[0].usage
+    _validate_usage(raw.input_tokens, raw.output_tokens, total=total, output=output)
+    _validate_usage(
+        result.usage.input_tokens, result.usage.output_tokens, total=total, output=output
+    )
+    if (raw.input_tokens, raw.output_tokens) != (
+        result.usage.input_tokens,
+        result.usage.output_tokens,
+    ):
+        raise ValueError("Model usage differs from current response")
+
+
 def _remaining(prior_input_tokens: int, prior_output_tokens: int) -> int:
     _validate_usage(
         prior_input_tokens,
@@ -169,12 +188,7 @@ def run_planner_v7(agent: Agent[None, AIOutputV3], prompt: str) -> tuple[SearchP
         ),
         retries=0,
     )
-    _validate_usage(
-        result.usage.input_tokens,
-        result.usage.output_tokens,
-        total=PLANNER_MAX_RUN_TOKENS,
-        output=PLANNER_MAX_OUTPUT_TOKENS,
-    )
+    _validate_result_usage(result, total=PLANNER_MAX_RUN_TOKENS, output=PLANNER_MAX_OUTPUT_TOKENS)
     return (
         SearchPlanV7.model_validate(result.output.model_dump()),
         result.usage.input_tokens,
@@ -230,12 +244,7 @@ def run_agent_v7(
         ),
         retries=0,
     )
-    _validate_usage(
-        result.usage.input_tokens,
-        result.usage.output_tokens,
-        total=remaining,
-        output=FINAL_MAX_OUTPUT_TOKENS,
-    )
+    _validate_result_usage(result, total=remaining, output=FINAL_MAX_OUTPUT_TOKENS)
     return (
         _canonical_output_v6(result.output, prompt),
         result.usage.input_tokens,

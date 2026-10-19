@@ -423,3 +423,70 @@ def test_v7_planned_search_can_supply_evidence_after_original_question_has_no_hi
     assert completed.question == "different wording"
     assert (completed.input_tokens, completed.output_tokens) == (200, 100)
     assert calls == ["search_evidence", "answer"]
+
+
+@pytest.mark.parametrize("malformed_stage", ["search_evidence", "answer"])
+def test_v7_raw_boolean_cached_usage_fails_without_new_model(
+    engine, database_url, tmp_path, malformed_stage
+):
+    import os
+    import signal
+    import subprocess
+    import sys
+
+    bundle, token, repo, run = seed(engine, database_url)
+    marker = tmp_path / "malformed-usage-model-calls"
+    # Seed the pre-fix accepted response through the real durable provider boundary,
+    # bypassing only validation in this isolated child; never edit the DBOS journal.
+    script = CRASH_V7.replace(
+        'point = os.environ.get("CRASH_POINT")',
+        "import issuedigest_agents.research_v7 as v7\n"
+        "v7._validate_usage = lambda *args, **kwargs: None\n"
+        'point = os.environ.get("CRASH_POINT")',
+    ).replace(
+        "usage=RequestUsage(input_tokens=123, output_tokens=45)",
+        "usage=(RequestUsage(input_tokens=True, output_tokens=45) "
+        'if name == os.environ["MALFORMED_STAGE"] else '
+        "RequestUsage(input_tokens=123, output_tokens=45))",
+    )
+    env = {
+        **os.environ,
+        "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
+        "SYNTHETIC_OUTPUT": json.dumps(output(bundle, classified=True, core=True)),
+        "CALL_MARKER": str(marker),
+        "MALFORMED_STAGE": malformed_stage,
+        "CRASH_POINT": "before-search"
+        if malformed_stage == "search_evidence"
+        else "final-checkpoint",
+        "PYDANTIC_AI_NO_BANNER": "1",
+    }
+    crashed = subprocess.run(
+        [sys.executable, "-c", script], env=env, capture_output=True, timeout=20
+    )
+    assert crashed.returncode == -signal.SIGKILL, crashed.stderr.decode()[-2000:]
+    inspector = client(database_url)
+    try:
+        before = inspector.list_workflow_steps(f"research-{run.run_id}", load_output=False)
+        assert len(before) == (1 if malformed_stage == "search_evidence" else 3)
+        assert all(step["completed_at_epoch_ms"] is not None for step in before)
+        calls = []
+
+        def forbidden(messages, info):
+            calls.append(info.output_tools[0].name)
+            raise AssertionError("malformed cached paid usage must not cause another model request")
+
+        run_worker(database_url, model=FunctionModel(forbidden), once=True)
+        failed = repo.get_run(token, run.workspace_id, run.run_id)
+        assert failed.status == "failed" and failed.error_code == "generation_failed"
+        assert failed.result is None and calls == []
+        assert (failed.input_tokens, failed.output_tokens) == (
+            (0, 0) if malformed_stage == "search_evidence" else (123, 45)
+        )
+        assert inspector.list_workflow_steps(f"research-{run.run_id}", load_output=False) == before
+        assert marker.read_text() == (
+            "search_evidence\n"
+            if malformed_stage == "search_evidence"
+            else "search_evidence\nanswer\n"
+        )
+    finally:
+        inspector.destroy()

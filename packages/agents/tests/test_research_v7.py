@@ -156,7 +156,10 @@ def test_planner_raw_normalized_envelopes_and_actual_request_settings(sync_model
 
 
 @pytest.mark.parametrize("planner", [True, False])
-@pytest.mark.parametrize("inputs,outputs", [(-1, 0), (0, -1), (16000, 1), (100, 2501)])
+@pytest.mark.parametrize(
+    "inputs,outputs",
+    [(-1, 0), (0, -1), (16000, 1), (100, 2501), (True, 0), (False, 45), (100, True), (100, False)],
+)
 def test_invalid_reported_usage_stops_after_one_request(sync_model_loop, planner, inputs, outputs):
     from pydantic_ai.exceptions import UsageLimitExceeded
     from pydantic_ai.usage import RequestUsage
