@@ -17,7 +17,7 @@
 .page-navigation { display: flex; flex-wrap: wrap; gap: 8px; margin-block: 16px; }
 .page-navigation button { padding-inline: 12px; font-size: 12px; }
 .page-navigation button[aria-pressed="true"], .citation-list button[aria-pressed="true"] { border-color: var(--green); background: var(--soft); }
-.original-text { margin-top: 24px; font-size: 15px; line-height: 1.9; overflow-wrap: anywhere; }
+.original-text { margin-top: 28px; font-size: 16px; line-height: 2; overflow-wrap: anywhere; }
 .original-text p { margin-top: 0; white-space: pre-wrap; }
 .original-text:focus-visible { outline: 2px solid var(--green); outline-offset: 6px; }
 .original-text mark { padding-block: 2px; background: var(--highlight); color: inherit; }
@@ -26,7 +26,7 @@
 .selection-status { margin: 10px 0 20px; color: var(--muted); font-size: 12px; line-height: 1.75; }
 .citation-list { list-style: none; margin: 0; padding: 0; }
 .citation-list li + li { margin-top: 16px; }
-.citation-list button { width: 100%; padding: 16px; border-color: var(--line); background: var(--paper); text-align: left; white-space: normal; }
+.citation-list button { width: 100%; padding: 20px; border-color: var(--line); border-radius: 14px; background: var(--paper); text-align: left; white-space: normal; }
 .citation-label { display: block; margin-bottom: 8px; color: var(--muted); font-size: 11px; }
 .citation-quote { display: block; font-size: 13px; line-height: 1.8; white-space: pre-wrap; }
 @media (max-width: 700px) {

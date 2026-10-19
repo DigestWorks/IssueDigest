@@ -95,7 +95,11 @@ export default function Home() {
       <BrandHeader account={session.kind === 'ready' ? 'authenticated' : session.kind === 'loading' ? 'loading' : session.error.kind === 'unauthorized' ? 'guest' : 'unavailable'} onLogout={() => void signOut()} logoutPending={logoutPending} />
       <main>
         <nav className="research-nav" aria-label="주요 메뉴"><button type="button" aria-current={view === 'research' ? 'page' : undefined} onClick={() => setView('research')}>브리핑</button><button type="button" aria-current={view === 'saved' ? 'page' : undefined} onClick={() => setView('saved')}>브리핑 기록</button></nav>
-        <h1 className={view === 'research' && viewParams.has('run') && session.kind === 'ready' ? 'visually-hidden' : undefined}>{view === 'research' ? '무엇이 궁금한가요?' : '브리핑 기록'}</h1>
+        <div className={view === 'research' && viewParams.has('run') && session.kind === 'ready' ? 'visually-hidden' : 'question-intro'}>
+          {view === 'saved' && <p className="eyebrow">다시 읽고, 이어서 질문하기</p>}
+          <h1>{view === 'research' ? '무엇이 궁금한가요?' : '브리핑 기록'}</h1>
+          {view === 'research' && <p className="question-description">질문하고, 브리핑에서 근거까지 살펴보세요.</p>}
+        </div>
         {logoutError && <div className="logout-feedback"><p role="alert">로그아웃하지 못했습니다. {messages[logoutError.kind]} 다시 시도해 주세요.</p><SupportInfo requestId={logoutError.requestId} /></div>}
         <section className="workspace-catalog" aria-label="브리핑">
           {session.kind === 'loading' && <p role="status" aria-label="접근 상태" aria-live="polite">로그인 상태를 확인하는 중…</p>}
@@ -105,7 +109,7 @@ export default function Home() {
               {view === 'research' && <form className="guest-composer" onSubmit={continueGuestQuestion}>
                 <label className="visually-hidden" htmlFor="guest-question">무엇이 궁금한가요?</label>
                 <textarea id="guest-question" rows={3} maxLength={1500} value={guestQuestion} onChange={event => {setGuestQuestion(event.target.value); setGuestError('');}} placeholder="궁금한 이슈나 알고 싶은 변화를 적어 주세요" />
-                <div className="guest-compose-foot"><button type="submit" disabled={!guestQuestion.trim()}>질문하기</button></div>
+                <div className="guest-compose-foot"><button type="submit" disabled={!guestQuestion.trim()}>질문하기<span className="submit-arrow" aria-hidden="true">↑</span></button></div>
                 {guestError && <p role="alert">{guestError}</p>}
               </form>}
             </> : <button type="button" onClick={() => { setSession({ kind: 'loading' }); setSessionAttempt(value => value + 1); }}>접근 상태 다시 확인</button>}
