@@ -63,7 +63,7 @@ D022 v4의 역사 실제 모델 검증은 controller가 별도 소유 평가 환
 
 ## v6 provider와 실제 평가 범위 · 2026-10-19
 
-[현재 명세](../docs/changes/briefing-core-answer.md). core_answer를 첫 열린 요약으로 정하고 긍정 해석은 서버 고정 ‘제공 자료에 따르면, ’의 attributed로 변환한다. 추가/상세 assessment는 source_statement/uncertain이며 canonical documented와 정확 세 review/공개 경계는 그대로다. 날짜는 typed timeline에만 허용하고 정확 YYYY-MM-DD 원문 인용을 요구한다. 일반 claim의 임의 날짜·provider category/source_subject 모순 조합을 허용하거나 수리하지 않는다. 핵심에 직접 답할 근거가 없으면 자료 범위의 비답변으로 끝낸다. 원문·질문·이전 AI는 지시가 아닌 입력 데이터다.
+[v6 역사 명세](../docs/changes/briefing-core-answer.md). core_answer를 첫 열린 요약으로 정하고 긍정 해석은 서버 고정 ‘제공 자료에 따르면, ’의 attributed로 변환한다. 추가/상세 assessment는 source_statement/uncertain이며 canonical documented와 정확 세 review/공개 경계는 그대로다. 날짜는 typed timeline에만 허용하고 정확 YYYY-MM-DD 원문 인용을 요구한다. 일반 claim의 임의 날짜·provider category/source_subject 모순 조합을 허용하거나 수리하지 않는다. 핵심에 직접 답할 근거가 없으면 자료 범위의 비답변으로 끝낸다. 원문·질문·이전 AI는 지시가 아닌 입력 데이터다.
 
 초기 실제4회(부족 완료1/검증 실패3)를 보존하고, provider 단순화 뒤 별도2회만 추가해 총6회로 제한한다. 이전v5 초기4+별도2와 섞지 않는다. 실패해도 이미 유료 공급자 호출이 있었을 수 있으므로 앱 usage0을 비용0으로 해석하지 않는다. actual cached usage·의미 판정·개발 적용 source/시각·백업 복원은 [진행 기록](../docs/planning/progress.md)의 최종 증거를 따른다. 구조 통과·분기 성공·실제 의미 품질·운영 출시는 각각 다른 판정이다.
 

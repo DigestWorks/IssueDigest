@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 최종 출판·정리 · 질문별 조사 계획·승인 자료 검색 · 2026-10-19 KST
+
+- [Sites v66](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 유지·native succeeded. source `5600489fd45358aa39c7a5977952abc8d10d64fd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_3c1b6331a6a88191adab42a45babb2ea`, deployment `appgdep_6ad5ad1acd9c81918276889d95baab4d` (2026-10-19 05:39:52 UTC). 이전v65와 전체 역사·실패 분모를 보존했다. 저장소 사본 기준50e28cc·실행57c71ec·[Draft PR44](https://github.com/DigestWorks/IssueDigest/pull/44)이며 사본 이후의 이 최종 receipt는 저장소가 원본이다.
+- 소스57c71ec의 [CI39205150597](https://github.com/DigestWorks/IssueDigest/actions/runs/39205150597)가 성공했다. 이후 커밋은 인수/출판 기록·문서 정합화뿐이며 실행 코드는 바꾸지 않았다. 현재 의미 품질은 실제3회 중 답변 부분 충족1/부족1/실패1이며 날짜/포함 관계·검색 잡음의 남은 개선을 유지한다. 소표본 성공이나 source CI를 전체 B2C 품질 통과로 확대하지 않는다.
+- 문서15파일의 로컬 링크258개·공개 접속값 제외·diff 공백 검사, Sites HTML51개/로컬 링크·anchor·asset1,148개/공개 텍스트134파일의 실제 비밀값 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신이라 Sites의 새 브라우저 화면 검사는 하지 않았다. 자체 앱 검증 브라우저만 사용했고 사용자 탭을 열거나 이동하지 않았다.
+- 자체 검증 브라우저·합성 HTTPS API와 소유label/전체ID/pinnedimage/loopback이 일치하는 합성·모델·복원PG3개 및 익명 볼륨만 정리했다.34556/25485/25486/25487 닫힘을 확인했다. 실제 개발 앱·수집기·다른컨테이너/worktree·원래 source/복귀 경로·서버 밖 백업·상세 의미/검토 증거는 보존한다. 이 계획의 SDD 작업/독립 검토/단일 맥락 판단은 private archive한 뒤 해당 ignored scratch만 제거했다. 판단과 잘못됐을 때의 비용은 D022와 아래 기록에 남겼다. main/운영 병합은 하지 않았다.
+
 ## 개발 적용 · 질문별 조사 계획·승인 자료 검색 · 2026-10-19 KST
 
 - 현재 개인 개발 웹/API/조사 worker는 `57c71ec`이며 [Draft PR44](https://github.com/DigestWorks/IssueDigest/pull/44)(PR43 기반)다. 새 private v7은 질문→검색어 계획1회→현재 권한의 승인 저장 색인 검색→최대5근거 원자 고정→최종 생성1회다. 원래 질문 검색을 항상 포함하고 계획 검색과 원래 질문 우선 라운드로빈으로 합친다. 계획은 근거가 아니며 외부 웹 탐색·자동 등록/공개 게시를 추가하지 않는다. 첫 요약·보수적 제공 자료 귀속·정확 인용·부족 응답과 기존 소비자 디자인을 유지한다.
@@ -9,7 +16,7 @@
 - 개발 웹/API/worker를 활성 작업0에서 정상 중지·재기동하고 단일 worker lock1·새 source/cwd·정적19파일/외부6assets 일치를 확인했다. 이전90assets/원래 source/복귀 경로와 수집기a908083/config/runner/cron을 보존했다. schema0009·자료15/인용49/검색36/receipt1/공개1·계정/세션·HTTPS/비회원401 경계를 유지했다. 서버 밖 사전·직전·사후 full/app 백업과 별도PG18.6 복원에서 직전/사후/백업 직후/복원의23public테이블 rowhash/count 전체 일치·15canonical을 확인했다. 실제 기존 AI 결과는0개이므로 역사 실제 결과 재생을 주장하지 않는다. DBOS registry·vector/역할까지 포함한 완전 DR은 아니다. main/운영 유예(D013)는 유지한다.
 - 판단 기록: 원래 질문을 보존하고 선택적 이전 AI 맥락만 planner의 실제 JSON UTF-8 잔여 예산/code-point 경계로 줄이며 잘림을 명시한다. 최종 생성의 기존 bounded 맥락·원문/인용은 보존한다. 잘못되면 검색 계획의 관련성이 낮아질 수 있어 맥락 선택/예산 정책·테스트를 조정해야 하며, 과거 데이터 재작성이나 추가 모델 호출은 필요하지 않다. [D022 후속 판단](decisions.md)을 따른다.
 - 다음 우선순위는 검색 잡음·날짜와 포함 관계의 의미 보존·다양한 실제 질문 평가 및 검증된 모듈 점진 전달이다. 다매체 발견·관심/변화/공유·개인화·pgvector/Neo4j 서비스 연결·외부 자율 탐색과 일반 B2C 품질/운영 출시는 후속이다.
-- 소스 CI57c71ec는 [실행39205150597](https://github.com/DigestWorks/IssueDigest/actions/runs/39205150597) 진행 중이며 결과를 별도 기록한다. Sites v65는 이전 기록으로 보존했고 현재 요약/문서 사본 게시와 소유 QA 정리는 반영 대기다. 사용자 브라우저 탭은 열거나 이동하지 않는다.
+- 소스 CI57c71ec는 [실행39205150597](https://github.com/DigestWorks/IssueDigest/actions/runs/39205150597) 성공했다. Sites v66 게시/이전v65 보존·사본/QA 정리는 위 최종 출판 receipt를 따른다. 사용자 브라우저 탭은 열거나 이동하지 않는다.
 
 ## 작업 시작 · 질문별 조사 계획·승인 자료 검색 · 2026-10-19 KST
 
