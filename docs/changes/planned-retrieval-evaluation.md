@@ -22,3 +22,16 @@ v8 실제 고정3회에서 원래검색0→정확 자료1 회복과 무관한 �
 ## Controller 인수
 
 실제3건의 고정 recorded plan+same3source를 읽기전용으로 비교하며 추가 모델0·app workflow0이다. 원래 후보0/2/3 및 계획후1/3/3과 일치하는지 확인하고 모든 반환을 사람 gold/irrelevant/unjudged로 대조한다. source corpus의 한계 때문에 전체 precision/여론·중립성 품질을 인증하지 않는다. synthetic QA 쓰기는 준비/검사 환경에 한정하며 평가 transaction은 쓰기0을 확인한다. 실제개발서버/DB/로그인/수집기 변경은 이번에 없다. 단일 최종 wholegate와 독립 검토, 문서/마일스톤/Sites 사본·native게시·소유QA정리의 실물 receipt를 남긴다. 답변 수치 표현의 남은 한계는 해결했다고 표시하지 않는다.
+
+
+## Controller 기록 계획 재현 결과 · 2026-10-19
+
+내부 계획 검색 비교 SDK와 `issuedigest-evaluate-planned-retrieval` CLI를 추가했다. 원래 검색과 실제 original-first round-robin 계획 검색을 같은 strict job/corpus·읽기 전용 REPEATABLE READ transaction에서 비교한다. 필수 family·사람이 명시한 무관 자료·미판정을 구분하며 `judged_precision`은 판정된 relevant/(relevant+irrelevant)만 사용한다. 미판정은 분모에서 빠지므로 전체 precision이 아니다. 기록된 계획/운영자 작성 계획의 출처를 따로 보존하며 provenance 자체를 자동 인증하지 않는다.
+
+기검토 공개 텍스트3건·이전v8 고정 질문3개와 실제 기록된 planner7 검색어를 그대로 재현했다. 원래 후보0/2/3→계획후1/3/3이며 이전 선택 순서까지 정확히 일치했다. 첫 질문은 필요한 자료0→1·명시무관0, 둘째는 필요한 자료1 유지·명시무관1→2, 셋째는3건 모두 관련성 미판정으로 보존했다. 셋째의 전국 여론 직접 근거 부재를 모든 반환 자료의 무관함이나 세상에 조사 자체가 없다는 뜻으로 확대하지 않았다. 필요한 자료를 지정한 positive2문항의 family recall은0.5→1.0이고, 전체 반환5→7 중 판정 relevant1→2/irrelevant1→2/unjudged3→3·판정분모의 micro precision0.5→0.5다. 작은 고정 corpus의 비교이며 전체 검색 품질/중립성·답변 의미 품질 통과가 아니다.
+
+추가 유료 모델0·앱 workflow0·실제 사용자 세션 대행0이다. 평가의887개 SELECT/SHOW만 관측했고 쓰기0이며 전용 합성 DB의 준비는 별개다. 입력 질문·검색어·원문/ID와 상세 rank/report는 private에 보존했다. 실제 앱은 f839ae0/v8과 선택한 브리핑 디자인 그대로이며 서버/실제DB·수집기·provider/검색정책/복구/HTTP/OpenAPI를 바꾸거나 배포/재시작하지 않았다. 기존v8 실제3/6(의미 부분1/목표 소표본 충족1/부족1)·v7 3/6·v6 초기4+별도2·v5 초기4+별도2 분모와 남은 하한/전망 뉘앙스·실제날짜 양성 미검증을 보존한다.
+
+후속은 같은 corpus·질문/gold와 미판정 구분을 유지하며 query 이탈/후보 재순위화의 발견률·무관 유입을 함께 비교하는 것이다. 이번 도구가 검색 잡음이나 답변의 수치 표현 자체를 해결한 것으로 표시하지 않는다. 기존 최대100인용/16날짜의 동시 적재 비보장·24,000예산 사전거절 판단과 큰 맥락의 자료 부족 증가/정책 재설계 비용은 D022에 그대로 남긴다. main/운영은 D013에 따라 유예한다.
+
+독립 검토·단일 전체gate/PR/Sites/QA 정리의 최종 결과는 [진행 기록](../planning/progress.md)에 후속 receipt로 남긴다.
