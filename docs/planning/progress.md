@@ -1,5 +1,11 @@
 # 진행 기록
 
+## 수치 근거 후보 · 착수 · 2026-10-19
+
+- PR49/edc7ae7 기반 feat/numeric-evidence-proposals, [명세](../changes/numeric-evidence-proposals.md). 원문 숫자·대상/단위/기간/상태·수식어/조건과 포함/병렬 관계를 정확 인용에 묶는 독립 private SDK를 TDD로 구현한다.
+- 원문 매핑/구조 검사와 의미 인증을 분리하고 결과는 unreviewed다. 기존4앱의 실패/부분·개발ab6654e/v9·main/운영 유예를 유지한다. 앱/DBOS·API/DB·공개·UI/수집기는 변경하지 않는다. 전체/독립 검토·별도 실제2 SDK·PR/CI/Sites/정리는 확인 뒤 누적한다.
+
+
 ## v10 수치 설명 · 실제 의미 인수 미통과 · 2026-10-19 KST
 
 - 담당/controller·브랜치 `feat/briefing-numeric-clarity`, PR48/181bee1 기반. [명세](../changes/briefing-numeric-clarity.md), 관련 D022/M3. OpenSpec root=null이어서 init 없이 단일 Spec/Task/제약을 사용했다.
