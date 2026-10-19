@@ -2,7 +2,16 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 서버 원문 참조 수치 v3
+## 현재 · 서버 수치·단위·문장 후보
+
+[명세](../changes/numeric-candidate-index.md). 모델 호출 없이 원문 후보 경계를 검증하며 앱 연결은 후속이다.
+
+- [x] 순수 후보 SDK를 TDD로 구현했다. 신규180/agents1103·정적 검사, 작업 검토3건/전체 검토 추가1건 수정과 각 재검토 PASS(C0I0M0)·기존409파일 baseline/final source byte동일을 확인했다.
+- [x] 같은 두 packet의 수치11/11·부수 숫자6/6와 반례10건의 지원 후보37/37를 모든 field로 직접 비교했다. 미지원 표기2건은 별도 미추출이며 신규 모델 호출0이다.
+- [x] 최종 전체5,437개·작업 수정/전체 독립 PASS(C0I0M0)·PR52 기반 Draft PR53/source CI39251010224 success·Sites v75/이전v74 보존·소유QA1/SDD 정리를 확인했다. 의미/앱 인수는 별도다.
+- [ ] 후보를 의미/대상·상태/관계 선택·앱 예산/내구 실행/복구·최종 브리핑에 연결해 별도 인수한다. 후보 존재로 사실을 인증하지 않는다.
+
+## 이전 · 서버 원문 참조 수치 v3
 
 [명세](../changes/numeric-evidence-references.md). 앱 연결과 최종 브리핑 품질은 별도다.
 
