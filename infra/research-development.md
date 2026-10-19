@@ -11,19 +11,19 @@
 
 ## 앱에서 하는 일
 
-1. **홈**에서 질문을 적는다. 질문과 선택적인 완료 부모 실행만 제출한다. 새v8은 검색어 계획1회(1~3개) 뒤 원래 질문 검색과 함께 현재 접근 가능한 승인 저장 색인을 조회하고 최대5근거를 원자 고정한다. 검색0이면 알려진 planner 사용량을 기록하고 최종 생성 없이insufficient_evidence로 끝낸다. AI 웹 검색·전체 최신 검색은 아니다. 비회원 초안은 같은 탭에서 최대30분 보존하고 로그인 후 직접 실행한다.
+1. **홈**에서 질문을 적는다. 질문과 선택적인 완료 부모 실행만 제출한다. 새v9은 검색어 계획1회(1~3개) 뒤 원래 질문 검색과 함께 현재 권한의 승인 저장 색인에서 최대5후보를 고정하고, 인용 기반 관련성 선택1회로 명시 무관만 제외해 최종 근거를 원자 고정한다. 검색0/전부 제외면 알려진 planner/selector 사용량을 기록하고 최종 생성 없이insufficient_evidence로 끝낸다. AI 웹 검색·전체 최신 검색은 아니다. 비회원 초안은 같은 탭에서 최대30분 보존하고 로그인 후 직접 실행한다.
 2. 요청 접수 → 관련 자료 찾기 → 자료 분석 → 인용 연결 확인을 표시한다. 취소·실패·연결 대기·월 한도를 구분한다.
 3. AI가 질문에 맞는 요약·비교·타임라인을 선택한다. 서버가 허용된 구조와 인용을 대조한 결과만 표시한다. 자료에 없는 날짜·효과·수치·관계는 생성 범위가 아니다.
-4. 완료 브리핑의 정확 인용에서 **근거 열기**를 누르면 본문을 떠나지 않는 창에서 해당 버전의 저장된 원문과 인용 위치를 연다. 자동 중복 원문 블록이나 검증된 AI 부분 답변은 제공하지 않는다. 위치 일치는 주장의 참·거짓 판정이 아니다. AI 해석은 별도로 표시한다. 새 privatev8은 자료에 기록됨·출처의 주장·확인하기 어려움과 선택 인용의 짧은 AI 평가 설명을 펼쳐 읽는다. 독립 사실 검증이 아니며 과거/공개 결과에는 소급하지 않는다.
+4. 완료 브리핑의 정확 인용에서 **근거 열기**를 누르면 본문을 떠나지 않는 창에서 해당 버전의 저장된 원문과 인용 위치를 연다. 자동 중복 원문 블록이나 검증된 AI 부분 답변은 제공하지 않는다. 위치 일치는 주장의 참·거짓 판정이 아니다. AI 해석은 별도로 표시한다. 새 privatev9은 자료에 기록됨·출처의 주장·확인하기 어려움과 선택 인용의 짧은 AI 평가 설명을 펼쳐 읽는다. 독립 사실 검증이 아니며 과거/공개 결과에는 소급하지 않는다.
 5. 원문을 보고 돌아와도 작성 중인 질문을 유지한다. 로그인 후 초안은 사용자·공간·조사별 앱 메모리에만 두며 로그아웃·계정/권한 변경·새 조사 때 지운다. 완료 결과는 공동 조사 기록에 자동 저장한다. 개인 비공개 북마크가 아니다. **브리핑 기록**과 새로고침은 저장된 결과를 읽으며 모델을 호출하지 않는다. 후속 질문은 이전 완료 결과를 맥락으로 전달한다. 일반적인 무검색어 후속 질문만 부모의 실제 근거를 재사용하며 명시 새 주제의 검색 실패에는 적용하지 않는다.
 
 최근 기본 정보 법안의 미수집 이력을 ‘실제 이벤트가 없다’고 해석하면 안 된다. 과거 법안 제안 내용·처리 이력은 별도 스냅샷으로 추가하고 과거 기록임을 표시한다. 전문·최신 상태·AI 해석과 구분한다. 원본 MySQL과 참조 자료에는 쓰지 않는다. 정기 수집·법안 변경 자동 감지는 현재 질문 전용 흐름의 완료 범위가 아니다.
 
-새 실행/에이전트는v8이고 원래v2~v6 agent/지침/schema/prompt bytes/유료 정수slot1과 v7의 planner7/final7·paid1/search7-step2/paid3·저장 결과를 보존한다. 최초 업그레이드 전 기존v2 worker를 중지하고 활성run/workflow가 없는 quiescent 상태를 확인한 뒤 웹/API/worker를 함께 갱신한다. 진행 중 작업은 임의 폐기하지 않는다. 현재 source 구현과 실제 개발 적용은 진행 기록에서 구분한다.
+새 실행/에이전트는v9이고 원래v2~v6 agent/지침/schema/prompt bytes/유료 정수slot1과 v7의 planner7/final7·paid1/search7-step2/paid3, v8의 planner7/final8·paid1/search8-step2/paid3·저장 결과를 보존한다. 최초 업그레이드 전 기존v2 worker를 중지하고 활성run/workflow가 없는 quiescent 상태를 확인한 뒤 웹/API/worker를 함께 갱신한다. 진행 중 작업은 임의 폐기하지 않는다. 현재 source 구현과 실제 개발 적용은 진행 기록에서 구분한다.
 
 worker는 전용 AUTOCOMMIT PostgreSQL 연결의 고정 session advisory lock으로 전체 수명을 잠근다. 두 번째 기동은 상태 변경/취소/모델 호출 전에 거부한다. poll/cohort/저장 전 소유를 확인하고 잠금 연결 오류는 계속 실행하지 않는 고정 실패다. 정상 종료는 unlock/close하며 SIGKILL은 PostgreSQL 세션과 함께 잠금을 해제한다. 최초v2는 잠금을 모르므로 quiescent rollout 조건은 별도 필수다. API/UI에 이 운영 제약을 사용자 흐름으로 추가하지 않는다.
 
-기존 활성 run에 연결된 knownv2/v3/v4/v5/v6/v7/v8 PENDING/ENQUEUED만 공용 DBOSClient metadata API로20개씩 확인한다. 원래 application_version cohort를 순차 launch/회복·registry destroy한 뒤 현재 버전에서 새 queued 요청만v8로 시작한다. DBOS3.2 resume는 기록 version을 유지하므로 현재 version만 기동해서는 구 작업이 처리되지 않는다. 기존 ID와 checkpoint를 보존하며 version SQL 재작성/새 workflow ID/SDK private API를 사용하지 않는다. terminal/cancelled/unknown workflow는 resume하지 않는다. 실제 application row로 소유를 확인한 정확 ID의 불명확/terminal PENDING/ENQUEUED만 취소한다.
+기존 활성 run에 연결된 knownv2/v3/v4/v5/v6/v7/v8/v9 PENDING/ENQUEUED만 공용 DBOSClient metadata API로20개씩 확인한다. 원래 application_version cohort를 순차 launch/회복·registry destroy한 뒤 현재 버전에서 새 queued 요청만v9로 시작한다. DBOS3.2 resume는 기록 version을 유지하므로 현재 version만 기동해서는 구 작업이 처리되지 않는다. 기존 ID와 checkpoint를 보존하며 version SQL 재작성/새 workflow ID/SDK private API를 사용하지 않는다. terminal/cancelled/unknown workflow는 resume하지 않는다. 실제 application row로 소유를 확인한 정확 ID의 불명확/terminal PENDING/ENQUEUED만 취소한다.
 
 ## 명시 초기화와 권한
 
@@ -41,9 +41,9 @@ worker는 전용 AUTOCOMMIT PostgreSQL 연결의 고정 session advisory lock으
 
 모델은 `gpt-5.4-mini`, Responses store=False·AsyncOpenAI max_retries0이며 PydanticAI2.56.0/DBOS3.2.0을 고정한다. 월 글로벌 예약USD10·건USD0.25·최대40건/현재 범위 동시1건이다. 이는 실제 청구 정산이나 전체 운영비 상한이 아니다. 실패/취소/유실 예약을 자동 반환하지 않는다.
 
-새v8은 planner1회(15초/출력500/총8,000)→durable search→최종1회(45초/출력2,000)이며 합산 입력+출력24,000/출력2,500을 유지한다. planner static1,091+prompt4,361+framing2,048+출력500을 포함하고 실제 raw/normalized schema를 호출 전에 재검사한다. 최종은 실제 planner input+output을 차감한 잔여에서v8 static11,907/framing2,048/출력2,000을 제외한 dynamic prompt 한도를 적용한다. 원래 질문은 그대로이며 선택적 이전 AI 맥락만 planner JSON UTF-8 예산으로 짧게 하고 잘림을 명시한다. 최종의 기존bounded 맥락·정확 인용은 보존한다.
+새v9은 planner1회(15초/출력500/총8,000)→search9→selector1회(15초/출력500/총12,000)→apply9→final1회(45초)다. 전체 입력+출력24,000/출력2,500·월 예약을 유지한다. final은 두 prior의 실제 사용량을 차감하고 출력min(2,000,2,500-prior_output)으로1,500..2,000을 허용한다. 최종 static11,907/framing2,048·동적 출력과 실제 raw/normalized envelope·원래 질문/전체 bounded 인용을 사전 검사하고 초과면 호출 전에 거절한다. 최대100인용/16날짜는 동시 적재 보장이 아니다. 지침·동결 SDK·planner7와 과거 이름/version/slot은 보존한다.
 
-같은 request ID/입력의 재확인은 새 유료 실행을 만들지 않는다. v8의 planner7 model.request 정수slot1→검색step2→최종model.request3의 정확 metadata를 current stage별 확인한다. retrieving은 완료planner(선택적 완료검색)만 재생하며 아직 시작하지 않은 final 첫 호출은 가능하다. generating/validating은 세step 모두 완료돼야 한다. 불명확/추가/위조 metadata는 재요청 없이 실패·예약 유지다. 두 유료 응답의 raw exact-int/nonbool/비음수/한도와 aggregate 일치를 확인하며 cached replay에도 적용한다. 취소/권한 변경 뒤 새 유료 작업이나 게시를 하지 않는다. 사용량을 확인하지 못한0은 무료가 아니다.
+같은 request ID/입력 재확인은 새 유료 실행을 만들지 않는다. v9는 paidplanner7-slot1/search9-step2/paidselector9-slot3/apply9-step4/paidfinal9-slot5의 exact namespace·정수nonbool slot·완료 count/order를 raw deserialize 전에 검증한다. queued0/retrieving 완료prefix1..4/generating·validating5만 허용한다. selector 전송 전 public DBOSClient의 workflow attributes에 exact 시작bool+원래 prompt SHA256을 원자 저장하며 표식만 있고 응답이 없거나 입력 hash가 다르면 재호출 없이 실패/예약 유지다. 전송 전 중단도 실패, 적법한 metadata 변경도 replay 거절 비용이 생길 수 있다. cached apply 뒤 현재 권한/모든 원문을 재검사한다. 알려진 raw usage는 v9 token필드만 단조 복원하며 시작 시 exact owned terminal v9 journal을20개씩 재조정한다. status/result/예약·과거 정책을 바꾸지 않고 추가 모델0이며 usage0을 무료로 해석하지 않는다. [v9 명세](../docs/changes/briefing-relevance-integration.md)의 두 Ruling을 따른다.
 
 기존v2~v6의 원래 이름/version/유료정수slot1·지침/schema/prompt bytes/결과와 v7의 원래 planner/final·paid1/search7-step2/paid3은 동결한다. 역사prompt한도17,309/16,049/14,813/9,440/8,351과v6의1요청/출력2,500/60초는 과거 재생용이다. 원래IDs/version과DBOS journal을 재작성하지 않는다. exact source별32/전체100 인용·5자료·본문12,000자 선택 계약과 canonical/API/public 경계는 유지한다. 새 경로는 외부웹/임의URL/SQL/셸 도구를 제공하지 않는다.
 
@@ -68,9 +68,25 @@ D022 v4의 역사 실제 모델 검증은 controller가 별도 소유 평가 환
 초기 실제4회(부족 완료1/검증 실패3)를 보존하고, provider 단순화 뒤 별도2회만 추가해 총6회로 제한한다. 이전v5 초기4+별도2와 섞지 않는다. 실패해도 이미 유료 공급자 호출이 있었을 수 있으므로 앱 usage0을 비용0으로 해석하지 않는다. actual cached usage·의미 판정·개발 적용 source/시각·백업 복원은 [진행 기록](../docs/planning/progress.md)의 최종 증거를 따른다. 구조 통과·분기 성공·실제 의미 품질·운영 출시는 각각 다른 판정이다.
 
 
-## v8 현재 실행·인수 · 2026-10-19
+## v9 현재 실행·인수 · 2026-10-19
 
-현재 개인 개발 웹/API/조사 worker는 `f839ae0`이며 [Draft PR45](https://github.com/DigestWorks/IssueDigest/pull/45)(PR44 기반)다. 새 private v8은 동결 planner7→승인 저장 검색→최대5근거 고정→최종 생성으로 이어진다. 정확 인용에 있는 유효한 YYYY-MM-DD만 timeline 날짜 후보로 최대16개 허용하고, 후보가 없으면 요약/비교로 설명한다. 개별 인용에 해당 날짜가 있는지도 다시 검사한다. 날짜가 있다는 것과 실제 사건을 뒷받침한다는 것은 다르다. 수치의 포함 관계와 목표·관측 실적·조건부 전망을 보존하도록 지시하며 자유 문장의 의미 정확성을 schema 통과로 인증하지 않는다. 원래 질문/검색·정확 인용·첫 열린 요약·기존 소비자 디자인과 공개 계약은 유지한다.
+현재 개인 개발 웹/API/조사 worker는 `ab6654e`/private v9이며 [Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)(PR47 기반·미병합)다. 원래 질문→planner7→승인 저장 검색→관련성 선택→선택 원문 고정→최종 생성으로 연결했다. 불확실 후보는 남기고 명확한 무관만 제외한다. 선택은 진실/정치적 동의 판정이 아니다. API/공개 읽기/DB schema·로그인·선택한 모바일 디자인과 역사v2~v8 provider·원래 checkpoint를 유지한다.
+
+단일 전체 gate sourceab6654e의 Python3,891+JS764=4,655개·lint/format/types/build/contract가 통과했고 실패/skip/warning0이다. 작업별/전체 백지 검토는 각각 명세/품질 PASS(C0/I0/M0)다. 실제 모델 source5fcdc42와 이후 문서만 다른 검증/개발 source를 구분한다.
+
+v9 source5fcdc42에서 기존 고정3질문·기검토 공개 텍스트3건으로 실제 앱3회/공급자9요청을 한 번씩 실행했다. 자동 재시도0·완료3(답변2/자료 부족1)/실패0이다. 선택 전 후보1/3/3→선택 후1/1/1이며 필요한 동일 핵심 자료는 positive2문항 모두 보존했다. 둘째의 명시 무관2개는0개로 줄었다. 셋째는 주제 자료1개를 남겼지만 human 미판정3개를 그대로 보존하며 제외2개에 정답/precision 가점을 주지 않는다.
+
+controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종·답변 주장12개/AI평가12개·선택 인용을 모두 직접 대조했다. 첫 답변은 하한을 정확 비율/상한으로 바꾸지 않고 중간 실적·목표·전망을 구분했으나 첫 요약에서 공정 관리 조건은 압축됐다. 둘째는 포함 관계/중복 합산 금지·조건부 전망을 설명했지만 전체 목표를 합산 대상으로 오해할 수 있는 문구가 남았다. 의미 판정은 좁은 목표 충족1·부분 충족1·제공 자료 한정의 적절한 부족1로 기록하며 모델 완료3을 전체 의미 품질 통과로 대신하지 않는다.
+
+선택3과 최종3의 실제 입력·고정 snapshot/evidence를 대조해 선택 자료만 최종 입력과 저장 근거에 포함됨을 확인했다. 실제 known usage는 입력11,502/출력2,207토큰, 실행 지연8.38/8.93/4.32초이며 앱 토큰과 완료 raw응답9개의 합계가 일치했다. 실제 청구 금액은 미검증이다. 기존 selector단독3·v8 3앱/6요청·v7 3/6·v6/v5 초기4+별도2의 실패/부분 분모와 별개다.
+
+같은 주택 주제/정부 자료의 소표본이며 다양한 정치 이슈·상반 입장·복합 주제·실제 공격적 입력·중립성을 인증하지 않는다. 실제 uncertain 결정과 정확 날짜 후보는0이므로 그 양성 분기는 합성 검증만 했다. 원래 질문/원문·ID·raw응답/요청·자체 합성 신원과 시도 receipt는 private에 보존하며 실제 사용자 세션은 사용하지 않았다. main/운영 출시는 D013에 따라 유예한다.
+
+활성 작업0에서 API/worker를 정상 재기동하고 단일 worker 잠금·새 source/cwd·정적 파일 일치를 확인했다. 이전 소스/정적 자산·수집기 소스/runner/config/cron·자료/계정/세션·공개 복사본/비회원 경계를 보존했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PostgreSQL 복원에서23public테이블 count/rowhash 일치를 확인했다. schema0009 유지·migration0이며 실제 과거 AI 결과0이어서 실제 역사 결과 재생은 주장하지 않는다. DBOS/vector/역할을 포함한 완전 DR은 아니다. main/운영(D013)과 사용자 탭은 유지한다.
+
+## v8 역사 실행·인수 · 2026-10-19
+
+당시 개인 개발 웹/API/조사 worker는 `f839ae0`이며 [Draft PR45](https://github.com/DigestWorks/IssueDigest/pull/45)(PR44 기반)다. 새 private v8은 동결 planner7→승인 저장 검색→최대5근거 고정→최종 생성으로 이어진다. 정확 인용에 있는 유효한 YYYY-MM-DD만 timeline 날짜 후보로 최대16개 허용하고, 후보가 없으면 요약/비교로 설명한다. 개별 인용에 해당 날짜가 있는지도 다시 검사한다. 날짜가 있다는 것과 실제 사건을 뒷받침한다는 것은 다르다. 수치의 포함 관계와 목표·관측 실적·조건부 전망을 보존하도록 지시하며 자유 문장의 의미 정확성을 schema 통과로 인증하지 않는다. 원래 질문/검색·정확 인용·첫 열린 요약·기존 소비자 디자인과 공개 계약은 유지한다.
 
 전체 Python3,553+JS744=4,297개·lint/format/types/build/contract와 작업별/전체 독립 검토(Critical/Important/Minor0)를 통과했다. [source CI](https://github.com/DigestWorks/IssueDigest/actions/runs/39208107011)도 성공했다. 기존v2~v7 provider/지침/한도·원래 workflow/version/유료 checkpoint와 저장 결과를 보존한다. 새v8은 planner7 유료slot1→search_v8 step2→final_v8 유료slot3을 회복한다. 자체 합성 신원으로390/1440·두 테마·첫 열린 요약/접힌 상세·정확 원문/초점·재열람(읽기POST0/페이지오류0)을 확인했다.
 
@@ -86,7 +102,7 @@ D022 v4의 역사 실제 모델 검증은 controller가 별도 소유 평가 환
 
 ## 역사 v7 실행·인수 · 2026-10-19
 
-현재 개인 개발 웹/API/조사 worker는 `57c71ec`이며 [Draft PR44](https://github.com/DigestWorks/IssueDigest/pull/44)(PR43 기반)다. 새 private v7은 질문→검색어 계획1회→현재 권한의 승인 저장 색인 검색→최대5근거 원자 고정→최종 생성1회다. 원래 질문 검색을 항상 포함하고 계획 검색과 원래 질문 우선 라운드로빈으로 합친다. 계획은 근거가 아니며 외부 웹 탐색·자동 등록/공개 게시를 추가하지 않는다. 첫 요약·보수적 제공 자료 귀속·정확 인용·부족 응답과 기존 소비자 디자인을 유지한다.
+당시 개인 개발 웹/API/조사 worker는 `57c71ec`이며 [Draft PR44](https://github.com/DigestWorks/IssueDigest/pull/44)(PR43 기반)다. 새 private v7은 질문→검색어 계획1회→현재 권한의 승인 저장 색인 검색→최대5근거 원자 고정→최종 생성1회다. 원래 질문 검색을 항상 포함하고 계획 검색과 원래 질문 우선 라운드로빈으로 합친다. 계획은 근거가 아니며 외부 웹 탐색·자동 등록/공개 게시를 추가하지 않는다. 첫 요약·보수적 제공 자료 귀속·정확 인용·부족 응답과 기존 소비자 디자인을 유지한다.
 
 실제 고정3앱실행/공급자6요청·자동재시도0은 브리핑 완료1(의미 부분 충족)·자료 부족 완료1·검증 실패1이다. 원래 문자 검색0이던 영어 표현의 주택 질문은 계획 검색으로 정확 자료1건을 찾았으나, 최종 timeline이 원문에 없는 정확 날짜2개를 추정해 표시를 차단했다. 성공까지 다시 호출하지 않았다. 완료 답변의9문장/평가·선택 인용3개와 실패 checkpoint의6문장/인용을 직접 대조했다. 목표·실적·조건부 전망의 첫 결론은 읽히지만 세부 항목의 포함 관계 누락과 목표/확정 결과의 모호한 표현은 남았다. 자료에 없는 전국 찬성률·인지도는 생성하지 않고 근거 부족으로 끝났다. 검색 개선·구조 통과를 전체 의미 품질 완료로 해석하지 않는다. cached 실제 사용량은 입력9,413/출력2,087토큰이며3실행 지연은8.39/5.76/3.96초다. 모든 유료 응답6개를 확인했고 실제 청구 금액은 미검증이다. 실패/취소·권한 변경·응답 유실의 앱 usage0은 무료를 뜻하지 않으며 기존 보수적 예약을 유지한다. 이전v6 초기4(부족1/실패3)+별도2와v5 초기4+별도2의 실패·부분 충족 분모를 보존한다.
 

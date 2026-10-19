@@ -1,5 +1,15 @@
 # 진행 기록
 
+## v9 전체 검사·개인 개발 적용 · 2026-10-19 KST
+
+현재 개인 개발 웹/API/조사 worker는 `ab6654e`/private v9이며 [Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)(PR47 기반·미병합)다. 원래 질문→planner7→승인 저장 검색→관련성 선택→선택 원문 고정→최종 생성으로 연결했다. 불확실 후보는 남기고 명확한 무관만 제외한다. 선택은 진실/정치적 동의 판정이 아니다. API/공개 읽기/DB schema·로그인·선택한 모바일 디자인과 역사v2~v8 provider·원래 checkpoint를 유지한다.
+
+단일 전체 gate sourceab6654e의 Python3,891+JS764=4,655개·lint/format/types/build/contract가 통과했고 실패/skip/warning0이다. 작업별/전체 백지 검토는 각각 명세/품질 PASS(C0/I0/M0)다. 실제 모델 source5fcdc42와 이후 문서만 다른 검증/개발 source를 구분한다.
+
+활성 작업0에서 API/worker를 정상 재기동하고 단일 worker 잠금·새 source/cwd·정적 파일 일치를 확인했다. 이전 소스/정적 자산·수집기 소스/runner/config/cron·자료/계정/세션·공개 복사본/비회원 경계를 보존했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PostgreSQL 복원에서23public테이블 count/rowhash 일치를 확인했다. schema0009 유지·migration0이며 실제 과거 AI 결과0이어서 실제 역사 결과 재생은 주장하지 않는다. DBOS/vector/역할을 포함한 완전 DR은 아니다. main/운영(D013)과 사용자 탭은 유지한다.
+
+Sites/CI/소유 QA·SDD 정리의 최종 receipt는 확인 뒤 추가한다. 실제 모델3/9의 부분 의미 판정·두 Ruling/비용과 원래 분모를 유지한다.
+
 ## v9 실제 앱 인수 · 2026-10-19 KST
 
 v9 source5fcdc42에서 기존 고정3질문·기검토 공개 텍스트3건으로 실제 앱3회/공급자9요청을 한 번씩 실행했다. 자동 재시도0·완료3(답변2/자료 부족1)/실패0이다. 선택 전 후보1/3/3→선택 후1/1/1이며 필요한 동일 핵심 자료는 positive2문항 모두 보존했다. 둘째의 명시 무관2개는0개로 줄었다. 셋째는 주제 자료1개를 남겼지만 human 미판정3개를 그대로 보존하며 제외2개에 정답/precision 가점을 주지 않는다.
