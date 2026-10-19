@@ -476,6 +476,14 @@ handling and publishes only after successful disposal. Do not enable SQL paramet
 See [evaluation instructions](../../tests/evaluation/README.md) for the full job example,
 command, fingerprints, metric denominators and baseline/candidate comparison conditions.
 
+`issuedigest_storage.planned_retrieval_evaluation.evaluate(engine, raw_job_bytes)` adds a
+separate strict comparison SDK (`PlannedEvaluationJob` / `PlannedEvaluationReport`). It reuses
+v1 scope/fingerprint/transaction/family metrics and calls the actual planned search with no
+parent or model calls. Reports distinguish recorded planner output from operator-authored
+queries and count relevant, explicitly irrelevant and unjudged returns. `judged_precision`
+excludes unjudged returns and is null with no judged returns; it is not overall precision or
+answer quality. See the [planned comparison job and denominators](../../tests/evaluation/README.md#기록된-계획-검색과-원래-검색-비교).
+
 ## 명시 정책뉴스 collection journal
 
 `0008_policy_collection`은 기존 근거·공개 게시·세션과 FK를 공유하지 않는

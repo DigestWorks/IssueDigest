@@ -1,0 +1,47 @@
+# 계획 검색의 누락·무관 자료 평가
+
+## Spec · 목적과 범위
+
+v8 실제 고정3회에서 원래검색0→정확 자료1 회복과 무관한 자료 선택·질문 밖 검색어가 함께 관측됐다. 현재 v1 내부 검색 평가는 원래 질문의 문자 검색만 측정하므로 실제 계획 검색과 비교할 수 없다. 이번 변경은 같은 corpus/질문/gold에서 원래 검색과 **기록되거나 명시 작성된 계획 검색**을 읽기 전용으로 비교한다. 검색 정책·provider·답변의 수치 표현을 아직 수정하지 않으며 의미 판단을 키워드 규칙으로 인증하지 않는다. 이 결과로 후속 필터/재순위화의 효용을 판단한다. 사용자에게 운영자 도구나 임시 UI를 추가하지 않는다.
+
+## Global Constraints
+
+- 기존 `issuedigest-evaluate-retrieval` v1 입력/출력·집계·보안 계약과 앱의 research-v2~v8/provider/workflow/검색·저장/API/OpenAPI·인증/공개·레이아웃·DBschema/수집기를 보존한다. 기존 source b1f4c8539d1c01f583b3937fc50965db6128684e(실행f839ae0), 전체4,297개/CI39208107011의 증거를 baseline으로 재사용하며 동일 baseline을 다시 돌리지 않는다. 새 HTTP/DB migration/모델 호출·키 로딩·자동 보정/수집/게시를 만들지 않는다. main/운영 유예(D013), 실제 사용자 세션 비대행, 사용자 탭 유지다.
+- 새 내부 SDK와 `issuedigest-evaluate-planned-retrieval` CLI를 제공한다. strict bounded UTF-8 JSON 최대256KiB·중복key/비유한수/추가필드/타입강제 거부·UUID4·각 기존 corpus1..50/질문1..40/질문1..1500/goldfamily1..5 및 family member1..10 계약을 재사용한다. 새 job은 `schema_version:1`, `baseline`(기존 EvaluationJob 전체), `plans`를 가진다. `plans`는 baseline.cases와 개수/순서/case_id가 정확히 같아야 한다. 각 plan은 case_id, origin(`recorded_planner_output` 또는 `operator_authored`), queries(기존 validate_plan와 같은1..3/각1..64/비공백/Unicode control거부), irrelevant_snapshot_ids(중복 없는 corpus 내0..50 UUID4)를 가진다. irrelevant와 해당 case의 모든 expected family member는 겹칠 수 없다. 엄격한 판정은 사람이 명시한 gold/irrelevant에 한정하며 미판정은 그대로 남긴다. 기록된/작성된 plan의 출처를 저장하고 실제 모델 실행 품질로 혼합하지 않는다.
+- 원래 경로는 기존 question_terms/retrieve_snapshot_ids, 계획 경로는 실제 `research_search.search_candidates(conn,{workspace_id,question},queries,None)`를 사용한다. parent 없는 독립 질문만 평가하며 historical workflow/journal/실제 모델 재생을 주장하지 않는다. 검색 정책을 복제하거나 바꾸지 않는다. 두 결과 모두 tuple·최대5·중복/선언corpus이탈을 거부한다. 동일 read-only REPEATABLE READ transaction에서 실제DB명/engine/실제workspace corpus전체/canonical/투영의 완전 일치를 검증하고 모든 case 또는 전체실패다. 임의 누락/실패 case 제외·잘못된 결과 수리는 없다.
+- 새 report는 version/profile, 전체검증job, job/hash·질문/gold hash·plans/labels hash·선언corpus hash·canonical/투영 fingerprint hash를 포함한다. profile은 `planned-retrieval-comparison-v1`, underlying retrieval profile도 구분한다. case마다 baseline/계획의 실제 rank·원래 terms·각query terms·family ranks/기존 recall·hit1·all_required·negative 지표, expected에 속한 반환수/명시irrelevant 반환수/unjudged 반환수/총반환수·judged_precision을 기록한다. expected member 하나라도 겹치면 relevant이며 같은family 여러member도 반환수 각각1로 센다(recall은 family단위). judged_precision은 relevant/(relevant+irrelevant), 분모0이면null이며 unjudged는 제외됐다고 명시한다. baseline/planned 집계는 각각 기존 positive/negative 분모와 총반환/relevant/irrelevant/unjudged·micro judged_precision을 제공한다. 개선 차이를 이 숫자에서 판단하며 전체 precision/의미 지지/공정성/답변 품질로 부르지 않는다. 빈 positive/negative·전부미판정도 정직한 분모/null을 보존한다.
+- CLI는 기존 private-file/DB URL/engine lifecycle을 재사용한다. 입력400/600·symlink거부, 부모700/신규600 원자report·덮어쓰기금지·DB transaction/connection/engine disposal 성공 뒤 발행한다. stdout은 집계와 origin별 case수만, stderr 고정오류만이며 질문/terms/ID/plan/본문/DB진단을 출력하지 않는다. 기존 CLI와 로직을 길게 복제하지 않고 좁은 공통 helper/runner를 사용한다. v1 report 내용/오류 문구·명령은 유지한다.
+- 구현자는 합성자료와 controller가 지정한 own loopback PG만 사용한다. 실제 key/원문/서버/외부network·자식agent·container 관리/푸시/배포 금지다. controller는 기존 승인 공개텍스트3건과 이전v8의 고정3질문/기록된 계획을 **추가 유료 호출0**으로 별도 own QA에서 재현한다. 모든3문항/선택/명시irrelevant/미판정을 직접 대조하고 기존 의미 한계·실제v8 3/6 분모와 이전v7/v6/v5 기록을 보존한다. 현재 최신 자료나 일반 시사 품질로 확대하지 않는다. 실제개발앱은 sourcef839ae0 유지·배포/재시작/실제DB쓰기 없이 내부 평가 도구만 검토 PR에 올린다. controller가 전체gate/작업·전체독립검토·Draft PR45 기반 새 Draft PR/마일스톤·Sitesv67archive/사본·게시·소유QA정리를 기록한다.
+
+## Task 1: 읽기 전용 계획 검색 비교 SDK·CLI와 합성 TDD
+
+- [x] packages/storage에 strict planned job/report와 read-only evaluation SDK를 추가한다. 기존 EvaluationCase/Job·fingerprint·case metric·summary·transaction 검증을 좁게 재사용/추출하고 기존v1 결과를 변경하지 않는다. 위 exact constraints와 hash·origin·판정 분모를 지킨다. 실물 PG에서 원래 미발견→계획 발견/무관 동시 선택·부분 gold family·unknown/빈결과·최대5 원래우선·gold/irrelevant overlap·control/query/case순서/DB범위/투영오염·잘못된 runtime결과·동일내용 hash/labels변경 hash·읽기 transaction/쓰기0을 RED→GREEN으로 검증한다.
+- [x] worker에 새 private CLI와 project script를 추가하고 기존 runner를 좁게 공유한다. 기존 CLI/report bytes/aggregate/error 보존과 새 입력/출력400/600/700·symlink/overwrite·부분실패/DB/pool정리 실패 시 report0/고정출력·실제 installed entrypoint를 검증한다. 적절한 README/평가 문서에 job/해석·한계와 미판정 precision의 분모를 설명한다. dependency변경 없는 script등록이면 lock만 일치시킨다. 기존 HTTP/worker 경로를 손대지 않는다.
+- [x] 관련 storage/worker 회귀·ruff/format/mypy/lock·diff 검사를 통과하고 위 체크박스·명시파일 source commit을 남긴다. 보고서는 ignored SDD scratch에만 두며 강제추적하지 않는다. controller 인수/실제 평가/PR/Sites/개발앱 반영을 완료로 표시하지 않는다.
+
+## Controller 인수
+
+실제3건의 고정 recorded plan+same3source를 읽기전용으로 비교하며 추가 모델0·app workflow0이다. 원래 후보0/2/3 및 계획후1/3/3과 일치하는지 확인하고 모든 반환을 사람 gold/irrelevant/unjudged로 대조한다. source corpus의 한계 때문에 전체 precision/여론·중립성 품질을 인증하지 않는다. synthetic QA 쓰기는 준비/검사 환경에 한정하며 평가 transaction은 쓰기0을 확인한다. 실제개발서버/DB/로그인/수집기 변경은 이번에 없다. 단일 최종 wholegate와 독립 검토, 문서/마일스톤/Sites 사본·native게시·소유QA정리의 실물 receipt를 남긴다. 답변 수치 표현의 남은 한계는 해결했다고 표시하지 않는다.
+
+
+## Controller 기록 계획 재현 결과 · 2026-10-19
+
+내부 계획 검색 비교 SDK와 `issuedigest-evaluate-planned-retrieval` CLI를 추가했다. 원래 검색과 실제 original-first round-robin 계획 검색을 같은 strict job/corpus·읽기 전용 REPEATABLE READ transaction에서 비교한다. 필수 family·사람이 명시한 무관 자료·미판정을 구분하며 `judged_precision`은 판정된 relevant/(relevant+irrelevant)만 사용한다. 미판정은 분모에서 빠지므로 전체 precision이 아니다. 기록된 계획/운영자 작성 계획의 출처를 따로 보존하며 provenance 자체를 자동 인증하지 않는다.
+
+기검토 공개 텍스트3건·이전v8 고정 질문3개와 실제 기록된 planner7 검색어를 그대로 재현했다. 원래 후보0/2/3→계획후1/3/3이며 이전 선택 순서까지 정확히 일치했다. 첫 질문은 필요한 자료0→1·명시무관0, 둘째는 필요한 자료1 유지·명시무관1→2, 셋째는3건 모두 관련성 미판정으로 보존했다. 셋째의 전국 여론 직접 근거 부재를 모든 반환 자료의 무관함이나 세상에 조사 자체가 없다는 뜻으로 확대하지 않았다. 필요한 자료를 지정한 positive2문항의 family recall은0.5→1.0이고, 전체 반환5→7 중 판정 relevant1→2/irrelevant1→2/unjudged3→3·판정분모의 micro precision0.5→0.5다. 작은 고정 corpus의 비교이며 전체 검색 품질/중립성·답변 의미 품질 통과가 아니다.
+
+추가 유료 모델0·앱 workflow0·실제 사용자 세션 대행0이다. 평가의887개 SELECT/SHOW만 관측했고 쓰기0이며 전용 합성 DB의 준비는 별개다. 입력 질문·검색어·원문/ID와 상세 rank/report는 private에 보존했다. 실제 앱은 f839ae0/v8과 선택한 브리핑 디자인 그대로이며 서버/실제DB·수집기·provider/검색정책/복구/HTTP/OpenAPI를 바꾸거나 배포/재시작하지 않았다. 기존v8 실제3/6(의미 부분1/목표 소표본 충족1/부족1)·v7 3/6·v6 초기4+별도2·v5 초기4+별도2 분모와 남은 하한/전망 뉘앙스·실제날짜 양성 미검증을 보존한다.
+
+후속은 같은 corpus·질문/gold와 미판정 구분을 유지하며 query 이탈/후보 재순위화의 발견률·무관 유입을 함께 비교하는 것이다. 이번 도구가 검색 잡음이나 답변의 수치 표현 자체를 해결한 것으로 표시하지 않는다. 기존 최대100인용/16날짜의 동시 적재 비보장·24,000예산 사전거절 판단과 큰 맥락의 자료 부족 증가/정책 재설계 비용은 D022에 그대로 남긴다. main/운영은 D013에 따라 유예한다.
+
+독립 검토·단일 전체gate/PR/Sites/QA 정리의 최종 결과는 [진행 기록](../planning/progress.md)에 후속 receipt로 남긴다.
+
+
+## 전체 인수 게이트
+
+source7e8138f·검증head4a82706에서 Python3,631+JS744=4,375개·static/build/contract 통과, 작업/전체 독립 검토 C0/I0/M0. [Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46)은 PR45 기반이며 main/운영은 유예한다. 현재 개발앱은f839ae0 그대로이고 내부 평가 도구만 추가했다. 기록3재현/추가 모델0의 결과와 아직 남은 실제 답변 수치 표현·검색 잡음은 위 결과대로다. Sites/자체QA 정리의 최종 receipt는 진행 기록 원본에 누적한다. 새 Ruling/보류 지적은 없다.
+
+
+## 최종 게시/정리 receipt
+
+Draft PR46·source CI39211130090 success·Sites v68(public/native succeeded)/이전v67보존·소유QA2개/ignored SDD archive 후 정리까지 확인했다. 저장소 사본f6b947f 이후 최종 receipt는 [진행 기록](../planning/progress.md)의 원본이다. 앱/sourcef839ae0·실제 서버/DB는 그대로이며 source7e8138f의 내부 도구만 추가했다. 단일 최종 gate4a82706 뒤 문서만 변경했다. 새 Ruling/보류 지적은 없다.

@@ -2,7 +2,10 @@
 
 import json
 import re
+from collections.abc import Iterator, Sequence
+from contextlib import contextmanager
 from typing import Annotated, Literal, Self
+from uuid import UUID
 
 from issuedigest_domain import build_search_projection
 from pydantic import UUID4, BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -117,17 +120,22 @@ class EvaluationReport(_PrivateModel):
     summary: dict[str, int | float | None]
 
 
+def _job_data(raw: bytes) -> object:
+    """Decode bounded operator JSON without ambiguous keys or non-finite constants."""
+    if type(raw) is not bytes or not 0 < len(raw) <= MAX_JOB_BYTES:
+        raise ValueError("Invalid size")
+    data = json.loads(
+        raw.decode("utf-8"),
+        object_pairs_hook=unique_json_object,
+        parse_constant=reject_json_constant,
+    )
+    return data
+
+
 def parse_job(raw: bytes) -> EvaluationJob:
     """Only bounded raw bytes are accepted, including at the SDK evaluation boundary."""
     try:
-        if type(raw) is not bytes or not 0 < len(raw) <= MAX_JOB_BYTES:
-            raise ValueError("Invalid size")
-        data = json.loads(
-            raw.decode("utf-8"),
-            object_pairs_hook=unique_json_object,
-            parse_constant=reject_json_constant,
-        )
-        return EvaluationJob.model_validate_json(json.dumps(data, allow_nan=False))
+        return EvaluationJob.model_validate_json(json.dumps(_job_data(raw), allow_nan=False))
     except Exception:
         raise ValueError("Unable to validate retrieval evaluation job") from None
 
@@ -200,6 +208,13 @@ def _fingerprints(conn: Connection, job: EvaluationJob) -> tuple[SnapshotFingerp
 def _case_result(conn: Connection, job: EvaluationJob, case: EvaluationCase) -> CaseResult:
     terms = question_terms(case.question)
     ranked = retrieve_snapshot_ids(conn, job.workspace_id, terms)
+    return _ranked_case_result(job, case, terms, ranked)
+
+
+def _ranked_case_result(
+    job: EvaluationJob, case: EvaluationCase, terms: tuple[str, ...], ranked: tuple[UUID, ...]
+) -> CaseResult:
+    """Validate runtime ranks and measure gold families without repairing search output."""
     if (
         type(ranked) is not tuple
         or len(ranked) > 5
@@ -229,53 +244,10 @@ def evaluate(engine: Engine, raw: bytes) -> EvaluationReport:
     """Evaluate all cases in one read-only REPEATABLE READ transaction, or fail wholly."""
     try:
         job = parse_job(raw)
-        validate_database_url(engine.url, job)
-        if engine.dialect.name != "postgresql" or engine.dialect.driver != "psycopg":
-            raise ValueError("Invalid engine")
-        with engine.connect().execution_options(
-            isolation_level="REPEATABLE READ", postgresql_readonly=True
-        ) as conn:
-            with conn.begin():
-                target = conn.execute(
-                    text(
-                        "SELECT current_database(), version(), "
-                        "current_setting('transaction_isolation'), "
-                        "current_setting('transaction_read_only')"
-                    )
-                ).one()
-                if (
-                    target[0] != job.expected_database
-                    or not target[1].startswith("PostgreSQL ")
-                    or target[2:] != ("repeatable read", "on")
-                ):
-                    raise ValueError("Invalid database")
-                fingerprints = _fingerprints(conn, job)
-                cases = tuple(_case_result(conn, job, case) for case in job.cases)
-        positive = [case for case in cases if not case.case.no_match]
-        negative = [case for case in cases if case.case.no_match]
-        summary: dict[str, int | float | None] = {
-            "cases": len(cases),
-            "positive_cases": len(positive),
-            "negative_cases": len(negative),
-            "hit_at_1": sum(bool(c.hit_at_1) for c in positive) / len(positive)
-            if positive
-            else None,
-            "macro_family_recall_at_5": (
-                sum(c.family_recall_at_5 or 0 for c in positive) / len(positive)
-                if positive
-                else None
-            ),
-            "all_required_at_5": (
-                sum(bool(c.all_required_at_5) for c in positive) / len(positive)
-                if positive
-                else None
-            ),
-            "negative_no_match": (
-                sum(bool(c.negative_no_match) for c in negative) / len(negative)
-                if negative
-                else None
-            ),
-        }
+        with _evaluation_connection(engine, job) as conn:
+            fingerprints = _fingerprints(conn, job)
+            cases = tuple(_case_result(conn, job, case) for case in job.cases)
+        summary = _summary(cases)
         return EvaluationReport(
             retrieval_profile=RETRIEVAL_PROFILE,
             job=job,
@@ -289,3 +261,51 @@ def evaluate(engine: Engine, raw: bytes) -> EvaluationReport:
         )
     except Exception:
         raise ValueError("Unable to evaluate retrieval") from None
+
+
+def _summary(cases: Sequence[CaseResult]) -> dict[str, int | float | None]:
+    """Use the existing positive/negative case denominators for either search path."""
+    positive = [case for case in cases if not case.case.no_match]
+    negative = [case for case in cases if case.case.no_match]
+    summary: dict[str, int | float | None] = {
+        "cases": len(cases),
+        "positive_cases": len(positive),
+        "negative_cases": len(negative),
+        "hit_at_1": sum(bool(c.hit_at_1) for c in positive) / len(positive) if positive else None,
+        "macro_family_recall_at_5": (
+            sum(c.family_recall_at_5 or 0 for c in positive) / len(positive) if positive else None
+        ),
+        "all_required_at_5": (
+            sum(bool(c.all_required_at_5) for c in positive) / len(positive) if positive else None
+        ),
+        "negative_no_match": (
+            sum(bool(c.negative_no_match) for c in negative) / len(negative) if negative else None
+        ),
+    }
+    return summary
+
+
+@contextmanager
+def _evaluation_connection(engine: Engine, job: EvaluationJob) -> Iterator[Connection]:
+    """Verify target identity and hold one read-only repeatable snapshot for all cases."""
+    validate_database_url(engine.url, job)
+    if engine.dialect.name != "postgresql" or engine.dialect.driver != "psycopg":
+        raise ValueError("Invalid engine")
+    with engine.connect().execution_options(
+        isolation_level="REPEATABLE READ", postgresql_readonly=True
+    ) as conn:
+        with conn.begin():
+            target = conn.execute(
+                text(
+                    "SELECT current_database(), version(), "
+                    "current_setting('transaction_isolation'), "
+                    "current_setting('transaction_read_only')"
+                )
+            ).one()
+            if (
+                target[0] != job.expected_database
+                or not target[1].startswith("PostgreSQL ")
+                or target[2:] != ("repeatable read", "on")
+            ):
+                raise ValueError("Invalid database")
+            yield conn

@@ -111,3 +111,7 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### v8 원문 날짜·수치 관계 보존
 
 선택된 prompt의 정확 인용에서만 유효 ASCII YYYY-MM-DD 후보를 순서대로 중복 제거해 최대16개 허용한다. metadata·제목·질문·이전 AI의 날짜는 후보가 아니다. 후보0이면 실제 provider DTO/schema에서 timeline을 제외한다. 후보가 있어도 해당 인용에 없는 날짜는 최종 검증에서 거부한다. 포함 항목의 독립 합산 금지·목표/관측/조건부 전망·열린 상하한은 의미 지침이며 자유 문장을 schema로 사실 인증하지 않는다. 최대 인용/날짜 수는 합산 예산 내 동시 적재 보장이 아니다. 판단과 비용은 D022 후속에 보존한다.
+
+### 내부 계획 검색 비교
+
+[명세](../changes/planned-retrieval-evaluation.md). 운영자의 private strict job/corpus와 명시 expected/irrelevant만 판단 기준으로 삼는다. 원래/계획 경로를 동일 읽기 전용 transaction에서 검증하며 미판정과 origin을 보존한다. 이 도구는 앱의 검색/생성·공개·권한을 바꾸거나 의미 판단을 인증하지 않는다.

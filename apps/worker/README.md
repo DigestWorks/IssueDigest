@@ -400,6 +400,15 @@ See [the complete job schema, commands and metric limits](../../tests/evaluation
 Keep jobs/gold/reports outside Git/PR/Sites. Synthetic regression success does not execute the
 existing 20-question real-material evaluation or establish answer/citation quality.
 
+The separate `issuedigest-evaluate-planned-retrieval` command (or
+`python -m issuedigest_worker.planned_retrieval_evaluation_cli`) compares the original path
+with recorded/operator-authored queries through the actual planned search. It accepts a
+strict `{schema_version: 1, baseline: <full v1 job>, plans: [...]}` private job, performs no
+model calls, and shares the same file/DB lifecycle guards. stdout contains baseline/planned
+aggregates and origin counts only. Private reports retain terms, ranks, hashes and human
+labels; unjudged returns are excluded from judged_precision. This does not establish overall
+precision or answer quality. See the [complete planned comparison guide](../../tests/evaluation/README.md#기록된-계획-검색과-원래-검색-비교).
+
 역사 v4는 기관의 발표 수치·평가를 귀속하고 목표·실적·전망을 구분하도록 지침만 개선한다. 같은 대상·기간·단위가 확인되는 단순 대소 관계는 설명하되 계산·인과·양측을 생성/강제하지 않는다. v3와 같은 bounded output schema/build·validation을 공유하며 reviewer만 issuedigest-research-v4/research-v4로 엄격히 구분한다. v2/v3 지침/schema/prompt bytes는 보존하고 v4 prompt14,813+static4,639+framing2,048+output2,500으로24,000 한도를 지킨다. 합성 모델/PG 검사는 실제 모델 품질 판정이 아니다. 실제 검증·적용 상태는 진행 기록을 따른다.
 
 

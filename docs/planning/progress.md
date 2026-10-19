@@ -1,5 +1,36 @@
 # 진행 기록
 
+## 최종 게시·정리 · 계획 검색 비교 평가 · 2026-10-19 KST
+
+- [Sites v68](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:46:20.931499+00:00. source `b61add725d924bd9f559ea71cbf92dbe8fe4f197`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_9819e21fb7e0819199a20c8069772bdc`, deployment `appgdep_6ad5bcad7a248191aaf85da62f3f87fb`. 이전v67과 전체 기록·v8/v7/v6/v5 실제 실패/부분 분모를 보존했다. 사본f6b947f·내부 도구source7e8138f·실제 앱f839ae0·[Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46)(PR45 기반)이며 사본 이후의 이 최종 receipt는 저장소 원본이다.
+- 검증head4a82706의 [CI39211130090](https://github.com/DigestWorks/IssueDigest/actions/runs/39211130090) success 확인. Sites 사본에는 당시 진행 중 상태가 남아 있으며 이 이후 성공 receipt는 원본에서 확인한다. 로컬 단일 gate Python3,631+JS744=4,375개/static/build/contract·실패/skip/warning0, 작업/전체 독립 검토 C0/I0/M0이다. 이후 변경은 Markdown 인수/출판 기록뿐이며 실행 코드는 그대로다.
+- 문서11파일/로컬링크260·diff/실제 접속값 제외, Sites HTML53/로컬링크·anchor·asset1,166/공개텍스트140파일·실제 비밀값 제외 검사 통과. 기존 레이아웃의 텍스트·사본 갱신으로 Sites 별도 화면 검사는 하지 않았다. 앱/UI는 변경하지 않았고 브라우저를 열거나 사용자 탭을 이동하지 않았다.
+- 전체ID/pinnedimage/소유label/loopback 대조 후 자체 합성PG2개/익명볼륨만 제거하고25491/25492 닫힘을 확인했다. 실제 개발 앱·서버/DB·로그인·수집기·다른컨테이너/worktree는 변경하지 않았다. 실제 운영 소스/복귀 경로·기존 백업·상세 평가/RED·GREEN·독립 검토 증거를 보존하고 이 변경의 SDD ignored scratch만 private archive 후 제거했다. 새 Ruling/보류 지적0이다. main/운영 미병합·미배포(D013)를 유지한다.
+- 결과는 기록된3질문/계획의 비교다(추가 paid모델0/앱workflow0). positive2의 핵심 자료 발견률 개선과 둘째 질문의 명시 무관 자료1→2, 셋째의 미판정3을 함께 보존한다. 전체 검색/중립성·실제 답변 의미 품질 통과나 수치 문장 문제 해결을 주장하지 않는다. 다음은 동일 평가 범위에서 후보 관련성 정책을 비교하는 구현이다.
+
+## 전체 검사·독립 검토 · 계획 검색 비교 평가 · 2026-10-19 KST
+
+- source7e8138f·검증/전체 검토head4a82706. 단일 최종 gate Python3,631+JS744=4,375개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0. 별도 백지 맥락의 작업/전체 변경 검토 모두 specPASS/sourceApproved(C0/I0/M0), 열린/보류 지적·새 Ruling0이다. 기존v1 SDK의 mixed/positive-only/negative-only serialized bytes와 CLI stdout/report bytes 호환 증거도 보존한다.
+- [Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46), PR45 기반·미병합·앱 첨부. [CI39211130090](https://github.com/DigestWorks/IssueDigest/actions/runs/39211130090)는4a82706 기준 진행 중으로 확인했으며 로컬 통과와 구분한다. 이후 변경은 문서·출판 receipt뿐이다.
+- controller 고정3 recorded 계획 재현·질문/계획 byte동일/원래 선택순서·명시 relevant/irrelevant/unjudged·887SELECT/SHOW/쓰기0을 직접 확인했다. source 경로 비교에서 provider/workflow/search정책/API/OpenAPI/auth/DBschema/소비자UI의 변경0을 확인했다. 실제 개발 앱f839ae0·서버/DB/수집기 변경이나 배포/재시작·새 paid모델/실제workflow0이다. 소표본 검색 비교를 답변 의미 품질 개선이나 일반 precision으로 확대하지 않는다.
+- 이전 Sites v67을 archive하고 현재 사본/요약·native 게시·소유 합성PG2개 정리 receipt는 마무리 후 아래 기록과 구분해 남긴다. 새 브라우저 UI 검사는 하지 않았으며 앱/UI 변경이 없다. 사용자 탭을 열거나 이동하지 않았다. main/운영 유예다.
+
+## 구현·기록된 계획 재현 · 계획 검색 비교 평가 · 2026-10-19 KST
+
+내부 계획 검색 비교 SDK와 `issuedigest-evaluate-planned-retrieval` CLI를 추가했다. 원래 검색과 실제 original-first round-robin 계획 검색을 같은 strict job/corpus·읽기 전용 REPEATABLE READ transaction에서 비교한다. 필수 family·사람이 명시한 무관 자료·미판정을 구분하며 `judged_precision`은 판정된 relevant/(relevant+irrelevant)만 사용한다. 미판정은 분모에서 빠지므로 전체 precision이 아니다. 기록된 계획/운영자 작성 계획의 출처를 따로 보존하며 provenance 자체를 자동 인증하지 않는다.
+
+기검토 공개 텍스트3건·이전v8 고정 질문3개와 실제 기록된 planner7 검색어를 그대로 재현했다. 원래 후보0/2/3→계획후1/3/3이며 이전 선택 순서까지 정확히 일치했다. 첫 질문은 필요한 자료0→1·명시무관0, 둘째는 필요한 자료1 유지·명시무관1→2, 셋째는3건 모두 관련성 미판정으로 보존했다. 셋째의 전국 여론 직접 근거 부재를 모든 반환 자료의 무관함이나 세상에 조사 자체가 없다는 뜻으로 확대하지 않았다. 필요한 자료를 지정한 positive2문항의 family recall은0.5→1.0이고, 전체 반환5→7 중 판정 relevant1→2/irrelevant1→2/unjudged3→3·판정분모의 micro precision0.5→0.5다. 작은 고정 corpus의 비교이며 전체 검색 품질/중립성·답변 의미 품질 통과가 아니다.
+
+추가 유료 모델0·앱 workflow0·실제 사용자 세션 대행0이다. 평가의887개 SELECT/SHOW만 관측했고 쓰기0이며 전용 합성 DB의 준비는 별개다. 입력 질문·검색어·원문/ID와 상세 rank/report는 private에 보존했다. 실제 앱은 f839ae0/v8과 선택한 브리핑 디자인 그대로이며 서버/실제DB·수집기·provider/검색정책/복구/HTTP/OpenAPI를 바꾸거나 배포/재시작하지 않았다. 기존v8 실제3/6(의미 부분1/목표 소표본 충족1/부족1)·v7 3/6·v6 초기4+별도2·v5 초기4+별도2 분모와 남은 하한/전망 뉘앙스·실제날짜 양성 미검증을 보존한다.
+
+후속은 같은 corpus·질문/gold와 미판정 구분을 유지하며 query 이탈/후보 재순위화의 발견률·무관 유입을 함께 비교하는 것이다. 이번 도구가 검색 잡음이나 답변의 수치 표현 자체를 해결한 것으로 표시하지 않는다. 기존 최대100인용/16날짜의 동시 적재 비보장·24,000예산 사전거절 판단과 큰 맥락의 자료 부족 증가/정책 재설계 비용은 D022에 그대로 남긴다. main/운영은 D013에 따라 유예한다.
+
+- source7e8138f, 작업별 합성235개/static/v1 serialized report·stdout 동일성·installed CLI 증거와 diff를 독립 검토해 specPASS/qualityApproved(C0/I0/M0)를 확인했다. 단일 전체gate·별도 전체 변경 검토 결과는 확인 뒤 기록한다. 고정3 실제 원문/기록계획 재현은 controller가 직접 수행했다. SDK transaction 내 자료/질문/계획·모든 반환과 gold/irrelevant/미판정의 대조를 완료했다. PR/Sites/QA 정리 receipt는 후속 기록이다.
+
+## 작업 시작 · 계획 검색의 누락·무관 자료 평가 · 2026-10-19 KST
+
+- PR45/b1f4c85·실행f839ae0에서 이어간다. 원래 검색과 AI 계획 검색을 같은 질문/gold/원문에서 비교하는 내부 read-only 도구를 만든다. 명시 무관 자료와 미판정을 분리해 전체 precision으로 과장하지 않는다. 기록된v8 실제3계획을 추가 모델 호출0으로 재현하며 앱 workflow/provider/검색 정책·실제 개발 서버/DB/사용자 탭은 유지한다. 수치 문장의 의미 한계는 이번 도구로 해결했다고 표시하지 않는다. 검증/검토/PR/Sites receipt는 이후 기록한다.
+
 ## 최종 출판·정리 · 원문 날짜·포함 관계 보존 · 2026-10-19 KST
 
 - [Sites v67](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:19:04.219193+00:00. source `1c6d36c66242d0763eb79c1b01df39ad784ba936`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_80a5a589463c81918cbf0b31ad363cc8`, deployment `appgdep_6ad5b649d49c81918eabf35084930723`. 이전v66과 전체 역사·v7/v6/v5 실패 분모를 보존했다. 저장소 사본 기준bc24068·실행f839ae0·[Draft PR45](https://github.com/DigestWorks/IssueDigest/pull/45)(PR44 기반)이며 이후의 이 출판/정리 receipt는 저장소 원본이다.
