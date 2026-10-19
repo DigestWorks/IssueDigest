@@ -4,7 +4,7 @@
 
 - source/검증 head `50f0552193de0cb2c0007024552eac5a43dc1da0`. 단일 전체 gate Python3,725+JS744=4,469개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0이다. 작업 독립 검토 C0/I0/M0, 전체 검토의 I1(기본 소유 클라이언트 정리)을 한 차례 수정하고 한정 재검토 PASS C0/I0/M0를 확인했다. 열린/보류 지적·새 Ruling0이다. lifecycle RED9→GREEN13, 관련562/selector94·지침/schema/예산/합성 결정 결과 동일성 증거를 보존했다.
 - 실제 selector3요청은 source384608d의 호출자 관리 client로 수행한 결과이며 새 source의 실제 호출로 재표기하지 않는다. 기존7개 결정/제공 인용15종 직접 대조·positive2의 동일 핵심 자료 보존·명시 무관2→0·셋째 human 미판정3 보존과 좁은 한계를 유지한다. 추가 유료 호출0, 총3/3완료·retry0이다. 앱f839ae0/v8·과거 provider/workflow/검색/저장/API/auth/UI/schema bytes를 보존했으며 실제 개발 앱/서버/DB·수집기 변경0이다.
-- Draft PR·source CI·Sites v68 보존/새 게시·소유 QA 정리 receipt는 뒤에 기록한다. 앱 실행기/전체24,000/출력2,500·월 예약/취소/권한/복구 연결은 후속이며 이번에 구현 완료로 표시하지 않는다. main/운영 유예(D013)·사용자 탭 유지다.
+- [Draft PR47](https://github.com/DigestWorks/IssueDigest/pull/47)(PR46 기반·미병합). 검증 source50f0552 이후941a86e는 Markdown만 변경했다. source CI·Sites v68 보존/새 게시·소유 QA 정리 receipt는 뒤에 기록한다. 앱 실행기/전체24,000/출력2,500·월 예약/취소/권한/복구 연결은 후속이며 이번에 구현 완료로 표시하지 않는다. main/운영 유예(D013)·사용자 탭 유지다.
 
 ## SDK 구현·실제3회 선택 인수 · 2026-10-19 KST
 
