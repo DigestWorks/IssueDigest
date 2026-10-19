@@ -1,5 +1,41 @@
 # 진행 기록
 
+## compact 수치 후보 v2 · 실제2회 전체 거부 · 2026-10-19
+
+- 담당/controller·feat/numeric-evidence-compact, PR50/805e154 기반. [명세](../changes/numeric-evidence-compact.md)·D022/M3. OpenSpec root=null·linked worktree 재사용·baseline5,003/sourceCI39235962771 재사용. 구현 및 실제5592d9c. 기존405파일의 base/task git object 일치·Task1 독립 Spec/품질 PASS(C0I0M0), agents790(신규121)·Ruff/format38/mypy14 통과를 확인했다. 전체5,124개·전체 독립 검토·Draft PR51/source CI 성공·Sites v73/이전v72보존·소유QA1/SDD 정리는 아래 최종 receipt에서 확인했다.
+
+새 v2를 이전과 byte-identical인 두 원문 packet(whole 인용2개/1개)에 각각1회 실행했다. 실제 source5592d9c·독립SDK2/공급자2요청·재시도0이며 반환0·전체 거부2·의미 완전 충족0이다. 기존 v1의 부분1/거부1, 기존 앱4건/12요청과 모든 과거 실패/미판정 분모를 유지했다. 앱·실제 사용자 세션은0이다.
+
+controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/null을 whole quote와 직접 대조했다. 이전에 누락된 하위 항목과 증감 수치는 raw에 나타났지만 수용된 후보가 아니다. 첫 응답은 단위의 존재하지 않는 occurrence3개·다른 값의 단위 연결, 전체 endpoint/cue가 statement 밖인 관계와 cross-citation 관계 때문에 거부된다. 전망 조건을 qualifier에 넣고 condition을 비운 문제, 관측의 상태 근거로 포함 문구를 쓴 문제도 남았다. 둘째는 두 관계 statement가 떨어진 원문 조각을 붙인 문자열이어서 거부된다. raw의 조사 표현을 단위로 쓰거나 반복 단위/시점을 오연결하고, 명시 전망을 관측으로 분류한 의미 오류도 남았다.
+
+두 raw는 known 상태 근거의 nonnull provider DTO를 만족했지만 exact 위치/관계 검사를 통과하지 못했다. 추가 호출 없이 원래 raw의 DTO/각 field/관계 물리 조건을 오프라인으로 분리 확인했고, 잘못된 행을 고치거나 정상 부분 proposal로 반환하지 않았다. 알려진 실패 사용량2건은 SDK에도 보존됐다. 입력3,003/출력2,029토큰·지연6.64/4.51초이며 청구 금액은 미검증이다. 동일 두 자료의 v1 출력3,229보다 짧았다는 관측을 일반 비용 절감·의미 품질 향상으로 확대하지 않는다.
+
+계약 구현/합성 검사와 실제 모델 의미 인수는 별개다. 실제 planned/unknown 양성·전체 문서 수치/다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 개발ab6654e/v9·앱/DBOS/DB/API/공개/UI/수집기·월 예약은 변경하지 않았고 main/운영은 D013 유예다. 다음 설계 후보는 모델이 occurrence를 세거나 관계 문장을 다시 쓰게 하기보다 서버에서 확정한 원문 위치 참조를 선택하게 하는 방식이다. 단순한 지침/성공 재호출·자동 수정은 해결로 표시하지 않는다.
+
+- Ruling1: whole 인용을 fact context로 참조하고 관계 statement에 두 명시 주체를 요구한다. 넓은 인용에서 잘못된 field 연결이 통과하거나 주체 생략/긴 관계가 누락·전체 거부되고 알려진 비용이 남을 수 있다. Spec/D022·private 검토 archive와 최종 인계에 보존한다. 사용자 탭을 열거나 이동하지 않는다.
+
+
+### compact 수치 v2 · 전체 검사·검토 receipt
+
+전체 gate49fd20d의 Python4,304+JS820=5,124개와 lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이며 Task1 및 전체 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0)다. 실제 source5592d9c와 전체 gate/검토49fd20d는 실행 코드가 같고 문서만 다르다. 이후 출판/정리 변경도 Markdown뿐이다.
+
+[Draft PR51](https://github.com/DigestWorks/IssueDigest/pull/51)은 PR50 기반·미병합이며 앱에 첨부했다. [source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d에서 success를 확인했다. Sites v73/사본/native 게시·이전v72 보존과 소유QA1/SDD 정리는 아래 최종 receipt에서 확인했다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling1/비용은 Spec/D022에 보존한다.
+
+
+### compact 수치 v2 · 최종 게시·CI·정리 receipt
+
+[계획 Sites v73](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)는 기존 public 설정으로 native succeeded를 확인했다. source `193111151806a5630a6b477984294237cb23d357`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_42ad33dc06608191b74762b3d591ecbd`, deployment `appgdep_6ad5f611d33c8191852448eb991c2adc`, 2026-10-19T10:51:12.942124+00:00이다. 저장소 사본77e4a61·이전v72/전체 기록·원래 v1/앱/과거 실패·미판정 분모·Ruling1/비용을 보존했다. HTML58개·로컬 링크/asset/anchor1,214개·공개 텍스트157개와 실제 private ID/인용 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신으로 새 browser QA와 사용자 탭 열기/이동은 하지 않았다. 이 최종 게시/CI/정리 receipt는 사이트 사본 이후 저장소 원본이다.
+
+[source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d 기준 success를 확인했다. 단일 전체 gate5,124개·작업 및 전체 독립 Spec/품질 PASS(C0I0M0)와 구분해 기록한다. 실제 source5592d9c 이후 변경은 Markdown뿐이며 마지막 문서 push에서 시작하는 새 CI와 이 성공을 구분한다. 실제2SDK/2요청은 여전히 거부2/수용0·의미 완전 충족0이며 추가 모델 호출/전체 검사 반복은 없었다.
+
+전체ID·pinned image·전용 label·loopback 포트로 대조한 이번 소유 PostgreSQL1개와 해당 볼륨만 정리하고 포트 닫힘을 확인했다. 작업별/전체 SDD 검토 기록은 private600 archive에 검증·보존한 뒤 이번 폴더만 제거했다. Ruling1은 Spec/D022와 최종 인계에 남겼다. whole 인용 참조의 field 오연결 가능성과 명시 주체/긴 관계의 누락·전체 거부 및 남는 호출 비용을 보존한다. 다른 컨테이너·worktree·브랜치·실제 서버/API/worker/수집기·원본 평가 증거는 변경하지 않았다. main/운영은 D013에 따라 병합·배포하지 않았고 이번 increment에서 개발 앱도 바꾸지 않았다.
+
+다음은 서버가 확정한 원문 위치 참조를 모델이 선택하는 계약을 검토하고, 상태/단위·시점/관계 의미와 필수 수치 누락을 고정 평가에서 확인하는 것이다. 모델에 occurrence 계산/원문 재작성을 맡기는 현재 방식은 이 두 자료에서 인수하지 못했다. 새 설계의 효과를 검증하기 전에 성공을 가정하거나 앱 전역 예산/내구 복구·최종 브리핑 인수로 확대하지 않는다.
+
+## compact 수치 근거 v2 · 착수 · 2026-10-19
+
+PR50/805e154 후속 feat/numeric-evidence-compact, [명세](../changes/numeric-evidence-compact.md), D022/M3. 반복 context/출처 출력 대신 whole 인용 참조·짧은 span·known 상태 근거 union·명시 관계 endpoint를 구현한다. 기존 v1의 실제 부분1/거부1·앱4/12·개발ab6654e/v9·배포 유예는 유지한다. 기존 baseline5,003/sourceCI39235962771 재사용·새 baseline 반복 없음. 실제 고정2SDK·전체 gate/독립 검토·Draft PR/CI/Sites v72 archive/갱신·소유QA/SDD 정리는 아직 미완료다. 사용자 탭을 열지 않는다.
+
 ## 수치 후보 SDK · 구현·실제 부분/거부 · 2026-10-19
 
 - 담당/controller·feat/numeric-evidence-proposals, PR49/edc7ae7 기반. [명세](../changes/numeric-evidence-proposals.md), D022/M3. OpenSpec root=null·기존 worktree 재사용·baseline4,887/sourceCI39229760833 재사용, 새 baseline 전체 재실행 없음.

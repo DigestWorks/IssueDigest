@@ -131,3 +131,8 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### 독립 수치 근거 후보 · 내부 구조와 앱 연결 전 경계
 
 [명세](../changes/numeric-evidence-proposals.md). 모델이 제안한 각 수치/맥락/관계를 exact quote의 Unicode 위치로 연결하고 canonical Source를 다시 검증한다. 모든 결과는 unreviewed이며 문자열 일치·hash·cycle 없음은 의미/완전 추출/인간 검토·접근 허용 인증이 아니다. source2의 필수 상태 근거 누락은 전체 거부했고 source1의 수치 누락/관계 cue 오연결은 실제 의미 한계로 남겼다. 현재 API/DB/public/UI와 app budget을 확대하지 않으며 입력 Source의 현재 권한은 향후 호출자가 별도로 검증해야 한다.
+
+
+### compact 수치 근거 v2 · 실제 거부와 의미 경계
+
+[명세](../changes/numeric-evidence-compact.md). 반복 context/span별 UUID 대신 whole 인용을 참조하고 known 상태의 nonnull 근거를 provider schema에서 요구한다. 관계 statement는 두 명시 주체/수치/cue를 포함해야 한다. 실제2회는 단위 occurrence·원문이 아닌 관계 문자열/endpoint 문제로 모두 거부됐다. raw 상태/단위/시점 의미 오류는 구조 검사만으로 해결되지 않는다. 위치 참조의 서버 확정/선택 방식을 후속 검토하며 앱/공개·권한·예산/원문 계약을 넓히지 않는다.

@@ -229,3 +229,13 @@ planner7은 동결하고 새v8만 paid1/search_v8-step2/final_v8-paid3으로 실
 ### D022 후속 · 수치 후보 SDK 실제 인수 · 2026-10-19
 
 기존 v10 앱4건을 재실행하지 않고 고정 whole 인용2/1의 독립 추출2회/2요청을 별도로 수행했다. 부분 후보1·거부1이며 완전 의미 충족0이다. 조건/하한은 보존했으나 핵심 하위 수치 누락·관계 cue 지시 대상 오연결, raw의 필수 상태 근거 누락/전망 분류 문제가 남았다. exact span·hash를 의미 진실로 승격하지 않는다. 기존 관계 중복 Ruling/비용과 v10 실패/개발v9 유지, main/운영 유예를 보존한다. 세부 분모/usage·다음 설계는 명세와 진행/평가 기록을 따른다.
+
+
+### D022 후속 · compact 수치 근거 후보 v2 · 2026-10-19
+
+[명세](../changes/numeric-evidence-compact.md). v1의 실제2회(부분1/거부1)를 보존하고 반복 context/출처 출력 대신 whole 인용 참조·짧은 span·known 상태 근거의 nonnull provider union과 명시 관계 endpoint를 새 버전에서 검증한다. v1/기존 agent·worker/앱 배포·예산/공개 경계를 바꾸지 않는다. 같은 두 whole quote packet에서 새2SDK/최대2요청만 수행하고 의미/누락/비용을 구조 통과와 분리한다.
+
+추가 판단: whole quote를 fact context로 참조하고 관계 statement에 두 명시 주체와 수치/cue가 모두 들어가야 한다. 반복 출력을 줄이고 endpoint를 드러내는 선택이다. 잘못되면 넓은 인용 안의 필드 오연결이 통과하거나 주체 생략/긴 문장에 걸친 실제 관계가 누락·전체 거부될 수 있고 호출 비용은 남는다. 문자열/구조 검사만으로 의미·전체 추출을 인증하지 않으며 기존 unordered pair 하나/독립 cycle 검사도 유지한다. 구현/실제 인수/앱 통합은 별도로 기록한다.
+
+
+D022 v2 실제 인수: source5592d9c·동일 두 packet/2요청에서 반환0·거부2다. raw에 핵심 수치가 나타났어도 단위 occurrence/정확 statement/endpoint와 상태·단위·시점 의미 문제를 해결하지 못했다. input3,003/output2,029·실패 known usage2건을 기록하며 앱 연결은 보류한다. 위치 참조를 서버가 확정해 모델이 선택하는 계약을 후속 검토한다. 자세한 전 field 직접 판정/미검증은 진행 기록에 남긴다.
