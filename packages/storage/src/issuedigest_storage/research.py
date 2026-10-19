@@ -538,6 +538,145 @@ class ResearchRepository:
 
         return self._transaction(read)
 
+    def _worker_row(self, conn: Connection, run_id: UUID) -> Mapping[Any, Any] | None:
+        """Keep the membership-before-run lock order shared with cancellation."""
+        row = (
+            conn.execute(select(research_runs).where(research_runs.c.run_id == run_id))
+            .mappings()
+            .one_or_none()
+        )
+        if row is None:
+            return None
+        try:
+            allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
+        except ResearchForbidden:
+            allowed = False
+        row = (
+            conn.execute(
+                select(research_runs).where(research_runs.c.run_id == run_id).with_for_update()
+            )
+            .mappings()
+            .one_or_none()
+        )
+        if row is None or row["status"] not in {
+            "queued",
+            "retrieving",
+            "generating",
+            "validating",
+        }:
+            return None
+        if not allowed:
+            self._transition(conn, row, "failed", "authority_changed")
+            return None
+        return row
+
+    def _worker_parent(self, conn: Connection, row: Mapping[Any, Any]) -> ResearchRun | None:
+        verified_parent: ResearchRun | None = None
+        if row["parent_run_id"] is not None:
+            parent = (
+                conn.execute(
+                    select(research_runs).where(
+                        research_runs.c.run_id == row["parent_run_id"],
+                        research_runs.c.workspace_id == row["workspace_id"],
+                        research_runs.c.status == "completed",
+                    )
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if parent is None:
+                raise StorageCorruption("Parent research unavailable")
+            verified_parent = self._run(conn, parent)
+        return verified_parent
+
+    def _worker_sources(
+        self,
+        conn: Connection,
+        workspace_id: UUID,
+        candidate_ids: tuple[UUID, ...],
+        parent_evidence: tuple[EvidenceBundle, ...] | None = None,
+    ) -> tuple[tuple[UUID, Any, SourcePresentation], ...]:
+        sources = []
+        for snapshot_id in candidate_ids:
+            bundle = EvidenceRepository._load(conn, workspace_id, snapshot_id)
+            if bundle is None:
+                raise StorageCorruption("Retrieved source unavailable")
+            if parent_evidence is not None and bundle not in parent_evidence:
+                raise StorageCorruption("Parent source provenance mismatch")
+            sources.append(
+                (snapshot_id, bundle, self._presentation(conn, workspace_id, snapshot_id, bundle))
+            )
+        return tuple(sources)
+
+    def worker_prepare_search(self, run_id: UUID) -> ResearchRun | None:
+        """Authorize the planner without searching or advancing application state."""
+        _uuid4(run_id)
+
+        def read(conn: Connection) -> ResearchRun | None:
+            row = self._worker_row(conn, run_id)
+            if row is None:
+                return None
+            self._worker_parent(conn, row)
+            return self._run(conn, row)
+
+        return self._transaction(read)
+
+    def worker_search_and_fix(
+        self,
+        run_id: UUID,
+        queries: tuple[str, ...],
+        *,
+        input_tokens: int = 0,
+        output_tokens: int = 0,
+    ) -> tuple[UUID, ...] | None:
+        """Atomically reauthorize, select exact sources, or record a known no-match."""
+        from .research_retrieval import is_generic_followup, question_terms
+        from .research_search import search_candidates, validate_plan
+
+        _uuid4(run_id)
+        validate_plan(queries, input_tokens, output_tokens)
+
+        def fix(conn: Connection) -> tuple[UUID, ...] | None:
+            row = self._worker_row(conn, run_id)
+            if row is None:
+                return None
+            parent = self._worker_parent(conn, row)
+            fixed = tuple(UUID(value) for value in row["snapshot_ids"])
+            if fixed:
+                if len(fixed) > 5 or len(set(fixed)) != len(fixed):
+                    raise StorageCorruption("Invalid fixed source count")
+                if (
+                    parent is not None
+                    and not question_terms(row["question"])
+                    and is_generic_followup(row["question"])
+                    and fixed != parent.snapshot_ids
+                ):
+                    raise StorageCorruption("Parent source provenance mismatch")
+                self._worker_sources(conn, row["workspace_id"], fixed)
+                return fixed
+            if row["status"] != "retrieving":
+                return None
+            candidate_ids, parent_evidence = search_candidates(conn, row, queries, parent)
+            if not candidate_ids:
+                self._transition(
+                    conn,
+                    row,
+                    "failed",
+                    "insufficient_evidence",
+                    input_tokens=input_tokens,
+                    output_tokens=output_tokens,
+                )
+                return None
+            self._worker_sources(conn, row["workspace_id"], candidate_ids, parent_evidence)
+            conn.execute(
+                update(research_runs)
+                .where(research_runs.c.run_id == run_id)
+                .values(snapshot_ids=[str(identity) for identity in candidate_ids])
+            )
+            return candidate_ids
+
+        return self._transaction(fix)
+
     def worker_load(
         self, run_id: UUID
     ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
@@ -546,50 +685,10 @@ class ResearchRepository:
         def read(
             conn: Connection,
         ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
-            row = (
-                conn.execute(select(research_runs).where(research_runs.c.run_id == run_id))
-                .mappings()
-                .one_or_none()
-            )
+            row = self._worker_row(conn, run_id)
             if row is None:
                 return None
-            try:
-                allowed = self._member(conn, row["actor_id"], row["workspace_id"], write=True)
-            except ResearchForbidden:
-                allowed = False
-            row = (
-                conn.execute(
-                    select(research_runs).where(research_runs.c.run_id == run_id).with_for_update()
-                )
-                .mappings()
-                .one_or_none()
-            )
-            if row is None or row["status"] not in {
-                "queued",
-                "retrieving",
-                "generating",
-                "validating",
-            }:
-                return None
-            if not allowed:
-                self._transition(conn, row, "failed", "authority_changed")
-                return None
-            verified_parent: ResearchRun | None = None
-            if row["parent_run_id"] is not None:
-                parent = (
-                    conn.execute(
-                        select(research_runs).where(
-                            research_runs.c.run_id == row["parent_run_id"],
-                            research_runs.c.workspace_id == row["workspace_id"],
-                            research_runs.c.status == "completed",
-                        )
-                    )
-                    .mappings()
-                    .one_or_none()
-                )
-                if parent is None:
-                    raise StorageCorruption("Parent research unavailable")
-                verified_parent = self._run(conn, parent)
+            verified_parent = self._worker_parent(conn, row)
             parent_evidence: tuple[EvidenceBundle, ...] | None = None
             if row["status"] == "queued":
                 from .research_retrieval import (
@@ -614,20 +713,9 @@ class ResearchRepository:
             else:
                 # Replay uses the committed provenance, never today's search results.
                 candidate_ids = tuple(UUID(snapshot) for snapshot in row["snapshot_ids"])
-            sources = []
-            for snapshot_id in candidate_ids:
-                bundle = EvidenceRepository._load(conn, row["workspace_id"], snapshot_id)
-                if bundle is None:
-                    raise StorageCorruption("Retrieved source unavailable")
-                if parent_evidence is not None and bundle not in parent_evidence:
-                    raise StorageCorruption("Parent source provenance mismatch")
-                sources.append(
-                    (
-                        snapshot_id,
-                        bundle,
-                        self._presentation(conn, row["workspace_id"], snapshot_id, bundle),
-                    )
-                )
+            sources = self._worker_sources(
+                conn, row["workspace_id"], candidate_ids, parent_evidence
+            )
             if row["status"] == "queued":
                 conn.execute(
                     update(research_runs)
@@ -640,7 +728,7 @@ class ResearchRepository:
                     .mappings()
                     .one()
                 )
-            return self._run(conn, row), tuple(sources)
+            return self._run(conn, row), sources
 
         return self._transaction(read)
 

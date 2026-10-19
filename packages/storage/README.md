@@ -376,6 +376,27 @@ coverage와 빈 후보 결과를 반환합니다. 의미 검색·형태소 분�
 
 새 요청은 질문/부모 맥락의 멱등 해시와queued/빈 근거를 저장합니다. `research_retrieval`의 `question-topics-ko-v2`는 기존 canonical 투영에서 최대8개 질문 원형과 원형별 최대1개 조사 변형을 조회합니다. 변형별 실제 문자열 일치 문단을 snapshot별로 번갈아 최대200개 검증하고201번째로 잘림을 감지하며, 변형별20개 snapshot·전체 상위20개·최종5개를 제한합니다. 주제별 중복 가산 없이 일치 주제 수, 원형 직접 일치 수, 안정된 snapshot ID 순으로 정렬합니다. 길이4 이상 문자열은 명시한 ASCII 공백6종만 제거한 전체 문자열 실제 포함도 확인하며 원문 위치로 사용하지 않습니다. 기존 공개 문자 검색 API와 `literal-ngrams-v1` 투영은 유지합니다. `worker_load`는 현재 권한·run잠금 아래 검색/정확 원문 로드·근거 기록·retrieving 전환을 한 트랜잭션으로 고정합니다. 복구에서는 고정된 근거만 읽으며 무근거는0모델호출/insufficient_evidence로 종료합니다. 부모 근거 재사용은 완료된 부모와 유효 검색어 없는 일반 후속 질문으로 제한하며 명시 새 주제의 실패에 임의 적용하지 않습니다. 과거 저장 결과를 다시 쓰지 않습니다.
 
+새 v7 검색 경계는 두 메서드로 나뉩니다. `worker_prepare_search(run_id)`는 현재 작성 권한과
+완료 부모의 원문 provenance를 검증해 현재 run을 반환합니다. 검색·근거 고정·정상 상태 전이는
+수행하지 않으므로 원래 질문에 문자 일치가 없어도 planner를 실행할 수 있습니다. 신규 worker가
+먼저 `retrieving`으로 전이한 뒤 `worker_search_and_fix(run_id, queries, *, input_tokens=0,
+output_tokens=0)`를 호출합니다. 첫 고정은 `retrieving` 상태에서만 허용합니다.
+
+storage는 tuple 형태의1~3개 query(각1~64자, 공백만/Unicode 제어 문자 불가)와 실제 planner
+사용량(음수/bool 불가, 출력500 이하, 입력+출력8,000 이하)을 다시 검증합니다. 현재 권한과
+run 잠금 아래 기존 최신 승인 검색을 원래 질문부터 실행하고 각 계획 query의
+`question_terms` 검색을 더합니다. 각 결과 최대5개를 원래 질문 우선 라운드로빈으로 합쳐
+중복 없는 최대5개 원문·표시를 검증한 뒤 같은 transaction에서 snapshot IDs를 고정합니다.
+검색 성공은 새 상태 이벤트를 만들지 않습니다. 검색0은 알려진 planner input/output usage와
+`failed/insufficient_evidence`를 원자 저장하며 재실행으로 새 자료를 선택하지 않습니다.
+취소·현재 권한 상실은 추가 색인 조회 전에 종료합니다.
+
+이미 고정된 active run은 현재 색인·새 승인본을 조회하지 않고 고정 원문·표시·부모를 다시
+검증해 같은 IDs를 반환합니다. 유효 검색어 없는 일반 후속 질문은 계획 query에 관계없이
+완료 부모의 정확한 전체 근거를 재사용하며, 고정 후에도 같은 부모 IDs인지 확인합니다.
+새 주제는 기존 부모 근거로 자동 대체하지 않습니다. 과거 workflow용 `worker_load`의
+queued 검색·고정·retrieving 전이와 고정 근거 재생 의미는 유지합니다.
+
 ## 검토한 공개 브리핑
 
 `0007_public_briefings`는 기존 자료·세션·조사 행과 분리된 `public_briefing_heads`,
