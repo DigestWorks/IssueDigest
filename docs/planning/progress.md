@@ -1,5 +1,13 @@
 # 진행 기록
 
+## 최종 게시·정리 · 관련성 선택 SDK · 2026-10-19 KST
+
+- [Sites v69](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T07:32:19.045389+00:00. source `89d6ae0138e2655f7a9d4d6ef201e7b4c3e84019`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c3749dfa400c819189331d5377f42f3a`, deployment `appgdep_6ad5c77419d081918ec0dba69a71e774`. 이전v68과 모든 과거 기록/모델 평가 분모를 보존했다. 사본 기준1ed12e0·실제 selector source384608d·최종 source50f0552·실제 앱f839ae0을 구분한다. 이 최종 출판/정리 receipt는 사본 이후 저장소 원본에 남긴다.
+- [Draft PR47](https://github.com/DigestWorks/IssueDigest/pull/47)(PR46 기반·미병합). source50f0552의 로컬 단일 gate Python3,725+JS744=4,469개/static/build/contract·실패/skip/warning0, 작업 검토·전체 검토 지적 수정/한정 재검토 C0/I0/M0다. [CI39216236587](https://github.com/DigestWorks/IssueDigest/actions/runs/39216236587)는941a86e 기준 success를 확인했다. 이후 최종 출판/정리 문서는 실행 코드를 바꾸지 않으며 이 source CI와 구분한다. source50f0552 이후 변경은 Markdown뿐이다. 앱의 PR 첨부 도구는 두 번 시간초과로 완료 확인을 못 했으며 PR URL은 보존했다.
+- 문서10파일/로컬링크253·diff 공백·접속값 제외, Sites HTML54/로컬링크·anchor·asset1,175/공개텍스트144파일·실제 비밀값 제외 검사를 통과했다. 별도48개 실제 질문/ID/인용 값이 저장소 변경/Sites 공개파일에 없음을155파일에서 확인했다. 기존 레이아웃의 텍스트·문서 사본 갱신으로 별도 브라우저 검사는 하지 않았다. 사용자 탭을 열거나 이동하지 않았다.
+- 전체ID/pinnedimage/소유label/loopback을 대조한 자체 합성PG1개/익명볼륨만 제거하고25493 닫힘을 확인했다. 이 변경의 ignored SDD만 private archive 후 제거했다. 다른 컨테이너/worktree·실제 개발 앱/서버/DB·로그인·자료/수집기·기존 백업은 보존했다. 실제 고정3/3·재시도0 및 lifecycle RED/GREEN·독립 검토/계약 동일성 증거도 비공개 보존한다. 열린/보류 지적·새 Ruling0이다.
+- 다음은 별도 새 실행 경로에서 selector 실제 사용량을 전체24,000/출력2,500·월 예약에 합산하고 현재 권한/원문·취소·중단 복구/모호한 유료 요청 재실행 금지를 보존하는 앱 연결이다. 실제3회는 선택기 단독 소표본이며 최종 답변 품질·다양한 정치 쟁점/중립성/실제 uncertain을 인증하지 않는다. main/운영 유예(D013)를 유지한다.
+
 ## 전체 검사·독립 검토 · 관련성 선택 SDK · 2026-10-19 KST
 
 - source/검증 head `50f0552193de0cb2c0007024552eac5a43dc1da0`. 단일 전체 gate Python3,725+JS744=4,469개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0이다. 작업 독립 검토 C0/I0/M0, 전체 검토의 I1(기본 소유 클라이언트 정리)을 한 차례 수정하고 한정 재검토 PASS C0/I0/M0를 확인했다. 열린/보류 지적·새 Ruling0이다. lifecycle RED9→GREEN13, 관련562/selector94·지침/schema/예산/합성 결정 결과 동일성 증거를 보존했다.
