@@ -24,6 +24,27 @@ class TestModel(BaseTestModel):
                 parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
                 usage=RequestUsage(input_tokens=10, output_tokens=5),
             )
+        if model_request_parameters.output_tools[0].name == "classify_relevance":
+            import json
+
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+
+            prompt = json.loads(messages[-1].parts[0].content)
+            return ModelResponse(
+                parts=[
+                    ToolCallPart(
+                        "classify_relevance",
+                        {
+                            "decisions": [
+                                {"snapshot_id": s["snapshot_id"], "decision": "retain"}
+                                for s in prompt["sources"]
+                            ]
+                        },
+                    )
+                ],
+                usage=RequestUsage(input_tokens=10, output_tokens=5),
+            )
         return await super().request(messages, model_settings, model_request_parameters)
 
 
@@ -85,7 +106,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
-    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v8"
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v9"
     assert len(completed.result.canvas.research.support_reviews) == 1
     run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
@@ -170,6 +191,15 @@ class TestModel(BaseTestModel):
             return ModelResponse(
                 parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
                 usage=RequestUsage(input_tokens=10, output_tokens=5))
+        if model_request_parameters.output_tools[0].name == "classify_relevance":
+            import json
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+            prompt = json.loads(messages[-1].parts[0].content)
+            return ModelResponse(parts=[ToolCallPart("classify_relevance", {
+                "decisions": [{"snapshot_id": s["snapshot_id"], "decision": "retain"}
+                              for s in prompt["sources"]]
+            })], usage=RequestUsage(input_tokens=10, output_tokens=5))
         return await super().request(messages, model_settings, model_request_parameters)
 
 original = ResearchRepository.worker_transition
@@ -312,6 +342,15 @@ class TestModel(BaseTestModel):
             return ModelResponse(
                 parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
                 usage=RequestUsage(input_tokens=10, output_tokens=5))
+        if model_request_parameters.output_tools[0].name == "classify_relevance":
+            import json
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+            prompt = json.loads(messages[-1].parts[0].content)
+            return ModelResponse(parts=[ToolCallPart("classify_relevance", {
+                "decisions": [{"snapshot_id": s["snapshot_id"], "decision": "retain"}
+                              for s in prompt["sources"]]
+            })], usage=RequestUsage(input_tokens=10, output_tokens=5))
         return await super().request(messages, model_settings, model_request_parameters)
 
 original = ResearchRepository.worker_transition
@@ -446,133 +485,45 @@ def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
     )
 
 
-def test_validation_failure_retains_known_model_usage(monkeypatch):
+def test_validation_failure_retains_known_model_usage(engine, database_url, monkeypatch):
     """A paid response is counted even when its canvas fails validation afterward."""
-    from contextlib import nullcontext
-    from types import SimpleNamespace
+    import json
 
     import issuedigest_worker.research_worker as worker
+    from pydantic_ai.messages import ModelResponse, ToolCallPart
+    from pydantic_ai.models.function import FunctionModel
+    from pydantic_ai.usage import RequestUsage
+    from test_research_recovery_v3 import output, seed
 
-    run_id, workspace_id, snapshot_id = uuid4(), uuid4(), uuid4()
-    transitions = []
-
-    class Repository:
-        def __init__(self, _engine):
-            pass
-
-        def worker_states(self, _ids):
-            return {}
-
-        def worker_active_runs(self, _after):
-            return ()
-
-        def queued_ids(self):
-            return (run_id,)
-
-        def worker_prepare_search(self, _run_id):
-            return SimpleNamespace(
-                question="합성 질문",
-                status="queued",
-                workspace_id=workspace_id,
-                snapshot_ids=(snapshot_id,),
-            )
-
-        def worker_search_and_fix(self, *args, **kwargs):
-            return (snapshot_id,)
-
-        def worker_load(self, _run_id):
-            return (
-                SimpleNamespace(
-                    question="합성 질문",
-                    status="queued",
-                    workspace_id=workspace_id,
-                    snapshot_ids=(snapshot_id,),
-                ),
-                (),
-            )
-
-        def worker_parent_context(self, _run_id):
-            return None
-
-        def worker_transition(self, _run_id, status, **kwargs):
-            transitions.append((status, kwargs))
-            return True
-
-    class FakeDBOS:
-        def __init__(self, *, config):
-            pass
-
-        @staticmethod
-        def step(**kwargs):
-            return lambda function: function
-
-        @staticmethod
-        def workflow(**kwargs):
-            return lambda function: function
-
-        @staticmethod
-        def get_workflow_status(_workflow_id):
-            return None
-
-        @staticmethod
-        def launch():
-            pass
-
-        @staticmethod
-        def start_workflow(function, *args):
-            function(*args)
-            return SimpleNamespace(get_result=lambda: None)
-
-        @staticmethod
-        def destroy(**kwargs):
-            pass
+    bundle, token, repo, run = seed(engine, database_url)
 
     def fail_validation(*args):
         raise ValueError("synthetic invalid citation")
 
-    monkeypatch.setattr(worker, "research_worker_lock", lambda _engine: nullcontext(lambda: None))
-    monkeypatch.setattr(worker, "ResearchRepository", Repository)
-    monkeypatch.setattr(
-        worker, "create_storage_engine", lambda _url: SimpleNamespace(dispose=lambda: None)
-    )
-    monkeypatch.setattr(worker, "create_agent", lambda _model: object())
-    monkeypatch.setattr(worker, "create_agent_v3", lambda _model: object())
-    monkeypatch.setattr(worker, "create_agent_v4", lambda _model: object())
-    monkeypatch.setattr(worker, "create_agent_v5", lambda _model: object())
-    monkeypatch.setattr(worker, "create_agent_v6", lambda _model: object())
-    monkeypatch.setattr(
-        worker,
-        "DBOSClient",
-        lambda **kwargs: SimpleNamespace(
-            list_workflows=lambda **kwargs: [],
-            destroy=lambda: None,
-        ),
-    )
-    monkeypatch.setattr(worker, "DBOS", FakeDBOS)
-    monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
-    monkeypatch.setattr(worker, "completed_v8_checkpoint", lambda *args: True)
-    monkeypatch.setattr(worker, "create_agent_v7", lambda _model: object())
-    monkeypatch.setattr(worker, "create_agent_v8", lambda _model: object())
-    monkeypatch.setattr(worker, "create_planner_v7", lambda _model: object())
-    monkeypatch.setattr(
-        worker, "run_planner_v7", lambda *args: (SimpleNamespace(queries=("합성",)), 10, 5)
-    )
-    monkeypatch.setattr(worker, "model_prompt_v8", lambda *args, **kwargs: "{}")
-    monkeypatch.setattr(
-        worker,
-        "run_agent_v8",
-        lambda _agent, _prompt, **kwargs: (object(), 123, 45),
-    )
-    monkeypatch.setattr(worker, "build_canvas_v8", fail_validation)
+    def respond(messages, info):
+        name = info.output_tools[0].name
+        if name == "search_evidence":
+            payload = {"queries": ["80%"]}
+        elif name == "classify_relevance":
+            prompt = json.loads(messages[-1].parts[0].content)
+            payload = {
+                "decisions": [
+                    {"snapshot_id": s["snapshot_id"], "decision": "retain"}
+                    for s in prompt["sources"]
+                ]
+            }
+        else:
+            payload = output(bundle, classified=True, core=True)
+        return ModelResponse(
+            parts=[ToolCallPart(name, payload)],
+            usage=RequestUsage(input_tokens=123, output_tokens=45),
+        )
 
-    run_worker(
-        "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True
-    )
-
-    status, fields = transitions[-1]
-    assert status == "failed"
-    assert fields["error_code"] == "generation_failed"
-    assert (fields["input_tokens"], fields["output_tokens"]) == (133, 50)
+    monkeypatch.setattr(worker, "build_canvas_v9", fail_validation)
+    run_worker(database_url, model=FunctionModel(respond), once=True)
+    after = repo.get_run(token, run.workspace_id, run.run_id)
+    assert after.status == "failed" and after.error_code == "generation_failed"
+    assert (after.input_tokens, after.output_tokens) == (369, 135)
 
 
 def test_worker_nohit_calls_only_planner_and_keeps_conservative_reservation(engine, database_url):

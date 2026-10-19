@@ -609,3 +609,10 @@ run의 재실행, 일반 후속 질문의 검증된 부모 근거 재사용과 �
 
 
 운영자 권한 확인: 기존 default privileges가 새 테이블에 앱 쓰기를 자동 부여할 수도 있다. 개인 개발 적용에서 이를 확인해 `policy_intake_receipts`에만 비조회 권한을 제거하고 기존 앱의 SELECT 성공·INSERT/UPDATE/DELETE/TRUNCATE/REFERENCES/TRIGGER/MAINTAIN 거부를 실측했다. 기존 테이블이나 default grants를 일괄 변경하지 않는다. migration 완료와 최소 권한 검증은 별도 단계다.
+
+
+## Private v9 내부 관련성 선택
+
+신뢰 worker만 `worker_load_relevance_candidates(run_id, candidate_ids)`와 `worker_apply_relevance_selection(run_id, candidate_ids, selected_ids, input_tokens=..., output_tokens=...)`를 사용한다. DBOS search2의 원래 canonical UUID4 고유1..5 후보를 근거로 현재 사용자/멤버십→run 잠금 순서·부모·모든 원문을 검사한다. 후보 또는 정확 selected인 현재 고정값만 한 번의 ordered subset 축소/동일 replay로 허용한다. unknown/중복/재정렬/다른 row 원문/terminal은 허용하지 않는다. 모두 제외는 snapshot_ids를 비우고 알려진 합계 usage와 insufficient_evidence를 같은 트랜잭션에 기록한다.
+
+새 `worker_record_relevance_usage`는 v9 worker의 검증된 실제 subtotal만 단조 증가로 기록한다. 취소·권한 변경 이후에도 알려진 비용을 보존하며 status/result/원문·권한/예약을 수정하지 않는다. 후보/전체 결정/hash는 DBOS journal 내부에만 남기고 DB schema/HTTP에는 추가하지 않는다. 기존 worker_search_and_fix/worker_load/worker_transition 및 완료 provenance 계약은 바꾸지 않는다.

@@ -677,6 +677,147 @@ class ResearchRepository:
 
         return self._transaction(fix)
 
+    @staticmethod
+    def _relevance_ids(candidate_ids: tuple[UUID, ...], *, empty: bool = False) -> None:
+        if (
+            type(candidate_ids) is not tuple
+            or not (0 if empty else 1) <= len(candidate_ids) <= 5
+            or len(set(candidate_ids)) != len(candidate_ids)
+        ):
+            raise ValueError("Invalid relevance source count")
+        for identity in candidate_ids:
+            _uuid4(identity)
+
+    def _relevance_row(
+        self, conn: Connection, run_id: UUID, candidate_ids: tuple[UUID, ...]
+    ) -> tuple[Mapping[Any, Any], tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
+        row = self._worker_row(conn, run_id)
+        if row is None:
+            return None
+        parent = self._worker_parent(conn, row)
+        if parent is not None:
+            from .research_retrieval import is_generic_followup, question_terms
+
+            if (
+                not question_terms(row["question"])
+                and is_generic_followup(row["question"])
+                and candidate_ids != parent.snapshot_ids
+            ):
+                raise StorageCorruption("Parent source provenance mismatch")
+        fixed = tuple(UUID(value) for value in row["snapshot_ids"])
+        if not fixed or fixed != tuple(s for s in candidate_ids if s in fixed):
+            raise StorageCorruption("Relevance candidate provenance changed")
+        # Reopen *all* originals, including excluded ones, on every recovery.
+        sources = self._worker_sources(conn, row["workspace_id"], candidate_ids)
+        return row, sources
+
+    def worker_record_relevance_usage(
+        self, run_id: UUID, *, input_tokens: int, output_tokens: int
+    ) -> tuple[int, int]:
+        """Trusted v9 accounting only, even after cancellation or authority revocation.
+
+        Never changes status, result, provenance, authority or conservative reservations.
+        Earlier replay subtotals cannot erase a later known response's usage.
+        """
+        _uuid4(run_id)
+        if (
+            type(input_tokens) is not int
+            or type(output_tokens) is not int
+            or input_tokens < 0
+            or output_tokens < 0
+            or input_tokens + output_tokens > 24_000
+            or output_tokens > 2_500
+        ):
+            raise ValueError("Invalid relevance accounting")
+
+        def record(conn: Connection) -> tuple[int, int]:
+            result = conn.execute(
+                update(research_runs)
+                .where(research_runs.c.run_id == run_id)
+                .values(
+                    input_tokens=func.greatest(research_runs.c.input_tokens, input_tokens),
+                    output_tokens=func.greatest(research_runs.c.output_tokens, output_tokens),
+                )
+                .returning(research_runs.c.input_tokens, research_runs.c.output_tokens)
+            ).one_or_none()
+            return (result.input_tokens, result.output_tokens) if result is not None else (0, 0)
+
+        return self._transaction(record)
+
+    def worker_load_relevance_candidates(
+        self, run_id: UUID, candidate_ids: tuple[UUID, ...]
+    ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
+        """Trusted journal candidates only; never grants authority or repeats search."""
+        _uuid4(run_id)
+        self._relevance_ids(candidate_ids)
+
+        def read(
+            conn: Connection,
+        ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
+            loaded = self._relevance_row(conn, run_id, candidate_ids)
+            if loaded is None:
+                return None
+            row, sources = loaded
+            return self._run(conn, row), sources
+
+        return self._transaction(read)
+
+    def worker_apply_relevance_selection(
+        self,
+        run_id: UUID,
+        candidate_ids: tuple[UUID, ...],
+        selected_ids: tuple[UUID, ...],
+        *,
+        input_tokens: int,
+        output_tokens: int,
+    ) -> tuple[UUID, ...] | None:
+        """One ordered narrowing or identical replay, in the existing authority lock order."""
+        _uuid4(run_id)
+        self._relevance_ids(candidate_ids)
+        self._relevance_ids(selected_ids, empty=True)
+        if selected_ids != tuple(s for s in candidate_ids if s in selected_ids):
+            raise ValueError("Invalid ordered relevance subset")
+        if (
+            type(input_tokens) is not int
+            or type(output_tokens) is not int
+            or input_tokens < 0
+            or output_tokens < 0
+            or input_tokens + output_tokens > 20_000
+            or output_tokens > 1_000
+        ):
+            raise ValueError("Invalid relevance usage")
+
+        def apply(conn: Connection) -> tuple[UUID, ...] | None:
+            loaded = self._relevance_row(conn, run_id, candidate_ids)
+            if loaded is None:
+                return None
+            row, _ = loaded
+            fixed = tuple(UUID(value) for value in row["snapshot_ids"])
+            if fixed not in (candidate_ids, selected_ids):
+                raise StorageCorruption("Relevance selection changed")
+            conn.execute(
+                update(research_runs)
+                .where(research_runs.c.run_id == run_id)
+                .values(
+                    snapshot_ids=[str(identity) for identity in selected_ids],
+                    input_tokens=func.greatest(research_runs.c.input_tokens, input_tokens),
+                    output_tokens=func.greatest(research_runs.c.output_tokens, output_tokens),
+                )
+            )
+            if not selected_ids:
+                self._transition(
+                    conn,
+                    row,
+                    "failed",
+                    "insufficient_evidence",
+                    input_tokens=max(row["input_tokens"], input_tokens),
+                    output_tokens=max(row["output_tokens"], output_tokens),
+                )
+                return None
+            return selected_ids
+
+        return self._transaction(apply)
+
     def worker_load(
         self, run_id: UUID
     ) -> tuple[ResearchRun, tuple[tuple[UUID, Any, SourcePresentation], ...]] | None:
