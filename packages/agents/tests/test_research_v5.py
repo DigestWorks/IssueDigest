@@ -122,8 +122,11 @@ def test_v5_counts_exact_static_bytes_and_rejects_before_request():
     from pydantic_ai.models.function import FunctionModel
 
     v5 = profile()
-    static = len(v5.SYSTEM_INSTRUCTIONS_V5.encode()) + len(
-        json.dumps(v5.AIOutputV5.model_json_schema(), ensure_ascii=False).encode()
+    from uuid import UUID
+
+    ids = tuple(str(UUID(int=i, version=4)) for i in range(1, 101))
+    static = len(v5.SYSTEM_INSTRUCTIONS_V5.encode()) + max(
+        v5._provider_schema_bytes_v5(v5._provider_tools_v5(ids))
     )
     assert v5.STATIC_INPUT_BYTES_V5 == static
     assert v5.INPUT_PROMPT_BYTE_LIMIT_V5 == 24_000 - 2_500 - 2_048 - static > 0
