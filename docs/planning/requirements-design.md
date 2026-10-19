@@ -123,3 +123,7 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### v9 관련성 선택의 조사 흐름 연결
 
 기존 SDK를 caller-injected raw DBOSModel로 재사용하고 후보 전체 결정/원래 입력을 journal에 보존한다. 현재 권한·부모·모든 원문을 재열람한 뒤 retain/uncertain만 원래 순서로 원자 고정하며 최종 입력/evidence/title은 선택 자료만 사용한다. selector 시작 기록과 원래 입력 hash에 관한 두 보수적 실패 판단/비용을 D022·명세에 남긴다. 실제3앱/9요청의 좁은 선택 인수·부분 답변 품질과 전체 구조 검사를 구분한다.
+
+### v10 첫 요약 수치 설명 · 구현과 인수 분리
+
+[명세](../changes/briefing-numeric-clarity.md). v9 앞 네 단계/receipt를 재사용하고 final/profile/workflow10만 새로 둔다. frozen 과거 provider·workflow/version/slot·현재 권한/전체 원문·합산 예산·공개 거부는 유지한다. 짧은 수치 지침과 strict 구조 통과는 자유 문장의 정확성을 보장하지 않는다. 실제4앱의 수치 관계/전망 조건 문제로 개발 적용을 보류했으며 단계·인용·같은 모델의 supported 표시를 품질 인증으로 제시하지 않는다. 다음 내부 수치 계약은 대상/기간/단위·포함 관계·관측/조건부 전망과 인용의 관계를 설계한 뒤 별도 Spec으로 확정한다.

@@ -6,7 +6,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
-현재 변경: [관련성 선택의 실제 조사 연결](changes/briefing-relevance-integration.md). v9 계획/검색/선택/고정/최종 생성·전체 비용/복구와 고정3앱 인수를 연결했다. SDK 단독3과 실제 앱3/9·부분 의미 품질·개발/운영을 구분하며 최종 receipt는 진행 기록을 따른다.
+현재 변경: [첫 요약의 수치 관계·조건 설명](changes/briefing-numeric-clarity.md). v10 수치 설명·호환 실행은 구현했으나 실제 의미 인수에서 부분2·미충족1·적절한 자료 부족1을 기록해 개발 반영을 보류했다. 개발 앱은 `ab6654e`/v9, main/운영 유예(D013)다. 기존3문항과 신규 다중주제1은 각각 한 번씩 실제4앱/12요청으로 평가했고 성공까지 재호출하지 않았다. 상세 실패와 과거 분모는 진행/평가 기록에 보존한다.
 
 ## 현재 계획과 작업
 
@@ -20,6 +20,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [수집본 검토·버전·검색 편입](changes/policy-collection-intake.md) | 고정 성공 원본의 승인·중복/버전·원자 저장/검색·최신 승인 선택 |
 | [정책뉴스 반복 확보·실행 이력](changes/policy-collection-journal.md) | 명시 기사 poll·PostgreSQL 원본/성공/실패 보존·중복/간격 제어·상태 조회 |
 | [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
+| [첫 요약의 수치 관계·조건 설명](changes/briefing-numeric-clarity.md) | v10 지침/호환 실행·원래3/신규1 실제 인수 실패·개발 보류와 다음 구조 설계 |
 | [관련성 선택의 실제 조사 연결](changes/briefing-relevance-integration.md) | 새 private v9·선택 근거/합산 예산/현재 권한·취소/복구·원래 입력/시작 표식과 실제 인수 |
 | [질문·근거 후보 관련성 선택](changes/evidence-relevance-selection.md) | 인용에 묶인 후보 전체 triage·불확실 보존·bounded usage·실제3회와 연결 전 경계 |
 | [계획 검색의 누락·무관 자료 평가](changes/planned-retrieval-evaluation.md) | 읽기 전용 원래/계획 검색 비교·명시 판정/미판정·출처/분모·private report |
