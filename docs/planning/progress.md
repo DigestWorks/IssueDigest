@@ -1,5 +1,10 @@
 # 진행 기록
 
+## 작업 시작 · 질문별 조사 계획·승인 자료 검색 · 2026-10-19 KST
+
+- PR43/7ed6730의 검증된 기반에서 feat/briefing-search-agent·[명세](../changes/briefing-search-agent.md)로 이어간다. AI 검색어 계획→현재 권한의 승인 저장 자료 검색→최대5근거 고정→기존 브리핑을 연결한다. 검색 계획은 사실/근거가 아니며 외부 웹 탐색/자동 수집·공개 게시를 뜻하지 않는다.
+- v7은 최대planner1+최종1회, 전체24,000토큰/출력2,500·자동재시도0와 월/건별 예약을 유지한다. 기존v2~v6 실제 지침/schema/prompt/원래 namespace/slot1과 결과를 동결하며 새 durable1/2/3은 별도 workflow에서만 쓴다. 작업별 TDD/독립 검토·전체gate·실제 고정3실행·개발 보존/복원/반영·Draft PR·Sites는 각각 증거 뒤 기록한다. main/운영 유예·사용자 탭 유지다.
+
 ## 최종 출판·정리 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19 KST
 
 - [Sites v65](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 유지·native succeeded. source `f0ffc035de158829687e9ff89727cbf5fd007b1b`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6a21a3dd69d481919321da0d314bed57`, deployment `appgdep_6ad596344d24819195b292edcbb948cb` (2026-10-19 04:02:11 UTC). 이전v64와 그 이전 기록을 보존했다. 저장소 사본 기준6584471·실행7566c3a·Draft PR43이며 사본 이후의 이 최종 receipt는 저장소가 원본이다.
