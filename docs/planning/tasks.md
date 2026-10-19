@@ -2,7 +2,17 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · compact 수치·상태·관계 근거 후보 v2
+## 현재 · 서버 원문 참조 수치 v3
+
+[명세](../changes/numeric-evidence-references.md). 앱 연결과 최종 브리핑 품질은 별도다.
+
+- [x] 서버 code-point catalog/양끝 reference·strict 현재N schema·정확 resolver·분리 forecast/condition·원문 재검증·borrowed bounded SDK를 구현했다. 신규133/관련923·작업 독립 Spec/품질 PASS(C0I0M0), 기존407파일의 역사 base/task byte동일을 확인했다.
+- [x] 같은 두 packet 실제2SDK/2요청·반환0/거부2·완전 충족0과 실패 known usage2건을 기록했다. 모든 raw field/null/관계를 읽었으며 수치5/3·관계3/2를 수용 결과로 집계하지 않는다.
+- [ ] 전체 gate/전체 독립 검토·PR51 기반 Draft/CI·Sites v73보존/요약 게시·소유QA/SDD 정리를 확인한다.
+- [ ] 글자 번호 선택 대신 서버 수치·문장 후보 경계를 검토하고 누락/오탐을 오프라인 비교한다. 의미/관계·실제 예정/불명 양성·다양한 질문의 검증은 남는다.
+- [ ] 앱 전역 예산·내구 실행/회계·복구·현재 권한과 최종 브리핑에 연결해 인수한다. 개발v9/main·운영 유예는 유지한다.
+
+## 이전 · compact 수치·상태·관계 근거 후보 v2
 
 [명세](../changes/numeric-evidence-compact.md). 기존 v1/앱 실패를 보존하며 내부 추출 계약을 검증한다.
 

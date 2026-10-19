@@ -136,3 +136,8 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### compact 수치 근거 v2 · 실제 거부와 의미 경계
 
 [명세](../changes/numeric-evidence-compact.md). 반복 context/span별 UUID 대신 whole 인용을 참조하고 known 상태의 nonnull 근거를 provider schema에서 요구한다. 관계 statement는 두 명시 주체/수치/cue를 포함해야 한다. 실제2회는 단위 occurrence·원문이 아닌 관계 문자열/endpoint 문제로 모두 거부됐다. raw 상태/단위/시점 의미 오류는 구조 검사만으로 해결되지 않는다. 위치 참조의 서버 확정/선택 방식을 후속 검토하며 앱/공개·권한·예산/원문 계약을 넓히지 않는다.
+
+
+### 서버 원문 위치 참조 v3 · 위치와 의미 인수 분리
+
+[명세](../changes/numeric-evidence-references.md). 서버의 전체 code-point reference를 AI가 선택하고 정확 원문/위치를 재검증한다. 같은 두 packet의 실제2회 모두 거부됐고 번호가 유효해도 수치 경계·대상/시점·단위와 핵심 누락은 남았다. forecast/condition을 분리하고 unreviewed로 보존한다. 글자 표의 입력 증가/처리 용량 감소와 향후 v1/v2 mapping 비용을 감수하는 실험이며 앱/공개/API/DBOS/권한·예산을 넓히지 않는다. 다음은 서버가 확정한 수치·문장 후보 경계와 오프라인 누락/오탐 검증이다.

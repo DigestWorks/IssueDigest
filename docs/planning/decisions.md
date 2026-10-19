@@ -239,3 +239,17 @@ planner7은 동결하고 새v8만 paid1/search_v8-step2/final_v8-paid3으로 실
 
 
 D022 v2 실제 인수: source5592d9c·동일 두 packet/2요청에서 반환0·거부2다. raw에 핵심 수치가 나타났어도 단위 occurrence/정확 statement/endpoint와 상태·단위·시점 의미 문제를 해결하지 못했다. input3,003/output2,029·실패 known usage2건을 기록하며 앱 연결은 보류한다. 위치 참조를 서버가 확정해 모델이 선택하는 계약을 후속 검토한다. 자세한 전 field 직접 판정/미검증은 진행 기록에 남긴다.
+
+
+### D022 후속 · 서버 확정 원문 참조 수치 v3 · 2026-10-19
+
+[명세](../changes/numeric-evidence-references.md). 이전 v2의 실제2회 거부를 보존하고 모델 출력의 text/occurrence/출처 UUID를 제거한다. 서버가 전체 quote의 각 Unicode code point에 연속 reference ID를 부여하고 모델은 양끝 ID를 고른다. 현재1..N의 strict integer bound는 누락 없는 실제ID집합과 같으며 서버가 같은 인용/연속 원문·주체/수치/cue 포함을 재검증한다. 모든 결과는 unreviewed, 위치 존재와 의미 정확성은 별개다.
+
+판단1: 문자 reference table을 원문과 함께 입력한다. 잘못된 의미/경계 선택은 여전히 통과할 수 있고 입력량이 늘어 같은 예산에서 수용하는 whole quote가 줄거나 호출 전 거부될 수 있다. 원문을 잘라 숨기거나 예산을 늘리지 않는다.
+
+판단2: v3 forecast는 조건 있는/없는 전망 모두이며 명시 조건은 별도 condition에 연결한다. condition 없이 전망이라고 쓰인 수치를 observed로 몰지 않기 위한 것이다. 잘못되면 kind 하나로 조건 유무를 구분할 수 없고 소비자는 condition을 함께 읽어야 한다. 향후 v1/v2 결합 시 명시 mapping/재검증이 필요하며 기존 profile/데이터/앱을 변환하지 않는다.
+
+같은 두 packet/같은 모델의 새2SDK/최대2요청·원문 전 field 직접 평가에서 단위·시점/관측/전망·명시 조건·하위 수치/관계를 따로 판정한다. 여러 출력/지침 변화의 효과를 단일 원인으로 확대하지 않으며 구현·실제 의미 인수·앱 통합·배포를 구분한다. 월 예산/기존앱·main/운영 유예는 유지한다.
+
+
+D022 v3 실제 인수: sourceb3794da·동일 두 packet2요청에서 반환0/거부2·완전 충족0이다. 유효 reference도 잘못된 경계/대상·시점/단위·누락을 해결하지 못했다. input4,485/output947·실패 known usage2건 보존, 앱 연결 전이다. 다음은 서버가 수치·문장 후보 경계를 확정하는 계약과 오프라인 누락/오탐 검증이다. 위 두 판단과 처리 용량 감소·의미 오선택/향후 mapping 비용은 보존한다.

@@ -6,7 +6,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
-현재 변경: [compact 수치 근거 후보 v2](changes/numeric-evidence-compact.md). 반복 context/출처 출력을 줄이고 상태 근거의 nonnull 조합·명시 관계 endpoint를 검증한다. 고정 실제2회는 모두 거부됐으며 raw 수치6/5·관계3/2를 정상 후보로 집계하지 않는다. 기존 v1의 부분1/거부1·앱4/12·개발ab6654e/v9·앱/DBOS/API/공개/UI/수집기를 유지한다.
+현재 변경: [서버 원문 위치 참조 수치 v3](changes/numeric-evidence-references.md). 전체 글자의 서버 reference/정확 resolver·현재 원문 재검증을 구현했으나 같은 두 packet 실제2회 모두 거부됐다. 위치의 유효성은 수치 경계·대상/시점·누락을 해결하지 못했다. 이전 v2 거부2·v1 부분1/거부1·앱4/12와 개발v9를 보존하며 앱 연결 전이다.
 
 ## 현재 계획과 작업
 
@@ -20,6 +20,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [수집본 검토·버전·검색 편입](changes/policy-collection-intake.md) | 고정 성공 원본의 승인·중복/버전·원자 저장/검색·최신 승인 선택 |
 | [정책뉴스 반복 확보·실행 이력](changes/policy-collection-journal.md) | 명시 기사 poll·PostgreSQL 원본/성공/실패 보존·중복/간격 제어·상태 조회 |
 | [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
+| [서버 원문 위치 참조 수치](changes/numeric-evidence-references.md) | 글자 reference·정확 resolver·별도 전망/조건·실제2회 거부와 후보 경계 후속 |
 | [compact 수치·상태·관계 근거](changes/numeric-evidence-compact.md) | whole 인용 참조·상태 근거 union·관계 statement·실제2회 거부와 다음 위치 참조 설계 |
 | [정확 인용의 수치 근거 후보](changes/numeric-evidence-proposals.md) | 원문 span/포함·병렬·unreviewed/독립 모델 상한·실제2 SDK의 부분/거부와 앱 연결 전 경계 |
 | [첫 요약의 수치 관계·조건 설명](changes/briefing-numeric-clarity.md) | v10 지침/호환 실행·원래3/신규1 실제 인수 실패·개발 보류와 다음 구조 설계 |
