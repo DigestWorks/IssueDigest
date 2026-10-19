@@ -113,3 +113,6 @@ v6 본문과 canonical 귀속 주체의 nonblank 검사는 Python Unicode whites
 
 
 private research-v7는 정확 issuedigest-research-v7/research-v7만 추가한다. v6의 첫 supported summary·comparison/timeline 상세·정확 귀속 주체/인용/날짜·Unicode code-point/nonblank 검사를 그대로 적용한다. API/OpenAPI shape·과거 raw-client 동작·공개v1/v2·빈 reviews 계약을 보존하며 stripped-public v7도 거부한다. 실제 Python v7 builder 생성 fixture가 전체 client와 동일 UI의 열린 첫 요약·접힌 상세·정확 원문/비답변 경로를 통과한다. 이는 사실 검증 인증이나 실제 모델 의미 품질 평가가 아니다.
+
+
+private research-v8도 정확 `issuedigest-research-v8`/`research-v8`만 허용한다. v6/v7의 첫 supported summary·귀속 접두어·Unicode·인용별 정확 날짜·동일 평가 인용 순서·UTC와 혼합/누락/위조 거부를 그대로 적용한다. 실제 Python builder의 날짜0 comparison/정확 날짜 timeline/astral/비답변 fixture를 full client가 소비한다. intact/stripped privatev8은 public에서 거부하며 OpenAPI와 공개 계약을 넓히지 않는다.

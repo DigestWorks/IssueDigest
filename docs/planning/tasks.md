@@ -2,7 +2,14 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 질문별 조사 계획·승인 자료 검색
+## 현재 변경 · 원문 날짜·포함 관계 보존
+
+[명세](../changes/briefing-source-fidelity.md). v7 실제 실패의 근거 없는 날짜 선택을 provider 구조에서 막고 포함 관계/계획·실적·전망 표현을 보완한다.
+
+- [x] v8 날짜 제한 strict provider·현재 검색/비용/복구·역사v2~v7·private 읽기/공개 거부를 합성 TDD로 구현/독립 검토한다.
+- [x] 전체4,297개·실제 고정3앱/6provider(의미 부분1/목표 소표본 충족1/부족1)·개인개발f839ae0/23테이블 보존 복원·Draft PR45·마일스톤/Sitesv67/이전v66보존·소유QA정리를 기록했다.
+
+## 완료 기반 · 질문별 조사 계획·승인 자료 검색
 
 [명세](../changes/briefing-search-agent.md). AI가 검색어를 계획하고 승인 저장 자료 검색 도구로 근거를 고정한 뒤 브리핑을 작성한다. 기존v6 결과/디자인·인증/공개/수집기·월 예산은 유지한다.
 

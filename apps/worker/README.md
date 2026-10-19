@@ -335,7 +335,7 @@ uv run pytest apps/worker/tests/test_policy_intake_worker.py
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v6 실행합니다. v2/v3/v4/v5/v6 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v8 실행합니다. v2~v8 일곱 workflow와 planner7 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 역사v2~v6는 한 요청·출력2,500/60초이고 v7/v8은 planner1+final1·합계출력2,500·총24,000토큰입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 
@@ -420,3 +420,10 @@ existing 20-question real-material evaluation or establish answer/citation quali
 v7 순서는 현재 권한/parent 준비→metadata guard→retrieving→planner model.request slot1→`issuedigest_research_search_v7` slot2→현재 권한/부모/고정 원문 재검사→generating→final model.request slot3→validating→저장이다. 검색0이면 planner의 알려진 usage와 insufficient_evidence를 원자적으로 기록하고 final은0회다. 검색 commit 뒤 checkpoint 유실은 같은 고정 snapshot만 재사용하며 새 색인/승인본으로 바꾸지 않는다. 완료된 planner/search/final은 원래 slot에서 재생한다. retrieving은 완료planner1과 선택적 완료search2만, generating/validating은 정확 완료1/2/3만 허용한다. incomplete/extra/위조/중복 namespace·slot은 유료 재호출 없이 실패하고 예약을 유지한다.
 
 두 runner의 알려진 input/output usage를 합산해 저장한다. planner 최대8,000/출력500/15초, final은 실제 planner usage를 전체24,000에서 차감하고 출력2,000/45초다. 자동 모델 retry/출력 수리0, Responses storeFalse와 provider max_retries0·월 예약 정책을 유지한다. 취소·권한 상실·부모/고정 원문 불일치 뒤 final/게시를 하지 않는다. 기존 advisory lock·cohort/orphan·멱등성은 그대로다. 합성 PG의 crash/복구·비용 계약 검증은 실제 모델 의미 품질 인수가 아니다.
+
+
+## 새 private v8와 일곱 버전 복구
+
+새 요청만 `issuedigest_research_run_v8`이다. 실제 지침/DTO/prompt/한도가 동결된 `issuedigest_research_plan_v7__model.request` slot1→새 `issuedigest_research_search_v8` slot2→`issuedigest_research_v8__model.request` slot3 순서다. v7/v8의 계획 실행 body만 공유하고 각 원래 이름·입력·호출·slot·version을 보존한다. 실제 이전 v7 worker는 `tests/fixtures/research_worker_v7.py`로 byte-identical 동결하며 원래 버전의 완료 planner/final checkpoint를 현재 worker에서 재생한다. metadata가 불명확하거나 위조/추가/미완료이면 유료 요청을 다시 보내지 않는다.
+
+v8은 원문 정확 날짜 후보로 최종 DTO를 좁히며 기존 현재 권한/부모/고정 원문 재검사·검색0의 planner usage·취소·known usage 합산·예약·단일 worker 잠금·cohort/orphan 복구를 유지한다. v2~v7 provider bytes와 저장 결과는 그대로다. 합성 PostgreSQL 검증과 실제 모델/개인 개발 적용은 구분한다.

@@ -1,4 +1,4 @@
-"""Bounded private v3/v4/v5/v6/v7 profiles, separate from generic and public Canvas contracts."""
+"""Bounded private v3/v4/v5/v6/v7/v8 profiles, separate from generic and public Canvas contracts."""
 
 import re
 from datetime import datetime, timedelta
@@ -23,7 +23,14 @@ def require_raw_classification_utc(canvas: Any) -> None:
     if (
         not any(
             _field(_field(c, "derivation"), "method_version")
-            in ("research-v3", "research-v4", "research-v5", "research-v6", "research-v7")
+            in (
+                "research-v3",
+                "research-v4",
+                "research-v5",
+                "research-v6",
+                "research-v7",
+                "research-v8",
+            )
             for c in claims
         )
         and not reviews
@@ -49,7 +56,14 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     versions = {c.derivation.method_version if c.derivation else None for c in claims}
     classified = {
         version
-        for version in ("research-v3", "research-v4", "research-v5", "research-v6", "research-v7")
+        for version in (
+            "research-v3",
+            "research-v4",
+            "research-v5",
+            "research-v6",
+            "research-v7",
+            "research-v8",
+        )
         if version in versions
     }
     if not classified:
@@ -112,7 +126,7 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     modules = revision.draft.modules
     if revision.draft.outcome != "answer" or not 2 <= len(modules) <= 4:
         raise ValueError("Classified answer requires analysis and evidence")
-    if method_version in {"research-v6", "research-v7"}:
+    if method_version in {"research-v6", "research-v7", "research-v8"}:
         first = modules[0]
         if first.kind != "summary" or any(m.kind == "summary" for m in modules[1:]):
             raise ValueError("v6 requires first summary and comparison/timeline details")

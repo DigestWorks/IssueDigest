@@ -85,7 +85,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
-    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v7"
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v8"
     assert len(completed.result.canvas.research.support_reviews) == 1
     run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
@@ -550,19 +550,20 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     )
     monkeypatch.setattr(worker, "DBOS", FakeDBOS)
     monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
-    monkeypatch.setattr(worker, "completed_v7_checkpoint", lambda *args: True)
+    monkeypatch.setattr(worker, "completed_v8_checkpoint", lambda *args: True)
     monkeypatch.setattr(worker, "create_agent_v7", lambda _model: object())
+    monkeypatch.setattr(worker, "create_agent_v8", lambda _model: object())
     monkeypatch.setattr(worker, "create_planner_v7", lambda _model: object())
     monkeypatch.setattr(
         worker, "run_planner_v7", lambda *args: (SimpleNamespace(queries=("합성",)), 10, 5)
     )
-    monkeypatch.setattr(worker, "model_prompt_v7", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(worker, "model_prompt_v8", lambda *args, **kwargs: "{}")
     monkeypatch.setattr(
         worker,
-        "run_agent_v7",
+        "run_agent_v8",
         lambda _agent, _prompt, **kwargs: (object(), 123, 45),
     )
-    monkeypatch.setattr(worker, "build_canvas_v7", fail_validation)
+    monkeypatch.setattr(worker, "build_canvas_v8", fail_validation)
 
     run_worker(
         "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True

@@ -59,3 +59,6 @@ private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크
 
 
 새 private v6는 동일 레이아웃·문구에서 첫 summary의 core 결론과 추가 요약을 열어 보이고 comparison/timeline 상세는 접어 둔다. prepare/classification은 정확 issuedigest-research-v6/research-v6만 인식하며 누락·혼합·위조·불확실한 첫 core를 거부한다. 비답변은 기존 '근거가 부족합니다'와 자료 범위 메시지를 표시한다. 실제 Python v6 builder→웹 client→첫 요약/접힌 상세→정확 원문 합성 검사를 공유하고 과거 결과의 순서를 바꾸지 않는다. 실제 문장 의미·주체 판단은 별도 인수 대상이다.
+
+
+private v8도 같은 첫 열린 요약·접힌 comparison/timeline 상세와 정확 인용 UI를 사용한다. prepare/classification에 정확 `issuedigest-research-v8`/`research-v8`만 추가하고 v6/v7의 귀속·첫 core·Unicode·날짜·평가 guards를 동일 적용한다. 실제 Python v8 builder→full client→기존 화면 합성 검증은 의미 품질의 사실 인증이 아니다.
