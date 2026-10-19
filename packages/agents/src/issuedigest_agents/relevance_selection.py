@@ -1,7 +1,10 @@
 """Standalone citation-bound relevance triage; callers supply authorized evidence."""
 
+import asyncio
 import json
 import os
+from collections.abc import Iterator
+from contextlib import contextmanager
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Annotated, Literal, Self
@@ -13,6 +16,7 @@ from issuedigest_domain.sources import Sha256
 from openai import AsyncOpenAI
 from pydantic import UUID4, BaseModel, ConfigDict, Field, create_model, model_validator
 from pydantic_ai import Agent, AgentRunResult, ToolOutput, UsageLimits
+from pydantic_ai._utils import run_until_complete
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIResponsesModel, OpenAIResponsesModelSettings
 from pydantic_ai.providers.openai import OpenAIProvider
@@ -212,16 +216,30 @@ def selection_prompt(question: str, sources: tuple[Source, ...]) -> str:
         raise ValueError("Invalid relevance selection input") from None
 
 
-def _initialize_agent(selector: _Selector) -> Agent[None, BaseModel]:
+@contextmanager
+def _initialize_agent(selector: _Selector) -> Iterator[Agent[None, BaseModel]]:
     model = selector.model
-    if model is None:
-        model = OpenAIResponsesModel(
-            "gpt-5.4-mini",
-            provider=OpenAIProvider(
-                openai_client=AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"], max_retries=0)
-            ),
-        )
-    return Agent(model, instructions=SELECTOR_INSTRUCTIONS, output_type=BaseModel, retries=0)
+    client: AsyncOpenAI | None = None
+    try:
+        if model is None:
+            # run_sync cannot drive an already running loop. Reject before allocating
+            # an owned client whose close would need that same unavailable sync bridge.
+            try:
+                asyncio.get_running_loop()
+            except RuntimeError:
+                pass
+            else:
+                raise ValueError("Synchronous selector requires a non-running loop")
+            client = AsyncOpenAI(api_key=os.environ["OPENAI_API_KEY"], max_retries=0)
+            model = OpenAIResponsesModel(
+                "gpt-5.4-mini", provider=OpenAIProvider(openai_client=client)
+            )
+        yield Agent(model, instructions=SELECTOR_INSTRUCTIONS, output_type=BaseModel, retries=0)
+    finally:
+        if client is not None:
+            # Use the same SDK bridge/current loop as Agent.run_sync, including when
+            # provider/model/Agent construction failed before a request could start.
+            run_until_complete(client.close())
 
 
 def run_selector(selector: _Selector, prompt: str) -> RelevanceSelection:
@@ -244,38 +262,43 @@ def run_selector(selector: _Selector, prompt: str) -> RelevanceSelection:
     except Exception:
         raise ValueError("Invalid relevance selection input") from None
     try:
-        result: AgentRunResult[BaseModel] = _initialize_agent(selector).run_sync(
-            prompt,
-            output_type=tools,
-            model_settings=OpenAIResponsesModelSettings(
-                openai_store=False, max_tokens=MAX_OUTPUT_TOKENS, timeout=15
-            ),
-            usage_limits=UsageLimits(
-                request_limit=1,
-                output_tokens_limit=MAX_OUTPUT_TOKENS,
-                total_tokens_limit=MAX_RUN_TOKENS,
-            ),
-            retries=0,
-        )
-        _validate_result_usage(result, total=MAX_RUN_TOKENS, output=MAX_OUTPUT_TOKENS)
-        # Revalidate actual output against the same DTO before projecting its rows.
-        output_type = tools[0].output
-        assert isinstance(output_type, type) and issubclass(output_type, BaseModel)
-        validated = output_type.model_validate(result.output.model_dump())
-        rows = validated.model_dump()["decisions"]
-        lookup = {r["snapshot_id"]: r["decision"] for r in rows}
-        ordered = tuple(
-            RelevanceDecision(snapshot_id=UUID(sid), decision=lookup[sid]) for sid in ids
-        )
-        return RelevanceSelection(
-            prompt_sha256=sha256(prompt.encode("utf-8")).hexdigest(),
-            question_sha256=sha256(parsed.question.encode("utf-8")).hexdigest(),
-            candidate_snapshot_ids=tuple(UUID(sid) for sid in ids),
-            decisions=ordered,
-            selected_snapshot_ids=tuple(d.snapshot_id for d in ordered if d.decision != "exclude"),
-            excluded_snapshot_ids=tuple(d.snapshot_id for d in ordered if d.decision == "exclude"),
-            input_tokens=result.usage.input_tokens,
-            output_tokens=result.usage.output_tokens,
-        )
+        with _initialize_agent(selector) as agent:
+            result: AgentRunResult[BaseModel] = agent.run_sync(
+                prompt,
+                output_type=tools,
+                model_settings=OpenAIResponsesModelSettings(
+                    openai_store=False, max_tokens=MAX_OUTPUT_TOKENS, timeout=15
+                ),
+                usage_limits=UsageLimits(
+                    request_limit=1,
+                    output_tokens_limit=MAX_OUTPUT_TOKENS,
+                    total_tokens_limit=MAX_RUN_TOKENS,
+                ),
+                retries=0,
+            )
+            _validate_result_usage(result, total=MAX_RUN_TOKENS, output=MAX_OUTPUT_TOKENS)
+            # Revalidate actual output against the same DTO before projecting its rows.
+            output_type = tools[0].output
+            assert isinstance(output_type, type) and issubclass(output_type, BaseModel)
+            validated = output_type.model_validate(result.output.model_dump())
+            rows = validated.model_dump()["decisions"]
+            lookup = {r["snapshot_id"]: r["decision"] for r in rows}
+            ordered = tuple(
+                RelevanceDecision(snapshot_id=UUID(sid), decision=lookup[sid]) for sid in ids
+            )
+            return RelevanceSelection(
+                prompt_sha256=sha256(prompt.encode("utf-8")).hexdigest(),
+                question_sha256=sha256(parsed.question.encode("utf-8")).hexdigest(),
+                candidate_snapshot_ids=tuple(UUID(sid) for sid in ids),
+                decisions=ordered,
+                selected_snapshot_ids=tuple(
+                    d.snapshot_id for d in ordered if d.decision != "exclude"
+                ),
+                excluded_snapshot_ids=tuple(
+                    d.snapshot_id for d in ordered if d.decision == "exclude"
+                ),
+                input_tokens=result.usage.input_tokens,
+                output_tokens=result.usage.output_tokens,
+            )
     except Exception:
         raise ValueError("Relevance selection failed") from None

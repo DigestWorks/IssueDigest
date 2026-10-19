@@ -565,3 +565,190 @@ def test_frozen_report_rejects_inconsistent_deserialized_fields(sync_model_loop,
         data["reason"] = "unrequested prose"
     with pytest.raises(ValidationError):
         sdk.RelevanceSelection.model_validate_json(json.dumps(data))
+
+
+def default_lifecycle_double(monkeypatch, sources, failure=None):
+    """Replace only default provider allocation; keep real Agent/FunctionModel execution."""
+    import asyncio
+    from types import SimpleNamespace
+
+    sdk = profile()
+    state = SimpleNamespace(clients=[], calls=[], run_loops=[], events=[])
+
+    class Client:
+        def __init__(self, *, api_key, max_retries):
+            assert api_key == "synthetic-only" and max_retries == 0
+            if failure == "client-construction":
+                raise RuntimeError("private client constructor canary")
+            self.close_count = 0
+            self.close_loops = []
+            state.clients.append(self)
+            state.events.append("allocated")
+
+        async def close(self):
+            self.close_loops.append(asyncio.get_running_loop())
+            state.events.append("close-start")
+            await asyncio.sleep(0)
+            self.close_count += 1
+            state.events.append("close-complete")
+            if failure == "close":
+                raise RuntimeError("private cleanup canary")
+
+    def provider(*, openai_client):
+        assert openai_client is state.clients[-1]
+        if failure == "provider-construction":
+            raise RuntimeError("private provider constructor canary")
+        return openai_client
+
+    async def respond(messages, info):
+        state.calls.append("classify_relevance")
+        state.run_loops.append(asyncio.get_running_loop())
+        state.events.append("request")
+        if failure == "provider":
+            raise RuntimeError("private provider canary")
+        rows = decisions(sources, ("retain",) * len(sources))
+        if failure == "output-validation":
+            rows[0]["decision"] = "invalid"
+        return ModelResponse(
+            parts=[ToolCallPart("classify_relevance", {"decisions": rows})],
+            usage=RequestUsage(
+                input_tokens=True if failure == "usage-validation" else 100, output_tokens=30
+            ),
+        )
+
+    def model(name, *, provider):
+        assert name == "gpt-5.4-mini" and provider is state.clients[-1]
+        if failure == "model-construction":
+            raise RuntimeError("private model constructor canary")
+        return FunctionModel(respond)
+
+    monkeypatch.setattr(sdk, "os", SimpleNamespace(environ={"OPENAI_API_KEY": "synthetic-only"}))
+    monkeypatch.setattr(sdk, "AsyncOpenAI", Client)
+    monkeypatch.setattr(sdk, "OpenAIProvider", provider)
+    monkeypatch.setattr(sdk, "OpenAIResponsesModel", model)
+    if failure == "agent-construction":
+
+        def agent(*args, **kwargs):
+            raise RuntimeError("private agent constructor canary")
+
+        monkeypatch.setattr(sdk, "Agent", agent)
+    return state
+
+
+def test_owned_default_client_is_await_closed_on_each_repeated_run(sync_model_loop, monkeypatch):
+    sdk = profile()
+    sources = candidates(1)
+    state = default_lifecycle_double(monkeypatch, sources)
+    selector = sdk.create_selector()
+    prompt = sdk.selection_prompt("합성", sources)
+    for i in range(3):
+        result = sdk.run_selector(selector, prompt)
+        assert result.selected_snapshot_ids == (sources[0][0],)
+        assert len(state.clients) == i + 1
+        assert [client.close_count for client in state.clients] == [1] * (i + 1)
+        assert state.clients[-1].close_loops == [sync_model_loop]
+        assert state.run_loops == [sync_model_loop] * (i + 1)
+    assert state.events == ["allocated", "request", "close-start", "close-complete"] * 3
+    assert state.calls == ["classify_relevance"] * 3 and not sync_model_loop.is_closed()
+
+
+@pytest.mark.parametrize(
+    "failure",
+    [
+        "provider",
+        "output-validation",
+        "usage-validation",
+        "provider-construction",
+        "model-construction",
+        "agent-construction",
+        "close",
+    ],
+)
+def test_owned_default_client_is_await_closed_on_every_failure(
+    sync_model_loop, monkeypatch, failure
+):
+    sdk = profile()
+    sources = candidates(1)
+    state = default_lifecycle_double(monkeypatch, sources, failure)
+    with pytest.raises(ValueError, match="^Relevance selection failed$") as caught:
+        sdk.run_selector(sdk.create_selector(), sdk.selection_prompt("합성", sources))
+    assert caught.value.__cause__ is None
+    assert len(state.clients) == 1 and state.clients[0].close_count == 1
+    assert state.clients[0].close_loops == [sync_model_loop]
+    assert state.events[-2:] == ["close-start", "close-complete"]
+    assert len(state.calls) == (0 if failure.endswith("construction") else 1)
+    assert not sync_model_loop.is_closed()
+
+
+@pytest.mark.parametrize("failure", ["invalid-prompt", "actual-envelope", "client-construction"])
+def test_default_client_is_not_allocated_before_preflight_or_after_constructor_failure(
+    sync_model_loop, monkeypatch, failure
+):
+    sdk = profile()
+    sources = candidates(1)
+    state = default_lifecycle_double(monkeypatch, sources, failure)
+    prompt = sdk.selection_prompt("합성", sources)
+    if failure == "actual-envelope":
+        monkeypatch.setattr(sdk, "_provider_schema_bytes_v5", lambda tools: (12000, 12000))
+    elif failure == "invalid-prompt":
+        prompt = "{}"
+    message = (
+        "Relevance selection failed"
+        if failure == "client-construction"
+        else "Invalid relevance selection input"
+    )
+    with pytest.raises(ValueError, match=f"^{message}$"):
+        sdk.run_selector(sdk.create_selector(), prompt)
+    assert state.clients == [] and state.calls == [] and state.events == []
+
+
+def test_caller_injected_model_client_remains_open_on_success_and_failure(
+    sync_model_loop, monkeypatch
+):
+    from types import SimpleNamespace
+
+    sdk = profile()
+    sources = candidates(1)
+    closed = []
+
+    async def close():
+        closed.append(True)
+
+    caller_client = SimpleNamespace(
+        base_url="https://synthetic.invalid", responses=object(), close=close
+    )
+    caller_provider = sdk.OpenAIProvider(openai_client=caller_client)
+    caller_model = sdk.OpenAIResponsesModel("gpt-5.4-mini", provider=caller_provider)
+    valid, calls = synthetic(decisions(sources, ("retain",)))
+    monkeypatch.setattr(caller_model, "request", valid.request)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Caller-injected model must not allocate a default client")
+
+    monkeypatch.setattr(sdk, "AsyncOpenAI", forbidden)
+    selector = sdk.create_selector(caller_model)
+    prompt = sdk.selection_prompt("합성", sources)
+    result = sdk.run_selector(selector, prompt)
+    assert result.selected_snapshot_ids == (sources[0][0],)
+    invalid, invalid_calls = synthetic([], error=RuntimeError("private injected canary"))
+    monkeypatch.setattr(caller_model, "request", invalid.request)
+    with pytest.raises(ValueError, match="^Relevance selection failed$"):
+        sdk.run_selector(selector, prompt)
+    assert calls == ["classify_relevance"] and invalid_calls == ["classify_relevance"]
+    assert closed == [] and not sync_model_loop.is_closed()
+
+
+def test_running_loop_sync_default_call_fails_before_owned_client_allocation(monkeypatch):
+    import asyncio
+
+    sdk = profile()
+    sources = candidates(1)
+    state = default_lifecycle_double(monkeypatch, sources)
+    prompt = sdk.selection_prompt("합성", sources)
+
+    async def caller():
+        with pytest.raises(ValueError, match="^Relevance selection failed$"):
+            sdk.run_selector(sdk.create_selector(), prompt)
+        assert state.clients == [] and state.events == [] and state.calls == []
+
+    asyncio.run(caller())
