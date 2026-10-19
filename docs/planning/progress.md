@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 작업 시작 · 첫 요약의 수치 관계·조건 설명 · 2026-10-19 KST
+
+PR48/181bee1 후속이다. [단일 Spec](../changes/briefing-numeric-clarity.md)에 따라 새 finalv10만 첫 요약의 포함 관계·목표/실적/조건부 전망·상하한과 출처별 비교 기준을 개선한다. v9 자료 선택 protocol·과거 provider/복구/결과·디자인/로그인/데이터를 보존하고 기존4,655개/sourceCI를 baseline으로 재사용한다. 원래3질문과 신규 다중주제1의 실제4앱/최대12요청·추가 성공 재시도0을 별도 인수한다. 코드/검토/전체gate/개발반영·PR/CI/Sites/정리는 아직 완료 전이다. 실제 앱ab6654e/v9·Sitesv70·main/운영 유예는 현재 유지한다.
+
 ## v9 전체 검사·개인 개발 적용 · 2026-10-19 KST
 
 현재 개인 개발 웹/API/조사 worker는 `ab6654e`/private v9이며 [Draft PR48](https://github.com/DigestWorks/IssueDigest/pull/48)(PR47 기반·미병합)다. 원래 질문→planner7→승인 저장 검색→관련성 선택→선택 원문 고정→최종 생성으로 연결했다. 불확실 후보는 남기고 명확한 무관만 제외한다. 선택은 진실/정치적 동의 판정이 아니다. API/공개 읽기/DB schema·로그인·선택한 모바일 디자인과 역사v2~v8 provider·원래 checkpoint를 유지한다.
