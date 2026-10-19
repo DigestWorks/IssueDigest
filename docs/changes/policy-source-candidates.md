@@ -10,7 +10,7 @@
 - 순수 `build_policy_candidate_report(current_raw, *, since:date, through:date, previous_raw:bytes|None=None)`는 정수 schema_version1, 정확 discovery bytes SHA256/collected_at, optional 이전 SHA/collected_at, inclusive since/through와 entries를 반환한다. 날짜 인수는 정확 date 타입이고 since<=through다. 이전본은 현재보다 엄격히 이른 aware instant여야 한다. 현재/이전 모두 기존 파서와 새 metadata로 재검증한다. 원본은 각각 기존 최대4MiB+8192이며 출력은512KiB 이하다.
 - entries는 현재 날짜 범위 안 후보를 new(이전 ID 없음)/unchanged(모든 metadata 같음)/metadata_changed(제목·날짜·발행처 중 변화)로 분류한다. 이전본이 없으면 new는 첫 관측일 뿐 전역 신규 기사라고 부르지 않는다. 이전 날짜 범위 안 ID가 **현재 전체 목록에 없을 때만** not_observed로 이전 metadata를 담는다. 현재에 있으나 범위 밖으로 이동한 ID를 누락으로 분류하지 않는다. 각 entry는 metadata와 status만 가지며 current-first 같은 순위를 만들지 않고 news_id 오름차순으로 정렬한다. 최대 현재100+이전100행이다. 권리 승인/본문 변경·전역 최신성·완전성·자동 후보 선택을 추론하지 않는다.
 - `issuedigest-policy candidates PRIVATE_DISCOVERY YYYY-MM-DD YYYY-MM-DD PRIVATE_NEW_REPORT [--previous PRIVATE_DISCOVERY]`를 추가한다. CLI 날짜는 canonical ASCII YYYY-MM-DD만 허용한다. private input400/600·소유 regular·절대 경로·symlink/중간 경로 방어와 새700부모/600파일 배타 원자 저장을 재사용한다. 기존 명령/오류 exit를 유지한다. stdout은 schema_version/status="candidates_reported"/candidates(현재 범위 내)/new/unchanged/metadata_changed/not_observed만 출력하고 원문·표제·발행처·ID·URL·경로·개별 날짜/DSN은 출력하지 않는다. 상세는 private 보고서에만 둔다.
-- 기존 실사용 자료·버전·인용·검색·기록·계정/세션·공개v1·개발 화면/API/worker·시간당 collector source/config/주기는 보존한다. 후보 발견을 검색/공개 승인으로 자동 승격하지 않는다. controller의 실제 공식 목록1회와 기사 최대2회 확보 후 개별 원문/공공누리1텍스트·사진/외부 저작물 제외·정확 인용을 검토한 경우만 기존 명시 provision 경로로 개인 개발 자료를 추가한다. 추가 전 백업·별도 복원 검증, 적용/재적용·권한/역사 인용·보존·사후 복원 증거를 남긴다. 수집 범위 확대나 새 cron·공개 게시·유료 생성은 없다.
+- 기존 실사용 자료·버전·인용·검색·기록·계정/세션·공개v1·개발 화면/API/worker·시간당 collector source/config/주기는 보존한다. 후보 발견을 검색/공개 승인으로 자동 승격하지 않는다. controller의 실제 공식 목록1회와 서로 다른 기사 최대2건 확보 후 개별 원문/공공누리1텍스트·사진/외부 저작물 제외·정확 인용을 검토한 경우만 기존 명시 provision 경로로 개인 개발 자료를 추가한다. 추가 전 백업·별도 복원 검증, 적용/재적용·권한/역사 인용·보존·사후 복원 증거를 남긴다. 수집 범위 확대나 새 cron·공개 게시·유료 생성은 없다.
 - 구현자는 합성 fixtures/TDD만 사용하고 subagent/실제 서버/키/자료/HTTP를 사용하지 않는다. controller가 독립 검토·전체 gate·실제 bounded 확보/내용 검토·개인 개발 적용·Draft PR·Sites/이전판 보존을 맡는다. 사용자 탭을 열거나 이동하지 않는다.
 
 ## Task 1: 목록 메타데이터·후보 비교 보고서와 CLI
@@ -29,4 +29,4 @@
 
 ## Controller 인수·공유
 
-작업별/전체 독립 검토·전용 합성 PostgreSQL 전체 검사를 통과한다. 실제 확보는 기존 SDK로 목록1+기사최대2의 bounded GET만 수행하며 보고서와 개별 원문/권리/인용은 private에 보존한다. 목록의 후보를 무검토 최신 이슈나 공개 브리핑으로 노출하지 않는다. 가능하면 검토한 새 자료를 기존 명시 등록·표시/검색 경로로 개인 개발에 추가하고 DB/앱/수집기·과거 인용을 보존한다. 실제 적용/복원·질문 검색 확인과 코드 완료를 구분하고 Draft PR·마일스톤·Sites를 갱신한다. 도메인 전체·언론/여론/최근 인기·자율 조사 완료로 확대하지 않는다.
+작업별/전체 독립 검토·전용 합성 PostgreSQL 전체 검사를 통과한다. 실제 확보는 기존 SDK로 목록1회+기사2건을 bounded GET하고, 원래 DB에 있는 기사와 새 기사를 분리한 뒤 기존 CLI의 정확 batch 계약을 유지하기 위해 새 기사1건만 한 번 더 확보할 수 있다. HTTP 총4회 이하이며 보고서와 개별 원문/권리/인용은 private에 보존한다. 목록의 후보를 무검토 최신 이슈나 공개 브리핑으로 노출하지 않는다. 가능하면 검토한 새 자료를 기존 명시 등록·표시/검색 경로로 개인 개발에 추가하고 DB/앱/수집기·과거 인용을 보존한다. 실제 적용/복원·질문 검색 확인과 코드 완료를 구분하고 Draft PR·마일스톤·Sites를 갱신한다. 도메인 전체·언론/여론/최근 인기·자율 조사 완료로 확대하지 않는다.
