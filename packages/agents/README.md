@@ -54,6 +54,8 @@ planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 �
 
 `run_selector(handle, prompt)`는 strict JSON·후보 coverage·UTF-8 byte 예산과 실제 요청 envelope를 검사한 다음에만 Agent를 만든다. 주입된 `FunctionModel`도 같은 경로를 사용하며 기본 client/key는 만들지 않는다. 기본 모델은 gpt-5.4-mini Responses/store=False·client max_retries0이며 요청1회·PydanticAI retry0·최대 입력+출력12,000/출력500/timeout15초다. 최악5UUID의 실제 tool raw842/normalized789바이트 중 큰 값과 지침1,019바이트, framing2,048·출력500을 예약해 prompt는7,591 UTF-8바이트다. 매 요청의 실제 raw/normalized envelope도 다시 검사한다.
 
+기본 호출에서 SDK가 만든 클라이언트는 성공·실패·provider/model/Agent 생성 오류 후 같은 호환 event loop에서 await close한다. 주입한 모델/클라이언트와 호출자의 event loop는 닫지 않는다. 이 함수는 동기 API이며 이미 실행 중인 event loop에서는 기본 클라이언트를 할당하기 전에 고정 실행 오류로 실패한다.
+
 유일한 strict tool `classify_relevance`는 prompt 후보 UUID 문자열 Literal enum과 `retain|exclude|uncertain`만 받는다. 모든 후보를 정확1회 분류해야 하며 unknown/duplicate/missing/extra/잘못된 결정을 수리하지 않는다. 서버는 응답 순서를 원래 후보 순서로 투영하며 uncertain을 포함해 retain+uncertain만 선택하고 exclude만 제외한다. frozen `RelevanceSelection`은 `evidence-relevance-v1`, 정확 prompt/질문 UTF-8 SHA256, 원래 후보 IDs·전체 결정·선택/제외 IDs와 검증된 input/output tokens를 보존한다. raw 응답과 aggregate의 exact-int/nonbool/nonnegative 사용량·한도·일치를 기존 helper로 검사하며, 불확실 사용량을0으로 치환하지 않는다. 입력 오류는 고정 `Invalid relevance selection input`, 실행/결정/usage/network 오류는 고정 `Relevance selection failed`로 실패한다.
 
 선택기는 독립 SDK다. 검색·외부 도구·DBOS·worker/HTTP·UI·공개 API·자동 SupportReview와 연결하지 않는다. 현재 앱 전체24,000/출력2,500 예산이나 내구 복구를 구현한 것이 아니며 기존 v2~v8/planner7의 지침·schema·한도·결과를 변경하지 않는다. 실제3질문 인수와 전체 gate는 controller가 별도로 수행한다.

@@ -1,8 +1,16 @@
 # 진행 기록
 
+## 전체 검사·독립 검토 · 관련성 선택 SDK · 2026-10-19 KST
+
+- source/검증 head `50f0552193de0cb2c0007024552eac5a43dc1da0`. 단일 전체 gate Python3,725+JS744=4,469개·Ruff/format/mypy/lint/types/build/contract 통과·실패/skip/warning0이다. 작업 독립 검토 C0/I0/M0, 전체 검토의 I1(기본 소유 클라이언트 정리)을 한 차례 수정하고 한정 재검토 PASS C0/I0/M0를 확인했다. 열린/보류 지적·새 Ruling0이다. lifecycle RED9→GREEN13, 관련562/selector94·지침/schema/예산/합성 결정 결과 동일성 증거를 보존했다.
+- 실제 selector3요청은 source384608d의 호출자 관리 client로 수행한 결과이며 새 source의 실제 호출로 재표기하지 않는다. 기존7개 결정/제공 인용15종 직접 대조·positive2의 동일 핵심 자료 보존·명시 무관2→0·셋째 human 미판정3 보존과 좁은 한계를 유지한다. 추가 유료 호출0, 총3/3완료·retry0이다. 앱f839ae0/v8·과거 provider/workflow/검색/저장/API/auth/UI/schema bytes를 보존했으며 실제 개발 앱/서버/DB·수집기 변경0이다.
+- Draft PR·source CI·Sites v68 보존/새 게시·소유 QA 정리 receipt는 뒤에 기록한다. 앱 실행기/전체24,000/출력2,500·월 예약/취소/권한/복구 연결은 후속이며 이번에 구현 완료로 표시하지 않는다. main/운영 유예(D013)·사용자 탭 유지다.
+
 ## SDK 구현·실제3회 선택 인수 · 2026-10-19 KST
 
 질문·제공 인용을 함께 읽는 재사용 선택기 `evidence-relevance-v1`을 agents SDK로 구현했다. 정확한 모든 후보에 retain/exclude/uncertain을1회씩 받고, retain+uncertain은 원래 순서로 보존하며 exclude만 제외한다. 실제 후보 UUID enum/전체 coverage·원문 전체 인용·question/prompt UTF-8 hash·불변 결정/사용량과 raw/합산 검증을 적용한다. strict preflight 전에는 기본 key/model/Agent를 초기화하지 않는 lazy handle이다. 제목/metadata만으로 관련성을 증명하거나 관련성을 진실·독립 사실 검증·정치적 동의로 대신하지 않는다.
+
+실제 요청의 source는 `384608d`이며 캡처용 주입 모델과 호출자 소유 클라이언트를 사용했다. 이후 `50f0552`는 기본 생성 클라이언트의 수명 관리만 수정했고 지침·모든 후보 수의 raw/normalized schema·prompt·예산과 합성 결정 결과의 동일성을 확인했다. 기본 경로의 성공·실패·생성 오류 정리와 주입 클라이언트 소유권은 합성 회귀로 검증했으며 실제3요청을 새 source로 재표기하거나 유료 재실행하지 않았다.
 
 기존 고정3질문·같은 기검토 공식 원문3건·이전 계획후 후보1/3/3으로 실제 selector3요청을 한 번씩 실행했다. 모두 완료했고 retry0이다. 동일 주택 자료를 필수로 지정한 positive2문항에서 해당 자료를 모두 보존했다. 둘째는 명시 무관한 경제·교육 후보2개를 모두 제외해2→0이 됐다. 셋째는 주제 관련 주택 자료를 retain하고 다른2개를 exclude했다. 이 문항의 기존 human relevance 미판정3개는 그대로이며 선택 후1개가 남았다. 전국 찬성률/인지도 직접 근거가 없다는 것과 주제 자체의 무관함을 같게 보지 않았고 미판정 제외에 정답/precision 가점을 주지 않았다.
 
