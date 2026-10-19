@@ -25,10 +25,10 @@
 
 ## Task 1: 첫 요약 설명 v10과 기존 relevance protocol의 호환 실행
 
-- [ ] 새 finalv10 SDK·짧은 수치/조건 설명 지침·실제/static 예산·필수 borrowed model을 구현하고 긴 v9 실행 복제 없이 공통 helper를 사용한다. 먼저 v9 지침/tool/prompt/예산/합성 canonical 결과·클라이언트 수명 golden regression을 RED→GREEN으로 잠근다. 합성 포함관계/열린 상하한·서로 다른 기준의 비교·조건·날짜0/정확 날짜·자료 부족 응답을 실제 builder 경로에서 검증하되 forced model 예시를 의미 품질 인증으로 부르지 않는다.
-- [ ] 기존 relevance body/recovery/accounting를 exact v9/v10 strategy로 좁게 공통화하고 v10 workflow/final만 추가한다. 앞4개 namespace/receipt는 그대로 유지하며 all9 workflows의 original version/slot·완료 checkpoint만 회복한다. v9 frozen 실제 fixture로 paid3/적용/paid5/validation 복구를 검증하고 v10의 ambiguous marker·원래 hash 변경·선택 원문 축소·취소/권한·malformed DTO/완료 raw usage·terminal finally SIGKILL·현재 권한 재검사를 실제 PG/DBOS로 TDD 검증한다. 새 모델/step retry0·등록 후 owned model 수명·한도초과 전 final0·v9별 동일 namespace bytes 증거를 남긴다.
-- [ ] exact private v10 domain/client/UI와 실제 Python builder→fullclient/app/CanvasView fixture를 추가해 첫 열린 요약·접힌상세/분류·정확 근거/Unicode/date/nonanswer와 위조/누락/혼합/stripped/public 거부를 잠근다. API/OpenAPI·레이아웃·저장 schema·기존공개 contract는 유지한다.
-- [ ] 관련 Python/JS/Ruff/format/mypy/types/contract/diff와 raw/static/date0/1/16 최대 schema·instructions SHA/기존 provider bytes 증거, RED/GREEN·관련 README/AGENTS를 기록하고 명시 commit/report한다. Task1만 체크하고 controller 실제4/12·전체 gate/독립 검토/개발/PR/CI/Sites/정리를 완료로 대신 표시하지 않는다.
+- [x] 새 finalv10 SDK·짧은 수치/조건 설명 지침·실제/static 예산·필수 borrowed model을 구현하고 긴 v9 실행 복제 없이 공통 helper를 사용한다. 먼저 v9 지침/tool/prompt/예산/합성 canonical 결과·클라이언트 수명 golden regression을 RED→GREEN으로 잠근다. 합성 포함관계/열린 상하한·서로 다른 기준의 비교·조건·날짜0/정확 날짜·자료 부족 응답을 실제 builder 경로에서 검증하되 forced model 예시를 의미 품질 인증으로 부르지 않는다.
+- [x] 기존 relevance body/recovery/accounting를 exact v9/v10 strategy로 좁게 공통화하고 v10 workflow/final만 추가한다. 앞4개 namespace/receipt는 그대로 유지하며 all9 workflows의 original version/slot·완료 checkpoint만 회복한다. v9 frozen 실제 fixture로 paid3/적용/paid5/validation 복구를 검증하고 v10의 ambiguous marker·원래 hash 변경·선택 원문 축소·취소/권한·malformed DTO/완료 raw usage·terminal finally SIGKILL·현재 권한 재검사를 실제 PG/DBOS로 TDD 검증한다. 새 모델/step retry0·등록 후 owned model 수명·한도초과 전 final0·v9별 동일 namespace bytes 증거를 남긴다.
+- [x] exact private v10 domain/client/UI와 실제 Python builder→fullclient/app/CanvasView fixture를 추가해 첫 열린 요약·접힌상세/분류·정확 근거/Unicode/date/nonanswer와 위조/누락/혼합/stripped/public 거부를 잠근다. API/OpenAPI·레이아웃·저장 schema·기존공개 contract는 유지한다.
+- [x] 관련 Python/JS/Ruff/format/mypy/types/contract/diff와 raw/static/date0/1/16 최대 schema·instructions SHA/기존 provider bytes 증거, RED/GREEN·관련 README/AGENTS를 기록하고 명시 commit/report한다. Task1만 체크하고 controller 실제4/12·전체 gate/독립 검토/개발/PR/CI/Sites/정리를 완료로 대신 표시하지 않는다.
 
 ## Controller 인수
 

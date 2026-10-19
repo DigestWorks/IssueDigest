@@ -31,6 +31,7 @@ def require_raw_classification_utc(canvas: Any) -> None:
                 "research-v7",
                 "research-v8",
                 "research-v9",
+                "research-v10",
             )
             for c in claims
         )
@@ -65,6 +66,7 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
             "research-v7",
             "research-v8",
             "research-v9",
+            "research-v10",
         )
         if version in versions
     }
@@ -128,7 +130,13 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     modules = revision.draft.modules
     if revision.draft.outcome != "answer" or not 2 <= len(modules) <= 4:
         raise ValueError("Classified answer requires analysis and evidence")
-    if method_version in {"research-v6", "research-v7", "research-v8", "research-v9"}:
+    if method_version in {
+        "research-v6",
+        "research-v7",
+        "research-v8",
+        "research-v9",
+        "research-v10",
+    }:
         first = modules[0]
         if first.kind != "summary" or any(m.kind == "summary" for m in modules[1:]):
             raise ValueError("v6 requires first summary and comparison/timeline details")

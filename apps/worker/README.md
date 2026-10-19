@@ -335,7 +335,7 @@ uv run pytest apps/worker/tests/test_policy_intake_worker.py
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v9 실행합니다. v2~v9 여덟 workflow와 planner7 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 역사v2~v6는 한 요청·출력2,500/60초이고 v7/v8은 planner1+final1·합계출력2,500·총24,000토큰입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v10 실행합니다. v2~v10 아홉 workflow와 planner7 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 역사v2~v6는 한 요청·출력2,500/60초이고 v7/v8은 planner1+final1·합계출력2,500·총24,000토큰입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 
@@ -438,9 +438,9 @@ v7 순서는 현재 권한/parent 준비→metadata guard→retrieving→planner
 v8은 원문 정확 날짜 후보로 최종 DTO를 좁히며 기존 현재 권한/부모/고정 원문 재검사·검색0의 planner usage·취소·known usage 합산·예약·단일 worker 잠금·cohort/orphan 복구를 유지한다. v2~v7 provider bytes와 저장 결과는 그대로다. 합성 PostgreSQL 검증과 실제 모델/개인 개발 적용은 구분한다.
 
 
-## Private v9: 세 유료 호출과 원문 축소
+## 역사 private v9: 세 유료 호출과 원문 축소
 
-신규 queued만 `issuedigest_research_run_v9`로 시작한다. 정확 순서는 planner7 paid1→search9 step2→`issuedigest_research_select_v9__model.request` paid3→apply9 step4→final9 paid5다. 실제 v8 worker를 `tests/fixtures/research_worker_v8.py`로 바이트 동일 동결한다. 기존 v2~v8은 원래 이름/version/slot과 provider bytes로 회복한다.
+역사 v9 queued는 `issuedigest_research_run_v9`로 시작했다. 정확 순서는 planner7 paid1→search9 step2→`issuedigest_research_select_v9__model.request` paid3→apply9 step4→final9 paid5다. 실제 v8 worker를 `tests/fixtures/research_worker_v8.py`로 바이트 동일 동결한다. 기존 v2~v8은 원래 이름/version/slot과 provider bytes로 회복한다.
 
 selector는 기존 SDK에 공개 `DBOSModel`을 주입하며 DBOS 구성 후 launch 전에 등록한다. `agent_v8.model`을 빌리고 retry/stream handler는 끈다. raw response를 paid3에 기록하고 SDK 반환도 전체 coverage·질문/prompt UTF-8 SHA256·후보 순서·선택/제외 투영·정확 usage로 재검증한다. uncertain은 유지하며 exclude만 제외한다. 모두 제외면 최종 호출 없이 알려진 planner+selector 사용량을 기록한다.
 
@@ -450,3 +450,12 @@ v9-only 내부 사용량 기록은 검증한 알려진 subtotal을 단조 증가
 
 
 v9 selector는 공개 `DBOSClient.update_workflow_attributes`로 정확 `{"issuedigest_select_v9_started": true, "issuedigest_select_v9_prompt_sha256": "<정확 UTF-8 prompt SHA256>"}`를 송신 전에 기록한다. 이 client 작업은 durable slot을 만들지 않는다. prefix2에 시작 표식이 있으면 송신 여부가 불명확하므로 재호출 없이 실패한다. prefix3 이상은 정확 표식·소문자64-hex hash가 있어야 하고 재구성한 prompt hash가 원래 영수증과 일치해야 완료 응답을 재생한다. 질문·원문/제목 metadata가 바뀌면 새 유료 호출 없이 실패하며 원래 입력과 결과를 혼합하지 않는다. 알 수 없는 attribute는 덮어쓰지 않고 실패한다. 표식 기록 직후·실제 송신 전 중단도 보수적으로 실패하고 예약을 유지할 수 있다. 기존 취소/권한 전이의 usage 초기화는 바꾸지 않으며 v9 worker가 검증한 journal subtotal을 종료 시 다시 기록한다. 그 기록 전에 프로세스까지 중단되면 다음 worker 시작 시 v9 terminal workflow만20개씩 조회해 정확 owned UUID/상태/완료 metadata와 raw usage를 재검증하고 token 필드만 복구한다. 그 전 행의0은 무료/예약 반환을 뜻하지 않으며 원래 raw journal이 알려진 비용 근거다.
+
+
+## Private v10과 기존 relevance 실행 호환
+
+새 queued 요청은 `issuedigest_research_run_v10`이며 모든 v2~v10 workflow를 등록한다. v10 순서는 planner7 paid1→`issuedigest_research_search_v9` step2→`issuedigest_research_select_v9__model.request` paid3→`issuedigest_research_apply_v9` step4→`issuedigest_research_v10__model.request` paid5다. 앞 네 이름과 selector receipt 두 key는 그대로이며 workflow ID별 journal은 분리된다. v9은 원래 final9 paid5·workflow/application_version을 보존한다. `tests/fixtures/research_worker_v9.py`는 변경 전 실제 worker와 바이트 동일하다.
+
+기존 relevance body만 exact v9/v10 final strategy로 공통화한다. metadata·attributes·known usage·terminal reconciliation은 exact profile을 받는 private helper와 기존 v9 signature wrapper를 사용한다. 각 profile의 정확 workflow/final namespace·정수 nonbool slot·완료 순서를 raw 읽기 전에 검사한다. v10도 public client로 같은 selector started/hash를 송신 전에 기록하고 모호한 prefix2·변경된 원래 prompt는 재호출 없이 실패한다. 현재 권한/부모/모든 원문·원래 후보 순서·uncached apply 재검사를 유지하고 취소/권한 상실/잘못된 DTO·terminal SIGKILL 이후 known token만 단조 복구한다. 상태/결과/예약은 복원하지 않는다.
+
+최종 v10과 selector는 DBOS 구성 후 launch 전에 기존 v8 model을 빌려 등록한다. 새 provider client를 생성하거나 빌린 client를 닫지 않으며 모델·step retry0를 유지한다. v10은 수치 설명 지침만 늘려 static/actual 예산을 반영한다. schema/API/공개 읽기/레이아웃·원본/수집기는 변경하지 않는다. 합성 PG/FunctionModel 검증은 실제 모델 의미 판정·개발 적용과 별개다.

@@ -304,3 +304,25 @@ it('reads the Python v9 core conclusion in the open first summary, collapsed com
  const drawer = await screen.findByRole('dialog', {name:'원문과 인용 읽기'});
  expect(drawer.querySelector('mark')).toHaveTextContent(proof.citations[0].selector.quote);
 });
+
+it('reads the Python v10 core conclusion in the open first summary, collapsed comparison and exact original', async () => {
+ const {default: fixture} = await import('../../../packages/api-client/tests/fixtures/research-run-v10-generated.json');
+ const value = structuredClone(fixture), proof = value.result.canvas.research.evidence[0];
+ vi.stubGlobal('fetch', async (path: string) => {
+  if (path.endsWith('/session')) return response({...session, memberships:[{workspace_id:value.workspace_id, role:'owner'}]});
+  if (path.endsWith('/research')) return response({workspace_id:value.workspace_id, items:[value]});
+  if (path.endsWith(`/research/${value.run_id}`)) return response(value);
+  if (path.endsWith(`/evidence/${value.snapshot_ids[0]}`)) return response(proof);
+  throw Error(path);
+ });
+ const router = createMemoryRouter([{path:'/', Component:Home}], {initialEntries:[`/?view=research&run=${value.run_id}`]});
+ render(<RouterProvider router={router}/>);
+ const article = await screen.findByRole('article', {name:'브리핑 화면'});
+ const conclusion = within(article).getAllByText('제공 자료에 따르면, 두 합성 지표는 같은 방향입니다.')[0]!;
+ expect(conclusion).toBeVisible();
+ expect(within(article).getByText('합성 비교 상세', {selector:'summary'}).closest('details')).not.toHaveAttribute('open');
+ expect(within(article).getByText('이 인용으로 전국 인지도는 확인하기 어렵습니다.')).toBeVisible();
+ await userEvent.setup().click(within(article).getAllByRole('button', {name:/근거 열기:/})[0]!);
+ const drawer = await screen.findByRole('dialog', {name:'원문과 인용 읽기'});
+ expect(drawer.querySelector('mark')).toHaveTextContent(proof.citations[0].selector.quote);
+});

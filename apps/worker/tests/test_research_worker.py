@@ -106,7 +106,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
-    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v9"
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v10"
     assert len(completed.result.canvas.research.support_reviews) == 1
     run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
@@ -519,7 +519,7 @@ def test_validation_failure_retains_known_model_usage(engine, database_url, monk
             usage=RequestUsage(input_tokens=123, output_tokens=45),
         )
 
-    monkeypatch.setattr(worker, "build_canvas_v9", fail_validation)
+    monkeypatch.setattr(worker, "build_canvas_v10", fail_validation)
     run_worker(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert after.status == "failed" and after.error_code == "generation_failed"

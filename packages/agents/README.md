@@ -66,3 +66,12 @@ planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 �
 `research_v9`는 `create_agent_v9(model)`의 필수 caller model을 빌리고 별도 client를 생성하거나 닫지 않는다. `model_prompt_v9`/`run_agent_v9`는 planner+selector의 정확한 비음수 정수(nonbool) 합계≤20,000/출력≤1,000을 받는다. 전체24,000에서 이를 차감하고 `min(2,000, 2,500-prior_output_tokens)`의 동적 출력1,500..2,000을 prompt/static/actual envelope·요청 설정·usage 검사에 동일하게 사용한다. frozen v8 지침·exact date 도구·v6 canonical 변환을 재사용한다.
 
 기존 공통 helper가 선택한 whole quote들을 dynamic 예산 때문에 다시 버리지 않는다. 그 prompt 전체·최악 raw/normalized schema·지침·framing2,048·출력이 남은 UTF-8 예산을 넘으면 유료 호출 전에 거부한다. 최대5자료/100인용/16날짜는 동시 적재 보장이 아니다. 정확 private reviewer `issuedigest-research-v9`/`research-v9`만 추가하며 실제 builder 기반 `v9_fixture.py`의 비교/날짜/astral/비답변을 클라이언트와 UI에서 검증한다. 실제 의미·중립성·모델·개발 배포 인수를 의미하지 않는다.
+
+
+## Private v10 첫 답변의 수치 설명
+
+`research_v10`의 필수 borrowed `Model` factory·prompt/run/build는 v9와 같은 작은 `_relevance_final` 실행 helper를 사용한다. v9 지침·도구·prompt·설정·canonical 결과는 유지하며, v10은 frozen v8 지침에 741 UTF-8 bytes만 더한다. 첫 core answer에 포함 관계와 합산 금지, 계획·중간 실적·조건부 전망의 조건, 열린 상하한, 출처별 대상·기간·단위를 명시하도록 지시한다. 핵심 근거가 없으면 기존 빈 modules 자료 부족을 사용한다. 의미 blacklist·자동 수정·추가 모델 검수는 없다.
+
+v10 instructions는4,340바이트, 최악 static12,648바이트다. 최대100인용의 raw/normalized 도구 envelope는 날짜0에서7,070/6,964, 날짜1에서8,097/7,957, 날짜16에서8,308/8,168바이트이며 더 큰 값을 반영한다. combined prior와 동적 출력·전체 예산·45초/요청1/repair·retry0는 v9와 같다. 원래 질문과 선택된 whole quotes를 잘라 예산을 메우지 않으며 넘으면 유료 호출 전에 거부한다. 새 client를 만들거나 빌린 model을 닫지 않는다.
+
+정확 reviewer는 `issuedigest-research-v10`/`research-v10`이다. `tests/v10_fixture.py`의 실제 builder JSON을 full client·앱·CanvasView가 소비한다. 합성 수치 관계·날짜·Unicode·비답변은 전달과 검증 경계 검사이며 실제 생성 문장 의미 품질 인증이 아니다. 실제 모델/개발 적용 인수는 controller 소유 명세에 별도로 기록한다.

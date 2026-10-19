@@ -5,6 +5,7 @@ from collections import defaultdict
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from threading import Lock
+from typing import Literal
 from uuid import UUID
 
 from dbos import DBOSClient, WorkflowStatus
@@ -75,6 +76,7 @@ WORKFLOW_NAMES = {
     "issuedigest_research_run_v7",
     "issuedigest_research_run_v8",
     "issuedigest_research_run_v9",
+    "issuedigest_research_run_v10",
 }
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}
@@ -86,6 +88,7 @@ def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) 
         "issuedigest_research_run_v7",
         "issuedigest_research_run_v8",
         "issuedigest_research_run_v9",
+        "issuedigest_research_run_v10",
     }:
         return False
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
@@ -136,15 +139,33 @@ def _completed_planned_checkpoint(
     )
 
 
+RelevanceProfile = Literal["v9", "v10"]
+
+
+def _relevance_names(profile: RelevanceProfile) -> tuple[str, str]:
+    if profile == "v9":
+        return "issuedigest_research_run_v9", "issuedigest_research_v9__model.request"
+    if profile == "v10":
+        return "issuedigest_research_run_v10", "issuedigest_research_v10__model.request"
+    raise ValueError("Invalid relevance profile")
+
+
 def completed_v9_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
+    return _completed_relevance_checkpoint(client, workflow_id, stage, profile="v9")
+
+
+def _completed_relevance_checkpoint(
+    client: DBOSClient, workflow_id: str, stage: str, *, profile: RelevanceProfile
+) -> bool:
     """Inspect exact completed prefixes before any raw response is deserialized."""
+    _, final_name = _relevance_names(profile)
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
     expected = [
         (1, "issuedigest_research_plan_v7__model.request"),
         (2, "issuedigest_research_search_v9"),
         (3, "issuedigest_research_select_v9__model.request"),
         (4, "issuedigest_research_apply_v9"),
-        (5, "issuedigest_research_v9__model.request"),
+        (5, final_name),
     ]
     if stage == "queued":
         return not steps
@@ -166,6 +187,13 @@ SELECTOR_V9_STARTED: dict[str, object] = {"issuedigest_select_v9_started": True}
 
 
 def v9_attributes(client: DBOSClient, workflow_id: str) -> dict[str, object] | None:
+    return _relevance_attributes(client, workflow_id, profile="v9")
+
+
+def _relevance_attributes(
+    client: DBOSClient, workflow_id: str, *, profile: RelevanceProfile
+) -> dict[str, object] | None:
+    workflow_name, _ = _relevance_names(profile)
     workflows = client.list_workflows(
         workflow_ids=[workflow_id],
         application_name="issuedigest-research",
@@ -175,7 +203,7 @@ def v9_attributes(client: DBOSClient, workflow_id: str) -> dict[str, object] | N
     if (
         len(workflows) != 1
         or workflows[0].workflow_id != workflow_id
-        or workflows[0].name != "issuedigest_research_run_v9"
+        or workflows[0].name != workflow_name
     ):
         raise ValueError("Invalid relevance workflow identity")
     attributes = workflows[0].attributes
@@ -194,10 +222,16 @@ def v9_attributes(client: DBOSClient, workflow_id: str) -> dict[str, object] | N
 
 
 def recoverable_v9_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
-    if not completed_v9_checkpoint(client, workflow_id, stage):
+    return _recoverable_relevance_checkpoint(client, workflow_id, stage, profile="v9")
+
+
+def _recoverable_relevance_checkpoint(
+    client: DBOSClient, workflow_id: str, stage: str, *, profile: RelevanceProfile
+) -> bool:
+    if not _completed_relevance_checkpoint(client, workflow_id, stage, profile=profile):
         return False
     try:
-        attributes = v9_attributes(client, workflow_id)
+        attributes = _relevance_attributes(client, workflow_id, profile=profile)
     except ValueError:
         return False
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
@@ -209,16 +243,23 @@ def recoverable_v9_checkpoint(client: DBOSClient, workflow_id: str, stage: str) 
 
 
 def known_v9_usage(client: DBOSClient, workflow_id: str) -> tuple[int, int]:
+    return _known_relevance_usage(client, workflow_id, profile="v9")
+
+
+def _known_relevance_usage(
+    client: DBOSClient, workflow_id: str, *, profile: RelevanceProfile
+) -> tuple[int, int]:
     """Only exact completed journal prefixes permit raw-response accounting reads."""
+    _relevance_names(profile)
     metadata = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
     count = len(metadata)
     if not count:
         return 0, 0
     stage = "generating" if count == 5 else "retrieving"
-    if not completed_v9_checkpoint(client, workflow_id, stage):
+    if not _completed_relevance_checkpoint(client, workflow_id, stage, profile=profile):
         return 0, 0
     try:
-        attributes = v9_attributes(client, workflow_id)
+        attributes = _relevance_attributes(client, workflow_id, profile=profile)
     except ValueError:
         return 0, 0
     # Prefix2 with the exact started marker is not replayable, but its completed
@@ -262,18 +303,29 @@ def known_v9_usage(client: DBOSClient, workflow_id: str) -> tuple[int, int]:
 def recoverable_checkpoint(client: DBOSClient, workflow_id: str, name: str, stage: str) -> bool:
     if name == "issuedigest_research_run_v9":
         return recoverable_v9_checkpoint(client, workflow_id, stage)
-    if name in {"issuedigest_research_run_v7", "issuedigest_research_run_v8"}:
-        return _completed_planned_checkpoint(client, workflow_id, stage, profile=name[-2:])
+    if name == "issuedigest_research_run_v10":
+        return _recoverable_relevance_checkpoint(client, workflow_id, stage, profile="v10")
+    if name == "issuedigest_research_run_v7":
+        return completed_v7_checkpoint(client, workflow_id, stage)
+    if name == "issuedigest_research_run_v8":
+        return completed_v8_checkpoint(client, workflow_id, stage)
     return stage not in {"generating", "validating"} or completed_model_checkpoint(
         client, workflow_id, name
     )
 
 
 def reconcile_v9_accounting(client: DBOSClient, repository: ResearchRepository) -> None:
+    _reconcile_relevance_accounting(client, repository, profile="v9")
+
+
+def _reconcile_relevance_accounting(
+    client: DBOSClient, repository: ResearchRepository, *, profile: RelevanceProfile
+) -> None:
     """Bounded terminal-only repair; no status, result, reservation or provider action."""
+    workflow_name, _ = _relevance_names(profile)
     offset = 0
     while workflows := client.list_workflows(
-        name="issuedigest_research_run_v9",
+        name=workflow_name,
         application_name="issuedigest-research",
         load_input=False,
         load_output=False,
@@ -290,14 +342,16 @@ def reconcile_v9_accounting(client: DBOSClient, repository: ResearchRepository) 
             if (
                 run_id.version == 4
                 and workflow.workflow_id == f"research-{run_id}"
-                and workflow.name == "issuedigest_research_run_v9"
+                and workflow.name == workflow_name
                 and workflow.application_name == "issuedigest-research"
             ):
                 owned[run_id] = workflow
         states = repository.worker_states(tuple(owned))
         for run_id, stage in states.items():
             if stage in {"completed", "failed", "cancelled"}:
-                inputs, outputs = known_v9_usage(client, owned[run_id].workflow_id)
+                inputs, outputs = _known_relevance_usage(
+                    client, owned[run_id].workflow_id, profile=profile
+                )
                 if inputs or outputs:
                     repository.worker_record_relevance_usage(
                         run_id, input_tokens=inputs, output_tokens=outputs
@@ -358,7 +412,10 @@ def recovery_cohorts(
                 and recoverable_checkpoint(client, workflow_id, workflow.name, state)
             )
             if not safe:
-                if workflow is not None and workflow.name == "issuedigest_research_run_v9":
+                if workflow is not None and workflow.name in {
+                    "issuedigest_research_run_v9",
+                    "issuedigest_research_run_v10",
+                }:
                     inputs, outputs = repository.worker_record_relevance_usage(
                         run_id, input_tokens=0, output_tokens=0
                     )

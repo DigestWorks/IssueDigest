@@ -1,4 +1,4 @@
-"""v9 ordered metadata and real PG/DBOS synthetic three-call integration."""
+"""Shared v9/v10 relevance contracts: frozen9/current10 producers, current registry replay."""
 
 import json
 
@@ -30,22 +30,22 @@ EXPECTED = [
         ],
     ],
 )
-def test_exact_v9_metadata_prefix_before_deserialization(stage, count, valid):
-    assert hasattr(research_recovery, "completed_v9_checkpoint"), "missing recovery9 guard"
+def test_exact_v9_metadata_prefix_before_deserialization(contract, stage, count, valid):
+    assert contract.workflow_name in research_recovery.WORKFLOW_NAMES
 
     class Metadata:
         def list_workflow_steps(self, *args, **kwargs):
             assert kwargs == dict(load_output=False, limit=21)
             return [
                 dict(function_id=i, function_name=n, completed_at_epoch_ms=1)
-                for i, n in EXPECTED[:count]
+                for i, n in contract.expected[:count]
             ]
 
-    assert research_recovery.completed_v9_checkpoint(Metadata(), "synthetic", stage) == valid
+    assert contract.completed_checkpoint(Metadata(), "synthetic", stage) == valid
 
 
 @pytest.mark.parametrize("decision", ["retain", "uncertain", "exclude"])
-def test_default_v9_selector_and_known_combined_usage(engine, database_url, decision):
+def test_default_v9_selector_and_known_combined_usage(contract, engine, database_url, decision):
     bundle, token, repo, run = seed(engine, database_url)
     calls = []
 
@@ -69,7 +69,7 @@ def test_default_v9_selector_and_known_combined_usage(engine, database_url, deci
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert after.status == ("failed" if decision == "exclude" else "completed")
     assert calls == ["search_evidence", "classify_relevance"] + (
@@ -81,7 +81,7 @@ def test_default_v9_selector_and_known_combined_usage(engine, database_url, deci
     inspector = client(database_url)
     try:
         steps = inspector.list_workflow_steps(f"research-{run.run_id}", load_output=False)
-        assert [(s["function_id"], s["function_name"]) for s in steps] == EXPECTED[
+        assert [(s["function_id"], s["function_name"]) for s in steps] == contract.expected[
             : 4 if decision == "exclude" else 5
         ]
     finally:
@@ -91,7 +91,7 @@ def test_default_v9_selector_and_known_combined_usage(engine, database_url, deci
 @pytest.mark.parametrize(
     "stage,expected", [("classify_relevance", (200, 100)), ("answer", (300, 150))]
 )
-def test_malformed_paid_response_keeps_known_usage(engine, database_url, stage, expected):
+def test_malformed_paid_response_keeps_known_usage(contract, engine, database_url, stage, expected):
     bundle, token, repo, run = seed(engine, database_url)
     calls = []
 
@@ -117,7 +117,7 @@ def test_malformed_paid_response_keeps_known_usage(engine, database_url, stage, 
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert after.status == "failed" and after.error_code == "generation_failed"
     assert (after.input_tokens, after.output_tokens) == expected
@@ -126,7 +126,7 @@ def test_malformed_paid_response_keeps_known_usage(engine, database_url, stage, 
 
 @pytest.mark.parametrize("mutation", ["cancel", "revoke"])
 def test_cancel_or_revoke_after_selector_retains_known_usage_and_blocks_final(
-    engine, database_url, mutation
+    contract, engine, database_url, mutation
 ):
     from issuedigest_storage.auth_schema import auth_workspace_memberships
     from issuedigest_storage.research_schema import research_budget_months, research_runs
@@ -163,7 +163,7 @@ def test_cancel_or_revoke_after_selector_retains_known_usage_and_blocks_final(
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     with engine.connect() as conn:
         after = (
             conn.execute(select(research_runs).where(research_runs.c.run_id == run.run_id))
@@ -179,7 +179,12 @@ def test_cancel_or_revoke_after_selector_retains_known_usage_and_blocks_final(
 CRASH_V9 = r"""
 import json,os,signal
 from issuedigest_storage.research import ResearchRepository
-from issuedigest_worker.research_worker import run_worker
+import importlib.util
+from pathlib import Path
+spec=importlib.util.spec_from_file_location("issuedigest_worker.frozen_v9",Path("apps/worker/tests/fixtures/research_worker_v9.py"))
+module=importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+run_worker=module.run_worker
 from pydantic_ai.messages import ModelResponse,ToolCallPart
 from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.usage import RequestUsage
@@ -243,13 +248,13 @@ run_worker(os.environ['ISSUEDIGEST_TEST_DATABASE_URL'],model=FunctionModel(respo
 """
 
 
-def crash_v9(database_url, tmp_path, proposal, point):
+def crash_relevance(database_url, tmp_path, proposal, point, *, profile):
     import os
     import signal
     import subprocess
     import sys
 
-    marker = tmp_path / "v9-model-calls"
+    marker = tmp_path / f"{profile}-model-calls"
     env = {
         **os.environ,
         "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
@@ -259,7 +264,7 @@ def crash_v9(database_url, tmp_path, proposal, point):
         "PYDANTIC_AI_NO_BANNER": "1",
     }
     process = subprocess.run(
-        [sys.executable, "-c", CRASH_V9], env=env, capture_output=True, timeout=20
+        [sys.executable, "-c", _crash_script(profile)], env=env, capture_output=True, timeout=20
     )
     assert process.returncode == -signal.SIGKILL, process.stderr.decode()[-2000:]
     return marker
@@ -286,11 +291,24 @@ def crash_v9(database_url, tmp_path, proposal, point):
     ],
 )
 def test_real_v9_crash_replays_only_completed_responses(
-    engine, database_url, tmp_path, point, new_calls, success
+    contract, engine, database_url, tmp_path, point, new_calls, success
 ):
     bundle, token, repo, run = seed(engine, database_url)
-    marker = crash_v9(database_url, tmp_path, output(bundle, classified=True, core=True), point)
+    marker = contract.crash(
+        database_url, tmp_path, output(bundle, classified=True, core=True), point
+    )
     before = marker.read_text()
+    inspector = client(database_url)
+    try:
+        original_workflow = inspector.list_workflows(
+            workflow_ids=[f"research-{run.run_id}"], load_input=False, load_output=False
+        )[0]
+        original_steps = inspector.list_workflow_steps(
+            original_workflow.workflow_id, load_output=False
+        )
+    finally:
+        inspector.destroy()
+    assert original_workflow.name == contract.workflow_name and original_workflow.app_version
     calls = []
 
     def respond(messages, info):
@@ -313,11 +331,31 @@ def test_real_v9_crash_replays_only_completed_responses(
 
     run_worker(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
+    inspector = client(database_url)
+    try:
+        recovered_workflow = inspector.list_workflows(
+            workflow_ids=[original_workflow.workflow_id], load_input=False, load_output=False
+        )[0]
+        recovered_steps = inspector.list_workflow_steps(
+            original_workflow.workflow_id, load_output=False
+        )
+    finally:
+        inspector.destroy()
+    assert recovered_workflow.name == original_workflow.name
+    assert recovered_workflow.app_version == original_workflow.app_version
+    assert recovered_steps[: len(original_steps)] == original_steps
+    if success:
+        assert [
+            (step["function_id"], step["function_name"]) for step in recovered_steps
+        ] == contract.expected
     assert calls == new_calls and marker.read_text() == before
     assert after.status == ("completed" if success else "failed")
     if success:
         assert (after.input_tokens, after.output_tokens) == (369, 135)
-        assert after.result.canvas.research.claims[0].derivation.method_version == "research-v9"
+        assert (
+            after.result.canvas.research.claims[0].derivation.method_version
+            == contract.method_version
+        )
     else:
         assert after.error_code == "generation_failed" and after.result is None
 
@@ -327,9 +365,12 @@ def test_real_v9_crash_replays_only_completed_responses(
     "mutation",
     ["name", "slot", "bool", "incomplete", "duplicate", "stream", "extra", "missing-name"],
 )
-def test_recovery_metadata_rejects_every_namespace_slot_and_incomplete_boundary(count, mutation):
+def test_recovery_metadata_rejects_every_namespace_slot_and_incomplete_boundary(
+    contract, count, mutation
+):
     items = [
-        dict(function_id=i, function_name=n, completed_at_epoch_ms=1) for i, n in EXPECTED[:count]
+        dict(function_id=i, function_name=n, completed_at_epoch_ms=1)
+        for i, n in contract.expected[:count]
     ]
     if mutation == "name":
         items[-1]["function_name"] = "issuedigest_research_v8__model.request"
@@ -353,7 +394,7 @@ def test_recovery_metadata_rejects_every_namespace_slot_and_incomplete_boundary(
             assert kwargs["load_output"] is False
             return items
 
-    assert not research_recovery.completed_v9_checkpoint(
+    assert not contract.completed_checkpoint(
         Metadata(), "synthetic", "generating" if count == 5 else "retrieving"
     )
 
@@ -362,11 +403,11 @@ def test_recovery_metadata_rejects_every_namespace_slot_and_incomplete_boundary(
     "mutation", ["candidate", "prompt-hash", "question-hash", "selected", "coverage", "bool-usage"]
 )
 def test_forged_selector_report_is_revalidated_before_apply_or_final(
-    engine, database_url, monkeypatch, mutation
+    contract, engine, database_url, monkeypatch, mutation
 ):
     from uuid import uuid4
 
-    import issuedigest_worker.research_worker as worker
+    worker = contract.worker_module
 
     original = worker.run_selector
     bundle, token, repo, run = seed(engine, database_url)
@@ -405,7 +446,7 @@ def test_forged_selector_report_is_revalidated_before_apply_or_final(
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert after.status == "failed" and after.error_code == "generation_failed"
     assert (after.input_tokens, after.output_tokens) == (200, 100)
@@ -457,7 +498,7 @@ def test_forged_selector_report_is_revalidated_before_apply_or_final(
         (3, {"issuedigest_select_v9_started": False}, False),
     ],
 )
-def test_exact_selector_started_marker_disambiguates_paid3(count, attributes, valid):
+def test_exact_selector_started_marker_disambiguates_paid3(contract, count, attributes, valid):
     from types import SimpleNamespace
 
     class Metadata:
@@ -465,7 +506,7 @@ def test_exact_selector_started_marker_disambiguates_paid3(count, attributes, va
             assert kwargs["load_output"] is False
             return [
                 dict(function_id=i, function_name=n, completed_at_epoch_ms=1)
-                for i, n in EXPECTED[:count]
+                for i, n in contract.expected[:count]
             ]
 
         def list_workflows(self, **kwargs):
@@ -478,17 +519,17 @@ def test_exact_selector_started_marker_disambiguates_paid3(count, attributes, va
             return [
                 SimpleNamespace(
                     workflow_id="synthetic",
-                    name="issuedigest_research_run_v9",
+                    name=contract.workflow_name,
                     attributes=attributes,
                 )
             ]
 
     stage = "queued" if count == 0 else "generating" if count == 5 else "retrieving"
-    assert research_recovery.recoverable_v9_checkpoint(Metadata(), "synthetic", stage) == valid
+    assert contract.recoverable_checkpoint(Metadata(), "synthetic", stage) == valid
 
 
 def test_failed_selector_claim_never_sends_paid_request_or_overwrites_attributes(
-    engine, database_url, monkeypatch
+    contract, engine, database_url, monkeypatch
 ):
     from dbos import DBOSClient
 
@@ -509,7 +550,7 @@ def test_failed_selector_claim_never_sends_paid_request_or_overwrites_attributes
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert after.status == "failed" and after.error_code == "generation_failed"
     assert (after.input_tokens, after.output_tokens) == (100, 50)
@@ -517,7 +558,7 @@ def test_failed_selector_claim_never_sends_paid_request_or_overwrites_attributes
 
 
 def test_startup_repairs_terminal_cancel_usage_after_real_kill_without_paid_call(
-    engine, database_url, tmp_path
+    contract, engine, database_url, tmp_path
 ):
     import os
     import signal
@@ -528,7 +569,7 @@ def test_startup_repairs_terminal_cancel_usage_after_real_kill_without_paid_call
     from sqlalchemy import select
 
     bundle, token, repo, run = seed(engine, database_url)
-    script = CRASH_V9.replace(
+    script = contract.crash_script.replace(
         "if point=='selector-checkpoint': kill()",
         "if point=='cancel-reset':\n"
         "        from uuid import UUID\n"
@@ -577,14 +618,14 @@ def test_startup_repairs_terminal_cancel_usage_after_real_kill_without_paid_call
     "mutation",
     ["none", "unowned", "noncanonical", "app", "name", "active", "metadata", "attributes", "usage"],
 )
-def test_terminal_reconciliation_only_reads_exact_owned_validated_v9_journals(mutation):
+def test_terminal_reconciliation_only_reads_exact_owned_validated_v9_journals(contract, mutation):
     from types import SimpleNamespace
     from uuid import UUID
 
     run_id = UUID("00000000-0000-4000-8000-000000000001")
     workflow = SimpleNamespace(
         workflow_id=f"research-{run_id}",
-        name="issuedigest_research_run_v9",
+        name=contract.workflow_name,
         application_name="issuedigest-research",
         attributes={
             "issuedigest_select_v9_started": True,
@@ -610,14 +651,14 @@ def test_terminal_reconciliation_only_reads_exact_owned_validated_v9_journals(mu
             assert kwargs["load_input"] is False and kwargs["load_output"] is False
             if "workflow_ids" in kwargs:
                 return [workflow]
-            assert kwargs["name"] == "issuedigest_research_run_v9" and kwargs["limit"] == 20
+            assert kwargs["name"] == contract.workflow_name and kwargs["limit"] == 20
             pages.append(kwargs["offset"])
             return [workflow] if kwargs["offset"] == 0 else []
 
         def list_workflow_steps(self, *args, **kwargs):
             result = [
                 dict(function_id=i, function_name=n, completed_at_epoch_ms=1)
-                for i, n in EXPECTED[:3]
+                for i, n in contract.expected[:3]
             ]
             if mutation == "metadata":
                 result[0]["function_id"] = True
@@ -643,7 +684,7 @@ def test_terminal_reconciliation_only_reads_exact_owned_validated_v9_journals(mu
         def worker_record_relevance_usage(self, *args, **kwargs):
             updates.append((args, kwargs))
 
-    research_recovery.reconcile_v9_accounting(Metadata(), Repository())
+    contract.reconcile_accounting(Metadata(), Repository())
     assert pages == [0, 1]
     assert bool(updates) == (mutation == "none")
     if mutation == "none":
@@ -652,13 +693,13 @@ def test_terminal_reconciliation_only_reads_exact_owned_validated_v9_journals(mu
 
 @pytest.mark.parametrize("mutation", ["question", "presentation"])
 def test_completed_selector_is_bound_to_original_prompt_on_recovery(
-    engine, database_url, tmp_path, mutation
+    contract, engine, database_url, tmp_path, mutation
 ):
     from issuedigest_storage.research_schema import research_runs, source_presentations
     from sqlalchemy import select, update
 
     bundle, token, repo, run = seed(engine, database_url)
-    marker = crash_v9(
+    marker = contract.crash(
         database_url, tmp_path, output(bundle, classified=True, core=True), "selector-checkpoint"
     )
     with engine.begin() as conn:
@@ -701,7 +742,9 @@ def test_completed_selector_is_bound_to_original_prompt_on_recovery(
     assert (after.input_tokens, after.output_tokens) == (246, 90)
 
 
-def test_exclusion_narrows_actual_final_prompt_dates_evidence_and_titles(engine, database_url):
+def test_exclusion_narrows_actual_final_prompt_dates_evidence_and_titles(
+    contract, engine, database_url
+):
     from hashlib import sha256
 
     from packages.storage.tests.test_research_repository import add_topic
@@ -749,7 +792,7 @@ def test_exclusion_narrows_actual_final_prompt_dates_evidence_and_titles(engine,
             usage=RequestUsage(input_tokens=100, output_tokens=50),
         )
 
-    run_worker(database_url, model=FunctionModel(respond), once=True)
+    contract.produce(database_url, model=FunctionModel(respond), once=True)
     after = repo.get_run(token, run.workspace_id, run.run_id)
     assert (
         after.status == "completed"
@@ -762,7 +805,7 @@ def test_exclusion_narrows_actual_final_prompt_dates_evidence_and_titles(engine,
     inspector = client(database_url)
     try:
         metadata = inspector.list_workflow_steps(f"research-{run.run_id}", load_output=False)
-        assert [(s["function_id"], s["function_name"]) for s in metadata] == EXPECTED
+        assert [(s["function_id"], s["function_name"]) for s in metadata] == contract.expected
         workflow = inspector.list_workflows(
             workflow_ids=[f"research-{run.run_id}"], load_input=False, load_output=False
         )[0]
@@ -776,7 +819,7 @@ def test_exclusion_narrows_actual_final_prompt_dates_evidence_and_titles(engine,
 
 
 def test_apply_commit_crash_reopens_original_candidates_after_real_narrowing(
-    engine, database_url, tmp_path
+    contract, engine, database_url, tmp_path
 ):
     import os
     import signal
@@ -787,7 +830,7 @@ def test_apply_commit_crash_reopens_original_candidates_after_real_narrowing(
 
     bundle, token, repo, run = seed(engine, database_url)
     excluded, _ = add_topic(engine, run.workspace_id, "80% 제외 자료 2026-10-19")
-    script = CRASH_V9.replace(
+    script = contract.crash_script.replace(
         "'decision':'retain'",
         "'decision':('exclude' if s['snapshot_id']==os.environ['EXCLUDED'] else 'retain')",
     )
@@ -826,3 +869,77 @@ def test_apply_commit_crash_reopens_original_candidates_after_real_narrowing(
     assert after.result.canvas.research.evidence == (bundle,)
     assert (after.input_tokens, after.output_tokens) == (369, 135)
     assert calls == ["answer"] and marker.read_text() == called_before
+
+
+def _crash_script(profile):
+    if profile == "v9":
+        return CRASH_V9
+    assert profile == "v10"
+    producer = CRASH_V9.index("import importlib.util")
+    end = CRASH_V9.index("from pydantic_ai.messages", producer)
+    return (
+        CRASH_V9[:producer]
+        + "from issuedigest_worker.research_worker import run_worker\n"
+        + CRASH_V9[end:]
+    )
+
+
+@pytest.fixture(params=["v9", "v10"])
+def contract(request):
+    """Historical9 production and replay remain genuinely9; new10 uses its own final."""
+    from types import SimpleNamespace
+
+    from frozen_v9 import module as frozen9
+    from issuedigest_worker import research_worker as current
+
+    profile = request.param
+    if profile == "v9":
+        producer = frozen9
+        completed = research_recovery.completed_v9_checkpoint
+        recoverable = research_recovery.recoverable_v9_checkpoint
+        reconcile = research_recovery.reconcile_v9_accounting
+    else:
+        assert profile == "v10"
+        producer = current
+
+        def completed(client, workflow_id, stage):
+            return research_recovery._completed_relevance_checkpoint(
+                client, workflow_id, stage, profile="v10"
+            )
+
+        def recoverable(client, workflow_id, stage):
+            return research_recovery._recoverable_relevance_checkpoint(
+                client, workflow_id, stage, profile="v10"
+            )
+
+        def reconcile(client, repository):
+            return research_recovery._reconcile_relevance_accounting(
+                client, repository, profile="v10"
+            )
+
+    return SimpleNamespace(
+        profile=profile,
+        workflow_name={"v9": "issuedigest_research_run_v9", "v10": "issuedigest_research_run_v10"}[
+            profile
+        ],
+        method_version={"v9": "research-v9", "v10": "research-v10"}[profile],
+        expected=EXPECTED[:4]
+        + [
+            (
+                5,
+                {
+                    "v9": "issuedigest_research_v9__model.request",
+                    "v10": "issuedigest_research_v10__model.request",
+                }[profile],
+            )
+        ],
+        produce=producer.run_worker,
+        worker_module=producer,
+        completed_checkpoint=completed,
+        recoverable_checkpoint=recoverable,
+        reconcile_accounting=reconcile,
+        crash_script=_crash_script(profile),
+        crash=lambda url, path, proposal, point: crash_relevance(
+            url, path, proposal, point, profile=profile
+        ),
+    )

@@ -128,3 +128,6 @@ private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크
 
 
 새 private v5의 고정 reviewer_id는 `issuedigest-research-v5`, method_version은 `research-v5`다. 같은 엄격 분류·UTC 마이크로초·인용 순서·claim당1개 규칙을 적용한다. v3/v4/v5를 서로 섞지 않고 public v1/v2/빈 reviews 경계를 유지한다. 과거 결과를 새 분류로 다시 쓰지 않는다.
+
+
+private v10은 정확 `research-v10`/`issuedigest-research-v10`만 추가한다. 기존 첫 supported summary·귀속 접두어·Unicode·인용별 정확 날짜·AI 평가 metadata와 누락/혼합/위조 거부를 유지한다. 실제 Python builder의 comparison/timeline/astral/비답변 fixture를 기존 full client·첫 열린 요약/접힌 상세·정확 근거 화면으로 전달한다. public v1/v2·API/OpenAPI·저장 schema와 화면 레이아웃은 확장하지 않는다. 합성 출력은 실제 의미 정확성 인증이 아니다.
