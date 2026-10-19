@@ -33,9 +33,10 @@
 
 질문만 제출하면 서버가 현재 권한의 실제 저장 색인에서 관련 근거를 찾는다. 자료 선택·카탈로그·클라이언트 추천·출처 ID 입력은 사용자 여정에 포함하지 않는다. 현재는 제한된 보호 문자 검색이며 웹 전체 탐색·의미·관계 검색은 후속이다.
 
+- 새v7은 원래 질문을 보존하는 strict planner1회와 승인 저장 검색 도구를 사용한다. 검색어1~3개를 제안하고 원래 질문의 검색도 항상 포함한다. 원래 검색 우선 라운드로빈·중복 제거로 최대5개를 원자 고정한다. 선택적 이전 AI 맥락만 planner 잔여 UTF-8 예산으로 짧게 하고 잘림을 명시하며 최종 생성의 기존 맥락/원문은 보존한다. 검색 계획은 사실/근거가 아니며 웹·임의URL·SQL·셸 도구는 제공하지 않는다.
 - 서버가 질문에서 최대8개 검색어를 추출해 기존 보호 문자 검색을 재사용하고 일치도·결정적 동률 순서로 최대5개 근거를 고정한다. 무관한 최신 자료/전체 목록으로 대체하지 않는다. 미색인·검색 후보/결과 한도 때문에 찾지 못한 것을 전체 자료의 부재로 단정하지 않는다. 결과의 정확 인용으로 원문을 열며 일치 위치·저장 인용·주장 지지를 구분한다.
-- 새 private v6는 각 inference claim에 실제 같은 인용 배열을 대상으로 자동 SupportReview1개를 둔다. 자료에 기록됨(content/supported)·출처의 주장(attribution/supported)·확인하기 어려움(content/insufficient)만 허용하고 근거 설명은300자 이하로 제한한다. 현재 선택 인용의 AI 평가이며 원문 일치·주장 지지·독립 진실 판정을 구분한다. legacy/v3/v4/v5/v6 혼합·누락·중복·알 수 없는 참조·다른 인용 순서/UTC 마이크로초 시각을 거부한다.
-- 새 v6 provider 출력은 answer/insufficient_evidence/clarification_needed 세 strict tool이며 실제 prompt의 정확 UUID 인용만 허용한다. core_answer를 첫 열린 summary의 첫 claim으로 변환한다. 긍정 해석은 고정 제공 자료 prefix의 attributed, 추가/상세는 source_statement/uncertain이고 날짜는 typed timeline에만 둔다. documented canonical/과거 결과·최종 인용/날짜·정확 prefix 검사는 유지한다. 핵심 질문에 직접 답할 인용이 없으면 빈 modules의 자료 부족 응답을 사용한다. canonical/API·v2/v3/v4/v5 복구/지침은 보존한다. [현재 v6 명세](../changes/briefing-core-answer.md)의 초기 실패·별도 추가 인수와 [이전 v5](../changes/briefing-answer-quality.md)를 구분하며 구조 제한을 의미 품질 인증으로 보지 않는다.
+- 새 private v7는 각 inference claim에 실제 같은 인용 배열을 대상으로 자동 SupportReview1개를 둔다. 자료에 기록됨(content/supported)·출처의 주장(attribution/supported)·확인하기 어려움(content/insufficient)만 허용하고 근거 설명은300자 이하로 제한한다. 현재 선택 인용의 AI 평가이며 원문 일치·주장 지지·독립 진실 판정을 구분한다. legacy/v3/v4/v5/v6/v7 혼합·누락·중복·알 수 없는 참조·다른 인용 순서/UTC 마이크로초 시각을 거부한다.
+- 새 v7 최종 provider 출력은 answer/insufficient_evidence/clarification_needed 세 strict tool이며 실제 prompt의 정확 UUID 인용만 허용한다. core_answer를 첫 열린 summary의 첫 claim으로 변환한다. 긍정 해석은 고정 제공 자료 prefix의 attributed, 추가/상세는 source_statement/uncertain이고 날짜는 typed timeline에만 둔다. documented canonical/과거 결과·최종 인용/날짜·정확 prefix 검사는 유지한다. 핵심 질문에 직접 답할 인용이 없으면 빈 modules의 자료 부족 응답을 사용한다. canonical/API·v2/v3/v4/v5 복구/지침은 보존한다. [현재 v7 명세](../changes/briefing-search-agent.md)와 [v6 기반](../changes/briefing-core-answer.md)의 초기 실패·별도 추가 인수와 [이전 v5](../changes/briefing-answer-quality.md)를 구분하며 구조 제한을 의미 품질 인증으로 보지 않는다.
 - 후속 한국어 어휘·이름/번호·벡터·기간/출처 필터는 실제 평가 질문·기대 근거로 비교한다. 질문과 무관한 임의 자료를 기본 선택하지 않는다.
 - 관계는 근거 문서·위치·유효 시점·검토 상태를 가진다. 동시 등장·시간 선후를 인과로 바꾸지 않는다. Neo4j는 기준 DB의 투영이며 정정/삭제·재구축·실패 복구를 검증한다.
 - 여론조사의 질문·대상·방법·조사일·표본/오차·출처를 함께 확인한다. 언론 보도량·온라인 반응·청원 동의 수를 국민 전체 여론으로 합산하지 않는다.
@@ -56,7 +57,7 @@
 근거를 확인한 부분부터 읽고 나머지는 조사 중으로 표시하는 것이 사용자 선택이다. 현재는 실제 단계 상태와 검증된 완료 결과를 표시하고 결과의 정확 인용에서 원문을 연다. 자동 중복 원문 블록은 제공하지 않는다. 검증된 AI 모듈의 점진 전달은 후속이다.
 
 - 접수·자료 찾기·분석·인용 검증·완료·실패·자료 부족·취소 상태를 구별한다. 비공개 추론문은 노출하지 않는다.
-- 새로고침/재접속은 같은 실행 ID에 연결한다. 같은 제출 키의 재전송이 새 유료 실행을 만들지 않는다. 후속 질문은 완료된 부모 실행을 맥락으로 전달하고 근거는 서버가 다시 찾는다. 유효 검색어가 없는 일반 후속 질문만 부모의 검증된 실제 근거를 재사용한다. 새 주제에서 근거를 못 찾으면 모델 호출 없이 insufficient_evidence로 종료한다.
+- 새로고침/재접속은 같은 실행 ID에 연결한다. 같은 제출 키의 재전송이 새 유료 실행을 만들지 않는다. 후속 질문은 완료된 부모 실행을 맥락으로 전달하고 근거는 서버가 다시 찾는다. 유효 검색어가 없는 일반 후속 질문만 부모의 검증된 실제 근거를 재사용한다. 새v7은 검색 계획1회 뒤에도 근거를 못 찾으면 최종 생성 없이 insufficient_evidence로 종료하고 알려진 planner 비용을 기록한다.
 - 권한이 유지되는 실패/취소 뒤 질문과 읽던 원문을 유지하고 새 질문을 명시 제출할 수 있다. 늦은 응답이 더 최근의 실행·선택·닫힌 원문을 되돌리지 않는다.
 - 검증된 부분 결과 전달에서는 읽던 위치·이전 결과·변경 표시·부분 실패를 보존해야 한다. 정렬·필터·재열람은 모델 호출 없이 처리한다.
 - 취소 후 다음 유료 단계를 시작하지 않는다. 이미 전송한 외부 호출의 중단·비용 반환은 보장하지 않고 실제 사용량을 정산한다.
@@ -65,7 +66,8 @@
 
 D011의 PydanticAI/DBOS와 PostgreSQL 실행·이벤트·단계 결과·사용량 계약을 재사용한다. 월10만 원은 개발·초기 검증 예산이며 B2C 무제한 사용 약속이 아니다.
 
-- 새 요청만v4로 실행하며 기존v2/v3/v4 workflow ID는 원래 등록 이름·application_version의 worker cohort에서 회복한다. worker 중복 기동은 session advisory lock으로 거부한다. 완료된 원래 모델 checkpoint만 재생하고 generating/validating의 완료 불명확 요청은 실패·예약 유지로 끝내며 재호출하지 않는다. 최초v2 업그레이드는 기존 worker가 중지된 상태에서 한다.
+- 새 요청만v7로 실행하며 기존v2/v3/v4/v5/v6/v7 workflow ID는 원래 등록 이름·application_version의 worker cohort에서 회복한다. worker 중복 기동은 session advisory lock으로 거부한다. 완료된 원래 모델 checkpoint만 재생하고 generating/validating의 완료 불명확 요청은 실패·예약 유지로 끝내며 재호출하지 않는다. 최초v2 업그레이드는 기존 worker가 중지된 상태에서 한다.
+- 새v7은 planner1회/검색step/최종1회와 정확 durable slots1/2/3을 사용한다. planner 최대8,000/출력500/15초, 최종 출력2,000/45초, 실제 합산 입력+출력24,000/출력2,500을 지킨다. 자동 retry/출력 수리는0이며 과거v2~v6의 원래 유료slot1·지침/schema/prompt bytes는 보존한다. retrieving은 완료planner, generating/validating은 완료planner/search/final을 확인한다. 완료 불명확 호출은 재전송하지 않는다.
 - 반복 확보는 연구 worker와 다른 단일 session 잠금으로 중복 실행을 막고 최소 간격/횟수 한도를 적용한다. 마지막 실행의 실패/미완료와 마지막 성공을 구분하고, 다음 명시 poll에서 중단 실행을 마감한다. 상태 조회는 read-only이며 성공 확보의 경과 시각(stale)을 발행일·전체 범위 최신성으로 해석하지 않는다. 유료 모델 작업의 재시도/복구 정책은 바꾸지 않는다.
 - 중단 뒤 저장 단계는 재사용한다. 완료 불명확한 유료 호출은 무조건 재실행하지 않는다. 모델·프롬프트·계약·도구·실행기 버전과 요청 ID로 재현한다.
 - 계약 변경 때 진행 작업을 마치거나 호환 워커로 처리한다. 서버가 현재 권한·동시 실행·최대 출력·도구 호출·비용 예약/정산을 검사한다. 한도 초과 시 기존 결과·원문 읽기는 유지한다.

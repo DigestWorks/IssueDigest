@@ -6,7 +6,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
-현재 변경: [첫 결론·근거 부족·문장별 귀속](changes/briefing-core-answer.md). 이전 답변 품질·공식 목록 후보·출처 확대는 완료 기반이며 실제 의미 품질의 남은 한계는 이어서 검증한다.
+현재 변경: [질문별 조사 계획·승인 자료 검색](changes/briefing-search-agent.md). 검색 계획→저장 검색→근거 고정→브리핑을 연결한다. 이전 첫 결론·귀속·자료 확보는 완료 기반이며 실제 인수와 개발 반영은 진행 기록을 따른다.
 
 ## 현재 계획과 작업
 
@@ -20,6 +20,7 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 | [수집본 검토·버전·검색 편입](changes/policy-collection-intake.md) | 고정 성공 원본의 승인·중복/버전·원자 저장/검색·최신 승인 선택 |
 | [정책뉴스 반복 확보·실행 이력](changes/policy-collection-journal.md) | 명시 기사 poll·PostgreSQL 원본/성공/실패 보존·중복/간격 제어·상태 조회 |
 | [공식 자료 변경 감지](changes/policy-change-detection.md) | 승인 capture의 오프라인 신규/변경/동일/미관측 비교·정기 수집/게시와의 경계 |
+| [질문별 조사 계획·승인 자료 검색](changes/briefing-search-agent.md) | 새 private v7의 계획/검색/생성·원자 근거 고정·합산 비용·단계별 복구 |
 | [첫 결론·근거 부족·문장별 귀속](changes/briefing-core-answer.md) | 새 private v6의 provider 단순화·열린 첫 요약·보수적 귀속·근거 부족과 실제 인수 |
 | [브리핑 답변 품질](changes/briefing-answer-quality.md) | 새 private v5·strict 응답/인용·기존 복구·실제 인수의 의미 한계 |
 | [한국어 근거 품질](changes/korean-evidence-quality.md) | 제한 한국어 검색·read-only 내부 평가·새 private v4 귀속/수치 지침과 v2/v3 복구 보존 |
