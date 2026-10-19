@@ -1,8 +1,16 @@
 # 현재 구현 작업 목록
 
-2026-10-18 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 수집본 검토·버전·검색 편입 · M2
+## 현재 변경 · 소비자 브리핑 디자인
+
+[디자인 명세](../changes/consumer-briefing-design.md)를 따른다. 사용자가 선택한 브리핑형·휴대폰 우선 시안을 실제 홈/질문/읽기/원문에 우선 적용한다. M2의 출처 확대·최근 이슈 발견은 후속이다.
+
+- [x] 실제 소비자 화면과 두 테마·반응형을 정돈하고 기존 질문/초안/권한/읽기/취소 동작을 보존한다.
+- [x] JS568개·린트/타입/빌드/계약·작업별/전체 독립 검토와 합성/실제 비회원 HTTPS를 확인했다.
+- [x] 정적 웹4cd8f62만 개인 개발에 반영하고 API/워커/DB/수집기 보존·[Draft PR40](https://github.com/DigestWorks/IssueDigest/pull/40)·Sites v62 공개 요약/이전v61 보존과 native succeeded·최종 출판 기록을 확인했다.
+
+## 완료 기반 · 수집본 검토·버전·검색 편입 · M2
 
 [명세](../changes/policy-collection-intake.md)를 따른다. 기존 수집기의 특정 성공 원본을 검토한 뒤 원문·표시·검색·편입 이력을 한 transaction에 저장한다.
 

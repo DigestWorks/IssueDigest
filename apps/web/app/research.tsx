@@ -198,7 +198,7 @@ export default function ResearchDesk({workspaceId, canEdit, view, initialQuestio
   const composer = <form onSubmit={submit} className="research-form">
     <label className={displayedRun?.status === 'completed' ? undefined : 'visually-hidden'} htmlFor="research-question">{displayedRun?.status === 'completed' ? '후속 질문' : '무엇을 알아볼까요?'}</label>
     <textarea id="research-question" value={question} maxLength={1500} rows={3} onChange={event => saveQuestion(event.target.value)} disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed')} placeholder="알아보고 싶은 이슈를 질문하세요" />
-    <div className="research-form-foot"><button type="submit" disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed') || !question.trim()}>{sending ? '요청 접수 중…' : displayedRun?.status === 'completed' ? '후속 질문하기' : '브리핑 만들기'}</button></div>
+    <div className="research-form-foot"><button type="submit" disabled={!canEdit || sending || active(displayedRun?.status ?? 'completed') || !question.trim()}>{sending ? '요청 접수 중…' : displayedRun?.status === 'completed' ? '후속 질문하기' : '브리핑 만들기'}<span className="submit-arrow" aria-hidden="true">↑</span></button></div>
     {!canEdit && <p role="status">읽기 권한으로는 브리핑 기록을 열람할 수 있습니다.</p>}
   </form>;
   return <div className="research-desk">

@@ -1,30 +1,36 @@
-.public-briefing-list { margin: 56px 0 8px; }
-.public-briefing-list h2 { margin-bottom: 8px; font-size: 14px; }
+.public-briefing-list { margin: 72px 0 8px; }
+.public-briefing-list h2 { margin-bottom: 6px; font-size: 18px; font-weight: 650; }
 .public-briefing-list ol, .public-attributions ul { list-style: none; margin: 0; padding: 0; }
-.public-briefing-list li { padding: 24px 0; border-bottom: 1px solid var(--line); }
-.public-briefing-list h3 { margin: 0; font-size: 17px; font-weight: 600; line-height: 1.6; letter-spacing: -.025em; }
-.public-briefing-list h3 a { display: inline-flex; align-items: center; min-width: 44px; min-height: 44px; color: var(--ink); text-decoration: none; }
+.public-briefing-list li { padding: 30px 0; border-bottom: 1px solid var(--line); }
+.public-briefing-list h3 { margin: 8px 0 0; font-size: 24px; font-weight: 650; line-height: 1.5; letter-spacing: -.04em; }
+.public-briefing-list h3 a { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; min-width: 44px; min-height: 44px; color: var(--ink); text-decoration: none; }
+.reading-arrow { flex: 0 0 auto; color: var(--muted); font-size: 22px; font-weight: 400; }
 .public-briefing-list h3 a:hover { color: var(--green); text-decoration: underline; text-underline-offset: 5px; }
-.public-briefing-list li > p { margin: 6px 0 0; color: var(--muted); font-size: 13px; line-height: 1.75; }
-.public-briefing-list li > .public-list-date { margin: 0; font-size: 11px; letter-spacing: 0; }
-.public-workspace > .public-reading-main { max-width: 760px; margin-inline: auto; }
-.public-briefing-heading { margin: 28px 0 32px; }
-.public-briefing-heading h1 { margin: 10px 0 16px; font-size: clamp(27px, 3.6vw, 36px); line-height: 1.45; }
-.public-briefing-description { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.75; }
+.public-briefing-list li > p { max-width: 64ch; margin: 8px 0 0; color: var(--muted); font-size: 15px; line-height: 1.8; }
+.public-briefing-list li > .public-list-date { margin: 0; font-size: 12px; letter-spacing: 0; }
+.public-workspace > .public-reading-main { max-width: 744px; margin-inline: auto; }
+.public-briefing-heading { margin: 36px 0 40px; }
+.public-briefing-heading .eyebrow { color: var(--green); font-weight: 550; }
+.public-briefing-heading h1 { margin: 14px 0 20px; font-size: clamp(32px, 4.2vw, 46px); font-weight: 750; line-height: 1.36; letter-spacing: -.055em; text-wrap: pretty; }
+.public-briefing-description { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.8; }
 .public-dates, .public-version-links { display: flex; align-items: center; flex-wrap: wrap; gap: 6px 18px; font-size: 12px; }
-.public-dates { margin-top: 20px; color: var(--muted); }
+.public-dates { margin-top: 24px; color: var(--muted); }
 .public-version-links { margin-top: 4px; }
 .public-version-links a { display: inline-flex; align-items: center; min-height: 44px; }
-.public-attributions { margin-top: 36px; padding-top: 24px; border-top: 1px solid var(--line); }
+.public-attributions { margin-top: 48px; padding-top: 28px; border-top: 1px solid var(--line); }
 .public-attributions h2 { font-size: 14px; }
-.public-attributions > p, .public-attributions li p { color: var(--muted); font-size: 12px; line-height: 1.75; }
+.public-attributions > p, .public-attributions li p { color: var(--muted); font-size: 13px; line-height: 1.8; }
 .public-attributions li { margin-top: 24px; }
 .public-attributions h3 { margin: 0 0 8px; font-size: 13px; font-weight: 600; line-height: 1.7; }
 .public-attributions li p { margin-block: 4px; }
-.public-question { margin-top: 40px; }
+.public-question { margin-top: 48px; }
 .public-question label { display: block; margin-bottom: 16px; font-size: 14px; font-weight: 600; }
 .public-list-feedback, .public-read-feedback { margin-block: 28px; color: var(--muted); font-size: 13px; }
 @media (max-width: 600px) {
-  .public-briefing-list { margin-top: 44px; }
-  .public-briefing-heading { margin-top: 24px; }
+  .public-briefing-list { margin-top: 52px; }
+  .public-briefing-list h3 { font-size: 22px; }
+  .public-briefing-list li { padding-block: 26px; }
+  .public-briefing-heading { margin-block: 28px 32px; }
+  .public-briefing-heading h1 { font-size: 32px; }
+  .public-briefing-description { font-size: 16px; }
 }
