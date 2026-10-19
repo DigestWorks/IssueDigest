@@ -3,7 +3,7 @@
 ## 수치 후보 SDK · 구현·실제 부분/거부 · 2026-10-19
 
 - 담당/controller·feat/numeric-evidence-proposals, PR49/edc7ae7 기반. [명세](../changes/numeric-evidence-proposals.md), D022/M3. OpenSpec root=null·기존 worktree 재사용·baseline4,887/sourceCI39229760833 재사용, 새 baseline 전체 재실행 없음.
-- 구현edc1383/실제 및 Task 검토bbf6b7e는 문서만 다르다. 새 모듈/테스트/agentsREADME와 Spec/D022만 바꾸고 기존239 tracked 파일/AGENTS byte-identical을 독립 확인했다. 관련669(116신규)·Ruff/format36/mypy13·Task1 독립 Spec/품질 PASS(C0I0M0)다. 전체 gate/전체 검토·새PR/CI·Sites v71archive/현재 요약·소유QA1/SDD 정리는 별도 인수 중이다.
+- 구현edc1383/실제 및 Task 검토bbf6b7e는 문서만 다르다. 새 모듈/테스트/agentsREADME와 Spec/D022만 바꾸고 기존239 tracked 파일/AGENTS byte-identical을 독립 확인했다. 관련669(116신규)·Ruff/format36/mypy13·Task1 독립 Spec/품질 PASS(C0I0M0)다. 전체 gate/전체 검토·Draft PR50/source CI·Sites v72 게시·소유QA1/SDD 정리는 아래 최종 receipt로 확인했다.
 
 새 수치 근거 후보 SDK를 실제 두 자료의 사전 고정 whole 인용2개/1개로 각각 한 번 실행했다. 기존 질문별4앱/12요청은 재실행하지 않았다. 새 SDK2회/공급자2요청·자동 재시도0에서 unreviewed 후보 반환1·전체 거부1이다. 의미를 완전히 충족한 제안은0이며, 반환1도 부분 결과다.
 
@@ -20,8 +20,19 @@
 
 - 전체 gate71fa6b8: Python4,183+JS820=5,003개·lint/format/types/build/OpenAPI contract 통과, 실패/skip/warning0이다. 구현edc1383 이후 검토/실제bbf6b7e·gate/전체 검토71fa6b8까지 변경은 문서만이다. Task1 및 전체 브랜치 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0), 기존239파일 byte proof를 확인했다.
 - 실제 독립2 SDK는 부분 반환1·거부1/의미 완전 충족0이고 앱 연결은 미완료다. 전체 검사·코드 검토가 이 결과를 바꾸지 않는다. 기존v10/과거 실패 분모와 Ruling1/비용을 유지한다.
-- [Draft PR50](https://github.com/DigestWorks/IssueDigest/pull/50)은 PR49 기반·미병합이며 앱 첨부를 완료했다. [source CI39235962771](https://github.com/DigestWorks/IssueDigest/actions/runs/39235962771)는71fa6b8에서 진행 중으로 별도 확인한다. 이후 변경은 출판/정리 문서뿐이다.
-- 서버 접속/배포·앱/worker 재시작·DB migration·권한·수집기를 변경하지 않았다. Sites v71 archive/현재 요약·원본 사본·native 게시와 소유 QA1/SDD 정리는 최종 receipt에서 구분한다. 사용자 탭을 열거나 이동하지 않는다.
+- [Draft PR50](https://github.com/DigestWorks/IssueDigest/pull/50)은 PR49 기반·미병합이며 앱 첨부를 완료했다. [source CI39235962771](https://github.com/DigestWorks/IssueDigest/actions/runs/39235962771)는71fa6b8에서 success를 확인했다. 이후 변경은 출판/정리 문서뿐이다.
+- 서버 접속/배포·앱/worker 재시작·DB migration·권한·수집기를 변경하지 않았다. Sites v72/이전v71 보존·원본 사본·native 게시와 소유 QA1/SDD 정리를 최종 receipt에서 확인했다. 사용자 탭을 열거나 이동하지 않는다.
+
+
+### 최종 게시·CI·정리 receipt
+
+[계획 Sites v72](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)는 기존 public 설정으로 native succeeded를 확인했다. source `0385c09c576edcc4be2c4714b2bb77f6bda4bfa0`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_002a290a6a508191946b30969d1353c9`, deployment `appgdep_6ad5eee17b5c8191a5d01ed2cbcf81a5`, 2026-10-19T10:20:34.594451+00:00이다. 저장소 사본b9e907a·이전v71/전체 기록·실제 부분/거부/미판정 분모·Ruling/비용을 보존했다. HTML57개·로컬 링크/asset/anchor1,204개·공개 텍스트154개와 실제 private ID/인용 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신이며 새 browser QA와 사용자 탭 열기·이동은 하지 않았다. 이 최종 게시/정리 receipt는 사이트 사본 이후의 저장소 원본이다.
+
+[source CI39235962771](https://github.com/DigestWorks/IssueDigest/actions/runs/39235962771)는71fa6b8 기준 success를 확인했다. 이후에는 Markdown 문서만 변경했으며 최종 문서 push에서 시작하는 새 CI와 이 성공을 구분한다. 전체5,003개 및 독립 작업/전체 코드 검토 PASS와 실제2 SDK의 부분1·거부1/의미 완전 충족0은 별개의 증거다. 한 차례 GitHub 조회의 일시 네트워크 실패는 재조회로 확인했으며 추가 모델 호출/전체 검사 재실행은 없었다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개와 해당 볼륨만 제거하고 포트 닫힘을 확인했다. 작업별/전체 SDD 검토 기록은 private600 archive에 검증·보존한 뒤 이 작업 폴더만 제거했다. Ruling1은 Spec·D022와 인계에 보존한다. 같은 수치 pair의 복합 관계도 전체 거부될 수 있고 알려진 호출 비용은 남는다. 다른 컨테이너·worktree·브랜치·실제 서버/API/worker/수집기·원본 평가 증거는 유지했다. main/운영은 D013에 따라 병합·배포하지 않았고 개발 앱ab6654e/v9는 유지한다.
+
+다음 작업은 반복 원문 출력을 줄이는 입력 참조 방식, 상태/근거 조합과 관계 cue의 실제 지시 대상·핵심 수치 누락을 평가하는 새 계약이다. 현 SDK의 문자열/구조 검사를 의미 품질이나 최종 브리핑 인수로 바꾸지 않으며 앱 연결 전 전역 예산·내구 실행/복구와 최종 품질을 따로 검증한다.
 
 ## 수치 근거 후보 · 착수 · 2026-10-19
 
