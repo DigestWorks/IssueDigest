@@ -51,3 +51,5 @@ Task2 후 별도 구조·의미 표본2회(주택 비교/심리지표 비교)만
 최종 실행7566c3a·[Draft PR43](https://github.com/DigestWorks/IssueDigest/pull/43). 전체3,967개·작업/전체 독립 검토·소스 CI와 실제 초기4(부족1/실패3)+별도2(제한 표본 충족)를 확인했다. 전체 입력20,185/출력3,867토큰·자동 재시도0·청구액 미검증, 교육 예산 새 DTO 실제 재검증/현재 provider 비답변 재호출은 미실행이다. 초기 실패와v5 분모는 보존한다. 모바일/PC·두 테마·정확 원문·6상태/재열람/읽기POST0/오류0과 개발 HTTPS/새6assets를 확인했다.
 
 개인 개발 웹/API/worker7566c3a·단일worker와 기존 계정/세션·수집기·공개 경계, 직전/사후/사후백업/별도복원23public행 전체 일치·15canonical 보존을 확인했다. main/운영 유예·일반 의미 품질/승인 탐색/점진 전달 후속은 유지한다. 두 판단과 비용, source/비답변 공통 Unicode 범위의 한계·최종 Sites/정리 receipt는 [진행 기록](../planning/progress.md)이 원본이다.
+
+Sites v65 native succeeded·이전v64 보존·서버 밖 실제 증거/backup 유지와 자체 QA browser/API/PG3개·소유 scratch 정리를 마쳤다. 사본6584471 이후 최종 출판 기록은 [진행 기록](../planning/progress.md)에 보존한다. main 병합/운영 출시는 하지 않았다.

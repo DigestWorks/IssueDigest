@@ -1,5 +1,12 @@
 # 진행 기록
 
+## 최종 출판·정리 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19 KST
+
+- [Sites v65](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 유지·native succeeded. source `f0ffc035de158829687e9ff89727cbf5fd007b1b`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6a21a3dd69d481919321da0d314bed57`, deployment `appgdep_6ad596344d24819195b292edcbb948cb` (2026-10-19 04:02:11 UTC). 이전v64와 그 이전 기록을 보존했다. 저장소 사본 기준6584471·실행7566c3a·Draft PR43이며 사본 이후의 이 최종 receipt는 저장소가 원본이다.
+- 기존 레이아웃의 요약/마일스톤·실제 초기4+별도2/남은 한계·문서8개를 갱신했다. HTML50개·로컬 링크/asset/anchor1,139개·공개 텍스트131개와 실제 접속/키 비포함 검사를 통과했다. 텍스트 변경에 Sites 브라우저 QA를 반복하지 않았으며 native 성공 응답으로 게시를 확인했다. 사용자 탭을 열거나 이동하지 않았다.
+- 자체 검증 브라우저·합성 HTTPS API와 소유label/전체ID/pinnedimage/loopback이 일치하는 합성·모델·복원PG3개/익명 볼륨만 정리했다.34546/25482/25483/25484 닫힘을 확인했다. pinned image·다른 컨테이너/worktree·실제 개발 앱/수집기·원래 소스/복귀 경로·서버 밖 백업/상세 증거는 보존한다. 이 계획의 SDD 검토/두 판단/실행 기록은 private에 archive한 후 해당 ignored scratch만 제거했다.
+- 최종 실행 코드는7566c3a의 전체3,967개·독립 source 검토·[CI39196768625](https://github.com/DigestWorks/IssueDigest/actions/runs/39196768625) success다. 이후ee62ee6/6584471과 이 receipt는 문서만 변경했다. 코드 검사 반복 없이 문서 링크/개인 접속값/표현 정합성과 Git diff를 확인한다. main 병합·운영 게시·새 모델 호출/권한/수집기 변경은 없다.
+
 ## 개발 적용 · 첫 결론·근거 부족·문장별 귀속 · 2026-10-19 KST
 
 - 현재 소스: 개인 개발 웹/API/조사 worker7566c3a·[Draft PR43](https://github.com/DigestWorks/IssueDigest/pull/43)(PR42 기반). 첫 열린 요약의 core conclusion·제공 자료에 대한 보수적 귀속·핵심 근거 부족 비답변을 연결했다. provider에 category/source_subject와 일반 claim의 event_date를 요구하지 않고 typed timeline만 정확 날짜를 받는다. canonical documented/최종 원문/인용/prefix/날짜·공개v1/v2/빈 reviews·기존2/3/4/5 지침/이름/version/정수slot1·저장 결과/복구와 소비자 디자인은 유지한다.
