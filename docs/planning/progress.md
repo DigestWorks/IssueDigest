@@ -1,5 +1,9 @@
 # 진행 기록
 
+## compact 수치 근거 v2 · 착수 · 2026-10-19
+
+PR50/805e154 후속 feat/numeric-evidence-compact, [명세](../changes/numeric-evidence-compact.md), D022/M3. 반복 context/출처 출력 대신 whole 인용 참조·짧은 span·known 상태 근거 union·명시 관계 endpoint를 구현한다. 기존 v1의 실제 부분1/거부1·앱4/12·개발ab6654e/v9·배포 유예는 유지한다. 기존 baseline5,003/sourceCI39235962771 재사용·새 baseline 반복 없음. 실제 고정2SDK·전체 gate/독립 검토·Draft PR/CI/Sites v72 archive/갱신·소유QA/SDD 정리는 아직 미완료다. 사용자 탭을 열지 않는다.
+
 ## 수치 후보 SDK · 구현·실제 부분/거부 · 2026-10-19
 
 - 담당/controller·feat/numeric-evidence-proposals, PR49/edc7ae7 기반. [명세](../changes/numeric-evidence-proposals.md), D022/M3. OpenSpec root=null·기존 worktree 재사용·baseline4,887/sourceCI39229760833 재사용, 새 baseline 전체 재실행 없음.
