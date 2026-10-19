@@ -67,6 +67,12 @@ from issuedigest_agents.research_v9 import (
     model_prompt_v9,
     run_agent_v9,
 )
+from issuedigest_agents.research_v10 import (
+    build_canvas_v10,
+    create_agent_v10,
+    model_prompt_v10,
+    run_agent_v10,
+)
 from issuedigest_domain.research_journey import ResearchResult, RunStatus
 from issuedigest_storage import StorageCorruption, StorageError, create_storage_engine
 from issuedigest_storage.research import ResearchRepository
@@ -76,16 +82,17 @@ from sqlalchemy import Engine
 
 from .research_recovery import (
     SELECTOR_V9_STARTED,
+    _known_relevance_usage,
+    _reconcile_relevance_accounting,
+    _recoverable_relevance_checkpoint,
+    _relevance_attributes,
     cancel_owned_orphans,
     completed_model_checkpoint,
     completed_v7_checkpoint,
     completed_v8_checkpoint,
-    known_v9_usage,
     reconcile_v9_accounting,
-    recoverable_v9_checkpoint,
     recovery_cohorts,
     research_worker_lock,
-    v9_attributes,
 )
 
 
@@ -122,6 +129,7 @@ def _run_worker(
     agent_v7: Agent[None, AIOutputV3]
     agent_v8: Agent[None, AIOutputV3]
     agent_v9: Agent[None, AIOutputV3]
+    agent_v10: Agent[None, AIOutputV3]
     planner_v7: Agent[None, AIOutputV3]
     client = DBOSClient(
         system_database_url=database_url,
@@ -360,7 +368,23 @@ def _run_worker(
             except StorageError:
                 time.sleep(poll_seconds)
 
-    def execute_relevant_body(run_id_text: str) -> None:
+    def execute_relevant_body(run_id_text: str, *, profile: Literal["v9", "v10"]) -> None:
+        if profile == "v9":
+            final_agent, final_prompt_builder, final_runner, final_builder = (
+                agent_v9,
+                model_prompt_v9,
+                run_agent_v9,
+                build_canvas_v9,
+            )
+        elif profile == "v10":
+            final_agent, final_prompt_builder, final_runner, final_builder = (
+                agent_v10,
+                model_prompt_v10,
+                run_agent_v10,
+                build_canvas_v10,
+            )
+        else:
+            raise ValueError("Invalid relevance profile")
         check_ownership()
         run_id = UUID(run_id_text)
         known_input, known_output = storage_call(
@@ -401,7 +425,9 @@ def _run_worker(
             run = storage_call(lambda: repository.worker_prepare_search(run_id))
             if run is None:
                 return
-            if not recoverable_v9_checkpoint(client, f"research-{run_id}", run.status):
+            if not _recoverable_relevance_checkpoint(
+                client, f"research-{run_id}", run.status, profile=profile
+            ):
                 persist_relevant("failed", error_code="generation_failed")
                 return
             parent = repository.worker_parent_context(run_id)
@@ -438,7 +464,7 @@ def _run_worker(
                     output_tokens=output_tokens,
                 )
                 return
-            attributes = v9_attributes(client, f"research-{run_id}")
+            attributes = _relevance_attributes(client, f"research-{run_id}", profile=profile)
             prompt_hash = sha256(prompt.encode()).hexdigest()
             if attributes is None:
                 # Public CLIENT method does not allocate a durable operation slot.
@@ -496,7 +522,7 @@ def _run_worker(
                 raise ValueError("Relevance source identity changed")
             sources = tuple(source for source in originals if source[0] in selected)
             try:
-                final_prompt = model_prompt_v9(
+                final_prompt = final_prompt_builder(
                     run.question,
                     sources,
                     parent,
@@ -515,8 +541,8 @@ def _run_worker(
                 "generating", input_tokens=input_tokens, output_tokens=output_tokens
             ):
                 return
-            output, final_input, final_output = run_agent_v9(
-                agent_v9,
+            output, final_input, final_output = final_runner(
+                final_agent,
                 final_prompt,
                 prior_input_tokens=input_tokens,
                 prior_output_tokens=output_tokens,
@@ -540,7 +566,7 @@ def _run_worker(
                 or selection_prompt(current.question, originals) != prompt
             ):
                 raise ValueError("Relevance source identity changed")
-            canvas = build_canvas_v9(run_id, run.workspace_id, sources, output)
+            canvas = final_builder(run_id, run.workspace_id, sources, output)
             titles = {bundle.document.document_id: title.title for _, bundle, title in sources}
             persist_relevant(
                 "completed",
@@ -557,7 +583,9 @@ def _run_worker(
             )
 
         finally:
-            journal_input, journal_output = known_v9_usage(client, f"research-{run_id}")
+            journal_input, journal_output = _known_relevance_usage(
+                client, f"research-{run_id}", profile=profile
+            )
             storage_call(
                 lambda: repository.worker_record_relevance_usage(
                     run_id,
@@ -573,7 +601,8 @@ def _run_worker(
         dispatch_new: bool = False,
     ) -> None:
         nonlocal agent_v2, agent_v3, agent_v4, agent_v5, agent_v6, agent_v7, agent_v8
-        nonlocal planner_v7, search_v7, search_v8, agent_v9, selector_model, search_v9, apply_v9
+        nonlocal planner_v7, search_v7, search_v8, agent_v9, agent_v10
+        nonlocal selector_model, search_v9, apply_v9
         agent_v2 = create_agent(model)  # type: ignore[arg-type]
         agent_v3 = create_agent_v3(model)  # type: ignore[arg-type]
         agent_v4 = create_agent_v4(model)  # type: ignore[arg-type]
@@ -599,6 +628,7 @@ def _run_worker(
         # before launch. Borrow the already-created v8 base model; no new client.
         assert agent_v8.model is not None and not isinstance(agent_v8.model, str)
         agent_v9 = create_agent_v9(agent_v8.model)
+        agent_v10 = create_agent_v10(agent_v8.model)
         selector_model = DBOSModel(
             agent_v8.model,
             step_name_prefix="issuedigest_research_select_v9",
@@ -685,7 +715,11 @@ def _run_worker(
 
         @DBOS.workflow(name="issuedigest_research_run_v9", max_recovery_attempts=3)
         def execute_v9(run_id_text: str) -> None:
-            execute_relevant_body(run_id_text)
+            execute_relevant_body(run_id_text, profile="v9")
+
+        @DBOS.workflow(name="issuedigest_research_run_v10", max_recovery_attempts=3)
+        def execute_v10(run_id_text: str) -> None:
+            execute_relevant_body(run_id_text, profile="v10")
 
         functions = {
             "issuedigest_research_run_v2": execute_v2,
@@ -696,6 +730,7 @@ def _run_worker(
             "issuedigest_research_run_v7": execute_v7,
             "issuedigest_research_run_v8": execute_v8,
             "issuedigest_research_run_v9": execute_v9,
+            "issuedigest_research_run_v10": execute_v10,
         }
         try:
             # Public resume retains original version and all steps; launch that version's registry.
@@ -721,7 +756,7 @@ def _run_worker(
                         if status.status in {"PENDING", "ENQUEUED"}:
                             client.cancel_workflow(workflow_id)
                         continue
-                    function = functions[status.name] if status is not None else execute_v9
+                    function = functions[status.name] if status is not None else execute_v10
                     with SetWorkflowID(workflow_id):
                         handles.append(DBOS.start_workflow(function, str(run_id)))
                 if once:
@@ -736,6 +771,7 @@ def _run_worker(
     try:
         check_ownership()
         reconcile_v9_accounting(client, repository)
+        _reconcile_relevance_accounting(client, repository, profile="v10")
         cancel_owned_orphans(client, repository)
         for version, recoveries in recovery_cohorts(client, repository):
             check_ownership()

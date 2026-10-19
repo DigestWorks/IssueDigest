@@ -51,7 +51,7 @@ test('rejects missing cache boundary and distinguishes interruption from offline
  vi.useFakeTimers();vi.stubGlobal('fetch',()=>new Promise(()=>{}));const pending=expect(api.getPublicBriefing(fixture.slug,1,{timeoutMs:5})).rejects.toMatchObject({kind:'timeout'});await vi.advanceTimersByTimeAsync(6);await pending;
 });
 
-test.each(['v3', 'v4', 'v5', 'v6', 'v7', 'v8'].flatMap(version => [false, true].map(stripped => ({version, stripped}))))('public profile rejects private $version when stripped=$stripped',async ({version, stripped})=>{
+test.each(['v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10'].flatMap(version => [false, true].map(stripped => ({version, stripped}))))('public profile rejects private $version when stripped=$stripped',async ({version, stripped})=>{
  const value=structuredClone(fixture) as unknown as api.PublicBriefingDetail;
  const claim=value.canvas.research.claims[0]!;
  claim.derivation!.method_version=`research-${version}`;
