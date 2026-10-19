@@ -115,3 +115,16 @@ controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종
 ## 독립 수치 후보 SDK · 미배포
 
 [명세](../docs/changes/numeric-evidence-proposals.md). 새 SDK는 필수 borrowed model·독립 total20,000/output2,500·30초/request1/retry0/storeFalse이며 원문/실제 schema 예산을 호출 전에 검사한다. 이 한도는 앱의 전역24,000/output2,500·월 예약/DBOS 회계와 통합된 것이 아니다. Agent 결과 없는 실패 usage는 unknown이고 transport retry/client 소유·미완료 비용 회복은 호출자 책임이다. controller의 별도 실제2요청은 원응답2개 사용량을 보존했으나 앱 ledger/최종 브리핑을 바꾸지 않았다. 서버 접속/배포·migration·권한 변경/수집기 작업을 하지 않았다. 개발은 기존ab6654e/v9, main/운영은 D013 유예다.
+
+
+## compact 수치 v2 · 앱 연결 전
+
+[명세](../docs/changes/numeric-evidence-compact.md).
+
+새 v2를 이전과 byte-identical인 두 원문 packet(whole 인용2개/1개)에 각각1회 실행했다. 실제 source5592d9c·독립SDK2/공급자2요청·재시도0이며 반환0·전체 거부2·의미 완전 충족0이다. 기존 v1의 부분1/거부1, 기존 앱4건/12요청과 모든 과거 실패/미판정 분모를 유지했다. 앱·실제 사용자 세션은0이다.
+
+controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/null을 whole quote와 직접 대조했다. 이전에 누락된 하위 항목과 증감 수치는 raw에 나타났지만 수용된 후보가 아니다. 첫 응답은 단위의 존재하지 않는 occurrence3개·다른 값의 단위 연결, 전체 endpoint/cue가 statement 밖인 관계와 cross-citation 관계 때문에 거부된다. 전망 조건을 qualifier에 넣고 condition을 비운 문제, 관측의 상태 근거로 포함 문구를 쓴 문제도 남았다. 둘째는 두 관계 statement가 떨어진 원문 조각을 붙인 문자열이어서 거부된다. raw의 조사 표현을 단위로 쓰거나 반복 단위/시점을 오연결하고, 명시 전망을 관측으로 분류한 의미 오류도 남았다.
+
+두 raw는 known 상태 근거의 nonnull provider DTO를 만족했지만 exact 위치/관계 검사를 통과하지 못했다. 추가 호출 없이 원래 raw의 DTO/각 field/관계 물리 조건을 오프라인으로 분리 확인했고, 잘못된 행을 고치거나 정상 부분 proposal로 반환하지 않았다. 알려진 실패 사용량2건은 SDK에도 보존됐다. 입력3,003/출력2,029토큰·지연6.64/4.51초이며 청구 금액은 미검증이다. 동일 두 자료의 v1 출력3,229보다 짧았다는 관측을 일반 비용 절감·의미 품질 향상으로 확대하지 않는다.
+
+계약 구현/합성 검사와 실제 모델 의미 인수는 별개다. 실제 planned/unknown 양성·전체 문서 수치/다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 개발ab6654e/v9·앱/DBOS/DB/API/공개/UI/수집기·월 예약은 변경하지 않았고 main/운영은 D013 유예다. 다음 설계 후보는 모델이 occurrence를 세거나 관계 문장을 다시 쓰게 하기보다 서버에서 확정한 원문 위치 참조를 선택하게 하는 방식이다. 단순한 지침/성공 재호출·자동 수정은 해결로 표시하지 않는다.

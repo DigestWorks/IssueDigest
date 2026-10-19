@@ -1,5 +1,19 @@
 # 진행 기록
 
+## compact 수치 후보 v2 · 실제2회 전체 거부 · 2026-10-19
+
+- 담당/controller·feat/numeric-evidence-compact, PR50/805e154 기반. [명세](../changes/numeric-evidence-compact.md)·D022/M3. OpenSpec root=null·linked worktree 재사용·baseline5,003/sourceCI39235962771 재사용. 구현 및 실제5592d9c. 기존405파일의 base/task git object 일치·Task1 독립 Spec/품질 PASS(C0I0M0), agents790(신규121)·Ruff/format38/mypy14 통과를 확인했다. 전체 gate/전체 검토·Draft PR/CI·Sites v72archive/갱신/native 게시·소유QA/SDD 정리는 별도 인수 중이다.
+
+새 v2를 이전과 byte-identical인 두 원문 packet(whole 인용2개/1개)에 각각1회 실행했다. 실제 source5592d9c·독립SDK2/공급자2요청·재시도0이며 반환0·전체 거부2·의미 완전 충족0이다. 기존 v1의 부분1/거부1, 기존 앱4건/12요청과 모든 과거 실패/미판정 분모를 유지했다. 앱·실제 사용자 세션은0이다.
+
+controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/null을 whole quote와 직접 대조했다. 이전에 누락된 하위 항목과 증감 수치는 raw에 나타났지만 수용된 후보가 아니다. 첫 응답은 단위의 존재하지 않는 occurrence3개·다른 값의 단위 연결, 전체 endpoint/cue가 statement 밖인 관계와 cross-citation 관계 때문에 거부된다. 전망 조건을 qualifier에 넣고 condition을 비운 문제, 관측의 상태 근거로 포함 문구를 쓴 문제도 남았다. 둘째는 두 관계 statement가 떨어진 원문 조각을 붙인 문자열이어서 거부된다. raw의 조사 표현을 단위로 쓰거나 반복 단위/시점을 오연결하고, 명시 전망을 관측으로 분류한 의미 오류도 남았다.
+
+두 raw는 known 상태 근거의 nonnull provider DTO를 만족했지만 exact 위치/관계 검사를 통과하지 못했다. 추가 호출 없이 원래 raw의 DTO/각 field/관계 물리 조건을 오프라인으로 분리 확인했고, 잘못된 행을 고치거나 정상 부분 proposal로 반환하지 않았다. 알려진 실패 사용량2건은 SDK에도 보존됐다. 입력3,003/출력2,029토큰·지연6.64/4.51초이며 청구 금액은 미검증이다. 동일 두 자료의 v1 출력3,229보다 짧았다는 관측을 일반 비용 절감·의미 품질 향상으로 확대하지 않는다.
+
+계약 구현/합성 검사와 실제 모델 의미 인수는 별개다. 실제 planned/unknown 양성·전체 문서 수치/다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 개발ab6654e/v9·앱/DBOS/DB/API/공개/UI/수집기·월 예약은 변경하지 않았고 main/운영은 D013 유예다. 다음 설계 후보는 모델이 occurrence를 세거나 관계 문장을 다시 쓰게 하기보다 서버에서 확정한 원문 위치 참조를 선택하게 하는 방식이다. 단순한 지침/성공 재호출·자동 수정은 해결로 표시하지 않는다.
+
+- Ruling1: whole 인용을 fact context로 참조하고 관계 statement에 두 명시 주체를 요구한다. 넓은 인용에서 잘못된 field 연결이 통과하거나 주체 생략/긴 관계가 누락·전체 거부되고 알려진 비용이 남을 수 있다. Spec/D022·private 검토 archive와 최종 인계에 보존한다. 사용자 탭을 열거나 이동하지 않는다.
+
 ## compact 수치 근거 v2 · 착수 · 2026-10-19
 
 PR50/805e154 후속 feat/numeric-evidence-compact, [명세](../changes/numeric-evidence-compact.md), D022/M3. 반복 context/출처 출력 대신 whole 인용 참조·짧은 span·known 상태 근거 union·명시 관계 endpoint를 구현한다. 기존 v1의 실제 부분1/거부1·앱4/12·개발ab6654e/v9·배포 유예는 유지한다. 기존 baseline5,003/sourceCI39235962771 재사용·새 baseline 반복 없음. 실제 고정2SDK·전체 gate/독립 검토·Draft PR/CI/Sites v72 archive/갱신·소유QA/SDD 정리는 아직 미완료다. 사용자 탭을 열지 않는다.
