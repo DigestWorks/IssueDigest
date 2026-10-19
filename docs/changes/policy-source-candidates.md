@@ -15,9 +15,11 @@
 
 ## Task 1: 목록 메타데이터·후보 비교 보고서와 CLI
 
-- [ ] connectors의 additive metadata 타입/SDK와 파서 최소 공유 helper를 구현한다. 기존 result_entries/PolicyCandidate와 capture bytes 계약은 보존한다. 한 ID의 conflicting metadata와 날짜/발행처 불명확을 새 API에서 검증한다.
-- [ ] worker의 순수 후보 비교 보고서와 candidates CLI를 구현한다. 정확 SHA/시각·inclusive 날짜·이전 chronology·분류·정렬·현재 밖으로 이동한 ID 처리·한도·private 파일/집계 stdout을 검증한다. 기존 명령·고정 오류/예외와 no-IO 경계를 유지한다.
-- [ ] TDD로 날짜/윤년·공백·숨김·중복/충돌·비canonical 링크·forged capture·extra/중복 JSON·이전/현재/범위/모든 상태·boundaries·파일/출력/원자성·0HTTP/DB/모델·비밀 로그를 검증한다. 기존 connectors/worker 관련 회귀·Ruff/format/mypy와 README/체크박스/commit/report를 완료한다. 스타일/구현을 그대로 복제하는 테스트는 만들지 않는다.
+- [x] connectors의 additive metadata 타입/SDK와 파서 최소 공유 helper를 구현한다. 기존 result_entries/PolicyCandidate와 capture bytes 계약은 보존한다. 한 ID의 conflicting metadata와 날짜/발행처 불명확을 새 API에서 검증한다.
+- [x] worker의 순수 후보 비교 보고서와 candidates CLI를 구현한다. 정확 SHA/시각·inclusive 날짜·이전 chronology·분류·정렬·현재 밖으로 이동한 ID 처리·한도·private 파일/집계 stdout을 검증한다. 기존 명령·고정 오류/예외와 no-IO 경계를 유지한다.
+- [x] TDD로 날짜/윤년·공백·숨김·중복/충돌·비canonical 링크·forged capture·extra/중복 JSON·이전/현재/범위/모든 상태·boundaries·파일/출력/원자성·0HTTP/DB/모델·비밀 로그를 검증한다. 기존 connectors/worker 관련 회귀·Ruff/format/mypy와 README/체크박스/commit/report를 완료한다. 스타일/구현을 그대로 복제하는 테스트는 만들지 않는다.
+
+Task1 구현 검증(2026-10-19): 새 합성 계약 검사111개를 포함해 connectors/worker602개 통과, 전용 PostgreSQL 필요 검사102개는 DB URL을 비운 상태로 건너뛰었다. 두 패키지 Ruff/format과 전체 mypy114개 소스가 통과했다. 전체 DB 포함 gate·독립 검토·실제 확보·개인 개발 적용은 controller 인수 범위다. 기존700 부모/새600 파일 보호와 명시 등록 경로를 보존하며 후보 보고서 자체는 자료 등록·선정·권리 승인이 아니다. 상세 SDK/보고서 필드와 CLI는 각 패키지 README에 기록했다. Task2는 별도다.
 
 ## Task 2: 관측된 원문의 발행처 링크 metadata profile
 

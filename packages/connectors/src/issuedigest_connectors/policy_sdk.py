@@ -5,13 +5,13 @@ import logging
 import re
 from collections.abc import Iterator
 from contextlib import contextmanager
-from datetime import datetime
+from datetime import date, datetime
 from typing import Annotated, Literal, Self
 
 import httpx2 as httpx
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from ._policy_list import ARTICLE_PATH, ORIGIN, result_entries
+from ._policy_list import ARTICLE_PATH, ORIGIN, result_entries, result_metadata
 from .assembly import _HTTP_FILTER, _PRIVATE_HTTP, _constant, _html, _unique
 from .html import MAX_HTML_BYTES, bounded_html
 
@@ -38,6 +38,22 @@ class PolicyCandidate(_PrivateModel):
     news_id: str = Field(repr=False)
     canonical_url: str = Field(repr=False)
     title: str = Field(repr=False)
+
+
+class PolicyCandidateMetadata(PolicyCandidate):
+    published_on: date = Field(repr=False)
+    publisher: Annotated[str, Field(min_length=1, max_length=200)] = Field(repr=False)
+
+    @model_validator(mode="after")
+    def valid_metadata(self) -> Self:
+        if (
+            self.canonical_url != policy_url(self.news_id)
+            or not 1 <= len(self.title) <= 300
+            or self.title != " ".join(self.title.split())
+            or self.publisher != " ".join(self.publisher.split())
+        ):
+            raise ValueError("Invalid candidate metadata")
+        return self
 
 
 class PolicyArticle(_PrivateModel):
@@ -161,6 +177,24 @@ def policy_candidates(capture: PolicyDiscovery) -> tuple[PolicyCandidate, ...]:
         return tuple(
             PolicyCandidate(news_id=identity, canonical_url=policy_url(identity), title=title)
             for identity, title in result_entries(capture.list_html)
+        )
+    except Exception:
+        raise PolicyError("Unable to validate policy discovery") from None
+
+
+def policy_candidate_metadata(capture: PolicyDiscovery) -> tuple[PolicyCandidateMetadata, ...]:
+    """Validate visible discovery metadata without asserting article content or rights."""
+    try:
+        capture = parse_policy_discovery(serialize_policy_discovery(capture))
+        return tuple(
+            PolicyCandidateMetadata(
+                news_id=identity,
+                canonical_url=policy_url(identity),
+                title=title,
+                published_on=published_on,
+                publisher=publisher,
+            )
+            for identity, title, published_on, publisher in result_metadata(capture.list_html)
         )
     except Exception:
         raise PolicyError("Unable to validate policy discovery") from None

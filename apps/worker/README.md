@@ -71,7 +71,7 @@ def prepare(job: HwpxJob, approved_base: ProvisioningPlan) -> ProvisioningPlan:
 
 ## 정책뉴스를 확인하고 비공개 등록 계획을 준비하기
 
-`issuedigest-policy`는 운영자가 명시 실행하는 `discover` → `capture` → `compare`/`prepare` 명령이다. 발견은 고정 HTTPS 주소 `https://www.korea.kr/news/policyNewsList.do`의 첫 페이지 결과 영역만 읽는다. 확보는 정확한 `https://www.korea.kr/news/policyNewsView.do?newsId=<9자리 ASCII 숫자>` 기사1~2개만 읽는다. 목록의 제목·날짜·순서는 발견 메타데이터이며 근거·인기·사실 판정에 쓰지 않는다. RSS·다른 도메인·redirect·추적 query·인증·JavaScript를 따라가지 않는다.
+`issuedigest-policy`는 운영자가 명시 실행하는 `discover` → 선택적 오프라인 `candidates` → `capture` → `compare`/`prepare` 명령이다. 발견은 고정 HTTPS 주소 `https://www.korea.kr/news/policyNewsList.do`의 첫 페이지 결과 영역만 읽는다. 확보는 정확한 `https://www.korea.kr/news/policyNewsView.do?newsId=<9자리 ASCII 숫자>` 기사1~2개만 읽는다. 목록의 제목·날짜·순서는 발견 메타데이터이며 근거·인기·사실 판정에 쓰지 않는다. RSS·다른 도메인·redirect·추적 query·인증·JavaScript를 따라가지 않는다.
 
 ### 발견하고 기사1~2개를 명시 확보하기
 
@@ -89,6 +89,36 @@ uv run issuedigest-policy capture /absolute/private/policy/discovery.json 2026-1
 3. `PolicyCapture`의 `articles`에 저장된 기사별 HTML과 정확 canonical URL을 확인한다. HTTP 응답은 요청당20초·2MiB, 재시도0이며 TLS 검증·UTF-8 HTML·identity encoding만 허용한다. 발견은 GET1회, 확보는 선택 기사 수만큼 GET한다. 환경 proxy·인증·cookie를 전달하지 않는다.
 
 Discovery artifact는 최대 `MAX_POLICY_DISCOVERY_BYTES = 4 * 1024 * 1024 + 8192`, capture는 `MAX_POLICY_CAPTURE_BYTES = 8 * 1024 * 1024 + 16384`바이트다. 각각 `schema_version=1`, aware `collected_at`과 `list_html` 또는 `articles[{news_id, canonical_url, html}]`을 담는다. `serialize_policy_discovery`·`serialize_policy_capture`가 만든 정확한 UTF-8 JSON bytes를 보관한다. SDK의 `discover_policy(*, collected_at, transport=None)`·`capture_policy(news_ids: tuple[str, ...], *, collected_at, transport=None)`는 파일을 쓰지 않는다. CLI와 달리 `capture_policy` 자체에는 discovery 대조 인수가 없으므로 SDK 호출자는 후보 선택을 직접 확인해야 한다.
+
+### 목록의 날짜 범위와 이전 관측을 비교하기
+
+이미 확보한 discovery를 오프라인으로 검토할 때 `candidates`를 사용한다. 날짜 인수는 ASCII `YYYY-MM-DD`만 허용하며 양끝을 포함한다. `--previous`는 선택 사항이고, 이전본 수집 시각은 현재본보다 엄격히 이른 timezone-aware instant여야 한다. 같은 시각의 동일 바이트도 거부한다. 기존 소유자·정규 파일·절대 경로·symlink 방어를 재사용한다. 입력은 `0400`/`0600`, 미리 준비한 소유자 `0700` 부모 아래의 새 출력은 `0600`이다. 부모 디렉터리를 자동 생성하거나 기존 보고서를 덮어쓰지 않는다.
+
+```sh
+uv run issuedigest-policy candidates /absolute/private/policy/discovery.json 2026-10-01 2026-10-19 /absolute/private/policy/candidates.json
+uv run issuedigest-policy candidates /absolute/private/policy/discovery.json 2026-10-01 2026-10-19 /absolute/private/policy/comparison.json --previous /absolute/private/policy/previous-discovery.json
+```
+
+순수 SDK는 `issuedigest_worker.policy_candidates.build_policy_candidate_report(current_raw: bytes, *, since: date, through: date, previous_raw: bytes | None = None) -> PolicyCandidateReport`다. 날짜는 정확 `datetime.date` 타입이고 `since <= through`여야 한다. 현재·이전 원본은 각각 기존 discovery 최대 `4 * 1024 * 1024 + 8192`바이트이며 기존 parser와 추가 메타데이터 API로 모두 재검증한다. 실패는 내용 없는 고정 `PreparationError("Unable to build policy candidate report")`다. import·실행은 HTTP·환경 키·DB·모델·DBOS를 호출하지 않는다.
+
+불변·strict·extra forbid private 보고서는 최대512KiB이며 다음 필드를 담는다. 기존 보고서 소비자가 없어 이 명령에서 처음 정한 이름이다.
+
+| 필드 | 의미 |
+| --- | --- |
+| `schema_version` | 정수 `1` |
+| `current_discovery_sha256`, `current_collected_at` | 현재 discovery의 **원래 정확 바이트** SHA-256과 수집 시각 |
+| `previous_discovery_sha256`, `previous_collected_at` | 이전 discovery의 정확 바이트 SHA-256과 수집 시각. 이전본이 없으면 둘 다 null |
+| `since`, `through` | 양끝 포함 목록 날짜 범위 |
+| `entries` | ID 오름차순의 최대200행. 각 행은 `news_id`, `canonical_url`, `title`, `published_on`, `publisher`, `status`만 포함. 범위가 비면 빈 배열 |
+
+| `entries[].status` | 의미 |
+| --- | --- |
+| `new` | 현재 날짜 범위 안이며 이전 전체 목록에 ID가 없음. 이전본이 없으면 첫 관측이며 전역 신규 기사가 아님 |
+| `unchanged` | 현재 날짜 범위 안이며 이전 메타데이터가 모두 같음 |
+| `metadata_changed` | 현재 날짜 범위 안이며 이전 제목·목록 날짜·발행처 중 변화가 있음 |
+| `not_observed` | 이전 날짜 범위 안의 ID가 현재 **전체** 목록에서 관측되지 않음. 이전 메타데이터를 보존하며 삭제·철회 판정이 아님 |
+
+현재 목록에 있으나 범위 밖으로 이동한 ID를 `not_observed`로 분류하지 않는다. 현재/이전 우선순위나 인기·최신 순위를 만들지 않는다. 상세 메타데이터는 private 보고서에만 쓰고 stdout은 `schema_version`, `status="candidates_reported"`, `candidates`(현재 범위 안 행 수), `new`, `unchanged`, `metadata_changed`, `not_observed` 집계만 출력한다. 기존 exit0/고정 실패 exit1/인수 오류 exit2를 유지한다. 목록 날짜는 기사 본문 발행일과 다를 수 있다. 후보 보고서는 권리·본문 변경·전체 수집·전역 최신성·최근 주목도·선정 승인이 아니며, 원문/권리/정확 인용 검토와 기존 명시 등록 절차를 계속 거친다.
 
 ### 기사별 텍스트 이용 조건을 검토하고 PolicyJob 작성하기
 
