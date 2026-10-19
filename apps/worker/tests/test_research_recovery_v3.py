@@ -46,7 +46,7 @@ def seed(engine, database_url):
     return bundle, token, repo, run
 
 
-def output(bundle, text="첫 모델의 해석", classified=False):
+def output(bundle, text="첫 모델의 해석", classified=False, core=False):
     claim = {
         "text": text,
         "citation_ids": [str(bundle.citations[0].citation_id)],
@@ -54,6 +54,14 @@ def output(bundle, text="첫 모델의 해석", classified=False):
     }
     if classified:
         claim.update(category="documented", rationale="선택 인용의 합성 설명")
+    if core:
+        return {
+            "outcome": "answer",
+            "summary_title": "합성 요약",
+            "core_answer": {**claim, "source_subject": None},
+            "additional_summary_claims": [],
+            "details": [],
+        }
     return {
         "outcome": "answer",
         "message": None,
@@ -71,7 +79,8 @@ CRASH_SCRIPT = """import importlib.util, json, os, signal
 from issuedigest_storage.research import ResearchRepository
 from pydantic_ai.models.test import TestModel
 if os.environ.get('LEGACY_WORKER'):
-    spec = importlib.util.spec_from_file_location('frozen_v2', os.environ['LEGACY_WORKER'])
+    spec = importlib.util.spec_from_file_location(
+        'issuedigest_worker.frozen_historical', os.environ['LEGACY_WORKER'])
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     run_worker = module.run_worker
@@ -124,17 +133,20 @@ def client(database_url):
     return DBOSClient(system_database_url=database_url, application_name="issuedigest-research")
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", None])
-def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v5(
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", None])
+def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v6(
     engine,
     database_url,
     tmp_path,
     legacy,
 ):
-    version = legacy or "v5"
+    version = legacy or "v6"
     bundle, token, repo, old = seed(engine, database_url)
     marker = crash_worker(
-        database_url, tmp_path, output(bundle, classified=version != "v2"), legacy=legacy
+        database_url,
+        tmp_path,
+        output(bundle, classified=version != "v2", core=version == "v6"),
+        legacy=legacy,
     )
     inspector = client(database_url)
     try:
@@ -152,7 +164,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         current_env = {
             **os.environ,
             "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
-            "SYNTHETIC_OUTPUT": json.dumps(output(new_bundle, "새 해석", True)),
+            "SYNTHETIC_OUTPUT": json.dumps(output(new_bundle, "새 해석", True, core=True)),
             "CALL_MARKER": str(new_marker),
             "DBOS__APPVERSION": "synthetic-current-worker-version",
             "PYDANTIC_AI_NO_BANNER": "1",
@@ -172,7 +184,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         assert len(recovered.result.canvas.research.support_reviews) == (version != "v2")
         current = repo.get_run(new_token, new.workspace_id, new.run_id)
         assert current.status == "completed"
-        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v5"
+        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v6"
         assert len(current.result.canvas.research.support_reviews) == 1
         after = inspector.list_workflows(
             workflow_ids=[before.workflow_id, f"research-{new.run_id}"],
@@ -182,14 +194,14 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         by_id = {workflow.workflow_id: workflow for workflow in after}
         assert by_id[before.workflow_id].app_version == before.app_version
         assert by_id[before.workflow_id].name == f"issuedigest_research_run_{version}"
-        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v5"
+        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v6"
         assert by_id[f"research-{new.run_id}"].app_version != before.app_version
         assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == checkpoints
         assert marker.read_text() == "called\n"
         # Another full registry destroy/relaunch must only read completed application rows.
         run_worker(
             database_url,
-            model=TestModel(custom_output_args=output(bundle, "재호출 금지", True)),
+            model=TestModel(custom_output_args=output(bundle, "재호출 금지", True, core=True)),
             once=True,
         )
         assert repo.get_run(token, old.workspace_id, old.run_id) == recovered
@@ -197,7 +209,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         inspector.destroy()
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", None])
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", None])
 def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     engine,
     database_url,
@@ -210,7 +222,7 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     marker = crash_worker(
         database_url,
         tmp_path,
-        output(bundle, classified=legacy != "v2"),
+        output(bundle, classified=legacy != "v2", core=legacy is None),
         legacy=legacy,
         checkpoint=False,
     )
@@ -245,6 +257,7 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
         "issuedigest_research_run_v3",
         "issuedigest_research_run_v4",
         "issuedigest_research_run_v5",
+        "issuedigest_research_run_v6",
     ],
 )
 def test_existing_queued_workflow_dispatches_registered_original_name(engine, database_url, name):
@@ -262,7 +275,11 @@ def test_existing_queued_workflow_dispatches_registered_original_name(engine, da
         )
         run_worker(
             database_url,
-            model=TestModel(custom_output_args=output(bundle, classified=not name.endswith("v2"))),
+            model=TestModel(
+                custom_output_args=output(
+                    bundle, classified=not name.endswith("v2"), core=name.endswith("v6")
+                )
+            ),
             once=True,
         )
         completed = repo.get_run(token, run.workspace_id, run.run_id)
@@ -275,7 +292,7 @@ def test_existing_queued_workflow_dispatches_registered_original_name(engine, da
         inspector.destroy()
 
 
-@pytest.mark.parametrize("profile", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize("profile", ["v2", "v3", "v4", "v5", "v6"])
 @pytest.mark.parametrize(
     "case", ["unknown-name", "cancelled-workflow", "cancelled-run", "revoked-membership"]
 )
@@ -296,8 +313,8 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
             crash_worker(
                 database_url,
                 tmp_path,
-                output(bundle, classified=profile != "v2"),
-                legacy=None if profile == "v5" else profile,
+                output(bundle, classified=profile != "v2", core=profile == "v6"),
+                legacy=None if profile == "v6" else profile,
             )
             from issuedigest_storage.auth_schema import auth_workspace_memberships
             from sqlalchemy import delete
@@ -356,7 +373,7 @@ def test_second_worker_is_rejected_before_touching_an_inflight_request(
     env = {
         **os.environ,
         "ISSUEDIGEST_TEST_DATABASE_URL": database_url,
-        "SYNTHETIC_OUTPUT": json.dumps(output(bundle, classified=True)),
+        "SYNTHETIC_OUTPUT": json.dumps(output(bundle, classified=True, core=True)),
         "CALL_MARKER": str(marker),
         "WAIT_RELEASE": str(release),
         "PYDANTIC_AI_NO_BANNER": "1",
@@ -416,7 +433,7 @@ def test_worker_lock_connection_is_idle_and_loss_fails_closed(engine):
         recovered()
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5", "v6"])
 @pytest.mark.parametrize("slot", [0, 2, -1, True, False, 1.0, "1", None, "missing"])
 def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
@@ -438,7 +455,7 @@ def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot)
     )
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5", "v6"])
 def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
 
@@ -459,7 +476,7 @@ def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
     )
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5", "v6"])
 def test_cached_paid_error_replays_without_a_second_request(
     engine, database_url, tmp_path, version
 ):
@@ -469,8 +486,8 @@ def test_cached_paid_error_replays_without_a_second_request(
     marker = crash_worker(
         database_url,
         tmp_path,
-        output(bundle, classified=version != "v2"),
-        legacy=None if version == "v5" else version,
+        output(bundle, classified=version != "v2", core=version == "v6"),
+        legacy=None if version == "v6" else version,
         error=True,
     )
     calls = []
@@ -504,7 +521,7 @@ def test_cached_paid_error_replays_without_a_second_request(
         inspector.destroy()
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5", "v6"])
 @pytest.mark.parametrize(
     "mutation", ["missing", "duplicate", "other-name", "incomplete", "too-many"]
 )

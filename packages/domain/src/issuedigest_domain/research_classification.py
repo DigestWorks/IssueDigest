@@ -1,4 +1,4 @@
-"""Bounded private research-v3/v4/v5 profiles, separate from generic and public Canvas contracts."""
+"""Bounded private v3/v4/v5/v6 profiles, separate from generic and public Canvas contracts."""
 
 import re
 from datetime import datetime, timedelta
@@ -22,7 +22,7 @@ def require_raw_classification_utc(canvas: Any) -> None:
     if (
         not any(
             _field(_field(c, "derivation"), "method_version")
-            in ("research-v3", "research-v4", "research-v5")
+            in ("research-v3", "research-v4", "research-v5", "research-v6")
             for c in claims
         )
         and not reviews
@@ -47,7 +47,9 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     claims, reviews = research.claims, research.support_reviews
     versions = {c.derivation.method_version if c.derivation else None for c in claims}
     classified = {
-        version for version in ("research-v3", "research-v4", "research-v5") if version in versions
+        version
+        for version in ("research-v3", "research-v4", "research-v5", "research-v6")
+        if version in versions
     }
     if not classified:
         if reviews:
@@ -109,6 +111,37 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
     modules = revision.draft.modules
     if revision.draft.outcome != "answer" or not 2 <= len(modules) <= 4:
         raise ValueError("Classified answer requires analysis and evidence")
+    if method_version == "research-v6":
+        first = modules[0]
+        if first.kind != "summary" or any(m.kind == "summary" for m in modules[1:]):
+            raise ValueError("v6 requires first summary and comparison/timeline details")
+        core_id = first.claim_ids[0]
+        if not any(
+            r.target.kind == "claim"
+            and r.target.claim_id == core_id
+            and r.assessment == "supported"
+            for r in reviews
+        ):
+            raise ValueError("v6 core answer must be supported")
+        quotes = {c.citation_id: c.selector.quote for e in research.evidence for c in e.citations}
+        for review in reviews:
+            if review.scope != "attribution" or review.target.kind != "claim":
+                continue
+            claim = by_id[review.target.claim_id]
+            # The exact subject may itself contain the separator. Accept any exact
+            # bounded decomposition; never strip or infer a speaker from metadata.
+            separator = "에 따르면, "
+            if not any(
+                claim.text.startswith(separator, end)
+                and claim.text[:end].strip()
+                and 1 <= len(claim.text[end + len(separator) :]) <= 400
+                and (
+                    claim.text[:end] == "제공 자료"
+                    or all(claim.text[:end] in quotes[c] for c in claim.citation_ids)
+                )
+                for end in range(1, min(80, len(claim.text)) + 1)
+            ):
+                raise ValueError("v6 attribution requires exact selected quote subject")
     used = set()
     all_cited: set[UUID] = set()
     quotes = {c.citation_id: c.selector.quote for e in research.evidence for c in e.citations}

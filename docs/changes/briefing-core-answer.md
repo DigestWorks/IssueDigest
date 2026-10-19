@@ -14,10 +14,10 @@
 
 ## Task 1: v6 첫 요약·귀속·부족 분기와 기존 다섯 버전 복구 연계
 
-- [ ] packages/agents/research_v6.py에 위 provider schema/typed outputs·동적 prompt 인용 enums·source_subject 검증/조합·독립 지침·정확 예산/create/model_prompt/run/build 경로를 구현한다. 기존 v5 private helpers는 변경 없이 재사용하거나 작은 새v6 helper를 사용하되 로직 복제를 불필요하게 늘리지 않는다. helper의 가시성/재사용은 호환 지침/schema/prompt bytes를 바꾸지 않는다. v2/v3/v4/v5 실제 instructions/schema/prompt golden을 잠그며 v5도 현재 기준 hash로 고정한다. 새 provider DTO를 canonical alias로 명시 변환한다. all-uncertain answer·빈/알 수 없는 주체·다른 인용에만 있는 주체·잘못된 UUID/질문삽입ID·prompt/예산 오염은 키/모델 진입 전에 또는 기존 최종 검증에서 안전하게 거부한다.
-- [ ] private Python ResearchResult·웹 client validator·UI prepare/classification을 정확 v6 reviewer/method에 연결하고 네 과거 버전과 public boundaries를 보존한다. 실제 Python v6 builder의 합성 JSON→JS client→UI 열린 첫 summary(비교 결론)·접힌 상세·정확 원문 흐름을 검증한다. all-uncertain nonanswer는 고정 부족 message로 표시되고 malformed/mixed/stripped-public는 거부된다. 기존 레이아웃과 historical 결과의 순서를 바꾸지 않는다.
-- [ ] worker/recovery에 다섯 이름과 새v6 dispatch를 연결한다. v5 historical worker fixture를 보존해 기존2/3/4/5 및 새6의 원래 이름/version/정수slot1 유료 완료 checkpoint 재생/추가 모델 호출0을 실제 합성 PG로 검증한다. 미완료/오염/취소/권한/잠금·원래 recovery cohort/검색/부모·예약 경계는 유지한다.
-- [ ] TDD RED→GREEN·agents/domain/worker/API/client/UI 관련 회귀·Ruff/format/mypy·JS lint/types·정확 provider schema budget과 동적100IDs·400/80/500 길이 경계·FunctionModel 단일 요청/0재시도·과거 byte goldens·메모리 전역 상태 없음 검사를 수행한다. 관련 README/AGENTS와 이 Task 체크박스·commit/report를 정리한다. 구현자는 전체 gate/실제 의미 인수/배포·Sites를 완료라고 표시하지 않는다.
+- [x] packages/agents/research_v6.py에 위 provider schema/typed outputs·동적 prompt 인용 enums·source_subject 검증/조합·독립 지침·정확 예산/create/model_prompt/run/build 경로를 구현한다. 기존 v5 private helpers는 변경 없이 재사용하거나 작은 새v6 helper를 사용하되 로직 복제를 불필요하게 늘리지 않는다. helper의 가시성/재사용은 호환 지침/schema/prompt bytes를 바꾸지 않는다. v2/v3/v4/v5 실제 instructions/schema/prompt golden을 잠그며 v5도 현재 기준 hash로 고정한다. 새 provider DTO를 canonical alias로 명시 변환한다. all-uncertain answer·빈/알 수 없는 주체·다른 인용에만 있는 주체·잘못된 UUID/질문삽입ID·prompt/예산 오염은 키/모델 진입 전에 또는 기존 최종 검증에서 안전하게 거부한다.
+- [x] private Python ResearchResult·웹 client validator·UI prepare/classification을 정확 v6 reviewer/method에 연결하고 네 과거 버전과 public boundaries를 보존한다. 실제 Python v6 builder의 합성 JSON→JS client→UI 열린 첫 summary(비교 결론)·접힌 상세·정확 원문 흐름을 검증한다. all-uncertain nonanswer는 고정 부족 message로 표시되고 malformed/mixed/stripped-public는 거부된다. 기존 레이아웃과 historical 결과의 순서를 바꾸지 않는다.
+- [x] worker/recovery에 다섯 이름과 새v6 dispatch를 연결한다. v5 historical worker fixture를 보존해 기존2/3/4/5 및 새6의 원래 이름/version/정수slot1 유료 완료 checkpoint 재생/추가 모델 호출0을 실제 합성 PG로 검증한다. 미완료/오염/취소/권한/잠금·원래 recovery cohort/검색/부모·예약 경계는 유지한다.
+- [x] TDD RED→GREEN·agents/domain/worker/API/client/UI 관련 회귀·Ruff/format/mypy·JS lint/types·정확 provider schema budget과 동적100IDs·400/80/500 길이 경계·FunctionModel 단일 요청/0재시도·과거 byte goldens·메모리 전역 상태 없음 검사를 수행한다. 관련 README/AGENTS와 이 Task 체크박스·commit/report를 정리한다. 구현자는 전체 gate/실제 의미 인수/배포·Sites를 완료라고 표시하지 않는다.
 
 ## Controller 인수
 
