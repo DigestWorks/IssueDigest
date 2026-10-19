@@ -106,7 +106,7 @@ private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크
 
 private research-v6도 고정 issuedigest-research-v6/research-v6와 claim당 정확1개 평가·동일 인용 순서·UTC 마이크로초를 검증한다. 첫 모듈은 summary이고 첫 claim의 평가는 supported여야 하며 나머지는 comparison/timeline 상세와 마지막 evidence다. v6 provider에는 category/source_subject 필드가 없고 긍정 해석은 서버가 고정한 `제공 자료에 따르면, ` 주체로 attributed 변환된다. canonical 결과는 기존 documented 분류와 정확한 custom subject 검증을 계속 허용한다. 과거 v1~v5 결과·공개 v1/v2/빈 reviews 경계와 OpenAPI는 유지한다. Python 실제 v6 builder의 합성 fixture를 웹과 함께 소비하며 혼합/누락/위조/stripped-public를 거부한다.
 
-v6 claim text와 모델 module title은 Python과 같은 Unicode code-point 기준500/100자 한도를 검사한다. canonical 귀속 주체는 최대80자, 본문은 최대400자로 검사하며 모든 선택 원문 인용에 주체가 있어야 한다. 생성 astral fixture는 고정 `제공 자료` 주체와 400-code-point astral 본문을 사용하고, 80-code-point custom subject는 별도 canonical 호환성 검사다. 다른 private 버전의 기존 raw-client 길이 검사와 비답변의 공통 경계는 유지한다.
+v6 claim text와 모델 module title은 Python과 같은 Unicode code-point 기준500/100자 한도를 검사한다. canonical 귀속 주체는 최대80자, 본문은 최대400자로 검사하며 custom subject는 모든 선택 원문 인용에 있어야 한다. 고정 `제공 자료` 주체는 이 부분 문자열 검사의 예외다. 생성 astral fixture는 고정 `제공 자료` 주체와 400-code-point astral 본문을 사용하고, 80-code-point custom subject는 별도 canonical 호환성 검사다. 다른 private 버전의 기존 raw-client 길이 검사와 비답변의 공통 경계는 유지한다.
 
 
 v6 본문과 canonical 귀속 주체의 nonblank 검사는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator 합집합으로 통일한다. NEL(U+0085)·BOM(U+FEFF) 단독/혼합 공백만 있으면 거부한다. 공유 명시 predicate는 검사만 하며 유효한 원문과 앞뒤 공백은 변경하지 않는다. 과거 공통 필드·비답변 경계는 유지한다.

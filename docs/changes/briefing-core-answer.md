@@ -12,9 +12,11 @@
 - provider 모든 본문은1~400자·rationale1~300자이며 v6 공통 nonblank/원문 불변을 유지한다. core/summary/comparison claim에는 event_date 필드 자체가 없다. timeline detail만 별도 typed DTO로 exact event_date를 요구하고 원래 인용의 YYYY-MM-DD 검증을 통과해야 한다. 월만 보고 첫날을 만들지 않는다. 제공자 필드 누락을 임의 수리하지 않고 정해진 DTO→canonical 변환만 한다. 새 schema에 맞는 원래100-ID 공유 enum과 raw/normalized tool 예산을 다시 계산/사전 검증한다. 기존 canonical domain/client의 정확 주체 prefix·다섯 version/공개 경계·Unicode nonblank/길이 guards를 완화하거나 삭제하지 않는다.
 - 독립 v6 지침은 핵심 질문에 직접 답하는 인용이 먼저 필요한 것을 명시한다. 주제 관련 문서 존재·정책 설명만으로 국민 찬성률/인지도에 답했다고 간주하지 않는다. 핵심에 근거가 없으면 insufficient_evidence(빈 modules/자료 범위의 nonblank message)이며 불확실 설명만으로 answer를 채우지 않는다. 일부 직접 답할 근거가 있으면 core_answer에 그 결론을 짧게 담고 material limits는 추가 summary에 둔다. 비교 질문은 첫 core_answer에 인용이 지지하는 방향/차이/비교 불가능 결론을 담는다. 수치·평가·효과·전망은 출처 범위에 귀속하고 주체를 추측하지 않는다. 동일 대상/기간/단위·목표/실적/전망·열린 끝을 보존하며 '목표100/전망80~90이상' 같은 합성 예에서 확정 상한이나 목표 미달을 추론하지 못함을 명시한다. 현재 실적도 하한만 제시되면 상한을 만들지 않는다. 새 계산·인과·여론·실패 판정을 만들지 않는다. source/user/prior는 불신 데이터이며 이전 AI 해석은 근거가 아니다.
 
-- 구현자는 합성 fixtures/전용 합성 PG TDD만 사용한다. 키/실제 서버/자료/모델·자식 agent는 사용하지 않는다. controller만 최종 전체 gate·실제 공개 자료 소표본4회·개인 개발 보존/백업 복원/반영·Draft PR·Sites 이전v64 보존을 담당한다. 실제 원문/질문/계정/ID/키/접속은 공개 저장소에 넣지 않는다. 사용자 탭을 열거나 이동하지 않는다.
+- 구현자는 합성 fixtures/전용 합성 PG TDD만 사용한다. 키/실제 서버/자료/모델·자식 agent는 사용하지 않는다. controller만 최종 전체 gate·실제 공개 자료 초기4회+Task2 별도2회·개인 개발 보존/백업 복원/반영·Draft PR·Sites 이전v64 보존을 담당한다. 실제 원문/질문/계정/ID/키/접속은 공개 저장소에 넣지 않는다. 사용자 탭을 열거나 이동하지 않는다.
 
 ## Task 1: v6 첫 요약·귀속·부족 분기와 기존 다섯 버전 복구 연계
+
+아래는 초기 Task1/f462의 완료 기록이다. category/source_subject provider 조합은 실제 실패 후 Task2와 현재 Global Constraints가 대체하며 canonical 검증/호환 계약은 유지한다.
 
 - [x] packages/agents/research_v6.py에 위 provider schema/typed outputs·동적 prompt 인용 enums·source_subject 검증/조합·독립 지침·정확 예산/create/model_prompt/run/build 경로를 구현한다. 기존 v5 private helpers는 변경 없이 재사용하거나 작은 새v6 helper를 사용하되 로직 복제를 불필요하게 늘리지 않는다. helper의 가시성/재사용은 호환 지침/schema/prompt bytes를 바꾸지 않는다. v2/v3/v4/v5 실제 instructions/schema/prompt golden을 잠그며 v5도 현재 기준 hash로 고정한다. 새 provider DTO를 canonical alias로 명시 변환한다. all-uncertain answer·빈/알 수 없는 주체·다른 인용에만 있는 주체·잘못된 UUID/질문삽입ID·prompt/예산 오염은 키/모델 진입 전에 또는 기존 최종 검증에서 안전하게 거부한다.
 - [x] private Python ResearchResult·웹 client validator·UI prepare/classification을 정확 v6 reviewer/method에 연결하고 네 과거 버전과 public boundaries를 보존한다. 실제 Python v6 builder의 합성 JSON→JS client→UI 열린 첫 summary(비교 결론)·접힌 상세·정확 원문 흐름을 검증한다. all-uncertain nonanswer는 고정 부족 message로 표시되고 malformed/mixed/stripped-public는 거부된다. 기존 레이아웃과 historical 결과의 순서를 바꾸지 않는다.
@@ -42,3 +44,10 @@ v6 nonblank는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator
 초기4회는 완료1(정확 자료 부족)/검증 실패3이며 실패 원본을 보존한다. cached ModelResponse usage로 전체 입력13,420/출력2,410토큰을 확인했다. 실패한3건의 앱 사용량0 기록은 무료라는 뜻이 아니다. 실제 raw에는 목표의 열린 끝을 확정상한으로 해석한 의미 오류도 있었으며 표시되지 않았다. 명세/구현의 구조 검사를 의미 검증으로 과장하지 않는다.
 
 Task2 후 별도 구조·의미 표본2회(주택 비교/심리지표 비교)만 추가해 총6회로 제한한다. 초기4회와 서로 다른 인수 집계이며 실패를 덮거나 성공할 때까지 재시도하지 않는다. 새 DTO 적용 후 교육 예산의 추가 실제 인수는 미실행으로 남긴다. source guards/한 번 호출을 유지하면서 모순 조합을 제거하려는 판단이며, 틀리면 새 AI 생성의 documented 세분화가 줄고 추가 구현/검토와 최대2회 API 비용이 생긴다. documented canonical/과거 결과/공개 경계는 유지한다. 실제 사용량/한계는 전체 분모로 기록한다.
+
+
+## Controller 최종 인수 · 2026-10-19
+
+최종 실행7566c3a·[Draft PR43](https://github.com/DigestWorks/IssueDigest/pull/43). 전체3,967개·작업/전체 독립 검토·소스 CI와 실제 초기4(부족1/실패3)+별도2(제한 표본 충족)를 확인했다. 전체 입력20,185/출력3,867토큰·자동 재시도0·청구액 미검증, 교육 예산 새 DTO 실제 재검증/현재 provider 비답변 재호출은 미실행이다. 초기 실패와v5 분모는 보존한다. 모바일/PC·두 테마·정확 원문·6상태/재열람/읽기POST0/오류0과 개발 HTTPS/새6assets를 확인했다.
+
+개인 개발 웹/API/worker7566c3a·단일worker와 기존 계정/세션·수집기·공개 경계, 직전/사후/사후백업/별도복원23public행 전체 일치·15canonical 보존을 확인했다. main/운영 유예·일반 의미 품질/승인 탐색/점진 전달 후속은 유지한다. 두 판단과 비용, source/비답변 공통 Unicode 범위의 한계·최종 Sites/정리 receipt는 [진행 기록](../planning/progress.md)이 원본이다.

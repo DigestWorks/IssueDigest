@@ -164,3 +164,10 @@ API/조사 worker는b63c7fa 그대로이며 PID·명령/cwd가 전후 같다. �
 제품f90839e의 정적 웹/API/조사 worker를 별도 고정 소스·locked runtime에서 함께 갱신했다. 활성run/workflow0 후 정상 종료/시작·단일 worker 잠금1·외부 HTTPS·새 웹 자산6개 hash·공개/보호 경계를 확인했다. 새 정적 파일19개와 이전asset82개·소스/환경은 롤백용으로 남겼다. 테마/읽기 디자인은 유지하고 새 privatev5 검증/표시만 추가했다. 실제 사용자 로그인/질문을 대신하지 않았다.
 
 schema0009·자료15/인용49/검색36/receipt1/공개1·계정/세션·수집기a908083/source/config/실행기/주기는 유지했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PG18.6 app 복원을 수행해23개 public 테이블 rowhash/count 일치를 확인했다. DBOS registry는 public 감사 밖이며 vector/역할의 완전 재해복구 검증은 아니다. main/운영·DNS/TLS·권한은 변경하지 않았다. 실제 모델 초기4+별도 구조2의 의미 한계와 Sites 최종 상태는 [진행 기록](../docs/planning/progress.md)을 따른다.
+
+
+## 개인 개발 v6 반영 · 2026-10-19
+
+[PR43](https://github.com/DigestWorks/IssueDigest/pull/43)·[진행 기록](../docs/planning/progress.md). 검토/전체3,967개·실제 초기4+별도2·합성 화면 인수 뒤 웹/API/조사worker를7566c3a의 새 격리 source/venv/static에 연결했다. 활성run/workflow0 확인 후 정상 재시작했고 단일 worker advisory lock을 확인했다. 이전 source/86assets·정적 root 설정/복귀 경로를 보존했다. TLS·OAuth·schema/권한·공개 게시·main·수집기/cron은 변경하지 않았다.
+
+서버 밖 full/app 백업과 별도PG18.6 app복원에서 변경 직전/사후/백업 직후/복원23public테이블 rowhash/count가 동일했다. 세션 활동시각만 기존 감사 규칙에 따라 정규화했으며 나머지 계정/세션은 비교했다.15canonical·49인용·36검색·receipt1·공개1을 보존했다. 기존 실제 AI 결과0개이며 DBOSregistry는 이 public 비교 밖이다. app복원은vector/역할까지의 완전DR이 아니다. 새v6 지침 hash/activecwd/source와 외부 HTTPS/6assets·비회원/공개 경계를 확인했다. DNS 일시 실패 뒤 정상 재확인은 성공했으며 DNS/TLS 설정을 수정하지 않았다.

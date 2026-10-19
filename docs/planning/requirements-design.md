@@ -34,8 +34,8 @@
 질문만 제출하면 서버가 현재 권한의 실제 저장 색인에서 관련 근거를 찾는다. 자료 선택·카탈로그·클라이언트 추천·출처 ID 입력은 사용자 여정에 포함하지 않는다. 현재는 제한된 보호 문자 검색이며 웹 전체 탐색·의미·관계 검색은 후속이다.
 
 - 서버가 질문에서 최대8개 검색어를 추출해 기존 보호 문자 검색을 재사용하고 일치도·결정적 동률 순서로 최대5개 근거를 고정한다. 무관한 최신 자료/전체 목록으로 대체하지 않는다. 미색인·검색 후보/결과 한도 때문에 찾지 못한 것을 전체 자료의 부재로 단정하지 않는다. 결과의 정확 인용으로 원문을 열며 일치 위치·저장 인용·주장 지지를 구분한다.
-- 새 private v5는 각 inference claim에 실제 같은 인용 배열을 대상으로 자동 SupportReview1개를 둔다. 자료에 기록됨(content/supported)·출처의 주장(attribution/supported)·확인하기 어려움(content/insufficient)만 허용하고 근거 설명은300자 이하로 제한한다. 현재 선택 인용의 AI 평가이며 원문 일치·주장 지지·독립 진실 판정을 구분한다. legacy/v3/v4/v5 혼합·누락·중복·알 수 없는 참조·다른 인용 순서/UTC 마이크로초 시각을 거부한다.
-- 새 v5 provider 출력은 answer/insufficient_evidence/clarification_needed의 세 strict tool이며 실제 prompt에 선택된 정확 UUID 인용만 enum으로 허용한다. canonical/API 구조·기존 원문/인용 검증과 v2/v3/v4 재생은 보존한다. v5 독립 지침·사전 예산·실제 부분 충족은 [답변 품질 명세](../changes/briefing-answer-quality.md)를 따른다. 구조 제한으로 의미 품질을 인증하지 않는다.
+- 새 private v6는 각 inference claim에 실제 같은 인용 배열을 대상으로 자동 SupportReview1개를 둔다. 자료에 기록됨(content/supported)·출처의 주장(attribution/supported)·확인하기 어려움(content/insufficient)만 허용하고 근거 설명은300자 이하로 제한한다. 현재 선택 인용의 AI 평가이며 원문 일치·주장 지지·독립 진실 판정을 구분한다. legacy/v3/v4/v5/v6 혼합·누락·중복·알 수 없는 참조·다른 인용 순서/UTC 마이크로초 시각을 거부한다.
+- 새 v6 provider 출력은 answer/insufficient_evidence/clarification_needed 세 strict tool이며 실제 prompt의 정확 UUID 인용만 허용한다. core_answer를 첫 열린 summary의 첫 claim으로 변환한다. 긍정 해석은 고정 제공 자료 prefix의 attributed, 추가/상세는 source_statement/uncertain이고 날짜는 typed timeline에만 둔다. documented canonical/과거 결과·최종 인용/날짜·정확 prefix 검사는 유지한다. 핵심 질문에 직접 답할 인용이 없으면 빈 modules의 자료 부족 응답을 사용한다. canonical/API·v2/v3/v4/v5 복구/지침은 보존한다. [현재 v6 명세](../changes/briefing-core-answer.md)의 초기 실패·별도 추가 인수와 [이전 v5](../changes/briefing-answer-quality.md)를 구분하며 구조 제한을 의미 품질 인증으로 보지 않는다.
 - 후속 한국어 어휘·이름/번호·벡터·기간/출처 필터는 실제 평가 질문·기대 근거로 비교한다. 질문과 무관한 임의 자료를 기본 선택하지 않는다.
 - 관계는 근거 문서·위치·유효 시점·검토 상태를 가진다. 동시 등장·시간 선후를 인과로 바꾸지 않는다. Neo4j는 기준 DB의 투영이며 정정/삭제·재구축·실패 복구를 검증한다.
 - 여론조사의 질문·대상·방법·조사일·표본/오차·출처를 함께 확인한다. 언론 보도량·온라인 반응·청원 동의 수를 국민 전체 여론으로 합산하지 않는다.
