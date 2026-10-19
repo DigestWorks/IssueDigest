@@ -70,6 +70,7 @@ WORKFLOW_NAMES = {
     "issuedigest_research_run_v4",
     "issuedigest_research_run_v5",
     "issuedigest_research_run_v6",
+    "issuedigest_research_run_v7",
 }
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}
@@ -77,7 +78,7 @@ ACTIVE = {"queued", "retrieving", "generating", "validating"}
 
 def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) -> bool:
     """Metadata only: no checkpoint deserialization, new durable step or payload logging."""
-    if name not in WORKFLOW_NAMES:
+    if name not in WORKFLOW_NAMES or name == "issuedigest_research_run_v7":
         return False
     steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
     model_steps = [step for step in steps if "__model.request" in step["function_name"]]
@@ -89,6 +90,38 @@ def completed_model_checkpoint(client: DBOSClient, workflow_id: str, name: str) 
         and model_steps[0]["function_id"] == 1
         and model_steps[0]["function_name"] == name.replace("_run_", "_") + "__model.request"
         and model_steps[0]["completed_at_epoch_ms"] is not None
+    )
+
+
+def completed_v7_checkpoint(client: DBOSClient, workflow_id: str, stage: str) -> bool:
+    """Exact ordered v7 metadata; no deserialization or additional durable operations."""
+    steps = client.list_workflow_steps(workflow_id, load_output=False, limit=21)
+    expected = [
+        (1, "issuedigest_research_plan_v7__model.request"),
+        (2, "issuedigest_research_search_v7"),
+        (3, "issuedigest_research_v7__model.request"),
+    ]
+    if stage == "queued":
+        return not steps
+    if stage == "retrieving":
+        if len(steps) not in {1, 2}:
+            return False
+        expected = expected[: len(steps)]
+    elif stage not in {"generating", "validating"}:
+        return False
+    return len(steps) == len(expected) and all(
+        type(step.get("function_id")) is int
+        and (step["function_id"], step.get("function_name")) == required
+        and step.get("completed_at_epoch_ms") is not None
+        for step, required in zip(steps, expected, strict=True)
+    )
+
+
+def recoverable_checkpoint(client: DBOSClient, workflow_id: str, name: str, stage: str) -> bool:
+    if name == "issuedigest_research_run_v7":
+        return completed_v7_checkpoint(client, workflow_id, stage)
+    return stage not in {"generating", "validating"} or completed_model_checkpoint(
+        client, workflow_id, name
     )
 
 
@@ -143,14 +176,7 @@ def recovery_cohorts(
                 workflow.name in WORKFLOW_NAMES
                 and workflow.status in RECOVERABLE
                 and bool(workflow.app_version)
-                and (
-                    state not in {"generating", "validating"}
-                    or completed_model_checkpoint(
-                        client,
-                        workflow_id,
-                        workflow.name,
-                    )
-                )
+                and recoverable_checkpoint(client, workflow_id, workflow.name, state)
             )
             if not safe:
                 repository.worker_transition(run_id, "failed", error_code="generation_failed")

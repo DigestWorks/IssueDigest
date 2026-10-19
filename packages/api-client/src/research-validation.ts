@@ -1,4 +1,4 @@
-/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2/v3/v4/v5/v6. */
+/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2/v3/v4/v5/v6/v7. */
 import {validResearchClassifications} from './research-classification';
 import { isDisplayEvidence } from './evidence';
 import { hasKeys, isId, isObject } from './protected-request';
@@ -83,13 +83,13 @@ export function validResearchCanvas(
       'speaker_entity_id', 'subject_entity_ids', 'citation_ids', 'valid_period',
       'raw_event_time_text', 'derivation']) || !isId(claim.claim_id)
       || claims.has(claim.claim_id.toLowerCase()) || !same(claim.workspace_id, workspace)
-      || !nonblank(claim.text, 500, isObject(claim.derivation) && claim.derivation.method_version === 'research-v6') || claim.basis !== 'inference'
+      || !nonblank(claim.text, 500, isObject(claim.derivation) && ['research-v6', 'research-v7'].includes(claim.derivation.method_version as string)) || claim.basis !== 'inference'
       || claim.speaker_entity_id !== null || !Array.isArray(claim.subject_entity_ids)
       || claim.subject_entity_ids.length !== 0 || claim.raw_event_time_text !== null
       || !isObject(claim.derivation)
       || !hasKeys(claim.derivation, ['method', 'method_version', 'rationale'])
       || claim.derivation.method !== 'pydantic-ai'
-      || !['research-v1', 'research-v2', 'research-v3', 'research-v4', 'research-v5', 'research-v6'].includes(claim.derivation.method_version as string)
+      || !['research-v1', 'research-v2', 'research-v3', 'research-v4', 'research-v5', 'research-v6', 'research-v7'].includes(claim.derivation.method_version as string)
       || !nonblank(claim.derivation.rationale, 200)) return false;
     const claimCitations = selectedCitations(claim.citation_ids, citations, 3);
     if (!claimCitations) return false;
@@ -108,7 +108,7 @@ export function validResearchCanvas(
 
   if (!validResearchClassifications(research, revision)) return false;
 
-  const v6 = research.claims.some(claim => isObject(claim) && isObject(claim.derivation) && claim.derivation.method_version === 'research-v6');
+  const v6 = research.claims.some(claim => isObject(claim) && isObject(claim.derivation) && ['research-v6', 'research-v7'].includes(claim.derivation.method_version as string));
   const draft = revision.draft;
   if (!hasKeys(draft, ['schema_version', 'draft_id', 'outcome', 'modules', 'message'])
     || draft.schema_version !== 1 || !isId(draft.draft_id)

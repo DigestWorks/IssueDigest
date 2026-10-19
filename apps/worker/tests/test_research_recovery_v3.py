@@ -88,6 +88,12 @@ else:
     from issuedigest_worker.research_worker import run_worker
 class CountedModel(TestModel):
     async def request(self, *args, **kwargs):
+        if args[2].output_tools[0].name == 'search_evidence':
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+            return ModelResponse(
+                parts=[ToolCallPart('search_evidence', {'queries':['80%']})],
+                usage=RequestUsage(input_tokens=10, output_tokens=5))
         with open(os.environ['CALL_MARKER'], 'a') as marker: marker.write('called\\n')
         if os.environ.get('CRASH_INSIDE_MODEL') == '1': os.kill(os.getpid(), signal.SIGKILL)
         if os.environ.get('ERROR_MODEL') == '1': raise ValueError('synthetic paid request error')
@@ -133,8 +139,8 @@ def client(database_url):
     return DBOSClient(system_database_url=database_url, application_name="issuedigest-research")
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", None])
-def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v6(
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", "v6"])
+def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v7(
     engine,
     database_url,
     tmp_path,
@@ -186,7 +192,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         assert len(recovered.result.canvas.research.support_reviews) == (version != "v2")
         current = repo.get_run(new_token, new.workspace_id, new.run_id)
         assert current.status == "completed"
-        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v6"
+        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v7"
         assert len(current.result.canvas.research.support_reviews) == 1
         after = inspector.list_workflows(
             workflow_ids=[before.workflow_id, f"research-{new.run_id}"],
@@ -196,7 +202,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         by_id = {workflow.workflow_id: workflow for workflow in after}
         assert by_id[before.workflow_id].app_version == before.app_version
         assert by_id[before.workflow_id].name == f"issuedigest_research_run_{version}"
-        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v6"
+        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v7"
         assert by_id[f"research-{new.run_id}"].app_version != before.app_version
         assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == checkpoints
         assert marker.read_text() == "called\n"
@@ -211,7 +217,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         inspector.destroy()
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", None])
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", "v5", "v6"])
 def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     engine,
     database_url,
@@ -224,7 +230,7 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     marker = crash_worker(
         database_url,
         tmp_path,
-        output(bundle, classified=legacy != "v2", core=legacy is None),
+        output(bundle, classified=legacy != "v2", core=legacy == "v6"),
         legacy=legacy,
         checkpoint=False,
     )
@@ -316,7 +322,7 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
                 database_url,
                 tmp_path,
                 output(bundle, classified=profile != "v2", core=profile == "v6"),
-                legacy=None if profile == "v6" else profile,
+                legacy=profile,
             )
             from issuedigest_storage.auth_schema import auth_workspace_memberships
             from sqlalchemy import delete
@@ -489,7 +495,7 @@ def test_cached_paid_error_replays_without_a_second_request(
         database_url,
         tmp_path,
         output(bundle, classified=version != "v2", core=version == "v6"),
-        legacy=None if version == "v6" else version,
+        legacy=version,
         error=True,
     )
     calls = []

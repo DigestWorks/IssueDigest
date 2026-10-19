@@ -9,9 +9,22 @@ from issuedigest_domain.research_journey import ResearchRequest
 from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
 from issuedigest_storage.research import ResearchRepository
 from issuedigest_worker.research_worker import run_worker
-from pydantic_ai.models.test import TestModel
+from pydantic_ai.models.test import TestModel as BaseTestModel
 
 from conftest import bundle_data
+
+
+class TestModel(BaseTestModel):
+    async def request(self, messages, model_settings, model_request_parameters):
+        if model_request_parameters.output_tools[0].name == "search_evidence":
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+
+            return ModelResponse(
+                parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
+                usage=RequestUsage(input_tokens=10, output_tokens=5),
+            )
+        return await super().request(messages, model_settings, model_request_parameters)
 
 
 def v6_output(value):
@@ -72,7 +85,7 @@ def test_dbos_worker_persists_result_and_repeat_dispatch_does_not_rebill(engine,
     completed = repository.get_run(token, bundle.document.workspace_id, run.run_id)
     assert completed is not None and completed.status == "completed"
     assert completed.result is not None
-    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v6"
+    assert completed.result.canvas.research.claims[0].derivation.method_version == "research-v7"
     assert len(completed.result.canvas.research.support_reviews) == 1
     run_worker(database_url, model=TestModel(custom_output_args=v6_output(output)), once=True)
     reopened = repository.get_run(token, bundle.document.workspace_id, run.run_id)
@@ -148,7 +161,17 @@ def test_dbos_recovers_model_checkpoint_after_worker_crash(engine, database_url,
     script = """import json, os, signal, sys
 from issuedigest_storage.research import ResearchRepository
 from issuedigest_worker.research_worker import run_worker
-from pydantic_ai.models.test import TestModel
+from pydantic_ai.models.test import TestModel as BaseTestModel
+class TestModel(BaseTestModel):
+    async def request(self, messages, model_settings, model_request_parameters):
+        if model_request_parameters.output_tools[0].name == "search_evidence":
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+            return ModelResponse(
+                parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
+                usage=RequestUsage(input_tokens=10, output_tokens=5))
+        return await super().request(messages, model_settings, model_request_parameters)
+
 original = ResearchRepository.worker_transition
 if os.environ.get('CRASH_AFTER_MODEL') == '1':
     def crash(self, run_id, status, **kwargs):
@@ -280,7 +303,17 @@ from pathlib import Path
 from issuedigest_storage.research import ResearchRepository
 from issuedigest_storage import StorageError
 from issuedigest_worker.research_worker import run_worker
-from pydantic_ai.models.test import TestModel
+from pydantic_ai.models.test import TestModel as BaseTestModel
+class TestModel(BaseTestModel):
+    async def request(self, messages, model_settings, model_request_parameters):
+        if model_request_parameters.output_tools[0].name == "search_evidence":
+            from pydantic_ai.messages import ModelResponse, ToolCallPart
+            from pydantic_ai.usage import RequestUsage
+            return ModelResponse(
+                parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
+                usage=RequestUsage(input_tokens=10, output_tokens=5))
+        return await super().request(messages, model_settings, model_request_parameters)
+
 original = ResearchRepository.worker_transition
 if os.environ.get('FAIL_TERMINAL') == '1':
     def fail(self, run_id, status, **kwargs):
@@ -374,7 +407,7 @@ def test_worker_marks_uncitable_source_insufficient_without_model_request(engine
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert final is not None and final.status == "failed"
     assert final.error_code == "insufficient_evidence" and final.result is None
-    assert final.input_tokens == 0 and final.output_tokens == 0
+    assert final.input_tokens == 10 and final.output_tokens == 5
 
 
 def test_worker_redacts_invalid_source_and_finishes_run(engine, database_url):
@@ -436,6 +469,17 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
         def queued_ids(self):
             return (run_id,)
 
+        def worker_prepare_search(self, _run_id):
+            return SimpleNamespace(
+                question="합성 질문",
+                status="queued",
+                workspace_id=workspace_id,
+                snapshot_ids=(snapshot_id,),
+            )
+
+        def worker_search_and_fix(self, *args, **kwargs):
+            return (snapshot_id,)
+
         def worker_load(self, _run_id):
             return (
                 SimpleNamespace(
@@ -457,6 +501,10 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     class FakeDBOS:
         def __init__(self, *, config):
             pass
+
+        @staticmethod
+        def step(**kwargs):
+            return lambda function: function
 
         @staticmethod
         def workflow(**kwargs):
@@ -502,13 +550,19 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     )
     monkeypatch.setattr(worker, "DBOS", FakeDBOS)
     monkeypatch.setattr(worker, "SetWorkflowID", lambda _value: nullcontext())
-    monkeypatch.setattr(worker, "model_prompt_v6", lambda *args, **kwargs: "{}")
+    monkeypatch.setattr(worker, "completed_v7_checkpoint", lambda *args: True)
+    monkeypatch.setattr(worker, "create_agent_v7", lambda _model: object())
+    monkeypatch.setattr(worker, "create_planner_v7", lambda _model: object())
+    monkeypatch.setattr(
+        worker, "run_planner_v7", lambda *args: (SimpleNamespace(queries=("합성",)), 10, 5)
+    )
+    monkeypatch.setattr(worker, "model_prompt_v7", lambda *args, **kwargs: "{}")
     monkeypatch.setattr(
         worker,
-        "run_agent_v6",
-        lambda _agent, _prompt: (object(), 123, 45),
+        "run_agent_v7",
+        lambda _agent, _prompt, **kwargs: (object(), 123, 45),
     )
-    monkeypatch.setattr(worker, "build_canvas_v6", fail_validation)
+    monkeypatch.setattr(worker, "build_canvas_v7", fail_validation)
 
     run_worker(
         "postgresql+psycopg://synthetic@127.0.0.1/issuedigest_test", model=object(), once=True
@@ -517,10 +571,10 @@ def test_validation_failure_retains_known_model_usage(monkeypatch):
     status, fields = transitions[-1]
     assert status == "failed"
     assert fields["error_code"] == "generation_failed"
-    assert (fields["input_tokens"], fields["output_tokens"]) == (123, 45)
+    assert (fields["input_tokens"], fields["output_tokens"]) == (133, 50)
 
 
-def test_worker_nohit_never_calls_model_and_keeps_conservative_reservation(engine, database_url):
+def test_worker_nohit_calls_only_planner_and_keeps_conservative_reservation(engine, database_url):
     from issuedigest_storage.research_schema import research_budget_months
     from pydantic_ai.models.function import FunctionModel
     from sqlalchemy import select
@@ -546,15 +600,22 @@ def test_worker_nohit_never_calls_model_and_keeps_conservative_reservation(engin
     calls = []
 
     def forbidden_provider(messages, info):
-        calls.append(messages)
-        raise AssertionError("no evidence must never reach provider")
+        from pydantic_ai.messages import ModelResponse, ToolCallPart
+        from pydantic_ai.usage import RequestUsage
+
+        calls.append(info.output_tools[0].name)
+        assert calls == ["search_evidence"]
+        return ModelResponse(
+            parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
+            usage=RequestUsage(input_tokens=10, output_tokens=5),
+        )
 
     DBOS.migrate(database_url, application_role=engine.url.username)
     run_worker(database_url, model=FunctionModel(forbidden_provider), once=True)
     final = repo.get_run(token, bundle.document.workspace_id, run.run_id)
     assert final.status == "failed" and final.error_code == "insufficient_evidence"
-    assert final.snapshot_ids == () and final.result is None and calls == []
-    assert final.input_tokens == 0 and final.output_tokens == 0
+    assert final.snapshot_ids == () and final.result is None and calls == ["search_evidence"]
+    assert final.input_tokens == 10 and final.output_tokens == 5
     assert (
         repo.submit(
             token,
@@ -630,7 +691,9 @@ def test_corrupt_publication_is_terminal_and_never_retries_the_model(
 @pytest.mark.parametrize(
     "question", ["日本について 설명해줘", "💰 설명해줘", "$ 설명해줘", "+ 설명해줘"]
 )
-def test_explicit_unknown_topic_with_parent_never_reaches_provider(engine, database_url, question):
+def test_explicit_unknown_topic_with_parent_plans_but_never_calls_final(
+    engine, database_url, question
+):
     from issuedigest_agents.research import AIOutput, build_canvas
     from issuedigest_domain.research_journey import ResearchResult
     from issuedigest_storage.search import rebuild_projection
@@ -665,12 +728,19 @@ def test_explicit_unknown_topic_with_parent_never_reaches_provider(engine, datab
     calls = []
 
     def forbidden_provider(messages, info):
-        calls.append(messages)
-        raise AssertionError("explicit unknown topic must not use parent's evidence")
+        from pydantic_ai.messages import ModelResponse, ToolCallPart
+        from pydantic_ai.usage import RequestUsage
+
+        calls.append(info.output_tools[0].name)
+        assert calls == ["search_evidence"]
+        return ModelResponse(
+            parts=[ToolCallPart("search_evidence", {"queries": ["없는자료"]})],
+            usage=RequestUsage(input_tokens=10, output_tokens=5),
+        )
 
     DBOS.migrate(database_url, application_role=engine.url.username)
     run_worker(database_url, model=FunctionModel(forbidden_provider), once=True)
     final = repo.get_run(token, workspace, child.run_id)
     assert final.status == "failed" and final.error_code == "insufficient_evidence"
     assert final.snapshot_ids == () and final.result is None
-    assert final.input_tokens == 0 and final.output_tokens == 0 and calls == []
+    assert final.input_tokens == 10 and final.output_tokens == 5 and calls == ["search_evidence"]

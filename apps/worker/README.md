@@ -371,7 +371,7 @@ base의 workspace·expected_database·승인 invites·기존 snapshot을 보존�
 
 실제 DB 등록은 위 HWPX 절차와 같은 기존 provision CLI의 `--check-database`/`--apply`만 사용한다. 새 DB write path·초대/role·스키마·API를 만들지 않는다. 앱의 제목 연결은 운영자가 공식 제목 대조 후 기존 `SourcePresentation` SDK로 수행한다. 앱은 마지막 저장 capture를 보여주며 최신 상태·전문·전체 이력이나 자동 수집 완료를 뜻하지 않는다. 공개 테스트는 합성 HTML·신원·자료만 사용한다.
 
-질문 전용 실행은 현재 권한과run잠금 아래 기존 색인을 검색해 최대5개 근거를 고정한 뒤retrieving으로 전환합니다. 고정된 근거는 복구 때 다시 검색하지 않습니다. 무근거는 모델 호출 없이insufficient_evidence로 종료하며 기존 월 예약/요청 한도는 유지합니다. 버전 갱신 전 기존 worker를 중지하고 활성run/workflow를 완료·정리한 상태를 확인합니다. 진행 중 작업을 임의 폐기하지 않습니다.
+역사 v2~v6 질문 전용 실행은 현재 권한과run잠금 아래 기존 색인을 검색해 최대5개 근거를 고정한 뒤retrieving으로 전환합니다. 고정된 근거는 복구 때 다시 검색하지 않습니다. 무근거는 모델 호출 없이insufficient_evidence로 종료하며 기존 월 예약/요청 한도는 유지합니다. 버전 갱신 전 기존 worker를 중지하고 활성run/workflow를 완료·정리한 상태를 확인합니다. 진행 중 작업을 임의 폐기하지 않습니다.
 
 
 ### v2/v3/v4/v5 checkpoint 호환과 단일 worker
@@ -408,6 +408,15 @@ existing 20-question real-material evaluation or establish answer/citation quali
 역사 v5 workflow는 `issuedigest_research_run_v5`/`issuedigest_research_v5`로 시작한다. v2/v3/v4/v5를 모두 등록하며 기존 queued workflow는 기록된 이름을 사용한다. 과거 v4 worker는 합성 복구 fixture로 보존한다. application_version별 registry 재구성과 원래 정수 slot1 완료 checkpoint를 재생하고, 모호한 미완료·모르는 이름·권한 상실·취소는 유료 요청 없이 종료한다. 완료된 유료 오류도 같은 오류를 재생해 실패로 종료한다. 새 durable step을 모델 요청 앞에 삽입하지 않는다. 기존 검색/부모 근거 고정·예약·단일 worker 잠금은 유지한다. 실제 모델/개발 적용 인수는 [답변 품질 명세](../../docs/changes/briefing-answer-quality.md)에 별도로 기록한다.
 
 
-## 새 private v6와 다섯 버전 복구
+## 역사 private v6와 다섯 버전 복구
 
-새 workflow만 `issuedigest_research_run_v6`/`issuedigest_research_v6`로 시작한다. v2/v3/v4/v5/v6를 모두 등록하며 기존 workflow ID는 원래 이름·application_version으로 재생한다. 배포된 v5 worker는 `tests/fixtures/research_worker_v5.py`로 보존한다. 실제 지침/schema/prompt와 유료 정수slot1을 바꾸지 않으며 미완료·오염 checkpoint/완료 오류·취소/권한/단일 worker 잠금·원래 recovery cohort/검색/부모·예약 경계를 유지한다. v6 provider 전용 core_answer와 additional/detail assessment(source_statement/uncertain)를 검증한 뒤 서버 고정 제공 자료 접두어로 기존 canonical alias에 변환하고 최종 원문 grounding을 다시 검증한다. 별도 유료 step·추가 요청·자동 수리 재시도는 없다. core/summary/comparison에는 event_date 키가 없고 typed timeline만 exact 날짜를 받는다. 구 DTO를 수동 수리하지 않는다. 합성 PG의 다섯 원래 버전 checkpoint 재생과 실제 모델 의미 인수는 구분한다.
+역사 v6 worker는 새 workflow만 `issuedigest_research_run_v6`/`issuedigest_research_v6`로 시작한다. v2/v3/v4/v5/v6를 모두 등록하며 기존 workflow ID는 원래 이름·application_version으로 재생한다. 배포된 v5 worker는 `tests/fixtures/research_worker_v5.py`로 보존한다. 실제 지침/schema/prompt와 유료 정수slot1을 바꾸지 않으며 미완료·오염 checkpoint/완료 오류·취소/권한/단일 worker 잠금·원래 recovery cohort/검색/부모·예약 경계를 유지한다. v6 provider 전용 core_answer와 additional/detail assessment(source_statement/uncertain)를 검증한 뒤 서버 고정 제공 자료 접두어로 기존 canonical alias에 변환하고 최종 원문 grounding을 다시 검증한다. 별도 유료 step·추가 요청·자동 수리 재시도는 없다. core/summary/comparison에는 event_date 키가 없고 typed timeline만 exact 날짜를 받는다. 구 DTO를 수동 수리하지 않는다. 합성 PG의 다섯 원래 버전 checkpoint 재생과 실제 모델 의미 인수는 구분한다.
+
+
+## 새 private v7와 여섯 버전 복구
+
+새 요청은 `issuedigest_research_run_v7`로 시작한다. 여섯 final agent와 별도 `issuedigest_research_plan_v7`를 registry마다 등록하며 과거 v2~v6 workflow는 원래 이름/application_version·유료 정수slot1로 재생한다. 이전 v6 worker도 `tests/fixtures/research_worker_v6.py`로 동결한다.
+
+v7 순서는 현재 권한/parent 준비→metadata guard→retrieving→planner model.request slot1→`issuedigest_research_search_v7` slot2→현재 권한/부모/고정 원문 재검사→generating→final model.request slot3→validating→저장이다. 검색0이면 planner의 알려진 usage와 insufficient_evidence를 원자적으로 기록하고 final은0회다. 검색 commit 뒤 checkpoint 유실은 같은 고정 snapshot만 재사용하며 새 색인/승인본으로 바꾸지 않는다. 완료된 planner/search/final은 원래 slot에서 재생한다. retrieving은 완료planner1과 선택적 완료search2만, generating/validating은 정확 완료1/2/3만 허용한다. incomplete/extra/위조/중복 namespace·slot은 유료 재호출 없이 실패하고 예약을 유지한다.
+
+두 runner의 알려진 input/output usage를 합산해 저장한다. planner 최대8,000/출력500/15초, final은 실제 planner usage를 전체24,000에서 차감하고 출력2,000/45초다. 자동 모델 retry/출력 수리0, Responses storeFalse와 provider max_retries0·월 예약 정책을 유지한다. 취소·권한 상실·부모/고정 원문 불일치 뒤 final/게시를 하지 않는다. 기존 advisory lock·cohort/orphan·멱등성은 그대로다. 합성 PG의 crash/복구·비용 계약 검증은 실제 모델 의미 품질 인수가 아니다.

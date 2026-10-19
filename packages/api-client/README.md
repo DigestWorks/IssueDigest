@@ -110,3 +110,6 @@ v6 claim text와 모델 module title은 Python과 같은 Unicode code-point 기�
 
 
 v6 본문과 canonical 귀속 주체의 nonblank 검사는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator 합집합으로 통일한다. NEL(U+0085)·BOM(U+FEFF) 단독/혼합 공백만 있으면 거부한다. 공유 명시 predicate는 검사만 하며 유효한 원문과 앞뒤 공백은 변경하지 않는다. 과거 공통 필드·비답변 경계는 유지한다.
+
+
+private research-v7는 정확 issuedigest-research-v7/research-v7만 추가한다. v6의 첫 supported summary·comparison/timeline 상세·정확 귀속 주체/인용/날짜·Unicode code-point/nonblank 검사를 그대로 적용한다. API/OpenAPI shape·과거 raw-client 동작·공개v1/v2·빈 reviews 계약을 보존하며 stripped-public v7도 거부한다. 실제 Python v7 builder 생성 fixture가 전체 client와 동일 UI의 열린 첫 요약·접힌 상세·정확 원문/비답변 경로를 통과한다. 이는 사실 검증 인증이나 실제 모델 의미 품질 평가가 아니다.
