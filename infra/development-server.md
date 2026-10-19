@@ -157,3 +157,10 @@ API/조사 worker는b63c7fa 그대로이며 PID·명령/cwd가 전후 같다. �
 [명세/인수](../docs/changes/policy-source-candidates.md)의 도구 소스93ab7c8을 기존 앱과 분리한 전용 worktree/가상환경에서 실행했다. 목록 날짜/발행처·이전 관측 보고서는 오프라인이며, 실제 원본은 private에 보존한다. 개별 공공누리1 텍스트·발행일·본문/정확 인용을 검토한 새 공식 자료1건을 기존 provision·표시/검색 경로로 명시 추가했다. 같은 계획 재실행은 신규0이며 초대2개는 변경하지 않았다. schema0009/권한 변경은 없다.
 
 정적 웹4cd8f62·API/조사worker b63c7fa의 PID/명령/cwd·수집기a908083의 source/config/실행기/주기는 전후 동일하다. HTTPS home/login/health/status/공개v1은200, 비회원session401/no-store/noCookie와 화면/공개본 hash를 보존했다. 서버 밖 사전·직전·사후 full/app 백업과 사후 별도PG18.6 복원의23테이블 row hash/count 일치, 기존 전체 행 보존·자료 버전15/인용49/검색36/receipt1/공개1·앱 계정 read-only 검색3문항을 확인했다. vector/역할까지의 완전 재해복구 검증은 아니다. 모델·OAuth·자동 게시·새 cron·main/운영 변경은 없다. 개인 승인 원문/ID/계정/접속/키·백업은 저장소 밖에 보존한다.
+
+
+## 브리핑 답변 품질 개발 적용 · 2026-10-19 KST
+
+제품f90839e의 정적 웹/API/조사 worker를 별도 고정 소스·locked runtime에서 함께 갱신했다. 활성run/workflow0 후 정상 종료/시작·단일 worker 잠금1·외부 HTTPS·새 웹 자산6개 hash·공개/보호 경계를 확인했다. 새 정적 파일19개와 이전asset82개·소스/환경은 롤백용으로 남겼다. 테마/읽기 디자인은 유지하고 새 privatev5 검증/표시만 추가했다. 실제 사용자 로그인/질문을 대신하지 않았다.
+
+schema0009·자료15/인용49/검색36/receipt1/공개1·계정/세션·수집기a908083/source/config/실행기/주기는 유지했다. 서버 밖 사전·직전·사후 full/app 백업과 별도 PG18.6 app 복원을 수행해23개 public 테이블 rowhash/count 일치를 확인했다. DBOS registry는 public 감사 밖이며 vector/역할의 완전 재해복구 검증은 아니다. main/운영·DNS/TLS·권한은 변경하지 않았다. 실제 모델 초기4+별도 구조2의 의미 한계와 Sites 최종 상태는 [진행 기록](../docs/planning/progress.md)을 따른다.
