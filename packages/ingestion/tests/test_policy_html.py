@@ -273,7 +273,7 @@ def test_empty_paragraph_result_is_rejected():
         ("raw_bytes", True),
         ("raw_bytes", 8 * 1024 * 1024 + 1),
         ("parser_name", "other"),
-        ("parser_version", "3"),
+        ("parser_version", "4"),
         ("normalization_profile", "other"),
         ("limits", {}),
     ],
@@ -382,7 +382,7 @@ def test_overlapping_quotes_require_exact_start_and_context_is_bounded():
     [
         ("text_sha256", "0" * 64),
         ("parser_name", "pypdf"),
-        ("parser_version", "3"),
+        ("parser_version", "4"),
         ("normalization_profile", "other"),
         ("pages", [{"page_number": 1, "start": 0, "end": 2}]),
         ("representation_id", UUID(int=1)),
@@ -513,6 +513,10 @@ def test_plain_publisher_profile_is_explicit_version_two_with_same_body_algorith
         document_version_id=VERSION,
     )
     assert rep.parser_version == "2"
+    # Verified against the pre-change d29871f representation bytes.
+    assert sha256(rep.model_dump_json().encode()).hexdigest() == (
+        "663b679a6905655dd5bfba7fff2e651f667001ae993479cc1760bcde13ec964f"
+    )
     selector = api("locate_policy_html_quote")(rep, quote="😀é")
     assert (selector.start, selector.end, selector.quote) == (2, 5, "😀é")
     assert api("locate_policy_html_quote")(representation(), quote="😀é") == selector
@@ -602,7 +606,7 @@ def test_legacy_representation_serialization_and_hash_remain_exact():
     )
 
 
-@pytest.mark.parametrize("version", ["", "0", "3", "2\n", 2, True])
+@pytest.mark.parametrize("version", ["", "0", "4", "2\n", 2, True])
 def test_new_profile_revalidates_unknown_or_forged_parser_versions(version):
     result = extract(plain_publisher_page())
     with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_result$"):
@@ -641,10 +645,222 @@ def test_plain_profile_locator_revalidates_forged_representation_versions():
         representation_id=REPRESENTATION,
         document_version_id=VERSION,
     )
-    for version in ["", "3", "2\n", 2, True]:
+    for version in ["", "4", "2\n", 2, True]:
         forged = rep.model_copy(update={"parser_version": version})
         with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
             api("locate_policy_html_quote")(forged, quote="😀é")
         constructed = ParsedRepresentation.model_construct(**forged.model_dump(warnings=False))
         with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
             api("locate_policy_html_quote")(constructed, quote="😀é")
+
+
+LINK = '<a class="gotosite" href="/news/ministryNewsList.do?repCode=A12345">'
+LINKED = f"<span>2026.01.15</span><span>{LINK}합성부처</a></span>"
+
+
+def linked_publisher_page(metadata=LINKED):
+    return plain_publisher_page(metadata)
+
+
+@pytest.mark.parametrize("tooltip", ["", '<i class="tooltip">PRIVATE RIGHTS 제2유형</i>'])
+def test_linked_publisher_profile_three_preserves_body_quote_and_rights(tooltip, monkeypatch):
+    import socket
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("external request forbidden")
+
+    monkeypatch.setattr(socket, "socket", forbidden)
+    raw = linked_publisher_page(LINKED.replace("합성부처</a>", f"  합성부처  {tooltip}</a>"))
+    result = extract(raw)
+    assert (result.publisher, result.publication_date, result.parser_version) == (
+        "합성부처",
+        date(2026, 1, 15),
+        "3",
+    )
+    assert result.attribution == f"합성부처 · 대한민국 정책브리핑 · 합성 정책 · 2026-01-15 · {URL}"
+    assert result.license_notice == NOTICE
+    assert result.license_url == "https://www.kogl.or.kr/info/license.do"
+    assert result.raw_sha256 == sha256(raw).hexdigest()
+    assert result.text == "한글😀é repeat\n\nrepeat tail"
+    assert result.text_sha256 == extract().text_sha256
+    rep = api("to_policy_html_representation")(
+        result, representation_id=REPRESENTATION, document_version_id=VERSION
+    )
+    assert rep.parser_version == "3" and rep.normalization_profile == "korea-policy-paragraphs-v1"
+    assert api("locate_policy_html_quote")(rep, quote="😀é") == api("locate_policy_html_quote")(
+        representation(), quote="😀é"
+    )
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ("2026.01.15", "2026.02.30"),
+        ("2026.01.15", "2025.02.29"),
+        ("2026.01.15", "0000.01.15"),
+        ("2026.01.15", "２０２６.０１.１５"),
+        ("2026.01.15", "2026-01-15"),
+        ("2026.01.15", " 2026.01.15 "),
+        ("2026.01.15", "2026.01.15 2026.01.16"),
+        ("2026.01.15", "<b>2026.01.15</b>"),
+        ("<span>", "<span hidden>"),
+        ("<span>", '<span style="display:none">'),
+        ("<span>", '<span class="date">'),
+        ("</span><span>", "</span>PRIVATE<span>"),
+        ("</span><span>", "</span><script>ignored</script><span>"),
+        ("</span><span>", '</span><span class="publisher">'),
+        ("합성부처", ""),
+        ("합성부처", "  "),
+        ("합성부처", '<i class="tooltip">합성부처</i>'),
+        ("합성부처", "<b>합성부처</b>"),
+        ("합성부처", '합성부처<i class="tooltip"><b>nested</b></i>'),
+        ("합성부처", '합성부처<i class="tooltip" hidden>hidden</i>'),
+        ("합성부처", '합성부처<span class="tooltip">other tag</span>'),
+        ("합성부처", '합성부처<i class="tooltip">one</i><i class="tooltip">two</i>'),
+        ("합성부처", "합성부처<script>ignored</script>"),
+        ("합성부처", '합성부처<a href="/other">nested</a>'),
+        ('class="gotosite"', 'class="gotosite other"'),
+        ('class="gotosite"', 'class="gotosite" hidden'),
+        ('class="gotosite"', 'class="gotosite" class="gotosite"'),
+        ('class="gotosite"', 'class="gotosite" target="_blank"'),
+        (' href="/news/ministryNewsList.do?repCode=A12345"', ""),
+        (
+            "/news/ministryNewsList.do?repCode=A12345",
+            "https://www.korea.kr/news/ministryNewsList.do?repCode=A12345",
+        ),
+        ("repCode=A12345", "repCode=a12345"),
+        ("repCode=A12345", "repCode=Ａ12345"),
+        ("repCode=A12345", "repCode=A１２３４５"),
+        ("repCode=A12345", "repCode=A1234"),
+        ("repCode=A12345", "repCode=A123456"),
+        ("repCode=A12345", "repCode=A12345&amp;x=1"),
+        ("repCode=A12345", "repCode=A12345#fragment"),
+        ("repCode=A12345", "repCode=%4112345"),
+        ("</a>", f"</a>{LINK}duplicate</a>"),
+        ("</a>", "</a>PRIVATE"),
+        ("</a>", "</a><i class=tooltip>outside</i>"),
+        ("</a>", "</a><script>ignored</script>"),
+    ],
+)
+def test_linked_publisher_profile_rejects_unobserved_metadata(old, new):
+    with pytest.raises(ingestion.AuditError):
+        extract(linked_publisher_page(LINKED.replace(old, new)))
+
+
+@pytest.mark.parametrize(
+    ("old", "new"),
+    [
+        ('class="info"', 'class="info other"'),
+        ('class="info"', 'class="info" hidden'),
+        ('<div class="info">', '<div><div class="info">'),
+        ('<div class="variety">', '<div class="variety" hidden>'),
+        ('<div class="variety">', '<div class="variety" style="display: none">'),
+        ("<body>", '<body aria-hidden="true">'),
+        ("</body>", '<div class="variety"></div></body>'),
+        ('<div class="info">', '<div class="info"><div class="info"></div>'),
+        ('<div class="info">', '<div class="info"><template><div class="info"></div></template>'),
+    ],
+)
+def test_linked_publisher_keeps_unique_visible_direct_scope(old, new):
+    with pytest.raises(ingestion.AuditError):
+        extract(linked_publisher_page().decode().replace(old, new).encode())
+
+
+@pytest.mark.parametrize(
+    ("old", "new", "error"),
+    [
+        (NOTICE, NOTICE.replace("제1유형", "제2유형"), "policy_html_invalid_license"),
+        (NOTICE, "", "policy_html_invalid_license"),
+        (URL, URL + "&amp;x=1", "policy_html_url_mismatch"),
+        ("<h1>합성 정책</h1>", "<h1></h1>", "policy_html_invalid_metadata"),
+        ("<p>한글😀é repeat</p><p>repeat tail</p>", "", "policy_html_empty_text"),
+    ],
+)
+def test_linked_publisher_cannot_bypass_article_and_rights_guards(old, new, error):
+    with pytest.raises(ingestion.AuditError, match=f"^{error}$"):
+        extract(linked_publisher_page().decode().replace(old, new).encode())
+
+
+@pytest.mark.parametrize("version", ["4", "3\n", 3, True])
+def test_linked_publisher_revalidates_forged_result_and_representation(version):
+    result = extract(linked_publisher_page())
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_result$"):
+        replace(result, parser_version=version)
+    rep = api("to_policy_html_representation")(
+        result, representation_id=REPRESENTATION, document_version_id=VERSION
+    )
+    object.__setattr__(result, "parser_version", version)
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_result$"):
+        api("to_policy_html_representation")(
+            result, representation_id=REPRESENTATION, document_version_id=VERSION
+        )
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_representation$"):
+        api("locate_policy_html_quote")(
+            rep.model_copy(update={"parser_version": version}), quote="😀é"
+        )
+
+
+def test_legacy_anchor_with_additional_plain_spans_keeps_version_one():
+    # Already accepted by the legacy branch; new profile must not reclassify it.
+    result = extract(linked_publisher_page(LINKED + "<span>legacy extra</span>"))
+    assert result.parser_version == "1"
+    assert result.publisher == "합성부처"
+
+
+def test_linked_publisher_date_and_scope_do_not_read_unrelated_rights_info():
+    raw = linked_publisher_page(LINKED.replace("2026.01.15", "2024.02.29")).decode()
+    raw = raw.replace(
+        f"<span>{NOTICE}</span></div></div>",
+        f'<span>{NOTICE}</span></div><div class="info">사진은 별도 허가</div></div>',
+    )
+    result = extract(raw.encode())
+    assert (result.publication_date, result.publisher, result.parser_version) == (
+        date(2024, 2, 29),
+        "합성부처",
+        "3",
+    )
+
+
+def hidden_metadata_page(raw, mutation):
+    html = raw.decode()
+    if mutation in {"aria_upper", "collapse"}:
+        attribute = (
+            'aria-hidden="TRUE"' if mutation == "aria_upper" else 'style="visibility:collapse"'
+        )
+        return html.replace('<div class="variety">', f'<div class="variety" {attribute}>').encode()
+    tag = mutation.removesuffix("_open")
+    attributes = " open" if mutation.endswith("_open") else ""
+    return (
+        html.replace('<div class="variety">', f'<{tag}{attributes}><div class="variety">')
+        .replace(
+            '</div></div><div class="view_cont">',
+            f'</div></div></{tag}><div class="view_cont">',
+        )
+        .encode()
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["details", "dialog", "aria_upper", "collapse", "details_open", "dialog_open", "object", "svg"],
+)
+def test_linked_metadata_rejects_native_containers_and_hidden_values(mutation):
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_metadata$"):
+        extract(hidden_metadata_page(linked_publisher_page(), mutation))
+
+
+@pytest.mark.parametrize("profile", ["1", "2"])
+@pytest.mark.parametrize(
+    "mutation",
+    ["details", "dialog", "aria_upper", "collapse", "details_open", "dialog_open", "object", "svg"],
+)
+def test_legacy_metadata_profiles_keep_prior_container_and_attribute_behavior(profile, mutation):
+    raw = page() if profile == "1" else plain_publisher_page()
+    expected = extract(raw)
+    result = extract(hidden_metadata_page(raw, mutation))
+    assert result.parser_version == profile
+    assert (result.publisher, result.publication_date, result.text_sha256) == (
+        expected.publisher,
+        expected.publication_date,
+        expected.text_sha256,
+    )

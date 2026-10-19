@@ -25,7 +25,7 @@ _NOTICE = "이 자료는 텍스트에 한하여 공공누리 제1유형(출처�
 _LICENSE_URL = "https://www.kogl.or.kr/info/license.do"
 _PARSER_NAME = "korea-policy-html"
 _PARSER_VERSION = "1"
-_PARSER_VERSIONS = frozenset({"1", "2"})
+_PARSER_VERSIONS = frozenset({"1", "2", "3"})
 _PROFILE = "korea-policy-paragraphs-v1"
 
 
@@ -144,8 +144,93 @@ def _select(node: Node, tag: str, class_name: str) -> list[Node]:
     return [part for part in descendants(node) if part.tag == tag and part.has_class(class_name)]
 
 
+def _linked_publisher_metadata(
+    info: Node, variety: Node, spans: list[Node]
+) -> tuple[str, str, str]:
+    """Accept only the two-span ministry-link profile, without reading tooltip text."""
+    if (
+        not any(child is info for child in variety.children)
+        or info.attrs != {"class": "info"}
+        or len([child for child in info.children if isinstance(child, Node)]) != 2
+        or any(isinstance(child, str) and child.strip() for child in info.children)
+        or any(span.attrs for span in spans)
+        or any(isinstance(child, Node) for child in spans[0].children)
+        or any(isinstance(child, str) and child.strip() for child in spans[1].children)
+    ):
+        raise AuditError("policy_html_invalid_metadata")
+    date_text = "".join(child for child in spans[0].children if isinstance(child, str))
+    if re.fullmatch(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", date_text) is None:
+        raise AuditError("policy_html_invalid_metadata")
+    anchor = _one(
+        [child for child in spans[1].children if isinstance(child, Node)],
+        "policy_html_invalid_metadata",
+    )
+    if (
+        anchor.tag != "a"
+        or set(anchor.attrs) != {"class", "href"}
+        or anchor.attrs.get("class") != "gotosite"
+        or re.fullmatch(
+            r"/news/ministryNewsList\.do\?repCode=[A-Z][0-9]{5}", anchor.attrs.get("href") or ""
+        )
+        is None
+    ):
+        raise AuditError("policy_html_invalid_metadata")
+    tooltips = [child for child in anchor.children if isinstance(child, Node)]
+    if len(tooltips) > 1 or any(
+        child.tag != "i"
+        or child.attrs != {"class": "tooltip"}
+        or any(isinstance(part, Node) for part in child.children)
+        for child in tooltips
+    ):
+        raise AuditError("policy_html_invalid_metadata")
+    publisher = re.sub(
+        r"\s+", " ", "".join(child for child in anchor.children if isinstance(child, str))
+    ).strip()
+    return publisher, date_text, "3"
+
+
+def _linked_metadata_scope(root: Node, variety: Node) -> None:
+    # Old profiles retain their selectors. The new profile also rejects hidden or
+    # competing metadata in ignored subtrees rather than silently picking one.
+    for scope, tag, class_name in ((root, "div", "variety"), (variety, "div", "info")):
+        if (
+            len(
+                [
+                    node
+                    for node in descendants(scope, include_ignored=True)
+                    if node.tag == tag and node.has_class(class_name)
+                ]
+            )
+            != 1
+        ):
+            raise AuditError("policy_html_invalid_metadata")
+
+    def visible_path(node: Node, hidden: bool = False) -> bool:
+        hidden = (
+            hidden
+            or node.ignored
+            or node.tag in {"details", "dialog", "iframe", "object", "svg"}
+            or "hidden" in node.attrs
+            or (node.attrs.get("aria-hidden") or "").strip().lower() == "true"
+            or re.search(
+                r"(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse))",
+                node.attrs.get("style") or "",
+                re.IGNORECASE,
+            )
+            is not None
+        )
+        if node is variety:
+            return not hidden
+        return any(
+            visible_path(child, hidden) for child in node.children if isinstance(child, Node)
+        )
+
+    if not visible_path(root):
+        raise AuditError("policy_html_invalid_metadata")
+
+
 def _publisher_metadata(info: Node, variety: Node) -> tuple[str, str, str]:
-    """Keep anchored v1; accept only the observed two-plain-span v2 alternative."""
+    """Preserve v1/v2 selection; add only the observed two-span link profile."""
     anchors = _select(info, "a", "gotosite")
     spans = [child for child in info.children if isinstance(child, Node) and child.tag == "span"]
     if anchors and len(spans) != 2:
@@ -157,6 +242,8 @@ def _publisher_metadata(info: Node, variety: Node) -> tuple[str, str, str]:
         if len(dates) != 1:
             raise AuditError("policy_html_invalid_metadata")
         return publisher, dates[0], "1"
+    if len(spans) == 2 and any(isinstance(child, Node) for child in spans[1].children):
+        return _linked_publisher_metadata(info, variety, spans)
     # No fallback to arbitrary metadata_text. Extra/ignored tags, nested markup,
     # attributes, mixed anchors and non-whitespace outside these spans all fail.
     nodes = [child for child in info.children if isinstance(child, Node)]
@@ -229,6 +316,8 @@ def extract_policy_html(
     variety = _one(_select(root, "div", "variety"), "policy_html_invalid_metadata")
     info = _one(_select(variety, "div", "info"), "policy_html_invalid_metadata")
     publisher, date_text, parser_version = _publisher_metadata(info, variety)
+    if parser_version == "3":
+        _linked_metadata_scope(root, variety)
     if not title or not publisher:
         raise AuditError("policy_html_invalid_metadata")
     try:

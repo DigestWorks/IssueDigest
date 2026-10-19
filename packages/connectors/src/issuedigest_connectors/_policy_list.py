@@ -2,6 +2,7 @@
 
 import re
 from dataclasses import dataclass, field
+from datetime import date
 
 from .html import _VOID, _Document
 
@@ -65,7 +66,7 @@ def _text(node: _Node) -> str:
     return "".join(c if isinstance(c, str) else _text(c) for c in node.children)
 
 
-def result_entries(html: str) -> tuple[tuple[str, str], ...]:
+def _result_rows(html: str) -> tuple[tuple[str, str, _Node], ...]:
     parser = _List()
     parser.parse(html)
     if len(parser.bodies) != 1:
@@ -82,7 +83,7 @@ def result_entries(html: str) -> tuple[tuple[str, str], ...]:
     entries = _nodes(lists[0])
     if not 1 <= len(entries) <= 100:
         raise ValueError("Empty or oversized result list")
-    result: dict[str, str] = {}
+    result: list[tuple[str, str, _Node]] = []
     for entry in entries:
         if not entry.matches("li") or len(_nodes(entry)) != 1:
             raise ValueError("Invalid result entry")
@@ -104,10 +105,34 @@ def result_entries(html: str) -> tuple[tuple[str, str], ...]:
         )
         # A noncanonical link is never stripped/normalized into a candidate.
         if match is not None:
-            identity = match[1]
-            if identity in result and result[identity] != title:
-                raise ValueError("Conflicting duplicate result")
-            result[identity] = title
+            result.append((match[1], title, source))
     if not result:
         raise ValueError("No canonical results")
+    return tuple(result)
+
+
+def result_entries(html: str) -> tuple[tuple[str, str], ...]:
+    result: dict[str, str] = {}
+    for identity, title, _ in _result_rows(html):
+        if identity in result and result[identity] != title:
+            raise ValueError("Conflicting duplicate result")
+        result[identity] = title
     return tuple(result.items())
+
+
+def result_metadata(html: str) -> tuple[tuple[str, str, date, str], ...]:
+    result: dict[str, tuple[str, str, date, str]] = {}
+    for identity, title, source in _result_rows(html):
+        day, publisher_node = _nodes(source)
+        published = _text(day)
+        if re.fullmatch(r"[0-9]{4}\.[0-9]{2}\.[0-9]{2}", published) is None:
+            raise ValueError("Invalid result date")
+        published_on = date.fromisoformat(published.replace(".", "-"))
+        publisher = " ".join(_text(publisher_node).split())
+        if not 1 <= len(publisher) <= 200:
+            raise ValueError("Invalid result publisher")
+        row = (identity, title, published_on, publisher)
+        if identity in result and result[identity] != row:
+            raise ValueError("Conflicting duplicate result")
+        result[identity] = row
+    return tuple(result.values())

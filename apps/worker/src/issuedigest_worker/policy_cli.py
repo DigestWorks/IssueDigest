@@ -2,9 +2,10 @@
 
 import json
 import os
+import re
 import sys
 from collections.abc import Sequence
-from datetime import datetime
+from datetime import date, datetime
 
 from issuedigest_connectors import (
     MAX_POLICY_CAPTURE_BYTES,
@@ -23,6 +24,7 @@ from sqlalchemy import create_engine
 
 from .cli import _ArgumentError, _Parser
 from .files import check_private_output, read_private, write_private
+from .policy_candidates import build_policy_candidate_report
 from .policy_changes import compare_policy_captures
 from .policy_collection import (
     MAX_POLICY_COLLECTION_JOB_BYTES,
@@ -54,6 +56,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     compare.add_argument("capture", metavar="PRIVATE_CAPTURE")
     compare.add_argument("output", metavar="PRIVATE_NEW_OUTPUT")
     compare.add_argument("--previous", metavar="PRIVATE_CAPTURE")
+    candidates = commands.add_parser("candidates", allow_abbrev=False)
+    candidates.add_argument("discovery", metavar="PRIVATE_DISCOVERY")
+    candidates.add_argument("since", metavar="YYYY-MM-DD")
+    candidates.add_argument("through", metavar="YYYY-MM-DD")
+    candidates.add_argument("output", metavar="PRIVATE_NEW_REPORT")
+    candidates.add_argument("--previous", metavar="PRIVATE_DISCOVERY")
     prepare = commands.add_parser("prepare", allow_abbrev=False)
     prepare.add_argument("job", metavar="PRIVATE_APPROVED_JOB")
     prepare.add_argument("capture", metavar="PRIVATE_CAPTURE")
@@ -105,6 +113,30 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "status": "captured",
                 "requests": len(ids),
                 "sources": len(ids),
+            }
+        elif args.operation == "candidates":
+            if any(
+                re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value) is None
+                for value in (args.since, args.through)
+            ):
+                raise ValueError("Invalid candidate dates")
+            candidate_report = build_policy_candidate_report(
+                read_private(args.discovery, MAX_POLICY_DISCOVERY_BYTES),
+                since=date.fromisoformat(args.since),
+                through=date.fromisoformat(args.through),
+                previous_raw=read_private(args.previous, MAX_POLICY_DISCOVERY_BYTES)
+                if args.previous is not None
+                else None,
+            )
+            raw = candidate_report.model_dump_json(warnings="error").encode("utf-8")
+            summary = {
+                "schema_version": 1,
+                "status": "candidates_reported",
+                "candidates": sum(e.status != "not_observed" for e in candidate_report.entries),
+                **{
+                    status: sum(e.status == status for e in candidate_report.entries)
+                    for status in ("new", "unchanged", "metadata_changed", "not_observed")
+                },
             }
         elif args.operation == "compare":
             report = compare_policy_captures(

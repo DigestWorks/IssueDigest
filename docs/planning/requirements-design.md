@@ -1,6 +1,6 @@
 # IssueDigest 요구사항·설계
 
-2026-10-18 기준. 질문 중심 B2C 브리핑을 위한 현재 요구와 다음 계약이다. 제품 방향은 [D016·D017·D019·D020·D021](decisions.md)·[사용자 인터뷰](../research/product-experience-interview.md), 현재 화면의 검증 범위는 [브리핑 경험](../changes/briefing-experience.md)·[B2C 정리·장기 세션](../changes/b2c-cleanup-persistent-login.md)을 따른다. R1~R7 식별자는 기존 계약·변경 문서 참조를 위해 유지한다. 목표 요구와 현재 구현 완료를 구분한다.
+2026-10-19 KST 기준. 질문 중심 B2C 브리핑을 위한 현재 요구와 다음 계약이다. 제품 방향은 [D016·D017·D019·D020·D021](decisions.md)·[사용자 인터뷰](../research/product-experience-interview.md), 현재 화면의 검증 범위는 [브리핑 경험](../changes/briefing-experience.md)·[B2C 정리·장기 세션](../changes/b2c-cleanup-persistent-login.md)을 따른다. R1~R7 식별자는 기존 계약·변경 문서 참조를 위해 유지한다. 목표 요구와 현재 구현 완료를 구분한다.
 
 ## 기능 요구사항과 수용 시나리오
 
@@ -24,7 +24,9 @@
 - 기존 연결기·등록·중복 방지·정확 인용 계약을 재사용한다. 자료 변경·정정·삭제·이용 범위 변경은 과거 인용 버전을 덮어쓰지 않고 검색·향후 게시에도 반영해야 한다.
 - 고정 정책뉴스 목록 발견·정확 기사 확보·private capture와 등록 준비 SDK를 구현했다(D021). 운영자가 기사별 공공누리1 텍스트·발행일·출처·본문 SHA·인용·ID를 확인하고 기존 등록/색인 경로로 명시 추가한다. SDK/import/공개 GET/로그인 복원에서 수집·DB 쓰기·모델을 실행하지 않으며 과거 자료를 덮지 않는다. 수집은 공개 게시를 뜻하지 않는다.
 - M2의 [반복 확보 이력](../changes/policy-collection-journal.md)을 개인 개발에 적용했다. 명시한 고정 기사1~2개만 bounded poll로 확보하고 PostgreSQL의 별도 내부 이력에 running/성공/실패·정확 capture/비교를 보존한다. 기존 SDK/import와 공개 읽기는 이 작업을 실행하지 않는다. 수집 journal을 EvidenceBundle·검색 자료·공개 게시로 자동 편입하지 않는다. 실제 scheduler 적용은 진행 기록의 검증 증거로 구분한다.
-- [수집본 편입](../changes/policy-collection-intake.md)을 개인 개발에 적용했다. 특정 성공 원본의 명시 검토와 기존 parser/정확 인용으로 canonical 자료·표시·검색·receipt를 한 transaction에 저장한다. 같은 의미/승인 인용은 재사용하고 변경·되돌림은 새 버전으로 보존한다. 새 질문은 최신 승인본만 검색하고 구판으로 fallback하지 않으며 과거 고정 근거·원문은 유지한다. 최초 추적은 기준 버전이며 실제 기사 내용 변경으로 부르지 않는다. 공개 게시·출처 확대는 별도 단계다.
+- [수집본 편입](../changes/policy-collection-intake.md)을 개인 개발에 적용했다. 특정 성공 원본의 명시 검토와 기존 parser/정확 인용으로 canonical 자료·표시·검색·receipt를 한 transaction에 저장한다. 같은 의미/승인 인용은 재사용하고 변경·되돌림은 새 버전으로 보존한다. 새 질문은 최신 승인본만 검색하고 구판으로 fallback하지 않으며 과거 고정 근거·원문은 유지한다. 최초 추적은 기준 버전이며 실제 기사 내용 변경으로 부르지 않는다. 공개 게시와 다매체 출처 확대는 별도 단계다.
+- [공식 목록 후보 선별](../changes/policy-source-candidates.md)은 기존 discovery 원본을 바꾸지 않고 정확 날짜/발행처 SDK와 오프라인 기간·이전 관측 비교를 추가한다. new는 이전 목록에 없는 ID이며 not_observed는 현재 전체 목록의 미관측이다. 삭제/철회·본문 변경·권리 승인·주목도/순위로 해석하지 않는다. private 보고서의 전체 상세와 집계 stdout을 분리하고 HTTP/DB/모델을 실행하지 않는다.
+- 관측된 정확 두 span/부처 링크 metadata만 HTML parser_version3으로 지원하며 숨김/모호한 구조는 거부한다. 기존1/2·본문/권리/인용/hash는 보존하며 AI workflow v3와 별개다. 개별 원문·발행일·공공누리1 텍스트/사진·외부 저작물 제외·8개 정확 인용을 검토한 새 자료1건만 기존 명시 등록/검색으로 개발 추가했다. 자동 수집 확대/승인/공개 게시는 하지 않는다.
 - 그 밖의 최신 뉴스·공식 발표·발언·여론조사 확보와 최근 수집 성공/누락·재처리는 후속이다. legacy 법안 건수·파일 시각·연결기 존재를 최신 이슈 관측이나 전면 수집 완료로 표시하지 않는다.
 
 ### R3 · 근거 검색과 관계

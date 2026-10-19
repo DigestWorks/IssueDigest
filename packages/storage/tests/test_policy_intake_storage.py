@@ -90,6 +90,7 @@ def plan_for(
     document=None,
     quote=None,
     previous=None,
+    metadata=None,
 ):
     import json
     from hashlib import sha256
@@ -125,6 +126,8 @@ def plan_for(
             f'<div class="kogl_wrap"><div class="type"><span>{notice}</span></div></div>'
             "</body></html>"
         )
+        if metadata is not None:
+            html = html.replace('2026.10.16 <a class="gotosite">합성부</a>', metadata)
         articles.append(dict(news_id=news, canonical_url=url, html=html))
     raw = json.dumps(
         dict(schema_version=1, collected_at=now.isoformat(), articles=articles), ensure_ascii=False
@@ -859,4 +862,96 @@ def test_fixed_attempt_requires_exact_channel_and_success(engine, state):
     before = counts(engine)
     with pytest.raises(a.PolicyIntakeError):
         a.PolicyIntakeRepository(engine).load_capture(cfg, attempt)
+    assert counts(engine) == before
+
+
+LINKED_METADATA = (
+    '<span>2026.10.16</span><span><a class="gotosite" '
+    'href="/news/ministryNewsList.do?repCode=A12345">합성부'
+    '<i class="tooltip">PRIVATE TOOLTIP</i></a></span>'
+)
+
+
+def test_profile_three_check_apply_reuse_keeps_prior_exact_citations(engine):
+    from issuedigest_domain.citations import validate_citation
+    from issuedigest_storage import EvidenceRepository
+    from issuedigest_storage.policy_intake_schema import policy_intake_receipts
+    from sqlalchemy import select
+
+    a, cfg = api(), config()
+    repo = a.PolicyIntakeRepository(engine)
+    legacy, raw = plan_for(engine, cfg)
+    repo.apply(legacy)
+    original = legacy.entries[0]
+    linked, linked_raw = plan_for(
+        engine,
+        cfg,
+        now=NOW + timedelta(seconds=60),
+        workspace=legacy.workspace_id,
+        document=original.bundle.document.document_id,
+        previous=raw,
+        metadata=LINKED_METADATA,
+    )
+    entry = linked.entries[0]
+    assert entry.bundle.representation.parser_version == "3"
+    assert entry.bundle.representation.text_sha256 == original.bundle.representation.text_sha256
+    assert entry.bundle.citations[0].selector == original.bundle.citations[0].selector
+    # Parser version remains a semantic field even when body and publisher are equal.
+    assert entry.fingerprint_sha256 != original.fingerprint_sha256
+    before = counts(engine)
+    assert repo.check(linked).new_versions == 1 and counts(engine) == before
+    assert repo.apply(linked).new_versions == 1
+    after = counts(engine)
+    assert repo.apply(linked).outcome == "already_applied" and counts(engine) == after
+    repeated, _ = plan_for(
+        engine,
+        cfg,
+        now=NOW + timedelta(seconds=120),
+        workspace=legacy.workspace_id,
+        document=original.bundle.document.document_id,
+        previous=linked_raw,
+        metadata=LINKED_METADATA,
+    )
+    assert repo.check(repeated).reused_versions == 1 and counts(engine) == after
+    outcome = repo.apply(repeated)
+    assert outcome.reused_versions == 1 and outcome.new_versions == 0
+    final = counts(engine)
+    assert final["policy_intake_receipts"] == after["policy_intake_receipts"] + 1
+    assert {k: v for k, v in final.items() if k != "policy_intake_receipts"} == {
+        k: v for k, v in after.items() if k != "policy_intake_receipts"
+    }
+    with engine.connect() as conn:
+        selected = conn.execute(
+            select(policy_intake_receipts.c.snapshot_id).where(
+                policy_intake_receipts.c.attempt_id == repeated.attempt_id
+            )
+        ).scalar_one()
+    assert selected == entry.snapshot_id
+    for expected in (original, entry):
+        saved = EvidenceRepository(engine).load(legacy.workspace_id, expected.snapshot_id)
+        assert saved == expected.bundle
+        status = validate_citation(saved.citations[0], saved.representation)
+        assert (status.anchor_status, status.support_status) == ("matched", "not_evaluated")
+
+
+@pytest.mark.parametrize("version", ["4", "3\n", 3, True])
+def test_intake_rejects_unsupported_or_forged_parser_version(engine, version):
+    a, cfg = api(), config()
+    plan, _ = plan_for(engine, cfg)
+    entry = plan.entries[0]
+    parsed = entry.bundle.representation.model_copy(update={"parser_version": version})
+    forged = plan.model_copy(
+        update={
+            "entries": (
+                entry.model_copy(
+                    update={"bundle": entry.bundle.model_copy(update={"representation": parsed})}
+                ),
+            )
+        }
+    )
+    repo, before = a.PolicyIntakeRepository(engine), counts(engine)
+    with pytest.raises(a.PolicyIntakeError):
+        repo.check(forged)
+    with pytest.raises(a.PolicyIntakeError):
+        repo.apply(forged)
     assert counts(engine) == before

@@ -36,3 +36,8 @@ capture의 두 응답 전체와 지정 수집 시각을 private artifact로 보�
 ## 고정 정책뉴스 발견·확보
 
 `discover_policy`·`policy_candidates`와 `capture_policy`는 고정 정책뉴스 첫 목록과 명시한 기사1~2개의 private artifact를 반환한다. 후보 선택·기사별 공공누리1 텍스트 검토·PolicyJob/세 hash·정확 인용·오프라인 준비·기존 명시 등록/검색 투영/표시 제목 연결은 [worker의 정책뉴스 운영 절차](../../apps/worker/README.md#정책뉴스를-확인하고-비공개-등록-계획을-준비하기)를 따른다. import는 수집하지 않으며 SDK는 DB·파일 저장·정기 수집·공개 게시를 실행하지 않는다.
+
+
+`policy_candidate_metadata(discovery) -> tuple[PolicyCandidateMetadata, ...]`는 기존 제목 전용 `PolicyCandidate`·`policy_candidates`에 추가된 공개 SDK다. 기존 bounded serializer/parser로 capture를 다시 검증한 뒤 같은 보이는 목록 영역·canonical 링크만 읽는다. 불변·strict·extra forbid 모델은 `news_id`, `canonical_url`, 공백 정돈한1~300자 `title`, 정확한 `date` 타입 `published_on`, 공백 정돈한1~200자 `publisher`를 담으며 모든 필드는 repr에서 제외한다. `source` 첫 span은 정확 `YYYY.MM.DD` 달력 날짜, 둘째 span은 발행처다. 숨김·누락·모호한 날짜/발행처나 같은 ID의 상충하는 제목·날짜·발행처는 고정 `PolicyError("Unable to validate policy discovery")`로 실패한다. 동일 메타데이터 중복은 합친다. 기존 제목 전용 SDK가 허용한 날짜 문자열과 capture 바이트 계약은 바꾸지 않는다.
+
+목록 날짜·발행처는 발견 메타데이터다. 기사 본문 발행일과 다를 수 있으며 내용·권리 승인·진실·최근 주목도·순위가 아니다. [비공개 후보 비교 보고서](../../apps/worker/README.md#목록의-날짜-범위와-이전-관측을-비교하기)는 추가 HTTP·DB·모델 호출 없이 이 메타데이터를 비교한다.

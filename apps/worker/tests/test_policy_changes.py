@@ -429,3 +429,43 @@ compare_policy_captures(bytes.fromhex(os.environ["SYNTHETIC_CAPTURE_HEX"]))
     )
     assert run.returncode == 0, run.stderr
     assert run.stdout == run.stderr == ""
+
+
+def test_linked_publisher_parser_version_is_semantic_but_tooltip_is_excluded():
+    plain = page().replace(
+        '2026.10.16 <a class="gotosite">합성부</a>',
+        "<span>2026.10.16</span><span>합성부</span>",
+    )
+    linked = plain.replace(
+        "<span>합성부</span>",
+        '<span><a class="gotosite" href="/news/ministryNewsList.do?repCode=A12345">'
+        '합성부<i class="tooltip">PRIVATE tooltip</i></a></span>',
+    )
+    before = capture(article(html=plain))
+    after = capture(article(html=linked), time="2026-10-18T00:00:01Z")
+    report = compare(after, before).sources[0]
+    assert report.status == "changed" and report.changed_fields == ("parser_version",)
+    semantic = {
+        "text_sha256": sha256("앞 😀한é 뒤\n\n둘째 문단".encode()).hexdigest(),
+        "title": "합성 정책",
+        "publisher": "합성부",
+        "publication_date": "2026-10-16",
+        "license_notice": NOTICE,
+        "license_url": "https://www.kogl.or.kr/info/license.do",
+        "parser_name": "korea-policy-html",
+        "parser_version": "3",
+        "normalization_profile": "korea-policy-paragraphs-v1",
+    }
+    expected = sha256(
+        json.dumps(
+            semantic, sort_keys=True, ensure_ascii=False, separators=(",", ":"), allow_nan=False
+        ).encode()
+    ).hexdigest()
+    assert report.after_fingerprint == expected and report.before_fingerprint != expected
+    decorated = capture(
+        article(html=linked.replace("PRIVATE tooltip", "Different tooltip 제2유형")),
+        time="2026-10-18T00:00:02Z",
+    )
+    source = compare(decorated, after).sources[0]
+    assert source.status == "unchanged" and source.changed_fields == ()
+    assert source.before_fingerprint == source.after_fingerprint == expected

@@ -4,7 +4,9 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 저장소 문서가 결정 원본이고 PR에서 변경을 검토한다. 별도 이슈 트래커는 사용하지 않는다. Sites는 검증된 현재 상태의 요약이며 독립된 요구사항 원본으로 복제하지 않는다.
 
-현재 화면 작업: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
+화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
+
+현재 변경: [공식 목록 후보 선별·출처 확대](changes/policy-source-candidates.md).
 
 ## 현재 계획과 작업
 
