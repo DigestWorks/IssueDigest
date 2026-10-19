@@ -1,5 +1,11 @@
 # 진행 기록
 
+## 출판·최종 인계 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- Sites v64 공개 배포 native `succeeded`: https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/ . 원본 소스 `b6a96ac20de502c15588c680fa1a8fcc5dfa7066`, 문서 사본 기준 `6b50776e339875cbc457216e64f6bc62979f5c8d`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_63a8da8c1980819191854e19939998b5`, deployment `appgdep_6ad5869f34e4819186588b910ef3c211`. audience public을 유지하고 이전v63을 archive로 보존했다. HTML49개·로컬 링크/asset/anchor1,130개·공개 텍스트129개와 실제 비밀값 부재를 확인했다. 문구/상태만 갱신했으므로 기존 레이아웃의 Sites 브라우저 QA를 반복하지 않았다. 사용자 탭을 열거나 이동하지 않았다.
+- 소유한 자체 QA 브라우저/API·합성 PG 컨테이너3개/익명 볼륨을 정확ID/이미지/라벨/loopback 확인 후 정리하고 임시4포트 닫힘을 확인했다. 이번 SDD 계획의 ledger·구현/독립 최종 리뷰만 비공개 archive로 보존한 뒤 해당 scratch를 제거했다. 다른 작업 폴더/컨테이너·실제 개발 서비스·백업/평가 증거는 유지했다.
+- 코드 게이트는 제품f90839e의3,777개·독립 검토 C0/I0/M0·CI39191407182 성공이며 이후는 문서/출판 receipt 변경이다. Draft PR42는 PR41 기반으로 미병합, main/운영 유예(D013)다. 실제 초기4+별도 구조2의 실패/부분 충족과 다음 의미 품질 과제는 위 기록을 유지한다. 저장소 원본의 이 최종 receipt는 Sites 사본 이후 기록이다.
+
 ## 개발 적용 · 브리핑 답변 품질 · 2026-10-19 KST
 
 - [명세](../changes/briefing-answer-quality.md)·[Draft PR42](https://github.com/DigestWorks/IssueDigest/pull/42)(PR41 기반), 제품 `f90839ee5755fb5f366ffdd2f67aba3750d3d05b`. 새 private v5의 독립 귀속/비교/한계 지침·Python/웹 검증/표시와 네 버전 복구를 연결했다. 실제 관측한 비답변의 잘못된 modules·존재하지 않는 인용 ID는 provider 전용 세 strict 출력과 실제 prompt 인용 enum으로 생성 단계에서 제한했다. canonical/API/public 경계와 기존 최종 인용 검사는 유지한다.
