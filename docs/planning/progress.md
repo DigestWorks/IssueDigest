@@ -28,7 +28,20 @@ source515aa26의 순수 후보 SDK를 기존과 byte-identical인 두 whole quot
 
 sourceb8987c6의 최종 전체 Python4,617+JS820=5,437개·lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이다. 작업 검토의3건을 수정 후 재검토 PASS(C0I0M0)했고 전체 독립 검토의 추가1건도 같은 최종 수정 wave에서 수정해 한정 재검토 PASS(C0I0M0)다. 초기 Rework와 두 수정 검토를 모두 보존했다. 기존 baseline5,257/sourceCI39244869318은 재사용했으며 수정 전 사전 검사 중단/구CI39248144627/39248752093 cancelled와 두 중단 검사를 최종 성공에 포함하지 않는다. sourceb8987c6 이후 변경은 Markdown뿐이다.
 
-[Draft PR53](https://github.com/DigestWorks/IssueDigest/pull/53)은 PR52 기반·미병합이며 앱에 첨부했다. [source CI39251010224](https://github.com/DigestWorks/IssueDigest/actions/runs/39251010224)는b8987c6에서 진행 중이며 별도 결과를 기록한다. Sites v74보존/현재 요약·사본/native 게시와 소유QA1/SDD 정리는 최종 기록을 따른다. 순수 후보의 수치11/11·부수6/6·지원 반례37/37·미지원2건을 의미·앱 인수로 확대하지 않는다. 모델0·앱0/개발v9·세 Ruling과 비용·D013 유예는 유지한다.
+[Draft PR53](https://github.com/DigestWorks/IssueDigest/pull/53)은 PR52 기반·미병합이며 앱에 첨부했다. [source CI39251010224](https://github.com/DigestWorks/IssueDigest/actions/runs/39251010224)는b8987c6에서 success다. Sites v75/이전v74 보존·소유QA1/SDD 정리는 아래 최종 기록을 따른다. 순수 후보의 수치11/11·부수6/6·지원 반례37/37·미지원2건을 의미·앱 인수로 확대하지 않는다. 모델0·앱0/개발v9·세 Ruling과 비용·D013 유예는 유지한다.
+
+
+### 서버 수치 후보 · 게시·CI·정리 최종 기록
+
+[계획 Sites v75](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)를 기존 public 설정으로 게시해 native succeeded를 확인했다. source `2fcfed62a0a354ac9cf20411a855bd86eb0e03f5`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_361ee3a212fc81918d4d4a0b842cb69b`, deployment `appgdep_6ad60c900d908191842604327adc0d76`, 2026-10-19T12:27:11.284932+00:00이다. 저장소 사본01e454e·이전v74/전체 기록과 모든 과거 실패/미판정·세 판단/비용을 보존했다. HTML60개·로컬 링크/asset/anchor1,234개·공개 텍스트163개 및 private 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 변경이므로 새 browser QA·사용자 탭 열기/이동은 없었다. 이 최종 기록은 사본 이후 저장소 원본이다.
+
+[source CI39251010224](https://github.com/DigestWorks/IssueDigest/actions/runs/39251010224)는b8987c6에서 success다. 같은 실행 코드의 최종 전체5,437개/작업 수정 재검토·전체 독립 PASS(C0I0M0)와 구분해 기록한다. 원래 source5f9df97/515aa26의 두 사전 gate는 각 수정 전에 중단했고 CI39248144627/39248752093은 cancelled였으므로 최종 성공에 포함하지 않는다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 source CI 성공을 섞지 않는다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개/볼륨만 제거하고 포트 닫힘을 확인했다. 초기 Rework/수정 재검토/전체 검토·동결 manifest·세 Ruling은 private600 archive에 검증 보존한 뒤 이번 SDD 폴더만 제거했다. 다른 컨테이너·worktree·실제 서버/API/worker/수집기/기존 평가 원본은 유지했다. main·운영 병합/배포와 개발 앱 변경은 없었다.
+
+판단1은 유한 표기·단위 사전과 날짜/식별자/모호 후보 보존이다. 지원 밖 누락·잡음과 cap256 전체 거부 비용이 남는다. 판단2는 소수점 예외의 구두점/LF 문장 partition이다. 실제 언어 경계/약어/URL과 다를 수 있어 문맥 선택 검증이 더 필요하다. 판단3은 +,-,− 바로 뒤의 온전한 날짜 우선이다. 음수 연도/식별자의 부호 의미가 날짜 후보에 없으므로 원문 문맥 확인이 필요하다. 세 판단/비용은 Spec/D022와 최종 인계에 보존한다.
+
+다음은 짧은 후보ID를 고르는 provider 계약·전체 입력/출력 예산을 검증하고, 대상/시점·상태/조건/관계 의미를 같은 자료에서 평가하는 일이다. 그 뒤 앱의 예약/내구 실행/복구·현재 권한/취소·최종 브리핑을 인수한다. 이번 고정 수치11/11·부수6/6·지원 반례37/37는 유한 표기의 오프라인 후보 성과이며 미지원2건과 의미/앱 미검증을 유지한다. 신규 모델 호출·앱 세션은0이다.
 
 ## 서버 수치 후보 인덱스 · 착수 · 2026-10-19
 
