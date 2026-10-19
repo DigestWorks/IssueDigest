@@ -47,3 +47,8 @@ controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/nu
 두 raw는 known 상태 근거의 nonnull provider DTO를 만족했지만 exact 위치/관계 검사를 통과하지 못했다. 추가 호출 없이 원래 raw의 DTO/각 field/관계 물리 조건을 오프라인으로 분리 확인했고, 잘못된 행을 고치거나 정상 부분 proposal로 반환하지 않았다. 알려진 실패 사용량2건은 SDK에도 보존됐다. 입력3,003/출력2,029토큰·지연6.64/4.51초이며 청구 금액은 미검증이다. 동일 두 자료의 v1 출력3,229보다 짧았다는 관측을 일반 비용 절감·의미 품질 향상으로 확대하지 않는다.
 
 계약 구현/합성 검사와 실제 모델 의미 인수는 별개다. 실제 planned/unknown 양성·전체 문서 수치/다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 개발ab6654e/v9·앱/DBOS/DB/API/공개/UI/수집기·월 예약은 변경하지 않았고 main/운영은 D013 유예다. 다음 설계 후보는 모델이 occurrence를 세거나 관계 문장을 다시 쓰게 하기보다 서버에서 확정한 원문 위치 참조를 선택하게 하는 방식이다. 단순한 지침/성공 재호출·자동 수정은 해결로 표시하지 않는다.
+
+
+## 전체 구현 인수
+
+source49fd20d의 전체5,124개·lint/format/types/build/OpenAPI contract, 작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 실제 source5592d9c와 code가 같으며 이후 변경은 Markdown뿐이다. PR50 기반 [Draft PR51](https://github.com/DigestWorks/IssueDigest/pull/51)·source CI/Sites/소유QA·SDD 정리는 [진행 기록](../planning/progress.md)의 개별 receipt를 따른다. 실제2회 거부/수용0과 의미 품질/앱 통합 미완료·개발v9·운영 유예를 유지한다.

@@ -14,6 +14,13 @@ controller는 두 원응답의 raw 수치6/5개·관계3/2개와 모든 field/nu
 
 - Ruling1: whole 인용을 fact context로 참조하고 관계 statement에 두 명시 주체를 요구한다. 넓은 인용에서 잘못된 field 연결이 통과하거나 주체 생략/긴 관계가 누락·전체 거부되고 알려진 비용이 남을 수 있다. Spec/D022·private 검토 archive와 최종 인계에 보존한다. 사용자 탭을 열거나 이동하지 않는다.
 
+
+### compact 수치 v2 · 전체 검사·검토 receipt
+
+전체 gate49fd20d의 Python4,304+JS820=5,124개와 lint/format/types/build/OpenAPI contract가 통과했다. 실패/skip/warning0이며 Task1 및 전체 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0)다. 실제 source5592d9c와 전체 gate/검토49fd20d는 실행 코드가 같고 문서만 다르다. 이후 출판/정리 변경도 Markdown뿐이다.
+
+[Draft PR51](https://github.com/DigestWorks/IssueDigest/pull/51)은 PR50 기반·미병합이며 앱에 첨부했다. [source CI39239596381](https://github.com/DigestWorks/IssueDigest/actions/runs/39239596381)는49fd20d에서 별도 진행 중이다. Sites 현재 요약/사본/native 게시·이전v72 보존과 소유QA1/SDD 정리는 최종 receipt로 확인한다. 실제2회 모두 거부/수용0·의미 완전 충족0이며 코드 검사 성공을 의미 품질·앱 통합 인수로 바꾸지 않는다. 서버 접속/개발 배포·DB/권한·수집기 변경과 사용자 탭 열기/이동은 없었다. Ruling1/비용은 Spec/D022에 보존한다.
+
 ## compact 수치 근거 v2 · 착수 · 2026-10-19
 
 PR50/805e154 후속 feat/numeric-evidence-compact, [명세](../changes/numeric-evidence-compact.md), D022/M3. 반복 context/출처 출력 대신 whole 인용 참조·짧은 span·known 상태 근거 union·명시 관계 endpoint를 구현한다. 기존 v1의 실제 부분1/거부1·앱4/12·개발ab6654e/v9·배포 유예는 유지한다. 기존 baseline5,003/sourceCI39235962771 재사용·새 baseline 반복 없음. 실제 고정2SDK·전체 gate/독립 검토·Draft PR/CI/Sites v72 archive/갱신·소유QA/SDD 정리는 아직 미완료다. 사용자 탭을 열지 않는다.
