@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 서버 원문 참조 수치 v3 · 착수 · 2026-10-19
+
+PR51/e12f68d 후속 feat/numeric-evidence-references, [명세](../changes/numeric-evidence-references.md), D022/M3. 원문의 모든 Unicode code point에 서버 reference를 부여해 모델은 시작/끝 참조만 선택한다. forecast와 명시 condition을 분리하며 원문 위치/원문 재작성 오류와 의미 오류를 따로 인수한다. 기존5124/sourceCI39239596381 baseline·linked worktree를 재사용했다. v2 실제2회 거부·v1 부분1/거부1·앱4/12·개발v9/운영 유예는 유지한다. 실제 고정2/전체 검사·검토·PR/CI/Sites v73보존/요약·소유QA/SDD 정리는 별도 후속이며 사용자 탭을 열지 않는다.
+
 ## compact 수치 후보 v2 · 실제2회 전체 거부 · 2026-10-19
 
 - 담당/controller·feat/numeric-evidence-compact, PR50/805e154 기반. [명세](../changes/numeric-evidence-compact.md)·D022/M3. OpenSpec root=null·linked worktree 재사용·baseline5,003/sourceCI39235962771 재사용. 구현 및 실제5592d9c. 기존405파일의 base/task git object 일치·Task1 독립 Spec/품질 PASS(C0I0M0), agents790(신규121)·Ruff/format38/mypy14 통과를 확인했다. 전체5,124개·전체 독립 검토·Draft PR51/source CI 성공·Sites v73/이전v72보존·소유QA1/SDD 정리는 아래 최종 receipt에서 확인했다.
