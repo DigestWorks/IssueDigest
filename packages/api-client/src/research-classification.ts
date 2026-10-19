@@ -79,7 +79,7 @@ export function validResearchClassifications(research: Record<string, unknown>, 
       let validAttribution = false;
       for (let split = claim.text.indexOf(separator); split >= 0; split = claim.text.indexOf(separator, split + 1)) {
         const subject = claim.text.slice(0, split), text = claim.text.slice(split + separator.length);
-        if (subject.trim() && Array.from(subject).length <= 80 && Array.from(text).length >= 1 && Array.from(text).length <= 400
+        if (subject.trim() && text.trim() && Array.from(subject).length <= 80 && Array.from(text).length >= 1 && Array.from(text).length <= 400
           && Array.isArray(claim.citation_ids) && (subject === '제공 자료' || claim.citation_ids.every(id => isId(id) && quotes.get(id.toLowerCase())?.includes(subject)))) {
           validAttribution = true; break;
         }

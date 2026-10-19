@@ -105,3 +105,5 @@ private v4도 기존 세 분류/300자 설명/동일 인용 순서/UTC 마이크
 
 
 private research-v6도 고정 issuedigest-research-v6/research-v6와 claim당 정확1개 평가·동일 인용 순서·UTC 마이크로초를 검증한다. 첫 모듈은 summary이고 첫 claim의 평가는 supported여야 하며 나머지는 comparison/timeline 상세와 마지막 evidence다. attributed 문장은 bounded 정확 주체 접두어와 모든 선택 quote의 문자열을 다시 확인한다. source_subject는 provider 전용으로 API 필드에 추가하지 않는다. 과거 v1~v5 결과·공개 v1/v2/빈 reviews 경계와 OpenAPI는 유지한다. Python 실제 v6 builder의 합성 fixture를 웹과 함께 소비하며 혼합/누락/위조/stripped-public를 거부한다.
+
+v6 claim text와 모델 module title은 Python과 같은 Unicode code-point 기준500/100자 한도를 검사한다. 귀속 주체80자·본문400자는 각 코드 포인트로 검사하며, 본문 suffix가 공백뿐이면 거부한다. 다른 private 버전의 기존 raw-client 길이 검사와 비답변의 공통 경계는 유지한다. 실제 Python provider→builder가 만든 astral80/400 fixture를 전체 getResearchRun 경로로 재검증한다.

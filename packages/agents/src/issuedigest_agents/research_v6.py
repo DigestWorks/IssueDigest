@@ -70,6 +70,8 @@ class _ProviderClaimV6(AIClaimV3):
 
     @model_validator(mode="after")
     def attribution_subject(self) -> "_ProviderClaimV6":
+        if not self.text.strip():
+            raise ValueError("Provider claim body must be nonblank before attribution")
         if self.category == "attributed":
             if self.source_subject is None or not self.source_subject.strip():
                 raise ValueError("Attributed claim requires nonblank source_subject")

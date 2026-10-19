@@ -581,3 +581,46 @@ def test_subject_in_unselected_quote_cannot_authorize_attribution(sync_model_loo
     with pytest.raises(ValueError, match="source_subject"):
         v6.run_agent_v6(agent, prompt)
     assert calls == [True]
+
+
+@pytest.mark.parametrize("body", ["     ", "\t\n", "\u3000"])
+def test_provider_rejects_blank_attributed_body_before_prefix_without_retry(sync_model_loop, body):
+    v6 = profile()
+    selected, response = proposal()
+    response["core_answer"]["text"] = body
+    prompt = v6.model_prompt_v6("합성", (selected,))
+    agent, calls = run_synthetic(prompt, response)
+    with pytest.raises(UnexpectedModelBehavior):
+        v6.run_agent_v6(agent, prompt)
+    assert calls == [True]
+
+
+@pytest.mark.parametrize("body", ["     ", "\t\n", "\u3000"])
+def test_final_canonical_v6_rejects_blank_attribution_suffix(body):
+    from v6_fixture import build_fixture
+
+    data = build_fixture()["result"]
+    data["canvas"]["research"]["claims"][0]["text"] = "제공 자료에 따르면, " + body
+    with pytest.raises(ValidationError):
+        ResearchResult.model_validate(data)
+
+
+def test_actual_python_astral_80_subject_400_body_matches_full_client_fixture():
+    from v6_fixture import ASTRAL_FIXTURE, build_astral_fixture
+
+    data = build_astral_fixture()
+    assert data == json.loads(ASTRAL_FIXTURE.read_text())
+    assert (
+        data["result"]["canvas"]["research"]["claims"][0]["text"]
+        == "😀" * 80 + "에 따르면, " + "🚀" * 400
+    )
+
+
+def test_provider_body_validation_preserves_valid_whitespace(sync_model_loop):
+    v6 = profile()
+    selected, response = proposal()
+    response["core_answer"]["text"] = " \t합성 본문 😀 \n "
+    prompt = v6.model_prompt_v6("합성", (selected,))
+    agent, _ = run_synthetic(prompt, response)
+    output, _, _ = v6.run_agent_v6(agent, prompt)
+    assert output.modules[0].claims[0].text == "제공 자료에 따르면,  \t합성 본문 😀 \n "

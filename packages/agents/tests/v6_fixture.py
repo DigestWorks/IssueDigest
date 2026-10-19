@@ -1,5 +1,6 @@
 """Synthetic v6 provider DTO through actual conversion and builder, for Python/JS/UI."""
 
+import hashlib
 import json
 from datetime import UTC, datetime
 from pathlib import Path
@@ -17,21 +18,40 @@ from issuedigest_domain.research_journey import ResearchResult, ResearchRun, pre
 
 ROOT = Path(__file__).parents[3]
 FIXTURE = ROOT / "packages/api-client/tests/fixtures/research-run-v6-generated.json"
+ASTRAL_FIXTURE = ROOT / "packages/api-client/tests/fixtures/research-run-v6-astral-generated.json"
 
 
-def build_fixture():
+def build_fixture(
+    *,
+    subject="제공 자료",
+    body="두 합성 지표는 같은 방향입니다.",
+    quote=None,
+    summary_title="합성 비교 결론",
+):
     value = json.loads(
         (ROOT / "packages/api-client/tests/fixtures/research-run-generated.json").read_text()
     )
     bundle = EvidenceBundle.model_validate(value["result"]["canvas"]["research"]["evidence"][0])
+    if quote is not None:
+        data = bundle.model_dump(mode="json")
+        data["representation"].update(
+            text=quote, text_sha256=hashlib.sha256(quote.encode()).hexdigest(), pages=[], tables=[]
+        )
+        data["citations"] = [
+            {
+                **data["citations"][0],
+                "selector": {"kind": "text", "start": 0, "end": len(quote), "quote": quote},
+            }
+        ]
+        bundle = EvidenceBundle.model_validate(data)
     snapshot = UUID(value["snapshot_ids"][0])
     presentation = presentation_for(bundle, snapshot).model_copy(update={"title": "합성 자료"})
     sources = ((snapshot, bundle, presentation),)
     prompt = model_prompt_v6("두 합성 지표는 같은 방향인가요?", sources)
     claim = dict(
-        text="두 합성 지표는 같은 방향입니다.",
+        text=body,
         category="attributed",
-        source_subject="제공 자료",
+        source_subject=subject,
         rationale="선택 인용에 대한 합성 AI 설명입니다.",
         event_date=None,
         citation_ids=[str(bundle.citations[0].citation_id)],
@@ -53,7 +73,7 @@ def build_fixture():
         tools[0].output.model_validate(
             {
                 "outcome": "answer",
-                "summary_title": "합성 비교 결론",
+                "summary_title": summary_title,
                 "core_answer": claim,
                 "additional_summary_claims": [limit],
                 "details": [
@@ -81,5 +101,14 @@ def build_fixture():
     return ResearchRun.model_validate(value).model_dump(mode="json")
 
 
+def build_astral_fixture():
+    return build_fixture(
+        subject="😀" * 80, body="🚀" * 400, quote="😀" * 80, summary_title="🌏" * 100
+    )
+
+
 if __name__ == "__main__":
     FIXTURE.write_text(json.dumps(build_fixture(), ensure_ascii=False, indent=2) + "\n")
+    ASTRAL_FIXTURE.write_text(
+        json.dumps(build_astral_fixture(), ensure_ascii=False, indent=2) + "\n"
+    )

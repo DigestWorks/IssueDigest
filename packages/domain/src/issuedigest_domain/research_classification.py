@@ -135,6 +135,7 @@ def validate_research_classification(canvas: CanvasBundle) -> None:
                 claim.text.startswith(separator, end)
                 and claim.text[:end].strip()
                 and 1 <= len(claim.text[end + len(separator) :]) <= 400
+                and claim.text[end + len(separator) :].strip()
                 and (
                     claim.text[:end] == "제공 자료"
                     or all(claim.text[:end] in quotes[c] for c in claim.citation_ids)

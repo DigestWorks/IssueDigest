@@ -4,8 +4,8 @@ import { isDisplayEvidence } from './evidence';
 import { hasKeys, isId, isObject } from './protected-request';
 
 const same = (a: unknown, b: unknown) => isId(a) && isId(b) && a.toLowerCase() === b.toLowerCase();
-const nonblank = (value: unknown, max: number) =>
-  typeof value === 'string' && value.length <= max && value.trim().length > 0;
+const nonblank = (value: unknown, max: number, codePoints = false) =>
+  typeof value === 'string' && (codePoints ? Array.from(value).length : value.length) <= max && value.trim().length > 0;
 
 export {exactDay, exactTimestamp} from './research-time';
 import {exactDay, exactTimestamp} from './research-time';
@@ -83,7 +83,7 @@ export function validResearchCanvas(
       'speaker_entity_id', 'subject_entity_ids', 'citation_ids', 'valid_period',
       'raw_event_time_text', 'derivation']) || !isId(claim.claim_id)
       || claims.has(claim.claim_id.toLowerCase()) || !same(claim.workspace_id, workspace)
-      || !nonblank(claim.text, 500) || claim.basis !== 'inference'
+      || !nonblank(claim.text, 500, isObject(claim.derivation) && claim.derivation.method_version === 'research-v6') || claim.basis !== 'inference'
       || claim.speaker_entity_id !== null || !Array.isArray(claim.subject_entity_ids)
       || claim.subject_entity_ids.length !== 0 || claim.raw_event_time_text !== null
       || !isObject(claim.derivation)
@@ -108,6 +108,7 @@ export function validResearchCanvas(
 
   if (!validResearchClassifications(research, revision)) return false;
 
+  const v6 = research.claims.some(claim => isObject(claim) && isObject(claim.derivation) && claim.derivation.method_version === 'research-v6');
   const draft = revision.draft;
   if (!hasKeys(draft, ['schema_version', 'draft_id', 'outcome', 'modules', 'message'])
     || draft.schema_version !== 1 || !isId(draft.draft_id)
@@ -128,7 +129,7 @@ export function validResearchCanvas(
     const expectedKeys = ['module_id', 'title', 'span', 'citation_ids', 'actions', 'kind'];
     if (!hasKeys(module, evidence ? expectedKeys : [...expectedKeys, 'claim_ids'])
       || !isId(module.module_id) || moduleIds.has(module.module_id.toLowerCase())
-      || !nonblank(module.title, 100) || module.span !== 'full'
+      || !nonblank(module.title, 100, v6) || module.span !== 'full'
       || !['summary', 'comparison', 'timeline', 'evidence'].includes(module.kind as string)) return false;
     moduleIds.add(module.module_id.toLowerCase());
     const moduleCitations = selectedCitations(module.citation_ids, citations, evidence ? 36 : 12);
