@@ -284,3 +284,93 @@ embedding·재시도를 하지 않는다.
 합성 통과와 고정 실제2회 전 field 의미 평가·전체 gate·독립 검토·앱/최종 브리핑 인수는 별도다.
 입출력 구조·taxonomy·지침이 함께 달라졌으므로 실제 평가에서도 단일 변경의 인과 효과로
 해석하지 않는다.
+
+
+## 순수 수치 표기 후보 색인
+
+`numeric_candidates`는 B2C 브리핑을 위한 내부 근거 기반이며 현재 앱·worker·provider에
+연결하지 않은 순수 API다. 원래 순서의 whole quote를 검사하고 유한 문법에 맞는 표기와
+모든 문자 위치를 반환한다. 모델/client 생성, 키 조회, 요청, DB 접근, 파일 쓰기는 없다.
+
+```python
+from issuedigest_agents.numeric_candidates import (
+    build_numeric_candidates,
+    numeric_candidates_packet,
+    validate_numeric_candidates,
+)
+
+index = build_numeric_candidates(source)
+checked = validate_numeric_candidates(source, index)
+packet = numeric_candidates_packet(source, checked)
+```
+
+Source는 기존과 같은 정확한 `(UUID4 snapshot, EvidenceBundle, SourcePresentation)` tuple이다.
+기존 순수 canonical 검증으로 hash·selector·snapshot/workspace·unchecked extra를 다시 검사한다.
+1..20개 whole quote와 합계12,000 Python Unicode code points를 허용하며 제목/metadata는
+수치 근거가 아니다. 호출자가 현재 접근 권한을 책임진다. 인용을 자르거나 공백/NFC/숫자/단위를
+정규화하지 않는다.
+
+모델은 모두 strict/frozen/extra-forbid다. `ExactSpan(citation_id,text,start,end)`은 원래 인용의
+code-point 반열린 구간이며 text는 그 위치의 정확한 slice다. `SentenceCandidate(sentence_id,
+span)`는 `s1,s2,...` 전역 순서이며 각 인용을 LF 또는 `.?!。！？` 직후에서 분할한다. 양옆이
+ASCII 숫자인 소수점은 경계가 아니다. 경계 문자는 앞 구간에 포함하며 CRLF·공백만인 구간·
+마지막 tail·control/NEL/BOM·결합문자/astral까지 모든 code point를 원래 위치에 보존한다.
+URL/약어와 실제 언어적 문장 경계는 인증하지 않는다.
+
+`NumericAtom(number,unit)`의 number와 nullable unit은 exact span이다.
+`NumericCandidate(candidate_id,sentence_ids,expression,atoms,separator,qualifiers,lexical_kind)`는
+전역 `n1,n2,...`, 실제 겹치는 모든 문장 ID, 연속 원문 expression, atom1..2개, nullable
+separator, qualifier0..2개를 담는다. 범위는 두 atom과 정확한 separator를 보존하며 단위를
+서로 복사하지 않는다. 후보는 인용/원문 순서이며 겹치는 숫자 영역을 중복 출력하지 않는다.
+
+지원 문법과 우선순위는 다음과 같다.
+
+- 법령 `제`+ASCII digits+`조/항/호`는 배율/단위보다 먼저 identifier로 보존한다. expression은
+  `제12조` 전체, number는 `12`, unit은 null이다. 온전한 `YYYY-MM-DD` 또는 `YYYY/MM/DD`는
+  다음 우선순위의 temporal 단일 atom이며 전체 날짜가 number다. 달력 유효성을 판정하지
+  않는다. 날짜를 범위의 한쪽 숫자로 잘라 합치지 않는다.
+- 숫자는 ASCII digits, 정상 3자리 comma 그룹, 소수, 선행 `+,-,−`, 한국어 배율
+  `십/백/천/만/억/조`를 지원한다. `9만 9000`, `3억 5천만`, `-2.5`, `1,200.5`를 계산하지
+  않고 spelling 그대로 보존한다. 배율이 있어야 다음 가로 공백 숫자 그룹을 이어 붙인다.
+- 범위 separator는 `~,∼,～,–,—,-`다. 수·배율·단위와 범위 양끝 사이에는 space/tab만
+  연결하며 LF를 넘지 않는다. `1~2호`, `1호~2호`, `-2~-1`의 각 끝을 그대로 남긴다.
+  단위가 다르거나 한쪽에 없어도 보정하지 않는다. 여러 종류가 섞인 범위의 lexical_kind는
+  ambiguous, temporal, identifier, number 순서로 결정한다.
+- 명시 측정 단위 사전은 `%p, %, bp, p, 호, 명, 원, 건, 개, 배, 점, 석, 곳, km², km2,
+  ㎢, km, m², m2, ㎡, m, kg, g, t`다. temporal 단위는 `개월, 년, 월, 일, 시, 분, 초`다.
+  긴 표기부터 고르며 조사/어미를 unit에 넣지 않는다. 정상 숫자의 명시 단위는 일반 이름
+  hint보다 우선한다. 지수나 다른 atom의 단위를 추정하지 않고 없으면 null이다.
+- 인접 prefix `약/최대/최소`와 suffix `이상/이하/초과/미만`을 별도 exact qualifier span으로
+  expression에 포함한다. 그 밖의 문장으로 조건이나 열린 하한을 추론하지 않는다.
+- digit로 시작하고 digit로 끝나는 연속 digit/dot/comma run의 malformed comma·다중 소수점은
+  쪼개지 않고 ambiguous atom으로 보존한다. 문장 구간을 넘으면 모든 겹치는 문장을 참조한다.
+  terminal dot/comma는 숫자 밖의 구두점이다.
+- 단위가 없는 정상 숫자는 number다. 바로 붙은 alphabetic/Hangul 이름은 identifier hint지만,
+  숫자 부분만 expression/number에 담는다. 유한 grammatical ending 예외는 `으로, 로, 이다,
+  이었다, 입니다, 이고, 이며, 에서, 에, 은, 는, 이, 가, 을, 를, 와, 과, 의, 도, 만, 부터,
+  까지, 보다`이며 `106.6으로` 같은 표기를 identifier로 바꾸지 않는다. 조사/이름 구별은
+  형태소 분석이 아니므로 이 예외와 단위 prefix가 우연히 맞는 이름은 오분류될 수 있다.
+
+지원 밖 한글 수사·분수·지수 표기·선행점 소수·새 단위의 완전 포괄을 주장하지 않는다.
+예를 들어 `다섯 명`은 빈 후보가 될 수 있고 `1e3`과 `1/2`는 별도 숫자 후보로 남는다.
+임의 이름이나 단위의 의미, 대상·기간·관계·조건·사실의 진실을 판정하지 않는다. 거짓 문장의
+수치도 후보가 된다. 빈 후보는 완전 추출 인증이 아니다. 사전 밖 표기의 누락/잡음을 숨기지
+않으며 날짜/identifier/ambiguous도 후보 상한256개에 포함한다. 257개면 전체를 거부한다.
+
+`NumericCandidateIndex`는 profile=`numeric-candidates-v1`, status=`unreviewed`, snapshot/workspace,
+서버 canonical source JSON UTF-8 SHA256, 원래 순서의 전체 citations, sentences, candidates를
+담는다. `validate_numeric_candidates`는 exact index type과 중첩 unchecked extra/strictness를
+검사한 뒤 현재 canonical Source에서 전체 색인을 재생성하여 모든 field·ID·순서·구간·text·
+분류·단위·수식어·누락/추가를 비교한다. 일관된 offset/text 변조나 model_copy/model_construct도
+원래 결과와 다르면 거부한다. 같은 원문/인용의 유효 metadata 변경은 새 의미 인증이 아니다.
+SHA256은 서명·인증·권한·인간 검토·진실을 뜻하지 않는다.
+
+실패는 원문·비공개 ID를 노출하지 않는 `NumericCandidateError(ValueError)`다. 수리·부분 성공·
+추가 모델 호출은 없다. packet은 validate 후 전체 인용을 포함한 색인의 canonical JSON이며
+사용량 영수증·모델 지침·토큰 예산을 만들지 않는다. 향후 provider에 넘길 때 전체 schema/
+instructions/prompt budget을 별도로 검사해야 하므로 provider-ready packet으로 부르지 않는다.
+후보 선택과 의미·관계 검증, 실제 앱 연결/최종 브리핑 인수는 후속이다.
+
+합성 검사는 `uv run --offline pytest packages/agents/tests/test_numeric_candidates.py -q`다.
+agents suite/Ruff/format/mypy는 위의 패키지 검사 명령을 따른다. 실제 private packet 평가와
+전체 저장소 gate·독립 검토는 별도다.
