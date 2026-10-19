@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 작업 시작 · 원문 날짜·포함 관계 보존 · 2026-10-19 KST
+
+- PR44/379720f·명세briefing-source-fidelity로 이어간다. v7 cached 날짜 추정 실패와 부분수치/상태의 의미 한계를 분리해 보완한다. exact quote 날짜가 없으면 timeline을 생성 선택지에서 빼고 기존 비교/요약으로 설명한다. 추가 모델 재시도/웹 탐색/임시UI를 만들지 않는다. 기존v2~v7 bytes·검색/비용/권한/복구·공개/수집기를 보존하고 새v8만 적용한다. 작업/전체검토·실제3/6·개발/Sites는 증거 뒤 기록한다. main/운영 유예·사용자 탭 유지다.
+
 ## 최종 출판·정리 · 질문별 조사 계획·승인 자료 검색 · 2026-10-19 KST
 
 - [Sites v66](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 유지·native succeeded. source `5600489fd45358aa39c7a5977952abc8d10d64fd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_3c1b6331a6a88191adab42a45babb2ea`, deployment `appgdep_6ad5ad1acd9c81918276889d95baab4d` (2026-10-19 05:39:52 UTC). 이전v65와 전체 역사·실패 분모를 보존했다. 저장소 사본 기준50e28cc·실행57c71ec·[Draft PR44](https://github.com/DigestWorks/IssueDigest/pull/44)이며 사본 이후의 이 최종 receipt는 저장소가 원본이다.
