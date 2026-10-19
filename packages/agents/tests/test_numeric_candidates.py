@@ -658,3 +658,73 @@ def test_suffix_precedence_keeps_real_units_and_their_qualifiers(
     assert tuple(q.text for q in candidate.qualifiers) == (
         () if qualifier is None else (qualifier,)
     )
+
+
+@pytest.mark.parametrize("date", ["2026-10-19", "2026/10/19"])
+@pytest.mark.parametrize(
+    "left,gap,date_start", [("1", "", 2), ("1", " ", 3), ("1만", "", 3), ("1만", " ", 4)]
+)
+def test_rejected_hyphen_date_endpoint_resumes_at_whole_date(left, gap, date_start, date):
+    api = sdk()
+    text = f"{left}{gap}-{date}"
+    src = document(text)
+    index = api.build_numeric_candidates(src)
+    assert [(c.candidate_id, c.expression.text, c.lexical_kind) for c in index.candidates] == [
+        ("n1", left, "number"),
+        ("n2", date, "temporal"),
+    ]
+    quantity, temporal = index.candidates
+    assert len(quantity.atoms) == len(temporal.atoms) == 1
+    assert quantity.separator is None and temporal.separator is None
+    assert quantity.atoms[0].unit is None and temporal.atoms[0].unit is None
+    number = temporal.atoms[0].number
+    assert (number.text, number.start, number.end) == (date, date_start, date_start + 10)
+    assert temporal.expression == number
+    assert quantity.sentence_ids == temporal.sentence_ids == ("s1",)
+    assert len(index.sentences) == 1
+    sentence = index.sentences[0].span
+    assert (sentence.text, sentence.start, sentence.end) == (text, 0, len(text))
+    assert api.validate_numeric_candidates(src, index) == index
+    packet = json.loads(api.numeric_candidates_packet(src, index))
+    assert packet["citations"][0]["quote"] == text
+    assert packet["sentences"][0]["span"]["text"] == text
+    assert [c["expression"]["text"] for c in packet["candidates"]] == [left, date]
+
+
+@pytest.mark.parametrize(
+    "text,left,date,date_start",
+    [
+        ("1~2026-10-19", "1", "2026-10-19", 2),
+        ("1~2026/10/19", "1", "2026/10/19", 2),
+        ("1만 - 2026/10/19", "1만", "2026/10/19", 5),
+        ("1만 - 2026-10-19", "1만", "2026-10-19", 5),
+    ],
+)
+def test_declined_date_range_controls_keep_delimiter_in_partition(text, left, date, date_start):
+    index = sdk().build_numeric_candidates(document(text))
+    assert [c.expression.text for c in index.candidates] == [left, date]
+    assert index.candidates[1].lexical_kind == "temporal"
+    assert (index.candidates[1].expression.start, index.candidates[1].expression.end) == (
+        date_start,
+        date_start + 10,
+    )
+    assert index.sentences[0].span.text == text
+
+
+@pytest.mark.parametrize(
+    "text,left,right,separator",
+    [
+        ("1-2", "1", "2", "-"),
+        ("1만-2만", "1만", "2만", "-"),
+        ("1--2", "1", "-2", "-"),
+        ("-2~-1", "-2", "-1", "~"),
+    ],
+)
+def test_date_resume_fix_preserves_normal_ranges_and_negative_endpoints(
+    text, left, right, separator
+):
+    (candidate,) = sdk().build_numeric_candidates(document(text)).candidates
+    assert candidate.expression.text == text
+    assert candidate.lexical_kind == "number"
+    assert tuple(a.number.text for a in candidate.atoms) == (left, right)
+    assert candidate.separator.text == separator

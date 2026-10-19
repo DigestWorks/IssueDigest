@@ -289,6 +289,7 @@ def _scan(
         date = _DATE.match(text, pos)
         qualifier_spans: list[ExactSpan] = []
         separator = None
+        resume_at = pos
         start = pos
         atoms: tuple[NumericAtom, ...]
         kind: LexicalKind
@@ -310,9 +311,13 @@ def _scan(
             separator_start = _horizontal(text, end)
             if separator_start < len(text) and text[separator_start] in _SEPARATORS:
                 right_start = _horizontal(text, separator_start + 1)
+                prioritized_date = _DATE.match(text, right_start)
+                if prioritized_date is not None:
+                    # This known delimiter must not become the date's leading sign.
+                    resume_at = right_start
                 right = (
                     None
-                    if _DATE.match(text, right_start) or _LEGAL.match(text, right_start)
+                    if prioritized_date or _LEGAL.match(text, right_start)
                     else _atom(cid, text, right_start)
                 )
                 if right is not None:
@@ -356,7 +361,7 @@ def _scan(
         )
         if base + len(result) > 256:
             raise ValueError("Candidate limit exceeded")
-        pos = end
+        pos = max(end, resume_at)
     return result
 
 
