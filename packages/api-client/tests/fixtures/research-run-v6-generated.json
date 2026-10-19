@@ -180,7 +180,7 @@
           {
             "claim_id": "00000000-0000-4000-8000-0000000003eb",
             "workspace_id": "00000000-0000-4000-8000-000000000001",
-            "text": "합성 문서에 기록되어 있습니다.",
+            "text": "제공 자료에 따르면, 합성 문서에 기록되어 있습니다.",
             "basis": "inference",
             "speaker_entity_id": null,
             "subject_entity_ids": [],
@@ -268,7 +268,7 @@
               "kind": "claim",
               "claim_id": "00000000-0000-4000-8000-0000000003eb"
             },
-            "scope": "content",
+            "scope": "attribution",
             "assessment": "supported"
           },
           {

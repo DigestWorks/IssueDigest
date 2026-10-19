@@ -23,7 +23,7 @@ ASTRAL_FIXTURE = ROOT / "packages/api-client/tests/fixtures/research-run-v6-astr
 
 def build_fixture(
     *,
-    subject="제공 자료",
+    canonical_subject=None,
     body="두 합성 지표는 같은 방향입니다.",
     quote=None,
     summary_title="합성 비교 결론",
@@ -50,22 +50,17 @@ def build_fixture(
     prompt = model_prompt_v6("두 합성 지표는 같은 방향인가요?", sources)
     claim = dict(
         text=body,
-        category="attributed",
-        source_subject=subject,
         rationale="선택 인용에 대한 합성 AI 설명입니다.",
-        event_date=None,
         citation_ids=[str(bundle.citations[0].citation_id)],
     )
     limit = {
         **claim,
-        "category": "uncertain",
-        "source_subject": None,
+        "assessment": "uncertain",
         "text": "이 인용으로 전국 인지도는 확인하기 어렵습니다.",
     }
     recorded = {
         **claim,
-        "category": "documented",
-        "source_subject": None,
+        "assessment": "source_statement",
         "text": "합성 문서에 기록되어 있습니다.",
     }
     tools = _provider_tools_v6((str(bundle.citations[0].citation_id),))
@@ -77,12 +72,20 @@ def build_fixture(
                 "core_answer": claim,
                 "additional_summary_claims": [limit],
                 "details": [
-                    {"kind": "comparison", "title": "합성 비교 상세", "claims": [recorded, claim]}
+                    {
+                        "kind": "comparison",
+                        "title": "합성 비교 상세",
+                        "claims": [recorded, {**claim, "assessment": "source_statement"}],
+                    }
                 ],
             }
         ),
         prompt,
     )
+    # Explicitly exercise the preserved canonical custom-subject boundary separately
+    # from the new provider policy. Generated shared fixtures never use this override.
+    if canonical_subject is not None:
+        output.modules[0].claims[0].text = canonical_subject + "에 따르면, " + body
     ids = iter(UUID(int=i, version=4) for i in range(1000, 1100))
     fixed_time = datetime(2026, 10, 15, 0, 0, 0, 123456, tzinfo=UTC)
     with (
@@ -102,9 +105,7 @@ def build_fixture(
 
 
 def build_astral_fixture():
-    return build_fixture(
-        subject="😀" * 80, body="🚀" * 400, quote="😀" * 80, summary_title="🌏" * 100
-    )
+    return build_fixture(body="🚀" * 400, quote="😀" * 80, summary_title="🌏" * 100)
 
 
 if __name__ == "__main__":

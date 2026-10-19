@@ -39,10 +39,10 @@ test('preserves an exact source subject containing the attribution separator', (
   expect(validResearchClassifications(research, revision)).toBe(true);
 });
 
-test('accepts actual Python 80-code-point subject and 400-code-point body through the full client', async () => {
+test('accepts actual Python fixed material prefix and 400-code-point body through the full client', async () => {
   const {default: astral} = await import('./fixtures/research-run-v6-astral-generated.json');
   const run = structuredClone(astral) as ResearchRun;
-  expect(run.result!.canvas.research.claims[0]!.text).toBe('😀'.repeat(80) + '에 따르면, ' + '🚀'.repeat(400));
+  expect(run.result!.canvas.research.claims[0]!.text).toBe('제공 자료에 따르면, ' + '🚀'.repeat(400));
   expect(valid(run)).toBe(true);
   expect((await read(run)).data).toEqual(run);
 });
@@ -103,4 +103,18 @@ test.each(['documented', 'uncertain'].flatMap(category => ['\u0085', '\ufeff', '
   expect(validResearchClassifications(research, revision)).toBe(false);
   expect(valid(run)).toBe(false);
   await expect(read(run)).rejects.toMatchObject({kind:'malformed'});
+});
+
+test('preserves canonical 80-code-point subject and 400-code-point body through full client', async () => {
+  const subject = '😀'.repeat(80), body = '🚀'.repeat(400);
+  const run = await subjectCase(subject, body);
+  expect((await read(run)).data).toEqual(run);
+  expect(run.result!.canvas.research.claims[0]!.text).toBe(subject + '에 따르면, ' + body);
+});
+
+test('preserves canonical documented content review through full client', async () => {
+  const run = value(), research = run.result!.canvas.research;
+  research.claims[0]!.text = '합성 문서의 기록입니다.';
+  Object.assign(research.support_reviews[0]!, {scope:'content', assessment:'supported'});
+  expect((await read(run)).data).toEqual(run);
 });

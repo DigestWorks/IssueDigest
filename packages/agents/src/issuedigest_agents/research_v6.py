@@ -1,12 +1,14 @@
 """Private v6: require a supported first answer and explicit, quote-bound attribution."""
 
+import re
+from datetime import date
 from typing import Literal, TypeAliasType
 from uuid import UUID
 
 from issuedigest_domain import CanvasBundle, EvidenceBundle
 from issuedigest_domain.research_journey import SourcePresentation
 from issuedigest_domain.research_text import has_v6_text
-from pydantic import BaseModel, ConfigDict, Field, create_model, model_validator
+from pydantic import BaseModel, ConfigDict, Field, create_model, field_validator
 from pydantic_ai import Agent, AgentRunResult, ToolOutput, UsageLimits
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIResponsesModelSettings
@@ -18,10 +20,9 @@ from .research import (
     PROVIDER_FRAMING_ALLOWANCE,
     _model_prompt,
 )
-from .research_v3 import AIClaimV3, AIOutputV3, _build_classified_canvas, _create_classified_agent
+from .research_v3 import AIOutputV3, _build_classified_canvas, _create_classified_agent
 from .research_v5 import (
     _prompt_citation_ids_v5,
-    _PromptV5,
     _provider_schema_bytes_v5,
     _ProviderNonAnswerV5,
 )
@@ -39,69 +40,84 @@ SYSTEM_INSTRUCTIONS_V6 = (
     "For a partial answer put the short supported conclusion in core_answer and material "
     "limits in additional_summary_claims. For comparisons core_answer must directly state "
     "same direction, different direction, or inability to compare as supported by quotes. "
-    "answer has summary_title, one core_answer (documented/attributed only), zero to three "
+    "answer has summary_title, one source-bound core_answer, zero to three "
     "additional_summary_claims and zero to two comparison/timeline details; no message/modules. "
     "The server displays core_answer first in the open summary; details start collapsed. "
-    "Every claim has category, rationale and one to three exact citation_ids. attributed "
-    "takes priority for source statistics, targets, results, evaluations, effects, forecasts "
-    "or assertions. source_subject is required, nonblank and exact: either '제공 자료' or "
-    "a continuous substring in EVERY quote selected by that claim. Do not strip, correct or "
-    "infer the subject from metadata or other citations. If speaker is unknown or sources "
-    "are mixed, use '제공 자료'. The server adds '{source_subject}에 따르면, ' to text; "
-    "do not duplicate this prefix. This is attribution, not certification of an institution's "
-    "truth. documented records document existence, procedure or plan, not certified statistics. "
-    "uncertain explains what selected quotes cannot establish; source_subject must be null "
-    "for documented/uncertain. These categories are AI assessments of selected quotes, never "
-    "human review or independent fact checking. Do not invent opposing sides or contradictions. "
+    "Every claim has text, rationale and one to three exact citation_ids. Core has no "
+    "assessment. Additional and detail claims use assessment source_statement or uncertain. "
+    "All positive interpretations, including document existence, statistics, targets, results, "
+    "evaluations, effects and forecasts, remain assertions of the provided materials. The "
+    "server prefixes core and source_statement text with '제공 자료에 따르면, '; do not "
+    "duplicate this prefix. Do not provide category or source_subject or infer an institution "
+    "or speaker from metadata or other quotes. uncertain explains what selected quotes cannot "
+    "establish and receives no prefix. These are AI assessments, never human review, "
+    "independent fact checking or certification of a source's truth. Do not invent opposing "
+    "sides or contradictions. "
     "Preserve subject, period, unit, target/result/forecast status and '이상/이하/약' open ends. "
     "Compare only compatible bases; explain inability without forcing a conclusion. A current "
-    "result below a year-end target does not establish year-end failure. Do not invent new "
+    "result below a year-end target does not establish year-end failure. A target100 and "
+    "forecast80~90이상 do not establish a fixed upper bound or target failure. A current "
+    "result with only a lower bound does not supply an upper bound. Do not invent new "
     "calculations, ratios, causes, public opinion, legal effects or process events. "
     "collected_at is collection time, not publication/event time. proposed_on is only a bill "
-    "proposal date. Timeline dates require exact YYYY-MM-DD in a selected quote. Claims "
-    "have text 1..400 characters, source_subject at most80 and rationale 1..300; assembled "
-    "text must fit500. Each detail has1..4 claims, comparison at least2. No HTML or evidence "
+    "proposal date. Timeline dates require exact YYYY-MM-DD in a selected quote; never "
+    "turn a month-only date into its first day. Claims "
+    "have nonblank text 1..400 characters and nonblank rationale 1..300. Only timeline "
+    "claims have required event_date; core/summary/comparison must omit that key entirely. "
+    "Each detail has1..4 claims, comparison at least2. No HTML or evidence "
     "module; the server appends exact evidence."
 )
 
 
-class _ProviderClaimV6(AIClaimV3):
+class _ProviderCoreV6(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     text: str = Field(min_length=1, max_length=400)
-    source_subject: str | None = Field(max_length=80)
+    rationale: str = Field(min_length=1, max_length=300)
 
-    @model_validator(mode="after")
-    def attribution_subject(self) -> "_ProviderClaimV6":
-        if not has_v6_text(self.text):
-            raise ValueError("Provider claim body must be nonblank before attribution")
-        if self.category == "attributed":
-            if self.source_subject is None or not has_v6_text(self.source_subject):
-                raise ValueError("Attributed claim requires nonblank source_subject")
-        elif self.source_subject is not None:
-            raise ValueError("Only attributed claims may carry source_subject")
-        return self
+    @field_validator("text", "rationale")
+    @classmethod
+    def nonblank_text(cls, value: str) -> str:
+        if not has_v6_text(value):
+            raise ValueError("Provider body and rationale must be nonblank")
+        return value
+
+
+class _ProviderClaimV6(_ProviderCoreV6):
+    assessment: Literal["source_statement", "uncertain"]
+
+
+class _ProviderTimelineClaimV6(_ProviderClaimV6):
+    event_date: date
+
+    @field_validator("event_date", mode="before")
+    @classmethod
+    def exact_date(cls, value: object) -> object:
+        if not isinstance(value, str) or re.fullmatch(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", value) is None:
+            raise ValueError("Timeline date must use exact YYYY-MM-DD spelling")
+        return value
 
 
 def _provider_tools_v6(citation_ids: tuple[str, ...]) -> list[ToolOutput[BaseModel]]:
     ProviderCitationIdV6 = TypeAliasType("ProviderCitationIdV6", Literal[*citation_ids])  # type: ignore[valid-type]  # noqa: UP040
-    claim = create_model(
-        "ProviderClaimV6",
-        __base__=_ProviderClaimV6,
-        citation_ids=(
-            tuple[ProviderCitationIdV6, ...],
-            Field(min_length=1, max_length=3),
-        ),
+    citations = (tuple[ProviderCitationIdV6, ...], Field(min_length=1, max_length=3))
+    core = create_model("ProviderCoreAnswerV6", __base__=_ProviderCoreV6, citation_ids=citations)
+    claim = create_model("ProviderClaimV6", __base__=_ProviderClaimV6, citation_ids=citations)
+    timeline_claim = create_model(
+        "ProviderTimelineClaimV6", __base__=_ProviderTimelineClaimV6, citation_ids=citations
     )
-    core = create_model(
-        "ProviderCoreAnswerV6",
-        __base__=claim,
-        category=(Literal["documented", "attributed"], ...),  # type: ignore[arg-type, maybe-unrecognized-str-typeform]
-    )
-    detail = create_model(
-        "ProviderDetailV6",
+    comparison = create_model(
+        "ProviderComparisonV6",
         __config__=ConfigDict(extra="forbid"),
-        kind=(Literal["comparison", "timeline"], ...),  # type: ignore[arg-type, maybe-unrecognized-str-typeform]
+        kind=(Literal["comparison"], ...),  # type: ignore[arg-type, maybe-unrecognized-str-typeform]
         title=(str, Field(min_length=1, max_length=100)),
-        claims=(tuple[claim, ...], Field(min_length=1, max_length=4)),  # type: ignore[valid-type]
+        claims=(tuple[claim, ...], Field(min_length=2, max_length=4)),  # type: ignore[valid-type]
+    )
+    timeline = create_model(
+        "ProviderTimelineV6",
+        __config__=ConfigDict(extra="forbid"),
+        kind=(Literal["timeline"], ...),  # type: ignore[arg-type, maybe-unrecognized-str-typeform]
+        title=(str, Field(min_length=1, max_length=100)),
+        claims=(tuple[timeline_claim, ...], Field(min_length=1, max_length=4)),  # type: ignore[valid-type]
     )
     answer = create_model(
         "ProviderAnswerV6",
@@ -110,7 +126,7 @@ def _provider_tools_v6(citation_ids: tuple[str, ...]) -> list[ToolOutput[BaseMod
         summary_title=(str, Field(min_length=1, max_length=100)),
         core_answer=(core, ...),
         additional_summary_claims=(tuple[claim, ...], Field(max_length=3)),  # type: ignore[valid-type]
-        details=(tuple[detail, ...], Field(max_length=2)),  # type: ignore[valid-type]
+        details=(tuple[comparison | timeline, ...], Field(max_length=2)),  # type: ignore[valid-type]
     )
     outputs: list[ToolOutput[BaseModel]] = [
         ToolOutput(
@@ -162,26 +178,18 @@ def model_prompt_v6(
 
 
 def _canonical_output_v6(output: BaseModel, prompt: str) -> AIOutputV6:
-    """Validate provider-only attribution before dropping source_subject from public shape."""
+    """Project validated provider DTOs to the unchanged canonical three-category alias."""
     data = output.model_dump(mode="python")
     if data["outcome"] != "answer":
         return AIOutputV6.model_validate(data)
-    quotes = {
-        c.citation_id: c.quote
-        for s in _PromptV5.model_validate_json(prompt).sources
-        for c in s.citations
-    }
 
     def canonical_claim(claim: dict[str, object]) -> dict[str, object]:
-        subject = claim["source_subject"]
-        if subject is not None:
-            assert isinstance(subject, str)
-            ids = claim["citation_ids"]
-            assert isinstance(ids, tuple)
-            if subject != "제공 자료" and not all(subject in quotes[c] for c in ids):
-                raise ValueError("source_subject absent from selected quote")
-            claim = {**claim, "text": f"{subject}에 따르면, {claim['text']}"}
-        return {k: v for k, v in claim.items() if k != "source_subject"}
+        uncertain = claim.get("assessment") == "uncertain"
+        return {
+            **{k: v for k, v in claim.items() if k != "assessment"},
+            "category": "uncertain" if uncertain else "attributed",
+            "text": claim["text"] if uncertain else f"제공 자료에 따르면, {claim['text']}",
+        }
 
     return AIOutputV6.model_validate(
         {

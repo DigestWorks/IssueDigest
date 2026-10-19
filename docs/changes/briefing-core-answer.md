@@ -27,9 +27,9 @@ v6 nonblank는 Python Unicode whitespace와 ECMAScript WhiteSpace/LineTerminator
 
 실제 f462의 고정4회는 insufficient_evidence 완료1·generation_failed3이었다. 유료 checkpoint를 추가 호출 없이 읽어 documented+nonnull source_subject, 모든 인용에 없는 기관명, non-timeline의 임의 event_date를 확인했다. 실제 응답은 저장/표시하지 않고 기존 guards가 차단했다. 초기4회 분모와 cached usage를 보존한다. 현재 개발은 여전히f90839e이며 v6실사용/배포는0이다.
 
-- [ ] provider 전용 claim/core/detail DTO를 위 현재 Global Constraints대로 단순화한다. 새 AI 긍정 해석은 attributed+서버 고정 제공 자료 prefix이고 uncertain은 그대로다. 모델이 mutually dependent category/source_subject를 쓰지 않는다. core/summary/comparison에는 event_date 키를 없애고 timeline만 required date typed DTO다. canonical alias/API/domain/client/기존 최종검증과 원본 텍스트는 그대로다. 기존v5 모든 bytes/지침/schema/유료 namespace·다섯 registry/step1·요청1/0retry를 보존한다.
-- [ ] 실제 관측 오류의 작은 합성 사례로 TDD한다. 이전 raw DTO 조합·summary/comparison 임의 날짜는 strict schema상 허용하지 않고 수동 수리하지 않는다. 실제 provider raw/normalized schemas/100IDs/예산·모델1회·긍정+uncertain/정확인용·지침·timelinedate·v6공통Unicode/blank/sourceprefix·Python→JS/UI·v6 checkpoint 재생을 검증한다. 모델 형식이 단순해졌다고 의미 품질 통과로 표시하지 않는다. raw private 응답/실제 키/서버/모델은 구현자에게 제공하지 않는다.
-- [ ] 새v6 예산/goldens/README·provider변환을 사용하는 합성 fixtures/worker tests를 새 DTO에 맞춘다. 기존 canonical documented 허용/검증과 과거v2/v3/v4/v5 goldens·호환 fixtures를 바꾸지 않는다. Task1 계약 fixture를 바꾸면 새 builder로 실제 재생성하고 canonical 검증/명시 source attribution·첫 summary/원문을 확인한다. 관련 scoped checks·보고서·체크박스·commit 후 전체/독립/실제 인수는 controller에게 남긴다.
+- [x] provider 전용 claim/core/detail DTO를 위 현재 Global Constraints대로 단순화한다. 새 AI 긍정 해석은 attributed+서버 고정 제공 자료 prefix이고 uncertain은 그대로다. 모델이 mutually dependent category/source_subject를 쓰지 않는다. core/summary/comparison에는 event_date 키를 없애고 timeline만 required date typed DTO다. canonical alias/API/domain/client/기존 최종검증과 원본 텍스트는 그대로다. 기존v5 모든 bytes/지침/schema/유료 namespace·다섯 registry/step1·요청1/0retry를 보존한다.
+- [x] 실제 관측 오류의 작은 합성 사례로 TDD한다. 이전 raw DTO 조합·summary/comparison 임의 날짜는 strict schema상 허용하지 않고 수동 수리하지 않는다. 실제 provider raw/normalized schemas/100IDs/예산·모델1회·긍정+uncertain/정확인용·지침·timelinedate·v6공통Unicode/blank/sourceprefix·Python→JS/UI·v6 checkpoint 재생을 검증한다. 모델 형식이 단순해졌다고 의미 품질 통과로 표시하지 않는다. raw private 응답/실제 키/서버/모델은 구현자에게 제공하지 않는다.
+- [x] 새v6 예산/goldens/README·provider변환을 사용하는 합성 fixtures/worker tests를 새 DTO에 맞춘다. 기존 canonical documented 허용/검증과 과거v2/v3/v4/v5 goldens·호환 fixtures를 바꾸지 않는다. Task1 계약 fixture를 바꾸면 새 builder로 실제 재생성하고 canonical 검증/명시 source attribution·첫 summary/원문을 확인한다. 관련 scoped checks·보고서·체크박스·commit 후 전체/독립/실제 인수는 controller에게 남긴다.
 
 ## Controller 인수
 

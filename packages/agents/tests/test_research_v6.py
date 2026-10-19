@@ -19,7 +19,7 @@ def profile():
     return importlib.import_module("issuedigest_agents.research_v6")
 
 
-def proposal(category="attributed", subject="제공 자료"):
+def proposal():
     selected = source()
     return selected, {
         "outcome": "answer",
@@ -27,9 +27,6 @@ def proposal(category="attributed", subject="제공 자료"):
         "core_answer": {
             "text": "같은 방향입니다.",
             "citation_ids": [str(selected[1].citations[0].citation_id)],
-            "event_date": None,
-            "category": category,
-            "source_subject": subject,
             "rationale": "선택 인용의 합성 설명",
         },
         "additional_summary_claims": [],
@@ -57,8 +54,7 @@ def test_core_answer_becomes_first_summary_with_exact_v6_attribution(sync_model_
     response["additional_summary_claims"] = [
         {
             **response["core_answer"],
-            "category": "uncertain",
-            "source_subject": None,
+            "assessment": "uncertain",
             "text": "이 인용으로 전국 인지도는 확인하기 어렵습니다.",
         }
     ]
@@ -67,7 +63,7 @@ def test_core_answer_becomes_first_summary_with_exact_v6_attribution(sync_model_
             "kind": "comparison",
             "title": "접힌 상세",
             "claims": [
-                response["core_answer"],
+                {**response["core_answer"], "assessment": "source_statement"},
                 response["additional_summary_claims"][0],
             ],
         }
@@ -98,31 +94,22 @@ def test_core_answer_becomes_first_summary_with_exact_v6_attribution(sync_model_
     "mutation",
     [
         "uncertain-core",
-        "missing-subject",
-        "blank-subject",
         "other-subject",
         "documented-subject",
         "message",
         "summary-detail",
         "long-text",
-        "long-subject",
         "unknown-id",
         "uppercase-id",
     ],
 )
-def test_provider_rejects_unsupported_core_and_invalid_subjects_without_retry(
-    sync_model_loop, mutation
-):
+def test_provider_rejects_old_fields_and_unsupported_core_without_retry(sync_model_loop, mutation):
     v6 = profile()
     selected, response = proposal()
     core = response["core_answer"]
     match mutation:
         case "uncertain-core":
-            core.update(category="uncertain", source_subject=None)
-        case "missing-subject":
-            core.pop("source_subject")
-        case "blank-subject":
-            core["source_subject"] = "  "
+            core["assessment"] = "uncertain"
         case "other-subject":
             core["source_subject"] = "없는 합성 기관"
         case "documented-subject":
@@ -135,8 +122,6 @@ def test_provider_rejects_unsupported_core_and_invalid_subjects_without_retry(
             ]
         case "long-text":
             core["text"] = "가" * 401
-        case "long-subject":
-            core["source_subject"] = "가" * 81
         case "unknown-id":
             core["citation_ids"] = [str(uuid4())]
         case "uppercase-id":
@@ -207,7 +192,7 @@ def test_invalid_prompt_and_injected_question_ids_never_expand_allowlist(sync_mo
 
 def test_canonical_v6_rejects_all_uncertain_or_non_summary_core():
     v6 = profile()
-    selected, response = proposal("documented", None)
+    selected, response = proposal()
     from issuedigest_agents.research_v3 import AIOutputV3
 
     for kind, category in [("summary", "uncertain"), ("comparison", "documented")]:
@@ -226,6 +211,7 @@ def test_canonical_v6_rejects_all_uncertain_or_non_summary_core():
                                     if k != "source_subject"
                                 },
                                 "category": category,
+                                "event_date": None,
                             }
                         ]
                         * (2 if kind == "comparison" else 1),
@@ -272,74 +258,16 @@ def test_actual_v6_builder_matches_shared_web_fixture():
     assert build_fixture() == json.loads(FIXTURE.read_text())
 
 
-@pytest.mark.parametrize("category", ["documented", "attributed", "uncertain"])
-@pytest.mark.parametrize("subject", [None, "", " ", "제공 자료"])
-def test_subject_nullability_is_category_specific(category, subject):
+@pytest.mark.parametrize("text_size,valid", [(400, True), (401, False)])
+def test_provider_body_and_original_canonical_character_limits(sync_model_loop, text_size, valid):
     v6 = profile()
     selected, response = proposal()
-    # General claims permit uncertain; core never does.
-    claim = {**response["core_answer"], "category": category, "source_subject": subject}
-    tools = v6._provider_tools_v6((str(selected[1].citations[0].citation_id),))
-    response["additional_summary_claims"] = [claim]
-    if (category == "attributed" and subject and subject.strip()) or (
-        category != "attributed" and subject is None
-    ):
-        tools[0].output.model_validate(response)
-    else:
-        with pytest.raises(ValidationError):
-            tools[0].output.model_validate(response)
-
-
-@pytest.mark.parametrize(
-    "subject,valid",
-    [
-        ("발표했다", True),
-        ("합성청", False),
-        ("다른 합성부", False),
-        ("자료", False),
-        ("발표했다 ", False),
-        ("없는기관", False),
-    ],
-)
-def test_attributed_subject_must_exist_exactly_in_every_selected_quote(
-    sync_model_loop, subject, valid
-):
-    v6 = profile()
-    selected, response = proposal(subject=subject)
-    payload = json.loads(v6.model_prompt_v6("합성 질문", (selected,)))
-    quotes = payload["sources"][0]["citations"]
-    quotes[0]["quote"] = "합성청은 발표했다"
-    quotes[1]["quote"] = "다른 합성부는 발표했다"
-    response["core_answer"]["citation_ids"] = [quotes[0]["citation_id"], quotes[1]["citation_id"]]
-    prompt = json.dumps(payload, ensure_ascii=False)
-    agent, calls = run_synthetic(prompt, response)
-    if valid:
-        output, _, _ = v6.run_agent_v6(agent, prompt)
-        assert output.modules[0].claims[0].text == f"{subject}에 따르면, 같은 방향입니다."
-        # A tampered prompt cannot replace original canonical quotes at the final boundary.
-        with pytest.raises(ValueError):
-            v6.build_canvas_v6(uuid4(), selected[1].document.workspace_id, (selected,), output)
-    else:
-        with pytest.raises(ValueError, match="source_subject"):
-            v6.run_agent_v6(agent, prompt)
-    assert calls == [True]
-
-
-@pytest.mark.parametrize(
-    "text_size,subject_size,valid", [(400, 80, True), (401, 80, False), (400, 81, False)]
-)
-def test_400_80_and_canonical_500_character_limits(sync_model_loop, text_size, subject_size, valid):
-    v6 = profile()
-    selected, response = proposal(subject="가" * subject_size)
     response["core_answer"]["text"] = "나" * text_size
-    payload = json.loads(v6.model_prompt_v6("합성 질문", (selected,)))
-    payload["sources"][0]["citations"][0]["quote"] = "가" * subject_size
-    prompt = json.dumps(payload, ensure_ascii=False)
+    prompt = v6.model_prompt_v6("합성 질문", (selected,))
     agent, calls = run_synthetic(prompt, response)
     if valid:
         output, _, _ = v6.run_agent_v6(agent, prompt)
-        assert len(output.modules[0].claims[0].text) == 487
-        # Independent canonical alias still enforces its original 500-character limit.
+        assert output.modules[0].claims[0].text == "제공 자료에 따르면, " + "나" * 400
         raw = output.model_dump()
         raw["modules"][0]["claims"][0]["text"] = "가" * 500
         assert len(v6.AIOutputV6.model_validate(raw).modules[0].claims[0].text) == 500
@@ -477,9 +405,14 @@ def test_normalized_provider_schemas_match_actual_preflight_bytes(sync_model_loo
         }
         assert "default" not in json.dumps(answer)
         assert answer["$defs"]["ProviderCitationIdV6"]["enum"] == list(ids)
-        assert answer["$defs"]["ProviderCoreAnswerV6"]["properties"]["category"]["enum"] == [
-            "documented",
-            "attributed",
+        assert set(answer["$defs"]["ProviderCoreAnswerV6"]["properties"]) == {
+            "text",
+            "rationale",
+            "citation_ids",
+        }
+        assert answer["$defs"]["ProviderClaimV6"]["properties"]["assessment"]["enum"] == [
+            "source_statement",
+            "uncertain",
         ]
         return ModelResponse(parts=[ToolCallPart("answer", response)])
 
@@ -506,7 +439,7 @@ def test_normalized_provider_schemas_match_actual_preflight_bytes(sync_model_loo
 def test_provider_rejects_v6_shape_overflows_without_retry(sync_model_loop, mutation):
     v6 = profile()
     selected, response = proposal()
-    core = response["core_answer"]
+    core = {**response["core_answer"], "assessment": "source_statement"}
     match mutation:
         case "no-core":
             response.pop("core_answer")
@@ -523,9 +456,9 @@ def test_provider_rejects_v6_shape_overflows_without_retry(sync_model_loop, muta
                 {"kind": "comparison", "title": "합성", "claims": [core.copy()] * 5}
             ]
         case "no-citations":
-            core["citation_ids"] = []
+            response["core_answer"]["citation_ids"] = []
         case "four-citations":
-            core["citation_ids"] *= 4
+            response["core_answer"]["citation_ids"] *= 4
         case "nonanswer-modules":
             response = {
                 "outcome": "insufficient_evidence",
@@ -541,46 +474,16 @@ def test_provider_rejects_v6_shape_overflows_without_retry(sync_model_loop, muta
     assert calls == [True]
 
 
-def test_exact_subject_can_itself_contain_the_attribution_separator(sync_model_loop):
-    import hashlib
+def test_existing_canonical_subject_can_contain_attribution_separator():
+    from v6_fixture import build_fixture
 
-    from issuedigest_domain import EvidenceBundle
-
-    v6 = profile()
-    selected, response = proposal(subject="합성에 따르면, 별칭")
-    data = selected[1].model_dump(mode="json")
-    quote = "합성에 따르면, 별칭"
-    data["representation"].update(
-        text=quote, text_sha256=hashlib.sha256(quote.encode()).hexdigest(), pages=[], tables=[]
+    data = build_fixture(
+        canonical_subject="합성에 따르면, 별칭", quote="합성에 따르면, 별칭", body="가" * 400
     )
-    data["citations"] = [
-        {
-            **data["citations"][0],
-            "selector": {"kind": "text", "start": 0, "end": len(quote), "quote": quote},
-        }
-    ]
-    selected = (selected[0], EvidenceBundle.model_validate(data), selected[2])
-    response["core_answer"]["text"] = "가" * 400
-    prompt = v6.model_prompt_v6("합성", (selected,))
-    agent, _ = run_synthetic(prompt, response)
-    output, _, _ = v6.run_agent_v6(agent, prompt)
-    canvas = v6.build_canvas_v6(uuid4(), selected[1].document.workspace_id, (selected,), output)
-    assert canvas.research.claims[0].text == quote + "에 따르면, " + "가" * 400
-
-
-def test_subject_in_unselected_quote_cannot_authorize_attribution(sync_model_loop):
-    v6 = profile()
-    selected, response = proposal(subject="합성청")
-    payload = json.loads(v6.model_prompt_v6("합성", (selected,)))
-    quotes = payload["sources"][0]["citations"]
-    quotes[0]["quote"] = "합성청의 별도 자료"
-    quotes[1]["quote"] = "선택된 다른 자료"
-    response["core_answer"]["citation_ids"] = [quotes[1]["citation_id"]]
-    prompt = json.dumps(payload, ensure_ascii=False)
-    agent, calls = run_synthetic(prompt, response)
-    with pytest.raises(ValueError, match="source_subject"):
-        v6.run_agent_v6(agent, prompt)
-    assert calls == [True]
+    assert (
+        data["result"]["canvas"]["research"]["claims"][0]["text"]
+        == "합성에 따르면, 별칭에 따르면, " + "가" * 400
+    )
 
 
 @pytest.mark.parametrize(
@@ -609,14 +512,14 @@ def test_final_canonical_v6_rejects_blank_attribution_suffix(body):
         ResearchResult.model_validate(data)
 
 
-def test_actual_python_astral_80_subject_400_body_matches_full_client_fixture():
+def test_actual_python_astral_400_body_matches_full_client_fixture():
     from v6_fixture import ASTRAL_FIXTURE, build_astral_fixture
 
     data = build_astral_fixture()
     assert data == json.loads(ASTRAL_FIXTURE.read_text())
     assert (
         data["result"]["canvas"]["research"]["claims"][0]["text"]
-        == "😀" * 80 + "에 따르면, " + "🚀" * 400
+        == "제공 자료에 따르면, " + "🚀" * 400
     )
 
 
@@ -631,19 +534,6 @@ def test_provider_body_validation_preserves_valid_whitespace(sync_model_loop):
 
 
 @pytest.mark.parametrize("subject", ["\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"])
-def test_provider_rejects_v6_union_whitespace_subject_without_retry(sync_model_loop, subject):
-    v6 = profile()
-    selected, response = proposal(subject=subject)
-    payload = json.loads(v6.model_prompt_v6("합성", (selected,)))
-    payload["sources"][0]["citations"][0]["quote"] = subject + "합성"
-    prompt = json.dumps(payload, ensure_ascii=False)
-    agent, calls = run_synthetic(prompt, response)
-    with pytest.raises(UnexpectedModelBehavior):
-        v6.run_agent_v6(agent, prompt)
-    assert calls == [True]
-
-
-@pytest.mark.parametrize("subject", ["\u0085", "\ufeff", " \t\u0085\ufeff\u3000\n"])
 def test_final_canonical_v6_rejects_union_whitespace_subject(subject):
     from v6_fixture import build_fixture
 
@@ -653,12 +543,12 @@ def test_final_canonical_v6_rejects_union_whitespace_subject(subject):
         ResearchResult.model_validate(data)
 
 
-def test_actual_provider_and_builder_preserve_union_whitespace_around_real_text():
+def test_existing_canonical_builder_preserves_union_whitespace_around_real_text():
     from v6_fixture import build_fixture
 
     subject = "\u0085\ufeff \t합성 주체\u3000\x1c"
     body = "\ufeff\u0085 합성 본문 😀 \x1f"
-    data = build_fixture(subject=subject, body=body, quote=subject + " 합성 원문")
+    data = build_fixture(canonical_subject=subject, body=body, quote=subject + " 합성 원문")
     assert (
         data["result"]["canvas"]["research"]["claims"][0]["text"] == subject + "에 따르면, " + body
     )

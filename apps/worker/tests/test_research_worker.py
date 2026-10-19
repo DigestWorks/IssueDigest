@@ -19,7 +19,11 @@ def v6_output(value):
     return {
         "outcome": "answer",
         "summary_title": value["modules"][0]["title"],
-        "core_answer": {**value["modules"][0]["claims"][0], "source_subject": None},
+        "core_answer": {
+            k: v
+            for k, v in value["modules"][0]["claims"][0].items()
+            if k not in {"category", "event_date"}
+        },
         "additional_summary_claims": [],
         "details": [],
     }
@@ -199,7 +203,10 @@ run_worker(
                 time.sleep(0.1)
             assert completed is not None and completed.status == "completed"
             assert completed.result is not None
-            assert completed.result.canvas.research.claims[0].text == "첫 모델의 해석"
+            assert (
+                completed.result.canvas.research.claims[0].text
+                == "제공 자료에 따르면, 첫 모델의 해석"
+            )
             assert completed.snapshot_ids == (snapshot,)
             assert len(completed.result.canvas.research.evidence) == 1
             assert [event.status for event in completed.events] == [
@@ -329,7 +336,9 @@ run_worker(
                 time.sleep(0.1)
             assert final is not None and final.status == "completed"
             assert final.result is not None
-            assert final.result.canvas.research.claims[0].text == "첫 모델의 해석"
+            assert (
+                final.result.canvas.research.claims[0].text == "제공 자료에 따르면, 첫 모델의 해석"
+            )
         finally:
             second.terminate()
             second.wait(timeout=10)

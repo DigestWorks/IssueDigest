@@ -58,7 +58,7 @@ def output(bundle, text="첫 모델의 해석", classified=False, core=False):
         return {
             "outcome": "answer",
             "summary_title": "합성 요약",
-            "core_answer": {**claim, "source_subject": None},
+            "core_answer": {k: v for k, v in claim.items() if k not in {"category", "event_date"}},
             "additional_summary_claims": [],
             "details": [],
         }
@@ -176,7 +176,9 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         assert new_marker.read_text() == "called\n"
         recovered = repo.get_run(token, old.workspace_id, old.run_id)
         assert recovered.status == "completed"
-        assert recovered.result.canvas.research.claims[0].text == "첫 모델의 해석"
+        assert recovered.result.canvas.research.claims[0].text == (
+            "제공 자료에 따르면, 첫 모델의 해석" if version == "v6" else "첫 모델의 해석"
+        )
         assert (
             recovered.result.canvas.research.claims[0].derivation.method_version
             == f"research-{version}"
