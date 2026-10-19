@@ -819,3 +819,48 @@ def test_linked_publisher_date_and_scope_do_not_read_unrelated_rights_info():
         "합성부처",
         "3",
     )
+
+
+def hidden_metadata_page(raw, mutation):
+    html = raw.decode()
+    if mutation in {"aria_upper", "collapse"}:
+        attribute = (
+            'aria-hidden="TRUE"' if mutation == "aria_upper" else 'style="visibility:collapse"'
+        )
+        return html.replace('<div class="variety">', f'<div class="variety" {attribute}>').encode()
+    tag = mutation.removesuffix("_open")
+    attributes = " open" if mutation.endswith("_open") else ""
+    return (
+        html.replace('<div class="variety">', f'<{tag}{attributes}><div class="variety">')
+        .replace(
+            '</div></div><div class="view_cont">',
+            f'</div></div></{tag}><div class="view_cont">',
+        )
+        .encode()
+    )
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    ["details", "dialog", "aria_upper", "collapse", "details_open", "dialog_open", "object", "svg"],
+)
+def test_linked_metadata_rejects_native_containers_and_hidden_values(mutation):
+    with pytest.raises(ingestion.AuditError, match="^policy_html_invalid_metadata$"):
+        extract(hidden_metadata_page(linked_publisher_page(), mutation))
+
+
+@pytest.mark.parametrize("profile", ["1", "2"])
+@pytest.mark.parametrize(
+    "mutation",
+    ["details", "dialog", "aria_upper", "collapse", "details_open", "dialog_open", "object", "svg"],
+)
+def test_legacy_metadata_profiles_keep_prior_container_and_attribute_behavior(profile, mutation):
+    raw = page() if profile == "1" else plain_publisher_page()
+    expected = extract(raw)
+    result = extract(hidden_metadata_page(raw, mutation))
+    assert result.parser_version == profile
+    assert (result.publisher, result.publication_date, result.text_sha256) == (
+        expected.publisher,
+        expected.publication_date,
+        expected.text_sha256,
+    )

@@ -209,10 +209,11 @@ def _linked_metadata_scope(root: Node, variety: Node) -> None:
         hidden = (
             hidden
             or node.ignored
+            or node.tag in {"details", "dialog", "iframe", "object", "svg"}
             or "hidden" in node.attrs
-            or (node.attrs.get("aria-hidden") == "true")
+            or (node.attrs.get("aria-hidden") or "").strip().lower() == "true"
             or re.search(
-                r"(?:display\s*:\s*none|visibility\s*:\s*hidden)",
+                r"(?:display\s*:\s*none|visibility\s*:\s*(?:hidden|collapse))",
                 node.attrs.get("style") or "",
                 re.IGNORECASE,
             )

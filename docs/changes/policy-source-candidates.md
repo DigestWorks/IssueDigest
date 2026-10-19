@@ -31,6 +31,8 @@ Task1 구현 검증(2026-10-19): 새 합성 계약 검사111개를 포함해 con
 
 Task2 구현 검증(2026-10-19): 합성 HTML의 관측된 두 span·상대 부처 링크만 HTML parser_version3으로 추가했고 기존1/2 분기·직렬화/hash·본문/인용·권리/URL guards를 보존했다. 저장 intake의 고정 allowlist에는3만 추가했다. 새 성공/엄격 거부 검사와 기존 회귀를 포함해 ingestion/worker/storage 전용 합성 PostgreSQL 검사1,797개가 통과했다. 이후 추가한 윤년/권리 info scope/숨김/날짜0년4개를 포함한 최종 ingestion257개도 통과했다. 세 패키지 Ruff/format·전체 mypy114개 소스와 diff 검사가 통과했다. 원본1/2의 representation hash는 각각 기존 golden과 이전d29871f 코드 실행으로 대조했다. v3 check/apply/정확 재시도·재수집 재사용·과거v1/v3 인용을 실제 합성 PostgreSQL에서 확인했으며 HTML parser version3과 AI workflow v3는 별개다. 실제 HTTP/원문/키/모델/서버·개인 개발 적용·독립 검토/전체 gate·Sites는 controller 인수 범위다.
 
+Task2 독립 검토 보완(2026-10-19): 새 profile의 숨김 조상 판정 누락1건을 수정했다. details/dialog는 open 상태와 무관하게, iframe/object/svg는 지원하지 않는 metadata 조상으로 거부하며 ARIA 대소문자·CSS visibility:collapse도 판정한다. v1/v2 경로는 유지했다. 먼저8개 거부 검사의 실패와16개 이전 호환 검사의 통과를 확인한 뒤 수정했으며 최종 HTML281개·전체 Ruff/format·mypy114개 소스·diff 검사를 통과했다. 재검토·수정 후 전체 gate는 controller 인수 범위다.
+
 ## Controller 인수·공유
 
 작업별/전체 독립 검토·전용 합성 PostgreSQL 전체 검사를 통과한다. 실제 확보는 기존 SDK로 목록1회+기사2건을 bounded GET하고, 원래 DB에 있는 기사와 새 기사를 분리한 뒤 기존 CLI의 정확 batch 계약을 유지하기 위해 새 기사1건만 한 번 더 확보할 수 있다. HTTP 총4회 이하이며 보고서와 개별 원문/권리/인용은 private에 보존한다. 목록의 후보를 무검토 최신 이슈나 공개 브리핑으로 노출하지 않는다. 가능하면 검토한 새 자료를 기존 명시 등록·표시/검색 경로로 개인 개발에 추가하고 DB/앱/수집기·과거 인용을 보존한다. 실제 적용/복원·질문 검색 확인과 코드 완료를 구분하고 Draft PR·마일스톤·Sites를 갱신한다. 도메인 전체·언론/여론/최근 인기·자율 조사 완료로 확대하지 않는다.
