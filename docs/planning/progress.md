@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 작업 시작 · 질문·근거 후보 관련성 선택 · 2026-10-19 KST
+
+- PR46/a76a37f에서 이어간다. 임의 keyword 임계값 대신 질문·정확 제공 인용을 읽는 단일 bounded 선택기를 구현한다. retain/exclude/uncertain으로 모든 후보를 평가하고 uncertain은 보존한다. 기존 고정3질문/계획후 후보1/3/3/원문과 gold·미판정을 유지해 실제selector 최대3요청/추가재시도0으로 비교한다. 이번은 SDK/선택 단계 자체의 비용·누락 검증이며 기존 앱f839ae0/v8·worker/전체예산/검색정책을 바꾸거나 실제서버/DB에 배포/재시작하지 않는다. 향후 내구 실행·전역 예산과 연결은 별도다. 검토/전체gate·실제3/PR/Sites receipt는 증거 후 기록한다.
+
 ## 최종 게시·정리 · 계획 검색 비교 평가 · 2026-10-19 KST
 
 - [Sites v68](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) public/native succeeded, 2026-10-19T06:46:20.931499+00:00. source `b61add725d924bd9f559ea71cbf92dbe8fe4f197`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_9819e21fb7e0819199a20c8069772bdc`, deployment `appgdep_6ad5bcad7a248191aaf85da62f3f87fb`. 이전v67과 전체 기록·v8/v7/v6/v5 실제 실패/부분 분모를 보존했다. 사본f6b947f·내부 도구source7e8138f·실제 앱f839ae0·[Draft PR46](https://github.com/DigestWorks/IssueDigest/pull/46)(PR45 기반)이며 사본 이후의 이 최종 receipt는 저장소 원본이다.

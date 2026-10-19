@@ -2,7 +2,14 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 변경 · 계획 검색의 누락·무관 자료 평가
+## 현재 변경 · 질문·근거 후보 관련성 선택
+
+[명세](../changes/evidence-relevance-selection.md). 질문·제공 인용에 묶인 선택기를 구현하고 명시 무관 후보만 제외하며 불확실은 보존한다. 비용·누락 검증 뒤 내구 실행기에 연결한다.
+
+- [ ] bounded 관련성 SDK·strict 후보/결정/usage·합성 TDD·독립 검토를 완료한다.
+- [ ] 전체gate·기존3질문/후보에 최대3 selector 실제요청(실패 포함/추가 재시도0)·PR/마일스톤/Sitesv68보존·검증 자원 정리를 기록한다.
+
+## 완료 기반 · 계획 검색의 누락·무관 자료 평가
 
 [명세](../changes/planned-retrieval-evaluation.md). 기존 실행의 질문·계획·원문을 그대로 재현해 원래 검색/계획 검색의 필수 자료 발견·명시 무관 자료·미판정을 분리한다. 추가 모델/실제 앱 변경은 없다.
 
