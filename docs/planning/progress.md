@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 서버 수치 후보 인덱스 · 착수 · 2026-10-19
+
+PR52/97c4e61 후속 feat/numeric-candidate-index, [명세](../changes/numeric-candidate-index.md), D022/M3. OpenSpec root=null·기존 linked worktree/baseline5257/sourceCI39244869318을 재사용한다. 서버가 숫자 표기·단위·수식어/범위·문장 구간을 보존하는 순수 SDK를 구현하고, 기존 두 packet과 고정 반례를 모델0/추가 수집0으로 비교한다. 구현/후보 coverage·의미/앱 인수를 구분하며 기존 v3/v2/v1/앱 실패 분모·개발v9/운영 유예는 유지한다. 전체 gate/독립 검토/PR·CI·Sites v74보존/요약/소유QA·SDD 정리는 후속 기록으로 확인한다.
+
 
 ## 서버 원문 참조 v3 · 실제2회 거부 · 2026-10-19
 
