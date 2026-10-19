@@ -6,8 +6,10 @@
 - 소스/검증: 앱355a576, 정적 배포4cd8f62, [Draft PR40](https://github.com/DigestWorks/IssueDigest/pull/40)(PR39 기반). JS568개·lint/types/build/contract·diff 검사는 통과했고 작업별/전체 독립 검토 C0/I0/M0이다. 처음 controller lint는 무시된 임시 브라우저 스크립트까지 검사했으므로 QA 파일만 private 경로로 이동한 뒤 전체 JS 게이트를 다시 통과했다. 제품 lint 설정을 완화하지 않았다.
 - 합성/실제:320/390/768/1440·두 테마와 실제 상태/기록/비교/타임라인/분류·초안/원문을 합성 생산 빌드로 검증했다. 별도 익명 headless 브라우저의 실제 HTTPS390/1440은 새 CSS·홈/공개 읽기·출처/버전/정확 강조·닫기/초점·메뉴/44px·질문→로그인 초안·테마 저장을 통과했다. 가로 넘침/페이지 예외/예상 밖 API 오류0, 쓰기/OAuth/모델 호출0·세션 쿠키 미발급이다. 초기 기존 캐시 화면은 새 디자인의 증거에서 제외하고 일반 새로고침과 새 CSS/문구 검사를 추가한 최종 인수로 대체했다.
 - 배포/보존: 별도 소스의 정적19파일만 개인 개발 Nginx에 원자 반영하고 이전asset83개·원래root/설정을 보존했다. 첫 즉시 HTTP 확인은 worker 교체 전 응답으로 롤백됐고, reload 완료와 실제 제공 완료를 구분하는 bounded 확인으로 재검증·적용했다. API/조사worker PID·명령/cwd·수집기a908083/source/config/실행기/crontab은 전후 동일하다. DB/공개자료/계정/세션·외부TLS·main/운영은 변경하지 않았다.
-- 한계/다음: 실제 Google 로그인·유료 AI 생성·응답 의미 품질 검사는 이번 화면 변경에 포함하지 않는다.200%는 CSS layout 검사이며 보조기기 전체 감사가 아니다. M2 출처 확대·최근 이슈 발견과 M3 귀속/수치/한계 설명·자율 도구 탐색/점진 전달은 후속이다. Sites 요약은 반영 중이며 최종 출판 receipt를 별도로 남긴다. 자체 QA 브라우저를 종료했으며 PR/서버 worktree·롤백 자산은 유지한다.
+- 한계/다음: 실제 Google 로그인·유료 AI 생성·응답 의미 품질 검사는 이번 화면 변경에 포함하지 않는다.200%는 CSS layout 검사이며 보조기기 전체 감사가 아니다. M2 출처 확대·최근 이슈 발견과 M3 귀속/수치/한계 설명·자율 도구 탐색/점진 전달은 후속이다. Sites v62 요약을 공개 갱신했으며 최종 출판 receipt는 아래와 같다. 자체 QA 브라우저를 종료했으며 PR/서버 worktree·롤백 자산은 유지한다.
 
+
+- 최종 출판: [Sites v62](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/#plan) native `succeeded`. source `ffa6e4ae3f82dbbfb104a542639bfe30520f94be`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a0b7c325b39c81919a89673923885aea`, deployment `appgdep_6ad5730ea0608191b2441935f94be68c`. 문서 사본은87a2bd0이며 이후 출판/검증 receipt는 이 저장소 기록을 따른다. 이전v61 보존·HTML47개/로컬 링크·asset·anchor1,112개/공개 텍스트116개의 실제 비밀값 제외를 확인했다. 계획판의 내용/표만 바꿔 새 브라우저 검사를 반복하지 않았고 사용자 탭을 열지 않았다. [제품 소스 CI39185389380](https://github.com/DigestWorks/IssueDigest/actions/runs/39185389380)의 전체 검사·빌드·계약은 성공했다. 계획별 scratch는 private 보관 후 이 계획 폴더만 정리하며 PR/서버 worktree·기존 앱/수집기·정적 롤백 자산은 유지한다.
 
 ## 작업 시작 · 소비자 브리핑 디자인 · 2026-10-19 KST
 

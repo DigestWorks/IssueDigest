@@ -8,7 +8,7 @@
 
 - [x] 실제 소비자 화면과 두 테마·반응형을 정돈하고 기존 질문/초안/권한/읽기/취소 동작을 보존한다.
 - [x] JS568개·린트/타입/빌드/계약·작업별/전체 독립 검토와 합성/실제 비회원 HTTPS를 확인했다.
-- [ ] 정적 웹4cd8f62만 개인 개발에 반영하고 API/워커/DB/수집기 보존·[Draft PR40](https://github.com/DigestWorks/IssueDigest/pull/40)을 확인했다. Sites 요약·최종 출판 기록은 반영 중이다.
+- [x] 정적 웹4cd8f62만 개인 개발에 반영하고 API/워커/DB/수집기 보존·[Draft PR40](https://github.com/DigestWorks/IssueDigest/pull/40)·Sites v62 공개 요약/이전v61 보존과 native succeeded·최종 출판 기록을 확인했다.
 
 ## 완료 기반 · 수집본 검토·버전·검색 편입 · M2
 
