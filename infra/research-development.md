@@ -111,3 +111,7 @@ controller가 계획3개·관련성 결정7개·서로 다른 제공 인용15종
 ## v10 구현 인수·개발 보류 · 2026-10-19
 
 [명세](../docs/changes/briefing-numeric-clarity.md). 브랜치 코드는 final/profile/workflow10·앞4개의 v9 protocol/receipt·원래9 workflow recovery를 지원하며 새 queued 기본은10이다. 그러나 실제4앱/12요청의 의미 인수를 통과하지 못해 이 브랜치를 개인 개발에 반영하지 않았다. 현재 실행은 ab6654e/v9이고 새 실행/DB migration/계정·세션/수집기·Nginx·main/운영 변경이 없다. 코드 지원과 배포 기본을 구분한다. 이번 read-only 사전 백업/별도 복원23테이블 확인은 사후 배포/완전 DR 인수가 아니다. 상세 품질·소스/전체 gate·독립 검토·PR/Sites는 진행 기록을 따른다.
+
+## 독립 수치 후보 SDK · 미배포
+
+[명세](../docs/changes/numeric-evidence-proposals.md). 새 SDK는 필수 borrowed model·독립 total20,000/output2,500·30초/request1/retry0/storeFalse이며 원문/실제 schema 예산을 호출 전에 검사한다. 이 한도는 앱의 전역24,000/output2,500·월 예약/DBOS 회계와 통합된 것이 아니다. Agent 결과 없는 실패 usage는 unknown이고 transport retry/client 소유·미완료 비용 회복은 호출자 책임이다. controller의 별도 실제2요청은 원응답2개 사용량을 보존했으나 앱 ledger/최종 브리핑을 바꾸지 않았다. 서버 접속/배포·migration·권한 변경/수집기 작업을 하지 않았다. 개발은 기존ab6654e/v9, main/운영은 D013 유예다.

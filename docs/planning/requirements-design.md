@@ -127,3 +127,7 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### v10 첫 요약 수치 설명 · 구현과 인수 분리
 
 [명세](../changes/briefing-numeric-clarity.md). v9 앞 네 단계/receipt를 재사용하고 final/profile/workflow10만 새로 둔다. frozen 과거 provider·workflow/version/slot·현재 권한/전체 원문·합산 예산·공개 거부는 유지한다. 짧은 수치 지침과 strict 구조 통과는 자유 문장의 정확성을 보장하지 않는다. 실제4앱의 수치 관계/전망 조건 문제로 개발 적용을 보류했으며 단계·인용·같은 모델의 supported 표시를 품질 인증으로 제시하지 않는다. 다음 내부 수치 계약은 대상/기간/단위·포함 관계·관측/조건부 전망과 인용의 관계를 설계한 뒤 별도 Spec으로 확정한다.
+
+### 독립 수치 근거 후보 · 내부 구조와 앱 연결 전 경계
+
+[명세](../changes/numeric-evidence-proposals.md). 모델이 제안한 각 수치/맥락/관계를 exact quote의 Unicode 위치로 연결하고 canonical Source를 다시 검증한다. 모든 결과는 unreviewed이며 문자열 일치·hash·cycle 없음은 의미/완전 추출/인간 검토·접근 허용 인증이 아니다. source2의 필수 상태 근거 누락은 전체 거부했고 source1의 수치 누락/관계 cue 오연결은 실제 의미 한계로 남겼다. 현재 API/DB/public/UI와 app budget을 확대하지 않으며 입력 Source의 현재 권한은 향후 호출자가 별도로 검증해야 한다.

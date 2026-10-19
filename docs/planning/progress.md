@@ -1,5 +1,21 @@
 # 진행 기록
 
+## 수치 후보 SDK · 구현·실제 부분/거부 · 2026-10-19
+
+- 담당/controller·feat/numeric-evidence-proposals, PR49/edc7ae7 기반. [명세](../changes/numeric-evidence-proposals.md), D022/M3. OpenSpec root=null·기존 worktree 재사용·baseline4,887/sourceCI39229760833 재사용, 새 baseline 전체 재실행 없음.
+- 구현edc1383/실제 및 Task 검토bbf6b7e는 문서만 다르다. 새 모듈/테스트/agentsREADME와 Spec/D022만 바꾸고 기존239 tracked 파일/AGENTS byte-identical을 독립 확인했다. 관련669(116신규)·Ruff/format36/mypy13·Task1 독립 Spec/품질 PASS(C0I0M0)다. 전체 gate/전체 검토·새PR/CI·Sites v71archive/현재 요약·소유QA1/SDD 정리는 별도 인수 중이다.
+
+새 수치 근거 후보 SDK를 실제 두 자료의 사전 고정 whole 인용2개/1개로 각각 한 번 실행했다. 기존 질문별4앱/12요청은 재실행하지 않았다. 새 SDK2회/공급자2요청·자동 재시도0에서 unreviewed 후보 반환1·전체 거부1이다. 의미를 완전히 충족한 제안은0이며, 반환1도 부분 결과다.
+
+반환한 후보의 수치5개·관계3개와 거부된 raw 수치3개의 모든 field/null·관계를 원문과 직접 대조했다. 첫 자료는 현재 하한·전망 범위/열린 표현·전망 조건을 보존했지만 핵심 하위 항목을 누락했다. 세 관계 모두 원문에 실제 있는 포함 문구를 사용했으나 그 문구가 직접 가리키는 수치 쌍과 제안 관계가 달랐다. 일부 기간도 빠졌고 같은 단위의 첫 occurrence를 여러 수치에 반복 연결했다. 문자열 존재/구조 통과를 관계 의미나 완전 추출 인증으로 바꾸지 않는다.
+
+둘째 raw는 알려진 상태 세 행의 status_text가 모두 null이어서 전체를 거부했다. raw의 명시 전망 값이 관측으로 분류된 문제도 남았다. 거부 행을 정상 후보/성공으로 집계하거나 자동 고쳐쓰지 않았다. SDK는 Agent 결과를 받지 못한 실패 usage를 unknown으로 남겼으며, controller가 별도로 보존한 완료 공급자 원응답2개의 사용량은 입력3,187/출력3,229토큰이다. 지연10.85/4.96초·청구 금액 미검증이며 unknown은 무료를 뜻하지 않는다.
+
+이는 독립 내부 추출 SDK의 제한된 평가다. 실제 planned/uncertain 양성·전체 문서 수치의 포괄성·다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 기존 v10 실제4건의 부분/미충족·과거v9/selector/v8/v7/v6/v5 분모는 유지한다. 앱/DBOS·DB/API/공개/UI/수집기와 개인 개발ab6654e/v9를 변경하지 않았다. 다음은 반복 context 출력의 비용을 줄이는 입력 참조 구조, provider 단계의 상태/근거 조합 제약, 관계 cue의 실제 지시 대상과 누락을 평가하는 계약을 설계하는 것이다. 단순히 더 강한 지침/성공 재호출로 해결됐다고 표시하지 않는다.
+
+- Ruling1: 같은 unordered 수치 pair는 kind/방향에 관계없이 관계 하나만 허용한다. 실제 복합 관계도 전체 거부되고 알려진 비용이 남을 수 있다. 상세 판단/비용은 Spec/D022에 보존한다. 원문/ID/키/raw·소유 검토 증거는 private만, 사용자 탭은 열거나 이동하지 않는다.
+
+
 ## 수치 근거 후보 · 착수 · 2026-10-19
 
 - PR49/edc7ae7 기반 feat/numeric-evidence-proposals, [명세](../changes/numeric-evidence-proposals.md). 원문 숫자·대상/단위/기간/상태·수식어/조건과 포함/병렬 관계를 정확 인용에 묶는 독립 private SDK를 TDD로 구현한다.

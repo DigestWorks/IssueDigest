@@ -2,6 +2,15 @@
 
 2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
+## 구현·검증 기록 · 수치 원문 후보 SDK
+
+[명세](../changes/numeric-evidence-proposals.md). 내부 SDK이며 새 사용자 검증 화면·현재 브리핑 생성/공개 경로를 추가하지 않는다.
+
+- [x] exact span/nullable 수치 맥락·관계/현재 Source 재검증·unreviewed report·bounded borrowed-model SDK를 TDD로 구현했다. 관련 agents669(새116)·Ruff/format/mypy·Task1 독립 Spec/품질 PASS(C0I0M0)·기존239파일 byte-identical을 확인했다.
+- [x] 사전 고정 whole 인용2/1의 실제SDK2회/2요청·재시도0을 직접 읽고 부분 후보1/거부1과 원응답 비용·기존 앱4건 분모를 보존했다.
+- [ ] context 출력의 반복 비용·상태/근거 조합·관계 cue 지시 대상/핵심 수치 누락을 새 명세/고정 평가로 개선한다. 모델 output의 원문 존재/구조 검사를 의미 정확성으로 확대하지 않는다.
+- [ ] 앱 연결 전에 새 비용을 전역 예산/예약·durable journal/중단 복구·현재 권한/원문·취소/과거 실행에 통합하고 최종 브리핑을 별도로 검증한다. standalone 상한만으로 완료로 표시하지 않는다.
+
 ## 완료 기반 · 질문·근거 후보 관련성 선택
 
 [명세](../changes/evidence-relevance-selection.md). 질문·제공 인용에 묶인 선택기를 구현하고 명시 무관 후보만 제외하며 불확실은 보존한다. 비용·누락 검증 뒤 내구 실행기에 연결한다.
