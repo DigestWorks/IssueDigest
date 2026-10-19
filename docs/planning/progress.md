@@ -1,5 +1,36 @@
 # 진행 기록
 
+## 출판·최종 인계 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- Sites v64 공개 배포 native `succeeded`: https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/ . 원본 소스 `b6a96ac20de502c15588c680fa1a8fcc5dfa7066`, 문서 사본 기준 `6b50776e339875cbc457216e64f6bc62979f5c8d`, saved version `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_63a8da8c1980819191854e19939998b5`, deployment `appgdep_6ad5869f34e4819186588b910ef3c211`. audience public을 유지하고 이전v63을 archive로 보존했다. HTML49개·로컬 링크/asset/anchor1,130개·공개 텍스트129개와 실제 비밀값 부재를 확인했다. 문구/상태만 갱신했으므로 기존 레이아웃의 Sites 브라우저 QA를 반복하지 않았다. 사용자 탭을 열거나 이동하지 않았다.
+- 소유한 자체 QA 브라우저/API·합성 PG 컨테이너3개/익명 볼륨을 정확ID/이미지/라벨/loopback 확인 후 정리하고 임시4포트 닫힘을 확인했다. 이번 SDD 계획의 ledger·구현/독립 최종 리뷰만 비공개 archive로 보존한 뒤 해당 scratch를 제거했다. 다른 작업 폴더/컨테이너·실제 개발 서비스·백업/평가 증거는 유지했다.
+- 코드 게이트는 제품f90839e의3,777개·독립 검토 C0/I0/M0·CI39191407182 성공이며 이후는 문서/출판 receipt 변경이다. Draft PR42는 PR41 기반으로 미병합, main/운영 유예(D013)다. 실제 초기4+별도 구조2의 실패/부분 충족과 다음 의미 품질 과제는 위 기록을 유지한다. 저장소 원본의 이 최종 receipt는 Sites 사본 이후 기록이다.
+
+## 개발 적용 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- [명세](../changes/briefing-answer-quality.md)·[Draft PR42](https://github.com/DigestWorks/IssueDigest/pull/42)(PR41 기반), 제품 `f90839ee5755fb5f366ffdd2f67aba3750d3d05b`. 새 private v5의 독립 귀속/비교/한계 지침·Python/웹 검증/표시와 네 버전 복구를 연결했다. 실제 관측한 비답변의 잘못된 modules·존재하지 않는 인용 ID는 provider 전용 세 strict 출력과 실제 prompt 인용 enum으로 생성 단계에서 제한했다. canonical/API/public 경계와 기존 최종 인용 검사는 유지한다.
+- 전체 검사 Python3,169+JS608=3,777개, Ruff/format264파일·mypy115·JS lint/types·빌드·생성 계약 최신 상태, 실패/경고/skip0. 작업별 및 최종 독립 전체 검토 C0/I0/M0·미해결/보류0. 소스 [CI39191407182](https://github.com/DigestWorks/IssueDigest/actions/runs/39191407182)는 정확 f90839e에서 성공했다. v2/v3/v4 bytes·원래 이름/version/정수slot1·완료 checkpoint 재생과 유료 재요청0을 합성 PG로 확인했다.
+- 실제 모델 인수는 사용자와 분리한 합성 환경·기검토 공개 텍스트3건에서 수행했다. 초기4회는 완료2(의미 부분 충족)·검증 실패2였으며 분모/실패를 보존했다. 저장된 유료 응답을 추가 호출 없이 읽어 비답변 modules·가공된 UUID 오류를 재현했다. 수정 후 별도 구조 인수2회는 모두 정확 인용으로 완료했다. 총6회·자동 재시도0·입력14,684/출력3,556토큰이며 청구 금액은 검증하지 않았다. 개별 관측 지연3.30~5.78초는 소표본으로 일반화하지 않는다.
+- 의미 품질은 여전히 부분 충족이다. 수치 귀속 분류·계획/실적/전망·출처 범위 한계는 개선됐고 없는 여론 비율을 만들지 않았다. 다만 각 수치 문장에 주체 명시가 빠지거나, 핵심 여론 근거가 없는데 answer로 응답하거나, 직접 비교 결론이 첫 요약 대신 접힌 비교 모듈에 남았다. 실제 비답변 분기 성공·전체 질문 품질 완료로 표시하지 않는다. 다음 우선순위는 문장별 귀속·자료 부족 분기·첫 요약의 직접 결론이다.
+- 추가 판단: 관측된 오류를 최종 검증 완화 없이 생성 단계에서 막기 위해 Task2와 별도 구조 인수2회를 추가했다. 초기4회 실패를 성공으로 교체하지 않았다. 이 판단이 틀리면 구현/검토 복잡성과 최대2회 단일 API 요청 비용이 추가된다. 각 요청의 기존24,000/출력2,500 한도·월 예산·무제한 재시도 금지는 유지했다. 최종 v5 static10,012+prompt9,440+framing2,048+output2,500=24,000의 보수적 byte 예산과 실제 세 tool schema 크기를 호출 전에 검증한다.
+- 자체 브라우저에서 실제 초기4개 상태·추가2개 결과를 확인했다. 390/1440·두 테마·분류/설명·정확 원문 강조·Escape/초점 복귀·재열람/새로고침·가로 넘침을 확인했다. 읽기 POST0·페이지 오류0이며 실제 사용자 로그인/질문을 대신하지 않았다.
+- 개인 개발 웹/API/조사 worker를 f90839e로 함께 갱신했다. 활성 run/workflow0 후 정상 종료/기동과 단일 worker 잠금1, 외부 HTTPS·새 웹 파일6개 hash·health/status/공개 읽기200·비회원session401/no-store/noCookie를 확인했다. 새 정적 파일19개·이전 asset82개와 기존 소스는 롤백용으로 보존했다. schema0009·수집기a908083/config/실행기/주기·계정/세션/공개v1·main/운영은 유지했다.
+- 서버 밖 사전·직전·사후 full/app 백업과 별도 PG18.6 app 복원을 확인했다. 직전/사후/사후 백업/복원23개 public 테이블의 row hash/count가 모두 같다. 자료 버전15/인용49/검색36/receipt1/공개1·canonical15를 유지했다. 기존 실제 AI 결과는0건이므로 과거 실제 결과 재생 증거로 과장하지 않는다. DBOS registry는 이 행 감사 범위 밖이며 vector/역할까지의 완전 재해복구 검증은 아니다.
+- Sites 출판과 이전v63 보존·최종 정리 receipt는 아래 후속 기록에 남긴다. 이번 추가 원문 확보·자동 공개·schema/권한 변경0. 실제 원문/질문/ID/키/접속·백업과 평가 로그는 저장소 밖 비공개 보관한다. 사용자 탭을 열거나 이동하지 않았으며 main/운영 유예(D013)를 유지한다.
+
+
+## 구현자 인계 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- `feat/briefing-answer-quality`의 새 private v5 독립 지침·정확 byte 예산(static5,109/prompt14,343)·기존 schema alias·private Python/웹/UI 경로와 네 agent/workflow 등록을 구현했다. 한국어 결론·비교·선택 인용의 한계를 표시 claim에 담고 기관 수치/평가 귀속·계획/실적/전망·'이상' 열린 끝을 구분하도록 지시한다. 지침이 실제로 지켜졌다는 의미 품질 판정은 아니다.
+- 합성 TDD: v5 생성 미구현·클라이언트 거부·UI 분류 미표시/불완전 결과 미거부·새 요청v4 잔류의 RED를 먼저 확인했다. 관련 agents/domain/worker/API/UI Python1,441개·웹/client/UI JS149개 GREEN, Ruff/format263·mypy115·JS lint/types·diff 검사를 통과했다. 실패/skip0이며 최종 소스 지침 정리 뒤 agents77개도 재확인했다. 전체 gate는 controller가 따로 수행한다.
+- 보존: v2/v3 golden을 유지하고 v4 지침/schema/인용 선택 bytes를 기준2ed2bc7 SHA로 고정했다. 실제 전용 합성 PostgreSQL에서 v2/v3/v4/v5 원래 workflow/agent/정수slot1·application_version cohort의 완료/오류 checkpoint를 재생하고 유료 재요청0, 미완료/잘못된 slot·취소/권한·단일 잠금·부모/검색 고정을 확인했다. Python 실제 builder의 고정 합성 JSON→웹 client→표시/정확 원문 열기를 검사했다. generic Claim/API/OpenAPI·public v1/v2/빈 reviews·수집기/예산/세션은 유지했다.
+- 다음/경계: 독립 리뷰·전체 gate·검토 공개 자료 최대4회 의미 품질 평가·개인 개발 적용/복원·PR·Sites는 controller 인수 대기다. 구현자는 실제 원문/계정/키/모델/서버·컨테이너·사용자 탭에 접근하거나 외부 게시/배포를 수행하지 않았다. Sites 미반영(이전v63 유지), main/운영 유예다.
+
+## 작업 시작 · 브리핑 답변 품질 · 2026-10-19 KST
+
+- PR41/d0d3fdf 기반 `feat/briefing-answer-quality`·[명세](../changes/briefing-answer-quality.md). 이전 실제 수치 답변의 귀속 분류·비교/한계 설명 부분 충족을 개선한다. 기존v2/v3/v4 생성/복구와 결과·공개 경계를 유지하는 새v5를 구현한다.
+- 단일 요청/예산을 유지하고 합성 TDD·독립/전체 검사 뒤 별도 합성 신원/검토 공개 텍스트에서 최대4회 실제 평가한다. 자료의 '이상'·기간 차이로 최종 실패를 확정하지 않으며, 실제 결과가 부족하면 그대로 남긴다. 개인 개발 적용/복원·PR·Sites는 인수 후 기록한다. main/운영 유예·수집기/자료 보존·사용자 탭 유지.
+
 ## 개발 적용 · 공식 목록 후보·새 공식 자료 검색 · 2026-10-19 KST
 
 - 변경/검토: [명세](../changes/policy-source-candidates.md)·`feat/policy-source-candidates`·[Draft PR41](https://github.com/DigestWorks/IssueDigest/pull/41)(PR40 기반). 제품93ab7c8, 작업별/보완/전체 독립 검토 C0/I0/M0. 새 HTML metadata의 숨김 조상 누락1건을 TDD로 수정했고 미해결/보류 지적은 없다.

@@ -335,7 +335,7 @@ uv run pytest apps/worker/tests/test_policy_intake_worker.py
 
 ## 내구 조사 작업자
 
-`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v4 실행합니다. v2/v3/v4 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
+`issuedigest-research-worker`는 `ISSUEDIGEST_DATABASE_URL`과 서버 전용 `OPENAI_API_KEY`가 필요합니다. DBOS와 PydanticAI를 시작 전에 등록하고, queued run을 폴링하여 `research-{run_id}` 안정 workflow ID로 새 요청을v5 실행합니다. v2/v3/v4/v5 이름과 agent를 모두 등록하고 기존 ID는 원래 등록 이름·application_version을 사용합니다. 모델은 OpenAI Responses `gpt-5.4-mini`로 고정하며 `store=False`, 공급자 재시도 0, 최대 한 요청·요청당 출력 2,500토큰·총 24,000토큰·요청 timeout 60초입니다. source 인용을 최대 다섯 자료·12,000자까지 전달합니다. 실제 모델 키가 없는 환경에서 작업자는 시작하지 않습니다.
 
 스키마는 소유자 자격으로 Alembic `0005_research_journey`를 먼저 적용합니다. DBOS 시스템 스키마는 기존 앱 역할명을 `ISSUEDIGEST_DBOS_APPLICATION_ROLE`에 설정한 뒤 소유자 자격으로 `issuedigest-research-migrate-dbos`를 **별도** 실행합니다. 그 뒤 앱 역할로 worker를 실행합니다. Worker의 DBOS `run_migrations=False`, OTLP off, 시스템 풀 3이며 DBOS HTTP/admin 서비스를 등록하지 않습니다. 운영 자료/키로 테스트하지 않습니다. 모델 호출 결과 수신 실패와 실제 과금 사이의 불확실성은 예약액을 돌려주지 않는 방식으로 보수적으로 다룹니다.
 
@@ -374,13 +374,13 @@ base의 workspace·expected_database·승인 invites·기존 snapshot을 보존�
 질문 전용 실행은 현재 권한과run잠금 아래 기존 색인을 검색해 최대5개 근거를 고정한 뒤retrieving으로 전환합니다. 고정된 근거는 복구 때 다시 검색하지 않습니다. 무근거는 모델 호출 없이insufficient_evidence로 종료하며 기존 월 예약/요청 한도는 유지합니다. 버전 갱신 전 기존 worker를 중지하고 활성run/workflow를 완료·정리한 상태를 확인합니다. 진행 중 작업을 임의 폐기하지 않습니다.
 
 
-### v2/v3/v4 checkpoint 호환과 단일 worker
+### v2/v3/v4/v5 checkpoint 호환과 단일 worker
 
 PostgreSQL session advisory lock을 전용 AUTOCOMMIT 연결에서 획득한 뒤에만 상태/DBOS metadata를 읽습니다. 중복 기동은 고정 오류로 거부하며 첫 worker의 작업·예약·모델 호출을 바꾸지 않습니다. 소유 확인은 모델 전 단계/저장·poll/cohort에 적용하고 잠금 연결 오류는 고정 실패로 닫습니다. 정상 종료는 unlock/close, 프로세스 중단은 PostgreSQL 세션 종료로 잠금을 해제합니다. 최초v2 worker는 이 잠금을 모르므로 최초 업그레이드는 quiescent 상태가 필요합니다. 이후에도 worker는 하나만 운용합니다.
 
 DBOS3.2의 공용 `DBOSClient.list_workflows/list_workflow_steps`를 input/output 비로딩으로 조회하고 실제 활성 application row와 정확한 ID로 대응합니다. 최대20개씩 읽어 원래 application_version의 cohort를 순차 launch/회복하고 registry를 destroy한 뒤 현재 버전으로 새 queued 요청을 처리합니다. `DBOS.resume_workflow`만 호출하면 원래 version이 남아 현재 큐가 처리하지 않으므로 같은 기록 version으로 기동합니다. 원래 checkpoint·workflow ID·step 순서를 삭제/수정하지 않습니다. terminal/cancelled/unknown workflow는 resume하지 않고, 실제 application row로 소유를 확인한 불명확/terminal orphan의 PENDING/ENQUEUED만 취소합니다.
 
-generating/validating 재진입은 정확한 원래 `issuedigest_research_v2__model.request` 또는v3/v4의 완료 journal 정수slot1 step1개가 있을 때만 재생합니다. metadata 확인은 DBOSClient의 직접 읽기로 수행해 유료 step 앞에 새 durable step를 넣지 않습니다. 요청 중 프로세스가 중단되어 완료 checkpoint가 없으면 generation_failed와 예약 유지로 끝내며 유료 요청을 다시 보내지 않습니다. 이것은 제공자의 실제 접수/과금 여부를 알아낸다는 뜻이 아닙니다. 모델 오류 뒤 자동 retry·새 유료 호출을 추가하지 않습니다.
+generating/validating 재진입은 정확한 원래 `issuedigest_research_v2__model.request` 또는v3/v4/v5의 완료 journal 정수slot1 step1개가 있을 때만 재생합니다. metadata 확인은 DBOSClient의 직접 읽기로 수행해 유료 step 앞에 새 durable step를 넣지 않습니다. 요청 중 프로세스가 중단되어 완료 checkpoint가 없으면 generation_failed와 예약 유지로 끝내며 유료 요청을 다시 보내지 않습니다. 이것은 제공자의 실제 접수/과금 여부를 알아낸다는 뜻이 아닙니다. 모델 오류 뒤 자동 retry·새 유료 호출을 추가하지 않습니다.
 
 ## Operator-only stored retrieval evaluation
 
@@ -400,4 +400,9 @@ See [the complete job schema, commands and metric limits](../../tests/evaluation
 Keep jobs/gold/reports outside Git/PR/Sites. Synthetic regression success does not execute the
 existing 20-question real-material evaluation or establish answer/citation quality.
 
-새 v4는 기관의 발표 수치·평가를 귀속하고 목표·실적·전망을 구분하도록 지침만 개선한다. 같은 대상·기간·단위가 확인되는 단순 대소 관계는 설명하되 계산·인과·양측을 생성/강제하지 않는다. v3와 같은 bounded output schema/build·validation을 공유하며 reviewer만 issuedigest-research-v4/research-v4로 엄격히 구분한다. v2/v3 지침/schema/prompt bytes는 보존하고 새 v4 prompt14,813+static4,639+framing2,048+output2,500으로24,000 한도를 지킨다. 합성 모델/PG 검사는 실제 모델 품질 판정이 아니다. 실제 검증·적용 상태는 진행 기록을 따른다.
+역사 v4는 기관의 발표 수치·평가를 귀속하고 목표·실적·전망을 구분하도록 지침만 개선한다. 같은 대상·기간·단위가 확인되는 단순 대소 관계는 설명하되 계산·인과·양측을 생성/강제하지 않는다. v3와 같은 bounded output schema/build·validation을 공유하며 reviewer만 issuedigest-research-v4/research-v4로 엄격히 구분한다. v2/v3 지침/schema/prompt bytes는 보존하고 v4 prompt14,813+static4,639+framing2,048+output2,500으로24,000 한도를 지킨다. 합성 모델/PG 검사는 실제 모델 품질 판정이 아니다. 실제 검증·적용 상태는 진행 기록을 따른다.
+
+
+## 새 private v5와 역사 실행 보존
+
+새 workflow만 `issuedigest_research_run_v5`/`issuedigest_research_v5`로 시작한다. v2/v3/v4/v5를 모두 등록하며 기존 queued workflow는 기록된 이름을 사용한다. 과거 v4 worker는 합성 복구 fixture로 보존한다. application_version별 registry 재구성과 원래 정수 slot1 완료 checkpoint를 재생하고, 모호한 미완료·모르는 이름·권한 상실·취소는 유료 요청 없이 종료한다. 완료된 유료 오류도 같은 오류를 재생해 실패로 종료한다. 새 durable step을 모델 요청 앞에 삽입하지 않는다. 기존 검색/부모 근거 고정·예약·단일 worker 잠금은 유지한다. 실제 모델/개발 적용 인수는 [답변 품질 명세](../../docs/changes/briefing-answer-quality.md)에 별도로 기록한다.

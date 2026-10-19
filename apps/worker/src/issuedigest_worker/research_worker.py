@@ -27,6 +27,12 @@ from issuedigest_agents.research_v4 import (
     model_prompt_v4,
     run_agent_v4,
 )
+from issuedigest_agents.research_v5 import (
+    build_canvas_v5,
+    create_agent_v5,
+    model_prompt_v5,
+    run_agent_v5,
+)
 from issuedigest_domain.research_journey import ResearchResult, RunStatus
 from issuedigest_storage import StorageCorruption, StorageError, create_storage_engine
 from issuedigest_storage.research import ResearchRepository
@@ -69,6 +75,7 @@ def _run_worker(
     agent_v2: Agent[None, AIOutput]
     agent_v3: Agent[None, AIOutputV3]
     agent_v4: Agent[None, AIOutputV3]
+    agent_v5: Agent[None, AIOutputV3]
     client = DBOSClient(
         system_database_url=database_url,
         application_name="issuedigest-research",
@@ -101,7 +108,7 @@ def _run_worker(
             except StorageError:
                 time.sleep(poll_seconds)
 
-    def execute(run_id_text: str, *, profile: Literal["v2", "v3", "v4"]) -> None:
+    def execute(run_id_text: str, *, profile: Literal["v2", "v3", "v4", "v5"]) -> None:
         check_ownership()
         run_id = UUID(run_id_text)
         while True:
@@ -130,9 +137,12 @@ def _run_worker(
         input_tokens, output_tokens = 0, 0
         try:
             try:
-                prompt = {"v2": model_prompt, "v3": model_prompt_v3, "v4": model_prompt_v4}[
-                    profile
-                ](
+                prompt = {
+                    "v2": model_prompt,
+                    "v3": model_prompt_v3,
+                    "v4": model_prompt_v4,
+                    "v5": model_prompt_v5,
+                }[profile](
                     run.question,
                     sources,
                     repository.worker_parent_context(run_id),
@@ -147,15 +157,15 @@ def _run_worker(
                 if profile == "v2":
                     output_v2, input_tokens, output_tokens = run_agent(agent_v2, prompt)
                 else:
-                    agent = agent_v3 if profile == "v3" else agent_v4
-                    runner = run_agent_v3 if profile == "v3" else run_agent_v4
+                    agent = {"v3": agent_v3, "v4": agent_v4, "v5": agent_v5}[profile]
+                    runner = {"v3": run_agent_v3, "v4": run_agent_v4, "v5": run_agent_v5}[profile]
                     output_classified, input_tokens, output_tokens = runner(agent, prompt)
             if not persist(run_id, "validating"):
                 return
             canvas = (
                 build_canvas(run_id, run.workspace_id, sources, output_v2)
                 if profile == "v2"
-                else (build_canvas_v3 if profile == "v3" else build_canvas_v4)(
+                else {"v3": build_canvas_v3, "v4": build_canvas_v4, "v5": build_canvas_v5}[profile](
                     run_id, run.workspace_id, sources, output_classified
                 )
             )
@@ -185,10 +195,11 @@ def _run_worker(
         *,
         dispatch_new: bool = False,
     ) -> None:
-        nonlocal agent_v2, agent_v3, agent_v4
+        nonlocal agent_v2, agent_v3, agent_v4, agent_v5
         agent_v2 = create_agent(model)  # type: ignore[arg-type]
         agent_v3 = create_agent_v3(model)  # type: ignore[arg-type]
         agent_v4 = create_agent_v4(model)  # type: ignore[arg-type]
+        agent_v5 = create_agent_v5(model)  # type: ignore[arg-type]
         config = {
             "name": "issuedigest-research",
             "system_database_url": database_url,
@@ -215,10 +226,15 @@ def _run_worker(
         def execute_v4(run_id_text: str) -> None:
             execute(run_id_text, profile="v4")
 
+        @DBOS.workflow(name="issuedigest_research_run_v5", max_recovery_attempts=3)
+        def execute_v5(run_id_text: str) -> None:
+            execute(run_id_text, profile="v5")
+
         functions = {
             "issuedigest_research_run_v2": execute_v2,
             "issuedigest_research_run_v3": execute_v3,
             "issuedigest_research_run_v4": execute_v4,
+            "issuedigest_research_run_v5": execute_v5,
         }
         try:
             # Public resume retains original version and all steps; launch that version's registry.
@@ -244,7 +260,7 @@ def _run_worker(
                         if status.status in {"PENDING", "ENQUEUED"}:
                             client.cancel_workflow(workflow_id)
                         continue
-                    function = functions[status.name] if status is not None else execute_v4
+                    function = functions[status.name] if status is not None else execute_v5
                     with SetWorkflowID(workflow_id):
                         handles.append(DBOS.start_workflow(function, str(run_id)))
                 if once:
@@ -255,7 +271,7 @@ def _run_worker(
         finally:
             DBOS.destroy(destroy_registry=True)
 
-    # Each cycle registers three agents, then destroys the registry before the next version.
+    # Each cycle registers four agents, then destroys the registry before the next version.
     try:
         check_ownership()
         cancel_owned_orphans(client, repository)

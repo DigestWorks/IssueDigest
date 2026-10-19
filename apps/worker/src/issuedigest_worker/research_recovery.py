@@ -68,6 +68,7 @@ WORKFLOW_NAMES = {
     "issuedigest_research_run_v2",
     "issuedigest_research_run_v3",
     "issuedigest_research_run_v4",
+    "issuedigest_research_run_v5",
 }
 RECOVERABLE = {"PENDING", "ENQUEUED"}
 ACTIVE = {"queued", "retrieving", "generating", "validating"}

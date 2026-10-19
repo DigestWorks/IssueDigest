@@ -1,4 +1,4 @@
-/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2/v3. */
+/** Raw-response validation for the bounded Canvas shape produced by research-v1/v2/v3/v4/v5. */
 import {validResearchClassifications} from './research-classification';
 import { isDisplayEvidence } from './evidence';
 import { hasKeys, isId, isObject } from './protected-request';
@@ -89,7 +89,7 @@ export function validResearchCanvas(
       || !isObject(claim.derivation)
       || !hasKeys(claim.derivation, ['method', 'method_version', 'rationale'])
       || claim.derivation.method !== 'pydantic-ai'
-      || !['research-v1', 'research-v2', 'research-v3', 'research-v4'].includes(claim.derivation.method_version as string)
+      || !['research-v1', 'research-v2', 'research-v3', 'research-v4', 'research-v5'].includes(claim.derivation.method_version as string)
       || !nonblank(claim.derivation.rationale, 200)) return false;
     const claimCitations = selectedCitations(claim.citation_ids, citations, 3);
     if (!claimCitations) return false;

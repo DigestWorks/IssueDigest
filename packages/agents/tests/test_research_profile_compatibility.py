@@ -1,11 +1,11 @@
-"""Frozen v2/v3 bytes are a durable/provider compatibility contract, not model quality."""
+"""Frozen v2/v3/v4 bytes are a durable/provider compatibility contract, not model quality."""
 
 import hashlib
 import json
 from uuid import UUID
 
 import pytest
-from issuedigest_agents import research, research_v3
+from issuedigest_agents import research, research_v3, research_v4
 from issuedigest_domain import EvidenceBundle
 from test_generation import source
 
@@ -57,6 +57,18 @@ def prompt_sources(repetitions=100):
                 16049,
             ),
         ),
+        (
+            research_v4.AIOutputV4,
+            research_v4.SYSTEM_INSTRUCTIONS_V4,
+            research_v4.STATIC_INPUT_BYTES_V4,
+            research_v4.INPUT_PROMPT_BYTE_LIMIT_V4,
+            (
+                "52c3f9bf34e1b2fa5f9f4e0d6374914145f1ac6ca96283fd3eb35b75e4609b50",
+                "ba983870e35d5a59fb4d16b3f7977b9cae03e055649b9bbc724eaa7127f28e3d",
+                4639,
+                14813,
+            ),
+        ),
     ],
 )
 def test_historical_instruction_schema_and_budget_bytes(
@@ -72,7 +84,10 @@ def test_historical_instruction_schema_and_budget_bytes(
     ) == expected
 
 
-@pytest.mark.parametrize("prompt_builder", [research.model_prompt, research_v3.model_prompt_v3])
+@pytest.mark.parametrize(
+    "prompt_builder",
+    [research.model_prompt, research_v3.model_prompt_v3, research_v4.model_prompt_v4],
+)
 def test_historical_prompt_bytes_match_baseline_7ff6f69(prompt_builder):
     prompt = prompt_builder(
         "목표와 실적 및 전망을 비교해 주세요.", prompt_sources(), "이전 해석 " * 400
@@ -105,3 +120,14 @@ def test_historical_prompt_boundary_selection_matches_baseline(prompt_builder, l
     )
     assert len(prompt.encode()) == length
     assert hashlib.sha256(prompt.encode()).hexdigest() == digest
+
+
+def test_historical_v4_prompt_selection_matches_baseline_2ed2bc7():
+    # Six quotes fit v3; v4's larger frozen instructions allow only five here.
+    prompt = research_v4.model_prompt_v4(
+        "목표와 실적 및 전망을 비교해 주세요.", prompt_sources(28), "이전 해석 " * 400
+    )
+    assert len(prompt.encode()) == 13506
+    assert hashlib.sha256(prompt.encode()).hexdigest() == (
+        "3d84c960bbc64ee1725560c2f9c20a1f579fa693b621853694b384b860080bb9"
+    )

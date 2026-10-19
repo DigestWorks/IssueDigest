@@ -81,6 +81,7 @@ class CountedModel(TestModel):
     async def request(self, *args, **kwargs):
         with open(os.environ['CALL_MARKER'], 'a') as marker: marker.write('called\\n')
         if os.environ.get('CRASH_INSIDE_MODEL') == '1': os.kill(os.getpid(), signal.SIGKILL)
+        if os.environ.get('ERROR_MODEL') == '1': raise ValueError('synthetic paid request error')
         if os.environ.get('WAIT_RELEASE'):
             import asyncio
             from pathlib import Path
@@ -88,7 +89,8 @@ class CountedModel(TestModel):
         return await super().request(*args, **kwargs)
 original = ResearchRepository.worker_transition
 def crash(self, run_id, status, **kwargs):
-    if status == 'validating': os.kill(os.getpid(), signal.SIGKILL)
+    if status == 'validating' or (os.environ.get('ERROR_MODEL') == '1' and status == 'failed'):
+        os.kill(os.getpid(), signal.SIGKILL)
     return original(self, run_id, status, **kwargs)
 if os.environ.get('CRASH_AFTER_MODEL') == '1': ResearchRepository.worker_transition = crash
 run_worker(os.environ['ISSUEDIGEST_TEST_DATABASE_URL'],
@@ -96,7 +98,7 @@ run_worker(os.environ['ISSUEDIGEST_TEST_DATABASE_URL'],
 """
 
 
-def crash_worker(database_url, tmp_path, proposal, *, legacy="v2", checkpoint=True):
+def crash_worker(database_url, tmp_path, proposal, *, legacy="v2", checkpoint=True, error=False):
     marker = tmp_path / "synthetic-provider-calls"
     env = {
         **os.environ,
@@ -106,6 +108,8 @@ def crash_worker(database_url, tmp_path, proposal, *, legacy="v2", checkpoint=Tr
         "PYDANTIC_AI_NO_BANNER": "1",
         "CRASH_AFTER_MODEL" if checkpoint else "CRASH_INSIDE_MODEL": "1",
     }
+    if error:
+        env["ERROR_MODEL"] = "1"
     if legacy:
         env["LEGACY_WORKER"] = str(Path(__file__).parent / f"fixtures/research_worker_{legacy}.py")
     proc = subprocess.run(
@@ -120,14 +124,14 @@ def client(database_url):
     return DBOSClient(system_database_url=database_url, application_name="issuedigest-research")
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", None])
-def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v4(
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", None])
+def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_requests_use_v5(
     engine,
     database_url,
     tmp_path,
     legacy,
 ):
-    version = legacy or "v4"
+    version = legacy or "v5"
     bundle, token, repo, old = seed(engine, database_url)
     marker = crash_worker(
         database_url, tmp_path, output(bundle, classified=version != "v2"), legacy=legacy
@@ -168,7 +172,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         assert len(recovered.result.canvas.research.support_reviews) == (version != "v2")
         current = repo.get_run(new_token, new.workspace_id, new.run_id)
         assert current.status == "completed"
-        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v4"
+        assert current.result.canvas.research.claims[0].derivation.method_version == "research-v5"
         assert len(current.result.canvas.research.support_reviews) == 1
         after = inspector.list_workflows(
             workflow_ids=[before.workflow_id, f"research-{new.run_id}"],
@@ -178,7 +182,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         by_id = {workflow.workflow_id: workflow for workflow in after}
         assert by_id[before.workflow_id].app_version == before.app_version
         assert by_id[before.workflow_id].name == f"issuedigest_research_run_{version}"
-        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v4"
+        assert by_id[f"research-{new.run_id}"].name == "issuedigest_research_run_v5"
         assert by_id[f"research-{new.run_id}"].app_version != before.app_version
         assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == checkpoints
         assert marker.read_text() == "called\n"
@@ -193,7 +197,7 @@ def test_real_historical_checkpoint_recovers_under_recorded_version_then_new_req
         inspector.destroy()
 
 
-@pytest.mark.parametrize("legacy", ["v2", "v3", None])
+@pytest.mark.parametrize("legacy", ["v2", "v3", "v4", None])
 def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
     engine,
     database_url,
@@ -236,7 +240,12 @@ def test_inflight_model_crash_fails_without_recalling_and_keeps_reservation(
 
 @pytest.mark.parametrize(
     "name",
-    ["issuedigest_research_run_v2", "issuedigest_research_run_v3", "issuedigest_research_run_v4"],
+    [
+        "issuedigest_research_run_v2",
+        "issuedigest_research_run_v3",
+        "issuedigest_research_run_v4",
+        "issuedigest_research_run_v5",
+    ],
 )
 def test_existing_queued_workflow_dispatches_registered_original_name(engine, database_url, name):
     bundle, token, repo, run = seed(engine, database_url)
@@ -266,7 +275,7 @@ def test_existing_queued_workflow_dispatches_registered_original_name(engine, da
         inspector.destroy()
 
 
-@pytest.mark.parametrize("profile", ["v2", "v3", "v4"])
+@pytest.mark.parametrize("profile", ["v2", "v3", "v4", "v5"])
 @pytest.mark.parametrize(
     "case", ["unknown-name", "cancelled-workflow", "cancelled-run", "revoked-membership"]
 )
@@ -288,7 +297,7 @@ def test_recovery_never_calls_model_for_unknown_cancelled_or_unauthorized_run(
                 database_url,
                 tmp_path,
                 output(bundle, classified=profile != "v2"),
-                legacy=None if profile == "v4" else profile,
+                legacy=None if profile == "v5" else profile,
             )
             from issuedigest_storage.auth_schema import auth_workspace_memberships
             from sqlalchemy import delete
@@ -407,7 +416,7 @@ def test_worker_lock_connection_is_idle_and_loss_fails_closed(engine):
         recovered()
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
 @pytest.mark.parametrize("slot", [0, 2, -1, True, False, 1.0, "1", None, "missing"])
 def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
@@ -429,7 +438,7 @@ def test_model_checkpoint_rejects_wrong_or_malformed_durable_slot(version, slot)
     )
 
 
-@pytest.mark.parametrize("version", ["v2", "v3", "v4"])
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
 def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
     from issuedigest_worker.research_recovery import completed_model_checkpoint
 
@@ -446,5 +455,84 @@ def test_model_checkpoint_accepts_canonical_integer_slot_one(version):
             ]
 
     assert completed_model_checkpoint(
+        MetadataClient(), "research-synthetic", f"issuedigest_research_run_{version}"
+    )
+
+
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+def test_cached_paid_error_replays_without_a_second_request(
+    engine, database_url, tmp_path, version
+):
+    from pydantic_ai.models.function import FunctionModel
+
+    bundle, token, repo, run = seed(engine, database_url)
+    marker = crash_worker(
+        database_url,
+        tmp_path,
+        output(bundle, classified=version != "v2"),
+        legacy=None if version == "v5" else version,
+        error=True,
+    )
+    calls = []
+
+    def forbidden(messages, info):
+        calls.append(True)
+        raise AssertionError("cached paid error must never repeat the request")
+
+    inspector = client(database_url)
+    try:
+        before = inspector.list_workflows(
+            workflow_ids=[f"research-{run.run_id}"],
+            load_input=False,
+            load_output=False,
+        )[0]
+        steps = inspector.list_workflow_steps(before.workflow_id, load_output=False)
+        assert [(s["function_id"], s["function_name"]) for s in steps] == [
+            (1, f"issuedigest_research_{version}__model.request")
+        ]
+        assert steps[0]["completed_at_epoch_ms"] is not None
+        assert repo.get_run(token, run.workspace_id, run.run_id).status == "generating"
+        run_worker(database_url, model=FunctionModel(forbidden), once=True)
+        failed = repo.get_run(token, run.workspace_id, run.run_id)
+        assert failed.status == "failed" and failed.error_code == "generation_failed"
+        assert failed.result is None and calls == [] and marker.read_text() == "called\n"
+        after = inspector.retrieve_workflow(before.workflow_id).get_status()
+        assert after.app_version == before.app_version
+        assert after.name == before.name == f"issuedigest_research_run_{version}"
+        assert inspector.list_workflow_steps(before.workflow_id, load_output=False) == steps
+    finally:
+        inspector.destroy()
+
+
+@pytest.mark.parametrize("version", ["v2", "v3", "v4", "v5"])
+@pytest.mark.parametrize(
+    "mutation", ["missing", "duplicate", "other-name", "incomplete", "too-many"]
+)
+def test_checkpoint_rejects_missing_duplicate_wrong_or_incomplete_model_step(version, mutation):
+    from issuedigest_worker.research_recovery import completed_model_checkpoint
+
+    step = {
+        "function_id": 1,
+        "function_name": f"issuedigest_research_{version}__model.request",
+        "completed_at_epoch_ms": 1,
+    }
+    steps = [step]
+    if mutation == "missing":
+        steps.clear()
+    elif mutation == "duplicate":
+        steps.append({**step, "function_id": 2})
+    elif mutation == "other-name":
+        step["function_name"] = "other__model.request"
+    elif mutation == "incomplete":
+        step["completed_at_epoch_ms"] = None
+    elif mutation == "too-many":
+        steps.extend({**step, "function_id": i, "function_name": "unrelated"} for i in range(2, 22))
+
+    class MetadataClient:
+        def list_workflow_steps(self, workflow_id, *, load_output, limit):
+            assert load_output is False and limit == 21
+            return steps
+
+    assert not completed_model_checkpoint(
         MetadataClient(), "research-synthetic", f"issuedigest_research_run_{version}"
     )
