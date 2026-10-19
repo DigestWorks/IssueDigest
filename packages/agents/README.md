@@ -75,3 +75,75 @@ planner 지침709바이트, 실제 tool raw382/normalized368바이트 중 큰 �
 v10 instructions는4,340바이트, 최악 static12,648바이트다. 최대100인용의 raw/normalized 도구 envelope는 날짜0에서7,070/6,964, 날짜1에서8,097/7,957, 날짜16에서8,308/8,168바이트이며 더 큰 값을 반영한다. combined prior와 동적 출력·전체 예산·45초/요청1/repair·retry0는 v9와 같다. 원래 질문과 선택된 whole quotes를 잘라 예산을 메우지 않으며 넘으면 유료 호출 전에 거부한다. 새 client를 만들거나 빌린 model을 닫지 않는다.
 
 정확 reviewer는 `issuedigest-research-v10`/`research-v10`이다. `tests/v10_fixture.py`의 실제 builder JSON을 full client·앱·CanvasView가 소비한다. 합성 수치 관계·날짜·Unicode·비답변은 전달과 검증 경계 검사이며 실제 생성 문장 의미 품질 인증이 아니다. 실제 모델/개발 적용 인수는 controller 소유 명세에 별도로 기록한다.
+
+
+## 독립 수치 근거 후보 SDK
+
+`numeric_evidence`는 질문 필터 없이 한 `(snapshot_id, EvidenceBundle, SourcePresentation)`의
+전체 인용에서 수치 근거 후보를 제안한다. 현재 권한을 가진 원문을 제공하는 책임은 호출자에게
+있다. `create_numeric_extractor(model: Model)`은 필수 borrowed 모델을 검사하는 frozen lazy
+handle이며 None/모델명 문자열/일반 객체를 거부한다. import/handle 생성/실패한 preflight는
+Agent·client·키 조회·요청을 만들지 않는다. 호출자는 Responses 모델(예: gpt-5.4-mini)과
+transport `max_retries=0`을 구성하고 모델·client 수명을 소유한다. SDK는 이를 생성하거나 닫지
+않는다. 기존 조사·관련성 SDK/worker·DBOS·HTTP·공개 게시에는 연결하지 않았다.
+
+```python
+from issuedigest_agents.numeric_evidence import (
+    create_numeric_extractor,
+    numeric_evidence_prompt,
+    run_numeric_extractor,
+    validate_numeric_proposal,
+)
+
+extractor = create_numeric_extractor(model)  # 호출자가 소유한 PydanticAI Model
+prompt = numeric_evidence_prompt(source)  # 요청 없이 원문·예산 검사
+proposal = run_numeric_extractor(extractor, source)
+checked = validate_numeric_proposal(source, proposal)  # 현재 Source로 재계산
+```
+
+canonical bundle/presentation을 재검증해 unchecked model_copy/model_construct의 잘못된
+version/hash/selector·다른 snapshot/workspace·중복 citation을 거부한다. 1..20개 인용·전체
+quote≤12,000 Unicode code points를 허용하며 별도 UTF-8 envelope를 적용한다. 원문을 잘라
+예산을 맞추지 않는다. 제목/metadata는 prompt에 넣지 않는다. NEL/BOM을 포함한 기존
+Python+ECMAScript 공백 합집합으로 비공백을 검사하며 앞뒤 공백·NFC·대소문자·수치·단위를
+정규화하지 않는다.
+
+정확 provider identity는 `issuedigest_numeric_evidence_v1`, 유일한 strict output tool은
+`propose_numeric_evidence`다. 인용 ID enum을 요청마다 제한하고 facts0..12/relations0..16을
+받는다. 각 field는 citation_id/exact text≤1,000자/엄격 occurrence0..31이며 겹치는 문자열도
+왼쪽부터 센다. 서버가 quote 기준 Python code-point 반열린 start/end를 계산한다. fact의
+context/value는 필수이고 subject/unit/period/qualifier/status_text/condition은 nullable이다.
+known kind(observed/planned/conditional_forecast)는 status_text가 필요하며 unknown은 nullable이다.
+모든 field는 같은 citation/context 안에 있어야 한다. qualifier 부재는 정확값/닫힌 상한을
+뜻하지 않는다. 값은 원문 문자열이며 숫자 여부·산술·대상/기간/상태 의미를 인증하지 않는다.
+
+관계는 included_in(child→parent)/parallel/unknown과 context/cue다. context는 같은 citation의
+두 endpoint value와 cue를 포함해야 한다. 모든 종류에 걸쳐 unordered fact pair당 한 관계만
+허용한다. 중복 value 구간/local ID·자기참조/없는 endpoint·교차 citation·포함 cycle은 제안
+전체를 거부한다. cue 존재와 cycle 없는 graph는 관계 의미 인증이 아니다. 0facts는0relations를
+요구하며 빈 후보/unknown/null은 누락·자료 부족일 수 있고 포괄적 추출 성공 표시가 아니다.
+
+frozen strict extra-forbid `NumericEvidenceProposal`은 profile=`numeric-evidence-v1`,
+status=`unreviewed`, 원래 순서의 facts/relations·snapshot/workspace·전체 인용과 서버 계산
+source/prompt SHA256·typed `KnownUsage`를 보존한다. source hash는 snapshot/workspace와 순서 있는
+citation ID/정확 quote의 UTF-8 deterministic JSON이다. 공개 validate는 현재 Source로
+hash/인용/위치/구조를 재계산·대조하며 변경/위조 provenance를 거부한다. 해시는 인증 서명이
+아니며 원문에 존재하는 다른 의미 해석·kind/관계의 진실·누락을 판정하지 못한다. 자동 승인·
+새 진실 인증·공개 게시 결과로 소비할 수 없다.
+
+독립 한도는 input+output20,000/output2,500·30초·요청1/retry/repair0·Responses/storeFalse다.
+최악20IDs의 실제 tool envelope는 raw3,160/normalized3,061 UTF-8바이트, 지침1,650바이트,
+static4,810바이트다. framing2,048·출력2,500을 예약해 prompt10,642바이트를 허용하고 실제
+schema envelope도 매 요청 다시 검사한다. 최대 인용/후보 수를 동시에 채울 수 있다는
+보장은 없다. 기존 앱24,000/월10만원 예약 정책과 통합한 예산이 아니며 앱 연결은 별도 설계다.
+
+실패는 원문·공급자 오류를 노출하지 않는 `NumericEvidenceError`다. 실제 SDK result를 받은
+후 후처리/usage 검증에 실패하면 valid nonnegative raw `known_usage`를 그대로 보존하며
+상한을 넘은 값도 자르지 않는다. SDK/전송이 result를 반환하지 않거나 raw usage가 잘못되면
+`known_usage=None`(미상)이다. 이는 무료나 예약 반환이 아니며 transport 비용 완전 회복·
+DBOS journal/정산은 SDK 밖이다. 오류/빈 후보를 자동 수리·재요청하지 않는다.
+
+합성 경계 검사는 `uv run pytest packages/agents/tests/test_numeric_evidence.py -q`로 실행한다.
+기존 agents 회귀 검사는 `uv run pytest packages/agents/tests -q`, 정적 검사는
+`uv run ruff check packages/agents`, `uv run ruff format --check packages/agents`,
+`uv run mypy packages/agents/src`다. 합성 성공은 실제 모델 의미 품질이나 최종 브리핑 인수가 아니다.
