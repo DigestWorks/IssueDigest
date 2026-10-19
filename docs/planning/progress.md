@@ -16,6 +16,13 @@
 - Ruling1: 같은 unordered 수치 pair는 kind/방향에 관계없이 관계 하나만 허용한다. 실제 복합 관계도 전체 거부되고 알려진 비용이 남을 수 있다. 상세 판단/비용은 Spec/D022에 보존한다. 원문/ID/키/raw·소유 검토 증거는 private만, 사용자 탭은 열거나 이동하지 않는다.
 
 
+### 수치 후보 SDK · 전체 검사·검토 receipt
+
+- 전체 gate71fa6b8: Python4,183+JS820=5,003개·lint/format/types/build/OpenAPI contract 통과, 실패/skip/warning0이다. 구현edc1383 이후 검토/실제bbf6b7e·gate/전체 검토71fa6b8까지 변경은 문서만이다. Task1 및 전체 브랜치 독립 구현 Spec/품질 검토는 각각 PASS(C0I0M0), 기존239파일 byte proof를 확인했다.
+- 실제 독립2 SDK는 부분 반환1·거부1/의미 완전 충족0이고 앱 연결은 미완료다. 전체 검사·코드 검토가 이 결과를 바꾸지 않는다. 기존v10/과거 실패 분모와 Ruling1/비용을 유지한다.
+- [Draft PR50](https://github.com/DigestWorks/IssueDigest/pull/50)은 PR49 기반·미병합이며 앱 첨부를 완료했다. [source CI39235962771](https://github.com/DigestWorks/IssueDigest/actions/runs/39235962771)는71fa6b8에서 진행 중으로 별도 확인한다. 이후 변경은 출판/정리 문서뿐이다.
+- 서버 접속/배포·앱/worker 재시작·DB migration·권한·수집기를 변경하지 않았다. Sites v71 archive/현재 요약·원본 사본·native 게시와 소유 QA1/SDD 정리는 최종 receipt에서 구분한다. 사용자 탭을 열거나 이동하지 않는다.
+
 ## 수치 근거 후보 · 착수 · 2026-10-19
 
 - PR49/edc7ae7 기반 feat/numeric-evidence-proposals, [명세](../changes/numeric-evidence-proposals.md). 원문 숫자·대상/단위/기간/상태·수식어/조건과 포함/병렬 관계를 정확 인용에 묶는 독립 private SDK를 TDD로 구현한다.

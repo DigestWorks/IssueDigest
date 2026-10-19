@@ -47,4 +47,4 @@
 
 이는 독립 내부 추출 SDK의 제한된 평가다. 실제 planned/uncertain 양성·전체 문서 수치의 포괄성·다양한 정치 이슈/중립성·최종 브리핑 품질은 미검증이다. 기존 v10 실제4건의 부분/미충족·과거v9/selector/v8/v7/v6/v5 분모는 유지한다. 앱/DBOS·DB/API/공개/UI/수집기와 개인 개발ab6654e/v9를 변경하지 않았다. 다음은 반복 context 출력의 비용을 줄이는 입력 참조 구조, provider 단계의 상태/근거 조합 제약, 관계 cue의 실제 지시 대상과 누락을 평가하는 계약을 설계하는 것이다. 단순히 더 강한 지침/성공 재호출로 해결됐다고 표시하지 않는다.
 
-Task1 독립 Spec/품질 PASS(C0I0M0), sourcebbf6b7e 기준이다. 전체 gate/전체 독립 검토·PR/CI/Sites/정리는 별도 receipt를 진행 기록에 남긴다. 의미 품질 및 앱 연결은 미완료다.
+Task1 독립 Spec/품질 PASS(C0I0M0), sourcebbf6b7e 기준이다. 전체 gate71fa6b8의5,003개와 전체 독립 구현 Spec/품질 검토(PASS/C0I0M0), PR49 기반 [Draft PR50](https://github.com/DigestWorks/IssueDigest/pull/50)을 확인했다. source CI/Sites/정리는 별도 receipt를 진행 기록에 남긴다. 의미 품질 및 앱 연결은 미완료다.
