@@ -2,14 +2,24 @@
 
 2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 수치 의미 역할 프레임
+## 현재 · 수치 프레임 생성 SDK
+
+[명세](../changes/numeric-frame-generation.md).
+
+- [x] bounded borrowed SDK·source별 known/unknown schema·원문 재검증·실패 known/unknown usage를 구현했다. I1 타입 우회5건 RED→GREEN·신규70·작업 수정/재검토를 확인했다.
+- [x] 독립 전체 C0/I0/M0·최종5937개·기존397파일 보존과 소유 QA2개/SDD 정리를 확인했다.
+- [x] 사전 고정2자료/각1회·총2회/retry0으로 실제 의미를 검토했다. 반환1/거부1·부분1/의미0/2이며 원래 gold·실패/비용은 보존했다.
+- [ ] Draft PR·Sites와 보존/정리 영수증을 갱신한다.
+- [ ] 같은 계약/기준 아래 상위 모델의 추가 효용을 별도 cap으로 제한 비교한다. 반복 anchor·날짜/측정값·대상/발표자/관계 의미를 함께 검토하고 앱 연결은 품질 인수 후 진행한다.
+
+## 이전 · 수치 의미 역할 프레임
 
 [명세](../changes/numeric-evidence-frame.md).
 
 - [x] 역할 분리·현재 원문 재구성·strict canonical 검사·직접 포함 관계를 순수 모듈로 구현하고 신규193/agents1533·정적 검사·작업 독립 검토를 통과했다.
 - [x] 최종 전체5867개·독립 전체 Approved(C0/I0/M1)·기존395파일/원래 기준 동일과 소유QA1/SDD 정리를 확인했다.
 - [x] PR56 기반 Draft PR57·Sites v79/이전v78·최종 보존 영수증과 링크/비공개 제외 검사를 확인했다. 앱/main/운영은 변경하지 않았다.
-- [ ] 새 프레임을 채우는 bounded 모델 계약·사전 고정 의미 기준을 설계하고 별도 실제 인수한다. 기존 실패를 자동 변환하거나 구조 통과로 의미 통과를 선언하지 않는다.
+- [x] 새 bounded 모델 계약·사전 고정 의미 기준으로 실제 인수를 수행했다. 의미0/2와 원래 실패를 보존하며 앱 적용은 하지 않는다.
 
 ## 이전 · 수치 역할 지침 비교
 

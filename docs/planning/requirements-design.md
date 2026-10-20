@@ -156,3 +156,8 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ### 고정 기준 평가의 범위
 
 [평가기 명세](../changes/numeric-selection-evaluation.md)는 fact 필드만 사람이 지정한 정확 위치 대안과 비교한다. complete/partial·미판정·전체 거부·known/unknown usage를 구분하며, 기준 일치를 관계·의미/중립성·독립 사실 검증으로 확대하지 않는다. 기존 두 결과는 사후 형식 변환으로 재생하고 원래 평가를 보존한다.
+
+
+### 수치 역할 프레임 생성 SDK
+
+[명세](../changes/numeric-frame-generation.md). 모델은 기존 프레임의 수치 후보ID와 역할 anchor를 선택하고 서버가 현재 원문에서 다시 만든다. schema의 known/null 구분과 exact 위치는 의미 인증이 아니다. 실제2회 부분1/거부1·의미0/2에서 날짜 선택·대상/발표자·직접 관계/반복anchor 오류를 확인했으며 현재 앱 경로에는 연결하지 않는다. 모델 비교·전체 앱 예산/권한/내구 실행·캐시·최종 브리핑 인수를 별도로 요구한다.

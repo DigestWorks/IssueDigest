@@ -22,6 +22,8 @@ Ruling: 새로운 프레임 생성은 독립 SDK에서 먼저 인수한다 — �
 
 Ruling: SDK가 응답 기록 전에 한도로 거부하면 known_usage=None을 유지한다 — 관측하지 못한 비용을 만들거나 borrowed Model 구조를 바꾸지 않는다 — SDK만으로 실제 비용을 알 수 없는 경우가 남아 실제 인수에서는 별도 raw 영수증을 보존한다.
 
+Ruling: 최종 리뷰의 범위를 수용하고 실제2자료·전체gate·후속 문서/Sites는 컨트롤러가 별도 확인한다 — 내부 코드 승인은 앱 권한·캐시/예산 예약/복구·보지 않은 자료 의미/중립성·청구액을 인증하지 않는다 — 해당 품질은 미검증이며 후속 문서는 코드 리뷰 밖에 남는다.
+
 ## Task 1: 프레임 생성과 합성 회귀
 
 - [x] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame_generation.py와 packages/agents/tests/test_numeric_frame_generation.py를 TDD로 구현한다. 기존 pure frame·canonical helpers·candidate prompt·usage/schema helpers를 읽기만 재사용한다. 공통 resolver·usage validator를 복제하지 않는다. 기존 tests/production/의존성은 byte-identical이다.
@@ -34,4 +36,4 @@ Ruling: SDK가 응답 기록 전에 한도로 거부하면 known_usage=None을 �
 
 기존 고정 개발 자료2건을 같은 모델 gpt-5.4-mini Responses로 각각1회, 신규 총2회 상한·SDK/client retry0으로 실행한다. 호출 전 새 역할별 기대 기준·직접 관계·부수 날짜 제외·instruction/source hash를 private에 고정하며 원래 gold를 바꾸지 않는다. 신규 기준은 새 frame을 위한 단일 annotator의 개발 표본이며 holdout/독립 검증이 아니다. 상태 표현의 유효한 다른 철자는 exact 차이와 의미 오류를 구분해 수동 판정한다. 전체 raw/거부·known usage를 private에 보존하고 성공까지 재호출·출력 수정/기준 사후 변경을 하지 않는다. 보지 않은 자료·정치 중립성·최종 앱 품질은 별도다. 추가 API 비용은 관측 토큰만 기록하며 청구액 검증 전 추정하지 않는다.
 
-구현·전체 검증·독립 검토·실제 인수 진행 중. Sites 요약 반영 대기.
+SDK 구현과 독립 수정/전체 검토를 완료했다. [실제 인수](../research/numeric-frame-generation-acceptance.md)는 신규2회·반환1/거부1·의미 완전0/2다. sourceefa9bf2의 최종 Python5117+JS820=5937개·Ruff/format337/mypy135·ESLint/TS/build/OpenAPI가 PASS(실패/skip/warning0)이며 기존397파일이 동일하다. I1 수정/재검토와 최종 독립 C0/I0/M0를 확인했다. 소유 QA2개/SDD는 보존 후 정리했다. Draft PR·출판 영수증은 진행 기록에 남긴다. Sites 요약 반영 대기.
