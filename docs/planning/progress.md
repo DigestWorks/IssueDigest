@@ -1,3 +1,7 @@
+# 모델 제한 비교 · Draft PR59 · 2026-10-20
+
+[Draft PR59](https://github.com/DigestWorks/IssueDigest/pull/59)은 PR58의 feat/numeric-frame-generation 기반이다. 연구/문서만 변경해 spec-driven-workflow의 문서 예외를 적용했으며 별도 코드 구현/SDD·전체 검사 반복은 없다. 기존5937개 소스 검증과 새2호출/비교 기준/비용·문서 링크/비공개 제외 검사를 구분한다. 앱/main/운영 변경0·Sites 출판 영수증은 후속에 남긴다.
+
 # 수치 프레임 · 모델 제한 비교 · 2026-10-20
 
 [비교 기록](../research/frame-model-comparison.md). 실행 코드는 sourceefa9bf2 그대로이며 현재 전체5937개 검사 증거를 재사용했다. 동일 두 자료/기준/지침/schema/한도에서 GPT-5.4 고정 버전으로 신규2회/retry0: 반환1/거부1·고정 의미 기준 수동충족1/2다. 기존 mini0/2와 모든 raw/gold/비용은 보존한다. A의 발표자·필수 직접 관계는 개선됐고 넓은 대상/맥락 상태 근거의 해석 한계도 기록했다. B의 raw 측정값/역할은 나아졌지만 반복 비교anchor4·cue2로 전체 거부됐고 수준/증감 관계 의미는 후속이다.
