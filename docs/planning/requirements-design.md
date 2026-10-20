@@ -151,3 +151,8 @@ ResearchRequest는 request_id·question·선택적 parent_run_id만 허용하고
 ## 수치 후보 선택·의미 근거 경계
 
 [명세](../changes/numeric-candidate-selection.md). 서버의 수치·명시 단위·두 atom 범위·수식어는 다시 쓰지 않고 후보ID로 선택한다. 의미 role은 현재 같은 quote의 unique sentence anchor로 연결하며 nullable 조건/불명과 관계의 직접 근거를 분리한다. 전체 재생성·원문 일치가 대상/시점·상태/조건·관계 의미/완전성 인증은 아니다. 실제2회 부분1·거부1과 조건 누락/부수 날짜/반복 anchor 비용을 유지하며 앱24,000 전체 비용·월 예약/내구 실행/복구와 최종 브리핑에 연결하기 전에 별도 인수한다.
+
+
+### 고정 기준 평가의 범위
+
+[평가기 명세](../changes/numeric-selection-evaluation.md)는 fact 필드만 사람이 지정한 정확 위치 대안과 비교한다. complete/partial·미판정·전체 거부·known/unknown usage를 구분하며, 기준 일치를 관계·의미/중립성·독립 사실 검증으로 확대하지 않는다. 기존 두 결과는 사후 형식 변환으로 재생하고 원래 평가를 보존한다.

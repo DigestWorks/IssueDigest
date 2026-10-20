@@ -420,3 +420,24 @@ source81ca4ef의 단독 SDK를 원래와 byte-identical인 두 private packet(wh
 새151/agents1254·정적 검사와 작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 기존377 파일 SHA와 baseline/current source의411 git blob이 동일하다. 전체 gate·PR54/source CI39389528867·Sites v75보존/현재 갱신·소유QA1/SDD 정리는 별도 최종 기록을 따른다. 원래 v3/v2 각각 거부2·v1 부분1/거부1·앱4/12·과거 실패 usage·이전 순수 후보11/11+6/6+지원37/37/미지원2건과 그 세 판단/비용은 유지한다.
 
 이번 판단은 문장 안의 unique exact anchor와 연속된 전체 문장 관계다. 반복/문장 횡단 의미 근거를 놓치거나 유료 결과 전체를 거부할 수 있고, 정확한 위치도 의미 오연결을 막지 못한다. 실제 반복 문구 거부1건에서 이 비용을 관측했다. 상태·조건·날짜/측정값 역할의 계약과 모델 판단을 다음 설계에서 재검토한다. 실제 예정/불명 양성·다양한 정치 쟁점/중립성·최종 브리핑/앱 인수는 미완료이며 개발ab6654e/v9와 D013 main/운영 유예를 유지한다.
+
+
+## 수치 역할의 고정 기준 평가기 · 기존 두 결과 오프라인 재생 · 2026-10-20 KST
+
+source09d6624의 새 평가기로 기존 SDK 반환1/거부1을 재생했다. 추가 모델/앱/사용자 세션은0이고 원래 원문·gold·응답·의미 완전 충족0/2와 기존 input4,053/output1,166을 변경하지 않았다. 사후 변환 reference를 평가기 실행 전에 별도 hash로 고정했으며, 원래 gold의 비문자적 역할 설명과 상태 근거 미지정은 결과에 맞춰 채우지 않고 미판정으로 남겼다.
+
+반환 제안은 예상6/수용6이며 fact 필드 검사27일치·1불일치·8미판정이다. 불일치1은 원래 기준이 요구한 전망 전제·관리 문구에 대한 condition null이다. 27개 일치는 27개 사실이나 의미 품질 통과율이 아니며, 8미판정에는 원래 exact 문구가 지정되지 않은 상태 근거6개와 비문자적 subject 설명2개가 포함된다. 거부 건은 예상5·수용 수 미상(null)·빈 검사와 원래 실패 usage1771/511/1을 보존했다. raw5개를 성공으로 세지 않는다. 기준의 조건/수단 역할도 평가자 해석이며 독립 진실 인증이 아니다.
+
+신규79/agents1,333·Ruff/format/mypy·기존379파일 SHA 동일을 확인했다. 작업/전체 독립 검토·전체 gate·PR/CI·Sites와 소유QA/SDD 정리는 최종 인계를 따른다. 현재 SDK/모델 호출/provider bytes·앱/API/DB/UI/worker/수집기를 바꾸지 않았다. 다음은 이 기준을 유지하며 상태/전망 전제·비교 기준·부수 날짜 역할의 생성 계약을 재검토하는 일이다. 기존 parser 세 판단/unique anchor 판단과 모든 이전 실패 비용·개발ab6654e/v9·D013 유예는 유지한다.
+
+
+### 원래 검토 지적·수정과 재생
+
+작업 검토가 excluded subclass 필드의 직렬화 누락1건(Important)을 확인했다. source09의 사전 전체 검사는 수정 전에 중단했고 CI39393254153 취소를 요청했으므로 최종 성공에서 제외한다. source2bd1f37에서 직렬화 전 canonical 모델/필드 구조를 재귀 검사하도록 수정했다. 신규 회귀7개 RED→GREEN·평가기86/agents1,340·Ruff/format/mypy·기존379파일 SHA 동일을 확인했다. unsupported subclass를 허용하는 API는 아니다. 원래 helper/provider/모델 bytes는 동결했다.
+
+수정 source에서 동일한 사후 변환 reference를 hash 변경 없이 다시 재생했다. 조건 불일치1·미판정8과 거부1/수용 수null·모든 known usage가 그대로다. 모델 재호출·원문/gold/분모 조정은 없다. 수정 범위 재검토·전체 독립 검토·최종 전체 gate/PR55 CI·Sites·소유QA 정리는 최종 receipt를 따른다.
+
+
+### 수치 역할 평가기 · 최종 전체 검사
+
+검토된64b2f19(실행 코드2bd1f37)에서 Python4,854+JS820=5,674개·Ruff/format330/mypy133·ESLint/TS/build/OpenAPI drift가 통과했다. 실패/skip/warning0이다. 작업 검토 Important1건을 고친 뒤 수정 범위 재검토와 전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. source09의 중단된 사전 gate/취소 CI39393254153은 최종 성공에서 제외한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다. [최종 source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)와 Sites/소유QA·SDD 정리는 최종 게시 receipt를 따른다. 이후 변경은 Markdown뿐이다. 신규 모델0·원래 의미0/2/모든 실패 usage·이번 세 판단/비용과 과거 판단을 유지한다.
