@@ -501,6 +501,8 @@ observed/planned/forecast/unknown 또는 미판정 null이다. `AnchorRule`은 o
 후보와 같은 quote의 정확한 위치·텍스트여야 한다. 반복 문구의 서로 다른 위치나 문장 경계를
 넘는 기준도 허용하며 Unicode·공백·CRLF를 보정하지 않는다. 현재 Source 전체·완전한 색인과
 기존 제안을 다시 검증하고, unchecked/subclass extra·원문/위치 변조·중복/없는 후보를 거부한다.
+직렬화 전에 모델의 실제 타입·필드 구조를 재귀 검사하며 canonical 타입의 subclass는
+제외 필드가 있거나 없어도 받지 않는다. `Field(exclude=True)`로 숨긴 추가 필드도 거부한다.
 
 비교 순서는 기준 fact 순서의 presence→subject→period→condition→kind→status_text이며,
 없는 fact는 presence mismatch만 남긴다. 마지막으로 예상 밖 fact를 제안 순서로 기록한다.

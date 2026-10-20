@@ -15,7 +15,7 @@ from uuid import uuid4
 import pytest
 from issuedigest_agents.numeric_candidates import ExactSpan, build_numeric_candidates
 from issuedigest_agents.numeric_evidence import KnownUsage
-from pydantic import create_model
+from pydantic import Field, create_model
 from test_numeric_evidence import document
 from test_numeric_selection import anchor, fact, pure
 
@@ -393,7 +393,7 @@ def test_invalid_reference_is_rejected_before_comparison_or_rejected_report(muta
 @pytest.mark.parametrize(
     "target", ["reference", "rule", "span", "proposal", "proposal_span", "usage"]
 )
-@pytest.mark.parametrize("attack", ["unchecked_extra", "subclass_extra"])
+@pytest.mark.parametrize("attack", ["unchecked_extra", "subclass_extra", "excluded_subclass_extra"])
 def test_nested_unchecked_and_declared_subclass_extras_are_not_dropped(target, attack):
     mod = api()
     src, raw_ref, proposal = rich()
@@ -411,7 +411,14 @@ def test_nested_unchecked_and_declared_subclass_extras_are_not_dropped(target, a
     if attack == "unchecked_extra":
         changed = obj.model_copy(update={"synthetic_secret": "synthetic-private-text"})
     else:
-        subclass = create_model("SyntheticExtra", __base__=type(obj), synthetic_secret=(str, ...))
+        subclass = create_model(
+            "SyntheticExtra",
+            __base__=type(obj),
+            synthetic_secret=(
+                str,
+                Field(exclude=True) if attack == "excluded_subclass_extra" else ...,
+            ),
+        )
         changed = subclass(**obj.model_dump(), synthetic_secret="synthetic-private-text")
     if target == "reference":
         ref = changed
@@ -483,7 +490,14 @@ def test_unchecked_proposal_tampering_cannot_become_a_mismatch_report(mutation):
 
 @pytest.mark.parametrize(
     "mutation",
-    ["stale_snapshot", "invalid_metadata", "stale_quote", "subclass_extra", "unchecked_extra"],
+    [
+        "stale_snapshot",
+        "invalid_metadata",
+        "stale_quote",
+        "subclass_extra",
+        "unchecked_extra",
+        "excluded_subclass_extra",
+    ],
 )
 def test_current_source_is_revalidated_even_on_rejection(mutation):
     src, ref, _ = rich()
@@ -509,9 +523,14 @@ def test_current_source_is_revalidated_even_on_rejection(mutation):
         )
     else:
         item = bundle.citations[0]
-        if mutation == "subclass_extra":
+        if mutation in {"subclass_extra", "excluded_subclass_extra"}:
             subclass = create_model(
-                "SyntheticCitation", __base__=type(item), extra_field=(str, ...)
+                "SyntheticCitation",
+                __base__=type(item),
+                extra_field=(
+                    str,
+                    Field(exclude=True) if mutation == "excluded_subclass_extra" else ...,
+                ),
             )
             item = subclass(**item.model_dump(), extra_field="synthetic-private-text")
         else:

@@ -1,7 +1,7 @@
 """Pure comparisons against human-authored exact references, never truth certification."""
 
 from hashlib import sha256
-from typing import Annotated, Any, Literal, Self
+from typing import Annotated, Any, Literal, Self, get_args
 
 from issuedigest_domain.sources import Sha256
 from pydantic import BaseModel, Field, model_validator
@@ -68,8 +68,32 @@ class NumericSelectionEvaluationReport(_StrictModel):
     usage: KnownUsage | None
 
 
+def _model_types(annotation: Any) -> tuple[type[BaseModel], ...]:
+    if isinstance(annotation, type) and issubclass(annotation, BaseModel):
+        return (annotation,)
+    return tuple(model for arg in get_args(annotation) for model in _model_types(arg))
+
+
+def _canonical_models(value: Any, annotation: Any) -> None:
+    # Inspect actual structure before any dump: excluded subclass fields disappear in dumps.
+    if isinstance(value, BaseModel):
+        if type(value) not in _model_types(annotation):
+            raise ValueError("Unsupported model type")
+        fields = type(value).model_fields
+        if set(value.__dict__) - fields.keys() or value.__pydantic_extra__:
+            raise ValueError("Unexpected model fields")
+        for name, child in value.__dict__.items():
+            _canonical_models(child, fields[name].annotation)
+    elif isinstance(value, (tuple, list)):
+        for child in value:
+            _canonical_models(child, annotation)
+    elif isinstance(value, dict):
+        for child in value.values():
+            _canonical_models(child, annotation)
+
+
 def _read[T: BaseModel](model: type[T], value: T | dict[str, Any]) -> T:
-    # _plain catches unchecked extras; serialize_as_any also retains declared subclass fields.
+    _canonical_models(value, model)
     _plain(value)
     raw = (
         value.model_dump_json(serialize_as_any=True, warnings="error")
@@ -166,12 +190,8 @@ def evaluate_numeric_selection(
 ) -> NumericSelectionEvaluationReport:
     """Revalidate current inputs and compare fact fields, with no I/O or model requests."""
     try:
+        _canonical_models(source, Source)
         _source_data(source)
-        for model in source[1:]:
-            if model.model_dump(mode="python", serialize_as_any=True, warnings="error") != _plain(
-                model
-            ):
-                raise ValueError("Unexpected canonical source fields")
         checked_reference = _read(NumericSelectionReference, reference)
         _validate_reference(source, checked_reference)
         if proposal is not None and rejected_usage is not None:
@@ -188,6 +208,7 @@ def evaluate_numeric_selection(
                 checks=(),
                 usage=usage,
             )
+        _canonical_models(proposal, NumericSelectionProposal)
         checked_proposal = validate_numeric_selection(source, proposal)
         checks = _checks(checked_reference, checked_proposal)
         outcome: Literal["reference_match", "reference_mismatch", "inconclusive"]
