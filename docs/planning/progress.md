@@ -1,5 +1,9 @@
 # 진행 기록
 
+## 후보 선택·의미 근거 SDK · 착수 · 2026-10-20 KST
+
+[명세](../changes/numeric-candidate-selection.md). 같은 두 자료를 최대2회/retry0으로 평가한다. 모델은 candidate ID와 문장에 묶인 의미 근거를 선택하고 수치·단위·범위는 서버가 보존한다. baseline5,437/기존 CI를 재사용하며 앱 배포·전역 예산/내구 실행 통합과 의미 품질 인수는 후속이다. sentence-local unique anchor/연속 문장 관계는 반복·문장 간 근거를 표현하지 못하거나 유료 결과를 거부할 수 있어 한계와 의미 오연결을 직접 평가한다. 이전 실패 분모·세 후보 판단/비용·개발v9/main·운영 유예를 유지한다. Sites는 최종 인수 후 갱신 대기다.
+
 ## 서버 수치·단위 후보 · 오프라인 비교 · 2026-10-19
 
 source515aa26의 순수 후보 SDK를 기존과 byte-identical인 두 whole quote packet(인용2/1)에 오프라인 적용했다. 원문을 다시 수집하지 않았고 신규 provider/사용자 세션/앱 실행은 모두0이다. controller가 원문·모든 문장/후보의 expression/각 atom·unit/null·separator/qualifier·lexical hint/ID/원문 위치와 현재 Source 검증 결과를 직접 읽었다.

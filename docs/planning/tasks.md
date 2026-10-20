@@ -1,8 +1,17 @@
 # 현재 구현 작업 목록
 
-2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 서버 수치·단위·문장 후보
+## 현재 · 후보 선택·의미 근거
+
+[명세](../changes/numeric-candidate-selection.md). 수치/범위는 서버 소유이며 대상·시점·상태/조건·관계는 검토 전 제안이다.
+
+- [ ] 후보/문장 ID의 strict dynamic schema·정확 anchor/관계·현재 source 재검증·bounded borrowed SDK를 TDD로 구현/독립 검토한다.
+- [ ] 같은 두 자료의 원래 gold를 바꾸지 않고 SDK 최대2회/retry0으로 원문·전체 raw/null/의미·누락·실패 usage를 직접 검토한다.
+- [ ] 최종 전체 검사·전체 독립 검토·Draft/CI·Sites v75보존/갱신·이번 소유QA1/SDD 정리를 확인한다.
+- [ ] 의미 품질·전체 앱 예산/예약·DBOS/복구·현재 권한/취소·최종 브리핑을 별도로 인수한다.
+
+## 이전 · 서버 수치·단위·문장 후보
 
 [명세](../changes/numeric-candidate-index.md). 모델 호출 없이 원문 후보 경계를 검증하며 앱 연결은 후속이다.
 
