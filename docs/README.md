@@ -6,6 +6,8 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
+현재 구현: [수치 의미 역할 프레임](changes/numeric-evidence-frame.md). 역할별 정확 원문 연결과 직접 포함 관계를 분리하는 순수 계약이다. 실제 모델 의미 개선·앱 연결은 별도 인수한다.
+
 현재 조사: [역할 지침 제한 비교](research/numeric-role-guidance-trial.md). 신규2호출/반환2·의미 완전0/2와 새 역할 분리 계약을 기록했다. 기존 기준/결과는 보존한다.
 
 이전 변경: [수치 역할의 고정 기준 평가](changes/numeric-selection-evaluation.md). 기존 두 결과를 새 모델 호출 없이 재생하고 필드 차이·미판정·거부와 알려진 비용을 구분한다. 사후 형식 변환으로 원래 gold/의미 완전0/2를 재판정하지 않는다.

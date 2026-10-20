@@ -18,6 +18,10 @@
 
 Ruling: 첫 단계는 유료 생성기를 추가하지 않고 순수 프레임만 구현한다 — 역할 분리·원문 재검증을 먼저 고정한다 — 실제 모델 의미 개선과 앱 연결은 아직 얻지 못하며 별도 인수가 필요하다.
 
+Ruling: 관측값과 서로 다른 대상/발표자의 추가 fixture는 경미한 후속으로 남긴다 — 역할 분리/상태 독립성은 이미 별도 검사한다 — 조합에 특화된 회귀를 놓칠 수 있다.
+
+Ruling: 최종 리뷰의 다섯 제외 범위를 수용한다 — 의미/완전성·실제 모델/생성/legacy/앱·호출자 권한은 별도이고 전체 gate·후속 문서/Sites는 컨트롤러가 검사한다 — 해당 제품 품질은 미검증이며 문서 변경은 코드 리뷰 밖에 남을 수 있다.
+
 ## Task 1: 순수 프레임 구현과 회귀
 
 - [x] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame.py와 packages/agents/tests/test_numeric_frame.py를 TDD로 추가한다. 기존 모듈은 읽기만 하고 기존 canonical guard/_read·후보/anchor/관계 resolver를 안전하게 재사용할 수 있다. 복제 validator보다 기존 relation resolver에 일시 adapter를 쓰는 것이 가능하나 역할을 output에서 합치거나 기존 provider를 호출하지 않는다.
@@ -27,4 +31,4 @@ Ruling: 첫 단계는 유료 생성기를 추가하지 않고 순수 프레임�
 
 ## 검증 기록
 
-구현/독립 검토/전체 검사는 진행 중이다. 모델 호출0, 앱/개발 서버/main/운영 변경 없음. Sites 요약 반영 대기.
+source60c25ab에서 신규193/agents1533, 전체 Python5047+JS820=5867개·Ruff/format334/mypy134·ESLint/타입/빌드/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 작업/전체 독립 Spec/품질 Approved(C0/I0/M1)이며 Minor는 위 추가 fixture 제안이다. 기존395파일 SHA·원래 gold/corpus/역할 실험 기준은 동일하다. 소유 QA1개와 SDD를 비공개 보존 후 정리했다. 모델 호출0, 앱/개발 서버/main/운영 변경 없음. Draft PR·Sites 최종 영수증은 진행 기록에 남긴다.
