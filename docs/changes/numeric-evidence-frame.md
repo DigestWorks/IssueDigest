@@ -20,7 +20,7 @@ Ruling: 첫 단계는 유료 생성기를 추가하지 않고 순수 프레임�
 
 ## Task 1: 순수 프레임 구현과 회귀
 
-- [ ] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame.py와 packages/agents/tests/test_numeric_frame.py를 TDD로 추가한다. 기존 모듈은 읽기만 하고 기존 canonical guard/_read·후보/anchor/관계 resolver를 안전하게 재사용할 수 있다. 복제 validator보다 기존 relation resolver에 일시 adapter를 쓰는 것이 가능하나 역할을 output에서 합치거나 기존 provider를 호출하지 않는다.
+- [x] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame.py와 packages/agents/tests/test_numeric_frame.py를 TDD로 추가한다. 기존 모듈은 읽기만 하고 기존 canonical guard/_read·후보/anchor/관계 resolver를 안전하게 재사용할 수 있다. 복제 validator보다 기존 relation resolver에 일시 adapter를 쓰는 것이 가능하나 역할을 output에서 합치거나 기존 provider를 호출하지 않는다.
 - 실측값/발표자 분리, 미래 전망+과거 보고, 조건/전망 근거/전월비 분리, unknown/planned 양성, subgroup→subtotal edge 보존을 합성 회귀로 검사한다. 같은 원문에 잘못된 의미 anchor도 구조상 통과할 수 있음을 명시 테스트해 진실 인증 오해를 막는다.
 - strict extra/숨겨진 excluded subclass 필드(입력·Source·출력 중첩), bool/nonliteral/caps, 반복/겹침/다른 quote/변조 위치/source, 관계 duplicate/cycle/noncontiguous/누락 대상·cue 범위 거부와 dict roundtrip을 검증한다. 기존 모듈/파일은 byte-identical이어야 한다.
 - task 관련 테스트와 agents 전체, Ruff/format/mypy를 실행해 원문 출력 없이 RED→GREEN 증거와 한계를 보고한다. private 실제 자료/키/서버에는 접근하지 않는다. 구현자는 subagent를 만들지 않는다. 자기 diff를 검토하고 소유 두 파일만 commit한다. 완료 후 이 task 체크박스를 갱신한다.
