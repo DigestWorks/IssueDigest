@@ -2,7 +2,16 @@
 
 2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 문맥 기반 원문 참조
+## 현재 · 문맥 프레임 생성 SDK
+
+[명세](../changes/contextual-frame-generation.md) · [호출 전 실제 인수 프로토콜](../research/contextual-frame-generation-acceptance.md).
+
+- [ ] 순수 프레임과 단일 borrowed-model SDK에 context anchor를 연결하고 원래 경로/결과를 보존한다.
+- [ ] 독립 검토·전체QA와 strict 동적 타입/실패usage/실제schema envelope를 확인한다.
+- [ ] 고정2자료·기준으로 최대2호출의 실제 문맥 선택/의미 품질을 검사하고 원래 실패/비용을 보존한다.
+- [ ] Draft PR·Sites/이전기록·소유QA/SDD 정리 영수증을 확정한다. 앱 적용/미관측 자료 품질은 후속이다.
+
+## 이전 · 문맥 기반 원문 참조
 
 [명세](../changes/contextual-anchor.md).
 
