@@ -44,3 +44,12 @@
 이 분석은 문서가 바뀔 때 한 번 가공하고 source/모델·지침 버전에 묶어 보관할 내부 파이프라인 후보로 둔다. 매 질문에20,000 한도의 추출 호출을 더하지 않는다. 앱의 전체24,000·월 예산/예약·복구/권한·최종 브리핑 통합은 별도 인수가 필요하다. 보지 않은 자료·예정/불명 양성과 정치 쟁점 평가 전에는 일반 개선율을 선언하지 않는다. 현재 개발 앱ab6654e/v9와 main/운영 유예를 유지한다.
 
 재현용 [실제 실험 지침](numeric-role-guidance-trial-instructions.txt)의 SHA256은 `32f33f8946bfa6fcac0427500c760493562f54871cd5170df8e0451225d3c05d`다. 기존 공개 지침과 역할 보완을 합친 그대로이며 실제 source/키는 포함하지 않는다. 제품용 지침으로 등록한 파일이 아니다.
+
+
+## 게시·인계 · 역할 지침 실험
+
+[Draft PR56](https://github.com/DigestWorks/IssueDigest/pull/56)은 PR55 기반·미병합이다. 이번 변경은 문서/조사이므로 spec-driven-workflow의 문서 예외로 처리했고 실행 코드 검증은 기존 source64b2f19의 전체5,674개/CI39394088829 증거를 재사용했다. 새 SDK/앱·API/DB/UI/worker 변경이나 운영 배포는 없다. 원래 gold/source와 보강 reference·공개 실험 지침 hash, 실제2호출/known4,635·972/부분2·완전0/2를 보존했다. 추가 호출/수리 없이 종료했고 새 QA·SDD 자원을 만들지 않았다.
+
+[계획 Sites v78](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `cc8e1898a8f893528f21e35f99a803d65ab6bafd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_7331ed2194e881bb0fba17b049e5ef`, deployment `appgdep_6ad72da71dd48191adfa6ff51d5f790e`, 2026-10-20T09:00:41.795757+00:00이다. 저장소 사본57ca6ba·이전v77/전체 기록을 보존했다. HTML63개/로컬 링크·asset·anchor1,267/공개 텍스트174개와 private181파일·20종 제외 검사를 통과했다. 기존 레이아웃의 텍스트 변경으로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 receipt는 사본 이후 저장소 원본이다.
+
+legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번에만 유지했으며 관리 계획을 논리 조건으로 읽는 위험을 숨기지 않았다. 다음 계약에서 그 역할을 분리한다. 같은 실패를 보고 설계한 개발 표본의 결과이므로 보지 않은 자료/예정·불명 양성·정치 쟁점·중립성/최종 브리핑의 통과로 확대하지 않는다.

@@ -4,7 +4,7 @@
 
 [실험 기록](../research/numeric-role-guidance-trial.md). 원문으로 보강한 별도 reference와 지침을 호출 전에 고정한 뒤 같은 두 자료에서 각1회/총2회를 실행했다. 반환2·직접 의미 부분2/완전0/2, retry0·추가 수집/앱0이며 input4,635/output972를 보존했다. 기존 자료/gold/SDK 결과·원래0/2/이전 실패 사용량은 유지한다. 전망 전제·상태와 부수 날짜 제외는 일부 개선됐지만 측정 대상/발표 주체·인접 지표·직접 포함 관계 문제가 남았다. 보강 기준의 필드 일치를 의미 정확도 점수로 표현하지 않는다.
 
-실행 코드는 바꾸지 않은 문서/조사 단계다. source64b2f19 전체5,674개·CI39394088829 검증을 재사용하며 새 SDK/앱을 배포하지 않았다. 다음은 측정 대상/발표자·상태/시제·논리 조건/전망 근거·비교 기준을 분리한 근거 프레임의 구현 계약이다. Sites는 이번 결과 요약 반영 대기다.
+실행 코드는 바꾸지 않은 문서/조사 단계다. source64b2f19 전체5,674개·CI39394088829 검증을 재사용하며 새 SDK/앱을 배포하지 않았다. 다음은 측정 대상/발표자·상태/시제·논리 조건/전망 근거·비교 기준을 분리한 근거 프레임의 구현 계약이다. Sites v78 게시를 확인했으며 정확한 receipt는 아래 최종 인계에 보존했다.
 
 ## 수치 역할 평가기 · 게시·CI·정리 최종 기록 · 2026-10-20 KST
 
@@ -1171,3 +1171,12 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 ### 수치 역할 평가기 · 최종 전체 검사
 
 검토된64b2f19(실행 코드2bd1f37)에서 Python4,854+JS820=5,674개·Ruff/format330/mypy133·ESLint/TS/build/OpenAPI drift가 통과했다. 실패/skip/warning0이다. 작업 검토 Important1건을 고친 뒤 수정 범위 재검토와 전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. source09의 중단된 사전 gate/취소 CI39393254153은 최종 성공에서 제외한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다. [최종 source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)와 Sites/소유QA·SDD 정리는 최종 게시 receipt를 따른다. 이후 변경은 Markdown뿐이다. 신규 모델0·원래 의미0/2/모든 실패 usage·이번 세 판단/비용과 과거 판단을 유지한다.
+
+
+## 게시·인계 · 역할 지침 실험
+
+[Draft PR56](https://github.com/DigestWorks/IssueDigest/pull/56)은 PR55 기반·미병합이다. 이번 변경은 문서/조사이므로 spec-driven-workflow의 문서 예외로 처리했고 실행 코드 검증은 기존 source64b2f19의 전체5,674개/CI39394088829 증거를 재사용했다. 새 SDK/앱·API/DB/UI/worker 변경이나 운영 배포는 없다. 원래 gold/source와 보강 reference·공개 실험 지침 hash, 실제2호출/known4,635·972/부분2·완전0/2를 보존했다. 추가 호출/수리 없이 종료했고 새 QA·SDD 자원을 만들지 않았다.
+
+[계획 Sites v78](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `cc8e1898a8f893528f21e35f99a803d65ab6bafd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_7331ed2194e881bb0fba17b049e5ef`, deployment `appgdep_6ad72da71dd48191adfa6ff51d5f790e`, 2026-10-20T09:00:41.795757+00:00이다. 저장소 사본57ca6ba·이전v77/전체 기록을 보존했다. HTML63개/로컬 링크·asset·anchor1,267/공개 텍스트174개와 private181파일·20종 제외 검사를 통과했다. 기존 레이아웃의 텍스트 변경으로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 receipt는 사본 이후 저장소 원본이다.
+
+legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번에만 유지했으며 관리 계획을 논리 조건으로 읽는 위험을 숨기지 않았다. 다음 계약에서 그 역할을 분리한다. 같은 실패를 보고 설계한 개발 표본의 결과이므로 보지 않은 자료/예정·불명 양성·정치 쟁점·중립성/최종 브리핑의 통과로 확대하지 않는다.
