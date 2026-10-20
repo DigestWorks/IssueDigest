@@ -436,3 +436,8 @@ source09d6624의 새 평가기로 기존 SDK 반환1/거부1을 재생했다. �
 작업 검토가 excluded subclass 필드의 직렬화 누락1건(Important)을 확인했다. source09의 사전 전체 검사는 수정 전에 중단했고 CI39393254153 취소를 요청했으므로 최종 성공에서 제외한다. source2bd1f37에서 직렬화 전 canonical 모델/필드 구조를 재귀 검사하도록 수정했다. 신규 회귀7개 RED→GREEN·평가기86/agents1,340·Ruff/format/mypy·기존379파일 SHA 동일을 확인했다. unsupported subclass를 허용하는 API는 아니다. 원래 helper/provider/모델 bytes는 동결했다.
 
 수정 source에서 동일한 사후 변환 reference를 hash 변경 없이 다시 재생했다. 조건 불일치1·미판정8과 거부1/수용 수null·모든 known usage가 그대로다. 모델 재호출·원문/gold/분모 조정은 없다. 수정 범위 재검토·전체 독립 검토·최종 전체 gate/PR55 CI·Sites·소유QA 정리는 최종 receipt를 따른다.
+
+
+### 수치 역할 평가기 · 최종 전체 검사
+
+검토된64b2f19(실행 코드2bd1f37)에서 Python4,854+JS820=5,674개·Ruff/format330/mypy133·ESLint/TS/build/OpenAPI drift가 통과했다. 실패/skip/warning0이다. 작업 검토 Important1건을 고친 뒤 수정 범위 재검토와 전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. source09의 중단된 사전 gate/취소 CI39393254153은 최종 성공에서 제외한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다. [최종 source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)와 Sites/소유QA·SDD 정리는 최종 게시 receipt를 따른다. 이후 변경은 Markdown뿐이다. 신규 모델0·원래 의미0/2/모든 실패 usage·이번 세 판단/비용과 과거 판단을 유지한다.
