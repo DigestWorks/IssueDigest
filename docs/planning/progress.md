@@ -1,5 +1,17 @@
 # 진행 기록
 
+## 수치 역할 평가기 · 게시·CI·정리 최종 기록 · 2026-10-20 KST
+
+[source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)는 `64b2f192b36327ae3dc8b72cf37b95b342061606`에서 success다. 실행 코드2bd1f37·전체5,674개/정적 검사·수정 범위/전체 독립 PASS(C0I0M0)와 구분해 기록한다. source09의 중단 gate와 CI39393254153 cancelled는 최종 성공에 포함하지 않는다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 이 source 성공을 구분한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다.
+
+[계획 Sites v77](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded를 확인했다. source `efa00d66ef620f5df33c4e4f160981655bcdd086`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_5a1e51c83dd48191beae8c4b544434d6`, deployment `appgdep_6ad72979f8888191b043a51e20dbd2db`, 2026-10-20T08:42:47.528585+00:00이다. 저장소 사본6504ee0·이전v76/전체 기록을 보존했다. HTML62개·로컬 링크/asset/anchor1,255개·공개 텍스트169개와 private180파일/20종 제외 검사를 통과했다. 기존 레이아웃의 텍스트/사본 변경이므로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시/정리 receipt는 사본 이후 이 저장소 원본이다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개와 그 볼륨만 제거하고 포트 닫힘을 확인했다. 원래 FAIL·수정 재검토/전체 PASS·구현 보고서·379파일 동결 manifest·세 Ruling/비용을 private600 archive에 검증 보존한 뒤 이번 SDD 폴더만 제거했다. 다른 QA·worktree·브랜치·실제 서버/API/worker/수집기·평가 원본은 변경하지 않았다.
+
+세 판단은 모두 보존한다. (1) 정확 위치 대안의 전체 일치는 넓거나 열거하지 않은 적절한 문구도 불일치할 수 있어 의미 오류 판정으로 확대하지 않는다. (2) lossless 검사 뒤 checked JSON-mode hash를 써 UUID 문자열을 고정하며, 직렬화 철자 변경에는 identity 버전 구분이 필요하다. 검증 전 필드 누락은 I1 회귀로 막았다. (3) 평가기의 명시적 키/환경·파일/네트워크 조회는 없지만 Pydantic plugin 설정 조회를 예외로 기록하며 전체 종속성의 환경 비의존성·임의 plugin 동작은 보장하지 않는다. 기존 unique-anchor와 후보 문법/문장/날짜의 역사 판단/비용도 유지한다.
+
+기존2결과의 조건 불일치1·8미판정과 전체 거부/수용 수null은 사후 형식 변환의 fact 필드 비교다. 원래 gold·의미 완전0/2·사용량4,053/1,166을 재판정하지 않고 추가 모델/앱/사용자 세션은0이다. 관계 의미·문서 완전성·중립성/독립 사실·최종 브리핑은 미검증이다. 다음은 미판정 역할 기준을 출처에서 별도 버전으로 보강하고 상태/전망 전제·비교 기준·부수 날짜의 생성 계약을 같은 원래 기준과 함께 검증하는 일이다. 개발ab6654e/v9와 D013 main/운영 유예를 유지한다.
+
 ## 고정 기준 평가기 · 기존 두 결과 오프라인 재생 · 2026-10-20 KST
 
 source09d6624의 새 평가기로 기존 SDK 반환1/거부1을 재생했다. 추가 모델/앱/사용자 세션은0이고 원래 원문·gold·응답·의미 완전 충족0/2와 기존 input4,053/output1,166을 변경하지 않았다. 사후 변환 reference를 평가기 실행 전에 별도 hash로 고정했으며, 원래 gold의 비문자적 역할 설명과 상태 근거 미지정은 결과에 맞춰 채우지 않고 미판정으로 남겼다.
