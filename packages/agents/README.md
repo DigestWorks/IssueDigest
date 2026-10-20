@@ -472,3 +472,56 @@ agents 전체 검사는 `uv run --offline pytest packages/agents/tests -q`, 정�
 `uv run --offline ruff check packages/agents`,
 `uv run --offline ruff format --check packages/agents`,
 `uv run --offline mypy packages/agents/src`다.
+
+## 수치 선택의 고정 기준 평가
+
+`numeric_selection_evaluation`은 사람이 작성한 기준과 기존 선택 제안을 비교하는 순수
+오프라인 평가기다. 생성 SDK·provider 지침·기존 결과를 변경하거나 새 모델을 호출하지 않는다.
+평가기 자체는 환경·키·파일·네트워크/client를 조회하지 않는다. 기존 검증기가 생성하는
+Pydantic 모델은 설치된 라이브러리의 `PYDANTIC_DISABLE_PLUGINS` 설정 조회를 수행할 수 있다.
+
+```python
+from issuedigest_agents.numeric_selection_evaluation import (
+    NumericSelectionReference,
+    evaluate_numeric_selection,
+)
+
+reference = NumericSelectionReference.model_validate_json(reference_json, strict=True)
+report = evaluate_numeric_selection(source, reference, proposal)
+# 전체 결과가 거부됐으면 proposal=None; 알고 있는 실패 사용량만 별도로 전달한다.
+rejected = evaluate_numeric_selection(source, reference, None, rejected_usage=known_usage)
+```
+
+`source`는 기존 Source이고 reference/proposal은 각각 strict 모델 또는 JSON 대응 dict다.
+`NumericSelectionReference`는 profile=`numeric-selection-reference-v1`, 전체 candidate_index,
+candidate_set=`complete|partial`, facts0..12개다. `ReferenceFact`의 candidate_id와
+subject/period/condition/status_text `AnchorRule`, nullable kind는 모두 필수다. kind는
+observed/planned/forecast/unknown 또는 미판정 null이다. `AnchorRule`은 one_of이면 중복 없는
+정확 `ExactSpan` 대안1..4개, absent/unassessed이면 빈 alternatives를 받는다. 기준 대안은
+후보와 같은 quote의 정확한 위치·텍스트여야 한다. 반복 문구의 서로 다른 위치나 문장 경계를
+넘는 기준도 허용하며 Unicode·공백·CRLF를 보정하지 않는다. 현재 Source 전체·완전한 색인과
+기존 제안을 다시 검증하고, unchecked/subclass extra·원문/위치 변조·중복/없는 후보를 거부한다.
+
+비교 순서는 기준 fact 순서의 presence→subject→period→condition→kind→status_text이며,
+없는 fact는 presence mismatch만 남긴다. 마지막으로 예상 밖 fact를 제안 순서로 기록한다.
+absent는 실제 null, one_of는 대안과 정확히 같은 span만 match다. 더 넓지만 적절한 문구나
+사전에 열거하지 않은 동등 표현도 mismatch일 수 있다. 불일치는 고정 기준과의 차이이며
+독립적으로 확인한 의미 오류가 아니다. unassessed/null kind는 실제 값과 무관하게 미판정이다.
+예상 밖 fact는 complete에서 mismatch, partial에서 unassessed다.
+
+`NumericSelectionEvaluationReport`는 profile=`numeric-selection-evaluation-v1`,
+scope=`fact_fields_only`, outcome, reference/proposal SHA256, expected/received fact 수,
+checks와 usage만 담는다. mismatch가 하나라도 있으면 reference_mismatch, 없더라도 partial
+또는 미판정이 있으면 inconclusive다. complete의 모든 check가 match일 때만 reference_match다.
+빈 complete 기준+빈 제안도 이 제한 범위에서 match다. 관계·문서 전체 coverage·진위·중립성·
+최종 브리핑 품질은 평가하지 않으며 match를 독립 사실 검증이나 제품 통과로 해석하지 않는다.
+
+proposal=None이면 outcome=rejected, checks는 빈 tuple, received_facts/proposal_sha256는 null이다.
+거부 raw facts를 수용하지 않는다. rejected_usage는 strict `KnownUsage`/dict/None이며 상한을
+넘는 알려진 실제 사용량도 그대로 보존한다. 미상 None은 무료나 호출0을 뜻하지 않는다.
+성공 제안과 rejected_usage를 함께 주면 입력 모순이다. 공개 오류는 원문·ID·내부 검증 오류를
+숨긴 `NumericSelectionEvaluationError`다. hash는 lossless extra 검사·strict 재검증 뒤 checked
+모델 JSON mode를 기존 canonical JSON helper로 직렬화한 UTF-8 SHA256이며 서명/진실 인증이 아니다.
+보고서는 원문·anchor·질문을 복사하지 않고 candidate_id/field/result만 기록하지만 ID도 민감할
+수 있으므로 호출자가 보관 경계를 지킨다. 신규 합성 회귀는
+`uv run --offline pytest packages/agents/tests/test_numeric_selection_evaluation.py -q`로 실행한다.
