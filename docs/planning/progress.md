@@ -1,3 +1,27 @@
+# 수치 역할 프레임 · Sites v79 출판 영수증 · 2026-10-20
+
+Sites v79는 native succeeded(2026-10-20T09:29:50.502708+00:00)다. Site source f9e5b948aa1ed9a8e2227f14d65a8986aafca537, 저장소 사본 기준 a47be9a344f3979514dcfcacfaebd9e507f8047e이며 그 이후 최종 영수증은 저장소 원본을 따른다. 이전v78 보존·HTML64/로컬 링크·asset·anchor1280/공개 텍스트177·private 원문/ID20종 포함185파일 제외 검사를 통과했다. 텍스트만 변경해 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+전체5867개·독립 Approved(C0/I0/M1)·기존395파일/기준 동일·모델0·앱0·소유QA/SDD 정리와 세 판단/비용은 명세·D022/이전 검증 기록을 따른다. PR57은 미병합이며 main/운영 유예를 유지한다. 다음은 모델 출력 계약·고정 의미 평가다. 원문 위치와 구조 통과만으로 의미 품질을 완료 표시하지 않는다.
+
+# 수치 역할 프레임 · Draft PR57 · 2026-10-20
+
+[Draft PR57](https://github.com/DigestWorks/IssueDigest/pull/57)는 research/numeric-role-guidance(PR56) 기반이다. 소스60c25ab의 전체5867개 검사·독립 검토와 구조/의미 경계를 본문에 기록했다. 첫 push는 일시 DNS 오류로 실패했고 이름 조회 회복 확인 후1회 재시도해 성공했다. 미병합·main/운영 유예이며 Sites 최종 요약은 후속 영수증에 기록한다.
+
+# 수치 역할 프레임 · 최종 전체 검증 · 2026-10-20
+
+source60c25ab에서 Python5047+JS820=5867개·Ruff/format334/mypy134·ESLint/타입/빌드/OpenAPI가 통과했다. 실패/skip/warning0이다. 독립 작업/전체 검토 Approved(C0/I0/M1), 추가 수정 wave0이며 Minor1과 세 판단/비용을 [명세](../changes/numeric-evidence-frame.md)·D022에 남겼다. 기존395파일 SHA와 원래 gold/corpus·역할 실험 reference/instructions는 동일하다. 전체 검사를 반복하지 않았고 소유QA1개는 삭제, SDD는 비공개 압축 보존 후 소유 디렉터리만 정리했다. 새 모델0·앱0·개발/운영 배포0이다. Draft PR·Sites 최종 결과는 후속 영수증에 기록한다.
+
+# 수치 역할 프레임 · 구현/작업 검토 · 2026-10-20
+
+[명세](../changes/numeric-evidence-frame.md). 신규193/agents1533·Ruff/format/mypy와 작업 독립 Spec/품질 Approved(C0/I0/M1)를 확인했다. Minor1은 관측값과 서로 다른 발표자/대상을 함께 보여주는 추가 fixture 제안이며 기존 전망 분리/상태 조합 검사로 필드 독립성은 검증했다. 전체 검토에서 재판정한다.
+
+초기 agents 통합의29실패는 새 모듈이 기존 평가기를 먼저 import하고 역사 테스트가 선택 모듈을 reload해 class identity가 달라지는 순서 간섭이었다. 최소 재현1실패/2통과→새 테스트가 최초 도입한 모듈만 정리한 뒤3통과·전체agents1533통과다. 기존 파일395개는 SHA동일이다. 별도 bare 전체 pytest 시도는 컨트롤러 요청으로 중단(2720통과/311skip/exit2)했으며 전체 gate 성과로 집계하지 않는다. 최종 전용 DB 전체 검사는 별도다.
+
+# 수치 역할 프레임 · 착수 · 2026-10-20
+
+[명세](../changes/numeric-evidence-frame.md)에 따라 측정 대상/발표자·값의 상태/보고 시제·논리 조건/전망 근거·비교 기준을 분리한다. 새 순수 모듈과 합성 회귀를 구현하며 기존 생성기/실제 결과/앱은 보존한다. 모델 호출0, 개발 서버/main/운영 변경 없음. Sites 요약 반영 대기.
+
 # 진행 기록
 
 ## 수치 역할 지침 비교 · 2026-10-20 KST
