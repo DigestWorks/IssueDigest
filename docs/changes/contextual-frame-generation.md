@@ -31,4 +31,6 @@ Ruling: 전체 문장 구조 검사는 유일한 문맥으로 기존 builder를 
 
 ## 검증 상태
 
-구현 착수. source3919b61/전체6056 baseline; 기존 앱 ab6654e/v9·main/운영 유예. 실제 모델 호출은 아직0이고 별도 사전 기준/최대2회프로토콜을 고정하기 전 호출하지 않는다. Sites 반영 대기.
+구현7e8a4a9. 신규184개/agents1906개와 Ruff/format348파일·mypy138파일 통과. 태스크 독립 검토 C0/I0/M0, 별도 최종 검토 C0/I0/M0·source7e8a4a9의 전용QA 전체6,240개(Python5,420/JS820)·린트/타입/빌드/OpenAPI 계약을 실패/skip/warning0으로 통과했다. 초기 import/reload 충돌은 신규 테스트의 최초 도입 모듈만 정리해 해결했으며 기존 테스트/실행 코드401파일을 변경하지 않았다.
+
+[실제 인수](../research/contextual-frame-generation-acceptance.md)의 기준/최대2회프로토콜·source/schema/prompt/지침을 호출 전에 고정했다. 신규2호출/retry0에서 반환2/거부0이지만 고정 의미 기준 수동충족0/2다. 반복 비교 위치2개는 구분했으나 측정 대상의 지역 범위 누락과 상태 근거 조사 선택이 남았다. 원래 결과/기준을 바꾸지 않고 앱 의미 개선으로 주장하지 않는다. 기존 앱 ab6654e/v9·main/운영 유예 유지. Sites 반영 대기.

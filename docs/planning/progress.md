@@ -1,3 +1,9 @@
+# 문맥 프레임 생성 · 구현·실제 검증 · 2026-10-20
+
+[명세](../changes/contextual-frame-generation.md)·[실제 인수](../research/contextual-frame-generation-acceptance.md). source7e8a4a9/신규184·agents1906·전체6240(Python5420/JS820)·린트/타입/빌드/계약 통과(실패/skip/warning0), 독립 태스크/전체 C0/I0/M0. 기존 실행/설정401파일은 그대로다.
+
+새 문맥 SDK는 실제2회/retry0에서 반환2/거부0으로 반복 비교 위치를 구분했지만 의미 기준 수동충족0/2다. A는 지역 대상 범위를 사건 술어로 축소, B는 상태 근거에 조사만 선택했다. 원래 기준/응답을 수리하지 않았다. known input8272/output1834·참고요율$0.04819(청구미검증), source·원문50span 재검증을 의미 인증과 구분한다. 다음은 대상 범위/상태 근거 의미·미관측 자료 인수다. 앱/서버/main/운영 변경0·Sites/PR 영수증 대기.
+
 # 문맥 참조 프레임·생성 SDK · 착수 · 2026-10-20
 
 [명세](../changes/contextual-frame-generation.md). 새 역할/관계 프레임과 단일 borrowed-model 요청에 문맥 참조를 연결한다. 기존 생성 경로/앱/운영과 원래 실제 결과는 보존한다. source0347c46/전체6056을 baseline으로 두고 새 실행4파일만 추가한다. 명시 문맥으로 기존 전체문장 구조검사를 재사용한 뒤 정확한 짧은 span을 복원하며 wrapper 전용 재검증을 요구한다. 합성 SDK 인수와 실제 AI 선택 인수는 구분한다. 구현/독립검토/전체QA 진행 중, Sites 반영 대기.

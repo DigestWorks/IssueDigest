@@ -123,3 +123,6 @@ D022의 제한 한국어 검색·운영자 read-only 평가와 v4는 실제 모�
 ## 문맥 프레임 생성 연결
 
 [새 SDK](../changes/contextual-frame-generation.md)는 모든 역할/관계cue에 required nullable context를 허용한다. 전체 원문/catalog·실제 provider schema 예산·단일 요청/실패 비용을 유지한다. 별도 wrapper의 stored input+현재 source 재구성으로 짧은 span을 보존하며 기존 경로/앱은 변경하지 않는다. 사전 기준을 고정한 실제 최대2호출은 별도 기록하고 구조 반환을 의미/전체 제품 품질로 승격하지 않는다.
+
+
+문맥SDK 실측: 반환2/2와 의미 기준0/2를 구분한다. 위치모호함은 줄었지만 대상 범위·상태 근거 역할의 의미 실패가 남아 앱 적용하지 않는다. source7e8a4a9 전체6240과 사전 기준/2호출·원래 실패/비용을 보존하고 다음은 대상 범위/상태 근거 의미와 미관측 인수다.
