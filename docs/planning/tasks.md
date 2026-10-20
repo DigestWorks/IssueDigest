@@ -2,7 +2,16 @@
 
 2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 수치 역할의 고정 기준 평가
+## 현재 · 수치 역할 지침 비교
+
+[실험 기록](../research/numeric-role-guidance-trial.md).
+
+- [x] 기존 기준을 보존하고 원문에서 미판정 역할을 별도 버전으로 보강해 호출 전에 고정했다.
+- [x] 같은2자료/신규2호출·retry0·반환2/직접 의미 완전0/2와 known usage/남은 오류를 기록했다. source/API/DB/UI는 바꾸지 않았다.
+- [x] 문서/링크·비공개 제외 검사·Draft PR56·Sites v78/이전v77 보존을 확인했다. 실행 코드는 그대로다.
+- [ ] 측정 대상/발표자·값의 상태/보고 시제·논리 조건/전망 근거·비교 기준을 분리한 근거 프레임을 구현·검증한다.
+
+## 이전 · 수치 역할의 고정 기준 평가
 
 [명세](../changes/numeric-selection-evaluation.md). 기존 생성 SDK/실제 결과는 보존한다.
 
