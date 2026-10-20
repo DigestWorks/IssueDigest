@@ -1,3 +1,31 @@
+# 수치 프레임 생성 · Sites v80 출판 영수증 · 2026-10-20
+
+Sites v80는 native succeeded(2026-10-20T10:00:18.811708+00:00)다. Site source68fa750b509ec98f3d9598024f716455b784f241·저장소 사본 f04fbc20d8d2f99cc3eecdcb21ba0f5dfce4adab이며 이후 영수증은 원본 저장소를 따른다. 이전v79 보존·HTML65/로컬 링크·asset·anchor1294/공개 텍스트182와 private source/ID20종 포함192파일 제외 검사를 확인했다. 텍스트만 바꿔 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+PR58은 미병합 Draft다. 최종 sourceefa9bf2/전체5937·독립 C0/I0/M0·I1 수정/재검토·기존397파일 동일·신규2회 부분1/거부1·의미0/2·knowninput6730/output1738·소유QA2/SDD 정리와 세 판단/비용은 명세/D022/실제 인수 원본을 따른다. 앱/개발/운영 배포0, D013 유예를 유지한다. 다음은 같은 계약/기준의 제한 모델 비교다.
+
+# 수치 프레임 생성 · Draft PR58 · 2026-10-20
+
+[Draft PR58](https://github.com/DigestWorks/IssueDigest/pull/58)은 feat/numeric-evidence-frame(PR57) 기반이다. 신규70/최종5937개·I1 수정/전체 독립 C0/I0/M0와 실제2회 부분1/거부1·의미0/2, 알려진 비용·세 판단을 기록했다. 미병합·main/운영 유예이며 Sites 영수증은 후속에 남긴다.
+
+# 수치 프레임 생성 · 최종 검증/실제 인수 · 2026-10-20
+
+sourceefa9bf2310f0ca4f8dcf7307e4fa34d2deb689fc에서 신규70/전체 Python5117+JS820=5937개·Ruff/format337/mypy135·ESLint/TS/build/OpenAPI PASS(실패/skip/warning0)다. I1 수정/재검토와 최종 독립 C0/I0/M0, 기존397파일 SHA동일을 확인했다. 중단 전 gate는 성과로 집계하지 않으며 소유 QA2개는 삭제했고 SDD의 원래 실패/수정/검토/세 판단은 private 압축 보존 후 소유 디렉터리만 정리했다.
+
+[실제 인수](../research/numeric-frame-generation-acceptance.md)는 gpt-5.4-mini Responses 신규2회/retry0·반환1/거부1·부분1/의미 완전0/2다. A는 발표자 오연결5·약한 상태 근거1·필수 직접 포함 관계 누락, B는 반복 비교 anchor4로 전체 거부와 raw 날짜/대상/수치 누락·발표자/상태 오류가 남았다. raw 모든 필드와 candidate ID를 대조했으며 일부 내부 초안의 raw 문구만 본 해석도 바로잡았다. 원래 raw/reference/gold는 그대로다.
+
+known input6730/output1738/requests2이며 반환/거부 usage가 각각 raw와 일치했다. 청구액은 미검증, 추가 모델 호출/출력 수리0·앱0·개발/운영 배포0이다. 다음은 같은 계약의 상위 모델 제한 비교·반복anchor/의미 오연결 검토다. 세 판단/비용은 [명세](../changes/numeric-frame-generation.md)와 D022에 남겼다. Draft PR·Sites 후속 영수증은 별도 기록한다.
+
+# 수치 프레임 생성 · 작업 검토 I1 보완 · 2026-10-20
+
+초기 신규65/agents1598·정적 검사 이후 독립 작업 검토가 I1(일반 dictionary를 현재 dynamic SDK 객체로 다시 파싱하는 우회)을 발견했다. 고정된 실제 root/nested 노드를 dump 전에 요구하고 root/fact/anchor/relation/cue5종 RED→GREEN·신규70/정적 검사를 확인했다. scoped 재검토는 I1 ADDRESSED, 새 C/I0이다. 공개 validate의 dictionary 허용·관측 usage 보존은 유지한다. 기존397파일은 동일하며 별도 전체 검토/최종 gate·실제 인수는 진행 중이다.
+
+수정 전 fullgate는 혼합 소스 검사를 피하기 위해 소유 프로세스 그룹에 SIGINT로 중단(exit130/798통과·중단 cleanup 경고)했고 PASS로 집계하지 않았다. 소유 QA DB도 삭제 후 다른 loopback 포트에 깨끗하게 재생성했다. 고정 의미 기준/원래 gold는 그대로이며 아직 신규 paid0이다. Sites 반영 대기.
+
+# 수치 프레임 생성 · 착수 · 2026-10-20
+
+[명세](../changes/numeric-frame-generation.md)에 따라 새 역할 프레임을 채우는 borrowed Model SDK를 구현한다. 신규2자료/각1회·총2회/retry0 인수 프로토콜과 단일 annotator의 개발 표본 의미 기준을 호출 전에 private에 고정했다. 기존 source/gold/실패·원래 평가와 모든 usage를 보존한다. 앱/서버/main/운영은 변경하지 않으며 Sites 반영 대기다.
+
 # 수치 역할 프레임 · Sites v79 출판 영수증 · 2026-10-20
 
 Sites v79는 native succeeded(2026-10-20T09:29:50.502708+00:00)다. Site source f9e5b948aa1ed9a8e2227f14d65a8986aafca537, 저장소 사본 기준 a47be9a344f3979514dcfcacfaebd9e507f8047e이며 그 이후 최종 영수증은 저장소 원본을 따른다. 이전v78 보존·HTML64/로컬 링크·asset·anchor1280/공개 텍스트177·private 원문/ID20종 포함185파일 제외 검사를 통과했다. 텍스트만 변경해 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
