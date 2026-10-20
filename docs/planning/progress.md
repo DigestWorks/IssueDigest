@@ -1,3 +1,19 @@
+# 문맥 프레임 생성 · Sites v83 출판 영수증 · 2026-10-20
+
+[Draft PR61](https://github.com/DigestWorks/IssueDigest/pull/61)은 PR60 기반이다. Sites v83 native succeeded(2026-10-20T12:14:08.116964+00:00); Site source991d5be9e3b6f16cad76d496552676d52b2e3d1e·저장소 사본0989176fedbedac96526e127e04a82c88773f1c9. 사본 이후 영수증은 원본 저장소를 따른다. 이전v82 보존·HTML68/로컬 링크·asset·anchor1342/공개 텍스트193과 private source/ID20종 포함204파일 제외 검사를 통과했다. 첫 archive 업로드 네트워크 오류 후 같은 archive로 저장/출판했으며 실제 모델 추가 호출은 없다. 텍스트만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+소유 SDD 증거를 private 보존하고 소유 디렉터리만 제거했다. 전용QA1개도 identity/label/image 확인 후 제거했으며 기존 worktree/브랜치·다른 자원은 보존했다. source7e8a4a9 이후 변경은 문서뿐이므로 전체6240개 검사 증거가 유효하다. 실제2회·반환2/의미0/2와 원래 실패/기준·참고비용을 보존한다. 앱/서버/main/운영 변경0, 다음은 대상 범위/상태 근거 의미와 미관측 자료 인수다.
+
+# 문맥 프레임 생성 · 구현·실제 검증 · 2026-10-20
+
+[명세](../changes/contextual-frame-generation.md)·[실제 인수](../research/contextual-frame-generation-acceptance.md). source7e8a4a9/신규184·agents1906·전체6240(Python5420/JS820)·린트/타입/빌드/계약 통과(실패/skip/warning0), 독립 태스크/전체 C0/I0/M0. 기존 실행/설정401파일은 그대로다.
+
+새 문맥 SDK는 실제2회/retry0에서 반환2/거부0으로 반복 비교 위치를 구분했지만 의미 기준 수동충족0/2다. A는 지역 대상 범위를 사건 술어로 축소, B는 상태 근거에 조사만 선택했다. 원래 기준/응답을 수리하지 않았다. known input8272/output1834·참고요율$0.04819(청구미검증), source·원문50span 재검증을 의미 인증과 구분한다. 다음은 대상 범위/상태 근거 의미·미관측 자료 인수다. 앱/서버/main/운영 변경0·Draft PR61/Sites v83 출판 완료.
+
+# 문맥 참조 프레임·생성 SDK · 착수 · 2026-10-20
+
+[명세](../changes/contextual-frame-generation.md). 새 역할/관계 프레임과 단일 borrowed-model 요청에 문맥 참조를 연결한다. 기존 생성 경로/앱/운영과 원래 실제 결과는 보존한다. source0347c46/전체6056을 baseline으로 두고 새 실행4파일만 추가한다. 명시 문맥으로 기존 전체문장 구조검사를 재사용한 뒤 정확한 짧은 span을 복원하며 wrapper 전용 재검증을 요구한다. 합성 SDK 인수와 실제 AI 선택 인수는 구분한다. 구현/독립검토/전체QA 진행 중, Sites 반영 대기.
+
 # 문맥 기반 원문 참조 · Sites v82 출판 영수증 · 2026-10-20
 
 [Draft PR60](https://github.com/DigestWorks/IssueDigest/pull/60), PR59 기반. Sites v82 native succeeded(2026-10-20T11:21:12.988981+00:00); Site source5d3e9d02cb0cee2e8448f7de390f67be470c445f·저장소 사본8dde3c5c29c2ccf535359f177e4fa83bee83d43b. 사본 이후 출판 영수증은 저장소 원본을 따른다. 이전v81 보존·HTML67/로컬 링크·asset·anchor1325/공개 텍스트188과 private source/ID20종 포함196파일 제외 검사를 통과했다. 텍스트만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.

@@ -2,7 +2,17 @@
 
 2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 문맥 기반 원문 참조
+## 현재 · 문맥 프레임 생성 SDK
+
+[명세](../changes/contextual-frame-generation.md) · [호출 전 실제 인수 프로토콜](../research/contextual-frame-generation-acceptance.md).
+
+- [x] 순수 프레임과 단일 borrowed-model SDK에 context anchor를 연결하고 원래 경로/결과를 보존한다.
+- [x] 독립 검토·전체QA와 strict 동적 타입/실패usage/실제schema envelope를 확인한다.
+- [x] 고정2자료·기준으로 2호출/retry0의 반환2/거부0·의미0/2와 대상범위/상태근거 오류를 기록하고 원래 실패/비용을 보존했다.
+- [x] PR60 기반 Draft PR61·Sites v83/이전v82·소유QA1/SDD 정리 영수증을 확정했다.
+- [ ] 대상 범위·상태 근거 의미와 미관측 자료 품질을 인수한 뒤 앱 적용을 검토한다.
+
+## 이전 · 문맥 기반 원문 참조
 
 [명세](../changes/contextual-anchor.md).
 
@@ -11,7 +21,8 @@
 - [x] 사전 고정 실제 인용 packet에 수동 문맥2개를 입력해 서로 다른 짧은 위치/재검증을 확인했다. 실제 AI 선택 성공이나 기존 응답 수리로 세지 않는다.
 - [x] 최종 독립 검토 C0/I0/M0·전용QA 전체6,056개와 린트/타입/빌드/계약 검사를 통과했다.
 - [x] PR59 기반 Draft PR60·Sites v82/이전v81 보존·소유QA1/SDD 정리와 출판 영수증을 확인했다. 앱/main/운영 변경0.
-- [ ] 프레임/SDK 연결과 미관측 자료에서 실제 문맥 선택·관계/엔티티·앱 품질을 인수한다.
+- [x] 별도 문맥 프레임/SDK를 구현하고 제한 실제2회에서 반복 위치 구분을 확인했다.
+- [ ] 대상 범위/상태 근거 의미·미관측 자료·관계/엔티티와 앱 품질을 인수한다.
 
 ## 이전 · 수치 프레임 생성 SDK
 
