@@ -20,6 +20,8 @@
 
 Ruling: 새로운 프레임 생성은 독립 SDK에서 먼저 인수한다 — 현재 앱의 예산/내구 실행을 바꾸지 않고 의미 실패를 관찰한다 — 의미가 개선되어도 앱 연결·운영 품질은 별도로 남는다.
 
+Ruling: SDK가 응답 기록 전에 한도로 거부하면 known_usage=None을 유지한다 — 관측하지 못한 비용을 만들거나 borrowed Model 구조를 바꾸지 않는다 — SDK만으로 실제 비용을 알 수 없는 경우가 남아 실제 인수에서는 별도 raw 영수증을 보존한다.
+
 ## Task 1: 프레임 생성과 합성 회귀
 
 - [ ] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame_generation.py와 packages/agents/tests/test_numeric_frame_generation.py를 TDD로 구현한다. 기존 pure frame·canonical helpers·candidate prompt·usage/schema helpers를 읽기만 재사용한다. 공통 resolver·usage validator를 복제하지 않는다. 기존 tests/production/의존성은 byte-identical이다.
