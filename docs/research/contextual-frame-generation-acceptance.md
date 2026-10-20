@@ -13,7 +13,7 @@
 
 ## 상태
 
-사전 프로토콜은 d81755c에서 고정했다. source7e8a4a9·지침3,687UTF8·실제2자료의 전체 envelope18,893/17,320으로 사전 검사에 통과했다. source/module/지침/prompt/schema·reference/case hash를 private에 고정했다. 독립 태스크/전체 검토 C0/I0/M0·전용QA 전체6,240개를 통과한 뒤 실제2회를 실행했다. 원래 기준/실패를 보존하고 결과를 아래에 기록한다.
+사전 프로토콜은 d81755c에서 고정했다. source7e8a4a9·지침3,687UTF8·실제2자료의 전체 envelope18,893/17,320으로 사전 검사에 통과했다. source/module/지침/prompt/reference/case hash와 실제 schema 최대 크기를 private에 고정했다. 독립 태스크/전체 검토 C0/I0/M0·전용QA 전체6,240개를 통과한 뒤 실제2회를 실행했다. 원래 기준/실패를 보존하고 결과를 아래에 기록한다.
 
 ## 비용 기준·공식 근거
 
