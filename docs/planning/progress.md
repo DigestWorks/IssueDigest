@@ -1,3 +1,7 @@
+# 수치 프레임 생성 · Draft PR58 · 2026-10-20
+
+[Draft PR58](https://github.com/DigestWorks/IssueDigest/pull/58)은 feat/numeric-evidence-frame(PR57) 기반이다. 신규70/최종5937개·I1 수정/전체 독립 C0/I0/M0와 실제2회 부분1/거부1·의미0/2, 알려진 비용·세 판단을 기록했다. 미병합·main/운영 유예이며 Sites 영수증은 후속에 남긴다.
+
 # 수치 프레임 생성 · 최종 검증/실제 인수 · 2026-10-20
 
 sourceefa9bf2310f0ca4f8dcf7307e4fa34d2deb689fc에서 신규70/전체 Python5117+JS820=5937개·Ruff/format337/mypy135·ESLint/TS/build/OpenAPI PASS(실패/skip/warning0)다. I1 수정/재검토와 최종 독립 C0/I0/M0, 기존397파일 SHA동일을 확인했다. 중단 전 gate는 성과로 집계하지 않으며 소유 QA2개는 삭제했고 SDD의 원래 실패/수정/검토/세 판단은 private 압축 보존 후 소유 디렉터리만 정리했다.
