@@ -1,5 +1,17 @@
 # 진행 기록
 
+## 고정 기준 평가기 · 기존 두 결과 오프라인 재생 · 2026-10-20 KST
+
+source09d6624의 새 평가기로 기존 SDK 반환1/거부1을 재생했다. 추가 모델/앱/사용자 세션은0이고 원래 원문·gold·응답·의미 완전 충족0/2와 기존 input4,053/output1,166을 변경하지 않았다. 사후 변환 reference를 평가기 실행 전에 별도 hash로 고정했으며, 원래 gold의 비문자적 역할 설명과 상태 근거 미지정은 결과에 맞춰 채우지 않고 미판정으로 남겼다.
+
+반환 제안은 예상6/수용6이며 fact 필드 검사27일치·1불일치·8미판정이다. 불일치1은 원래 기준이 요구한 전망 전제·관리 문구에 대한 condition null이다. 27개 일치는 27개 사실이나 의미 품질 통과율이 아니며, 8미판정에는 원래 exact 문구가 지정되지 않은 상태 근거6개와 비문자적 subject 설명2개가 포함된다. 거부 건은 예상5·수용 수 미상(null)·빈 검사와 원래 실패 usage1771/511/1을 보존했다. raw5개를 성공으로 세지 않는다. 기준의 조건/수단 역할도 평가자 해석이며 독립 진실 인증이 아니다.
+
+신규79/agents1,333·Ruff/format/mypy·기존379파일 SHA 동일을 확인했다. 작업/전체 독립 검토·전체 gate·PR/CI·Sites와 소유QA/SDD 정리는 최종 인계를 따른다. 현재 SDK/모델 호출/provider bytes·앱/API/DB/UI/worker/수집기를 바꾸지 않았다. 다음은 이 기준을 유지하며 상태/전망 전제·비교 기준·부수 날짜 역할의 생성 계약을 재검토하는 일이다. 기존 parser 세 판단/unique anchor 판단과 모든 이전 실패 비용·개발ab6654e/v9·D013 유예는 유지한다.
+
+## 수치 역할 평가기 · 착수 · 2026-10-20 KST
+
+[명세](../changes/numeric-selection-evaluation.md). 생성 SDK를 다시 늘리기 전에, 기존 반환 결과를 사람의 고정 기준과 필드별로 대조하는 순수 오프라인 평가기를 만든다. 누락·추가 후보·대상/시점·조건·상태 분류/근거의 차이와 미판정·전체 거부를 구분한다. 신규 모델 호출0이며 원래 gold/의미 평가 결과를 바꾸지 않는다. 사후 기준 형식 변환과 독립 사실 인증을 구분한다. Sites는 이 작업 검증 후 요약 반영 대기다.
+
 ## 후보 선택 SDK · 게시·CI·정리 최종 기록 · 2026-10-20 KST
 
 [source CI39389528867](https://github.com/DigestWorks/IssueDigest/actions/runs/39389528867)는 `81ca4eff8ec873336aa43c1049e48d9fd5d369b7`에서 success다. 같은 실행 코드의 전체5,588개(4,768 Python/820 JS)와 정적 검사·작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 이 source 성공을 구분한다. [Draft PR54](https://github.com/DigestWorks/IssueDigest/pull/54)는 PR53 기반·미병합이다.
@@ -1129,3 +1141,10 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 소유 label·전체ID·pinned image·loopback 포트로 대조한 자체 PostgreSQL3개와 각 볼륨만 정리했고 세 검증 포트 닫힘을 확인했다. 작업별 SDD 검토/증거는 private600 archive로 보존한 뒤 해당 폴더만 삭제했다. 두 Ruling/비용은 변경 Spec·D022와 최종 인계에 남긴다. 다른 QA·worktree·브랜치, 실제 개발 API/worker·수집기·외부 백업/원본 평가 receipt는 유지했다. 사용자 탭은 열거나 이동하지 않았다.
 
 다음은 전체 목표를 합산 대상으로 오해할 표현·조건/하한 보존의 실제 질문 품질, 상반 출처/다중 주제·정확 날짜/불확실의 실제 양성 평가와 승인 탐색/모듈 점진 전달이다. 실제3건을 일반 시사·중립성 통과로 확대하지 않고 main/운영 출시는 D013에 따라 유예한다.
+
+
+### 원래 검토 지적·수정과 재생
+
+작업 검토가 excluded subclass 필드의 직렬화 누락1건(Important)을 확인했다. source09의 사전 전체 검사는 수정 전에 중단했고 CI39393254153 취소를 요청했으므로 최종 성공에서 제외한다. source2bd1f37에서 직렬화 전 canonical 모델/필드 구조를 재귀 검사하도록 수정했다. 신규 회귀7개 RED→GREEN·평가기86/agents1,340·Ruff/format/mypy·기존379파일 SHA 동일을 확인했다. unsupported subclass를 허용하는 API는 아니다. 원래 helper/provider/모델 bytes는 동결했다.
+
+수정 source에서 동일한 사후 변환 reference를 hash 변경 없이 다시 재생했다. 조건 불일치1·미판정8과 거부1/수용 수null·모든 known usage가 그대로다. 모델 재호출·원문/gold/분모 조정은 없다. 수정 범위 재검토·전체 독립 검토·최종 전체 gate/PR55 CI·Sites·소유QA 정리는 최종 receipt를 따른다.

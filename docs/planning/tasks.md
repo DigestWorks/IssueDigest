@@ -2,7 +2,15 @@
 
 2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 후보 선택·의미 근거
+## 현재 · 수치 역할의 고정 기준 평가
+
+[명세](../changes/numeric-selection-evaluation.md). 기존 생성 SDK/실제 결과는 보존한다.
+
+- [x] 현재 Source/정확 위치 기준·수용 제안 재검증·필드별 차이/미판정/거부와 known usage를 보존하는 순수 평가기·회귀를 구현한다.
+- [x] 원래2건을 변경 없이 오프라인 재생하고 사후 변환 기준과 원래 gold를 구분한다. 추가 모델0/앱0이며 기존 완전0/2를 재판정하지 않는다.
+- [ ] 작업/전체 검토·전체 검사·Draft/CI·최종 기록과 소유QA 정리를 확인한다. Sites 미반영이면 명시한다.
+
+## 이전 · 후보 선택·의미 근거
 
 [명세](../changes/numeric-candidate-selection.md). 수치/범위는 서버 소유이며 대상·시점·상태/조건·관계는 검토 전 제안이다.
 

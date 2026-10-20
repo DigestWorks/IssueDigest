@@ -272,3 +272,14 @@ D022 날짜 경계 추가 판단: 온전한 날짜 양식 바로 앞 +,-,−를 
 [명세](../changes/numeric-candidate-selection.md). 서버 수치·단위/범위/수식어는 고정하고 모델은 현재 후보ID와 문장 내 exact phrase를 선택한다. source별 dynamic schema/instructions/prompt/framing/output 전체20000·출력2500/30초·borrowed gpt-5.4-mini Responses no-store/단1요청/retry0 SDK이며 앱의 전체24000/월 예약·DBOS 통합은 별도다. 실제 두 고정 자료의 반환1·거부1·의미 완전0/2와 알려진 input4053/output1166을 보존한다. 반환 수치6/6과 관계 보존은 전망 조건 누락·약한 상태 근거를 상쇄하지 않으며 거부된 raw 수치5를 수용 성과로 집계하지 않는다. 실제 예정/불명 양성·다양한 질문·중립성/최종 브리핑은 미검증이다.
 
 판단1: 의미 anchor는 한 문장의 unique exact phrase이고 관계 statement는 연속한 전체 문장ID다. 모델의 위치/occurrence 계산을 없애려는 선택이지만 반복/문장 횡단 근거 누락·유료 전체 거부와 구조상 정확한 의미 오연결 비용이 있다. 실제1건의 반복 anchor 거부로 비용이 드러났으며 Spec/진행/최종 인계에 보존한다. 이 SDK는 public/private Claim/검토 지위·역사 provider/worker·원래 수집기/DB/API/UI/권한을 바꾸지 않는다. 이전 후보 세 판단/비용·과거 모든 실패 분모/usage와 개발v9/main·운영 유예는 유지한다.
+
+
+### D022 후속 · 수치 역할의 기준 평가 · 2026-10-20 KST
+
+[명세](../changes/numeric-selection-evaluation.md). 추가 생성/유료 호출 없이 현재 제안과 사람이 명시한 기준을 재현 가능하게 비교한다. complete/partial·미판정·전체 거부와 실제 알려진 usage를 구분하며 fact 필드만 다룬다. 기준 일치는 독립 의미·진실·관계/최종 브리핑 품질 인증이 아니다. 기존2건은 사후 형식 변환으로 비교하며 원래 평가 기준/실패 분모는 유지한다.
+
+판단1: 정확 anchor 대안은 위치와 텍스트 전체 일치로 비교한다. 문장에 단서가 포함됐다는 이유만으로 의미 역할을 통과시키지 않으려는 선택이다. 더 넓거나 사전에 열거하지 않은 동등한 표현이 불일치할 수 있으므로 결과는 기준과의 차이이며 독립 의미 오류 판정이 아니다. 원래 조건/수단 역할의 해석도 평가자 기준으로 남긴다.
+
+판단2: hash는 lossless extra 검사·strict 재검증 후 checked 모델의 JSON-mode canonical 직렬화로 계산한다. 기존 helper의 Python UUID 객체는 직접 JSON 직렬화되지 않으므로 문자열 표현을 고정한다. 직렬화 철자가 기준 identity의 일부가 되어 향후 변경에는 버전 구분이 필요하고, 검증 전 dump로 extra를 숨기면 무효 입력을 수용할 수 있다. 기존 helper는 바꾸지 않는다.
+
+판단3: 기존 Pydantic validator를 그대로 재사용하므로 클래스 생성 시 plugin 설정 조회를 명시적 무I/O 경계의 종속성 예외로 기록한다. 평가기는 키·환경/파일·네트워크를 직접 조회하지 않는다. 전체 종속성의 환경 비의존성이나 임의 plugin 동작까지 보장하지 못하는 비용이 있으며, 테스트에서는 정확한 plugin switch만 고정 응답하고 다른 동작은 차단한다.
