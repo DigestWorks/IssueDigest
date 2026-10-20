@@ -1,8 +1,17 @@
 # 현재 구현 작업 목록
 
-2026-10-19 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 서버 수치·단위·문장 후보
+## 현재 · 후보 선택·의미 근거
+
+[명세](../changes/numeric-candidate-selection.md). 수치/범위는 서버 소유이며 대상·시점·상태/조건·관계는 검토 전 제안이다.
+
+- [x] strict 후보/문장 ID·정확 anchor/관계·현재 source 재검증·bounded borrowed SDK를 구현했다. 신규151/agents1254·작업/전체 독립 PASS(C0I0M0)·기존377파일/411 git blob 동일을 확인했다.
+- [x] 원래 gold를 바꾸지 않고 실제2회/retry0·반환1/거부1/의미 완전0/2를 직접 검토했다. 반환 수치6/6은 조건 누락·약한 상태 근거가 남았으며 거부 raw 수치를 성공으로 세지 않는다. known input4053/output1166 보존.
+- [x] 최종 전체5,588개·전체 독립 PASS(C0I0M0)·Draft PR54/source CI39389528867 success·Sites v76/이전v75 보존·이번 소유QA1/SDD 정리를 확인했다. 실제 의미 완전 충족0/2와 앱 미연결은 유지한다.
+- [ ] 의미 품질·전체 앱 예산/예약·DBOS/복구·현재 권한/취소·최종 브리핑을 별도로 인수한다.
+
+## 이전 · 서버 수치·단위·문장 후보
 
 [명세](../changes/numeric-candidate-index.md). 모델 호출 없이 원문 후보 경계를 검증하며 앱 연결은 후속이다.
 

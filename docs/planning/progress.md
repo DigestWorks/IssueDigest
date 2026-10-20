@@ -1,5 +1,41 @@
 # 진행 기록
 
+## 후보 선택 SDK · 게시·CI·정리 최종 기록 · 2026-10-20 KST
+
+[source CI39389528867](https://github.com/DigestWorks/IssueDigest/actions/runs/39389528867)는 `81ca4eff8ec873336aa43c1049e48d9fd5d369b7`에서 success다. 같은 실행 코드의 전체5,588개(4,768 Python/820 JS)와 정적 검사·작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 이 source 성공을 구분한다. [Draft PR54](https://github.com/DigestWorks/IssueDigest/pull/54)는 PR53 기반·미병합이다.
+
+[계획 Sites v76](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)을 기존 public 설정으로 게시해 native succeeded를 확인했다. source `b81ae49ba5a4204be196d2905524bb6f050d14df`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_88ab8ed503808191a39ecd35581fb082`, deployment `appgdep_6ad7213327d08191868da78f15184e9c`, 2026-10-20T08:07:30.253742+00:00이다. 저장소 사본58a92f3·이전v75와 전체 기록을 보존했다. HTML61개·로컬 링크/asset/anchor1,244개·공개 텍스트166개와 private 제외 검사를 통과했다. 기존 레이아웃의 텍스트·문서 사본 변경으로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 게시·정리의 최종 receipt는 사본 이후 이 저장소 원본이다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개와 그 볼륨만 제거하고 포트 닫힘을 확인했다. 작업/전체 검토·구현 보고서·동결 manifest·ledger는 private600 archive에 검증 보존한 뒤 이번 SDD 폴더만 제거했다. 기존377파일 SHA·historical411 git blob 검증을 유지하며 다른 컨테이너·worktree·브랜치·실제 API/worker·수집기·평가 원본은 변경하지 않았다.
+
+실제2요청의 부분1/거부1·사전 의미 기준 완전 충족0/2와 input4,053/output1,166, 이전의 실패/부분/미판정 분모를 보존했다. 조건 역할은 고정 평가 기준의 해석이며 gold를 수정하지 않았다. 이번 판단1은 문장 안의 unique exact anchor와 연속된 전체 문장 관계다. 위치 계산을 서버로 옮기는 대신 반복·문장 횡단 근거를 놓치거나 유료 결과 전체를 거부할 수 있고, 정확한 위치도 의미 오연결을 막지 못한다. 실제 반복 문구 거부1건에서 그 비용을 확인했다. 이전 후보 문법/문장 경계/날짜 우선순위의 세 판단과 비용도 Spec·D022/이전 기록에 유지한다.
+
+다음은 측정값과 부수 날짜·비교 기준·실적/전망·전제/계획 역할의 분리 계약과 모델 판단을 재검토하는 것이다. SDK상한20,000이 앱24,000 전체 예산·예약·DBOS/중단 복구·최종 브리핑의 인수는 아니다. 앱 실행/사용자 세션0이며 개발ab6654e/v9와 D013 main/운영 유예를 유지한다.
+
+## 후보 선택 SDK · 실제 두 자료 인수 · 2026-10-20 KST
+
+source81ca4ef의 단독 SDK를 원래와 byte-identical인 두 private packet(whole 인용2/1)에 적용했다. 원래 수치6/5·의미 gold를 호출 전에 고정했고 controller가 모든 원문·raw/null·반환 span/단위/범위·subject/period/status/condition과 관계를 직접 읽었다. 신규 SDK2회/실제 Responses2요청·자동 retry0·사용자 세션/앱 실행0이며 반환1·거부1·의미 완전 충족0/2다. 호출 성공이나 수치 선택을 의미 통과로 바꾸지 않는다.
+
+반환된 한 제안은 수치6/6과 각 단위/null·열린 하한·두 atom 범위를 원문 그대로 보존했다. 하위 항목의 포함1과 병렬2 관계, 대상·시점과 현재/전망 분류도 맥락과 일치했다. 다만 사전 gold가 요구한 전망의 전제·관리 문구를 condition에 연결하지 않고 null로 남겼고 상태 근거6개가 실적/전망 표현 대신 수치 자체를 가리켰다. 이 문구의 조건/수단·계획 역할은 고정 인수 기준의 해석이며 독립 사실 판정이 아니다. 따라서 부분 충족이다. 전체 관계/문서 coverage나 독립 사실 검증은 인증하지 않는다.
+
+다른 raw 응답은 필요한 수치5개 외에 부수 날짜2개도 측정 사실처럼 선택했다. 비교 기준을 조건으로 넣고 반복 문구를 모호하게 지정한 두 anchor 때문에 전체 거부됐다. source별 private 오프라인 재생에서 같은 오류를 재현했으며 추가 모델 호출·출력 수리·gold 수정은 없다. raw 수치5개를 수용 제안의5/5로 집계하지 않는다. 증감 방향·상태의 명시 근거도 raw에서 충분히 분리되지 않았다.
+
+실제 prompt는3,712/2,253 UTF8바이트, raw/normalized schema는2,784/2,562와2,727/2,505, instructions2,773이고 framing2,048/출력2,500 포함 envelope13,817/12,301이다. SDK상한20,000 이내의 실제 요청이지만 앱24,000 전체 예산/월 예약·DBOS/복구 인수가 아니다. 두 raw 응답 사용량은 input4,053/output1,166이다. 실패1건의 SDK known usage도 raw1771/511/1과 일치해 보존했다. 청구액은 검증하지 않았으며 미상/앱0을 무료로 해석하지 않는다.
+
+새151/agents1254·정적 검사와 작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 기존377 파일 SHA와 baseline/current source의411 git blob이 동일하다. 전체 gate·PR54/source CI39389528867·Sites v75보존/현재 갱신·소유QA1/SDD 정리는 별도 최종 기록을 따른다. 원래 v3/v2 각각 거부2·v1 부분1/거부1·앱4/12·과거 실패 usage·이전 순수 후보11/11+6/6+지원37/37/미지원2건과 그 세 판단/비용은 유지한다.
+
+이번 판단은 문장 안의 unique exact anchor와 연속된 전체 문장 관계다. 반복/문장 횡단 의미 근거를 놓치거나 유료 결과 전체를 거부할 수 있고, 정확한 위치도 의미 오연결을 막지 못한다. 실제 반복 문구 거부1건에서 이 비용을 관측했다. 상태·조건·날짜/측정값 역할의 계약과 모델 판단을 다음 설계에서 재검토한다. 실제 예정/불명 양성·다양한 정치 쟁점/중립성·최종 브리핑/앱 인수는 미완료이며 개발ab6654e/v9와 D013 main/운영 유예를 유지한다.
+
+
+
+### 후보 선택 SDK · 최종 전체 검사
+
+source81ca4ef에서 Python4,768+JS820=5,588개와 Ruff/format/mypy/lint/TS/build/OpenAPI contract가 통과했다. 실패/skip/warning0이다. 작업/전체 독립 Spec/품질도 PASS(C0I0M0)다. baseline5,437 및 기존 source/docs CI를 재사용했고 전체 baseline 검사를 되풀이하지 않았다. 이후 변경은 Markdown뿐이다. 실제2회 부분1·거부1·사전 의미 기준 충족0/2·모든 known usage와 반복 anchor 판단/비용을 보존한다. [Draft PR54](https://github.com/DigestWorks/IssueDigest/pull/54)는 PR53 기반·미병합이며 [source CI39389528867](https://github.com/DigestWorks/IssueDigest/actions/runs/39389528867)·Sites/정리는 별도 최종 결과를 기록한다. 개발v9/main·운영 유예는 유지한다.
+
+## 후보 선택·의미 근거 SDK · 착수 · 2026-10-20 KST
+
+[명세](../changes/numeric-candidate-selection.md). 같은 두 자료를 최대2회/retry0으로 평가한다. 모델은 candidate ID와 문장에 묶인 의미 근거를 선택하고 수치·단위·범위는 서버가 보존한다. baseline5,437/기존 CI를 재사용하며 앱 배포·전역 예산/내구 실행 통합과 의미 품질 인수는 후속이다. sentence-local unique anchor/연속 문장 관계는 반복·문장 간 근거를 표현하지 못하거나 유료 결과를 거부할 수 있어 한계와 의미 오연결을 직접 평가한다. 이전 실패 분모·세 후보 판단/비용·개발v9/main·운영 유예를 유지한다. Sites는 최종 인수 후 갱신 대기다.
+
 ## 서버 수치·단위 후보 · 오프라인 비교 · 2026-10-19
 
 source515aa26의 순수 후보 SDK를 기존과 byte-identical인 두 whole quote packet(인용2/1)에 오프라인 적용했다. 원문을 다시 수집하지 않았고 신규 provider/사용자 세션/앱 실행은 모두0이다. controller가 원문·모든 문장/후보의 expression/각 atom·unit/null·separator/qualifier·lexical hint/ID/원문 위치와 현재 Source 검증 결과를 직접 읽었다.

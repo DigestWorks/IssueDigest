@@ -265,3 +265,10 @@ D022 후보 인수: source515aa26·새 모델0에서 같은 두 packet의 수치
 
 
 D022 날짜 경계 추가 판단: 온전한 날짜 양식 바로 앞 +,-,−를 숫자 atom으로 흡수하지 않고 양의 날짜 표기를 우선한다. range/date lookahead 이후·수식어 이후·스캔 시작에서도 날짜 조각화를 막는다. 부호는 원문/문장에 남지만 실제 음수 연도나 식별자의 부호 의미는 날짜 후보에 표현되지 않을 수 있다. 소비자는 원문 문맥을 검토해야 하며 실제 날짜·사실 의미는 인증하지 않는다. 새 세 번째 판단/비용으로 기록한다.
+
+
+### D022 후속 · 수치 후보 선택·의미 anchor · 2026-10-20 KST
+
+[명세](../changes/numeric-candidate-selection.md). 서버 수치·단위/범위/수식어는 고정하고 모델은 현재 후보ID와 문장 내 exact phrase를 선택한다. source별 dynamic schema/instructions/prompt/framing/output 전체20000·출력2500/30초·borrowed gpt-5.4-mini Responses no-store/단1요청/retry0 SDK이며 앱의 전체24000/월 예약·DBOS 통합은 별도다. 실제 두 고정 자료의 반환1·거부1·의미 완전0/2와 알려진 input4053/output1166을 보존한다. 반환 수치6/6과 관계 보존은 전망 조건 누락·약한 상태 근거를 상쇄하지 않으며 거부된 raw 수치5를 수용 성과로 집계하지 않는다. 실제 예정/불명 양성·다양한 질문·중립성/최종 브리핑은 미검증이다.
+
+판단1: 의미 anchor는 한 문장의 unique exact phrase이고 관계 statement는 연속한 전체 문장ID다. 모델의 위치/occurrence 계산을 없애려는 선택이지만 반복/문장 횡단 근거 누락·유료 전체 거부와 구조상 정확한 의미 오연결 비용이 있다. 실제1건의 반복 anchor 거부로 비용이 드러났으며 Spec/진행/최종 인계에 보존한다. 이 SDK는 public/private Claim/검토 지위·역사 provider/worker·원래 수집기/DB/API/UI/권한을 바꾸지 않는다. 이전 후보 세 판단/비용·과거 모든 실패 분모/usage와 개발v9/main·운영 유예는 유지한다.
