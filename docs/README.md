@@ -6,6 +6,8 @@ IssueDigest는 질문에서 시작하는 B2C 브리핑 서비스다. [제품 경
 
 화면 기준: [소비자 브리핑 디자인](changes/consumer-briefing-design.md). 선택한 모바일 브리핑형의 실제 웹 적용과 검증 범위를 따른다.
 
+현재 연구: [모델 제한 비교](research/frame-model-comparison.md). 같은 계약·신규2회에서 고정 의미 기준 수동충족1/2지만 반복 anchor 전체 거부는 남는다. 운영 기본 모델/최신 전체 모델의 우열 판정은 아니다.
+
 현재 인수: [수치 프레임 생성 SDK](changes/numeric-frame-generation.md). 새 프레임을 모델이 채우는 별도 경로다. 전체5937개 통과·[실제2회 부분1/거부1·의미0/2](research/numeric-frame-generation-acceptance.md)를 구분하며 앱 적용은 보류한다.
 
 현재 구현: [수치 의미 역할 프레임](changes/numeric-evidence-frame.md). 역할별 정확 원문 연결과 직접 포함 관계를 분리하는 순수 계약이다. 실제 모델 의미 개선·앱 연결은 별도 인수한다.
