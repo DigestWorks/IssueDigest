@@ -6,8 +6,8 @@
 
 [명세](../changes/numeric-candidate-selection.md). 수치/범위는 서버 소유이며 대상·시점·상태/조건·관계는 검토 전 제안이다.
 
-- [ ] 후보/문장 ID의 strict dynamic schema·정확 anchor/관계·현재 source 재검증·bounded borrowed SDK를 TDD로 구현/독립 검토한다.
-- [ ] 같은 두 자료의 원래 gold를 바꾸지 않고 SDK 최대2회/retry0으로 원문·전체 raw/null/의미·누락·실패 usage를 직접 검토한다.
+- [x] strict 후보/문장 ID·정확 anchor/관계·현재 source 재검증·bounded borrowed SDK를 구현했다. 신규151/agents1254·작업/전체 독립 PASS(C0I0M0)·기존377파일/411 git blob 동일을 확인했다.
+- [x] 원래 gold를 바꾸지 않고 실제2회/retry0·반환1/거부1/의미 완전0/2를 직접 검토했다. 반환 수치6/6은 조건 누락·약한 상태 근거가 남았으며 거부 raw 수치를 성공으로 세지 않는다. known input4053/output1166 보존.
 - [ ] 최종 전체 검사·전체 독립 검토·Draft/CI·Sites v75보존/갱신·이번 소유QA1/SDD 정리를 확인한다.
 - [ ] 의미 품질·전체 앱 예산/예약·DBOS/복구·현재 권한/취소·최종 브리핑을 별도로 인수한다.
 
