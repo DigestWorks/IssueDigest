@@ -527,6 +527,58 @@ def test_unchecked_sdk_result_is_revalidated_before_dump_and_keeps_raw_usage(mon
         ) == expected
 
 
+@pytest.mark.parametrize("node", ["root", "fact", "anchor", "relation", "cue"])
+def test_dictionary_sdk_nodes_are_rejected_before_reader_and_preserve_usage(monkeypatch, node):
+    api = sdk()
+    original_run = api.Agent.run_sync
+    original_read = api._read
+    dynamic_reads = []
+
+    def read(model, value):
+        if model.__name__ == "NumericFrameOutputV1":
+            dynamic_reads.append(value)
+        return original_read(model, value)
+
+    def changed(self, *args, **kwargs):
+        result = original_run(self, *args, **kwargs)
+        output = result.output
+        facts, relations = output.facts, output.relations
+        if node == "root":
+            output = output.model_dump(mode="json")
+        else:
+            if node == "fact":
+                facts = (facts[0].model_dump(mode="json"), facts[1])
+            elif node == "anchor":
+                fields = {
+                    **facts[0].__dict__,
+                    "measured_entity": facts[0].measured_entity.model_dump(),
+                }
+                facts = (type(facts[0]).model_construct(**fields), facts[1])
+            elif node == "relation":
+                relations = (relations[0].model_dump(mode="json"),)
+            else:
+                fields = {**relations[0].__dict__, "cue": relations[0].cue.model_dump()}
+                relations = (type(relations[0]).model_construct(**fields),)
+            output = type(output).model_construct(facts=facts, relations=relations)
+        return SimpleNamespace(output=output, usage=result.usage, new_messages=result.new_messages)
+
+    monkeypatch.setattr(api, "_read", read)
+    monkeypatch.setattr(api.Agent, "run_sync", changed)
+    rows = [fact(measured_entity=anchor("A")), fact("n2", measured_entity=anchor("B"))]
+    model, calls = response({"facts": rows, "relations": [relation()]})
+    with pytest.raises(
+        api.NumericFrameGenerationError, match="^Numeric frame generation failed$"
+    ) as error:
+        api.run_numeric_framer(api.create_numeric_framer(model), document("A 10명 중 B 2명."))
+    assert len(calls) == 1
+    assert error.value.known_usage.model_dump() == {
+        "input_tokens": 100,
+        "output_tokens": 30,
+        "requests": 1,
+    }
+    assert dynamic_reads == []
+
+
 def test_agent_identity_and_limits_and_no_retries_are_applied(monkeypatch):
     api = sdk()
     original_init = api.Agent.__init__

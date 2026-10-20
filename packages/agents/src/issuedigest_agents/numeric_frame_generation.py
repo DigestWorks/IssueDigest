@@ -3,7 +3,7 @@
 import json
 from dataclasses import dataclass
 from hashlib import sha256
-from typing import Any, Literal, Self
+from typing import Any, Literal, Self, cast
 
 from issuedigest_domain.sources import Sha256
 from pydantic import BaseModel, Field, create_model, model_validator
@@ -261,8 +261,25 @@ def run_numeric_framer(framer: _NumericFramer, source: Source) -> NumericFrameGe
         _bounded_usage(known_usage)
         output_type = tools[0].output
         assert isinstance(output_type, type) and issubclass(output_type, BaseModel)
+        if type(result.output) is not output_type:
+            raise ValueError("Expected actual dynamic frame output")
+        output = cast(NumericFrameInput, result.output)
+        # The shared reader intentionally accepts dictionaries. Here every model node
+        # must already exist before its exact dynamic type is checked by that reader.
+        for fact in output.facts:
+            if not isinstance(fact, FrameFactInput):
+                raise ValueError("Expected actual dynamic fact")
+            for role in _ANCHORS:
+                anchor = getattr(fact, role)
+                if anchor is not None and not isinstance(anchor, SentenceAnchor):
+                    raise ValueError("Expected actual dynamic role anchor")
+        for relation in output.relations:
+            if not isinstance(relation, FrameRelationInput) or not isinstance(
+                relation.cue, SentenceAnchor
+            ):
+                raise ValueError("Expected actual dynamic relation and cue")
         # The exact dynamic types must pass before their narrowing conversion drops them.
-        dynamic = _read(output_type, result.output)
+        dynamic = _read(output_type, output)
         canonical = NumericFrameInput.model_validate_json(dynamic.model_dump_json(), strict=True)
         generation = NumericFrameGeneration(
             frame=build_numeric_frame(source, canonical),
