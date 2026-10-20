@@ -22,7 +22,7 @@ Ruling: context도 한 문장·1000codepoint 안에서 유일해야 한다 — �
 
 ## Task 1: 순수 context resolver와 회귀
 
-- [ ] packages/agents/src/issuedigest_agents/contextual_anchor.py와 packages/agents/tests/test_contextual_anchor.py를 TDD로 구현한다. 기존 source/candidate index/canonical helper·unique sentence resolver를 읽기만 재사용하고 의미/숫자/관계 validator를 복제하지 않는다. Context 내부의 유일한 substring 위치 계산은 새 계약에 필요한 작은 로컬 연산이다. 불완전/위조 index를 만들어 기존 resolver에 넘기는 우회는 하지 않는다.
+- [x] packages/agents/src/issuedigest_agents/contextual_anchor.py와 packages/agents/tests/test_contextual_anchor.py를 TDD로 구현한다. 기존 source/candidate index/canonical helper·unique sentence resolver를 읽기만 재사용하고 의미/숫자/관계 validator를 복제하지 않는다. Context 내부의 유일한 substring 위치 계산은 새 계약에 필요한 작은 로컬 연산이다. 불완전/위조 index를 만들어 기존 resolver에 넘기는 우회는 하지 않는다.
 - 합성 문장에 같은 비교 표현2개와 각각 다른 숫자/주어를 두고 두 위치를 명시 context로 선택해 정확한 짧은 span/offset을 확인한다. context없음 거부/unique문구 호환·중첩/겹친반복·context반복·경계/CRLF/emoji/decomposed Unicode·다른quote/sentence·길이/공백·겹침context와부분표현을 검사한다.
 - 실제 canonical Source/input/output·중첩 모델의 excluded subclass fields/extra/unchecked model_construct/model_copy·bool/타입/누락/잘못된profile/status/hash/원문/위치·source변경·dict roundtrip과 의미가 틀려도 exact 위치만 맞으면unreviewed임을 검증한다. lazy/import/resolve/validate explicit I/O 금지를 검사하되 Pydantic plugin switch 예외를 명시한다.
 - 신규 pytest→agents 전체→Ruff/format/mypy만 실행하고 RED/GREEN·self-review·명령/output·한계를 소유 report에 남긴다. repo 전체 검사는 컨트롤러의 전용QA DB에서 수행한다. import/reload 간섭은 최소 재현 후 신규 테스트의 최초 도입 모듈만 격리한다. 기존 test/production을 수정/skip하지 않는다.
