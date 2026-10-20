@@ -1,3 +1,9 @@
+# 수치 프레임 생성 · Sites v80 출판 영수증 · 2026-10-20
+
+Sites v80는 native succeeded(2026-10-20T10:00:18.811708+00:00)다. Site source68fa750b509ec98f3d9598024f716455b784f241·저장소 사본 f04fbc20d8d2f99cc3eecdcb21ba0f5dfce4adab이며 이후 영수증은 원본 저장소를 따른다. 이전v79 보존·HTML65/로컬 링크·asset·anchor1294/공개 텍스트182와 private source/ID20종 포함192파일 제외 검사를 확인했다. 텍스트만 바꿔 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+PR58은 미병합 Draft다. 최종 sourceefa9bf2/전체5937·독립 C0/I0/M0·I1 수정/재검토·기존397파일 동일·신규2회 부분1/거부1·의미0/2·knowninput6730/output1738·소유QA2/SDD 정리와 세 판단/비용은 명세/D022/실제 인수 원본을 따른다. 앱/개발/운영 배포0, D013 유예를 유지한다. 다음은 같은 계약/기준의 제한 모델 비교다.
+
 # 수치 프레임 생성 · Draft PR58 · 2026-10-20
 
 [Draft PR58](https://github.com/DigestWorks/IssueDigest/pull/58)은 feat/numeric-evidence-frame(PR57) 기반이다. 신규70/최종5937개·I1 수정/전체 독립 C0/I0/M0와 실제2회 부분1/거부1·의미0/2, 알려진 비용·세 판단을 기록했다. 미병합·main/운영 유예이며 Sites 영수증은 후속에 남긴다.
