@@ -1,3 +1,9 @@
+# 모델 제한 비교 · Sites v81 출판 영수증 · 2026-10-20
+
+Sites v81는 native succeeded(2026-10-20T10:54:37.495477+00:00)다. Site sourced823c8f93c1eabe7f2a588c912dc3504170f4363·저장소 사본b76ebcc4cf0f25e5f8f2eab1fc91320ff5231b03이며 이후 영수증은 원본을 따른다. 이전v80 보존·HTML66/로컬 링크·asset·anchor1309/공개 텍스트185와 private source/ID20종 포함191파일 제외 검사를 확인했다. 텍스트만 바꿔 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+PR59는 미병합 Draft다. 모델 비교는 신규2회/retry0·반환1/거부1·고정 의미 기준 수동충족1/2·참고요율$0.0445/약3.46배이며 실제 청구·일반 품질/중립성/운영 기본모델 인수는 아니다. Sourceefa9bf2의 기존5937개 검사 증거를 재사용하고 실행 코드/앱/main/운영 변경0을 유지했다. 다음은 반복 위치 참조 계약과 미관측 자료 인수다.
+
 # 모델 제한 비교 · Draft PR59 · 2026-10-20
 
 [Draft PR59](https://github.com/DigestWorks/IssueDigest/pull/59)은 PR58의 feat/numeric-frame-generation 기반이다. 연구/문서만 변경해 spec-driven-workflow의 문서 예외를 적용했으며 별도 코드 구현/SDD·전체 검사 반복은 없다. 기존5937개 소스 검증과 새2호출/비교 기준/비용·문서 링크/비공개 제외 검사를 구분한다. 앱/main/운영 변경0·Sites 출판 영수증은 후속에 남긴다.
