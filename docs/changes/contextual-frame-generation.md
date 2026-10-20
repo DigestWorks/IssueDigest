@@ -24,7 +24,7 @@ Ruling: 전체 문장 구조 검사는 유일한 문맥으로 기존 builder를 
 
 ## Task 1: 문맥 프레임과 생성 SDK 연결
 
-- [ ] 소유4파일 contextual_frame.py/contextual_frame_generation.py 및 test_contextual_frame.py/test_contextual_frame_generation.py만 TDD로 구현한다. 위 계약/정확 이름/한도/제약을 따른다. 기존 helper/model을 읽기만 재사용하고 source/index 위조·숫자/관계 validator 복제는 하지 않는다.
+- [x] 소유4파일 contextual_frame.py/contextual_frame_generation.py 및 test_contextual_frame.py/test_contextual_frame_generation.py만 TDD로 구현한다. 위 계약/정확 이름/한도/제약을 따른다. 기존 helper/model을 읽기만 재사용하고 source/index 위조·숫자/관계 validator 복제는 하지 않는다.
 - 순수 회귀는 같은 문장에 반복된 role/cue를 서로 다른 context로 선택한 short 정확 span·전체 relation statement/direct pair·기존 status/tense validator·quote일치·누락/중복/cycle/비연속·context없음 unique호환/모호함거부·잘못된context·Unicode/겹침·모든wrapper/input/resolved/canonical숨은필드변조와dict roundtrip을 검사한다. 숫자/단위/경계와 의미unreviewed를 유지하고 old validator가 short repeated span을 수용한다고 주장하지 않는다.
 - SDK 회귀는 실제 FunctionModel/동적tool schema와 root/fact/relation/anchor의 actual type guard, known status/tense4변형·IDenum·requirednullablecontext·원문/catalog 보존·exact envelope inclusive boundary/초과 no request·0후보·borrowed lifecycle·no-store/retry0/한도/실패usage/capturedusage unknown·prompt/source/instructions/usage변조·no partial/frame수리·순수 API explicit I/O금지를 검사한다. model_construct/copy/dict/hidden excluded subclass 우회도 거부한다. helper/class import/reload 간섭은 최소 재현해 신규 테스트가 도입한 모듈만 정리한다. 기존테스트/validator변경/skip 금지.
 - 신규 pytest→agents 전체→Ruff/format/mypy를 실행하고 RED/GREEN/self-review/명령/output·실패진단을 소유 report에 보존한다. repo전체 QA는 controller가 담당한다. private 원문/키/서버/실제모델 접근·subagents생성 금지. 소유4파일+Task1checkbox만 commit한다.
