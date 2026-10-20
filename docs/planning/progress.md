@@ -1,3 +1,9 @@
+# 수치 프레임 · 모델 제한 비교 · 2026-10-20
+
+[비교 기록](../research/frame-model-comparison.md). 실행 코드는 sourceefa9bf2 그대로이며 현재 전체5937개 검사 증거를 재사용했다. 동일 두 자료/기준/지침/schema/한도에서 GPT-5.4 고정 버전으로 신규2회/retry0: 반환1/거부1·고정 의미 기준 수동충족1/2다. 기존 mini0/2와 모든 raw/gold/비용은 보존한다. A의 발표자·필수 직접 관계는 개선됐고 넓은 대상/맥락 상태 근거의 해석 한계도 기록했다. B의 raw 측정값/역할은 나아졌지만 반복 비교anchor4·cue2로 전체 거부됐고 수준/증감 관계 의미는 후속이다.
+
+신규 input6730/output1845, 공식 Standard 요율 참고$0.0445(mini$0.0128685의약3.46배)이며 실제 청구액/환율은 미검증이다. 관측cache_read/reasoning0·default tier와 반환/실패 usage 일치를 확인했다. 단일 annotator/알려진 개발 표본이며 최신전체모델/운영기본값을 정한 것이 아니다. 다음은 반복 표현의 위치 참조 계약·미관측 자료 인수다. 앱/main/운영 변경0, Sites 반영 대기.
+
 # 수치 프레임 생성 · Sites v80 출판 영수증 · 2026-10-20
 
 Sites v80는 native succeeded(2026-10-20T10:00:18.811708+00:00)다. Site source68fa750b509ec98f3d9598024f716455b784f241·저장소 사본 f04fbc20d8d2f99cc3eecdcb21ba0f5dfce4adab이며 이후 영수증은 원본 저장소를 따른다. 이전v79 보존·HTML65/로컬 링크·asset·anchor1294/공개 텍스트182와 private source/ID20종 포함192파일 제외 검사를 확인했다. 텍스트만 바꿔 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
