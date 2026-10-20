@@ -1,3 +1,13 @@
+# 문맥 기반 원문 참조 · Sites v82 출판 영수증 · 2026-10-20
+
+[Draft PR60](https://github.com/DigestWorks/IssueDigest/pull/60), PR59 기반. Sites v82 native succeeded(2026-10-20T11:21:12.988981+00:00); Site source5d3e9d02cb0cee2e8448f7de390f67be470c445f·저장소 사본8dde3c5c29c2ccf535359f177e4fa83bee83d43b. 사본 이후 출판 영수증은 저장소 원본을 따른다. 이전v81 보존·HTML67/로컬 링크·asset·anchor1325/공개 텍스트188과 private source/ID20종 포함196파일 제외 검사를 통과했다. 텍스트만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+소유 SDD 증거를 private 보존 후 소유 디렉터리만 제거했고 전용 QA1개도 소유 identity/label/image 확인 후 제거했다. 기존 worktree/브랜치는 보존했다. source0347c46 이후 실행 코드 변경은 없고 전체6,056개 검사 증거가 유효하다. 새 모델0·앱/서버/main/운영 변경0이며 원래 기준/실패/비용은 보존했다.
+
+# 문맥 기반 원문 참조 · 구현·검증 완료 · 2026-10-20
+
+[명세](../changes/contextual-anchor.md). 반복 표현 자체와 이를 유일하게 포함하는 원문 문맥을 함께 지정해 짧은 표현의 정확한 위치를 계산하는 순수 resolver를 구현한다. 문맥 안에서도 모호하면 계속 거부한다. 기존 프레임/생성SDK/API/DB/UI/원래 결과·기준은 보존하고 AI 연결/실제 의미 인수는 후속이다. 신규119/agents1722 검사·정적 검사와 독립 태스크 검토 통과. 명시적 수동 문맥2개 위치/재검증과 기존399파일 불변을 확인했으며 AI 선택 성공으로 세지 않는다. 최종 검토 C0/I0/M0·전용QA 전체6,056개(Python5,236/JS820)·린트/타입/빌드/OpenAPI 계약 검사 통과(실패/skip/warning0). 모델0·앱/서버/main/운영 변경0, Sites v82 출판 완료.
+
 # 모델 제한 비교 · Sites v81 출판 영수증 · 2026-10-20
 
 Sites v81는 native succeeded(2026-10-20T10:54:37.495477+00:00)다. Site sourced823c8f93c1eabe7f2a588c912dc3504170f4363·저장소 사본b76ebcc4cf0f25e5f8f2eab1fc91320ff5231b03이며 이후 영수증은 원본을 따른다. 이전v80 보존·HTML66/로컬 링크·asset·anchor1309/공개 텍스트185와 private source/ID20종 포함191파일 제외 검사를 확인했다. 텍스트만 바꿔 기존 레이아웃 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
