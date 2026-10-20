@@ -1,5 +1,17 @@
 # 진행 기록
 
+## 후보 선택 SDK · 게시·CI·정리 최종 기록 · 2026-10-20 KST
+
+[source CI39389528867](https://github.com/DigestWorks/IssueDigest/actions/runs/39389528867)는 `81ca4eff8ec873336aa43c1049e48d9fd5d369b7`에서 success다. 같은 실행 코드의 전체5,588개(4,768 Python/820 JS)와 정적 검사·작업/전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 이 source 성공을 구분한다. [Draft PR54](https://github.com/DigestWorks/IssueDigest/pull/54)는 PR53 기반·미병합이다.
+
+[계획 Sites v76](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/)을 기존 public 설정으로 게시해 native succeeded를 확인했다. source `b81ae49ba5a4204be196d2905524bb6f050d14df`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_88ab8ed503808191a39ecd35581fb082`, deployment `appgdep_6ad7213327d08191868da78f15184e9c`, 2026-10-20T08:07:30.253742+00:00이다. 저장소 사본58a92f3·이전v75와 전체 기록을 보존했다. HTML61개·로컬 링크/asset/anchor1,244개·공개 텍스트166개와 private 제외 검사를 통과했다. 기존 레이아웃의 텍스트·문서 사본 변경으로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 게시·정리의 최종 receipt는 사본 이후 이 저장소 원본이다.
+
+전체ID·pinned image·전용 label·loopback 포트를 대조한 이번 소유 PostgreSQL1개와 그 볼륨만 제거하고 포트 닫힘을 확인했다. 작업/전체 검토·구현 보고서·동결 manifest·ledger는 private600 archive에 검증 보존한 뒤 이번 SDD 폴더만 제거했다. 기존377파일 SHA·historical411 git blob 검증을 유지하며 다른 컨테이너·worktree·브랜치·실제 API/worker·수집기·평가 원본은 변경하지 않았다.
+
+실제2요청의 부분1/거부1·사전 의미 기준 완전 충족0/2와 input4,053/output1,166, 이전의 실패/부분/미판정 분모를 보존했다. 조건 역할은 고정 평가 기준의 해석이며 gold를 수정하지 않았다. 이번 판단1은 문장 안의 unique exact anchor와 연속된 전체 문장 관계다. 위치 계산을 서버로 옮기는 대신 반복·문장 횡단 근거를 놓치거나 유료 결과 전체를 거부할 수 있고, 정확한 위치도 의미 오연결을 막지 못한다. 실제 반복 문구 거부1건에서 그 비용을 확인했다. 이전 후보 문법/문장 경계/날짜 우선순위의 세 판단과 비용도 Spec·D022/이전 기록에 유지한다.
+
+다음은 측정값과 부수 날짜·비교 기준·실적/전망·전제/계획 역할의 분리 계약과 모델 판단을 재검토하는 것이다. SDK상한20,000이 앱24,000 전체 예산·예약·DBOS/중단 복구·최종 브리핑의 인수는 아니다. 앱 실행/사용자 세션0이며 개발ab6654e/v9와 D013 main/운영 유예를 유지한다.
+
 ## 후보 선택 SDK · 실제 두 자료 인수 · 2026-10-20 KST
 
 source81ca4ef의 단독 SDK를 원래와 byte-identical인 두 private packet(whole 인용2/1)에 적용했다. 원래 수치6/5·의미 gold를 호출 전에 고정했고 controller가 모든 원문·raw/null·반환 span/단위/범위·subject/period/status/condition과 관계를 직접 읽었다. 신규 SDK2회/실제 Responses2요청·자동 retry0·사용자 세션/앱 실행0이며 반환1·거부1·의미 완전 충족0/2다. 호출 성공이나 수치 선택을 의미 통과로 바꾸지 않는다.

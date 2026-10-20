@@ -56,3 +56,5 @@ source81ca4ef의 단독 SDK를 원래와 byte-identical인 두 private packet(wh
 ### 후보 선택 SDK · 최종 전체 검사
 
 source81ca4ef에서 Python4,768+JS820=5,588개와 Ruff/format/mypy/lint/TS/build/OpenAPI contract가 통과했다. 실패/skip/warning0이다. 작업/전체 독립 Spec/품질도 PASS(C0I0M0)다. baseline5,437 및 기존 source/docs CI를 재사용했고 전체 baseline 검사를 되풀이하지 않았다. 이후 변경은 Markdown뿐이다. 실제2회 부분1·거부1·사전 의미 기준 충족0/2·모든 known usage와 반복 anchor 판단/비용을 보존한다. [Draft PR54](https://github.com/DigestWorks/IssueDigest/pull/54)는 PR53 기반·미병합이며 [source CI39389528867](https://github.com/DigestWorks/IssueDigest/actions/runs/39389528867)·Sites/정리는 별도 최종 결과를 기록한다. 개발v9/main·운영 유예는 유지한다.
+
+최종 인계: source CI39389528867 success·Sites v76 native succeeded/이전v75 보존·소유QA1/검토 archive와 해당 SDD 정리를 확인했다. 정확한 게시 식별자와 사본 기준·모든 실제 결과/판단/비용·후속 품질 과제는 [진행 기록의 최종 receipt](../planning/progress.md)에 보존한다. 구현은 검증됐지만 의미 품질과 앱 통합은 완료되지 않았다.
