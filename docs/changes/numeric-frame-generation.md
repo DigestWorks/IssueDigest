@@ -24,7 +24,7 @@ Ruling: SDK가 응답 기록 전에 한도로 거부하면 known_usage=None을 �
 
 ## Task 1: 프레임 생성과 합성 회귀
 
-- [ ] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame_generation.py와 packages/agents/tests/test_numeric_frame_generation.py를 TDD로 구현한다. 기존 pure frame·canonical helpers·candidate prompt·usage/schema helpers를 읽기만 재사용한다. 공통 resolver·usage validator를 복제하지 않는다. 기존 tests/production/의존성은 byte-identical이다.
+- [x] 위 계약대로 packages/agents/src/issuedigest_agents/numeric_frame_generation.py와 packages/agents/tests/test_numeric_frame_generation.py를 TDD로 구현한다. 기존 pure frame·canonical helpers·candidate prompt·usage/schema helpers를 읽기만 재사용한다. 공통 resolver·usage validator를 복제하지 않는다. 기존 tests/production/의존성은 byte-identical이다.
 - borrowed Model의 no lifecycle·lazy/key-free import/create/prompt/validate, source-bound enum과 current instructions/profile/tool, schema/runtime nonnull 상태/시제, 실제 envelope 경계±1/Unicode/raw-normalized max/초과시0요청, request1/retries0/settings와 usage성공/거부/미상 보존을 검증한다.
 - numeric_frame의 역할 분리/원문 재구성·직접 포함 관계를 SDK 실제 FunctionModel 경로에서 검증한다. 이전 Minor인 observed 값+서로 다른 대상/발표자 합성 양성도 새 테스트에서 보강한다. unknown/planned 양성, stale source/hash/hidden subclass/dynamic construct 위조/semantic wrong but exact의 unreviewed 경계, invalid request count/overflow/timeout/empty output 거부와 fixed error를 포함한다.
 - 신규 테스트→agents 전체→Ruff/format/mypy만 실행한다. repo 전체 검사는 컨트롤러가 전용QA DB로 수행한다. 테스트 import/reload 간섭이 있으면 원인을 재현해 신규 테스트가 최초 도입한 모듈만 격리하며 기존 tests를 변경/skip하지 않는다.
