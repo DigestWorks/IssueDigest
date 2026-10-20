@@ -378,3 +378,97 @@ instructions/prompt budget을 별도로 검사해야 하므로 provider-ready pa
 합성 검사는 `uv run --offline pytest packages/agents/tests/test_numeric_candidates.py -q`다.
 agents suite/Ruff/format/mypy는 위의 패키지 검사 명령을 따른다. 실제 private packet 평가와
 전체 저장소 gate·독립 검토는 별도다.
+
+
+## 수치 후보 선택과 문장 의미 anchor
+
+`numeric_selection`은 위 순수 후보 색인을 그대로 사용하는 독립 내부 SDK다. 기존 수치
+v1/v2/v3·역사 provider/worker·앱과 연결하지 않는다.
+
+```python
+from issuedigest_agents.numeric_selection import (
+    create_numeric_selector,
+    numeric_selection_prompt,
+    run_numeric_selector,
+    validate_numeric_selection,
+)
+
+selector = create_numeric_selector(model)  # 필수 borrowed PydanticAI Model
+prompt = numeric_selection_prompt(source)  # 전체 원문과 실제 dynamic schema 예산 검사
+proposal = run_numeric_selector(selector, source)
+checked = validate_numeric_selection(source, proposal)
+```
+
+Source는 정확한 `(UUID4 snapshot, EvidenceBundle, SourcePresentation)` tuple이다. 기존 순수
+검증으로 원문 hash/selector·snapshot/workspace·1..20개 인용·합계12,000 code points와 unchecked
+extra를 다시 검사한다. 중첩 하위 클래스의 추가 필드도 직렬화 중 숨기지 않는다. 제목/metadata는
+근거가 아니며 호출자가 현재 권한·transport `max_retries=0`·model/client 수명을 책임진다.
+import/create/prompt/validate는 키 조회·모델 요청·client/Agent 생성·폐기·network/DB/파일 쓰기가
+없다. create는 frozen lazy handle이며 run만 빌린 Model로 요청하고 enter/exit/close하지 않는다.
+
+prompt profile은 `numeric-selection-v1`이다. 전체 ordered source와 문장 catalog의
+`id/citation_id/text`, 수치 catalog의 `id/citation_id/sentence_ids/lexical_kind/expression/atoms/
+separator/qualifiers`를 전달한다. atom의 number와 각 nullable unit, 범위 양끝·separator·열린
+qualifier는 원문 그대로이며 단위 복사·수치 계산/합산·정규화가 없다. 전체 색인 JSON이나 숫자
+offset 표를 provider prompt로 쓰지 않는다. lexical hint는 측정값·날짜·식별자의 의미 인증이 아니다.
+
+agent identity는 `issuedigest_numeric_selection_v1`, 유일한 strict tool은
+`select_numeric_candidates_v1`이다. source별 실제 schema는 모든 현재 후보 ID와 문장 ID만
+허용하는 Literal enum(하나일 때 const)을 사용한다. provider fact는 `candidate_id`, nullable
+`subject/period/condition`, nested `status`만 받는다. status는
+`{kind: observed|planned|forecast, text: SentenceAnchor}` 또는
+`{kind: unknown, text: SentenceAnchor|null}`이며 known text는 null을 허용하지 않는다.
+forecast는 조건 없는 전망도 포함하며 condition에는 명시 조건만 둔다. 숫자 value/unit/range/
+qualifier 필드는 provider에 없다. 숫자 자체는 서버 소유 `NumericCandidate`를 선택한다.
+
+`SentenceAnchor`는 `sentence_id/text`만 받는다. text는 비공백1..1,000 code points의 exact
+phrase로, 선택한 한 문장에서 겹치는 발생까지 포함해 정확히 한 번 있어야 한다. 서버가 원래
+인용의 `ExactSpan(citation_id,text,start,end)`을 계산한다. Unicode·CRLF·공백·control·결합문자·
+astral을 변경하지 않는다. 같은 문장의 반복 문구나 문장을 넘는 anchor는 표현하지 못하며 전체
+거부/누락이 생길 수 있다. 서로 다른 문장의 동일 문구는 각 실제 위치로 해결한다. fact의 모든
+의미 anchor는 expression과 같은 인용이어야 하며 같은 문장일 필요는 없다. 없는 근거는
+unknown/null로 두며 문자열을 보정하거나 추정하지 않는다.
+
+fact는0..12개이며 후보 중복 선택을 거부한다. relation은0..16개의
+`kind(included_in/parallel/unknown)/from_id/to_id/statement_sentence_ids/cue`다. statement는
+동일 인용의 원래 순서로 연속한1..20개 전체 문장을 선택한다. 중간의 빈 문장·앞뒤 공백·구두점도
+보존하며 역순/누락/중복/다른 인용을 거부한다. 서버 statement span 안에 두 다른 선택 후보의
+expression, 두 nonnull subject의 실제 위치, cue가 모두 있어야 하며 cue 문장도 포함해야 한다.
+included_in은 child→parent이며 cycle을 거부한다. 모든 kind/방향을 합쳐 unordered pair당
+하나만 허용한다. 직접 단서·명시 주체 없는 관계는 생략하도록 지시하고 근접·같은 단위·산술로
+관계를 만들지 않는다. facts0이면 relations0이다.
+
+strict/frozen/extra-forbid `NumericSelectionProposal`은 profile=`numeric-selection-v1`,
+status=`unreviewed`, 전체 `candidate_index`, 실제 prompt UTF-8 `prompt_sha256`, facts,
+relations, `KnownUsage`를 담는다. ResolvedFact는 candidate_id·nullable subject/period/condition·
+flattened kind/status_text이며 ResolvedAnchor는 sentence_id/span이다. ResolvedRelation은 provider
+필드와 서버 statement/span 및 resolved cue를 보존한다. validate는 현재 Source에서 index·모든
+수치/단위/범위·문장 anchor·관계·provenance·source/prompt hash를 전부 재생성해 비교한다.
+
+매 요청은 실제 dynamic raw/Responses-normalized schema 중 큰 UTF-8 bytes + 전체 지침 + 전체
+prompt + framing2,048 + 출력2,500 ≤ total20,000을 Agent 생성 전에 검사한다. 고정 prompt cap으로
+enum 비용을 대신하지 않으며 어느 부분도 잘라 맞추지 않는다. source/candidate 최대256과 전체
+요청 예산의 동시 수용을 보장하지 않는다. 문장이 많으면 enum만으로도 거부될 수 있다. 후보0이면
+prompt/run은 호출 전에 실패하며 가짜 usage0 proposal을 만들지 않는다. 후보가 있는 source에서
+선택 facts0은 허용하지만 완전 추출 인증은 아니다. Responses/storeFalse·timeout30초·요청1·
+retry/repair/추가 도구0, 출력2,500/total20,000과 strict 정수 usage를 검사한다.
+
+오류는 원문/ID/raw 응답 없는 `NumericEvidenceError`다. 결과를 받으면 raw usage를 먼저 확보해
+구조 거부·source 변경·상한 초과를 포함한 후처리 실패에도 보존한다. SDK가 output schema를
+거부해 결과를 반환하지 않아도 공개 `capture_run_messages`에 실제 ModelResponse가 남으면
+그 유효 raw usage를 보존한다. 잘못된 raw usage나 결과/캡처된 response 없는 transport/timeout은
+`known_usage=None`(미상)이다. 현재 SDK는 usage 한도 검사 후 response를 history에 추가하므로,
+SDK 자체의 상한 거부는 캡처 영수증이 남지 않아 미상일 수 있다. 미상은 무료/예약 반환이 아니며
+원문·응답을 로깅하거나 자동 재호출해 복구하지 않는다. 외부 모델 이력/비용 전체 인증은 아니다.
+
+정확 anchor와 구조는 잘못된 주체 연결·상태/조건 해석·관계 단서의 지시 대상·포함 방향·누락을
+막는 의미 인증이 아니다. 그런 반례도 테스트에서 unreviewed로 유지한다. hash는 서명·작성자·
+인간 검토·진실·권한·완전 추출 인증이 아니다. 순수 후보 검사, 이 SDK의 합성 검사, controller의
+고정 실제 두 packet/원래 의미 gold 평가, 전체 gate와 최종 브리핑/앱 통합 인수는 각각 별도다.
+앱24,000/월10만원·예산 예약·DBOS/복구·API/공개/UI/수집기는 변경하지 않는다.
+
+합성 검사는 `uv run --offline pytest packages/agents/tests/test_numeric_selection.py -q`다.
+agents 전체 검사는 `uv run --offline pytest packages/agents/tests -q`, 정적 검사는
+`uv run --offline ruff check packages/agents`,
+`uv run --offline ruff format --check packages/agents`,
+`uv run --offline mypy packages/agents/src`다.
