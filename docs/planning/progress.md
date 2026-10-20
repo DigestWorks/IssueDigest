@@ -1,5 +1,11 @@
 # 진행 기록
 
+## 수치 역할 지침 비교 · 2026-10-20 KST
+
+[실험 기록](../research/numeric-role-guidance-trial.md). 원문으로 보강한 별도 reference와 지침을 호출 전에 고정한 뒤 같은 두 자료에서 각1회/총2회를 실행했다. 반환2·직접 의미 부분2/완전0/2, retry0·추가 수집/앱0이며 input4,635/output972를 보존했다. 기존 자료/gold/SDK 결과·원래0/2/이전 실패 사용량은 유지한다. 전망 전제·상태와 부수 날짜 제외는 일부 개선됐지만 측정 대상/발표 주체·인접 지표·직접 포함 관계 문제가 남았다. 보강 기준의 필드 일치를 의미 정확도 점수로 표현하지 않는다.
+
+실행 코드는 바꾸지 않은 문서/조사 단계다. source64b2f19 전체5,674개·CI39394088829 검증을 재사용하며 새 SDK/앱을 배포하지 않았다. 다음은 측정 대상/발표자·상태/시제·논리 조건/전망 근거·비교 기준을 분리한 근거 프레임의 구현 계약이다. Sites는 이번 결과 요약 반영 대기다.
+
 ## 수치 역할 평가기 · 게시·CI·정리 최종 기록 · 2026-10-20 KST
 
 [source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)는 `64b2f192b36327ae3dc8b72cf37b95b342061606`에서 success다. 실행 코드2bd1f37·전체5,674개/정적 검사·수정 범위/전체 독립 PASS(C0I0M0)와 구분해 기록한다. source09의 중단 gate와 CI39393254153 cancelled는 최종 성공에 포함하지 않는다. 이후 변경은 Markdown뿐이며 마지막 문서 push의 새 CI와 이 source 성공을 구분한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다.
