@@ -3,7 +3,8 @@
 - [x] [공유 맥락 실제 제한 인수](../research/shared-context-acceptance.md): 기존2+새2·각1회/4응답, 반환1의 의미0/1·거부3미판정·참고 비용/상한 소진 보존.
 - [x] [측정 그룹 출력](../changes/measurement-group-output.md) 다음 설계 제안 기록(미구현).
 - [x] [동일 계약 모델 비교](../research/shared-context-model-comparison.md): 새4회/반환4·의미2/4·남은 대상/필수 광역 범위 누락·비용/제한 기록.
-- [ ] 같은 계약에서 측정 대상·계층적 범위 의미 누락 보완과 미관측 실제자료/충분한 출력 인수. 그룹 출력 즉시 구현은 보류하며 앱 통합은 별도.
+- [x] [측정 대상·계층적 범위 지침](../changes/shared-context-role-guidance.md) 별도 SDK/합성 검사·독립 검토. 실제 의미 개선은 미검증.
+- [ ] 사전 고정 미관측 실제자료·충분한 출력 인수. 그룹 출력 즉시 구현은 보류하며 앱 통합은 별도.
 
 
 - [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.

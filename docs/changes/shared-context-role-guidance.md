@@ -1,6 +1,6 @@
 # 측정 대상·계층적 범위 지침
 
-2026-10-21. 상태: 구현 예정. [동일 계약 비교](../research/shared-context-model-comparison.md)에서 남은 대상/상위 지역 누락을 별도 지침 경로로 보완한다. 의미 성공·앱 적용을 미리 주장하지 않는다.
+2026-10-21. 상태: SDK·합성 검증 완료, 실제 의미 인수·앱 적용 미완료. [동일 계약 비교](../research/shared-context-model-comparison.md)에서 남은 대상/상위 지역 누락을 별도 지침 경로로 보완한다. 의미 성공·앱 적용을 미리 주장하지 않는다.
 
 ## Global Constraints
 
@@ -12,5 +12,13 @@
 
 ## Task 1 — 지침 경로와 검증
 
-- [ ] 새 `role_guided_shared_context.py`와 `test_role_guided_shared_context.py`를 TDD로 구현한다. 기존 파일은 불변이다. 기존 runtime/frame builder를 공유하고 복잡한 전체 validator를 복제하지 않는 작은 adapter를 사용한다. 실제 dynamic strict schema·본문/지침/identity·단일 요청/수리0·현재 source/receipt/profile·위변조/unchecked nested/subclass 거부·한도/사용량/클라이언트 수명·preflight와 v1 body 불변을 검증한다. 역할/상위·하위 범위는 독립 합성 출력의 전체 재구성으로 검증하되 mock을 모델의 의미 판단 증거로 사용하지 않는다.
-- [ ] 독립 태스크·전체 검토와 전체 QA를 실행하고 기존 코드/증거 보존을 확인한다. 후속 실제 의미 인수/충분한 출력 용량·앱 통합은 미완료로 남긴다.
+- [x] 새 `role_guided_shared_context.py`와 `test_role_guided_shared_context.py`를 TDD로 구현한다. 기존 파일은 불변이다. 기존 runtime/frame builder를 공유하고 복잡한 전체 validator를 복제하지 않는 작은 adapter를 사용한다. 실제 dynamic strict schema·본문/지침/identity·단일 요청/수리0·현재 source/receipt/profile·위변조/unchecked nested/subclass 거부·한도/사용량/클라이언트 수명·preflight와 v1 body 불변을 검증한다. 역할/상위·하위 범위는 독립 합성 출력의 전체 재구성으로 검증하되 mock을 모델의 의미 판단 증거로 사용하지 않는다.
+- [x] 독립 태스크·전체 검토와 전체 QA를 실행하고 기존 코드/증거 보존을 확인한다. 후속 실제 의미 인수/충분한 출력 용량·앱 통합은 미완료로 남긴다.
+
+## 검증 기록
+
+실행 `f8a235763b0b2442f47f8b329c681d4cb396ffaa`에서 전체7,049개(Python6,229+JavaScript820)와 정적 검사·빌드·OpenAPI 검사를 통과했다. 기존417실행/설정 파일과 이전 실제 증거98개를 보존했다. 실제 모델 호출·앱/서버/main 변경0이다. 합성 출력 재구성/지침 전송은 모델이 실제 자료의 의미를 개선했다는 증거가 아니며 미관측 자료·충분한 출력 인수는 후속이다.
+
+기존4자료의 원문 전체를 유지한 새 지침 preflight는 모두 수용했다. envelope는18,865/17,387/17,799/17,697이며20,000 한도를 유지했다. 실제 SDK 형식의 빈 모의 응답4회로 요청·wrapper만 확인했고 실제 모델 호출은0이다. 최대 record/장문 역할의 충분한 출력이나 의미 개선은 확인하지 않았다.
+
+설치된 SDK는 사용량 초과를 public 응답 capture 이전에 거부할 수 있다. 이 경우 known_usage=null이며 무료라는 뜻이 아니다. 원래 runtime을 보존하고 알려진 사용량이 남는 오류와 구분한다.
