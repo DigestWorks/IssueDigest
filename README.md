@@ -1,5 +1,7 @@
 # IssueDigest
 
+현재 연구: [동일 계약 추론 비교](docs/research/measurement-reasoning-comparison.md). 네 시도 중 반환2개 모두 의미 미충족·다른2개 미판정으로 설정/앱을 바꾸지 않았다. [공유 측정 맥락](docs/changes/shared-measurement-context.md)을 다음 구현으로 설계했다. 실행 코드는 불변이다.
+
 현재 구현: [측정 범위 생성·문장 상태 근거](docs/changes/measurement-frame-generation.md). 새 범위 계약과 단일 요청을 연결하고 전체6,667개 검사를 통과했다. 실제4회는 수치17개를 보존했지만 의미 기준0/4로 앱 적용을 보류한다. [결과·남은 오류](docs/research/measurement-frame-generation-acceptance.md)를 보존한다.
 
 현재 구현: [측정 대상·적용 범위 분리](docs/changes/measurement-scope-contract.md). 같은 대상의 지역·집단·기관 범위를 별도 원문으로 연결하는 순수 계약이다. 신규207/전체6,544개 구조 검사를 통과했지만 AI 선택/상태 근거·미관측 자료·앱 연결은 후속이다. 새 모델 호출과 앱 변경은 없다.

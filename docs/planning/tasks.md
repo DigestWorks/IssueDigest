@@ -1,3 +1,10 @@
+## 의미 품질 · 현재
+
+- [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.
+- [x] [공유 측정 맥락](../changes/shared-measurement-context.md) 다음 구현 설계와 비용/제한 기록(코드 구현 아님).
+- [ ] 공유 측정 맥락·보고 사건·수치 연결의 순수 계약과 기존 프레임 확장 구현.
+- [ ] 새 provider/용량 검증·미관측 실제 자료 인수, 전체 앱 예산/내구 실행 확인 뒤 반영 판단.
+
 ## 측정 범위 생성 · 현재
 
 - [x] [생성 SDK](../changes/measurement-frame-generation.md): 분리 범위/발표자와 전체 문장 상태 근거, 기존 요청 공유·호환 보존.
