@@ -30,7 +30,7 @@ def api():
     return importlib.import_module(name)
 
 
-def response(data=None, *, inputs=100, outputs=30, error=None, text=False):
+def response(data=None, *, inputs=100, outputs=30, error=None, text=False, completion=None):
     calls = []
 
     def respond(messages, info):
@@ -46,6 +46,7 @@ def response(data=None, *, inputs=100, outputs=30, error=None, text=False):
                 )
             ],
             usage=RequestUsage(input_tokens=inputs, output_tokens=outputs),
+            **(completion or {}),
         )
 
     return FunctionModel(respond), calls
@@ -95,6 +96,35 @@ def test_new_generation_inclusive_total_and_output_cap_retains_raw_overflow(
         assert caught.value.known_usage.model_dump() == dict(
             input_tokens=inputs, output_tokens=outputs, requests=1
         )
+
+
+@pytest.mark.parametrize(
+    "completion,accepted",
+    [
+        ({}, True),
+        ({"finish_reason": "tool_call", "state": "complete"}, True),
+        ({"state": "incomplete"}, False),
+        ({"finish_reason": "length"}, False),
+        ({"provider_details": {"finish_reason": "max_output_tokens"}}, False),
+        ({"provider_details": {"finish_reason": "incomplete"}}, False),
+    ],
+)
+def test_valid_tool_json_respects_explicit_incompletion_and_preserves_cap_usage(
+    completion, accepted
+):
+    mod = api()
+    model, calls = response(outputs=1400, completion=completion)
+    framer = mod.create_role_alias_framer(model)
+    if accepted:
+        assert mod.run_role_alias_framer(framer, source()).usage.output_tokens == 1400
+    else:
+        with pytest.raises(mod.RoleAliasGenerationError) as caught:
+            mod.run_role_alias_framer(framer, source())
+        assert caught.value.may_have_started is True
+        assert caught.value.known_usage.model_dump() == dict(
+            input_tokens=100, output_tokens=1400, requests=1
+        )
+    assert len(calls) == 1
 
 
 @pytest.mark.parametrize(
@@ -244,7 +274,17 @@ def test_preflight_measures_actual_normalized_schema_and_exact_boundary(monkeypa
     assert type(output) is tools[0].output and usage.output_tokens == 18
 
 
-def test_mock_http_wire_has_alias_only_schema_cap_no_store_and_borrowed_lifecycle(sync_model_loop):
+@pytest.mark.parametrize(
+    "status,incomplete_details",
+    [
+        ("completed", None),
+        ("incomplete", {"reason": "max_output_tokens"}),
+        ("incomplete", None),
+    ],
+)
+def test_mock_http_wire_has_alias_only_schema_cap_no_store_and_borrowed_lifecycle(
+    sync_model_loop, status, incomplete_details
+):
     import httpx2 as httpx
     from openai import AsyncOpenAI
     from pydantic_ai.models.openai import OpenAIResponsesModel
@@ -261,7 +301,8 @@ def test_mock_http_wire_has_alias_only_schema_cap_no_store_and_borrowed_lifecycl
                 "id": "resp_synthetic",
                 "object": "response",
                 "created_at": 0,
-                "status": "completed",
+                "status": status,
+                "incomplete_details": incomplete_details,
                 "model": "synthetic-model",
                 "output": [
                     {
@@ -273,7 +314,7 @@ def test_mock_http_wire_has_alias_only_schema_cap_no_store_and_borrowed_lifecycl
                         "status": "completed",
                     }
                 ],
-                "usage": {"input_tokens": 100, "output_tokens": 30, "total_tokens": 130},
+                "usage": {"input_tokens": 100, "output_tokens": 1400, "total_tokens": 1500},
             },
         )
 
@@ -285,8 +326,17 @@ def test_mock_http_wire_has_alias_only_schema_cap_no_store_and_borrowed_lifecycl
             provider=OpenAIProvider(openai_client=provider_client),
             settings={"temperature": 0.25},
         )
-        got = mod.run_role_alias_framer(mod.create_role_alias_framer(model), source())
-        assert got.usage.output_tokens == 30 and not client.is_closed
+        framer = mod.create_role_alias_framer(model)
+        if status == "completed":
+            assert mod.run_role_alias_framer(framer, source()).usage.output_tokens == 1400
+        else:
+            with pytest.raises(mod.RoleAliasGenerationError) as caught:
+                mod.run_role_alias_framer(framer, source())
+            assert caught.value.may_have_started is True
+            assert caught.value.known_usage.model_dump() == dict(
+                input_tokens=100, output_tokens=1400, requests=1
+            )
+        assert not client.is_closed
         assert len(requests) == 1
         wire = requests[0]
         assert (

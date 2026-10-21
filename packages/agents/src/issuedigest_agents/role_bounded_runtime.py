@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel
 from pydantic_ai import Agent, ToolOutput, UsageLimits, capture_run_messages
-from pydantic_ai.messages import ModelMessage
+from pydantic_ai.messages import ModelMessage, ModelResponse
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIResponsesModelSettings
 
@@ -95,6 +95,19 @@ def _run_role_request(
             or known.input_tokens + known.output_tokens > total_limit
         ):
             raise ValueError("Invalid single-stage raw usage")
+        # Valid tool arguments do not imply completion. Responses API preserves
+        # raw "incomplete" in provider_details even when the SDK state is complete.
+        if any(
+            isinstance(response, ModelResponse)
+            and (
+                response.state != "complete"
+                or response.finish_reason == "length"
+                or (response.provider_details or {}).get("finish_reason")
+                in ("length", "max_output_tokens", "incomplete")
+            )
+            for response in observed.responses
+        ):
+            raise ValueError("Incomplete role response")
         if type(result.output) is not output_type:
             raise ValueError("Expected actual dynamic output")
         _canonical_models(result.output, output_type)
