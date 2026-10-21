@@ -1,6 +1,8 @@
 # 문서 안내·협업 방법
 
-현재 연구: [동일 계약 추론 비교](research/measurement-reasoning-comparison.md). 네 시도 중 반환2개 모두 의미 미충족·다른2개 미판정으로 설정/앱을 바꾸지 않았다. [공유 측정 맥락](changes/shared-measurement-context.md)을 다음 구현으로 설계했다. 실행 코드는 불변이다.
+현재 구현: [공유 측정 맥락](changes/shared-measurement-context.md). 공통 항목/범위·보고 사건을 명시 연결하고 목적을 조건과 분리하는 순수 adapter를 추가했다. 독립 검토와 전체6,916개 검사를 통과했다. 새 모델 호출0이며 provider 용량·미관측 의미 품질·앱 연결은 후속이다. 기존 결과와 요청 설정은 보존한다.
+
+현재 연구: [동일 계약 추론 비교](research/measurement-reasoning-comparison.md). 네 시도 중 반환2개 모두 의미 미충족·다른2개 미판정으로 설정/앱을 바꾸지 않았다. 공유 맥락의 설계 후 순수 구현은 위 현재 기록을 따르며, 이 연구 당시 실행 코드는 보존했다.
 
 현재 구현: [측정 범위 생성·문장 상태 근거](changes/measurement-frame-generation.md). 새 범위 계약과 단일 요청을 연결하고 전체6,667개 검사를 통과했다. 실제4회는 수치17개를 보존했지만 의미 기준0/4로 앱 적용을 보류한다. [결과·남은 오류](research/measurement-frame-generation-acceptance.md)를 보존한다.
 
