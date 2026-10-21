@@ -5,12 +5,24 @@ import importlib
 import importlib.util
 import json
 import socket
+import sys
 from uuid import uuid4
 
 import pytest
 from issuedigest_agents import numeric_candidates as v1
 from pydantic import Field, ValidationError
 from test_numeric_evidence import document
+
+
+@pytest.fixture(scope="module", autouse=True)
+def restore_new_module_imports():
+    # Frozen selection tests reload their models. Leave their dependent modules
+    # unloaded if this module introduced them, so later tests bind the current classes.
+    existing = set(sys.modules)
+    yield
+    for name in set(sys.modules) - existing:
+        if name.startswith("issuedigest_agents."):
+            sys.modules.pop(name, None)
 
 
 def sdk():
