@@ -1,3 +1,15 @@
+# 측정 범위 생성 · 구현·실제 인수 결과 · 2026-10-21
+
+[명세](../changes/measurement-frame-generation.md)·[제한 인수](../research/measurement-frame-generation-acceptance.md). source/QA353217e: 신규SDK120+M1독립검사3·focused515/agents2333·전체6667(Python5847/JS820)와 린트/타입/빌드/OpenAPI 계약 통과(실패/skip/warning0), 독립 태스크/전체 C0/I0/M0. 사전 동결 v1/scoped 실제 요청·결과 fixture와 과거 실제반환4개 재검증, 기존 다른408파일 불변을 확인했다.
+
+사전 고정 기존2+새 공식 실제인용2·신규4회/재시도0에서 반환4/거부0·필수 수치17개 보존이나 전체 의미 기존0/2·신규0/2다. 별도 범위 누락·대상/국가·보고자/운영자·보고 시제·목적/조건 혼동이 남았다. 원문72span 일치는 의미 인증이 아니다. 새 계약 기준이므로 과거1/2 판정을 소급 수정하거나 인과효과로 비교하지 않는다. 입력16201/출력2769/cache0·Standard 참고$0.0820375(청구 미검증), 네 번 상한 소진·추가 재호출0.
+
+첫 packet 초기 envelope20203을 호출 전에 원문/기준/schema/상한 변경 없이 새 일반 지침4217→3955 bytes로 압축했다. 최종19941/18368/17511/17880 중 첫 자료 여유59bytes라는 용량 제한을 보존한다. 다음은 문장/절 대상·범위·명시 보고 관계 표현과 역할별 검증 설계·용량/미관측 자료 인수다. 앱/서버/main/운영 변경0·Sites 반영 대기.
+
+# 측정 범위 생성·문장 상태 근거 · 착수 · 2026-10-21
+
+[명세](../changes/measurement-frame-generation.md)·[호출 전 기준](../research/measurement-frame-generation-acceptance.md). 새 범위 계약을 별도 단일 모델 요청에 연결하고 상태 근거는 수치가 포함된 전체 문장 ID로 선택한다. 기존 요청 runtime만 공유하며 원래 v1/scoped wire/result를 사전 동결한다. 기존 실행408파일은 보존하고 이전 경미한 상한 테스트를 독립 검증으로 보강한다. 고정 기존2+신규 실제인용2·총최대4회/각1회/retry0 기준을 호출 전에 고정했다. 현재 모델0·앱/서버/main/운영 변경0, 구현·독립 검토·전체 QA 진행 중·Sites 대기.
+
 # 측정 대상·적용 범위 계약 · Sites v85 영수증 · 2026-10-21 KST
 
 [Draft PR63](https://github.com/DigestWorks/IssueDigest/pull/63)은 PR62 기반이다. Sites v85 native succeeded(2026-10-21T11:11:58.641930+09:00), source97eea157ae55fa4a78ede91caad33b3f9a1d030b, 저장소 사본45ee3a03a2b1b705a8d39a48be669a946c5a8e34. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v84 보존·HTML70/로컬 링크·asset·anchor1379/공개 텍스트201와 private source/ID20종 포함210파일 제외 검사를 확인했다. 기존 레이아웃 텍스트/기록 변경이므로 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다. 첫 source 열기 때 DNS 오류가 있었으나 재시도는 성공했고 새 AI 요청은 없다.
