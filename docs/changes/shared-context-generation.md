@@ -37,3 +37,7 @@ controller의 MockTransport4회는 실제 SDK 전송 형식/storeFalse/max_outpu
 지침·자료·해시 일치는 소비된 source의 일관성 증거이며 모든 metadata의 서명이 아니다. 기존 `_prompt`가 전송하지 않는 title만의 변경은 기존대로 허용한다. 사용량 초과 등 일부 SDK 중단은 기존 runtime에서 응답 capture가 남지 않을 수 있어 known_usage=null이며 무료가 아니다. runtime을 바꾸지 않았고 명시 사용량이 남은 거부는 보존한다.
 
 다음은 새 미관측 실제 자료·의미 기준과 호출 상한을 사전 고정한 인수다. 앱 연결 전에는 전체 예산·현재 권한·내구 실행/복구·브리핑 품질을 별도로 확인한다. 구조 성공·빈 mock 반환을 실제 AI 의미 성공으로 표시하지 않는다.
+
+## 별도 실제 인수 후속
+
+[공유 맥락 실제4회](../research/shared-context-acceptance.md)는 기존2+새2 자료에 동일 snapshot/low로 수행했고4응답 중 반환1의 의미0/1·거부3미판정이었다. 이번 SDK 코드/지침/schema는 불변이고 앱 적용은 보류한다. 모의 전송/합성 검사와 실제 실패를 구분하며 [측정 그룹 출력 제안](measurement-group-output.md)은 아직 미구현이다.
