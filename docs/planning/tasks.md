@@ -8,10 +8,13 @@
 - [x] [복합 단위·근사 표현 후보 v2](../changes/numeric-candidates-v2.md) 순수 계약/합성·오프라인 재구성·독립 검토, v1/과거 결과 보존.
 - [x] [v2 후보의 생성 SDK 연결](../changes/shared-context-v2.md): 별도 v2 결과/전체 재구성·단일 bounded 요청·합성/오프라인 용량 검증.
 - [x] [v2 생성 경로 제한 인수](../research/shared-context-v2-acceptance.md): 알려진2+새2 검토, 사전 용량 차단1·실제3반환/의미1/3, 원래 기준·비용 보존.
-- [x] [원문 중복 축소·역할 검수 설계](../changes/compact-source-scope-audit.md): 완전한 원문 복원·차단 자료20,692→18,575의 오프라인 용량, 별도 검수/합산 예산·미완료 경계 구체화(새 SDK 미구현).
-- [ ] 별도 compact 생성 SDK: canonical packet/원문 복원·새 profile/단일 요청·저장 전체 재검증.
-- [ ] 별도 역할 검수 SDK: 선택한 네 역할의 누락/추가/모호성·무수리 진단·합산 total20,000/output2,500·오류/미완료 거부.
-- [ ] 새 계약의 합성·원문 전체 용량·사전 고정 실제 의미/출력·전체 앱 인수.
+- [x] [원문 중복 축소·역할 검수 설계](../changes/compact-source-scope-audit.md): 완전한 원문 복원·차단 자료20,692→18,575의 오프라인 용량, 별도 검수/합산 예산·미완료 경계 구체화(당시 설계).
+- [x] 별도 compact 생성 SDK: canonical packet/원문 복원·새 profile/단일 요청·저장 전체 재검증.
+- [x] 별도 역할 검수 SDK: 선택한 네 역할의 누락/추가/모호성·무수리 진단·합산 total20,000/output2,500·오류/미완료 거부.
+- [x] 새 계약의 합성·원문 전체 오프라인 용량 확인.
+- [x] 두 SDK 독립 검토·지적 수정 재검토·전체7,366개QA·보존 manifest.
+- [ ] PR/Sites 인계 영수증.
+- [ ] 사전 고정 실제 의미/출력·전체 앱 예산/권한/내구 실행 인수.
 
 
 - [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.
