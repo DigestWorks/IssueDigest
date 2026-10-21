@@ -127,6 +127,14 @@ def _guard(value: Any, annotation: Any) -> None:
     _canonical_models(value, annotation)
     if isinstance(value, BaseModel) or isinstance(value, tuple):
         _actual_models(value, annotation)
+    # Generations reuse this guard before their first dump. Check an embedded
+    # exact role frame here too, before old nested defaults can restore markers.
+    if type(value) is RoleAliasFrame:
+        _require_frame_markers(value)
+    elif isinstance(value, BaseModel):
+        for child in value.__dict__.values():
+            if type(child) is RoleAliasFrame:
+                _require_frame_markers(child)
 
 
 def _anchor(value: RoleAliasAnchor | None) -> dict[str, Any] | None:
@@ -401,9 +409,15 @@ def build_role_alias_frame(
         raise RoleAliasContractError("Invalid role alias input") from None
 
 
-def _require_frame_markers(value: dict[str, Any]) -> None:
-    for frame in (value, value["frame"]):
-        if not {"profile", "status"} <= frame.keys():
+def _require_frame_markers(value: RoleAliasFrame | dict[str, Any]) -> None:
+    def fields(node: Any) -> dict[str, Any]:
+        return node.__dict__ if isinstance(node, BaseModel) else node
+
+    outer = fields(value)
+    canonical = fields(outer["frame"])
+    index = fields(canonical["candidate_index"])
+    for node in (outer, canonical, index):
+        if not {"profile", "status"} <= node.keys():
             raise ValueError("Missing stored frame markers")
 
 
@@ -414,8 +428,7 @@ def validate_role_alias_frame(
     try:
         _guard(source, Source)
         _guard(result, RoleAliasFrame)
-        if isinstance(result, dict):
-            _require_frame_markers(result)
+        _require_frame_markers(result)
         checked = _read(RoleAliasFrame, result)
         expected = _build(source, checked.input)
         if checked != expected:

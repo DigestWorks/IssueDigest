@@ -13,7 +13,7 @@ from pydantic_ai.messages import ModelResponse, TextPart, ToolCallPart
 from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.usage import RequestUsage
 from test_numeric_evidence import document
-from test_role_alias_contract import packet, source
+from test_role_alias_contract import packet, source, without_frame_marker
 from test_shared_measurement_context_v2 import (
     restore_introduced_modules as restore_introduced_modules,
 )
@@ -184,6 +184,24 @@ def test_stored_generation_rejects_markers_receipt_source_and_actual_type_drift(
         src = document("이용자 약\t37여 명 내외 증가, 학교 83개교 감소. 추가.")
     with pytest.raises(mod.RoleAliasGenerationError):
         mod.validate_role_alias_generation(src, raw)
+
+
+@pytest.mark.parametrize("path", [(), ("frame",), ("frame", "candidate_index")])
+@pytest.mark.parametrize("marker", ["profile", "status"])
+@pytest.mark.parametrize("actual", [False, True])
+def test_generation_missing_nested_markers_rejected_before_raw_or_actual_default_restoration(
+    path, marker, actual
+):
+    mod = api()
+    got = run()
+    altered_frame = without_frame_marker(got.frame, path, marker, actual)
+    if actual:
+        altered = got.model_copy(update={"frame": altered_frame})
+    else:
+        altered = got.model_dump(mode="json")
+        altered["frame"] = altered_frame
+    with pytest.raises(mod.RoleAliasGenerationError):
+        mod.validate_role_alias_generation(source(), altered)
 
 
 def test_actual_dynamic_output_and_nested_types_are_checked_before_conversion(monkeypatch):

@@ -278,3 +278,25 @@ def test_saved_frame_rebuilds_markers_original_frame_and_change(mutation):
         del raw["frame"]["profile"]
     with pytest.raises(mod.RoleAliasContractError):
         mod.validate_role_alias_frame(src, raw)
+
+
+def without_frame_marker(frame, path, marker, actual):
+    altered = frame.model_copy(deep=True) if actual else frame.model_dump(mode="json")
+    node = altered
+    for part in path:
+        node = node.__dict__[part] if actual else node[part]
+    del (node.__dict__ if actual else node)[marker]
+    return altered
+
+
+@pytest.mark.parametrize("path", [(), ("frame",), ("frame", "candidate_index")])
+@pytest.mark.parametrize("marker", ["profile", "status"])
+@pytest.mark.parametrize("actual", [False, True])
+def test_saved_frame_missing_markers_rejected_before_raw_or_actual_default_restoration(
+    path, marker, actual
+):
+    mod = api()
+    got = mod.build_role_alias_frame(source(), packet())
+    altered = without_frame_marker(got, path, marker, actual)
+    with pytest.raises(mod.RoleAliasContractError):
+        mod.validate_role_alias_frame(source(), altered)
