@@ -1,3 +1,7 @@
+# 범위·상태 근거 지침 · 착수 · 2026-10-21
+
+[명세](../changes/scoped-contextual-generation.md)·[호출 전 기준](../research/scoped-contextual-generation-acceptance.md). 기존 v1 요청을 공유 helper로 좁게 추출하고 새 선택 지침/version만 분리한다. 실제값/지역/문구 하드코딩과 한 글자 차단 대신 일반적인 대상 범위/상태 근거 선택을 평가한다. 수정 전 합성 v1 wire/result 동결, 다른 기존404파일 보존과 기존 실제응답/기준을 유지한다. 기존 실제인용2+다른분야 새 합성2·총4회 상한/사전 기준을 고정했으며 독립 holdout/실제뉴스 표본이 아니다. 현재 모델0·앱/서버/main/운영 변경0, 구현/검증·Sites 대기.
+
 # 문맥 프레임 생성 · Sites v83 출판 영수증 · 2026-10-20
 
 [Draft PR61](https://github.com/DigestWorks/IssueDigest/pull/61)은 PR60 기반이다. Sites v83 native succeeded(2026-10-20T12:14:08.116964+00:00); Site source991d5be9e3b6f16cad76d496552676d52b2e3d1e·저장소 사본0989176fedbedac96526e127e04a82c88773f1c9. 사본 이후 영수증은 원본 저장소를 따른다. 이전v82 보존·HTML68/로컬 링크·asset·anchor1342/공개 텍스트193과 private source/ID20종 포함204파일 제외 검사를 통과했다. 첫 archive 업로드 네트워크 오류 후 같은 archive로 저장/출판했으며 실제 모델 추가 호출은 없다. 텍스트만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
