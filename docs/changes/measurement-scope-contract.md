@@ -17,8 +17,12 @@
 ## Task 1: implement and verify the additive pure contract
 
 - [x] Implement the complete Global Constraints above with TDD: record real RED, minimal implementation, focused GREEN and self-review in the report. Read relevant existing helpers/tests and skill TDD first. Change only two executable files named above plus check this task after full implementation. No subagents from implementer. No additional QA container, broad full gate, actual API calls or commits outside this worktree.
-- [ ] Controller: independent task review and broad final review, whole repository gate on owned PostgreSQL QA, frozen existing-file checks; update canonical plan/progress/requirements/decisions and Draft PR. Sites update or explicit pending receipt. Actual model selection/status-evidence candidate grammar/holdout/app integration remain separate next work, not implemented or solved by this pure contract.
+- [x] Controller: independent task review and broad final review, whole repository gate on owned PostgreSQL QA, frozen existing-file checks; update canonical plan/progress/requirements/decisions and Draft PR. Sites update or explicit pending receipt. Actual model selection/status-evidence candidate grammar/holdout/app integration remain separate next work, not implemented or solved by this pure contract.
 
 ## Scope and decisions
 
 This is the next representation prerequisite, not another prompt-only trial. We do not spend new model calls before a versioned provider schema exists. Status-text particle failures remain unresolved. Original actual4 results (known1/2, synthetic1/2) and costs remain unchanged. Current development app ab6654e/v9 and main/production hold are preserved.
+
+## 구현 검증
+
+source4524212, 신규207/focused615/agents2210/전체6544(Python5724+JS820), 린트·타입·빌드·API 계약 통과. 독립 태스크/전체 검토 C0/I0/M1(상한 초과 테스트의 단독 경계 검증 보강은 후속). 기존408 실행·설정 파일과 이전 실제 evidence18파일 보존. custom 순서의 기존 reload 오류131개를 새 테스트 없는 control로 확인했으며 정상 collection은 통과했다. 새 모델0이며 실제 역할 의미·상태 근거 실패를 고쳤다고 주장하지 않는다.
