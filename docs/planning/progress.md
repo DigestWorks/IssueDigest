@@ -4,7 +4,7 @@
 
 코드 `54afcd96cba638bd3dddecfbcaf0419acf02c4a7`의 focused103/agents2685·전체7,019개(Python6,199/JavaScript820)와 lint/format/typecheck/build/OpenAPI를 통과했다. 독립 태스크/최종 검토와 전체QA 증거를 보존한다. 기존415 실행/설정 파일·이전97증거 불변을 확인했다.
 
-기존4자료 원문 전체의 오프라인 요청 envelope는18,119/16,641/15,895/16,237로20,000 안이다. controller mockHTTP4회는 실제 전송 형식과 빈 구조 응답만 검사했다. 실제 모델 호출0·모의 usage는 비용이 아니며 의미 성공이나 충분한 출력 용량으로 해석하지 않는다. title-only 변화/일부 overflow의 nullable usage는 기존 경계 그대로다. 다음은 사전 고정 미관측 실제자료 의미/출력 인수, 이후 전체 앱 예산/권한·내구 실행/복구다. 앱/서버/main/운영 변경0이다. Draft PR·Sites/이전v88 보존 영수증은 후속 확정한다.
+기존4자료 원문 전체의 오프라인 요청 envelope는18,119/16,641/15,895/16,237로20,000 안이다. controller mockHTTP4회는 실제 전송 형식과 빈 구조 응답만 검사했다. 실제 모델 호출0·모의 usage는 비용이 아니며 의미 성공이나 충분한 출력 용량으로 해석하지 않는다. title-only 변화/일부 overflow의 nullable usage는 기존 경계 그대로다. 다음은 사전 고정 미관측 실제자료 의미/출력 인수, 이후 전체 앱 예산/권한·내구 실행/복구다. 앱/서버/main/운영 변경0이다. [Draft PR67](https://github.com/DigestWorks/IssueDigest/pull/67)은 PR66 기반이다. Sites/이전v88 보존 영수증은 후속 확정한다.
 
 # 공유 측정 맥락 · Sites v88 영수증 · 2026-10-21 KST
 
