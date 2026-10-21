@@ -1,3 +1,10 @@
+## 측정 대상·적용 범위 분리 · 현재
+
+- [ ] 경미한 테스트 보강: 상한 초과 5/13/17 입력을 직접 strict model에서 거부하는지 독립 검증(현재 상한은 구현됨; 중복 거부가 테스트 실패 원인을 가릴 수 있음).
+
+- [x] [순수 계약](../changes/measurement-scope-contract.md): 기존 대상/발표자와 별개 범위 anchor, 원문 재구성·위변조 거부·전체 회귀·독립검토.
+- [ ] 새 provider와 상태 근거 후보 계약, 사전 고정 미관측 자료 의미 인수. 기존 실제4회/기준/실패는 보존.
+
 # 현재 구현 작업 목록
 
 2026-10-21 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.

@@ -1,3 +1,19 @@
+# 측정 대상·적용 범위 계약 · Sites v85 영수증 · 2026-10-21 KST
+
+[Draft PR63](https://github.com/DigestWorks/IssueDigest/pull/63)은 PR62 기반이다. Sites v85 native succeeded(2026-10-21T11:11:58.641930+09:00), source97eea157ae55fa4a78ede91caad33b3f9a1d030b, 저장소 사본45ee3a03a2b1b705a8d39a48be669a946c5a8e34. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v84 보존·HTML70/로컬 링크·asset·anchor1379/공개 텍스트201와 private source/ID20종 포함210파일 제외 검사를 확인했다. 기존 레이아웃 텍스트/기록 변경이므로 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다. 첫 source 열기 때 DNS 오류가 있었으나 재시도는 성공했고 새 AI 요청은 없다.
+
+소유 SDD를 private 보존 후 소유 디렉터리만 제거했고 전용 QA도 identity/label/image 확인 후 제거했다. 기존 worktree/브랜치·다른 자원을 보존했다. source4524212 이후 실행 변경은 없으며 전체6544개 검사 증거는 유효하다. C0/I0/M1 경미한 경계 테스트 보강은 작업 목록에 남겼다. 새 모델0·원래 실제 결과/기준/실패·앱ab6654e/v9·main/운영 유예를 유지한다.
+
+# 측정 대상·적용 범위 계약 · 구현·검증 · 2026-10-21
+
+[명세](../changes/measurement-scope-contract.md). source4524212·QA4524212: 신규207/focused615/agents2210·전체6544(Python5724/JS820)와 린트·타입·빌드·계약 검사 통과(실패/skip/warning0). 독립 태스크/전체 검토 C0/I0/M1(상한 초과 테스트의 단독 경계 검증 보강은 후속). 기존 실행·설정408파일과 이전 실제 evidence18파일 불변을 확인했다.
+
+지역·집단·기관 범위를 측정 대상·명시 발표자와 별도 원문에 연결하고, 같은 인용 밖/중복 위치·전체 wrapper 변조를 거부한다. 합성 구조 검증은 실제 의미 품질이 아니다. custom 순서의 기존 reload 오류131개는 새 테스트 제외 control에서도 동일했고 정상 agents/전체 순서는 통과했다. 원래 기준/실패를 보존하며 새 모델0·앱/서버/main/운영 변경0이다. 다음은 provider 연결·상태 근거 후보·미관측 실제자료 인수다. Sites v85 출판 완료.
+
+# 측정 대상·적용 범위 계약 · 착수 · 2026-10-21
+
+[명세](../changes/measurement-scope-contract.md). 측정 대상과 지역·집단·기관 범위를 별도 정확 원문으로 저장하고 발표자와 구분하는 순수 계약을 추가한다. 기존 실행408파일·원래 실제 결과/기준을 보존하며 기존 프레임/문맥 resolver를 재사용한다. 단어 차단이나 자동 수정은 하지 않는다. 구현·독립검토·전체 검증 진행 중, Sites 반영 대기. 새 모델0·앱/서버/main/운영 변경0. 상태 근거 후보·새 provider 연결·미관측 자료 인수는 후속이다.
+
 # 범위·상태 지침 · Sites v84 출판 영수증 · 2026-10-21 KST
 
 [Draft PR62](https://github.com/DigestWorks/IssueDigest/pull/62)은 PR61 기반이다. Sites v84 native succeeded(2026-10-21T10:44:32.569785+09:00); Site sourcef59474c10c71efe7c9c8b8c4d682800a1139d283·저장소 사본3358fcd1ec029348335048ae712a30aedbf141fc. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v83 보존·HTML69/로컬 링크·asset·anchor1360/공개 텍스트198과 private source/ID20종 포함209파일 제외 검사를 확인했다. 기존 레이아웃의 텍스트/기록만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
