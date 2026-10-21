@@ -36,4 +36,4 @@ Ruling: 단어/문자 길이 차단 대신 의미 선택 지침을 평가한다 
 
 ## 검증 상태
 
-sourcebb8bce6/전체6240 baseline. OpenSpec rootnull로 SDD만 적용한다. 별도 사전 기준과 총4회 상한(기존 실제인용2+다른분야 새 합성2)을 고정하고 독립검토·전체QA 후에만 실제 호출한다. 새 합성 자료도 개발자가 만든 검증으로 독립 holdout/실제 뉴스 표본이라 부르지 않는다. 앱/서버/main/운영 유예, Sites 반영 대기.
+구현 sourceb3e1e46. 신규97개+원래v1 88개=focused185·agents2003·Ruff/format352파일·mypy139파일 통과. 수정 전 v1 wire/result 합성 fixture bytes와 지침/prompt/raw+normalized schema/설정/한도/결과 호환을 확인했다. 태스크 독립 검토 C0/I0/M0, 최종 독립 검토 C0/I0/M0·전용QA9589526의 전체6,337개(Python5517/JS820)·린트/타입/빌드/OpenAPI 계약을 실패/skip/warning0으로 통과했다. 다른 기존404파일은 동일하다. sourcebb8bce6/전체6240 baseline·OpenSpec rootnull로 SDD만 적용했다. [실제 인수](../research/scoped-contextual-generation-acceptance.md)는 사전 기준과 총4회 상한(기존 실제인용2+다른분야 새 합성2)을 고정하고 독립검토·전체QA 후 실행했다. 반환4/거부0·기존1/2/새합성1/2 충족이며 조사 상태 근거와 범위/발표자 혼동 실패를 보존한다. 원래v1실제결과2개도 오프라인 재검증했다. 새 합성 자료도 개발자가 만든 검증으로 독립 holdout/실제 뉴스 표본이라 부르지 않는다. 앱/서버/main/운영 유예, Sites 반영 대기.

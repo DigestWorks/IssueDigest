@@ -1,6 +1,12 @@
+# 범위·상태 지침 · 구현·제한 실제 인수 · 2026-10-21
+
+[명세](../changes/scoped-contextual-generation.md)·[실제 인수](../research/scoped-contextual-generation-acceptance.md). sourceb3e1e46/QA9589526·신규97/focused185/agents2003·전체6337(Python5517/JS820)·정적검사/빌드/계약과 독립 태스크/전체 C0/I0/M0 통과(실패/skip/warning0). v1 사전 동결 wire/result fixture와 원래 실제반환2개 재검증, 다른 기존404파일 보존을 확인했다.
+
+사전 고정4회/각1회/retry0에서 반환4/거부0·기존1/2(이전0/2)와 새합성1/2가 의미 기준을 충족했다. A지역범위/D기업규모 지표는 보존됐으나 B조사 상태근거/C지역·기관 범위 누락과 발표자 혼동이 남았다. 원문81span 재검증은 의미 인증이 아니다. Input16737/output2840/cache1408·Standard 참고$0.0812745(청구미검증), 원래 실패/gold·호출전 합성C단위 수정 이력을 보존했다. 앱/서버/main/운영0·다음은 대상/범위/발표자 분리와 상태 근거 후보 계약·미관측 실제자료 인수다. Sites/PR 영수증 대기.
+
 # 범위·상태 근거 지침 · 착수 · 2026-10-21
 
-[명세](../changes/scoped-contextual-generation.md)·[호출 전 기준](../research/scoped-contextual-generation-acceptance.md). 기존 v1 요청을 공유 helper로 좁게 추출하고 새 선택 지침/version만 분리한다. 실제값/지역/문구 하드코딩과 한 글자 차단 대신 일반적인 대상 범위/상태 근거 선택을 평가한다. 수정 전 합성 v1 wire/result 동결, 다른 기존404파일 보존과 기존 실제응답/기준을 유지한다. 기존 실제인용2+다른분야 새 합성2·총4회 상한/사전 기준을 고정했으며 독립 holdout/실제뉴스 표본이 아니다. 현재 모델0·앱/서버/main/운영 변경0, 구현/검증·Sites 대기.
+[명세](../changes/scoped-contextual-generation.md)·[호출 전 기준](../research/scoped-contextual-generation-acceptance.md). 기존 v1 요청을 공유 helper로 좁게 추출하고 새 선택 지침/version만 분리한다. 실제값/지역/문구 하드코딩과 한 글자 차단 대신 일반적인 대상 범위/상태 근거 선택을 평가한다. 수정 전 합성 v1 wire/result 동결, 다른 기존404파일 보존과 기존 실제응답/기준을 유지한다. 기존 실제인용2+다른분야 새 합성2·총4회 상한/사전 기준을 고정했으며 독립 holdout/실제뉴스 표본이 아니다. sourceb3e1e46·신규97/focused185/agents2003와 정적 검사·태스크 독립 검토 통과. 기존404파일과 v1 wire/result 호환을 확인했고 전용QA/최종검토 진행 중이다. 모델0·앱/서버/main/운영 변경0·Sites 대기.
 
 # 문맥 프레임 생성 · Sites v83 출판 영수증 · 2026-10-20
 
