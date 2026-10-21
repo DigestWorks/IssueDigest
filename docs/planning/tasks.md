@@ -1,5 +1,10 @@
 ## 의미 품질 · 현재
 
+- [x] [공유 맥락 실제 제한 인수](../research/shared-context-acceptance.md): 기존2+새2·각1회/4응답, 반환1의 의미0/1·거부3미판정·참고 비용/상한 소진 보존.
+- [x] [측정 그룹 출력](../changes/measurement-group-output.md) 다음 설계 제안 기록(미구현).
+- [ ] 공유/개별 범위 이중 입력과 임의 참조를 줄이는 새 provider 계약의 명세·구현·실제 의미/충분한 출력 인수. 기존 실패 재판정/자동 수리 없이 앱 통합은 별도.
+
+
 - [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.
 - [x] [공유 측정 맥락](../changes/shared-measurement-context.md) 다음 구현 설계와 비용/제한 기록(코드 구현 아님).
 - [x] [공유 측정 맥락](../changes/shared-measurement-context.md)·보고 사건·수치 연결의 순수 계약/전체 재구성·합성 검사·독립 검토 완료. 새 모델/앱 적용과 구분.

@@ -539,3 +539,5 @@ proposal=None이면 outcome=rejected, checks는 빈 tuple, received_facts/propos
 `issuedigest_agents.shared_context_generation`의 `shared_context_prompt(source)`, `create_shared_context_framer(model)` / `run_shared_context_framer(handle, source)`, `validate_shared_context_generation(source, result)`를 사용한다. 필수 caller-owned Model을 빌리고 기존 공통 runtime으로 strict tool1회만 요청한다. 고정 context/event 슬롯·현재 수치/문장/eligible enum과 원래 공유 맥락/목적을 보존하며 실제 nested 타입을 좁히기 전에 검사한다. 요청 예산20,000/출력2,500·timeout30·no-store·무재시도/수리와 nullable 오류 usage를 유지한다.
 
 [명세](../../docs/changes/shared-context-generation.md). 전체7,019개 검사와4자료 오프라인 요청 용량을 확인했다. 빈 mock 출력/모의 usage는 실제 모델 품질/청구가 아니다. 충분한 출력·미관측 의미 품질·앱 권한/복구는 후속이다. prompt 해시는 소비된 원문/후보의 일관성 검사이며 전송하지 않는 title 서명이나 진실 인증은 아니다.
+
+공유 맥락 SDK의 [별도 실제4회 인수](../../docs/research/shared-context-acceptance.md)는 반환1의 의미0/1·구조 거부3미판정이다. 원래417 실행/설정 파일은 그대로이며 기존7,019개 검사 증거를 유지한다. 다음 측정 그룹 출력은 설계 제안이며 새 SDK/앱 적용은 아니다.
