@@ -1,3 +1,11 @@
+## 게시·정리 · 두 SDK · 2026-10-21
+
+[Draft PR76](https://github.com/DigestWorks/IssueDigest/pull/76)은 PR75 설계 브랜치 기반·미병합이며 앱 첨부를 완료했다. 최초 push의 일시 DNS 실패는 설정 변경 없이 재시도해 복구했다. 최종 코드9e5f784/전체7,366개 이후 변경은 Markdown뿐이다.
+
+[계획판 v98](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `ddba771f67cebf8df5acc119adf9998dc0d8bcec`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_48f9761d2cac8191a4834ce4f5f9649d`, deployment `appgdep_6ad88035c79881919a58f8ee1998feb5`, 2026-10-21T09:05:07.818747+00:00이다. 저장소 사본e0c4e0d와 이전v97을 보존했다. HTML83개·로컬 링크/asset/anchor1,718개·공개 텍스트244개 및 비공개 실제ID/질문/긴 인용52종 부재 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시/정리 영수증은 사본 이후의 이 저장소 원본이다.
+
+이번 소유 QA2개는 ID·이름·이미지·label·loopback 연결을 대조한 뒤 제거했고 검사 포트 닫힘을 확인했다. 현재 계획의 태스크/검토/수정·전체QA 증거를 private로 보존한 뒤 해당 SDD만 삭제했다. 다른 계획/워크트리·서버·실제 개발 앱/수집기·과거 실험은 유지했다. 미해결 지적·보류 판단0이며 실제 모델0·main/운영/앱 배포0이다. 다음은 사전 고정한 실제 의미/오탐·미탐/충분한 출력과 전체 앱 예산/권한/내구 연결 인수다.
+
 ## 두 SDK 최종 검증 · 2026-10-21
 
 실행 `9e5f784`에서 Python6,546+JS820=7,366개·Ruff/format390/mypy150·ESLint/TS/build/OpenAPI drift 통과, 실패/skip/warning0이다. 태스크 독립 검토2개·전체 변경 검토의 Important1건 수정과 한정 재검토를 마쳤고 미해결 지적0이다. 수정 전 중단QA·탐색 순서 실패는 보존한다. 원래425실행/설정 파일·173실제 증거 SHA 동일, 최종 코드의 원문 전체/용량 오프라인 확인·actual0·앱/서버/main 변경0이다. 이 작업의 수정 전/후 소유QA2개만 제거했고 작업/검토 기록을 private로 보존 후 해당SDD만 정리한다. PR/Sites 최종 영수증은 아래 기록을 따른다.

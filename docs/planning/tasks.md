@@ -13,7 +13,7 @@
 - [x] 별도 역할 검수 SDK: 선택한 네 역할의 누락/추가/모호성·무수리 진단·합산 total20,000/output2,500·오류/미완료 거부.
 - [x] 새 계약의 합성·원문 전체 오프라인 용량 확인.
 - [x] 두 SDK 독립 검토·지적 수정 재검토·전체7,366개QA·보존 manifest.
-- [ ] PR/Sites 인계 영수증.
+- [x] [Draft PR76](https://github.com/DigestWorks/IssueDigest/pull/76)·계획판v98 인계 영수증.
 - [ ] 사전 고정 실제 의미/출력·전체 앱 예산/권한/내구 실행 인수.
 
 
