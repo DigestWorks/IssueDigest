@@ -1,3 +1,27 @@
+## 검토·정리 · 2026-10-21
+
+태스크 검토2건·미완료 응답과 내부 식별자 누락 수정의 각 재검토·전체 변경 검토를 마쳤고 미해결 지적/보류 판단0이다. 실행8305031 전체7,582개 검사 이후 제품 코드 변경은 없다. 소유 QA1개만 ID·이름·이미지·label·loopback을 대조 후 제거했다. 현재 계획의 작업/검토 기록은 private 사본과 SHA manifest를 확인한 뒤 해당 SDD만 정리하고 다른 계획은 유지했다. 실제 모델0·앱/서버/main 변경0이며 PR/Sites 게시 기록은 최종 영수증을 따른다.
+
+## 구현·검증 · 2026-10-21
+
+새 role_alias_contract/role_alias_generation/role_bounded_runtime과 role_aware_audit_contract/role_aware_audit, 합성 테스트 네 파일을 추가했다. 생성은 전체 원문/기존 역할을 유지하고 수치별 change의 방향·정확 근거·연속 지원 문장을 별도 보존한다. 검수는 purpose/condition/basis/baseline·사건/관계를 포함한 전체 proposal을 읽으며, 명시 targets만 최대144개로 확장한다. prompt 범위 목록은 원래 context+binding 순서를 가리키는 번호로 중복을 줄이고 저장 report는 전체 scope/anchor와 hash를 보존한다. legacy에는 change를 채우지 않고 unavailable/네 역할, 새 결과에는 available/다섯 역할을 기록한다.
+
+단일 borrowed Model·30초/no-store·재시도/수리/대체0, 새 생성 출력1,400·검수 min(1,100,2,500−기존 출력)·합산 total20,000/output2,500이다. stage 요청1과 aggregate2(빈 검수1)를 구분하며, unknown usage를0으로 만들지 않는다. 완성된 JSON이어도 provider 미완료 응답이면 알려진 사용량과 전송 여부를 보존한 채 거부한다. 저장값의 원래/중첩 식별자·실제 타입·현재 원문/후보/동적 schema·출력/합산 사용량을 다시 검증한다.
+
+코드 `8305031f5023e3254acdf160a710f363dceab87b`의 전체 Python6,762+JS820=7,582개, lint/format/type/build/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 태스크별 독립 검토·미완료 응답·중첩 식별자 누락 지적 수정/재검토와 전체 변경 검토를 마쳤다. 세부 수정 및 최종 판정은 진행 기록을 따른다. 기존431코드/설정/테스트와279실제 증거 SHA는 동일하며 앱/API/DB/worker/UI·기본 모델·서버/main 배포 변경0이다.
+
+| 보존 자료 | 생성 요청 envelope | legacy 전체 역할 검수 envelope | 검수 잔여total / output cap |
+| --- | ---: | ---: | ---: |
+| G | 14,998 | 10,825 | 16,322 / 1,100 |
+| H | 14,675 | 10,231 | 16,647 / 1,100 |
+| I | 14,713 | 10,219 | 16,640 / 1,100 |
+| J | 17,037 | 14,671 | 14,890 / 903 |
+| K | 15,211 | 12,716 | 15,763 / 1,100 |
+
+단위는 UTF8 prompt/instructions+max(raw/normalized schema)+framing2,048+출력 reserve인 보수적 envelope다. 기존 관측 generation usage를 차감한 legacy 검수 용량 예시이며 새 토큰 사용량/비용이나 의미 개선 증거가 아니다. 최초 J15,611>14,890을 차단했고 원문/역할을 빼지 않는 번호 참조·동일 의미 지침 축약 후14,671로 수용했다. 여유219와 출력903이 실제 완료를 보장하지 않는다. 새 다섯 역할도 동일 자료의 FunctionModel 합성 응답으로 전체 proposal/coverage와 schema 용량을 확인했으며 input100/output30은 합성값이다. 실제 제공자 호출은0이다.
+
+이전7회 결과·gold/분모/실패 비용을 바꾸거나 소진 runner를 재실행하지 않았다. 특히 생성 의미0/2·검수 오탐·출력 미완료를 개선 완료로 표시하지 않는다. 다음은 새 계약의 사전 고정 실제 의미/오탐·충분한 출력 평가, 전체 앱 예산/권한/내구 실행 인수와 적용 판단이다. 앱은 이 내부 SDK를 아직 사용하지 않으며 M3는 진행 중이다.
+
 ## 게시·인계 · 전체 역할 참조 설계 · 2026-10-21
 
 [Draft PR78](https://github.com/DigestWorks/IssueDigest/pull/78)은 PR77 기반·미병합이며 앱 첨부를 완료했다. 이번은 spec-driven-workflow의 문서 예외인 설계/비공개 직렬화 시제품이며, 실제 모델/SDK·앱 변경은 없다. 원래 역할 전체 역매핑과 진단 내용/개수 복원·기존431코드/279실제 증거 동일을 확인했다. 전체7,366개 코드QA는 기존 증거 재사용이다. 실제 schema/instructions/provider envelope·토큰/의미/충분한 출력은 미검증이다.

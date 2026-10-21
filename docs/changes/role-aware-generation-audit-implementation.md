@@ -34,5 +34,5 @@
 
 ## Controller verification
 
-- [ ] Task별 독립 검토와 전체 branch 검토·필요 수정/재검토·최종 전체QA를 마친다. 기존431코드/279증거 SHA·G/H/I/J/K full source/원래 역할·실제 동적schema+지침+한도의 무호출 용량을 확인한다. legacy 관측 usage는 예시일 뿐 새 생성 사용량/의미 성공으로 해석하지 않는다.
+- [x] Task별 독립 검토와 전체 branch 검토·필요 수정/재검토·최종 전체QA를 마친다. 기존431코드/279증거 SHA·G/H/I/J/K full source/원래 역할·실제 동적schema+지침+한도의 무호출 용량을 확인한다. legacy 관측 usage는 예시일 뿐 새 생성 사용량/의미 성공으로 해석하지 않는다.
 - [ ] SDK/실제 인수/앱 적용 상태를 분리해 문서·마일스톤·Draft PR·Sites를 갱신한다. 소유 QA/current SDD만 private 보존 후 정리한다. 실제 provider 호출/앱·서버/main 배포는0으로 둔다. actual 요청/출력 충분성·의미/오탐·전체 앱 예산/권한/내구 실행은 후속이다.
