@@ -107,6 +107,46 @@ def test_complete_attached_suffix_licenses_new_unit_boundary(text, unit, qualifi
     assert tuple(q.text for q in c.qualifiers) == qualifiers
 
 
+@pytest.mark.parametrize(
+    "text,numbers,units,qualifiers",
+    [
+        ("14개월 내외", ("14",), ("개월",), ("내외",)),
+        ("약 14개월~26개월 내외", ("14", "26"), ("개월", "개월"), ("약", "내외")),
+        ("31초내외", ("31",), ("초",), ("내외",)),
+    ],
+)
+def test_duration_approximation_preserves_temporal_hint_and_endpoint_units(
+    text, numbers, units, qualifiers
+):
+    (c,) = sdk().build_numeric_candidates_v2(document(text)).candidates
+    assert c.expression.text == text
+    assert c.lexical_kind == "temporal"
+    assert tuple(a.number.text for a in c.atoms) == numbers
+    assert tuple(a.unit.text if a.unit else None for a in c.atoms) == units
+    assert tuple(q.text for q in c.qualifiers) == qualifiers
+
+
+@pytest.mark.parametrize("text", ["A37명내외", "기관37명 내외", "A14개월 내외"])
+def test_new_approximation_does_not_extend_legacy_attached_identifier(text):
+    src = document(text)
+    old = v1.build_numeric_candidates(src)
+    index = sdk().build_numeric_candidates_v2(src)
+    assert index.candidates[0].model_dump() == old.candidates[0].model_dump()
+    assert not index.candidates[0].qualifiers
+
+
+def test_bounded_quantity_extends_but_calendar_and_legal_tokens_do_not():
+    index = sdk().build_numeric_candidates_v2(document("37명내외, 2031-04-17 내외, 제87조 내외"))
+    assert [
+        (c.expression.text, c.lexical_kind, tuple(q.text for q in c.qualifiers))
+        for c in index.candidates
+    ] == [
+        ("37명내외", "number", ("내외",)),
+        ("2031-04-17", "temporal", ()),
+        ("제87조", "identifier", ()),
+    ]
+
+
 def test_old_grammar_dates_legal_and_packet_are_unchanged():
     api = sdk()
     src = document("약 61만-79만 원 이상. -2031/04/17 제87조 A53B 4.2.6")

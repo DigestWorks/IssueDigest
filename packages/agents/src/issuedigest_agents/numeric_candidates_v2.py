@@ -227,7 +227,16 @@ def _scan(
             end = suffix.end()
         else:
             near = v1._horizontal(text, end)
-            if text.startswith("내외", near) and _boundary(text, near + 2) and kind == "number":
+            quantity = kind == "number" or (
+                kind == "temporal"
+                and any(a.unit is not None and a.unit.text in v1._TEMPORAL for a in atoms)
+            )
+            if (
+                text.startswith("내외", near)
+                and _boundary(text, near + 2)
+                and quantity
+                and all(_prefix_boundary(text, a.number.start) for a in atoms)
+            ):
                 qualifiers.append(v1._span(cid, text, near, near + 2))
                 end = near + 2
         result.append(
