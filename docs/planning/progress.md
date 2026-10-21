@@ -1,3 +1,11 @@
+## 게시·인계 · 전체 역할 생성·검수 SDK · 2026-10-21
+
+[Draft PR79](https://github.com/DigestWorks/IssueDigest/pull/79)은 PR78 설계 브랜치 기반·미병합이며 앱 첨부를 완료했다. OpenSpec root=null에서 spec-driven-workflow의 TDD/태스크·전체 독립 검토를 적용했다. 미완료 응답과 중첩 식별자 누락 경계를 수정/재검토했고 미해결 지적·보류 판단0이다. 최종 실행8305031 전체7,582개 검사 이후 변경은 Markdown뿐이다.
+
+[계획판 v101](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `ad0507184d773d29d78d4be539a536aed81dcf68`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_4abec050f2fc8191a3d0c3d08963ba46`, deployment `appgdep_6ad894f698a48191a91af48e4638198d`, 2026-10-21T10:33:41.243262+00:00이다. 저장소 사본97954f1e094c9c6518ece063ec5a01097fa91580·이전v100/전체 기록을 보존했다. 변경된 Markdown5개만 사본에 반영했으며 HTML86개·로컬 링크/asset/anchor1,820개·공개 텍스트253개와 실제 비공개ID/질문/긴 인용60종 부재 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 영수증은 사본 이후 이 저장소 원본이다.
+
+소유 QA1개만 제거했고 현재 계획의13개 기록을 private 사본/SHA manifest로 확인 후 해당SDD만 정리했다. 다른 계획/워크트리·기존 개발 앱/수집기·서버 자원은 유지했다. 기존431실행/설정/테스트·279실제 증거 동일, 실제 provider0·앱/서버/main 변경0이다. 실제 의미·오탐·출력 충분성 및 전체 앱 예산/권한/내구 실행 인수는 다음이며 M3는 진행 중이다.
+
 ## 검토·정리 · 2026-10-21
 
 태스크 검토2건·미완료 응답과 내부 식별자 누락 수정의 각 재검토·전체 변경 검토를 마쳤고 미해결 지적/보류 판단0이다. 실행8305031 전체7,582개 검사 이후 제품 코드 변경은 없다. 소유 QA1개만 ID·이름·이미지·label·loopback을 대조 후 제거했다. 현재 계획의 작업/검토 기록은 private 사본과 SHA manifest를 확인한 뒤 해당 SDD만 정리하고 다른 계획은 유지했다. 실제 모델0·앱/서버/main 변경0이며 PR/Sites 게시 기록은 최종 영수증을 따른다.
