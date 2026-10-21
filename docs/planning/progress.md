@@ -1,3 +1,9 @@
+# 공유 측정 맥락 · Sites v88 영수증 · 2026-10-21 KST
+
+[Draft PR66](https://github.com/DigestWorks/IssueDigest/pull/66)은 PR65 기반이다. Sites v88 native succeeded(2026-10-21T12:58:25.195086+09:00), source `d7f74621a9ace19cab40fb298dcc3737c8827685`, 저장소 사본 `4e7de580dac3a0f4aaad016e8aea10cd6aa26469`. 사본 이후 최종 출판 영수증은 원본 저장소를 따른다. 이전v87 보존·HTML73/로컬 링크·asset·anchor1442/공개 텍스트212·private26종 포함221파일 제외 검사를 확인했다. 텍스트/기록 변경으로 browser QA는 하지 않았으며 사용자 탭을 열거나 이동하지 않았다.
+
+생산 코드86e4272의 전체6,916개 검사와 테스트 전용d6b3e93의 별도249개/네 상한 제거 대조를 구분한다. 태스크·최종 독립 검토/수정분 재검토 완료, 기존413 실행/설정 파일·이전18evidence/최근65연구JSON 불변을 확인했다. 소유 QA1개는 ID/이름/image/label/loopback binding 검증 후 삭제했고 이 작업의 SDD 자료만 private 보존/정리했다. 다른 자원과 기존 worktree는 유지했다. 새 모델 호출·앱/서버/main/운영 변경0이며 실제 AI 선택/의미 품질·생성 용량·앱 통합은 후속이다.
+
 # 공유 측정 맥락 · 순수 구현·검증 · 2026-10-21
 
 [명세](../changes/shared-measurement-context.md). 공통 항목/범위·보고 사건을 명시 ID로만 연결하고 목적을 조건과 분리했다. 원래 입력·resolved 목적·파생 기존 프레임을 현재 source에서 전부 재현하며 unused/없는 참조·다른 인용·중복/상한·위변조를 거부한다. 기존 모듈과 요청/결과를 보존한 새 순수 모듈/합성 테스트다.
