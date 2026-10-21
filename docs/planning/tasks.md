@@ -15,7 +15,10 @@
 - [x] 두 SDK 독립 검토·지적 수정 재검토·전체7,366개QA·보존 manifest.
 - [x] [Draft PR76](https://github.com/DigestWorks/IssueDigest/pull/76)·계획판v98 인계 영수증.
 - [x] [사전 고정 실제7회 인수](../research/compact-scope-acceptance.md): 생성0/2·검수 누락 탐지/오탐·출력 거부/known 사용량 보존, 앱 보류.
-- [ ] 검수의 다른 기존 역할 참조·목적/범위/비교 기준 구분·명시 증감 방향과 합산 출력 설계.
+- [x] [전체 역할 참조·증감 연결·출력 배분 설계](../changes/role-aware-generation-audit.md): alias/명시 진단 묶음의 기존 역할·경고 복원, 참조표 단독 도입 보류.
+- [ ] 새 동적 alias DTO/방향 순수 계약·실제 schema/전체 요청 envelope를 무호출/mock 확인.
+- [ ] 새1,400 생성/최대1,100 검수 SDK·전체 proposal/legacy coverage·명시 묶음 대상 검증·합산 한도/실패 회계.
+- [ ] 새 계약의 독립 검토·전체QA·431코드/279실제 증거 보존 확인.
 - [ ] 새 계약의 실제 의미/오탐·충분한 출력·전체 앱 예산/권한/내구 실행 인수.
 
 
