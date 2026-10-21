@@ -3,7 +3,8 @@
 - [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.
 - [x] [공유 측정 맥락](../changes/shared-measurement-context.md) 다음 구현 설계와 비용/제한 기록(코드 구현 아님).
 - [x] [공유 측정 맥락](../changes/shared-measurement-context.md)·보고 사건·수치 연결의 순수 계약/전체 재구성·합성 검사·독립 검토 완료. 새 모델/앱 적용과 구분.
-- [ ] 새 provider/용량 검증·미관측 실제 자료 인수, 전체 앱 예산/내구 실행 확인 뒤 반영 판단.
+- [x] [공유 맥락 생성 SDK](../changes/shared-context-generation.md)·동적 strict schema/단일 요청·전체 재구성, 합성 검사/독립 검토·기존4자료 모델 미호출 용량 확인.
+- [ ] 새 미관측 실제 자료 의미 인수·충분한 출력 용량, 전체 앱 예산/권한/내구 실행 확인 뒤 반영 판단.
 
 ## 측정 범위 생성 · 현재
 
