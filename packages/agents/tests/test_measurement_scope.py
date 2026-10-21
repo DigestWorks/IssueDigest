@@ -687,3 +687,25 @@ def test_reconstruction_rejects_otherwise_canonical_changed_source(mutation):
     assert fresh != result
     with pytest.raises(mod.MeasurementScopeError):
         mod.validate_measurement_scope_frame(changed, result)
+
+
+@pytest.mark.parametrize("field,count", [("scopes", 5), ("facts", 13), ("relations", 17)])
+def test_direct_strict_models_reject_isolated_overflow_before_semantic_checks(field, count):
+    """M1: model limits reject independently of duplicate IDs or resolved locations."""
+    from pydantic import ValidationError
+
+    mod = api()
+    _, data = example()
+    if field == "scopes":
+        raw = data["facts"][0]
+        raw["target_scopes"] = [scope("동부", sentence="s2")] * count
+        model = mod.MeasurementFactInput
+        location = ("target_scopes",)
+    else:
+        raw = {"facts": [], "relations": []}
+        raw[field] = [data[field][0]] * count
+        model = mod.MeasurementFrameInput
+        location = (field,)
+    with pytest.raises(ValidationError) as error:
+        model.model_validate_json(json.dumps(raw), strict=True)
+    assert [(e["type"], e["loc"]) for e in error.value.errors()] == [("too_long", location)]

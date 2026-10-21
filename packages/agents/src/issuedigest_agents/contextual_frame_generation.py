@@ -220,7 +220,31 @@ def run_contextual_framer(framer: _ContextualFramer, source: Source) -> Contextu
     )
 
 
-def _run_contextual_request[Generation: ContextualFrameGeneration](
+def _build_contextual_output(
+    source: Source, output: BaseModel, output_type: type[BaseModel]
+) -> ContextualNumericFrame:
+    output = cast(ContextualFrameInput, output)
+    # The shared reader intentionally accepts dictionaries. Here every model node
+    # must already exist before its exact dynamic type is checked by that reader.
+    for fact in output.facts:
+        if not isinstance(fact, ContextualFrameFactInput):
+            raise ValueError("Expected actual dynamic fact")
+        for role in _ANCHORS:
+            anchor = getattr(fact, role)
+            if anchor is not None and not isinstance(anchor, ContextualAnchor):
+                raise ValueError("Expected actual dynamic role anchor")
+    for relation in output.relations:
+        if not isinstance(relation, ContextualFrameRelationInput) or not isinstance(
+            relation.cue, ContextualAnchor
+        ):
+            raise ValueError("Expected actual dynamic relation and cue")
+    # The exact dynamic types must pass before their narrowing conversion drops them.
+    dynamic = _read(output_type, output)
+    canonical = ContextualFrameInput.model_validate_json(dynamic.model_dump_json(), strict=True)
+    return build_contextual_frame(source, canonical)
+
+
+def _run_contextual_request[Generation: BaseModel](
     *,
     model: Model,
     source: Source,
@@ -232,6 +256,7 @@ def _run_contextual_request[Generation: ContextualFrameGeneration](
     validator: Callable[[Source, Generation | dict[str, Any]], Generation],
     error_type: type[ContextualFrameGenerationError],
     failure_message: str,
+    frame_builder: Callable[[Source, BaseModel, type[BaseModel]], BaseModel] | None = None,
 ) -> Generation:
     """Trusted internal request runtime; each caller owns preflight and its result policy."""
     known_usage = None
@@ -271,26 +296,9 @@ def _run_contextual_request[Generation: ContextualFrameGeneration](
         if type(result.output) is not output_type:
             raise ValueError("Expected actual dynamic frame output")
         _canonical_models(result.output, output_type)
-        output = cast(ContextualFrameInput, result.output)
-        # The shared reader intentionally accepts dictionaries. Here every model node
-        # must already exist before its exact dynamic type is checked by that reader.
-        for fact in output.facts:
-            if not isinstance(fact, ContextualFrameFactInput):
-                raise ValueError("Expected actual dynamic fact")
-            for role in _ANCHORS:
-                anchor = getattr(fact, role)
-                if anchor is not None and not isinstance(anchor, ContextualAnchor):
-                    raise ValueError("Expected actual dynamic role anchor")
-        for relation in output.relations:
-            if not isinstance(relation, ContextualFrameRelationInput) or not isinstance(
-                relation.cue, ContextualAnchor
-            ):
-                raise ValueError("Expected actual dynamic relation and cue")
-        # The exact dynamic types must pass before their narrowing conversion drops them.
-        dynamic = _read(output_type, output)
-        canonical = ContextualFrameInput.model_validate_json(dynamic.model_dump_json(), strict=True)
+        frame = (frame_builder or _build_contextual_output)(source, result.output, output_type)
         generation = result_model(
-            frame=build_contextual_frame(source, canonical),
+            frame=frame,
             prompt_sha256=sha256(prompt.encode("utf-8")).hexdigest(),
             instructions_sha256=sha256(instructions.encode("utf-8")).hexdigest(),
             usage=known_usage,

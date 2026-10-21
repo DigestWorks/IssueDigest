@@ -17,7 +17,7 @@
 
 ## Task 1: provider integration and shared runtime
 
-- [ ] Implement all Global Constraints with TDD, self-review, focused/ordinary agents tests, Ruff/format/mypy, report exact RED/GREEN and limitations. No subagents from implementer. Only allowed files and this checkbox committed; controller docs left untouched.
+- [x] Implement all Global Constraints with TDD, self-review, focused/ordinary agents tests, Ruff/format/mypy, report exact RED/GREEN and limitations. No subagents from implementer. Only allowed files and this checkbox committed; controller docs left untouched.
 - [ ] Controller: independent task and broad final review, full repository PostgreSQL gate, frozen-file and old-response checks; cap new actual-model acceptance in a separate pre-call protocol with frozen inputs/reference/request/schema before any calls, no exhausted historical runner reuse. Update canonical milestone/docs, Draft PR and Sites/receipt or explicit pending. App integration remains separately gated.
 
 ## Decisions and limits
