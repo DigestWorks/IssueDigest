@@ -28,7 +28,7 @@ Ruling: 단어/문자 길이 차단 대신 의미 선택 지침을 평가한다 
 
 ## Task 1: 실행 공유·새 범위 지침 경로
 
-- [ ] 위 허용4파일을 TDD로 구현한다. 합성 사전 동결 fixture는 controller가 제공한 /home/xinics/.local/state/issuedigest/scoped-contextual-generation-20261021/v1-compatibility.json을 bytes 그대로 packages/agents/tests/fixtures/contextual-frame-v1-wire.json에 복사한다. private 실제 자료/키는 아니다. 원래 v1 module/test/기준과 다른 기존파일을 변경하지 않는다(허용한 요청 helper 추출만 예외).
+- [x] 위 허용4파일을 TDD로 구현한다. 합성 사전 동결 fixture는 controller가 제공한 /home/xinics/.local/state/issuedigest/scoped-contextual-generation-20261021/v1-compatibility.json을 bytes 그대로 packages/agents/tests/fixtures/contextual-frame-v1-wire.json에 복사한다. private 실제 자료/키는 아니다. 원래 v1 module/test/기준과 다른 기존파일을 변경하지 않는다(허용한 요청 helper 추출만 예외).
 - 기존 fixture의 고정 source를 복원해 v1 instruction/identity/prompt/raw+normalized tool JSON/schema/result/settings/limits/agent+run retry가 동일함을 FunctionModel로 검증한다. fixture의 empty facts는 wire/result 호환용이며 새 경로의 의미 검증을 대체하지 않는다. 원래 v1 테스트는 그대로 전체 실행한다.
 - 새 경로의 실제 FunctionModel 양성은 다양한 지역/기관/집단·수량·관측/전망/unknown·반복 문맥/관계가 있는 합성 source로 검사한다. 지침의 generic scope/status 요구와 exact 본문 재사용을 확인하되 특정 이전 실제값/문구를 복사하지 않는다. 구조적으로 exact인 의미 오선택이 unreviewed로 남는 한계도 검사한다.
 - 새 profile/tool/identity와 v1교차거부·source/prompt/instructions/usage변조·strict actual dynamic root/nested type/hidden excluded fields/dict/construct/copy·원문 정확짧은span/전체catalog·실제 schema envelope inclusive boundary/초과 no request·0후보·borrowed lifecycle/no-store/한도/retry0·실패raw/captured/unknownusage/부분결과금지·순수API explicitI/O를 검사한다. 기존 타입 가드를 공통 helper로 옮기면서 누락/완화하지 않는다.
