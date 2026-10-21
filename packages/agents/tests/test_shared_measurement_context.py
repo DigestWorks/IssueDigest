@@ -13,7 +13,7 @@ from pathlib import Path
 from uuid import uuid4
 
 import pytest
-from pydantic import Field, create_model
+from pydantic import Field, ValidationError, create_model
 from pydantic_ai import Agent
 from pydantic_ai.models import Model
 from test_numeric_evidence import document
@@ -225,6 +225,11 @@ def test_empty_full_input_is_valid_with_or_without_numeric_candidates():
 def test_each_collection_over_cap_rejects(field):
     src, data = example()
     data[field] = [data[field][0]] * (17 if field == "relations" else 13)
+    with pytest.raises(ValidationError) as error:
+        api().SharedMeasurementInput.model_validate_json(json.dumps(data), strict=True)
+    assert [(item["loc"], item["type"]) for item in error.value.errors()] == [
+        ((field,), "too_long")
+    ]
     rejects(src, data)
 
 
