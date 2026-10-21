@@ -103,4 +103,24 @@ issues는 최대12묶음이며 각 묶음은 role/kind/evidence/support와 `targ
 3. 전체 역할 proposal·coverage·묶음 진단/144확장·잔여 한도 검수 SDK를 구현한다. legacy unavailable·empty/incomplete·묶음의 대상별 검증·출력 초과/unknown usage·caller lifecycle을 합성/mock로 검사한다.
 4. 독립 태스크/전체 변경 검토·필요한 전체QA와 보존 manifest를 확인한다. 그 뒤 새 cap/원문/정상·오류 gold를 호출 전에 고정한 실제 인수로 의미·오탐·출력 충분성과 비용을 평가한다. 이번 소진7회 runner/기준/응답은 재실행/수정하지 않는다. 앱/운영은 별도다.
 
-이번은 설계 문서/비공개 직렬화 시제품이며 제품 코드·SDK는 추가하지 않았다. 전체7,366개 코드QA 증거를 재사용하고 문서/원문·진단 복원·보존/비공개값 부재 검사를 새로 수행한다. PR/Sites 최종 영수증은 진행 기록을 따른다.
+앞 절은 설계 당시 문서·비공개 직렬화 시제품 기록이다. 당시 제품 코드·SDK는 추가하지 않았고 기존7,366개 코드QA 증거를 재사용했다. 이후 구현·새 전체검증은 아래 기록, PR/Sites 게시 영수증은 진행 기록을 따른다.
+
+## 구현·검증 · 2026-10-21
+
+새 role_alias_contract/role_alias_generation/role_bounded_runtime과 role_aware_audit_contract/role_aware_audit, 합성 테스트 네 파일을 추가했다. 생성은 전체 원문/기존 역할을 유지하고 수치별 change의 방향·정확 근거·연속 지원 문장을 별도 보존한다. 검수는 purpose/condition/basis/baseline·사건/관계를 포함한 전체 proposal을 읽으며, 명시 targets만 최대144개로 확장한다. prompt 범위 목록은 원래 context+binding 순서를 가리키는 번호로 중복을 줄이고 저장 report는 전체 scope/anchor와 hash를 보존한다. legacy에는 change를 채우지 않고 unavailable/네 역할, 새 결과에는 available/다섯 역할을 기록한다.
+
+단일 borrowed Model·30초/no-store·재시도/수리/대체0, 새 생성 출력1,400·검수 min(1,100,2,500−기존 출력)·합산 total20,000/output2,500이다. stage 요청1과 aggregate2(빈 검수1)를 구분하며, unknown usage를0으로 만들지 않는다. 완성된 JSON이어도 provider 미완료 응답이면 알려진 사용량과 전송 여부를 보존한 채 거부한다. 저장값의 원래/중첩 식별자·실제 타입·현재 원문/후보/동적 schema·출력/합산 사용량을 다시 검증한다.
+
+코드 `8305031f5023e3254acdf160a710f363dceab87b`의 전체 Python6,762+JS820=7,582개, lint/format/type/build/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 태스크별 독립 검토·미완료 응답·중첩 식별자 누락 지적 수정/재검토와 전체 변경 검토를 마쳤다. 세부 수정 및 최종 판정은 진행 기록을 따른다. 기존431코드/설정/테스트와279실제 증거 SHA는 동일하며 앱/API/DB/worker/UI·기본 모델·서버/main 배포 변경0이다.
+
+| 보존 자료 | 생성 요청 envelope | legacy 전체 역할 검수 envelope | 검수 잔여total / output cap |
+| --- | ---: | ---: | ---: |
+| G | 14,998 | 10,825 | 16,322 / 1,100 |
+| H | 14,675 | 10,231 | 16,647 / 1,100 |
+| I | 14,713 | 10,219 | 16,640 / 1,100 |
+| J | 17,037 | 14,671 | 14,890 / 903 |
+| K | 15,211 | 12,716 | 15,763 / 1,100 |
+
+단위는 UTF8 prompt/instructions+max(raw/normalized schema)+framing2,048+출력 reserve인 보수적 envelope다. 기존 관측 generation usage를 차감한 legacy 검수 용량 예시이며 새 토큰 사용량/비용이나 의미 개선 증거가 아니다. 최초 J15,611>14,890을 차단했고 원문/역할을 빼지 않는 번호 참조·동일 의미 지침 축약 후14,671로 수용했다. 여유219와 출력903이 실제 완료를 보장하지 않는다. 새 다섯 역할도 동일 자료의 FunctionModel 합성 응답으로 전체 proposal/coverage와 schema 용량을 확인했으며 input100/output30은 합성값이다. 실제 제공자 호출은0이다.
+
+이전7회 결과·gold/분모/실패 비용을 바꾸거나 소진 runner를 재실행하지 않았다. 특히 생성 의미0/2·검수 오탐·출력 미완료를 개선 완료로 표시하지 않는다. 다음은 새 계약의 사전 고정 실제 의미/오탐·충분한 출력 평가, 전체 앱 예산/권한/내구 실행 인수와 적용 판단이다. 앱은 이 내부 SDK를 아직 사용하지 않으며 M3는 진행 중이다.
