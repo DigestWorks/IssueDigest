@@ -18,28 +18,14 @@ from pydantic_ai.models.function import FunctionModel
 from pydantic_ai.usage import RequestUsage
 from test_numeric_evidence import document
 from test_shared_measurement_context_v2 import example, packet, scope
+from test_shared_measurement_context_v2 import (
+    restore_introduced_modules as restore_introduced_modules,
+)
 
 
 @pytest.fixture(autouse=True)
 def own_loop(sync_model_loop):
     yield
-
-
-@pytest.fixture(scope="module", autouse=True)
-def restore_introduced_modules():
-    package = importlib.import_module("issuedigest_agents")
-    existing = set(sys.modules)
-    attributes = vars(package).copy()
-    yield
-    for name in set(sys.modules) - existing:
-        if name.startswith("issuedigest_agents."):
-            sys.modules.pop(name, None)
-    # A from-package import can reuse an unloaded module through this namespace.
-    # Restore both caches so later frozen reload tests see the same class identities.
-    for name in set(vars(package)) - attributes.keys():
-        delattr(package, name)
-    for name, value in attributes.items():
-        setattr(package, name, value)
 
 
 def sdk():
