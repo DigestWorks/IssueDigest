@@ -14,5 +14,5 @@
 
 ## Task 1 — v2 순수 프레임·bounded SDK
 
-- [ ] TDD RED→최소 구현→GREEN으로 두 모듈과 테스트를 추가한다. 비어 있지 않은 공유 맥락·학교/사람/내외·range·문맥/범위/사건·관계 원문 보존 및 v2 전체 재구성을 확인한다. 입력/결과의 nested unchecked 타입·컨테이너·버전/receipt·source drift, 무후보/용량 초과 송신0·runtime1회/usage/거부·기존 v1 request/output 불변과 no-I/O를 검증한다. 기능 경계에 집중하며 단순 테스트 수 확장은 피한다.
+- [x] TDD RED→최소 구현→GREEN으로 두 모듈과 테스트를 추가한다. 비어 있지 않은 공유 맥락·학교/사람/내외·range·문맥/범위/사건·관계 원문 보존 및 v2 전체 재구성을 확인한다. 입력/결과의 nested unchecked 타입·컨테이너·버전/receipt·source drift, 무후보/용량 초과 송신0·runtime1회/usage/거부·기존 v1 request/output 불변과 no-I/O를 검증한다. 기능 경계에 집중하며 단순 테스트 수 확장은 피한다.
 - [ ] 독립 태스크/최종 검토, controller의 전체QA·기존421파일/121증거 불변·원래 G/H 오프라인 prompt 검증, 소유 자원 정리를 완료한다. 문서/PR/Sites에서 구현·실제 의미·앱 적용을 구분한다.
