@@ -16,7 +16,7 @@
 
 ## Task 1: implement and verify the additive pure contract
 
-- [ ] Implement the complete Global Constraints above with TDD: record real RED, minimal implementation, focused GREEN and self-review in the report. Read relevant existing helpers/tests and skill TDD first. Change only two executable files named above plus check this task after full implementation. No subagents from implementer. No additional QA container, broad full gate, actual API calls or commits outside this worktree.
+- [x] Implement the complete Global Constraints above with TDD: record real RED, minimal implementation, focused GREEN and self-review in the report. Read relevant existing helpers/tests and skill TDD first. Change only two executable files named above plus check this task after full implementation. No subagents from implementer. No additional QA container, broad full gate, actual API calls or commits outside this worktree.
 - [ ] Controller: independent task review and broad final review, whole repository gate on owned PostgreSQL QA, frozen existing-file checks; update canonical plan/progress/requirements/decisions and Draft PR. Sites update or explicit pending receipt. Actual model selection/status-evidence candidate grammar/holdout/app integration remain separate next work, not implemented or solved by this pure contract.
 
 ## Scope and decisions
