@@ -1,3 +1,9 @@
+# 공유 맥락 생성 SDK · Sites v89 영수증 · 2026-10-21 KST
+
+[Draft PR67](https://github.com/DigestWorks/IssueDigest/pull/67)은 PR66 기반이다. Sites v89 native succeeded(2026-10-21T13:20:22.214079+09:00), source `a65a22c8dcc6cc8cb22b245452d1d51d86a1eff7`, 저장소 사본 `a9cd8c38dd3655f9dd393cb14207747a526f4d54`. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v88 보존·HTML74/로컬 링크·asset·anchor1465/공개 텍스트215·private26종 포함224파일 제외 검사를 확인했다. 기존 레이아웃의 텍스트 변경으로 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+코드/전체QA54afcd9: 7,019개·독립 태스크/최종 검토 C0/I0/actionableM0, 기존415실행/설정 파일·97증거 불변을 확인했다. 기존4자료 원문 전체 요청 용량·빈 mockHTTP4회와 비어 있지 않은 합성 출력 크기를 실제 모델/출력 토큰/의미 인수로 해석하지 않는다. 모델/외부 네트워크 요청·앱/서버/main/운영 변경0이다. 소유 QA1개는 ID/이름/image/label/loopback binding 검증 후 삭제했고 이 작업의 SDD만 private 보존/정리했다. 기존 worktree·다른 자원은 유지했다. GitHub DNS 일시 실패는 재확인/푸시 재시도로 복구했으며 유료 요청 재실행은 없었다.
+
 # 공유 맥락 생성 SDK · 구현·오프라인 인수 · 2026-10-21
 
 [명세](../changes/shared-context-generation.md). 별도 strict 단일 borrowed-model 요청에 명시 공유 맥락/보고 사건·분리 목적을 연결했다. 현재 수치/문장/eligible enum·고정 슬롯과 전체 원본/파생 frame/receipt를 재검증하며 기존 요청/결과·runtime·순수 계약은 불변이다.
