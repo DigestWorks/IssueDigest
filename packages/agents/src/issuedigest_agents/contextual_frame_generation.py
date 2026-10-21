@@ -1,6 +1,7 @@
 """One bounded borrowed-model request for an exact, unreviewed numeric role frame."""
 
 import json
+from collections.abc import Callable
 from dataclasses import dataclass
 from hashlib import sha256
 from typing import Any, Literal, Self, cast
@@ -205,12 +206,40 @@ def run_contextual_framer(framer: _ContextualFramer, source: Source) -> Contextu
         instructions = CONTEXTUAL_FRAME_INSTRUCTIONS
     except Exception:
         raise ContextualFrameGenerationError("Invalid contextual frame generation input") from None
+    return _run_contextual_request(
+        model=framer.model,
+        source=source,
+        prompt=prompt,
+        tools=tools,
+        instructions=instructions,
+        identity=PROVIDER_IDENTITY,
+        result_model=ContextualFrameGeneration,
+        validator=validate_contextual_frame_generation,
+        error_type=ContextualFrameGenerationError,
+        failure_message="Contextual frame generation failed",
+    )
+
+
+def _run_contextual_request[Generation: ContextualFrameGeneration](
+    *,
+    model: Model,
+    source: Source,
+    prompt: str,
+    tools: list[ToolOutput[BaseModel]],
+    instructions: str,
+    identity: str,
+    result_model: type[Generation],
+    validator: Callable[[Source, Generation | dict[str, Any]], Generation],
+    error_type: type[ContextualFrameGenerationError],
+    failure_message: str,
+) -> Generation:
+    """Trusted internal request runtime; each caller owns preflight and its result policy."""
     known_usage = None
     captured: list[ModelMessage] = []
     try:
         agent: Agent[None, BaseModel] = Agent(
-            framer.model,
-            name=PROVIDER_IDENTITY,
+            model,
+            name=identity,
             instructions=instructions,
             output_type=tools,
             retries=0,
@@ -260,16 +289,14 @@ def run_contextual_framer(framer: _ContextualFramer, source: Source) -> Contextu
         # The exact dynamic types must pass before their narrowing conversion drops them.
         dynamic = _read(output_type, output)
         canonical = ContextualFrameInput.model_validate_json(dynamic.model_dump_json(), strict=True)
-        generation = ContextualFrameGeneration(
+        generation = result_model(
             frame=build_contextual_frame(source, canonical),
             prompt_sha256=sha256(prompt.encode("utf-8")).hexdigest(),
             instructions_sha256=sha256(instructions.encode("utf-8")).hexdigest(),
             usage=known_usage,
         )
-        return validate_contextual_frame_generation(source, generation)
+        return validator(source, generation)
     except Exception:
         if known_usage is None:
             known_usage = _captured_usage(captured)
-        raise ContextualFrameGenerationError(
-            "Contextual frame generation failed", known_usage=known_usage
-        ) from None
+        raise error_type(failure_message, known_usage=known_usage) from None

@@ -1,8 +1,18 @@
 # 현재 구현 작업 목록
 
-2026-10-20 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
+2026-10-21 KST 기준. 제품은 질문 중심 B2C 브리핑이다. [D016·D017·D019·D020·D021·D022](decisions.md)·[제품 인터뷰](../research/product-experience-interview.md)·[구현 계획](implementation-plan.md)을 따른다. 체크박스는 코드·검증 증거가 있는 완료만 나타내며 개인 개발 적용·Sites·운영 출시는 별도로 기록한다. 과거 P0~P6 상세 작업은 [진행 기록](progress.md), `docs/changes/`와 Git 이력(재편 전 `d6d05f3`)에 남겼다.
 
-## 현재 · 문맥 프레임 생성 SDK
+## 현재 · 범위·상태 근거 선택 지침
+
+[명세](../changes/scoped-contextual-generation.md) · [실제 인수 기준](../research/scoped-contextual-generation-acceptance.md).
+
+- [x] 기존 v1 wire/result 호환을 보존하며 공통 요청 실행과 별도 지침 경로를 구현한다.
+- [x] 독립 검토·전체QA·기존404파일/원래결과 보존을 확인한다.
+- [x] 고정4자료/각1회·신규4회에서 반환4·기존1/2/새합성1/2 충족과 실패·사용량/캐시·비용을 기록했다.
+- [ ] 대상/범위/발표자 분리와 상태 근거 후보 계약·미관측 실제자료 품질을 인수한다. 차량단위 인식은 별도다.
+- [x] PR61 기반 Draft PR62·Sites v84/이전v83·소유QA1/SDD 정리 영수증을 확정했다.
+
+## 이전 · 문맥 프레임 생성 SDK
 
 [명세](../changes/contextual-frame-generation.md) · [호출 전 실제 인수 프로토콜](../research/contextual-frame-generation-acceptance.md).
 

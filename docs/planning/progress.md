@@ -1,3 +1,19 @@
+# 범위·상태 지침 · Sites v84 출판 영수증 · 2026-10-21 KST
+
+[Draft PR62](https://github.com/DigestWorks/IssueDigest/pull/62)은 PR61 기반이다. Sites v84 native succeeded(2026-10-21T10:44:32.569785+09:00); Site sourcef59474c10c71efe7c9c8b8c4d682800a1139d283·저장소 사본3358fcd1ec029348335048ae712a30aedbf141fc. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v83 보존·HTML69/로컬 링크·asset·anchor1360/공개 텍스트198과 private source/ID20종 포함209파일 제외 검사를 확인했다. 기존 레이아웃의 텍스트/기록만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+소유 SDD 증거를 private 보존 후 소유 디렉터리만 제거했고, 전용QA1개도 identity/label/image 확인 후 제거했다. 기존 worktree/브랜치·다른 자원은 보존했다. codeb3e1e46/QA9589526 이후 실행 변경은 없고 전체6337개 검사 증거가 유효하다. 신규4회/재시도0·기존1/2/새합성1/2와 원래 실패/gold·호출전C수정/참고비용을 보존했다. 앱/서버/main/운영 변경0이며 다음은 대상/범위/발표자 분리·상태 근거 후보 계약과 미관측 실제자료 인수다.
+
+# 범위·상태 지침 · 구현·제한 실제 인수 · 2026-10-21
+
+[명세](../changes/scoped-contextual-generation.md)·[실제 인수](../research/scoped-contextual-generation-acceptance.md). sourceb3e1e46/QA9589526·신규97/focused185/agents2003·전체6337(Python5517/JS820)·정적검사/빌드/계약과 독립 태스크/전체 C0/I0/M0 통과(실패/skip/warning0). v1 사전 동결 wire/result fixture와 원래 실제반환2개 재검증, 다른 기존404파일 보존을 확인했다.
+
+사전 고정4회/각1회/retry0에서 반환4/거부0·기존1/2(이전0/2)와 새합성1/2가 의미 기준을 충족했다. A지역범위/D기업규모 지표는 보존됐으나 B조사 상태근거/C지역·기관 범위 누락과 발표자 혼동이 남았다. 원문81span 재검증은 의미 인증이 아니다. Input16737/output2840/cache1408·Standard 참고$0.0812745(청구미검증), 원래 실패/gold·호출전 합성C단위 수정 이력을 보존했다. 앱/서버/main/운영0·다음은 대상/범위/발표자 분리와 상태 근거 후보 계약·미관측 실제자료 인수다. Draft PR62/Sites v84 출판 완료.
+
+# 범위·상태 근거 지침 · 착수 · 2026-10-21
+
+[명세](../changes/scoped-contextual-generation.md)·[호출 전 기준](../research/scoped-contextual-generation-acceptance.md). 기존 v1 요청을 공유 helper로 좁게 추출하고 새 선택 지침/version만 분리한다. 실제값/지역/문구 하드코딩과 한 글자 차단 대신 일반적인 대상 범위/상태 근거 선택을 평가한다. 수정 전 합성 v1 wire/result 동결, 다른 기존404파일 보존과 기존 실제응답/기준을 유지한다. 기존 실제인용2+다른분야 새 합성2·총4회 상한/사전 기준을 고정했으며 독립 holdout/실제뉴스 표본이 아니다. sourceb3e1e46·신규97/focused185/agents2003와 정적 검사·태스크 독립 검토 통과. 기존404파일과 v1 wire/result 호환을 확인했고 전용QA/최종검토 진행 중이다. 모델0·앱/서버/main/운영 변경0·Sites 대기.
+
 # 문맥 프레임 생성 · Sites v83 출판 영수증 · 2026-10-20
 
 [Draft PR61](https://github.com/DigestWorks/IssueDigest/pull/61)은 PR60 기반이다. Sites v83 native succeeded(2026-10-20T12:14:08.116964+00:00); Site source991d5be9e3b6f16cad76d496552676d52b2e3d1e·저장소 사본0989176fedbedac96526e127e04a82c88773f1c9. 사본 이후 영수증은 원본 저장소를 따른다. 이전v82 보존·HTML68/로컬 링크·asset·anchor1342/공개 텍스트193과 private source/ID20종 포함204파일 제외 검사를 통과했다. 첫 archive 업로드 네트워크 오류 후 같은 archive로 저장/출판했으며 실제 모델 추가 호출은 없다. 텍스트만 갱신해 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
