@@ -1,3 +1,19 @@
+## 게시·인계 · 전체 역할 참조 설계 · 2026-10-21
+
+[Draft PR78](https://github.com/DigestWorks/IssueDigest/pull/78)은 PR77 기반·미병합이며 앱 첨부를 완료했다. 이번은 spec-driven-workflow의 문서 예외인 설계/비공개 직렬화 시제품이며, 실제 모델/SDK·앱 변경은 없다. 원래 역할 전체 역매핑과 진단 내용/개수 복원·기존431코드/279실제 증거 동일을 확인했다. 전체7,366개 코드QA는 기존 증거 재사용이다. 실제 schema/instructions/provider envelope·토큰/의미/충분한 출력은 미검증이다.
+
+[계획판 v100](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `9fb8602a71075f65aa1d3a27cf223431490dc25e`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_744fd05ed444819188c459a9a8624d3c`, deployment `appgdep_6ad888ded6b081919b90843a6fad7554`, 2026-10-21T09:42:05.854797+00:00이다. 저장소 사본e954d5a7ae510eeab4c4b7cf1df5c5038a86eebb·이전v99/전체 기록을 보존했다. HTML85개·로컬 링크/asset/anchor1,785개·공개 텍스트250개와 실제 비공개ID/질문/긴 인용60종 부재 검사를 통과했다. 기존 레이아웃의 텍스트/사본 변경으로 새 브라우저 검사는 실행하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 영수증은 사본 이후 이 저장소 원본이다.
+
+추가 모델0·새QA/SDD/서버 자원0·앱/API/DB/worker/UI·기본 모델·main/운영 변경0이다. 소진된7회 runner와 기존 실패/gold·분모/비용은 유지한다. 다음은 실제 동적 DTO/schema의 무호출/mock 용량 검증과 새 생성/검수 SDK 구현·독립 검토/전체QA이며, 실제 품질 인수와 앱 연결은 별도다.
+
+## 전체 역할 참조·출력 배분 설계 · 2026-10-21
+
+[다음 계약](../changes/role-aware-generation-audit.md). 기존 검수에 없는 purpose/comparison_baseline까지 전체 원래 역할을 보내고, 운영/발표·목적/측정 범위·비교 기준/기간을 구분한다. 새 수치별 명시 change 근거/지원 statement·legacy change coverage unavailable을 설계했다. 새 생성1,400/검수최대1,100과 total20,000/합산 출력2,500을 유지하는 안이며 실제 schema/정규화/지침을 포함한 envelope와 모델 출력 충분성은 미검증이다.
+
+참조표는 J출력4,484→4,515byte로 커져 채택하지 않았다. 짧은 이름 있는 alias+change는 J4,484→3,230/K4,179→3,139byte이며 전체 원래 역할을 역매핑해 복원했다. 같은 진단의 대상들을 명시 묶은 출력은 G1,393→726/H686→445/I888→475/K698→464byte이고 오탐도 그대로 보존했다. J잘린 검수는 복구/비교하지 않았다. 이는 UTF8 직렬화 byte 측정이며 실제 token·비용/의미 개선이나 SDK 구현이 아니다.
+
+모델 호출0·기존431실행/설정 파일/279실제 증거 보존·전체7,366개 코드QA 증거 재사용, 연구/문서와 비공개 시제품만 추가한다. 앱/API/DB/worker/UI·서버/main 변경0·새QA/SDD0이다. 다음은 동적 DTO/schema 무호출 사전 검증→새 생성/검수 SDK→독립 검토/전체QA→사전 고정 실제 의미/출력 인수 순이다. PR/Sites 최종 기록은 게시 영수증을 따른다.
+
 ## 게시·인계 · Compact/검수 실제 인수 · 2026-10-21
 
 [Draft PR77](https://github.com/DigestWorks/IssueDigest/pull/77)은 PR76 기반·미병합이며 앱 첨부를 완료했다. 호출 전77fc369·실행9e5f784/기존7,366개 검사·실제7요청·새106증거·사전 기준/실패 비용을 구분한다. 이번은 연구 문서 작업이라 spec-driven-workflow의 문서 예외로 진행했고 제품 실행 코드는 변경하지 않았다.
