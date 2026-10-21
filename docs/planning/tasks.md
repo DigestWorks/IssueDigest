@@ -5,7 +5,8 @@
 - [x] [동일 계약 모델 비교](../research/shared-context-model-comparison.md): 새4회/반환4·의미2/4·남은 대상/필수 광역 범위 누락·비용/제한 기록.
 - [x] [측정 대상·계층적 범위 지침](../changes/shared-context-role-guidance.md) 별도 SDK/합성 검사·독립 검토. 실제 의미 개선은 미검증.
 - [x] [새 공식자료2건 제한 점검](../research/role-guidance-acceptance.md): 사전 후보 차단1·실제1회 반환/의미0/1, 원래 결과/비용 보존.
-- [ ] 복합 학교/사람 단위·근사 표현 후보 계약 보완, 과거 요청/결과 호환 보존. 수치별 지역 범위 누락과 미관측 실제 의미·충분한 출력 인수 후 앱 통합 판단.
+- [x] [복합 단위·근사 표현 후보 v2](../changes/numeric-candidates-v2.md) 순수 계약/합성·오프라인 재구성·독립 검토, v1/과거 결과 보존.
+- [ ] v2 후보의 생성 SDK 연결과 수치별 지역 범위 누락 보완·미관측 실제 의미/충분한 출력·앱 인수.
 
 
 - [x] [동일 계약 추론 설정 비교](../research/measurement-reasoning-comparison.md): 최대4시도·응답확인3·반환2/거부2, 의미판정가능2건 모두 미충족·2건미판정. 상한 소진/원래 기준 유지.
