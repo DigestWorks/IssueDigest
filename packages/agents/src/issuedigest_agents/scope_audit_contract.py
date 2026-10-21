@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 from .compact_shared_context import (
     CompactSharedContextGeneration,
+    _require_stored_generation_markers,
     validate_compact_shared_context_generation,
 )
 from .contextual_anchor import ContextualAnchor
@@ -273,6 +274,8 @@ def validate_scope_audit_report(
         _canonical_models(report, ScopeAuditReport)
         if isinstance(report, BaseModel):
             _actual_models(report, ScopeAuditReport)
+        if isinstance(report, dict):
+            _require_stored_generation_markers(report["generation"])
         checked = _read(ScopeAuditReport, report)
         expected = _build(source, checked.generation, checked.input)
         if expected != checked:

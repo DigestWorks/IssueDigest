@@ -171,6 +171,12 @@ class CompactSharedContextGeneration(_StrictModel):
         return self
 
 
+def _require_stored_generation_markers(value: BaseModel | dict[str, Any]) -> None:
+    """Reject truncated saved generations before model defaults can fill markers."""
+    if isinstance(value, dict) and not {"profile", "status"} <= value.keys():
+        raise ValueError("Missing stored generation markers")
+
+
 def validate_compact_shared_context_generation(
     source: Source, result: CompactSharedContextGeneration | dict[str, Any]
 ) -> CompactSharedContextGeneration:
@@ -180,6 +186,7 @@ def validate_compact_shared_context_generation(
         _canonical_models(result, CompactSharedContextGeneration)
         if isinstance(result, BaseModel):
             _actual_models(result, CompactSharedContextGeneration)
+        _require_stored_generation_markers(result)
         checked = _read(CompactSharedContextGeneration, result)
         validate_shared_measurement_frame_v2(source, checked.frame)
         output_type = tools[0].output

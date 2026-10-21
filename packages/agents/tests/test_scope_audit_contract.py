@@ -406,3 +406,20 @@ def test_pure_report_cannot_reinvoke_generators_and_preserves_disambiguated_unic
     assert (span.start, span.end, span.text) == (13, 16, "이용자")
     assert report.issues[0].statement.text == "🧪 동부 이용자와 서부 이용자 약 37여 명 내외. 설명."
     assert report.generation == original
+
+
+@pytest.mark.parametrize("compact", [True, False])
+@pytest.mark.parametrize("marker", ["profile", "status"])
+def test_stored_report_rejects_omitted_original_generation_markers_before_union_defaults(
+    compact, marker
+):
+    mod = api()
+    src = document("동부 이용자 37명.")
+    original = generation(src, compact=compact)
+    result = mod.build_scope_audit_report(src, original, audit_input("n1"))
+    raw = json.loads(result.model_dump_json())
+    assert mod.validate_scope_audit_report(src, result) == result
+    assert mod.validate_scope_audit_report(src, raw) == result
+    raw["generation"].pop(marker)
+    with pytest.raises(mod.ScopeAuditError):
+        mod.validate_scope_audit_report(src, raw)

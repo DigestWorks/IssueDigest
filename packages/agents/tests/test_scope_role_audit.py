@@ -508,3 +508,19 @@ def test_agent_initialization_failure_did_not_start_audit_or_consume_unknown_usa
         mod.run_scope_role_auditor(mod.create_scope_role_auditor(model), src, original)
     assert calls == [] and caught.value.audit_may_have_started is False
     assert caught.value.audit_usage is None and caught.value.combined_usage == original.usage
+
+
+@pytest.mark.parametrize("compact", [True, False])
+@pytest.mark.parametrize("marker", ["profile", "status"])
+def test_stored_runtime_rejects_omitted_original_generation_markers_before_union_defaults(
+    compact, marker
+):
+    mod = api()
+    src = document("동부 이용자 37명.")
+    result = run(src, generation(src, compact=compact))
+    raw = json.loads(result.model_dump_json())
+    assert mod.validate_scope_role_audit_generation(src, result) == result
+    assert mod.validate_scope_role_audit_generation(src, raw) == result
+    raw["report"]["generation"].pop(marker)
+    with pytest.raises(mod.ScopeRoleAuditError):
+        mod.validate_scope_role_audit_generation(src, raw)

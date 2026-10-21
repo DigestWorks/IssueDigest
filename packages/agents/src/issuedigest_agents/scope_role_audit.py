@@ -13,7 +13,7 @@ from pydantic_ai.models.openai import OpenAIResponsesModelSettings
 from pydantic_ai.models.wrapper import WrapperModel
 from pydantic_ai.settings import ModelSettings
 
-from .compact_shared_context import _source_packet
+from .compact_shared_context import _require_stored_generation_markers, _source_packet
 from .contextual_anchor import ContextualAnchor
 from .numeric_evidence import (
     MAX_OUTPUT_TOKENS,
@@ -240,6 +240,8 @@ def validate_scope_role_audit_generation(
         _canonical_models(result, ScopeRoleAuditGeneration)
         if isinstance(result, BaseModel):
             _actual_models(result, ScopeRoleAuditGeneration)
+        if isinstance(result, dict):
+            _require_stored_generation_markers(result["report"]["generation"])
         checked = _read(ScopeRoleAuditGeneration, result)
         original = _checked_generation(source, checked.report.generation)
         generation_usage = original.usage

@@ -609,3 +609,16 @@ assert api.validate_compact_shared_context_generation(src, result) == result
     env["PYTHONPATH"] = os.pathsep.join(sys.path)
     result = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True)
     assert result.returncode == 0, result.stderr
+
+
+@pytest.mark.parametrize("marker", ["profile", "status"])
+def test_stored_compact_rejects_omitted_generation_markers_before_defaults(marker):
+    api = sdk()
+    src = document("동부 이용자 37명.")
+    result = run(src)
+    raw = json.loads(result.model_dump_json())
+    assert api.validate_compact_shared_context_generation(src, result) == result
+    assert api.validate_compact_shared_context_generation(src, raw) == result
+    raw.pop(marker)
+    with pytest.raises(api.CompactSharedContextError):
+        api.validate_compact_shared_context_generation(src, raw)
