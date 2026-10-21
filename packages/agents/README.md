@@ -533,3 +533,9 @@ proposal=None이면 outcome=rejected, checks는 빈 tuple, received_facts/propos
 `issuedigest_agents.shared_measurement_context`의 `SharedMeasurementInput`과 `build_shared_measurement_frame(source, input)` / `validate_shared_measurement_frame(source, frame)`을 사용한다. contexts/events/bindings/relations는 필수이며 최대12/12/12/16개다. 명시 context/event ID로만 상속하고 combined scopes≤4·모든 anchor 같은 인용·수치 포함 전체 문장 상태 근거를 검사한다. unused/없는 참조/중복·strict canonical 우회·전체 wrapper 위변조는 상세 없는 전체 오류다.
 
 원래 입력과 기존 MeasurementScopeFrame 및 contexts 순서의 resolved purpose를 보존한다. 목적은 조건으로 변환하지 않는다. status는 unreviewed이며 위치·연결은 의미/진실/권한 인증이 아니다. [명세](../../docs/changes/shared-measurement-context.md)를 따른다. 기존 API/SDK/wire/앱은 보존하고 provider 연결·용량/실제 의미 품질은 후속이다. 새 모델 호출0·전체6,916개 검사와 실제 앱 인수는 별개다.
+
+## 공유 맥락 생성 SDK
+
+`issuedigest_agents.shared_context_generation`의 `shared_context_prompt(source)`, `create_shared_context_framer(model)` / `run_shared_context_framer(handle, source)`, `validate_shared_context_generation(source, result)`를 사용한다. 필수 caller-owned Model을 빌리고 기존 공통 runtime으로 strict tool1회만 요청한다. 고정 context/event 슬롯·현재 수치/문장/eligible enum과 원래 공유 맥락/목적을 보존하며 실제 nested 타입을 좁히기 전에 검사한다. 요청 예산20,000/출력2,500·timeout30·no-store·무재시도/수리와 nullable 오류 usage를 유지한다.
+
+[명세](../../docs/changes/shared-context-generation.md). 전체7,019개 검사와4자료 오프라인 요청 용량을 확인했다. 빈 mock 출력/모의 usage는 실제 모델 품질/청구가 아니다. 충분한 출력·미관측 의미 품질·앱 권한/복구는 후속이다. prompt 해시는 소비된 원문/후보의 일관성 검사이며 전송하지 않는 title 서명이나 진실 인증은 아니다.
