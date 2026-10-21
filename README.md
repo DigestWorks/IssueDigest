@@ -1,5 +1,7 @@
 # IssueDigest
 
+현재 비교: [동일 계약 모델4회](docs/research/shared-context-model-comparison.md). GPT-6.1 Sol은4건 모두 반환했으나 의미 기준은2/4 충족이다. 대상·필수 광역 범위 누락이 남아 앱/기본 모델은 바꾸지 않았다. 그룹 출력 즉시 구현을 보류하고 의미 품질을 우선 검토한다.
+
 현재 인수: [공유 맥락 생성의 실제4회](docs/research/shared-context-acceptance.md). 반환1건은 필수 별도 범위를 누락해 의미 미충족이고3건은 구조 거부로 의미 미판정이다. 기존 결과·상한/비용을 보존하며 앱 적용은 보류한다. 다음은 [측정 그룹 출력 제안](docs/changes/measurement-group-output.md)이며 아직 구현하지 않았다.
 
 현재 구현: [공유 맥락 생성 SDK](docs/changes/shared-context-generation.md). 새 순수 계약을 단일 borrowed-model 요청에 연결했다. 전체7,019개 검사·독립 검토와 기존4자료 원문 전체의 오프라인 요청 용량을 확인했다. 실제 AI 호출0이며 의미 품질·앱 적용은 후속이다.
