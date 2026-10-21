@@ -26,4 +26,4 @@ Status evidence uses whole numeric-containing sentence IDs rather than a lexical
 
 ## 검증과 실제 의미 경계
 
-source/QA353217e·신규120+기존M1보강3/focused515/agents2333·전체6667(Python5847/JS820)·정적검사/빌드/계약 통과, 독립 태스크/전체 C0/I0/M0. 기존 다른408파일·사전 두 wire/result fixture·과거 실제4반환 재검증. 실제 신규4회 반환4/수치17개 보존이나 의미 기존0/2·신규0/2. 범위/보고자/시제/조건 오류로 앱 적용은 보류한다. 상한 소진 후 재호출 없이 원래 기준/응답을 보존했다. [인수 기록](../research/measurement-frame-generation-acceptance.md)을 따른다. Sites 반영 대기.
+source/QA353217e·신규120+기존M1보강3/focused515/agents2333·전체6667(Python5847/JS820)·정적검사/빌드/계약 통과, 독립 태스크/전체 C0/I0/M0. 기존 다른408파일·사전 두 wire/result fixture·과거 실제4반환 재검증. 실제 신규4회 반환4/수치17개 보존이나 의미 기존0/2·신규0/2. 범위/보고자/시제/조건 오류로 앱 적용은 보류한다. 상한 소진 후 재호출 없이 원래 기준/응답을 보존했다. [인수 기록](../research/measurement-frame-generation-acceptance.md)을 따른다. Draft PR64·Sites v86 출판 완료. 영수증은 [진행 기록](../planning/progress.md)을 따른다.
