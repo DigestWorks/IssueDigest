@@ -527,3 +527,9 @@ proposal=None이면 outcome=rejected, checks는 빈 tuple, received_facts/propos
 보고서는 원문·anchor·질문을 복사하지 않고 candidate_id/field/result만 기록하지만 ID도 민감할
 수 있으므로 호출자가 보관 경계를 지킨다. 신규 합성 회귀는
 `uv run --offline pytest packages/agents/tests/test_numeric_selection_evaluation.py -q`로 실행한다.
+
+## 공유 측정 맥락 · 순수 v1
+
+`issuedigest_agents.shared_measurement_context`의 `SharedMeasurementInput`과 `build_shared_measurement_frame(source, input)` / `validate_shared_measurement_frame(source, frame)`을 사용한다. contexts/events/bindings/relations는 필수이며 최대12/12/12/16개다. 명시 context/event ID로만 상속하고 combined scopes≤4·모든 anchor 같은 인용·수치 포함 전체 문장 상태 근거를 검사한다. unused/없는 참조/중복·strict canonical 우회·전체 wrapper 위변조는 상세 없는 전체 오류다.
+
+원래 입력과 기존 MeasurementScopeFrame 및 contexts 순서의 resolved purpose를 보존한다. 목적은 조건으로 변환하지 않는다. status는 unreviewed이며 위치·연결은 의미/진실/권한 인증이 아니다. [명세](../../docs/changes/shared-measurement-context.md)를 따른다. 기존 API/SDK/wire/앱은 보존하고 provider 연결·용량/실제 의미 품질은 후속이다. 새 모델 호출0·전체6,916개 검사와 실제 앱 인수는 별개다.

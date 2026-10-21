@@ -441,3 +441,7 @@ source09d6624의 새 평가기로 기존 SDK 반환1/거부1을 재생했다. �
 ### 수치 역할 평가기 · 최종 전체 검사
 
 검토된64b2f19(실행 코드2bd1f37)에서 Python4,854+JS820=5,674개·Ruff/format330/mypy133·ESLint/TS/build/OpenAPI drift가 통과했다. 실패/skip/warning0이다. 작업 검토 Important1건을 고친 뒤 수정 범위 재검토와 전체 독립 Spec/품질 PASS(C0I0M0)를 확인했다. source09의 중단된 사전 gate/취소 CI39393254153은 최종 성공에서 제외한다. [Draft PR55](https://github.com/DigestWorks/IssueDigest/pull/55)는 PR54 기반·미병합이다. [최종 source CI39394088829](https://github.com/DigestWorks/IssueDigest/actions/runs/39394088829)와 Sites/소유QA·SDD 정리는 최종 게시 receipt를 따른다. 이후 변경은 Markdown뿐이다. 신규 모델0·원래 의미0/2/모든 실패 usage·이번 세 판단/비용과 과거 판단을 유지한다.
+
+## 공유 측정 맥락 · 합성 구조 검사
+
+[명세](../../docs/changes/shared-measurement-context.md)의 공통 항목/범위·보고 사건·수치 연결과 목적/조건 분리를 합성 자료로 검사했다. 새 원본/파생 프레임 전체 재구성·strict canonical·다른 인용/중복/unused·상한·관계 재사용을 검증한다. 전체6,916개 검사(Python6,096/JavaScript820)를 통과했으나 모델 호출0이고 모델 선택·의미/중립성·브리핑 인수는 아니다. 기존 생성4회0/4와 추론 비교 의미0/2·다른2미판정, 미확인 비용/원래 gold는 유지한다.

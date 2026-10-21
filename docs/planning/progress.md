@@ -1,3 +1,19 @@
+# 공유 측정 맥락 · Sites v88 영수증 · 2026-10-21 KST
+
+[Draft PR66](https://github.com/DigestWorks/IssueDigest/pull/66)은 PR65 기반이다. Sites v88 native succeeded(2026-10-21T12:58:25.195086+09:00), source `d7f74621a9ace19cab40fb298dcc3737c8827685`, 저장소 사본 `4e7de580dac3a0f4aaad016e8aea10cd6aa26469`. 사본 이후 최종 출판 영수증은 원본 저장소를 따른다. 이전v87 보존·HTML73/로컬 링크·asset·anchor1442/공개 텍스트212·private26종 포함221파일 제외 검사를 확인했다. 텍스트/기록 변경으로 browser QA는 하지 않았으며 사용자 탭을 열거나 이동하지 않았다.
+
+생산 코드86e4272의 전체6,916개 검사와 테스트 전용d6b3e93의 별도249개/네 상한 제거 대조를 구분한다. 태스크·최종 독립 검토/수정분 재검토 완료, 기존413 실행/설정 파일·이전18evidence/최근65연구JSON 불변을 확인했다. 소유 QA1개는 ID/이름/image/label/loopback binding 검증 후 삭제했고 이 작업의 SDD 자료만 private 보존/정리했다. 다른 자원과 기존 worktree는 유지했다. 새 모델 호출·앱/서버/main/운영 변경0이며 실제 AI 선택/의미 품질·생성 용량·앱 통합은 후속이다.
+
+# 공유 측정 맥락 · 순수 구현·검증 · 2026-10-21
+
+[명세](../changes/shared-measurement-context.md). 공통 항목/범위·보고 사건을 명시 ID로만 연결하고 목적을 조건과 분리했다. 원래 입력·resolved 목적·파생 기존 프레임을 현재 source에서 전부 재현하며 unused/없는 참조·다른 인용·중복/상한·위변조를 거부한다. 기존 모듈과 요청/결과를 보존한 새 순수 모듈/합성 테스트다.
+
+코드 `86e42721058de43bbb3b47fd2222e13ad80e2438`의 전체6,916개(Python6,096+JavaScript820)·Ruff/format/mypy·ESLint/TypeScript/build/OpenAPI 검사를 통과했다. 구현 TDD·별도 태스크/최종 독립 검토와 소유 QA 증거를 private 기록에 보존했다. 기존413 실행/설정 파일·이전 연구/응답/판정 불변을 별도로 확인한다.
+
+최종 상한 테스트 보강은 `d6b3e93`의 테스트 전용 변경이다. 네 상한 제거 대조4/4 실패·정상249개/정적 검사를 별도로 확인했고 생산 코드는 전체 검사 당시와 동일하다. 전체 검사를 보강 후 다시 실행한 것으로 기록하지 않는다.
+
+새 모델 호출0·앱/서버/main/운영 변경0이다. 합성 구조 통과가 실제 AI 의미 개선은 아니다. 이전 생성 의미0/4·추론 비교 반환2의 의미0/2/다른2미판정과 비용 미확인은 유지한다. 다음은 새 provider schema/출력 용량·미관측 실제 자료 의미 품질, 이후 전체 앱 예산/권한/내구 실행 인수다. [Draft PR66](https://github.com/DigestWorks/IssueDigest/pull/66)은 PR65 기반이다. Sites 요약/이전v87 보존·출판 영수증은 후속 기록으로 확정한다.
+
 # 동일 계약 추론 비교 · Sites v87 영수증 · 2026-10-21 KST
 
 [Draft PR65](https://github.com/DigestWorks/IssueDigest/pull/65)은 PR64 기반이다. Sites v87 native succeeded(2026-10-21T12:26:10.589073+09:00), source2df52779c219d374092638944a54146267dc205c, 저장소 사본73a5da35f4978f147d2dcb26e7e3dfe2d49412cc. 사본 이후 최종 영수증은 원본 저장소를 따른다. 이전v86 보존·HTML72/로컬 링크·asset·anchor1420/공개 텍스트211·private source/ID26종 포함219파일 제외 검사를 확인했다. 텍스트/기록 변경으로 browser QA는 하지 않았고 사용자 탭을 열거나 이동하지 않았다.
