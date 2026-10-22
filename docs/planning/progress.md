@@ -1,3 +1,7 @@
+## 게시·인계 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
+
+[Draft PR85](https://github.com/DigestWorks/IssueDigest/pull/85)은 PR84 기반·미병합/앱 첨부다. 새 전체8,099개QA와 독립 검토 C0/I0/M0·원문/proposal5건 복원/mock5·기존446/480/45 보존을 확인했다. actual provider0·앱/서버/main 변경0이며 실제 의미·앱 인수는 후속이다. 계획판은 이전v106/전체 기록을 보존해 갱신하며 최종 게시 영수증은 후속 기록으로 확정한다.
+
 ## 무손실 table 검수 SDK · 구현·검증 · 2026-10-22 한국 시간
 
 [구현·검증·남은 인수](../changes/role-table-audit-implementation.md). 별도 codec와 자기 영수증의 검수 SDK를 구현했다. 신규291개·인접 검증 및 독립 태스크/전체 검토 C0/I0/M0·새 전체8,099개QA(Python7,279+JS820), 린트/형식/타입/빌드/OpenAPI 계약 검증을 통과했다. 실패/skip/warning0이며 QA 코드 기준1dcaa12 이후 문서만 변경했다.
