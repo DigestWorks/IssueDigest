@@ -1,3 +1,7 @@
+## 게시·인계 · table 검수 입력 설계 · 2026-10-22 한국 시간
+
+[Draft PR84](https://github.com/DigestWorks/IssueDigest/pull/84)은 PR83 기반·미병합/앱 첨부다. 선택한 무손실 table 입력과 보류한 anchor 사전/전체 힌트-grid를 기록했고 새 문맥 설계 검토 C0/I0/M0를 마쳤다. 실제 원문/proposal5개 roundtrip·mock5회·시제품 변조 거부55개, J envelope13,809/잔여14,904를 확인했다. 기존446실행 파일/480실제 증거·45설계 증거는 보존했고 새SDK/실제 의미·앱 적용은 후속이다. 추가 provider0·새QA/SDD/서버자원0이며 Sites 최종 게시 영수증은 후속 기록에서 확정한다.
+
 ## 역할 적용·table 검수 입력 · 설계·검토 · 2026-10-22 한국 시간
 
 [비교·선택·후속 계약](../changes/role-application-table-audit.md). 원문/원래 proposal을 그대로 복원하는 named-column 입력 시제품은 실제 J envelope15,466→13,809·실제 잔여14,904/cap890 안에 들어갔다. 추가 decoder412byte 포함 mock HTTP5개·잘못된 표식/열/행/필수값55개 거부를 확인했다. anchor 사전은 더 커져 보류했다. 짧은 H/I는242byte 커졌으며 token/의미 개선은 미검증이다.
