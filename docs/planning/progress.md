@@ -1,3 +1,9 @@
+## 최종 영수증 · table 검수 입력 설계 · 2026-10-22 한국 시간
+
+[Draft PR84](https://github.com/DigestWorks/IssueDigest/pull/84)은 PR83 기반·미병합/앱 첨부다. [계획판 v106](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `64c86465d810d6b3d71c9156a42ed2a40f23cbed`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_93b9c91204548191bddd36fe58a94038`, deployment `appgdep_6ad97c722f6c81919a05139f06fb9c72`, 2026-10-22 12:01:21 KST이다. 저장소 사본660d77c80d1ea383679da702f264b6f504aa7066·이전v105/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 해당 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML91개·로컬링크/asset/anchor2,010개·공개텍스트268개·실제 비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+설계/무호출 시제품 검토 C0/I0/M0, 원문/원래 결과5개 복원·mock HTTP5회·시제품 변조55개 거부다. 추가 provider0·기존446실행파일/480실제 증거/45설계 증거 불변·전체7,808개 코드QA 증거 재사용이다. 이번은 spec-driven-workflow 문서 예외이며 새 production SDK·새QA/SDD/서버자원·앱/API/UI/DB/worker·기본 모델/IssueDigest main 변경0이다. table codec/별도 검수 SDK·실제 읽기/의미·역할 적용 관계/앱 인수는 후속이다. 이 영수증은 저장소 원본으로 사본 재게시를 반복하지 않는다.
+
 ## 게시·인계 · table 검수 입력 설계 · 2026-10-22 한국 시간
 
 [Draft PR84](https://github.com/DigestWorks/IssueDigest/pull/84)은 PR83 기반·미병합/앱 첨부다. 선택한 무손실 table 입력과 보류한 anchor 사전/전체 힌트-grid를 기록했고 새 문맥 설계 검토 C0/I0/M0를 마쳤다. 실제 원문/proposal5개 roundtrip·mock5회·시제품 변조 거부55개, J envelope13,809/잔여14,904를 확인했다. 기존446실행 파일/480실제 증거·45설계 증거는 보존했고 새SDK/실제 의미·앱 적용은 후속이다. 추가 provider0·새QA/SDD/서버자원0이며 Sites 최종 게시 영수증은 후속 기록에서 확정한다.
