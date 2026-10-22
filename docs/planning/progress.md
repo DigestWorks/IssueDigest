@@ -1,3 +1,11 @@
+## 역할 경계·출력 배분 v2 · 실제 제한 평가 · 2026-10-22 한국 시간
+
+[사전 기준·실제 결과·비용](../research/semantic-balanced-acceptance.md). 사전672c977·최대10단계 중 실제9요청/반환9·J검수 사전 차단1, retry/repair/replacement0이다. 새 생성5건 모두 반환/필수18수치 선택이나, 비분쟁H/I/J/K 의미1/4·G는 전체5건에 남기고 사람 재판정 유보다. H국비의 세 지역 누락/검수 미탐1, I기관 범위 오인2/검수 탐지2, J수혜 지역 누락·기간 사실 오선택2가 남았다. K의 명시 증감·소속·비교 기준은 충족했다. 단일 에이전트의 알려진 개발 자료 대조이며 독립 일반 정확도 평가가 아니다.
+
+J생성 입력3,486/output1,610(reasoning381)·후속 cap890/잔여14,904에 실제 envelope15,466이라562초과로 무호출이다. 과거 참조 proposal/가정usage와 다른 실제 결과를 임의로 줄이거나 재호출하지 않았다. 실제9개 body와 사전mock 일치·known 입력21,156/output5,065·cached2,169/write17,853/reasoning1,442·참고$0.0977674, 실제청구/환율 미검증이다. 생성입력이 달라 기존 검수와 동일 입력 향상률을 주장하지 않는다.
+
+기존446실행 파일·361실제 증거·이번119불변 증거를 보존한다. 코드가 같아 전체7,808개QA 증거를 재사용하고 새QA/SDD/서버 자원은 만들지 않았다. 앱/기본 모델/main 변경0. 다음은 수치별 역할 후보·적용 관계와 장문 검수 입력 표현 설계이며 아직 구현하지 않았다. PR/Sites 게시 영수증은 후속 기록에서 확정한다.
+
 ## 최종 영수증 · 역할 경계·출력 배분 v2 SDK · 2026-10-22 한국 시간
 
 [Draft PR82](https://github.com/DigestWorks/IssueDigest/pull/82)·PR81 기반/미병합/앱 첨부. [계획판 v104](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `4c115f5e5f43ffc4c6195e25338247401f80b0ba`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_8d5e5dcdb86c8191a1838c4fd3fe8e7e`, deployment `appgdep_6ad970c9cd3c8191a5d2f3a1602d1913`, 2026-10-22 11:11:36 KST이다. 저장소 사본3564226d9d74774d7e0c6568a7ac43079f25aa84·이전v103/전체 기록을 보존했다. 이번 변경Markdown4개 중 문서3개만 해당 경로/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML89개·로컬링크/asset/anchor1,931개·공개텍스트262개·실제 비공개ID/질문/긴 인용60종 부재 검사를 통과했다. 기존 레이아웃의 텍스트 갱신이므로 새 브라우저 검사는 실행하지 않았고 사용자 탭은 열거나 이동하지 않았다.
