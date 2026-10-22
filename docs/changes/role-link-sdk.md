@@ -8,7 +8,7 @@ One new production module packages/agents/src/issuedigest_agents/role_link_sdk.p
 
 ## Task 1: Single request and strict independent receipts
 
-- [ ] Implement and test the bounded SDK.
+- [x] Implement and test the bounded SDK.
 
 Public APIs: role_link_prompt(source:Source,generation:RoleAliasGenerationV2)->str; create_role_link_reviewer(model:Model)->private frozen wrapper; run_role_link_reviewer(reviewer,source,generation)->RoleLinkGeneration; validate_role_link_generation(source,result:RoleLinkGeneration|dict[str,Any])->RoleLinkGeneration. RoleLinkSDKError sanitized with generation_usage, link_usage, link_may_have_started, combined_usage; known/unknown/late/postresponse errors preserve observed usage, dispatch uncertainty and no partial/source text, no exception cause.
 
