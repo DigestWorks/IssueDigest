@@ -1,3 +1,7 @@
+## 게시 준비 · 제한된 역할 연결 SDK · 2026-10-22 한국 시간
+
+[Draft PR89](https://github.com/DigestWorks/IssueDigest/pull/89)은 순수 계약 PR88 브랜치를 대상으로 한다. 검증 완료 코드와 문서를 공유하며 main 병합·앱 배포는 하지 않는다. Sites에는 이번 결과와 이전v110을 보존해 게시한다.
+
 ## 역할 연결 모델 SDK · 검증 완료 · 2026-10-22 한국 시간
 
 [구현·남은 인수](../changes/role-link-sdk.md). 기존 generation을 그대로 재사용하고 실제 사용량을 차감한 단일 요청·별도 profile/지침/prompt/report/단계 및 합산 사용량·현재 원문 재구성을 구현했다. 후보×수치가0쌍이면 호출0, 양수면30초/no-store·1요청·retry/repair/fallback0. 중복 도구 결과·provider 미완료/초과/잘못된 관계를 거부하고 알려진 사용량과 미확인 dispatch를 보존한다. 불확실과 미검토를 완전 검토로 표시하거나 자동으로 고치지 않는다.
