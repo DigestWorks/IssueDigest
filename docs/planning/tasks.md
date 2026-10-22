@@ -1,3 +1,14 @@
+## 현재 · table 검수 실제 평가 후 · 2026-10-22 한국 시간
+
+[사전 고정 실제5회](../research/role-table-acceptance.md).
+
+- [x] 원래 generation5개/기준 고정·검수5요청/5반환·장문 완료/원문 보존·사전 body/사용량 확인. retry/repair0·상한 소진 잠금.
+- [x] 사전8대상 탐지2/미탐6·추가hard3개 판정유보·원래 실패/비용 보존·참고$0.0355525.
+- [x] 새 문맥 증거 검토 C0/I0/M0·450코드/480이전/82신규 실제 증거 불변.
+- [x] Draft PR86·Sites v108/이전v107·최종 게시 영수증.
+- [ ] 역할 후보/적용 관계·명시coverage/uncertain/overflow 계약의 용량 설계. 전체grid 즉시 추가/원문 절단/예산 확대 없이 검토.
+- [ ] G독립 사람 재판정·미관측 자료 실제 의미 품질·전체 앱 예산/권한/내구 인수 뒤 연결 판단.
+
 ## 현재 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
 
 [검토된 설계](../changes/role-application-table-audit.md) · [구현·검증](../changes/role-table-audit-implementation.md).
@@ -7,7 +18,8 @@
 - [x] 실제 generation5건의 원문/추출 roundtrip·실제 동적 envelope·mock HTTP5회/저장 결과 재검증. 실제 provider0.
 - [x] SDK 태스크/전체 독립 검토 C0/I0/M0·새 전체8,099개QA·기존446코드/480실제/45설계 증거 보존.
 - [x] Draft PR85·Sites v107/이전v106·소유QA/현재SDD 정리·최종 게시 영수증.
-- [ ] 새 사전 고정 실제 table 검수 평가·읽기 정확도/완료·미탐/비용, 역할 후보·적용관계 별도 계약 용량/coverage 인수.
+- [x] 새 사전 고정 실제 table 검수5회·장문 완료/탐지2·미탐6/추가hard3유보·비용 확인(위 최신 기록).
+- [ ] 역할 후보·적용관계 별도 계약 용량/coverage 인수.
 - [ ] G사람 재판정·전체 앱 예산/권한/내구 인수 후 연결 판단.
 
 ## 현재 · v2 실제 평가 후 · 2026-10-22 한국 시간
