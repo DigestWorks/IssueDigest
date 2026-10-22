@@ -1,3 +1,9 @@
+## 역할 적용·table 검수 입력 · 설계·검토 · 2026-10-22 한국 시간
+
+[비교·선택·후속 계약](../changes/role-application-table-audit.md). 원문/원래 proposal을 그대로 복원하는 named-column 입력 시제품은 실제 J envelope15,466→13,809·실제 잔여14,904/cap890 안에 들어갔다. 추가 decoder412byte 포함 mock HTTP5개·잘못된 표식/열/행/필수값55개 거부를 확인했다. anchor 사전은 더 커져 보류했다. 짧은 H/I는242byte 커졌으며 token/의미 개선은 미검증이다.
+
+범용 표면 힌트는 J24개/192쌍·입력1,844byte라 새 여유1,095도 넘고 의미 오탐이 있어 전체 catalog/grid 즉시 추가를 보류한다. table 입력만으로 누락/오인 해결을 주장하지 않는다. 선택한 table codec/별도 SDK는 미구현이다. 새 문맥의 설계/시제품 검토 C0/I0/M0를 마쳤으며 실제 의미 개선·SDK 검증은 후속이다. 추가 provider0·기존446실행파일/480실제 증거 보존·새QA/SDD/앱/서버/main 변경0이다.
+
 ## 최종 영수증 · v2 실제 제한 평가 · 2026-10-22 한국 시간
 
 [Draft PR83](https://github.com/DigestWorks/IssueDigest/pull/83)은 PR82 기반·미병합/앱 첨부다. PR82의 GitHub verify 성공도 확인했다. [계획판 v105](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `67a23904046223ba82dbe164ee8e9d779a574c2c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ef800b6a7f54819182a69b29134901b6`, deployment `appgdep_6ad974ea6f6c81919c1abe50242e5437`, 2026-10-22 11:29:12 KST이다. 저장소 사본7594a1ede9e04058d64d824290f7cb55910afbbc·이전v104/전체 기록을 보존했다. 변경Markdown4개 중 문서3개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML90개·로컬링크/asset/anchor1,970개·공개텍스트265개·비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
