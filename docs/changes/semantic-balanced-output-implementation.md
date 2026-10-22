@@ -21,7 +21,7 @@ Own only packages/agents/src/issuedigest_agents/semantic_role_audit_contract.py,
 ## Controller gate
 
 - [x] Independent task and whole-branch review, fresh full QA, preservation/privacy and offline actual-source envelope checks.
-- [ ] Update canonical progress/tasks and Sites; publish Draft PR without merge or deployment.
+- [x] Update canonical progress/tasks and Sites; publish Draft PR without merge or app/server deployment.
 
 ## 구현과 확인 결과 · 2026-10-22 한국 시간
 
