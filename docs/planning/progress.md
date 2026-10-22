@@ -1,3 +1,21 @@
+## 최종 인계 · 순수 역할 연결 계약 · 2026-10-22 한국 시간
+
+[Draft PR88](https://github.com/DigestWorks/IssueDigest/pull/88) · Sites v110 게시 성공(15:18:15 KST, source ac72ba624b2d889bcb00d1adc9e8976cccdc9646), 이전v109 보존. 본문·변경6문서 요약은 게시 시94d6414 기준이다. 이후 이 영수증/완료 체크만 갱신하며 별도 재게시하지 않는다. HTML95/로컬대상2,180/공개텍스트280/실제private60항목 검사 통과·텍스트만 변경해 브라우저QA는 반복하지 않았다.
+
+자체 QA DB1개 제거·포트 닫힘 확인, 다른 리소스 변경 없음. 자체 SDD 기록·태스크/전체 검토를 비공개 기록으로 보존하고 해당 임시 디렉터리만 정리했다. 브랜치/작업폴더 유지·main 병합/앱 배포/추가provider0. 별도 bounded 모델 SDK·실제 관계 품질 인수가 다음 단계다.
+
+## 게시 준비 · 순수 역할 연결 계약 · 2026-10-22 한국 시간
+
+[Draft PR88](https://github.com/DigestWorks/IssueDigest/pull/88)은 설계 PR87 브랜치를 대상으로 한다. 검증 완료 코드와 문서를 공유하며 병합·앱 배포는 하지 않았다. Sites에는 이번 상태와 이전v109를 보존해 게시한다.
+
+## 순수 역할 연결 계약 · 검증 완료 · 2026-10-22 한국 시간
+
+[두 단계 구현·남은 인수](../changes/role-link-contract-implementation.md). 별도 catalog/domain과 명시 행렬 report를 구현했다. 수치별 모든 후보 관계·복수 역할/관련없음/불확실/미검토·정확 전체 수치와 최소 연속 whole-sentence 근거·현재 원문 재구성을 보존한다. 24후보/288쌍·20문장 초과 근거·엄격한 원본 타입/필수값/변조 거부를 포함한다. 기존 generation·앱/SDK/DB/UI/워커는 변경하지 않았다.
+
+신규201개(후보59+관계142)·인접523개와 태스크/전체 독립 검토 C0/I0/M0·새 전체8,300QA(Python7,480+JS820)·린트/형식/타입/빌드/OpenAPI 검증 통과. 실패/skip/warning0. QA 코드 기준24874f8 이후 문서만 변경했다. 실제5자료의47후보/전체 packet 일치와20개 합성 관계 입력의 원문·raw/actual 재구성을 오프라인 확인했다. 합성 분류이므로 실제 AI 의미 정확도 증거가 아니다.
+
+450기존코드/562실제/45+59설계 증거 불변·공개자료 private60항목 검사 통과. 추가 provider0·기존 실제 평가2탐지/6미탐·추가3유보 유지. 다음은 별도 bounded 모델 SDK와 고정 실제 관계 평가·후보 recall/중요도·앱 전체 예산/권한/복구 인수다. main/앱 배포는 보류한다. Sites·PR 인계는 후속 영수증에 기록한다.
+
 ## 최종 영수증 · 역할 연결 coverage 설계 · 2026-10-22 한국 시간
 
 [Draft PR87](https://github.com/DigestWorks/IssueDigest/pull/87)은 PR86 기반·미병합/앱 첨부다. [계획판 v109](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `db54dd6578a5b52fed455d038fea0362c16f171c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_917ff973b1508191b5f7db5518a12000`, deployment `appgdep_6ad9a0bed7c88191b0842e38847ff56e`, 2026-10-22 14:36:13 KST다. 저장소 사본2fc85e0bc8791cdb5288abf5059d1661d68e5748·이전v108/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML94개·로컬링크/asset/anchor2,136개·공개텍스트277개·비공개 실제ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.

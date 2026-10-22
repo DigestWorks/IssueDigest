@@ -1,3 +1,13 @@
+## 현재 · 순수 역할 연결 계약 · 2026-10-22 한국 시간
+
+[구현 계획·검증 범위](../changes/role-link-contract-implementation.md).
+
+- [x] 결정적 원문 후보·수치별 domain·원문/추출/규칙 해시와 strict 위치 검증.
+- [x] 명시 행렬·복수 역할/관련없음/불확실/미검토·288쌍과20문장 초과 근거·전체 재구성 계약. 신규201/인접523검사 통과.
+- [x] 독립 태스크/전체 검토 C0/I0/M0·새 전체8,300QA·450기존코드/562실제/45+59설계 불변·개인정보 검사.
+- [x] 문서·[Draft PR88](https://github.com/DigestWorks/IssueDigest/pull/88)·Sites v110/이전v109 인계·자체 SDD 기록/검증 DB 정리.
+- [ ] 별도 bounded 모델 SDK와 사전 고정 실제 분류·후보 recall/의미 품질·앱 전체 예산/권한/복구 인수. 앱 연결은 보류.
+
 ## 현재 · 역할 연결 coverage 설계 · 2026-10-22 한국 시간
 
 [후보/행렬·용량·남은 경계](../changes/role-link-coverage.md).
@@ -6,7 +16,7 @@
 - [x] 기존 후보47개의 strict 위치·현재5자료의 전체 원문/proposal 확인, 최종5/이전 두 초안10 mock HTTP·잘못된 출력90개 거부. 실제 provider0·새SDK0.
 - [x] 독립 설계 검토의 순서 I1 수정·재검토 C0/I0/M0·450코드/562실제/45기존설계/59신규 설계 증거 불변.
 - [x] Draft PR87·Sites v109/이전v108·최종 인계 영수증.
-- [ ] 별도 순수 catalog/domain/role-link report·전체 재구성/변조/명시coverage/locate/overflow의 TDD 구현 후 bounded SDK 판단.
+- [x] 별도 순수 catalog/domain/role-link report의 TDD 구현. 독립 검토·전체QA 후 bounded SDK 판단.
 - [ ] 사전 고정 실제 관계 분류·복수 역할/관련없음 오탐·출력 완료/미검토·미관측 후보 recall/비용 인수.
 - [ ] 원래 추출과의 의미 비교/중요도·G사람 재판정·앱 전체 예산/권한/내구 인수. 자동 hard누락/수리·앱 연결은 후속.
 
