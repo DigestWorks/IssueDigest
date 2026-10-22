@@ -1,5 +1,7 @@
 # IssueDigest
 
+현재 구현: [무손실 table 검수 SDK](docs/changes/role-table-audit-implementation.md). 원문·추출 결과를 그대로 복원하는 입력과 별도 검수 영수증/실제 잔여 예산을 구현했다. 독립 검토·전체8,099개 검사/빌드/계약 검증과 오프라인 mock을 통과했다. 실제 AI 읽기/의미 품질과 앱 적용은 후속이다.
+
 다음 설계: [역할 적용·무손실 검수 입력](docs/changes/role-application-table-audit.md). 원문과 추출 결과를 유지한 표 형식의 무호출 시제품에서 장문 검수 입력 수용을 확인했다. 새 SDK·실제 읽기/의미 개선은 후속이다.
 
 현재 실제 평가: [역할 경계·출력 배분 v2](docs/research/semantic-balanced-acceptance.md). 실제9요청 모두 반환했으나 생성 의미는 비분쟁1/4·분쟁1건 유보이며 검수 미탐·장문 입력 차단이 남았다. 원래 결과/비용을 보존하고 앱 적용을 보류한다.

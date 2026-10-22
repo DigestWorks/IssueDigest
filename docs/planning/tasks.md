@@ -1,10 +1,13 @@
-## 현재 · 무손실 table 검수 입력 · 2026-10-22 한국 시간
+## 현재 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
 
-[설계·시제품·남은 역할 적용 관계](../changes/role-application-table-audit.md).
+[검토된 설계](../changes/role-application-table-audit.md) · [구현·검증](../changes/role-table-audit-implementation.md).
 
-- [x] 입력 표현/역할 힌트 비교·설계 검토 C0/I0/M0: full-source/proposal roundtrip, 실제 J15,466→13,809의 무호출 draft, 전체catalog/grid는 용량·의미 기준상 보류.
-- [ ] 별도 strict table codec/합성 검증·table audit SDK/자기 영수증·독립 검토·새 전체QA. 기존446코드/480실제 증거 불변.
-- [ ] 새 사전 고정 실제 table audit 평가·읽기 정확도/완료·미탐/비용, 역할 후보·적용관계 별도 계약 용량/coverage 인수.
+- [x] 별도 strict codec·신규208/인접376·태스크 독립 검토 C0/I0/M0.
+- [x] 별도 borrowed-model 검수 SDK·신규83/인접373·자기 영수증·합산 예산·known/unknown/late 실패 사용량 보존.
+- [x] 실제 generation5건의 원문/추출 roundtrip·실제 동적 envelope·mock HTTP5회/저장 결과 재검증. 실제 provider0.
+- [x] SDK 태스크/전체 독립 검토 C0/I0/M0·새 전체8,099개QA·기존446코드/480실제/45설계 증거 보존.
+- [x] Draft PR85·Sites v107/이전v106·소유QA/현재SDD 정리·최종 게시 영수증.
+- [ ] 새 사전 고정 실제 table 검수 평가·읽기 정확도/완료·미탐/비용, 역할 후보·적용관계 별도 계약 용량/coverage 인수.
 - [ ] G사람 재판정·전체 앱 예산/권한/내구 인수 후 연결 판단.
 
 ## 현재 · v2 실제 평가 후 · 2026-10-22 한국 시간
