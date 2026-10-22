@@ -56,3 +56,5 @@ Synthetic TDD tests before module: literal positive carrier order/path/owner/IDs
 기존456실행파일/642실제평가/121설계증거는 불변이다. 앱/API/DB/UI/worker·공급자 지침/기본 모델·main/서버 배포는 변경하지 않았다. 의미 동등성·중요도·잘못된 역할 배정·미관측 자료의 후보 recall·앱 전체 비용/권한/복구 인수가 다음 단계다.
 
 태스크 독립 검토와 새 전체 브랜치 검토 모두 C0/I0/M0로 승인했다. 구현 수정 없이 확정 source db1876d의 새 전체8,452개(Python7,632+JS820), lint/format/types/build/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 의미/중요도·provider 진위·제품 전체 인수는 본 문자 참조 계약의 판단 대상이 아니며 별도 열린 과제로 유지한다.
+
+[Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92)은 설계 PR91 브랜치를 대상으로 한다. main/앱 배포는 하지 않는다. 소유 QA컨테이너1개 제거·포트 닫힘을 확인했고 다른 자원은 유지했다. Sites에는 기존v113을 보존해 현재 구현과 남은 인수를 반영한다.
