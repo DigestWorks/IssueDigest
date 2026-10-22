@@ -26,7 +26,7 @@ Domains include EVERY quote, all its hints and original binding-order selected n
 
 ## Task 2: Explicit matrix report and reconstruction
 
-- [ ] Implement and test pure relation contract.
+- [x] Implement and test pure relation contract.
 
 Own only packages/agents/src/issuedigest_agents/role_link_contract.py and packages/agents/tests/test_role_link_contract.py plus own checkbox. Consume Task1 catalog APIs/DTOs/constants without edits. APIs build_role_link_report(source:Source,generation:RoleAliasGenerationV2,data:RoleLinkInput|dict[str,Any])->RoleLinkReport; validate_role_link_report(source:Source,result:RoleLinkReport|dict[str,Any])->RoleLinkReport. RoleLinkInput required rows:tuple[str,...],incomplete:bool, no defaults. Required report markers profile='role-link-report-v1',encoding_version='role-link-matrix-v1',role_order='STOREIBP',source_inventory_exhaustive=False. Report includes current RoleLinkCatalog (and thus unchanged generation), catalog_sha256, domain_sha256, encoding_sha256 (hash exact role/order/state/version), input:RoleLinkInput, decisions tuple[RoleLinkDecision,...], coverage:RoleLinkCoverage, status exact Literal described below. All fields required. No usage/model/prompt receipt yet; those belong to later SDK.
 
