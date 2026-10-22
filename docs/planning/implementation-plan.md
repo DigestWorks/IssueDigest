@@ -4,7 +4,7 @@
 
 ## M3 최신 인계 · 2026-10-22 한국 시간
 
-[table 검수 실제5회](../research/role-table-acceptance.md)의 2탐지/6미탐·추가hard3유보를 보존하고 [수치별 역할 연결 coverage](../changes/role-link-coverage.md)를 설계했다. 원문/추출을 유지한 명시 행렬로 복수역할/관련없음/불확실/미검토를 구분하는 안이며 현재는 무호출 시제품이다. 후보가 원문 전체를 포괄하거나 원래 추출 누락/중요도를 자동 판정한다고 주장하지 않는다. 다음은 순수 catalog/domain/report 재구성·변조·coverage/locate/overflow 계약의 TDD 구현과 별도 bounded SDK 판단이다. 실제 부호/관계 정확도·출력 완료/후보 recall·G사람 재판정·앱 전체 예산/권한/내구 인수 전 앱 연결은 보류한다.
+[table 검수 실제5회](../research/role-table-acceptance.md)의 2탐지/6미탐·추가hard3유보를 보존하고 [수치별 역할 연결 coverage](../changes/role-link-coverage.md)의 [순수 계약](../changes/role-link-contract-implementation.md)을 구현했다. 원문/추출을 유지하며 결정적 후보와 수치별 모든 관계를 기록하고, 복수역할/관련없음/불확실/미검토·정확 원문 위치를 다시 검증한다. 신규201/인접523검사와 실제5자료의 합성 행렬20개 오프라인 검증을 통과했으며 독립 검토·전체QA는 진행 중이다. 후보가 원문 전체를 포괄하거나 원래 추출 누락/중요도를 자동 판정한다고 주장하지 않는다. 다음은 별도 bounded SDK 판단과 실제 관계 정확도·출력 완료/후보 recall·G사람 재판정·앱 전체 예산/권한/내구 인수다. 앱 연결은 보류한다.
 
 ## 제품 여정
 

@@ -1,3 +1,7 @@
+## 진행 중 · 순수 역할 연결 계약 · 2026-10-22 한국 시간
+
+[검토된 설계](../changes/role-link-coverage.md)의 [두 단계 구현 계획](../changes/role-link-contract-implementation.md)에 따라 후보/domain과 명시 행렬 report를 별도 순수 모듈로 구현한다. 원문/원래 generation·불확실/미검토·정확 source 위치를 보존하며 모델 SDK/실제 provider 호출은 이번 범위가 아니다. 기존450코드·562실제/45+59설계 증거를 보존하고 독립 검토·새 전체QA 뒤 결과를 기록한다. 앱/main 배포는 하지 않으며 Sites는 검증 완료 후 반영한다.
+
 ## 최종 영수증 · 역할 연결 coverage 설계 · 2026-10-22 한국 시간
 
 [Draft PR87](https://github.com/DigestWorks/IssueDigest/pull/87)은 PR86 기반·미병합/앱 첨부다. [계획판 v109](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `db54dd6578a5b52fed455d038fea0362c16f171c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_917ff973b1508191b5f7db5518a12000`, deployment `appgdep_6ad9a0bed7c88191b0842e38847ff56e`, 2026-10-22 14:36:13 KST다. 저장소 사본2fc85e0bc8791cdb5288abf5059d1661d68e5748·이전v108/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML94개·로컬링크/asset/anchor2,136개·공개텍스트277개·비공개 실제ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
