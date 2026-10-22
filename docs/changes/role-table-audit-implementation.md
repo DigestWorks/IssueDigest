@@ -22,3 +22,23 @@ Own packages/agents/src/issuedigest_agents/role_table_audit.py and packages/agen
 
 - [ ] Independent task and whole-branch review, fresh full QA, offline actual-source reconstruction/envelopes, immutable manifest and privacy checks.
 - [ ] Canonical progress/tasks/README, Draft PR and Sites summary with previous version preserved; no merge/deployment of application.
+
+## 구현·검증 범위 · 2026-10-22 한국 시간
+
+별도 `role_table_packet`은 검증된 현재 원문과 exact `RoleAliasGenerationV2`로 표 입력을 만들고, 역변환 값을 새로 재구성한 canonical 데이터와 실제 타입까지 비교한다. 열 순서·행 길이·필수 null/빈 배열·중첩 값/표식과 원문의 문장 순서·공백·단위·범위 표현을 보존한다. 기존 원문/추출을 합치거나 의미를 고치지 않는다. 신규 합성208개·인접 포함376개 검사와 태스크 독립 검토 C0/I0/M0를 통과했다.
+
+별도 `role_table_audit`은 자기 profile/input_format·prompt/지침 hash·사용량 영수증을 가진다. 기존 pure report/동적 출력 schema만 재사용하며 예전 audit 영수증으로 바꾸지 않는다. caller 소유 Model·1회/30초/no-store와 생성 실제 사용량 차감·합산total20,000/output2,500을 유지한다. 빈 선택은 검수0회, 검수 시작 가능/사용량 불명확은 합산null이다. 미완료·한도초과·최종 검증 실패에도 알려진 실제 사용량과 시작 상태를 보존한다. 신규 합성83개·인접373개가 통과했으며 전체QA와 독립 검토의 최종 상태는 진행 기록을 따른다.
+
+### 기존 실제 자료의 오프라인 SDK 확인
+
+| 자료 | 구현된 검수 envelope | 실제 생성 잔여total | output cap | 여유 |
+| --- | ---: | ---: | ---: | ---: |
+| G | 11,117 | 16,460 | 1,100 | 5,343 |
+| H | 10,613 | 16,789 | 1,100 | 6,176 |
+| I | 10,509 | 16,843 | 1,100 | 6,334 |
+| J | 13,809 | 14,904 | 890 | 1,095 |
+| K | 11,714 | 16,140 | 1,100 | 4,426 |
+
+과거 실제 generation5개를 읽기 전용 재사용한 SDK의 결과이며, 원문/proposal을 정확히 복원하고 검토된 시제품 packet/3,134byte 지침과 일치했다. 실제 raw/normalized schema와 framing2,048·출력reserve를 포함한 UTF8 기반 예약량이다. mock HTTP5회와 저장 결과 재검증을 확인했고 실제 provider 요청0이다. 합성 검수 usage100/30은 기존 실제 generation usage를 바꾸지 않으며 의미/토큰/실제 비용 개선 증거가 아니다. 짧은 H/I의 지침/header overhead 증가는 그대로 남는다.
+
+다음은 새 사전 기준/상한을 고정한 실제 table 검수 평가다. 실제 읽기 정확도·장문 완료·오탐/미탐·비용은 별도로 확인하고, 원래 H의 미탐·I의 역할 오인·J의 누락/오선택·G의 독립 사람 재판정 과제를 보존한다. 역할 후보 전체 grid는 이번에 추가하지 않는다. 전체 앱 예산/권한/내구 인수·앱 연결은 후속이며 이 SDK는 아직 개발 사이트 실행 경로를 바꾸지 않는다.

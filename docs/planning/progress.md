@@ -1,3 +1,7 @@
+## 진행 중 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
+
+[승인된 설계](../changes/role-application-table-audit.md)를 [두 단계 구현 계획](../changes/role-table-audit-implementation.md)에 따라 별도 codec와 검수 SDK로 구현한다. 기존446실행 파일·480실제 평가 증거·45설계 증거를 보존하고 실제 provider 요청은 하지 않는다. 독립 검토·새 전체QA·오프라인 원문/요청 용량 검증 후 결과를 기록한다. 앱/서버/main은 변경하지 않으며 Sites 요약 반영은 검증 완료 후 진행한다.
+
 ## 최종 영수증 · table 검수 입력 설계 · 2026-10-22 한국 시간
 
 [Draft PR84](https://github.com/DigestWorks/IssueDigest/pull/84)은 PR83 기반·미병합/앱 첨부다. [계획판 v106](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `64c86465d810d6b3d71c9156a42ed2a40f23cbed`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_93b9c91204548191bddd36fe58a94038`, deployment `appgdep_6ad97c722f6c81919a05139f06fb9c72`, 2026-10-22 12:01:21 KST이다. 저장소 사본660d77c80d1ea383679da702f264b6f504aa7066·이전v105/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 해당 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML91개·로컬링크/asset/anchor2,010개·공개텍스트268개·실제 비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
