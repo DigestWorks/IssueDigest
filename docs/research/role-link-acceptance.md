@@ -20,9 +20,9 @@ GPT-6.1 Sol·Responses·low/default·30초/no-store, caller OpenAI client max_re
 
 [OpenAI 공식 모델/요율](https://developers.openai.com/api/docs/models/gpt-6.1-sol)과 [pricing](https://developers.openai.com/api/docs/pricing)을2026-10-22 확인했다. Standard 1M input$2/cached$0.10/30분write$2.50/output$10, reasoning은output에 포함한다. cached/write를input에서 분리해 중복 계산하지 않는다. 5×20,000을 전부output으로 간주한 보수 상한$1이며 기존 월10만 원 한도를 확대하지 않는다. 이번 관계 분류 비용과 기존 generation/검수 비용을 분리하고 실제 청구/환율은 미검증으로 둔다.
 
-## 결과
+## 사전 등록 당시의 실행 계획
 
-호출 전이다. 사전 protocol commit·private criteria·freeze와 각 body를 고정한 뒤 실행하고 원래 실패/기준을 응답에 맞춰 바꾸지 않는다. 요청·provider 완료·SDK 반환·부분 관계 조건 충족·불확실/미검토·알려진 비용을 별도로 기록한다.
+아래는 호출 전에 고정한 계획이다. 사전 protocol commit·private criteria·freeze와 각 body를 고정한 뒤 실행하고 원래 실패/기준을 응답에 맞춰 바꾸지 않는다. 요청·provider 완료·SDK 반환·부분 관계 조건 충족·불확실/미검토·알려진 비용을 별도로 기록한다.
 
 ## 실제 관측 결과
 
@@ -50,3 +50,5 @@ GPT-6.1 Sol·Responses·low/default·30초/no-store, caller OpenAI client max_re
 실제 관계 분류 합계input8,992/output1,302(그 안 reasoning707), cached0/write8,362다. 30분write요율 가정의 Standard 참고비용은 **$0.0351850**이며 실제 청구·환율은 미검증이다. 원래 generation/이전 검수 비용은 더하지 않았고 보존했다. 입력 표현·출력 업무가 달라진 이전 검수와 비용/의미 효율의 통제 비교라고 부르지 않는다.
 
 추가 유료 호출로 기준을 맞추지 않는다. 다음은 measurement_scope/entity_qualifier의 양립·정체성/범위 관계와 원래 추출의 정보 보존/중요도 판단 계약을 실제 예와 함께 설계하는 것이다. 독립 의미 판정·미관측 후보 recall·앱 전체 예산/권한/내구 인수 전에는 앱 연결을 보류한다. 코드456개 불변이므로 전체8,409QA를 재실행하지 않으며 원문/결과 재검증·해시·호출/비용 산술·문서/개인정보 검증과 독립 증거 검토로 이번 연구를 확인한다.
+
+독립 증거 검토 최종 C0/I0/M0.5개 결과의 현재 SDK raw/actual 재구성·원시/HTTP arguments·사전body/hash/17입력/456코드와 상태/점수/비용을 독립 확인했다. 공개 문서의 사전 계획 현재형 표현1건을 수정했으며 기준/원래 실패는 바꾸지 않았다. 신규80개 증거를 불변 manifest에 보존했다(이전562+신규80=642실제 평가 증거). 이는 독립 사람 의미 정답이나 전체 역할 인증이 아니다.
