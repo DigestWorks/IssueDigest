@@ -8,7 +8,7 @@ Freeze456 existing non-Markdown tracked files,642 actual evidence (previous562+8
 
 ## Task 1: Canonical carrier inventory and strict report
 
-- [ ] Implement and test pure source reference report.
+- [x] Implement and test pure source reference report.
 
 APIs build_role_reference_coverage(source:Source,link:RoleLinkGeneration|dict[str,Any])->RoleReferenceCoverage; validate_role_reference_coverage(source:Source,result:RoleReferenceCoverage|dict[str,Any])->RoleReferenceCoverage. RoleReferenceCoverageError is sanitized fixed message/no cause/source/partialoutput. Validate exact original Source and original link with original strict raw/actual guards BEFORE dumps; then validate_role_link_generation. Validators also guard entire original new report and recursively required markers/scalar/container/model identity before any serialization/default restoration, not just its copied original_link. No unchecked copies/subclasses/raw tuples or int/bool coercion. Full current source/link/catalog/domain/carriers/rows/counts/hash/rules reconstruction; compare every field. Return canonical immutable-value DTOs in existing _StrictModel style (do not change base class).
 
