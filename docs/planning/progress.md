@@ -1,3 +1,9 @@
+## 최종 영수증 · v2 실제 제한 평가 · 2026-10-22 한국 시간
+
+[Draft PR83](https://github.com/DigestWorks/IssueDigest/pull/83)은 PR82 기반·미병합/앱 첨부다. PR82의 GitHub verify 성공도 확인했다. [계획판 v105](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `67a23904046223ba82dbe164ee8e9d779a574c2c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ef800b6a7f54819182a69b29134901b6`, deployment `appgdep_6ad974ea6f6c81919c1abe50242e5437`, 2026-10-22 11:29:12 KST이다. 저장소 사본7594a1ede9e04058d64d824290f7cb55910afbbc·이전v104/전체 기록을 보존했다. 변경Markdown4개 중 문서3개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML90개·로컬링크/asset/anchor1,970개·공개텍스트265개·비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+사전672c977·실제9요청/9반환·검수사전차단1·참고$0.0977674·비분쟁의미1/4/G사람판정유보·검수미탐1을 원래 응답/기준과 보존했다. 기존446실행 파일·이전361/신규119실제 증거 불변, 전체7,808개 코드QA 증거 재사용이다. 이번은 연구/문서 작업으로 spec-driven-workflow 문서 예외를 적용했고 새QA/SDD/서버 자원·앱/API/UI/DB/worker·기본 모델/main 변경0이다. 최종 게시 영수증은 이 저장소 원본이며 사본 재게시를 반복하지 않는다.
+
 ## 게시·인계 · v2 실제 제한 평가 · 2026-10-22 한국 시간
 
 [Draft PR83](https://github.com/DigestWorks/IssueDigest/pull/83)은 PR82 기반·미병합/앱 첨부다. 사전672c977·실제9요청/반환9·검수사전차단1·참고$0.0977674와 비분쟁1/4·G판정유보를 보존했다. 기존446실행파일·361이전실제/119신규실제 증거 불변·새QA/SDD/서버자원0이며 다음 입력/역할 설계는 미구현이다. Sites 최종 게시 영수증은 후속 기록에서 확정한다.
