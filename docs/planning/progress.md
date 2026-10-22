@@ -1,3 +1,9 @@
+## 최종 영수증 · 역할 연결 coverage 설계 · 2026-10-22 한국 시간
+
+[Draft PR87](https://github.com/DigestWorks/IssueDigest/pull/87)은 PR86 기반·미병합/앱 첨부다. [계획판 v109](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `db54dd6578a5b52fed455d038fea0362c16f171c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_917ff973b1508191b5f7db5518a12000`, deployment `appgdep_6ad9a0bed7c88191b0842e38847ff56e`, 2026-10-22 14:36:13 KST다. 저장소 사본2fc85e0bc8791cdb5288abf5059d1661d68e5748·이전v108/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML94개·로컬링크/asset/anchor2,136개·공개텍스트277개·비공개 실제ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+역할 순서 I1 재현/명시 role_order 수정·재검토 C0/I0/M0, 원문/proposal5개/후보47위치·3초안 mock총15/최종malformed90/순서회귀15·J192쌍 envelope12,277/실제잔여14,904·출력 완료 미검증을 기록했다. 기존450실행파일/562실제/45이전설계/59신규설계 증거 불변이다. 실제 provider0·코드가 같아 전체8,099개QA 재사용·새SDK/QA/SDD/서버자원/앱/API/UI/DB/worker/기본 모델/main 변경0이다. 다음 순수 계약 TDD·실제 관계/출력 완료/후보 recall·원래 추출과 의미 비교·앱 인수는 후속이다. 최종 영수증은 저장소 원본이며 사본 재게시를 반복하지 않는다.
+
 ## 게시·인계 · 역할 연결 coverage 설계 · 2026-10-22 한국 시간
 
 [Draft PR87](https://github.com/DigestWorks/IssueDigest/pull/87)은 PR86 기반·미병합/앱 첨부다. 명시 관계 행렬·부호 순서 I1 수정/재검토 C0/I0/M0·3초안 mock총15/최종 malformed90/순서회귀15·450코드/562실제/45이전설계/59신규설계 증거 보존을 확인했다. 추가provider0/새SDK0·전체8,099개QA 재사용·새QA/SDD/서버자원·앱/main 변경0이며 실제 관계/완료와 앱 인수는 후속이다. Sites 최종 게시 영수증은 후속 기록에서 확정한다.
