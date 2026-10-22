@@ -62,3 +62,5 @@ exact가 있으면 exact, 그다음 full containing, partial 순으로 요약하
 3. 의미 동등성·중요도·잘못된 역할 배정은 별도 기준/인수로 남긴다. 미관측 자료/후보 recall·G사람 재판정·앱 전체 비용/권한/내구 검증 전 앱에 연결하지 않는다. 추가 유료 호출로 기존 기준을 맞추지 않는다.
 
 독립 설계·시제품 검토 C0/I0/M0. 전체271행을 별도 interval oracle로 대조해23exact/31containing/2partial/215no-reference와 K6/J4를 재현했다. 합성10경계/70변형 거부와 추가25타입 probe를 확인했다. 두 초안·projection·검토17개 증거를 불변 manifest로 보존한다.456코드/642실제/45+59기존설계 불변이며 production typed 계약/TDD·의미 동등성/중요도 인수를 완료했다는 뜻은 아니다.
+
+[Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)·Sites v113 게시 성공(2026-10-22 17:34:57 KST, sourceaf9bee1bf035b3fbcfecc435057db2649356282c), 이전v112 보존.98HTML/2,318로컬대상/289공개텍스트/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다. 실제 평가 PR90 브랜치를 대상으로 하며 앱/main은 변경하지 않았다. 신규 설계17개 증거·기존456코드/642실제/45+59설계·8,409QA를 유지하고 추가provider/서버/QA자원0, 브랜치/작업폴더 유지. 게시 후 영수증만 추가해 재게시하지 않는다.

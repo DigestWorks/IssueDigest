@@ -1,3 +1,9 @@
+## 최종 인계 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
+
+[Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91) · Sites v113 게시 성공(17:34:57 KST, sourceaf9bee1bf035b3fbcfecc435057db2649356282c), 이전v112 보존. 본문·변경6문서 요약은 게시 시f9da787 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.98HTML/로컬대상2,318/공개텍스트289/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다.
+
+기존5자료/271행·23exact/31containing/2partial/215no-reference, 직전10역할 불일치의 K6entity 내부/J4해당primary참조 없음·기존6/8/7/9점수·원래 실패/비용을 보존한다. 독립 설계/시제품 검토 C0/I0/M0·10기하경계/70변형 거부/추가25타입 probe·신규17설계 증거와 기존456코드/642실제/45+59설계 불변. 코드가 같아8,409QA를 재사용하며 추가provider·앱/main/서버 배포·QA자원 생성0, 브랜치/작업폴더 유지. 다음은 별도 순수 strict carrier/reference DTO·원문 재구성·TDD 구현이며 의미 동등성/중요도와 앱 인수는 후속이다.
+
 ## 게시 준비 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
 
 [Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)은 실제 평가 PR90 브랜치를 대상으로 한다. 원래 선택 필드와 역할 분류를 분리하는 설계·무호출 projection·한계를 공유하며 app/main 변경은 없다. Sites에는 이번 설계와 이전v112를 보존해 게시한다.
