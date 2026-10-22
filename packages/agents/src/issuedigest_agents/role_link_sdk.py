@@ -7,7 +7,7 @@ from typing import Any, Literal
 from issuedigest_domain.sources import Sha256
 from pydantic import BaseModel, Field, create_model
 from pydantic_ai import ToolOutput
-from pydantic_ai.messages import ModelResponse, ToolCallPart
+from pydantic_ai.messages import ModelResponse, ThinkingPart, ToolCallPart
 from pydantic_ai.models import Model
 
 from .balanced_role_generation import RoleAliasGenerationV2, validate_balanced_role_generation
@@ -239,12 +239,14 @@ def run_role_link_reviewer(
                 output_limit=cap,
             )
             started = True
+            if len(observed.responses) != 1 or not isinstance(observed.responses[0], ModelResponse):
+                raise ValueError("Expected exactly one relation response")
+            parts = observed.responses[0].parts
+            calls = [part for part in parts if isinstance(part, ToolCallPart)]
             if (
-                len(observed.responses) != 1
-                or not isinstance(observed.responses[0], ModelResponse)
-                or len(observed.responses[0].parts) != 1
-                or not isinstance(observed.responses[0].parts[0], ToolCallPart)
-                or observed.responses[0].parts[0].tool_name != "review_role_links_v1"
+                len(calls) != 1
+                or calls[0].tool_name != "review_role_links_v1"
+                or any(not isinstance(part, (ToolCallPart, ThinkingPart)) for part in parts)
             ):
                 raise ValueError("Expected exactly one relation tool response")
             output_type = tools[0].output

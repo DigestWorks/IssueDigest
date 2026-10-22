@@ -499,3 +499,127 @@ def test_stage_usage_originals_reject_coercion_and_default_restoration(actual, m
     src, _ = original("현재 3명.", numbers=("n1",))
     with pytest.raises(mod.RoleLinkSDKError):
         mod.validate_role_link_generation(src, bad)
+
+
+@pytest.mark.parametrize("metadata", ["encrypted", "summary", "multiple"])
+@pytest.mark.parametrize("position", ["before", "after", "around"])
+def test_thinking_metadata_does_not_count_as_an_output_tool(metadata, position):
+    from pydantic_ai.messages import ThinkingPart
+
+    mod = api()
+    src, gen = original("현재 3명.", numbers=("n1",))
+    thoughts = [
+        ThinkingPart(
+            content="" if metadata == "encrypted" else "synthetic summary",
+            signature="synthetic encrypted metadata",
+        )
+    ]
+    if metadata == "multiple":
+        thoughts.append(ThinkingPart(content="second synthetic summary"))
+    tool = ToolCallPart("review_role_links_v1", '{"rows":["SO"],"incomplete":false}')
+    parts = thoughts + [tool] if position == "before" else [tool] + thoughts
+    if position == "around":
+        parts = [thoughts[0], tool, *thoughts]
+    calls = []
+
+    def respond(messages, info):
+        calls.append(messages)
+        return ModelResponse(parts=parts, usage=RequestUsage(input_tokens=111, output_tokens=22))
+
+    got = mod.run_role_link_reviewer(
+        mod.create_role_link_reviewer(FunctionModel(respond)), src, gen
+    )
+    assert len(calls) == 1 and got.report.input.rows == ("SO",)
+    assert got.link_usage.model_dump() == dict(input_tokens=111, output_tokens=22, requests=1)
+    assert mod.validate_role_link_generation(src, got.model_dump(mode="json")) == got
+
+
+@pytest.mark.parametrize("extra", ["text", "duplicate", "wrong_tool", "native_tool"])
+def test_thinking_metadata_does_not_hide_unexpected_output_parts(extra):
+    from pydantic_ai.messages import NativeToolCallPart, ThinkingPart
+
+    mod = api()
+    src, gen = original("현재 3명.", numbers=("n1",))
+    tool = ToolCallPart("review_role_links_v1", '{"rows":["SO"],"incomplete":false}')
+    unexpected = {
+        "text": TextPart("unexpected output"),
+        "duplicate": tool,
+        "wrong_tool": ToolCallPart("unrequested_tool", "{}"),
+        "native_tool": NativeToolCallPart("unexpected_native_tool", {}),
+    }[extra]
+    calls = []
+
+    def respond(messages, info):
+        calls.append(messages)
+        return ModelResponse(
+            parts=[ThinkingPart(content="synthetic summary"), tool, unexpected],
+            usage=RequestUsage(input_tokens=111, output_tokens=22),
+        )
+
+    with pytest.raises(mod.RoleLinkSDKError) as caught:
+        mod.run_role_link_reviewer(mod.create_role_link_reviewer(FunctionModel(respond)), src, gen)
+    assert len(calls) == 1 and caught.value.link_may_have_started
+    assert caught.value.link_usage.model_dump() == dict(
+        input_tokens=111, output_tokens=22, requests=1
+    )
+    assert caught.value.combined_usage.requests == 2
+
+
+@pytest.mark.parametrize("summary", [[], [{"type": "summary_text", "text": "synthetic summary"}]])
+def test_openai_adapter_reasoning_metadata_and_single_tool_roundtrip(sync_model_loop, summary):
+    import httpx2 as httpx
+    from openai import AsyncOpenAI
+    from pydantic_ai.models.openai import OpenAIResponsesModel
+    from pydantic_ai.providers.openai import OpenAIProvider
+
+    mod = api()
+    src, gen = original("현재 3명.", numbers=("n1",))
+    calls = []
+
+    def handler(request):
+        calls.append(json.loads(request.content))
+        return httpx.Response(
+            200,
+            json=dict(
+                id="resp_synthetic",
+                object="response",
+                created_at=0,
+                status="completed",
+                incomplete_details=None,
+                model="synthetic-model",
+                output=[
+                    dict(
+                        type="reasoning",
+                        id="rs_synthetic",
+                        summary=summary,
+                        encrypted_content="synthetic encrypted metadata",
+                    ),
+                    dict(
+                        type="function_call",
+                        id="fc_synthetic",
+                        call_id="call_synthetic",
+                        name="review_role_links_v1",
+                        status="completed",
+                        arguments='{"rows":["SO"],"incomplete":false}',
+                    ),
+                ],
+                usage=dict(input_tokens=111, output_tokens=22, total_tokens=133),
+            ),
+        )
+
+    client = httpx.AsyncClient(transport=httpx.MockTransport(handler))
+    provider_client = AsyncOpenAI(api_key="synthetic", http_client=client, max_retries=0)
+    try:
+        model = OpenAIResponsesModel(
+            "synthetic-model",
+            provider=OpenAIProvider(openai_client=provider_client),
+            settings={"openai_reasoning_effort": "low"},
+        )
+        got = mod.run_role_link_reviewer(mod.create_role_link_reviewer(model), src, gen)
+        assert len(calls) == 1 and got.report.input.rows == ("SO",)
+        assert got.link_usage.model_dump() == dict(input_tokens=111, output_tokens=22, requests=1)
+        assert mod.validate_role_link_generation(src, got) == got
+        assert not client.is_closed
+        assert calls[0]["store"] is False and calls[0]["max_output_tokens"] == 1100
+    finally:
+        sync_model_loop.run_until_complete(provider_client.close())
