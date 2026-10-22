@@ -41,6 +41,18 @@ Synthetic TDD tests before module: literal positive carrier order/path/owner/IDs
 
 ## Controller gates
 
-- [ ] Task and fresh whole-branch review, fresh full QA.
-- [ ] Real5sources/271rows vs frozen prototype, K6/J4 and all original scores preserved;456code/642actual/45+59+17design/privacy/link checks.
+- [x] Task and fresh whole-branch review, fresh full QA.
+- [x] Real5sources/271rows vs frozen prototype, K6/J4 and all original scores preserved;456code/642actual/45+59+17design/privacy/link checks.
 - [ ] Docs/Draft PR/Sites previousv113 archived; archive own SDD/remove own QA only, retain worktree. No app/main deployment/providers.
+
+## 구현과 오프라인 대조 · 2026-10-22 한국 시간
+
+구현 source는 db1876d다. 별도 순수 모듈에서 carrier inventory·모든 관계/witness·원래 SDK/hash·규칙/hash를 보존하고, 저장 결과의 전체 필드를 현재 원문에서 재구성한다. raw/actual 필수 marker·모델/컨테이너/스칼라 타입을 dump 전에 검사한다. 넓은 문맥·지원 문장·다른 수치의 참조는 해당 수치의 primary 참조를 대신하지 않는다. 역할과 의미 동등성/중요도를 자동 판정하거나 수정하지 않는다.
+
+신규43개를 포함한 관련353개 검사와 scoped lint/format/mypy가 통과했다. 최대 유효 합성 입력은212carrier(132primary/80auxiliary),288행,57,600witness를 유지한다. 원문 locator·event종류·합산scope·SDK envelope 제약에 맞도록 합성 fixture를 수정했으며 기존 SDK는 바꾸지 않았다. 반복된 원래 SDK leaf 전부를 다시 변조하는 대신 새 schema-field 종류와 원래 source/generation/hash/usage의 대표 변조를 검사한다. 전체 검사는 최종 영수증으로 별도 기록한다.
+
+추가 모델 호출 없이 기존 실제5자료를 현재 구현으로 재구성해 raw/actual roundtrip·carrier 전체·모든 행/witness를 검토된 시제품과 대조했다. 전체271행은 exact23/containing31/partial2/해당primary참조없음215로 일치했다. 직전10역할 불일치의 K6은 entity내 containing, J4는 해당primary참조없음으로 유지된다.215를 의미상 누락 수로 세지 않는다. 기존 부분 점수 주요6/8·대조7/9, 원래 generation 비분쟁1/4·G사람 재판정 유보·이전 검수2탐지/6미탐/추가3유보·실패/비용은 바꾸지 않는다.
+
+기존456실행파일/642실제평가/121설계증거는 불변이다. 앱/API/DB/UI/worker·공급자 지침/기본 모델·main/서버 배포는 변경하지 않았다. 의미 동등성·중요도·잘못된 역할 배정·미관측 자료의 후보 recall·앱 전체 비용/권한/복구 인수가 다음 단계다.
+
+태스크 독립 검토와 새 전체 브랜치 검토 모두 C0/I0/M0로 승인했다. 구현 수정 없이 확정 source db1876d의 새 전체8,452개(Python7,632+JS820), lint/format/types/build/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 의미/중요도·provider 진위·제품 전체 인수는 본 문자 참조 계약의 판단 대상이 아니며 별도 열린 과제로 유지한다.

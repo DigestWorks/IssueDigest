@@ -6,7 +6,9 @@
 - [x] 기존5자료/271행 오프라인 projection·10개 interval 경계/70개 변형 거부. 직전10불일치 중K6은 entity 내부 참조/J4는 primary에 참조 없음, 기존 gold/점수/비용 불변.
 - [x] 독립 설계/시제품 검토 C0/I0/M0·신규17설계 증거·456코드/642실제/45+59설계 보존·문서/개인정보 검증.
 - [x] [Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)·Sites v113/이전v112·비공개 설계17개 증거 인계.
-- [ ] 별도 순수 carrier/reference strict DTO·원문 재구성·빈/공유/다중quote/최대288·타입/변조 TDD 구현.
+- [x] [순수 carrier/reference strict DTO](../changes/role-reference-implementation.md)·원문 재구성·빈/공유/다중quote/최대288·타입/변조 TDD 구현.
+- [x] 태스크/새전체 독립 검토 C0/I0/M0·전체8,452QA·기존 코드/증거 보존.
+- [ ] PR/Sites 인계와 소유 임시 자원 정리.
 - [ ] 의미 동등성·중요도·잘못된 역할 배정·미관측 후보 recall/G사람 재판정·앱 비용/권한/내구 인수. 자동 hard 누락/수리·앱 연결은 보류.
 
 ## 현재 · 실제 역할 연결 평가 · 2026-10-22 한국 시간

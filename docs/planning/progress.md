@@ -1,3 +1,9 @@
+## 검증 완료 · 선택 원문 참조 순수 계약 구현 · 2026-10-22 한국 시간
+
+[구현·검증 기록](../changes/role-reference-implementation.md). 선택한 근거의 소유 수치/필드/원문 위치와 모든 관계/witness를 기록하고 strict 필수 타입·현재 원문 전체 재구성으로 저장 변조를 거부한다. 최대288행/212carrier/57,600witness·새43개를 포함한 전체8,452개(Python7,632+JS820)와 lint/format/types/build/OpenAPI·태스크/새전체 독립 검토 C0/I0/M0 통과. 실패/skip/warning0, source db1876d 이후 코드/테스트 변경 없다.
+
+기존5자료/271행의 carrier/witness 전체가 검토된 시제품과 일치(23exact/31containing/2partial/215no-reference)한다. K6entity참조/J4해당primary참조없음·기존점수/실패/비용·456코드/642실제/121설계 증거 불변, 추가provider0이다. 의미 동등성/중요도·미관측 후보 recall·G사람 재판정·앱 전체 비용/권한/복구 인수는 남아 있으며 앱/main/서버는 변경하지 않았다. PR/Sites 인계는 최종 영수증을 따른다.
+
 ## 최종 인계 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
 
 [Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91) · Sites v113 게시 성공(17:34:57 KST, sourceaf9bee1bf035b3fbcfecc435057db2649356282c), 이전v112 보존. 본문·변경6문서 요약은 게시 시f9da787 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.98HTML/로컬대상2,318/공개텍스트289/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다.
