@@ -1,3 +1,7 @@
+## 게시·인계 · table 검수 실제5회 · 2026-10-22 한국 시간
+
+[Draft PR86](https://github.com/DigestWorks/IssueDigest/pull/86)은 PR85 기반·미병합/앱 첨부다. 실제5요청/5반환·장문 완료·사전8대상 탐지2/미탐6·추가hard3판정유보·참고$0.0355525를 기록했다. 새 문맥 증거 검토 C0/I0/M0·450코드/480이전실제/45설계/82신규 증거 불변, 전체8,099개QA 재사용·새QA/SDD/서버자원0·앱/main 변경0이다. Sites 최종 게시 영수증은 후속 기록에서 확정한다.
+
 ## table 검수 · 실제5회 평가 · 2026-10-22 한국 시간
 
 [사전 기준·전체 결과·비용](../research/role-table-acceptance.md). 사전f8182bf의 원래 generation5건을 고정해 검수만 각1회, 실제5요청/응답5/반환5·generation/retry/repair/replacement0이다. J는 전체 원문/proposal을 유지한 envelope13,809/실제잔여14,904/cap890 안에서 input2,886/output594·17.78초로 실제 완료했다. 이전 사전 차단을 통과한 관측이며 의미 개선과 구분한다.
