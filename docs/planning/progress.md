@@ -1,3 +1,9 @@
+## 최종 영수증 · table 검수 실제5회 · 2026-10-22 한국 시간
+
+[Draft PR86](https://github.com/DigestWorks/IssueDigest/pull/86)은 PR85 기반·미병합/앱 첨부다. [계획판 v108](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `95f17e64931cfcf46cd2a8340fc238738e42f7a3`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_f58644adc1748191931dfcba9c0f6d9f`, deployment `appgdep_6ad99be7a45c8191a6dcdcca8d3affa3`, 2026-10-22 14:15:32 KST다. 저장소 사본f5308be0da2b5fb97447e877050483d2e3d241b5·이전v107/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML93개·로컬링크/asset/anchor2,093개·공개텍스트274개·비공개 실제ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+사전f8182bf·실제5요청/5반환·장문 완료·사전8대상 탐지2/미탐6·추가hard3판정유보·참고$0.0355525와 원래 기준/응답/비용을 보존했다. 새 문맥 증거 검토 C0/I0/M0·기존450실행파일/480이전실제/45설계/82신규 증거 불변이다. 실행 코드가 같아 전체8,099개QA 증거를 재사용했고 새QA/SDD/서버 자원0이다. 앱/API/UI/DB/worker/기본 모델/서버/main 변경0이며 다음 역할 후보/적용관계·앱 의미/예산/권한/내구 인수는 미완료다. 소진된 평가 runner는 재실행하지 않는다. 최종 영수증은 저장소 원본이며 사본 재게시를 반복하지 않는다.
+
 ## 게시·인계 · table 검수 실제5회 · 2026-10-22 한국 시간
 
 [Draft PR86](https://github.com/DigestWorks/IssueDigest/pull/86)은 PR85 기반·미병합/앱 첨부다. 실제5요청/5반환·장문 완료·사전8대상 탐지2/미탐6·추가hard3판정유보·참고$0.0355525를 기록했다. 새 문맥 증거 검토 C0/I0/M0·450코드/480이전실제/45설계/82신규 증거 불변, 전체8,099개QA 재사용·새QA/SDD/서버자원0·앱/main 변경0이다. Sites 최종 게시 영수증은 후속 기록에서 확정한다.
