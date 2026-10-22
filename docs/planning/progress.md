@@ -1,3 +1,7 @@
+## 게시 준비 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
+
+[Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)은 실제 평가 PR90 브랜치를 대상으로 한다. 원래 선택 필드와 역할 분류를 분리하는 설계·무호출 projection·한계를 공유하며 app/main 변경은 없다. Sites에는 이번 설계와 이전v112를 보존해 게시한다.
+
 ## 역할 분류와 선택 필드 참조 분리 · 설계 검토 완료 · 2026-10-22 한국 시간
 
 [명시 선택 범위·순수 report 설계](../changes/role-reference-coverage.md). 역할 분류와 문자 참조·의미 동등성·중요도를 독립 축으로 분리했다. 해당 binding/context/event의 명시 primary anchor만 exact/containing/partial/no-reference로 대조하고 c/support/다른 fact/관계 chain은 보존 성공으로 올리지 않는다. auxiliary/다른fact 참조는 구분 기록하며 역할 정답·자동 hard 누락/수리를 만들지 않는다.
