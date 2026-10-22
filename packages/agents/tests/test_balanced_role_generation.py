@@ -233,6 +233,29 @@ def test_failures_distinguish_preflight_zero_send_started_unknown_and_known(kind
     assert "sensitive" not in str(caught.value) and caught.value.__cause__ is None
 
 
+def test_final_revalidation_failure_preserves_already_observed_usage(monkeypatch):
+    mod = api()
+    original = mod._preflight
+    preflight_calls = 0
+
+    def changed_revalidation_prompt(src):
+        nonlocal preflight_calls
+        preflight_calls += 1
+        prompt, tools = original(src)
+        return (prompt if preflight_calls == 1 else prompt + " "), tools
+
+    monkeypatch.setattr(mod, "_preflight", changed_revalidation_prompt)
+    model, calls = response(inputs=100, outputs=30)
+    with pytest.raises(mod.BalancedRoleGenerationError) as caught:
+        mod.run_balanced_role_framer(mod.create_balanced_role_framer(model), source())
+    assert preflight_calls == 2 and len(calls) == 1
+    assert caught.value.may_have_started is True
+    assert caught.value.known_usage.model_dump() == dict(
+        input_tokens=100, output_tokens=30, requests=1
+    )
+    assert caught.value.__cause__ is None
+
+
 @pytest.mark.parametrize(
     "mutation",
     ["profile", "status", "hash", "instruction", "usage", "requests", "nested", "source"],

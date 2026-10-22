@@ -156,8 +156,8 @@ def run_balanced_role_framer(framer: _BalancedRoleFramer, source: Source) -> Rol
     except RoleRequestError as error:
         raise BalancedRoleGenerationError(
             "Balanced role generation failed",
-            known_usage=error.known_usage,
-            may_have_started=error.may_have_started,
+            known_usage=known if known is not None else error.known_usage,
+            may_have_started=known is not None or error.may_have_started,
         ) from None
     except Exception:
         raise BalancedRoleGenerationError(
