@@ -21,7 +21,7 @@ Own packages/agents/src/issuedigest_agents/role_table_audit.py and packages/agen
 ## Controller gates
 
 - [x] Independent task and whole-branch review, fresh full QA, offline actual-source reconstruction/envelopes, immutable manifest and privacy checks.
-- [ ] Canonical progress/tasks/README, Draft PR and Sites summary with previous version preserved; no merge/deployment of application.
+- [x] Canonical progress/tasks/README, Draft PR and Sites summary with previous version preserved; no merge/deployment of application.
 
 ## 구현·검증 범위 · 2026-10-22 한국 시간
 

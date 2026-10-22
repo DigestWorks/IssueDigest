@@ -1,3 +1,9 @@
+## 최종 영수증 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
+
+[Draft PR85](https://github.com/DigestWorks/IssueDigest/pull/85)은 PR84 기반·미병합/앱 첨부다. [계획판 v107](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `4bc22df89988fa42b8024f8b1c71f6cbf6802b2f`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_393fb401c28c8191a0a33748cfcac3cb`, deployment `appgdep_6ad98bddc2e08191ba26ccb8e8f56b6d`, 2026-10-22 13:07:07 KST다. 저장소 사본30b0760768ceaa1d10b3df82578d8f24555a83dd·이전v106/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML92개·로컬링크/asset/anchor2,051개·공개텍스트271개·실제 비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
+
+신규291개·독립 태스크/전체 검토 C0/I0/M0·새 전체8,099개QA(Python7,279+JS820)와 린트/형식/타입/빌드/OpenAPI 검증을 통과했다. 실패/skip/warning0·기존446실행파일/480실제/45설계 증거 불변·실제 provider0이다. 소유QA DB 제거/포트닫힘·현재 SDD 증거 보관 후 해당 디렉터리만 정리했고 작업 브랜치/작업트리는 보존한다. 미해결 지적/별도 유보 판단은 없다. 앱/API/UI/DB/worker/기본 모델/서버/main 변경0이며 실제 읽기/의미/비용·역할 적용관계·앱 인수는 후속이다. 최종 영수증은 저장소 원본이며 사본 재게시를 반복하지 않는다.
+
 ## 게시·인계 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
 
 [Draft PR85](https://github.com/DigestWorks/IssueDigest/pull/85)은 PR84 기반·미병합/앱 첨부다. 새 전체8,099개QA와 독립 검토 C0/I0/M0·원문/proposal5건 복원/mock5·기존446/480/45 보존을 확인했다. actual provider0·앱/서버/main 변경0이며 실제 의미·앱 인수는 후속이다. 계획판은 이전v106/전체 기록을 보존해 갱신하며 최종 게시 영수증은 후속 기록으로 확정한다.
