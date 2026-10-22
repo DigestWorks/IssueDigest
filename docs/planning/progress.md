@@ -1,3 +1,7 @@
+## 게시 준비 · 실제 역할 연결 평가 · 2026-10-22 한국 시간
+
+[Draft PR90](https://github.com/DigestWorks/IssueDigest/pull/90)은 SDK PR89 브랜치를 대상으로 한다. 사전 기준·실제5회/부분 점수·비용·남은 역할 판정을 공유하며 main/앱 배포는 하지 않는다. Sites에는 이번 결과와 이전v111을 보존해 게시한다.
+
 ## 실제 역할 연결 평가 · 관측 완료 · 2026-10-22 한국 시간
 
 [사전c73a038·결과·한계](../research/role-link-acceptance.md). 기존5자료의 원문/generation/47후보/271관계를 유지해 실제5요청/5완료/5SDK반환·새generation/retry/repair/replacement0. 각 원문·raw/actual 현재 재구성·사전 mock와 실제body 전체 일치·사용량을 확인하고 소진 잠금을 기록했다.456코드/562이전실제/45+59설계 불변·8,409QA 재사용, 앱/main/서버/기본 모델 변경0.
