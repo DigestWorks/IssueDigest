@@ -1,3 +1,7 @@
+## 게시 준비 · 순수 역할 연결 계약 · 2026-10-22 한국 시간
+
+[Draft PR88](https://github.com/DigestWorks/IssueDigest/pull/88)은 설계 PR87 브랜치를 대상으로 한다. 검증 완료 코드와 문서를 공유하며 병합·앱 배포는 하지 않았다. Sites에는 이번 상태와 이전v109를 보존해 게시한다.
+
 ## 순수 역할 연결 계약 · 검증 완료 · 2026-10-22 한국 시간
 
 [두 단계 구현·남은 인수](../changes/role-link-contract-implementation.md). 별도 catalog/domain과 명시 행렬 report를 구현했다. 수치별 모든 후보 관계·복수 역할/관련없음/불확실/미검토·정확 전체 수치와 최소 연속 whole-sentence 근거·현재 원문 재구성을 보존한다. 24후보/288쌍·20문장 초과 근거·엄격한 원본 타입/필수값/변조 거부를 포함한다. 기존 generation·앱/SDK/DB/UI/워커는 변경하지 않았다.
