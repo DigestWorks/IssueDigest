@@ -32,7 +32,7 @@
 
 ## 역할·상태와 행렬
 
-행은 hint_table의 정확한 후보 순서, 열은 그 후보 quote domain의 정확한 수치 순서다. 출력 rows의 각 문자열은 세미콜론으로 열을 구분한다. 한 cell에 여러 역할을 동시에 표시할 수 있으며 role_legend 순서·중복 없음·추가 문자/공백 없음이 필수다.
+행은 hint_table의 정확한 후보 순서, 열은 그 후보 quote domain의 정확한 수치 순서다. role_legend 객체의 키 순서는 사용하지 않으며, 별도의 필수 role_order 문자열을 지침·검증기가 함께 사용한다. 규칙/순서 변경도 새 버전/hash로 재구성한다. 출력 rows의 각 문자열은 세미콜론으로 열을 구분한다. 한 cell에 여러 역할을 동시에 표시할 수 있으며 명시적인 role_order=`STOREIBP` 순서·중복 없음·추가 문자/공백 없음이 필수다.
 
 | 부호 | 관계 |
 | --- | --- |
@@ -49,7 +49,7 @@
 
 출력은 rows와 필수 incomplete만 갖는다. 빠진 행/열을 기본값으로 복구하지 않는다. `_`가 있으면 반드시 incomplete=true다. `?`는 판단 시도는 했으나 관계를 확정하지 못한 상태이고, 미검토를 대신하는 값이 아니다. 전체 행이 있어도 후보 밖 source coverage를 완전하다고 만들지 않는다. AI가 모두 `-`로 답했다고 원문 전체의 ‘문제 없음’을 인증하지 않는다.
 
-서버는 행렬을 명시 `{hint,number,state,roles}` 관계로 역변환한다. 공개 제품에 부호 행렬이나 개발 검수 상태를 노출하지 않는다. 반환 상태는 candidate_review_incomplete / candidate_review_uncertain / reviewed_candidates이며 기존 no_issues_flagged로 바꾸지 않는다. 비어 있는 domain/catalog도 적용 대상 없음과 원문 완전 검토를 구분한다.
+서버는 행렬을 명시 `{hint,number,state,roles}` 관계로 역변환한다. 공개 제품에 부호 행렬이나 개발 검수 상태를 노출하지 않는다. 검토 대상 쌍이 있으면 반환 상태는 candidate_review_incomplete / candidate_review_uncertain / reviewed_candidates이며 기존 no_issues_flagged로 바꾸지 않는다. 선택 수치0은 not_applicable, 선택 수치는 있으나 후보/쌍0은 candidate_inventory_empty로 구분하고 둘 다 모델 호출0이다. 어느 쪽도 원문 완전 검토가 아니다. quote별 빈 domain은 다른 유효 쌍의 검토를 없애지 않는다.
 
 ## 다음 순수 계약의 검증 책임
 
@@ -65,15 +65,15 @@
 
 | 자료 | 후보 / 쌍 | 새 draft 전체 envelope | 원래 생성 실제 잔여total | output cap | 입력 여유 |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| G | 5 / 15 | 8,887 | 16,460 | 1,100 | 7,573 |
-| H | 8 / 16 | 8,524 | 16,789 | 1,100 | 8,265 |
-| I | 3 / 6 | 8,199 | 16,843 | 1,100 | 8,644 |
-| J | 24 / 192 | 12,242 | 14,904 | 890 | 2,662 |
-| K | 7 / 42 | 9,528 | 16,140 | 1,100 | 6,612 |
+| G | 5 / 15 | 8,922 | 16,460 | 1,100 | 7,538 |
+| H | 8 / 16 | 8,559 | 16,789 | 1,100 | 8,230 |
+| I | 3 / 6 | 8,234 | 16,843 | 1,100 | 8,609 |
+| J | 24 / 192 | 12,277 | 14,904 | 890 | 2,627 |
+| K | 7 / 42 | 9,563 | 16,140 | 1,100 | 6,577 |
 
-draft tool review_role_links_v1·identity issuedigest_role_links_v1·profile role-link-review-v1이며 새 지침1,971byte·실제 raw/normalized 동적 schema와 framing2,048·출력reserve를 포함한 UTF8 예약량이다. 범위를 좁히고 schema/지침/출력 의미도 바꿨으므로 기존 table 감사와 동등한 업무의 효율 비교가 아니다.
+draft tool review_role_links_v1·identity issuedigest_role_links_v1·profile role-link-review-v1이며 새 지침1,982byte·실제 raw/normalized 동적 schema와 framing2,048·출력reserve를 포함한 UTF8 예약량이다. 범위를 좁히고 schema/지침/출력 의미도 바꿨으므로 기존 table 감사와 동등한 업무의 효율 비교가 아니다.
 
-모델에 origin을 함께 보여 준 초안은 J envelope12,800이었다. origin을 서버에 보존하고 공급자 투영에서만 숨긴 최종 초안은12,242다. 초안별 mock HTTP5개씩 총10개를 보존했으며 no-store·low·명시 default tier·30초·각 실제 잔여/cap과 dynamic output parse를 확인했다. 최종 초안의 잘못된 행/열/부호/미검토 완료표시/타입90개를 거부했다. 실제 provider 요청0·token/관계 의미/비용 개선 관측0이다.
+모델에 origin을 함께 보여 준 초안은 J envelope12,800이었다. origin을 서버에 보존하고 공급자 투영에서만 숨긴 다음 초안은12,242, 명시 역할 순서를 추가한 최종 초안은12,277이다. JSON 직렬화의 객체 키 정렬과 검증기의 역할 순서가 다르다는 독립 검토 지적을 재현하고 role_order로 수정했다. 세 초안의 mock HTTP5개씩 총15개를 보존했으며 no-store·low·명시 default tier·30초·각 실제 잔여/cap과 dynamic output parse를 확인했다. 최종 초안의 잘못된 행/열/부호/미검토 완료표시/타입90개를 거부했고 명시 순서/복수 역할·순서 누락/변조15개 회귀를 확인했다. 실제 provider 요청0·token/관계 의미/비용 개선 관측0이다.
 
 ### 출력은 아직 실제 완료 인수 전
 
