@@ -40,6 +40,15 @@ TDD synthetic tests: positive multirole/each state and conservative priority, un
 
 ## Controller gates
 
-- [ ] Task/whole-branch independent review and fresh full QA.
-- [ ] Fresh real-source catalogs/domain/projection and matrix roundtrips offline; preserve450code/562actual/45+59design and privacy.
+- [x] Task/whole-branch independent review and fresh full QA.
+- [x] Fresh real-source catalogs/domain/projection and matrix roundtrips offline; preserve450code/562actual/45+59design and privacy.
 - [ ] Canonical docs, Draft PR and Sites with prior version preserved; archive/remove only own SDD and owned QA resources. No app/main deployment.
+
+
+## Implementation evidence and remaining gate
+
+Commits24a606a (catalog) and24874f8 (report), two new modules/two synthetic test modules; existing450 non-Markdown files unchanged. New201 tests, adjacent523; task and fresh whole-branch reviews C0/I0/M0. Fresh full QA code24874f8: Python7,480+JS820=8,300; lint/format/type/build/OpenAPI pass, failure/skip/warning0. No source/runtime/app/provider changes after QA; later commits are documentation only.
+
+Offline current real inputs: all5 catalogs/47 exact hints and unchanged complete table packets match reviewed design; pairs15/16/6/192/42. Four synthetic assignments (?/_/-/SO) per source produce20 full report roundtrips, exact quantity/hint/support, all pairs and expected states. These are structural consistency checks, not model classification accuracy, candidate recall, importance, human approval or proof of exhaustive source coverage. Raw and actual reconstructions both pass. Existing562 actual-trial and45+59 design files unchanged; private60value scan and local document links pass. No actual provider requests, old trial reruns, SDK integration or app/main deployment.
+
+Next: separately bounded model SDK using this explicit contract; fixed actual classifications/output completeness/candidate recall/false positives and original-result materiality, unresolved human adjudication, then app total budget/permission/durable recovery acceptance. Earlier actual2detected/6missed and3unadjudicated diagnostics remain unchanged. Reconstruction hashes ensure current-source consistency; they are not cryptographic proof that a model originally emitted particular input. The frozen upstream generation still cannot represent sources with zero numeric candidates anywhere; this change supports empty selections and numeric-free quotes within otherwise valid sources without broadening it.
