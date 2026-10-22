@@ -1,3 +1,11 @@
+## 게시·인계 · 역할 경계·출력 배분 설계 · 2026-10-22 한국 시간
+
+[Draft PR81](https://github.com/DigestWorks/IssueDigest/pull/81)은 PR80 기반·미병합이며 앱 첨부를 완료했다. 이번은 spec-driven-workflow의 문서 예외로 제품 코드를 바꾸지 않았다. systematic-debugging·새 문맥 검토와 설계 검토 I1/M1 수정/한정 재검토 C0/I0/M0를 마쳤다. 기존 gold·점수·실제361증거를 유지하며 새 AI검토를 사람의 정답 확정으로 표시하지 않는다. 별도 v2 SDK/TDD·전체QA/실제 인수는 아직이다.
+
+[계획판 v103](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `84492ca5f8c85a53058c8510ada11345b017e724`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_88d2386f70148191814f268d59b14d8b`, deployment `appgdep_6ad96676920c819186940dc9267b6a8d`, 2026-10-22 10:27:32 KST이다. 저장소 사본b24b7a919db689f0c41e3da194113945d0dff5c3·이전v102/전체 기록을 보존했다. 변경 Markdown4개만 사본에 반영했으며 HTML88개·로컬 링크/asset/anchor1,893개·공개 텍스트259개와 실제 비공개ID/질문/긴 인용60종 부재 검사를 통과했다. 기존 레이아웃의 텍스트/사본 갱신이므로 새 브라우저 검사는 실행하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 영수증은 사본 이후 이 저장소 원본이다.
+
+기존440실행/설정/테스트·361실제 증거 및 이번27설계 시제품/검토 기록 SHA를 확인했다. 추가provider0·새QA/SDD/서버 자원0으로 새 정리 대상은 없다. 기존 앱/수집기·자원은 유지했다. 전체7,582개 코드QA는 기존 증거이며 새SDK/의미 개선·출력 완료를 주장하지 않는다. 최초 Sites helper 경로가 플러그인 업데이트로 없어져1.1.1의 스킬/정식 helper를 확인해 이어갔다. 앱/서버/main 변경0이며 다음은 v2 SDK 구현과 새 실제 인수다.
+
 ## 역할 경계·출력 배분 v2 설계 · 2026-10-22 한국 시간
 
 [설계·한계·구현 경계](../changes/semantic-boundary-balanced-output.md). systematic-debugging으로 J의 실제 중단을 확인했다. 입력3,486이 아니라 출력1,400(max_output_tokens, reasoning198포함)에서 중단됐고 미완료 문자열의 null71회 등을 관측했다. 이를 완전한 구조로 수리/평가하지 않았다. 두 명시 present/absent 압축안은 원래 역할을 복원했지만 J3,230→3,427/3,236byte·K최신2,247→2,357/2,308byte로 커져 채택하지 않았다.
