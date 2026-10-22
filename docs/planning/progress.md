@@ -1,3 +1,21 @@
+## 최종 인계 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
+
+[Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91) · Sites v113 게시 성공(17:34:57 KST, sourceaf9bee1bf035b3fbcfecc435057db2649356282c), 이전v112 보존. 본문·변경6문서 요약은 게시 시f9da787 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.98HTML/로컬대상2,318/공개텍스트289/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다.
+
+기존5자료/271행·23exact/31containing/2partial/215no-reference, 직전10역할 불일치의 K6entity 내부/J4해당primary참조 없음·기존6/8/7/9점수·원래 실패/비용을 보존한다. 독립 설계/시제품 검토 C0/I0/M0·10기하경계/70변형 거부/추가25타입 probe·신규17설계 증거와 기존456코드/642실제/45+59설계 불변. 코드가 같아8,409QA를 재사용하며 추가provider·앱/main/서버 배포·QA자원 생성0, 브랜치/작업폴더 유지. 다음은 별도 순수 strict carrier/reference DTO·원문 재구성·TDD 구현이며 의미 동등성/중요도와 앱 인수는 후속이다.
+
+## 게시 준비 · 역할과 선택 참조 분리 설계 · 2026-10-22 한국 시간
+
+[Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)은 실제 평가 PR90 브랜치를 대상으로 한다. 원래 선택 필드와 역할 분류를 분리하는 설계·무호출 projection·한계를 공유하며 app/main 변경은 없다. Sites에는 이번 설계와 이전v112를 보존해 게시한다.
+
+## 역할 분류와 선택 필드 참조 분리 · 설계 검토 완료 · 2026-10-22 한국 시간
+
+[명시 선택 범위·순수 report 설계](../changes/role-reference-coverage.md). 역할 분류와 문자 참조·의미 동등성·중요도를 독립 축으로 분리했다. 해당 binding/context/event의 명시 primary anchor만 exact/containing/partial/no-reference로 대조하고 c/support/다른 fact/관계 chain은 보존 성공으로 올리지 않는다. auxiliary/다른fact 참조는 구분 기록하며 역할 정답·자동 hard 누락/수리를 만들지 않는다.
+
+기존5자료/271행 무호출 시제품에서23exact/31containing/2partial/215no-reference다.215를 누락 건수로 부르지 않는다. 직전10역할 불일치만 보면 K6은 original entity 안 명칭 참조, J4는 해당 primary에 참조 없음이며 기존6/8·7/9점수·원래 generation 비분쟁1/4·G사람 판정 유보·검수2탐지/6미탐/추가3유보·비용은 그대로다.
+
+독립 검토 C0/I0/M0·10개 interval 경계/70변형 거부·별도25타입 probe와 전체행 재현을 확인했다. 두 초안/결과/검토17개 신규 설계 증거·456기존코드/642실제/45+59기존설계 불변·8,409QA 재사용. 추가 provider/SDK/앱/main/서버 변경0. 다음은 순수 strict DTO·전체 재구성/빈·공유·다중quote/최대288·필수타입/변조 TDD이며 의미 동등성/중요도와 앱 인수는 별도다. PR/Sites 인계는 진행 중이다.
+
 ## 최종 인계 · 실제 역할 연결 평가 · 2026-10-22 한국 시간
 
 [Draft PR90](https://github.com/DigestWorks/IssueDigest/pull/90) · Sites v112 게시 성공(16:58:27 KST, source026e8b9cebc742ab6e0c8c802fd37c71c1a5ff17), 이전v111 보존. 본문·변경6문서 요약은 게시 시805b3f3 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.97HTML/로컬대상2,271/공개텍스트286/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다.
