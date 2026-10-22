@@ -20,7 +20,7 @@ Own only packages/agents/src/issuedigest_agents/semantic_role_audit_contract.py,
 
 ## Controller gate
 
-- [ ] Independent task and whole-branch review, fresh full QA, preservation/privacy and offline actual-source envelope checks.
+- [x] Independent task and whole-branch review, fresh full QA, preservation/privacy and offline actual-source envelope checks.
 - [ ] Update canonical progress/tasks and Sites; publish Draft PR without merge or deployment.
 
 ## 구현과 확인 결과 · 2026-10-22 한국 시간
@@ -29,7 +29,7 @@ Own only packages/agents/src/issuedigest_agents/semantic_role_audit_contract.py,
 
 생성 출력은1,800, 검수는 `min(1,100,2,500-generation.output)`이며 실제 생성의 input/output을 total20,000에서 차감한다. 생성1,800 사용 시 검수700이다. borrowed Model·한 번/30초/no-store·retry/repair/fallback0을 유지한다. 실패해도 알려진 사용량과 요청 발생 여부를 남기고, 시작 가능하지만 사용량이 불명확한 검수는 합산0으로 만들지 않는다. 태스크 검토에서 발견한 생성 최종 검증 실패 시 사용량 소실을 수정했고, 검수에도 같은 경계의 회귀를 추가했다.
 
-신규 생성61·검수165(계약107/SDK58)는 합성 입력·FunctionModel·mock HTTP 검증이다. 태스크별 인접 검사는323/551개이며 실제 모델 정확도 증거가 아니다. 독립 전체 검토와 전체QA의 최종 결과는 아래 기록을 확정한 뒤 완료로 표시한다.
+신규 생성61·검수165(계약107/SDK58)는 합성 입력·FunctionModel·mock HTTP 검증이다. 태스크별 인접 검사는323/551개이며 실제 모델 정확도 증거가 아니다. 독립 태스크/전체 검토 최종 C0/I0/M0·새 전체7,808개 검사(Python6,988+JS820)·린트/형식/타입/빌드/OpenAPI 계약 검증을 통과했다. 실패/skip/warning0이다. 전체QA는 코드가 같은 `759add7`에서 검증했고 기존440실행/설정/테스트·361실제 증거 보존과 공개 비공개값 부재 검사를 확인했다. 실제 의미 품질/앱 적용 완료와는 구분한다.
 
 ### 실제 자료의 오프라인 전송 구조
 
