@@ -1,6 +1,6 @@
 # IssueDigest
 
-현재 구현: [무손실 table 검수 SDK](docs/changes/role-table-audit-implementation.md). 원문·추출 결과를 그대로 복원하는 입력과 별도 검수 영수증/실제 잔여 예산을 구현했다. 합성 검사·오프라인 mock을 확인했으며 최종 검토/전체QA는 진행 기록을 따른다. 실제 AI 읽기/의미 품질과 앱 적용은 후속이다.
+현재 구현: [무손실 table 검수 SDK](docs/changes/role-table-audit-implementation.md). 원문·추출 결과를 그대로 복원하는 입력과 별도 검수 영수증/실제 잔여 예산을 구현했다. 독립 검토·전체8,099개 검사/빌드/계약 검증과 오프라인 mock을 통과했다. 실제 AI 읽기/의미 품질과 앱 적용은 후속이다.
 
 다음 설계: [역할 적용·무손실 검수 입력](docs/changes/role-application-table-audit.md). 원문과 추출 결과를 유지한 표 형식의 무호출 시제품에서 장문 검수 입력 수용을 확인했다. 새 SDK·실제 읽기/의미 개선은 후속이다.
 

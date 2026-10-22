@@ -1,6 +1,10 @@
-## 진행 중 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
+## 무손실 table 검수 SDK · 구현·검증 · 2026-10-22 한국 시간
 
-[승인된 설계](../changes/role-application-table-audit.md)를 [두 단계 구현 계획](../changes/role-table-audit-implementation.md)에 따라 별도 codec와 검수 SDK로 구현한다. 기존446실행 파일·480실제 평가 증거·45설계 증거를 보존하고 실제 provider 요청은 하지 않는다. 독립 검토·새 전체QA·오프라인 원문/요청 용량 검증 후 결과를 기록한다. 앱/서버/main은 변경하지 않으며 Sites 요약 반영은 검증 완료 후 진행한다.
+[구현·검증·남은 인수](../changes/role-table-audit-implementation.md). 별도 codec와 자기 영수증의 검수 SDK를 구현했다. 신규291개·인접 검증 및 독립 태스크/전체 검토 C0/I0/M0·새 전체8,099개QA(Python7,279+JS820), 린트/형식/타입/빌드/OpenAPI 계약 검증을 통과했다. 실패/skip/warning0이며 QA 코드 기준1dcaa12 이후 문서만 변경했다.
+
+원래 generation5건의 원문/proposal 정확 복원·검토된 packet/지침 일치·실제 dynamic schema 예약량·mock HTTP5회와 저장 재검증을 확인했다. J envelope13,809/실제잔여14,904/cap890·여유1,095다. actual provider0이며 실제 읽기/토큰/의미/비용 개선은 후속이다. 짧은 입력 overhead와 과거 실패/gold/비용은 보존한다.
+
+기존446실행 파일·480실제 평가/45설계 증거 불변·비공개 실제값60종 부재·문서 링크를 확인했다. 소유한 격리 검증DB 한 개만 제거하고 포트 닫힘을 확인했다. 별도 유보 판단/미해결 검토 지적은 없다. 앱/API/UI/DB/worker/기본 모델/서버/main 변경0이며 실제 table 읽기 인수·G사람 재판정·전체 앱 예산/권한/내구 인수 뒤 연결한다. PR/Sites 요약 최종 영수증은 후속 기록으로 확정한다.
 
 ## 최종 영수증 · table 검수 입력 설계 · 2026-10-22 한국 시간
 

@@ -20,7 +20,7 @@ Own packages/agents/src/issuedigest_agents/role_table_audit.py and packages/agen
 
 ## Controller gates
 
-- [ ] Independent task and whole-branch review, fresh full QA, offline actual-source reconstruction/envelopes, immutable manifest and privacy checks.
+- [x] Independent task and whole-branch review, fresh full QA, offline actual-source reconstruction/envelopes, immutable manifest and privacy checks.
 - [ ] Canonical progress/tasks/README, Draft PR and Sites summary with previous version preserved; no merge/deployment of application.
 
 ## 구현·검증 범위 · 2026-10-22 한국 시간
@@ -42,3 +42,9 @@ Own packages/agents/src/issuedigest_agents/role_table_audit.py and packages/agen
 과거 실제 generation5개를 읽기 전용 재사용한 SDK의 결과이며, 원문/proposal을 정확히 복원하고 검토된 시제품 packet/3,134byte 지침과 일치했다. 실제 raw/normalized schema와 framing2,048·출력reserve를 포함한 UTF8 기반 예약량이다. mock HTTP5회와 저장 결과 재검증을 확인했고 실제 provider 요청0이다. 합성 검수 usage100/30은 기존 실제 generation usage를 바꾸지 않으며 의미/토큰/실제 비용 개선 증거가 아니다. 짧은 H/I의 지침/header overhead 증가는 그대로 남는다.
 
 다음은 새 사전 기준/상한을 고정한 실제 table 검수 평가다. 실제 읽기 정확도·장문 완료·오탐/미탐·비용은 별도로 확인하고, 원래 H의 미탐·I의 역할 오인·J의 누락/오선택·G의 독립 사람 재판정 과제를 보존한다. 역할 후보 전체 grid는 이번에 추가하지 않는다. 전체 앱 예산/권한/내구 인수·앱 연결은 후속이며 이 SDK는 아직 개발 사이트 실행 경로를 바꾸지 않는다.
+
+## 최종 구현 인수 · 2026-10-22 한국 시간
+
+태스크별/전체 변경 독립 검토 C0/I0/M0, 새 전체8,099개 검사(Python7,279+JS820)와 린트/형식/타입/빌드/OpenAPI 계약 검증을 통과했다. 실패/skip/warning0이다. 코드가 같은 `1dcaa12`에서 전체QA를 실행했으며 이후 변경은 Markdown/정적 계획 요약뿐이다. 기존446실행/설정/테스트·480실제 평가 증거·45설계 증거가 불변임을 확인했고 공개 변경의 비공개 실제ID/질문/긴인용60종 부재 검사와 문서 링크 검사를 통과했다. 소유한 격리QA DB 한 개만 제거하고 포트 닫힘을 확인했다. 별도 검토 지적/유보 판단은 없다.
+
+실제 모델 호출0·과거 runner 재실행0·앱/API/UI/DB/worker/기본 모델/서버/main 변경0이다. 구현 인수는 구조/저장/예산/회계의 범위이며 실제 의미 품질·비용 개선·앱 적용을 인증하지 않는다. PR/Sites 최종 게시 영수증은 진행 기록을 따른다.
