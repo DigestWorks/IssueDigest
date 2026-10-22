@@ -4,7 +4,7 @@
 
 ## M3 최신 인계 · 2026-10-22 한국 시간
 
-[무손실 table SDK](../changes/role-table-audit-implementation.md) 후 [실제 검수5회](../research/role-table-acceptance.md)를 진행했다. 원래 generation/전체 원문을 유지한 채 J의 검수 입력 차단은 통과했으나 사전8대상은 탐지2/미탐6·추가hard3판정유보다. 원래 생성 비분쟁1/4·G사람 재판정/기존 실패와 비용을 보존하고 앱 연결을 보류한다. 다음은 수치별 역할 후보/적용관계·명시coverage/불확실/overflow의 용량 설계다. 기존 전체hint-grid 즉시 추가·원문 절단·한도 인상·소진 runner 재실행은 하지 않는다. 미관측 자료 품질·전체 앱 예산/권한/내구 인수도 후속이다.
+[table 검수 실제5회](../research/role-table-acceptance.md)의 2탐지/6미탐·추가hard3유보를 보존하고 [수치별 역할 연결 coverage](../changes/role-link-coverage.md)를 설계했다. 원문/추출을 유지한 명시 행렬로 복수역할/관련없음/불확실/미검토를 구분하는 안이며 현재는 무호출 시제품이다. 후보가 원문 전체를 포괄하거나 원래 추출 누락/중요도를 자동 판정한다고 주장하지 않는다. 다음은 순수 catalog/domain/report 재구성·변조·coverage/locate/overflow 계약의 TDD 구현과 별도 bounded SDK 판단이다. 실제 부호/관계 정확도·출력 완료/후보 recall·G사람 재판정·앱 전체 예산/권한/내구 인수 전 앱 연결은 보류한다.
 
 ## 제품 여정
 
