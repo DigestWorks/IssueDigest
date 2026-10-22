@@ -1,3 +1,13 @@
+## table 검수 · 실제5회 평가 · 2026-10-22 한국 시간
+
+[사전 기준·전체 결과·비용](../research/role-table-acceptance.md). 사전f8182bf의 원래 generation5건을 고정해 검수만 각1회, 실제5요청/응답5/반환5·generation/retry/repair/replacement0이다. J는 전체 원문/proposal을 유지한 envelope13,809/실제잔여14,904/cap890 안에서 input2,886/output594·17.78초로 실제 완료했다. 이전 사전 차단을 통과한 관측이며 의미 개선과 구분한다.
+
+사전 역할 오류8대상은 탐지2/미탐6(H1/I2/J5)이다. I의 운영 주체/집계 소속2개는 탐지했으나 H의 국비 지역누락1개와 J의 선정 지역 연결5대상은 놓쳤다. J의 measured_entity 추가hard3개는 중요도/중복 판정 유보이며 정답/명확 오탐0으로 확정하지 않는다. G사람 재판정과 원래 생성 비분쟁1/4·기간 선택 실패는 보존한다. 알려진 개발 자료/연관된 대상들의 소표본 대조이며 일반 정확도가 아니다.
+
+이번 검수 input9,683/output1,166·cached0/write9,053/reasoning518·standard 참고$0.0355525, 실제 청구/환율 미검증이다. 동일 입력 비교 가능한 G/H/I/K는 input6,759→6,797/output598→572·참고$0.0226255→$0.0224605이며 개선율을 일반화하지 않는다. 실제5개 body/mock 일치·원래 generation/저장/합산 한도를 재검증했다. 상한 소진 잠금으로 재실행하지 않는다.
+
+기존450실행 파일·480실제/45설계 증거 불변, 코드가 같아 전체8,099개QA 재사용·새QA/SDD/서버 자원0이다. 앱/API/UI/DB/worker/기본 모델/서버/main 변경0이다. 다음은 수치별 역할 후보/적용관계·coverage/불확실/overflow의 용량 설계이며 전체hint-grid 즉시 추가나 앱 연결은 보류한다. 새 문맥 증거 검토·PR/Sites 최종 영수증은 후속 기록으로 확정한다.
+
 ## 최종 영수증 · 무손실 table 검수 SDK · 2026-10-22 한국 시간
 
 [Draft PR85](https://github.com/DigestWorks/IssueDigest/pull/85)은 PR84 기반·미병합/앱 첨부다. [계획판 v107](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `4bc22df89988fa42b8024f8b1c71f6cbf6802b2f`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_393fb401c28c8191a0a33748cfcac3cb`, deployment `appgdep_6ad98bddc2e08191ba26ccb8e8f56b6d`, 2026-10-22 13:07:07 KST다. 저장소 사본30b0760768ceaa1d10b3df82578d8f24555a83dd·이전v106/전체 기록을 보존했다. 변경Markdown6개 중 문서5개만 canonical/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML92개·로컬링크/asset/anchor2,051개·공개텍스트271개·실제 비공개ID/질문/긴인용60종 부재 검사를 통과했다. 기존 레이아웃 텍스트 갱신으로 새 브라우저 검사는 실행하지 않았고 사용자 탭을 열거나 이동하지 않았다.
@@ -1612,3 +1622,5 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 [계획 Sites v78](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `cc8e1898a8f893528f21e35f99a803d65ab6bafd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_7331ed2194e881bb0fba17b049e5ef`, deployment `appgdep_6ad72da71dd48191adfa6ff51d5f790e`, 2026-10-20T09:00:41.795757+00:00이다. 저장소 사본57ca6ba·이전v77/전체 기록을 보존했다. HTML63개/로컬 링크·asset·anchor1,267/공개 텍스트174개와 private181파일·20종 제외 검사를 통과했다. 기존 레이아웃의 텍스트 변경으로 새 browser QA는 하지 않았고 사용자 탭도 열거나 이동하지 않았다. 최종 게시 receipt는 사본 이후 저장소 원본이다.
 
 legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번에만 유지했으며 관리 계획을 논리 조건으로 읽는 위험을 숨기지 않았다. 다음 계약에서 그 역할을 분리한다. 같은 실패를 보고 설계한 개발 표본의 결과이므로 보지 않은 자료/예정·불명 양성·정치 쟁점·중립성/최종 브리핑의 통과로 확대하지 않는다.
+
+새 문맥의 증거 검토 C0/I0/M0를 확인했다. 원문/기준/요청·응답·사용량·판정/검토 82개 불변 증거를 별도 manifest로 고정했다. AI 증거 검토는 독립 사람 정답 판정을 대신하지 않는다.

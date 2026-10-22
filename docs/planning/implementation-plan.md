@@ -4,7 +4,7 @@
 
 ## M3 최신 인계 · 2026-10-22 한국 시간
 
-[v2 실제 평가](../research/semantic-balanced-acceptance.md)의 실패/비용을 보존하고 [무손실 table 검수 SDK](../changes/role-table-audit-implementation.md)를 별도 구현했다. 원문/추출5건 복원·mock HTTP5회와 합성 검사를 확인했으며 독립 전체 검토/새 전체QA 최종 상태는 진행 기록을 따른다. 다음은 새 사전 기준/상한을 고정한 실제 table 읽기·완료·오탐/미탐·비용 평가다. 역할 후보 전체 catalog/grid는 용량·오탐 한계로 즉시 추가하지 않는다. G사람 재판정·앱 전체 예산/권한/내구 인수와 개발 적용은 후속이며 기존 제품 실행 경로는 바꾸지 않는다.
+[무손실 table SDK](../changes/role-table-audit-implementation.md) 후 [실제 검수5회](../research/role-table-acceptance.md)를 진행했다. 원래 generation/전체 원문을 유지한 채 J의 검수 입력 차단은 통과했으나 사전8대상은 탐지2/미탐6·추가hard3판정유보다. 원래 생성 비분쟁1/4·G사람 재판정/기존 실패와 비용을 보존하고 앱 연결을 보류한다. 다음은 수치별 역할 후보/적용관계·명시coverage/불확실/overflow의 용량 설계다. 기존 전체hint-grid 즉시 추가·원문 절단·한도 인상·소진 runner 재실행은 하지 않는다. 미관측 자료 품질·전체 앱 예산/권한/내구 인수도 후속이다.
 
 ## 제품 여정
 
