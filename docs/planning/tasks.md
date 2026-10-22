@@ -4,7 +4,7 @@
 
 - [x] 단일 borrowed Model·전체 원문/기존 추출·명시 관계와 독립 영수증·실패 사용량 보존. 0쌍 호출0·잔여 한도·no-store/30초·retry/repair/fallback0.
 - [x] 신규109개/새 전체8,409QA·독립 태스크/전체 검토 C0/I0/M0·454기존코드/562실제/45+59설계 불변. 실제5자료/최종20합성+4추론 메타데이터 모의HTTP 검증(provider0).
-- [ ] 문서·Draft PR·Sites 인계.
+- [x] 문서·[Draft PR89](https://github.com/DigestWorks/IssueDigest/pull/89)·Sites v111/이전v110·자체 검증 자원/SDD 인계.
 - [ ] 고정 실제 관계 분류·완료/비용·후보 recall/오탐·원래 추출의 중요도/G사람 재판정·앱 전체 예산/권한/내구 인수. 앱 연결은 보류.
 
 ## 현재 · 순수 역할 연결 계약 · 2026-10-22 한국 시간

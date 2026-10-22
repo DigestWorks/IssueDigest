@@ -32,7 +32,7 @@ Call review_role_links_v1 once. Review only supplied surface-hint/selected-numbe
 
 - [x] Task and fresh whole-branch independent review, full QA.
 - [x] Preserve454code/562actual/45+59design, private data, actual-input offline packet and20synthetic report/mock HTTP roundtrips without providers.
-- [ ] Canonical docs/Draft PR/Sites with previousv110 archived; own SDD/QA cleanup. No app/main deployment; real model semantic acceptance is separate.
+- [x] Canonical docs/Draft PR/Sites with previousv110 archived; own SDD/QA cleanup. No app/main deployment; real model semantic acceptance is separate.
 
 
 ## Verification and limits
@@ -42,3 +42,5 @@ Codec963b6b32b939e392321889562896c416b12542a; new109tests; fresh wholeQA Python7
 Offline current5source/47hint input matches prior full packet exactly; pairs15/16/6/192/42 and caps1100/890 stay unchanged.20 final successful MockTransport calls plus4 reasoning-metadata calls over ?/_/-/SO carriers pass current raw/actual report reconstruction, full source/quantity/hint/support, no-store30sec/defaulttier/low and callerclient remains open. Parent probes preserve initial method/property assertion1, pre-fix success20, reasoning+tool RED1, final success20+reasoning4 separately:46parent mockrequests/provider0. Synthetic usage111/22 is not measured provider cost/tokens/completion/semantic accuracy.
 
 Frozen upstream generation output<=1800, so cap0zero-pair branch uses helper simulation; malformed prior output2500 stays rejected. SDK observes borrowed raw responses to reject duplicate same-tool calls even if legacy runtime can select one; old runtime remains frozen. Reconstruction hashes establish current consistency, not provider-response authenticity. No source-wide coverage/hardmissing/repair or old audit equivalence. Actual fixed relation classification/output completeness/cost/candidate recall/false positives, original-result importance and human adjudication, then app total budget/permissions/recovery remain separate gates. Single-request/retries0 guarantees refer to the SDK Model/Agent boundary; borrowed caller transport policy is opaque and remains caller-owned. Offline HTTP clients explicitly use max_retries0; actual acceptance must do the same.
+
+Draft PR89 targets feat/role-link-contract (PR88), no merge. Sites v111 native publication succeeded2026-10-22 15:58:51 KST, sourcede749b7f84620f3ea8f297e2811aea65e33417c3; previousv110 archived.96HTML/2,225local targets/283public texts/private60value checks pass. Text-only existing layout, no browserQA repeated. Owned interrupted/finalQA resources removed and bothloopbackports closed; other resources untouched. OwnSDD reports/reviews archived privately then only own workspace removed; featurebranch/worktree retained. Finalreceipt-only doc changes do not trigger another Sites publication.
