@@ -1,0 +1,24 @@
+# Semantic balanced output implementation
+
+2026-10-22 KST. Binding spec: [reviewed design](semantic-boundary-balanced-output.md). Implementation remains separate from real semantic acceptance and app integration.
+
+## Global Constraints
+
+Add only three production modules and their three synthetic test modules. Preserve all 440 existing non-Markdown tracked files and all 361 historical actual-trial evidence files. No real provider calls, old trial reruns, private source in public files, app/API/UI/DB/worker/default-model changes, server deployment or main merge. Borrowed model, no store, single request/30 seconds, no retry/repair/fallback. Total 20000 and combined output 2500 unchanged. Validate actual exact types, required nullable markers before serialization, full source/catalog/schema/hash/usage reconstruction. Do not translate v2 receipts to v1 to reuse a validator. Synthetic tests explicitly reuse test_shared_measurement_context_v2.restore_introduced_modules to restore import identity. Follow TDD; focused tests only for implementers. Controller owns full QA, immutable manifests, offline real-source checks, review, PR and Sites. No subagents from workers.
+
+## Task 1: Balanced generation
+
+- [ ] Implement and test new balanced generation.
+
+Own only packages/agents/src/issuedigest_agents/balanced_role_generation.py and packages/agents/tests/test_balanced_role_generation.py plus this checkbox. Read binding design. Add RoleAliasGenerationV2, BalancedRoleGenerationError, balanced_role_prompt(source), create_balanced_role_framer(*, model), run_balanced_role_framer(source, *, model), validate_balanced_role_generation(source,result). Match old callable/run signatures if signatures here conflict with existing established callable convention; report exact final signatures. Profile shared-role-aliases-v2, tool fill_shared_role_aliases_v2, identity issuedigest_shared_role_aliases_v2. Exact old ROLE_ALIAS_INSTRUCTIONS with tool v1 replaced by v2 only; expose BALANCED_ROLE_INSTRUCTIONS. Generation output 1800 inclusive, total 20000. Reuse pure RoleAliasFrame/Input/resolver and bounded runtime; never create old generation receipts. Full stored dictionary and actual __dict__ frame/index marker validation before dump. Hash own prompt and instructions; reconstruct source, dynamic schema, frame and observed usage. Preserve known overflow usage, unknown/may-have-started failure semantics and explicit provider incomplete rejection. Tests: red then green; inclusive1800/overflow1801, total20000, schema envelope, all required markers raw/actual and nested/container/subclass tampering, source drift, own profiles/hashes, one/no-store borrowed model wire and incomplete valid-JSON raw usage. Reuse existing synthetic fixtures where suitable, no private actual evidence. Run focused tests/static checks and meaningful adjacent regressions, not full npm check. Commit only owned files and report exact commands/counts/TDD/concerns in report path supplied by controller.
+
+## Task 2: Semantic audit contract and SDK
+
+- [ ] Implement and test semantic v2 audit.
+
+Own only packages/agents/src/issuedigest_agents/semantic_role_audit_contract.py, semantic_role_audit.py and matching packages/agents/tests/test_semantic_role_audit_contract.py, test_semantic_role_audit.py plus this checkbox. Accept exact new RoleAliasGenerationV2 only; legacy/v1 rejected. Public APIs use semantic_role_* names analogous to role_aware_* existing contracts. Report role-aware-audit-report-v2; generation role-aware-audit-v2; tool audit_role_aware_v2; identity issuedigest_role_aware_v2. Copy exact final English instructions fenced in binding design, 2722 UTF8 bytes. Preserve unchanged full source/proposal and original hashes, five roles/current scope slots, explicit12 groups*12 targets=144, per-target full quantity/evidence/support/quote/order/slot/nonnull checks, duplicate and check contradictions, conservative empty/not_applicable/incomplete/uncertain/hard statuses. Reuse pure DTO/span helpers but no fake v1 generation or old coupled _build. Audit output min(1100,2500-generation.output_tokens); remaining total20000-generation.input_tokens-generation.output_tokens. Actual combined usage/request bounds including failure and nullable unknown started failures. Strict required markers/raw/actual/nested/container before dumps. TDD synthetic positive/negative/ambiguous role rules, complete/incomplete/empty,144 boundary/overflow, budgets700/dynamic remaining, raw provider incomplete/usage and source drift/tampering. Structural tests cannot claim semantic accuracy. No old code changes. Focused tests/static and ordered adjacent regressions only; commit/report as Task1.
+
+## Controller gate
+
+- [ ] Independent task and whole-branch review, fresh full QA, preservation/privacy and offline actual-source envelope checks.
+- [ ] Update canonical progress/tasks and Sites; publish Draft PR without merge or deployment.
