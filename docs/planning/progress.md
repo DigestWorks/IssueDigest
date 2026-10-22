@@ -1,3 +1,21 @@
+## 최종 영수증 · 역할 경계·출력 배분 v2 SDK · 2026-10-22 한국 시간
+
+[Draft PR82](https://github.com/DigestWorks/IssueDigest/pull/82)·PR81 기반/미병합/앱 첨부. [계획판 v104](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded, source `4c115f5e5f43ffc4c6195e25338247401f80b0ba`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_8d5e5dcdb86c8191a1838c4fd3fe8e7e`, deployment `appgdep_6ad970c9cd3c8191a5d2f3a1602d1913`, 2026-10-22 11:11:36 KST이다. 저장소 사본3564226d9d74774d7e0c6568a7ac43079f25aa84·이전v103/전체 기록을 보존했다. 이번 변경Markdown4개 중 문서3개만 해당 경로/flat 사본에 반영하고 루트README는 snapshot 요약으로 표시했다. HTML89개·로컬링크/asset/anchor1,931개·공개텍스트262개·실제 비공개ID/질문/긴 인용60종 부재 검사를 통과했다. 기존 레이아웃의 텍스트 갱신이므로 새 브라우저 검사는 실행하지 않았고 사용자 탭은 열거나 이동하지 않았다.
+
+최종 코드 검토 C0/I0/M0·전체7,808개QA·기존440코드/361실제 증거 보존이다. 검증용 소유DB1개만 제거하고 포트 닫힘을 확인했다. 이번 계획의 SDD 보고서/ledger/diff를 비공개 보관하고 해당 작업 폴더만 제거했으며 형제 작업·worktree를 보존했다. 판정 충돌에 대한 별도 Ruling은 없었다. 실제 provider0·앱/서버/main 변경0이다. 새 실제 의미/완료·G사람 재판정·앱 전체 예산/권한/내구 인수는 후속이다. 게시 이후 이 최종 영수증은 저장소 원본이며 사본 재게시를 반복하지 않는다.
+
+## 게시·인계 · 역할 경계·출력 배분 v2 SDK · 2026-10-22 한국 시간
+
+[Draft PR82](https://github.com/DigestWorks/IssueDigest/pull/82)은 PR81 기반·미병합이며 앱 첨부를 완료했다. 독립 태스크/전체 검토 C0/I0/M0와 새 전체7,808개QA를 통과했다. 소유한 검증 DB 한 개만 제거하고 포트 닫힘을 확인했다. 기존440실행 파일·361실제 증거·비공개값 부재 검사를 유지했다. 아래 구현 기록이 실제 검증 범위이며 새 실제 의미/앱 인수는 남아 있다. Sites 게시/현재 SDD 정리의 최종 영수증은 후속 기록으로 확정한다.
+
+## 역할 경계·출력 배분 v2 SDK · 구현·검증 · 2026-10-22 한국 시간
+
+[구현과 한계](../changes/semantic-balanced-output-implementation.md). 별도 생성1,800·검수실제잔여최대1,100(생성상한사용시700)·합산total20,000/output2,500을 구현했다. 새 concrete generation과 자기 영수증, 필수 표식/정확 실제 타입, 전체 원문/수치 역할/명시 대상별 최대144진단·미완료/불확실 상태를 재검증한다. 최종 검증 실패에도 관측된 비용이 남도록 생성 지적1건을 수정하고 검수에도 회귀를 넣었다. 원래 proposal을 수리하거나 v1 영수증을 새 것으로 번역하지 않는다.
+
+신규226개(생성61·검수165), 태스크 인접323/551개와 독립 검토 최종 C0/I0/M0. 새 전체QA는 `759add7`의 같은 실행 코드에서 Python6,988+JS820=7,808개·린트/형식/타입/빌드/OpenAPI 통과, failure/skip/warning0이다. 기존440실행/설정/테스트·361실제 증거를 유지했다. 실제 다섯 자료 전체의 새 schema/원문/proposal 오프라인 및 최종10mock wire 확인(준비/최종 총20mock), provider0이다. 긴 J검수는14,600/가정잔여14,714·여유114이며 실제 출력/의미 완료 보장이 아니다. FunctionModel reference usage100/30은 합성값이다.
+
+새 사전 고정 실제 평가·G독립 사람 재판정·앱 전체 예산/권한/내구 인수는 남아 있다. 앱/API/UI/DB/worker·기본 모델·서버/main 변경0이다. Draft PR/Sites와 소유QA/SDD 정리 영수증은 후속 게시 기록에서 확정한다.
+
 ## 게시·인계 · 역할 경계·출력 배분 설계 · 2026-10-22 한국 시간
 
 [Draft PR81](https://github.com/DigestWorks/IssueDigest/pull/81)은 PR80 기반·미병합이며 앱 첨부를 완료했다. 이번은 spec-driven-workflow의 문서 예외로 제품 코드를 바꾸지 않았다. systematic-debugging·새 문맥 검토와 설계 검토 I1/M1 수정/한정 재검토 C0/I0/M0를 마쳤다. 기존 gold·점수·실제361증거를 유지하며 새 AI검토를 사람의 정답 확정으로 표시하지 않는다. 별도 v2 SDK/TDD·전체QA/실제 인수는 아직이다.
