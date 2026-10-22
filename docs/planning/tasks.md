@@ -8,7 +8,7 @@
 - [x] [Draft PR91](https://github.com/DigestWorks/IssueDigest/pull/91)·Sites v113/이전v112·비공개 설계17개 증거 인계.
 - [x] [순수 carrier/reference strict DTO](../changes/role-reference-implementation.md)·원문 재구성·빈/공유/다중quote/최대288·타입/변조 TDD 구현.
 - [x] 태스크/새전체 독립 검토 C0/I0/M0·전체8,452QA·기존 코드/증거 보존.
-- [ ] PR/Sites 인계와 소유 임시 자원 정리.
+- [x] [Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92)·Sites v114/이전v113·비공개 검토/오프라인 증거 인계·자체 QA/SDD 정리.
 - [ ] 의미 동등성·중요도·잘못된 역할 배정·미관측 후보 recall/G사람 재판정·앱 비용/권한/내구 인수. 자동 hard 누락/수리·앱 연결은 보류.
 
 ## 현재 · 실제 역할 연결 평가 · 2026-10-22 한국 시간

@@ -43,7 +43,7 @@ Synthetic TDD tests before module: literal positive carrier order/path/owner/IDs
 
 - [x] Task and fresh whole-branch review, fresh full QA.
 - [x] Real5sources/271rows vs frozen prototype, K6/J4 and all original scores preserved;456code/642actual/45+59+17design/privacy/link checks.
-- [ ] Docs/Draft PR/Sites previousv113 archived; archive own SDD/remove own QA only, retain worktree. No app/main deployment/providers.
+- [x] Docs/Draft PR/Sites previousv113 archived; archive own SDD/remove own QA only, retain worktree. No app/main deployment/providers.
 
 ## 구현과 오프라인 대조 · 2026-10-22 한국 시간
 
@@ -58,3 +58,9 @@ Synthetic TDD tests before module: literal positive carrier order/path/owner/IDs
 태스크 독립 검토와 새 전체 브랜치 검토 모두 C0/I0/M0로 승인했다. 구현 수정 없이 확정 source db1876d의 새 전체8,452개(Python7,632+JS820), lint/format/types/build/OpenAPI 검사를 통과했다. 실패/skip/warning0이다. 의미/중요도·provider 진위·제품 전체 인수는 본 문자 참조 계약의 판단 대상이 아니며 별도 열린 과제로 유지한다.
 
 [Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92)은 설계 PR91 브랜치를 대상으로 한다. main/앱 배포는 하지 않는다. 소유 QA컨테이너1개 제거·포트 닫힘을 확인했고 다른 자원은 유지했다. Sites에는 기존v113을 보존해 현재 구현과 남은 인수를 반영한다.
+
+## 최종 인계 · 선택 원문 참조 계약 구현 · 2026-10-22 한국 시간
+
+[Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92) · Sites v114 게시 성공(19:08:42 KST, sourcec7090ba78219de114ce528437f7647f7821a0e91), 이전v113 보존. 본문·변경6문서 요약은 게시 시86aba79 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.99HTML/로컬대상2,366/공개텍스트292/private60항목 검사 통과. 텍스트만 변경해 브라우저QA는 반복하지 않았다.
+
+구현db1876d·신규43/전체8,452QA(Python7,632+JS820)·독립 태스크/전체 검토 C0/I0/M0·실패/skip/warning0. 실제5자료/271행·23/31/2/215·K6entity/J4primary참조없음·기존점수/실패/비용 유지. 기존456코드/642실제/121설계 증거 불변. 자체QA1개 제거·포트닫힘과 자체SDD 비공개 보존/해당 임시 폴더만 정리, 브랜치/작업폴더 유지. 추가provider/앱/main/서버 배포0. 다음은 의미 동등성·중요도/미관측 후보 recall·앱 비용/권한/복구 인수다.
