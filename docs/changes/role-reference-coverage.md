@@ -20,11 +20,11 @@ S는 측정값이 적용되는 모집단·영역의 제한, E는 집계 대상�
 | auxiliary 참조 | event.predicate, binding.change.evidence, 해당 수치가 직접 from/to인 relation.cue, 수치 expression, binding.status_sentence의 문장 | 따로 기록하며 primary 보존으로 승격하지 않음 |
 | 선택된 정보로 간주하지 않음 | anchor.c의 넓은 위치 구분 문맥, 자동 support/statement 전체, 출처 제목/metadata, 공유하지 않은 context/event, 관계 chain | 원문에 등장하거나 support에 들어 있다는 이유로 primary로 계산하지 않음 |
 
-모든 carrier는 현재 원문에서 검증한 exact span·현재 binding number·필드 경로·primary/auxiliary 종류를 보존한다. 같은 위치라도 entity/scope/actor 등 서로 다른 필드 경로를 합치지 않는다. actor와 scope에 같은 이름이 중복 저장됐더라도 텍스트 존재가 역할의 올바른 적용을 인증하지 않는다. source quote가 다른 동일 offset/문자열은 일치가 아니다. anchor.c는 반복 표현의 정확 위치를 정하는 데만 사용하고 포함된 다른 단어까지 선택했다고 보지 않는다.
+모든 carrier는 현재 원문에서 검증한 exact span·현재 binding number·필드 경로·primary/auxiliary 종류를 보존한다. 공유 context/event의 같은 경로라도 해당 binding과의 연결을 유지하며 경로 문자열만으로 서로 다른 수치의 carrier를 합치지 않는다. 같은 위치라도 entity/scope/actor 등 서로 다른 필드 경로를 합치지 않는다. actor와 scope에 같은 이름이 중복 저장됐더라도 텍스트 존재가 역할의 올바른 적용을 인증하지 않는다. source quote가 다른 동일 offset/문자열은 일치가 아니다. anchor.c는 반복 표현의 정확 위치를 정하는 데만 사용하고 포함된 다른 단어까지 선택했다고 보지 않는다.
 
 ## 별도 순수 report 제안
 
-입력은 current source와 exact RoleLinkGeneration 전체이며 새 AI 응답을 받지 않는다. proposed profile role-reference-coverage-v1/rules selected-anchor-overlap-v1, source_inventory_exhaustive=false, semantic_equivalence/materiality=not_assessed를 필수 marker로 둔다. 이전 SDK·report·score로 위장하거나 provider usage를 새로 만들지 않는다. 원래 SDK 전체/hash·규칙/hash·carrier inventory·모든 후보×수치 행·문자 참조 counts를 보존하며 현재 원문에서 전체 재구성한다. 이 hash는 일관성 확인이지 provider 진위 인증이 아니다.
+입력은 current source와 exact RoleLinkGeneration 전체이며 새 AI 응답을 받지 않는다. proposed profile role-reference-coverage-v1/rules selected-anchor-overlap-v1, source_inventory_exhaustive=false, status=unreviewed, semantic_equivalence/materiality=not_assessed를 필수 marker로 둔다. 이전 SDK·report·score로 위장하거나 provider usage를 새로 만들지 않는다. 원래 SDK 전체/hash·규칙/hash·carrier inventory·모든 후보×수치 행·문자 참조 counts를 보존하며 현재 원문에서 전체 재구성한다. 이 hash는 일관성 확인이지 provider 진위 인증이 아니다.
 
 각 행은 원래 hint_id/number/link_state/roles를 그대로 보존하고 다음 중 하나를 기록한다.
 
@@ -60,3 +60,5 @@ exact가 있으면 exact, 그다음 full containing, partial 순으로 요약하
 1. 순수 carrier inventory·행별 참조 report의 별도 strict DTO/원문 재구성·TDD를 구현한다. 기존 generation/link SDK/지침/실제 점수는 동결한다.
 2. 역할 분류와 문자 참조의 조합을 사람이 해석할 수 있게 내부 평가에 기록하되 제품 임시 checkpoint UI·자동 hard 누락·자동 수정은 추가하지 않는다.
 3. 의미 동등성·중요도·잘못된 역할 배정은 별도 기준/인수로 남긴다. 미관측 자료/후보 recall·G사람 재판정·앱 전체 비용/권한/내구 검증 전 앱에 연결하지 않는다. 추가 유료 호출로 기존 기준을 맞추지 않는다.
+
+독립 설계·시제품 검토 C0/I0/M0. 전체271행을 별도 interval oracle로 대조해23exact/31containing/2partial/215no-reference와 K6/J4를 재현했다. 합성10경계/70변형 거부와 추가25타입 probe를 확인했다. 두 초안·projection·검토17개 증거를 불변 manifest로 보존한다.456코드/642실제/45+59기존설계 불변이며 production typed 계약/TDD·의미 동등성/중요도 인수를 완료했다는 뜻은 아니다.

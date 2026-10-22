@@ -1,6 +1,10 @@
-## 진행 중 · 역할 분류와 원문 참조 분리 · 2026-10-22 한국 시간
+## 역할 분류와 선택 필드 참조 분리 · 설계 검토 완료 · 2026-10-22 한국 시간
 
-[비교 범위·순수 계약 설계](../changes/role-reference-coverage.md). 직전10역할불일치를 원래 추출의 선택 필드와 대조해 K6은 entity 안에 정확 명칭 참조, J4는 해당 primary에 참조 없음으로 구분했다. 기존 사전점수/의미 판정은 바꾸지 않는다.5자료/271행의 비공개 무호출 시제품을 확인하며 기존456코드/642실제/45+59설계 증거·8,409QA·앱 동작을 보존한다. Sites는 독립 검토 후 갱신한다.
+[명시 선택 범위·순수 report 설계](../changes/role-reference-coverage.md). 역할 분류와 문자 참조·의미 동등성·중요도를 독립 축으로 분리했다. 해당 binding/context/event의 명시 primary anchor만 exact/containing/partial/no-reference로 대조하고 c/support/다른 fact/관계 chain은 보존 성공으로 올리지 않는다. auxiliary/다른fact 참조는 구분 기록하며 역할 정답·자동 hard 누락/수리를 만들지 않는다.
+
+기존5자료/271행 무호출 시제품에서23exact/31containing/2partial/215no-reference다.215를 누락 건수로 부르지 않는다. 직전10역할 불일치만 보면 K6은 original entity 안 명칭 참조, J4는 해당 primary에 참조 없음이며 기존6/8·7/9점수·원래 generation 비분쟁1/4·G사람 판정 유보·검수2탐지/6미탐/추가3유보·비용은 그대로다.
+
+독립 검토 C0/I0/M0·10개 interval 경계/70변형 거부·별도25타입 probe와 전체행 재현을 확인했다. 두 초안/결과/검토17개 신규 설계 증거·456기존코드/642실제/45+59기존설계 불변·8,409QA 재사용. 추가 provider/SDK/앱/main/서버 변경0. 다음은 순수 strict DTO·전체 재구성/빈·공유·다중quote/최대288·필수타입/변조 TDD이며 의미 동등성/중요도와 앱 인수는 별도다. PR/Sites 인계는 진행 중이다.
 
 ## 최종 인계 · 실제 역할 연결 평가 · 2026-10-22 한국 시간
 
