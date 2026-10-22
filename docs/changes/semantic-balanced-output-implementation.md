@@ -22,3 +22,27 @@ Own only packages/agents/src/issuedigest_agents/semantic_role_audit_contract.py,
 
 - [ ] Independent task and whole-branch review, fresh full QA, preservation/privacy and offline actual-source envelope checks.
 - [ ] Update canonical progress/tasks and Sites; publish Draft PR without merge or deployment.
+
+## 구현과 확인 결과 · 2026-10-22 한국 시간
+
+새 실행 경로는 생성 `shared-role-aliases-v2`와 검수 `role-aware-audit-v2`다. 기존 경로/영수증/실제 평가를 바꾸거나 변환하지 않는다. 원문·현재 후보와 frame/index 필수 표식·정확한 실제 타입/튜플을 직렬화 전에 확인하고, 자기 prompt/지침·schema·해시/usage를 재구성한다. 검수 report는 새 concrete generation만 받으며 다섯 역할·현재 scope 순서와 전체 proposal을 유지한다. 최대12묶음의 각 명시 대상12개를 개별 검증해 최대144진단을 만든다. 누락/근거 없음과 불확실/미완료를 구분하며 원래 결과를 수리하지 않는다.
+
+생성 출력은1,800, 검수는 `min(1,100,2,500-generation.output)`이며 실제 생성의 input/output을 total20,000에서 차감한다. 생성1,800 사용 시 검수700이다. borrowed Model·한 번/30초/no-store·retry/repair/fallback0을 유지한다. 실패해도 알려진 사용량과 요청 발생 여부를 남기고, 시작 가능하지만 사용량이 불명확한 검수는 합산0으로 만들지 않는다. 태스크 검토에서 발견한 생성 최종 검증 실패 시 사용량 소실을 수정했고, 검수에도 같은 경계의 회귀를 추가했다.
+
+신규 생성61·검수165(계약107/SDK58)는 합성 입력·FunctionModel·mock HTTP 검증이다. 태스크별 인접 검사는323/551개이며 실제 모델 정확도 증거가 아니다. 독립 전체 검토와 전체QA의 최종 결과는 아래 기록을 확정한 뒤 완료로 표시한다.
+
+### 실제 자료의 오프라인 전송 구조
+
+| 참조 자료 | 생성 envelope / cap1,800 | 검수 envelope / cap700 | 가정한 잔여total | 여유 |
+| --- | ---: | ---: | ---: | ---: |
+| G | 15,398 | 10,487 | 15,228 | 4,741 |
+| H | 15,075 | 9,879 | 15,353 | 5,474 |
+| I | 15,113 | 9,867 | 15,350 | 5,483 |
+| J | 17,437 | 14,600 | 14,714 | 114 |
+| K | 15,611 | 11,662 | 15,324 | 3,662 |
+
+새 SDK의 실제 raw/normalized 동적 schema·정확2,722byte 지침·완전한 원문/참조 proposal을 사용한 UTF8 envelope다. 설계 mock보다 새 schema 명칭으로 검수39byte가 늘었으며 설계 기록은 그대로 남긴다. 가정한 잔여total은 과거 input이 같고 새 생성이1,800을 모두 쓴다는 반사실 계산이다. reference generation usage100/30은 FunctionModel 합성값으로 실제 새 생성 사용량이 아니다. J는 완전한 과거 proposal 참조이며 잘린 실제 응답을 복구하거나 기존 의미 오류를 고친 결과가 아니다. K는 최신 완전한 과거 v1 방향을 포함한다. 최종10개 wire body를 mock HTTP에서 확인했고(준비/최종 두 실행 총20개), provider 요청은0이다. J여유114는 향후 출력 완료·token/비용/의미 정확도 보장이 아니다.
+
+### 남은 인수
+
+새 실제 평가에는 사전 고정 자료/판정 기준·비용 상한이 필요하다. 생성 완료, 정보 누락, 검수 오탐/미탐, 장문 출력 충분성을 각각 확인한다. 기존 소진 runner·실패 비용·gold/점수는 변경하거나 재실행하지 않는다. 알려진 G의 분쟁 경계는 독립 사람 재판정이 남아 있고 새 AI 검토를 사람 정답으로 쓰지 않는다. 앱 전체24,000/output2,500 회계·권한·내구 인수를 마친 뒤 연결한다. 현재 앱/API/UI/DB/worker·기본 모델·서버/main은 변경하지 않는다.

@@ -1,3 +1,7 @@
+## 역할 경계·출력 배분 v2 구현 · 진행 중 · 2026-10-22 한국 시간
+
+[구현 계획](../changes/semantic-balanced-output-implementation.md)에 따라 별도 생성/검수 SDK를 구현 중이다. 생성 경로는 신규61개·인접323개 검사와 독립 검토를 마쳤으며, 최종 재검증 실패에도 이미 관측한 사용량이 유지되도록 수정했다. 검수 구현·독립 전체 검토·새 전체QA는 아직 진행 중이다. 기존440실행/설정/테스트·361실제 증거를 보존한다. 실제 provider 요청0·앱/서버/main 변경0이며 Sites는 이 작업 마무리 때 반영한다.
+
 ## 게시·인계 · 역할 경계·출력 배분 설계 · 2026-10-22 한국 시간
 
 [Draft PR81](https://github.com/DigestWorks/IssueDigest/pull/81)은 PR80 기반·미병합이며 앱 첨부를 완료했다. 이번은 spec-driven-workflow의 문서 예외로 제품 코드를 바꾸지 않았다. systematic-debugging·새 문맥 검토와 설계 검토 I1/M1 수정/한정 재검토 C0/I0/M0를 마쳤다. 기존 gold·점수·실제361증거를 유지하며 새 AI검토를 사람의 정답 확정으로 표시하지 않는다. 별도 v2 SDK/TDD·전체QA/실제 인수는 아직이다.
