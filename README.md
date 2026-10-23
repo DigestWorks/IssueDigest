@@ -1,3 +1,5 @@
+현재 구현: [전체 원문 columnar 생성 SDK](docs/changes/columnar-role-generation.md). 별도 형식 지침·독립 영수증·실제 schema 포함 예산·무재시도/실패 비용 계약을 구현했습니다. 합성 SDK 전송과 실제 모델 의미·앱 연결은 구분합니다.
+
 현재 구현: [전체 원문 columnar 입력 codec](docs/changes/columnar-generation-source.md). 원문·후보·조건·순서를 전부 복원하는 순수 모듈을 추가했습니다.6자료가 동일하게 복원됐고 새 원문의 형식 설명 포함 비교 envelope는19,820입니다. 기존 SDK의 차단은 유지하며 실제 새 SDK/모델 수용·의미·앱 적용은 후속입니다.
 
 신규 원문 진단: [질문별 후보와 입력 수용](docs/research/new-source-recall-acceptance.md). 새 기사 전체 본문에서 개발 질문의8수치명제/10anchor를 찾았지만 기존 생성 입력 한도에서 차단됐습니다. 비수치4요구·추출 의미12개는 성공으로 세지 않습니다. 무손실 열 시제품도503초과여서 실제 호출 없이 차단을 보존했습니다.
