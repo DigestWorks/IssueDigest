@@ -1,3 +1,13 @@
+## 현재 · 전체 원문 columnar 입력 codec · 2026-10-23 한국 시간
+
+[명세·구현·비교와 남은 수용](../changes/columnar-generation-source.md).
+
+- [x] 별도 순수 모듈/121TDD·관련233검사·scoped정적 검사.5canonical표현·exactguard·전체decode·20quote/256candidate/공백·중복·null·freshJSON 검증.
+- [x] 태스크 독립 검토 C0/I0/M0·기존6자료 전체원문/payload복원. 새 원문19,820비교/여유180, 작은3자료 overhead증가·실제새SDK/wire미검증 명시.
+- [x] 새 전체 브랜치 검토(초기I1수정/최종C0I0M0)·전체8,573검사·기존458실행파일/과거증거 보존.
+- [ ] PR/Sites/이전v116·소유QA/SDD 인계.
+- [ ] 별도 versioned generation SDK의 형식 지침/profile/hash/실제 예산·usage·송신불확실성/무재시도 계약 및 실제 모델 읽기/완료/의미/비용 인수. 기존 balancedL차단을 성공으로 바꾸거나 앱에 연결하지 않음.
+
 ## 현재 · 신규 원문/질문 후보·입력 수용 진단 · 2026-10-23 한국 시간
 
 [기준·차단·용량 시제품](../research/new-source-recall-acceptance.md).

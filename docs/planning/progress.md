@@ -1,3 +1,9 @@
+## 검증 완료 · 전체 원문 columnar 입력 codec · 2026-10-23 한국 시간
+
+[명세·구현·6자료 비교](../changes/columnar-generation-source.md). 원문/후보/조건·문장/순서를 전부 복원하는 별도 순수 codec을 구현했다. 실제 ID 열에만 prefix 압축을 적용하고 본문은 ID처럼 보여도 정수로 해석하지 않는다. 6자료 전체 payload/quote일치·새 원문 비교 envelope19,820/여유180, 작은3자료 overhead증가다. 실제 새 SDK/wire/모델 수용·의미는 후속이며 기존 생성기의 차단/실패/비용을 유지한다.
+
+구현26db0d1·신규121/관련233·전체8,573검사(Python7,753+JS820)와 lint/format/types/build/OpenAPI 통과, 실패/skip/warning0. 초기 전체I1의 긴 본문 변환 오류는 RED→GREEN으로 수정/scoped최종 C0I0M0이며 초기 중단 전체검사는 통과 분모에 포함하지 않는다. ID형 본문을 압축 대상에서 제외한 결정의 비용은 일부 입력이 더 커질 수 있다는 점이고 내용은 동일하다. 458기존코드/642실제/121설계/이전12+10+33증거 보존·신규provider/앱 변경0. PR/Sites·이전v116·소유 임시 자원 인계는 최종 게시 영수증을 따른다.
+
 ## 최종 인계 · 신규 원문/질문 후보·입력 수용 진단 · 2026-10-23 한국 시간
 
 [Draft PR94](https://github.com/DigestWorks/IssueDigest/pull/94) · Sites v116 게시 성공(13:13:35 KST, source02b4967d62e6d192066cf7ea55aafb15bb6eaa5f), 이전v115 보존. 본문·변경6문서 요약은 게시 시24c6f6e 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.101HTML/로컬대상2,465/공개텍스트298/private60항목 및 신규원문ID/질문/전체본문 노출 검사 통과. 기존 레이아웃의 텍스트 변경이어서 브라우저QA를 반복하지 않았다.
