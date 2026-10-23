@@ -1,3 +1,7 @@
+## 구현 진행 · 질문별 근거 생성 v2 예산 · 2026-10-23 한국 시간
+
+[새 v2 계약](../changes/question-evidence-generation-v2.md)은 출력4,000/요청 timeout60으로 추론을 포함한 여유를 늘리되 총20,000과 전체 원문/정확 질문을 유지한다. 독립 profile/tool/receipt와 v2-local 실행 경로로 기존30초 helper/v1·실제 미완료/사용량·466실행과 과거 증거를 바꾸지 않는다. 단순 산술상10적합/1차단·긴자료 여유406~432이며 실제 새 wire/SDK·합성/전체QA·독립 검토를 진행한다. 약2.22배 출력 상한/2배 timeout은 실제 비용 증가율·성공·wall-clock SLA를 뜻하지 않는다. 실제 provider/앱/worker/main 활성화는 이번 구현에 포함하지 않는다.
+
 ## 최종 인계 · 질문별 근거 생성 실제 미완료 · 2026-10-23 한국 시간
 
 [Draft PR102](https://github.com/DigestWorks/IssueDigest/pull/102)은 PR101 기반·미병합이다. 실제 요청1/HTTP200·raw incomplete/max_output_tokens·SDK 거부·knownusage2,318/1,800(추론1,512포함) 보존,29.685초·재호출0이다. 질문3명제/다른9명제는 미평가이며 의미 성공으로 세지 않는다. 독립 검토 M1 전체 요청 예산 표현 수정 후 C0I0M0이다.
