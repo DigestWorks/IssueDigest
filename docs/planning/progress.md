@@ -1750,3 +1750,5 @@ legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번
 새 문맥의 증거 검토 C0/I0/M0를 확인했다. 원문/기준/요청·응답·사용량·판정/검토 82개 불변 증거를 별도 manifest로 고정했다. AI 증거 검토는 독립 사람 정답 판정을 대신하지 않는다.
 
 [Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92)은 설계 PR91 브랜치를 대상으로 한다. main/앱 배포는 하지 않는다. 소유 QA컨테이너1개 제거·포트 닫힘을 확인했고 다른 자원은 유지했다. Sites에는 기존v113을 보존해 현재 구현과 남은 인수를 반영한다.
+
+[Draft PR93](https://github.com/DigestWorks/IssueDigest/pull/93)은 참조 계약 PR92 브랜치를 대상으로 한다. 사전 기준/개발 분석/초기M1 및 수정 검토10개 비공개 연구 증거를 불변 manifest로 보존한다. Sites에는 이전v114를 보관하고 이번 인수 기준을 요약하며 main/앱 배포는 하지 않는다.
