@@ -2,9 +2,9 @@
 
 2026-10-20 KST 기준. IssueDigest는 질문에서 시작해 이슈의 맥락·쟁점·변화를 이해하는 B2C 브리핑 서비스다. [D016·D017·D019·D020·D021·D022](decisions.md)과 [제품 경험 인터뷰](../research/product-experience-interview.md)가 제품 방향의 원본이다. 이 문서는 현재 구현과 다음 구현을 구분한다. 두 사람의 공동 자료 검증을 최종 제품 구조로 확대하지 않는다.
 
-## M3 진행 · 출력 정체 감지와 미관측 사용량
+## M3 현재 구현 · 순수 공백 감지와 다음 통합
 
-[독립 JSON 공백 감지기](../changes/json-whitespace-guard.md)를 합성 TDD·기록된 인자 재생·새 전체 검사로 검증한다. 문자열 밖 ASCII 연속 공백256까지만 허용하는 고정 휴리스틱이며 JSON 검증기·실제 스트림 취소가 아니다. 기존468실행 파일과 유료 경로는 유지한다. [compact 지침 1회 진단](../research/question-evidence-stall-investigation.md)은60.106초 타임아웃으로 HTTP 응답/사용량이 없어 효과 미판정·비용 미관측이다. 이후 통합에서는 취소 후 최종 사용량이 없는 상태를 별도로 처리해야 한다.
+[독립 JSON 공백 감지기](../changes/json-whitespace-guard.md)는 신규155/새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기록된 v2 인자는 네 분할에서 같은 위치에 감지했으며 v1 미완료는 그대로 통과했다. 문자열 밖 ASCII 연속 공백256까지만 허용하는 고정 휴리스틱이며 JSON 검증기·실제 스트림 취소가 아니다. 기존468실행 파일과 유료 경로는 유지한다. [compact 지침 1회 진단](../research/question-evidence-stall-investigation.md)은60.106초 타임아웃으로 HTTP 응답/사용량이 없어 효과 미판정·비용 미관측이다. 이후 통합에서는 취소 후 최종 사용량이 없는 상태를 별도로 처리해야 한다.
 
 ## M3 실제 인수 · 출력 정체부터 검토
 

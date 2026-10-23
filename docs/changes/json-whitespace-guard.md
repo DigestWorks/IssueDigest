@@ -26,11 +26,15 @@ Read test-driven-development skill. Meaningful tests: 0/256/257 boundary; whole 
 
 ## Controller gates
 
-- [ ] Task spec/quality and whole-branch review; fresh wholeQA for new execution files.
-- [ ] Read-only old actual v1/v2 argument replay under multiple synthetic partitions; preserve468/prior proof and current single native probe timeout/unknown usage. No new paid request.
+- [x] Task spec/quality and whole-branch review C0I0M0; 새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0.
+- [x] Read-only old actual v1/v2 argument replay under multiple synthetic partitions; preserve468/prior proof and current single native probe timeout/unknown usage. No new paid request.
 - [ ] Docs/privacy/links, Draft PR basePR104, Sites previousv126 and exact changed-doc snapshots, ownQA/SDD cleanup. No app/worker/main activation.
 
 ## 판단과 비용
 
 1. 문자열 밖 ASCII JSON 연속 공백256을 감지 한도로 둔다. 관측6,619bytes를 조기에 식별하려는 휴리스틱이며 정상 formatting도 거부할 수 있고 다른 정체 형태는 놓칠 수 있다. 최적 한도/실제 절감은 미검증이다.
 2. 문자 내용을 보존하는 순수 감지기만 추가하고 실제 streaming 취소/재시도·비용 처리를 연결하지 않는다. 기존 유료 경로를 지키는 대신 현재 앱의 지연/비용을 바로 줄이지 못하며 통합·사용량 미관측 인수가 추가로 필요하다.
+
+## 검증 결과
+
+실행63fc05b·합성155/새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0, 태스크/전체 검토 C0I0M0다. v2 기록 인자 네 합성 분할은 문자2,554/연속 공백257에서 거부되고 v1 미완료는 그대로 통과한다. 기존468실행/과거 증거·사전 고정14파일은 유지했다. [Draft PR105](https://github.com/DigestWorks/IssueDigest/pull/105), 실제 SDK/스트림 취소·앱 연결은 후속이다.
