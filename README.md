@@ -1,3 +1,5 @@
+최신 실제 검증: [columnar 생성1회](docs/research/columnar-generation-acceptance.md). 전체 원문 실제 요청/완료·SDK 수용을 확인했지만 분배/상한 조건은 부분 보존이며 시간/비수치 정보의 별도 경로가 필요합니다. 앱 반영은 보류합니다.
+
 현재 구현: [전체 원문 columnar 생성 SDK](docs/changes/columnar-role-generation.md). 별도 형식 지침·독립 영수증·실제 schema 포함 예산·무재시도/실패 비용 계약을 구현했습니다. 합성 SDK 전송과 실제 모델 의미·앱 연결은 구분합니다.
 
 현재 구현: [전체 원문 columnar 입력 codec](docs/changes/columnar-generation-source.md). 원문·후보·조건·순서를 전부 복원하는 순수 모듈을 추가했습니다.6자료가 동일하게 복원됐고 새 원문의 형식 설명 포함 비교 envelope는19,820입니다. 기존 SDK의 차단은 유지하며 실제 새 SDK/모델 수용·의미·앱 적용은 후속입니다.

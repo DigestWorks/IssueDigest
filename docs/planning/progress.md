@@ -1,3 +1,13 @@
+## 최종 인계 · 전체 원문 실제 생성 인수 · 2026-10-23 한국 시간
+
+[Draft PR97](https://github.com/DigestWorks/IssueDigest/pull/97)은 PR96 브랜치를 대상으로 하며 미병합이다. Sitesv119는 public/native succeeded(2026-10-23T06:44:25Z), source `4addb0c9b27418a780d7ad9b0c869b6732cf9f2c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_e28bcf6ea8b881918e2c4a884df0c219`, deployment `appgdep_6adb023c51bc8191b586e13dbe490da2`다. 이전v118과6변경문서 사본(aba4212)을 보존했으며 게시 후 완료 기록은 이 저장소 원본을 따른다. HTML104/로컬대상2,621/공개텍스트307·비공개60+12항목 제외 검사를 통과했다. 기존 레이아웃의 문구만 갱신해 새 브라우저QA·사용자 탭 이동은 하지 않았다.
+
+실제1요청·SDK 수용과 의미 공백을 구분하고 최초/독립 판단·P2 이견을 유지했다. 비용 Important1건은 관측24h/미확인 과금 TTL·조건부 계산으로 정정하고, 분류 Minor1건은 이견 보존으로 해소해 수정 범위 C0I0M0을 확인했다. 462실행파일·SDK66/codec75/이전12+10+33·원래642실제/121설계 증거는 불변이다. 기반PR96 CI39910236966 성공·기존8,696QA를 재사용하며 새전체QA/QA자원·앱/worker/main 배포0이다. 새 요청 잠금은 소진으로 유지하고 추가 요청·repair는 없다. 다음 작업은 각각/이내와 시간·비수치 명제의 표현·생성 경로 설계이며 앱 인수·사람 재판정/일반 품질은 미완료다.
+
+## 실제 응답 확인 · columnar 생성1회 · 2026-10-23 한국 시간
+
+[사전 기준·실제 결과](../research/columnar-generation-acceptance.md). 새 입력으로 실제 요청1회/completed/SDK반환1회, 입력4,713/출력1,015·재시도0. 기존 원문/기준12명제는 유지했다. 최초 판정은 보존하고 독립 검토의 P2 이견을 추가했다: 이견 없는 explicit2/partial2/미표현7·해석이 갈린1개다. raw24h 보존 설정과 쓰기 TTL별 상세 부재를 구분해 실제 과금 비용은 미확인으로 정정하고,30분/12시간 금액은 조건부 계산으로만 남겼다. 분배/상한 조건과 시간/비수치 경로·전체 질문 답변은 아직 부족해 앱 연결을 보류한다. 기존462코드/원래실패·점수/비용을 유지하고 새전체QA·서버자원·main배포0이다.
+
 ## 최종 인계 · 전체 원문 생성 SDK · 2026-10-23 한국 시간
 
 [Draft PR96](https://github.com/DigestWorks/IssueDigest/pull/96) · [Sites v118](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded(15:11:41 KST), source `43efa1aa44936c7fa8c86518fc25589cfc7aad55`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_3d0a75b2d67c81918fde2b2e54b0e517`, deployment `appgdep_6adafa8de2508191a2c1095b584ac537`. 이전v117 보존·6변경문서 사본은 b6fc521 기준이며 이후 게시/완료 기록은 이 저장소 원본이다. HTML103/로컬대상2,568/공개텍스트304·기존private60/신규12항목 제외 검사 통과, 텍스트만 갱신해 브라우저QA를 반복하거나 사용자 탭을 열지 않았다.
