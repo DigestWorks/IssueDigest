@@ -1,3 +1,9 @@
+## SDK 예산 측정 · 질문별 근거 명제 · 2026-10-23 한국 시간
+
+[무호출 측정](../research/question-evidence-sdk-budget.md):6자료+일반 질문/긴자료4원래질문/최대2,000자 조건을 비교했다.10조건 합성 전송·1초과조건 송신0이며 원문/질문은 축약하지 않았다. raw/normalized schema8,955/8,069bytes·긴자료 원래질문 envelope17,374~17,400, 최대길이23,264로 기존20,000 비교선 초과다. 모델 실제 token/수용·출력 충분성은 별도다.
+
+수동 질문별 출력의 o200k_base 참고450~1,331tokens와 전체12행3,746tokens는 실제 모델 usage/추론 토큰이 아니다. 로컬 모델 매핑 미확인과 초기 도우미 import 실패/수정도 보존했다. 현재는 연구 시제품이며464실행/기존8,894QA·원문/기준/실패·점수·비용/과거증거를 유지한다. 제품 SDK/앱/main/새provider0, 독립 검토 M1 metadata45bytes 명확화 후 수정 범위 C0I0M0을 확인했다. PR/Sites 인계는 진행 중이다.
+
 ## 최종 인계 · 질문별 근거 명제 검증기 · 2026-10-23 한국 시간
 
 [Draft PR99](https://github.com/DigestWorks/IssueDigest/pull/99)은 PR98 브랜치 기반·미병합이다. Sitesv121 public/native succeeded(2026-10-23T07:57:51Z), source `396601224ceb850ed72f0c510a88e3226110dba7`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_d217ee0a774c8191b9fa22dd49794265`, deployment `appgdep_6adb1371b7548191acfe8aa77c250604`다. 이전v120과6변경문서 사본(61c5aae)을 보존했으며 이후 완료/게시 기록은 저장소 원본을 따른다. HTML106/로컬대상2,730/공개텍스트313·비공개60+12항목 제외 검사 통과. 기존 레이아웃 문구만 갱신해 새 브라우저QA·사용자 탭 이동은 하지 않았다.
