@@ -31,3 +31,14 @@ Run targeted new tests + existing role_alias_contract/role_reference tests, scop
 - [ ] Task review spec+quality; final whole-branch review and appropriate fullQA.
 - [ ] Existing462 code/private evidence unchanged; actual stored source read-only roundtrip with explicit manual layout vs no semantic inference.
 - [ ] Documentation/privacy/links, Draft PR basePR98, Sites previousv120 preserved, own QA cleanup. No app/worker/main deployment.
+
+
+## 구현과 무호출 원문 대조
+
+초기 구현bf14eeb·신규174개와 scoped Ruff/format/mypy를 확인하고, 검토 수정dde2931의 최종 신규198개와 scoped 검사를 다시 확인했다. 신규149시점에 기존 role alias/원문 참조96개를 더한245개가 통과했으며, 이후 새25검사를 더한174개 실행과 구분한다. 이전462실행 파일과 SDK/실제 평가 증거는 유지한다.
+
+기존 원문과 앞선 수동 설계12행을 새 builder/저장 validator에 넣어 동일한 JSON으로 왕복했다. 원래 항목 유형은 기준을 아는 수동 배치이며 모든 명제를uncertain으로 두고 대상/서술/지표를 추론하지 않았다. 현재 source hash/offset bool/존재하지 않는 연결/질문 drift의4변조를 거부하고 원문 bytes를 유지했다.12/12 의미 성공·모델 추출·완전한 브리핑 경로를 뜻하지 않는다. 신규 모델 요청과 과거 runner 재실행은0이다. 최종 검토/전체QA/게시 결과는 최종 인계를 따른다.
+
+태스크 검토 I1은 typed DTO/Source의 원래 __dict__ map·key subclass가 정규화되는 공백이었다. 새 모듈에만 재귀 exactdict/exactstr 검사를 추가했고 dump-forbidden24회귀 RED→GREEN을 확인했다. 기존 helper/SDK/원문·기준은 유지했다. 수정 전 bf14eeb의 전체QA는 필요한 변경 때문에 중단했고 성공에서 제외한다. 수정 후 dde2931에서 새전체QA를 실행한다.
+
+수정 범위 재검토에서 I1해소·명세/품질 승인 C0I0M0을 확인했다. 전체 브랜치 검토·새전체QA와 게시 인계는 controller gate에 남긴다.

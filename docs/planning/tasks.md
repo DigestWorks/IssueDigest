@@ -1,3 +1,13 @@
+## 현재 구현 · 질문별 근거 명제 검증기 · 2026-10-23 한국 시간
+
+[순수 계약·검증 범위](../changes/question-evidence-propositions-implementation.md).
+
+- [x] 별도 build/저장 validator·전체 Source/질문 hash·정확 인용/Unicode 위치·타입/필수 키·조건 대상/전제·coverage 이유 구현. 기존462파일 유지.
+- [x] 최종 신규198합성 검사·기존 관련96개(신규149시점 합계245)·scoped Ruff/format/mypy. 이전245실행과 최종198실행의 시점을 구분.
+- [x] 기존 원문의 기준을 아는 수동12행/모두uncertain 저장 왕복·4변조 거부. 의미 성공 점수 아님·provider0/과거 재실행0.
+- [ ] 태스크/전체 독립 검토·새전체QA·보존/개인정보/문서 검사·PR/Sites이전v120·자체QA 정리.
+- [ ] 새 SDK의 실제 schema·전체원문/질문 입력·출력 예산 측정과 별도 구현/실제 의미 인수. 앱/worker 연결은 후속.
+
 ## 다음 구현 준비 · 질문별 근거 명제 · 2026-10-23 한국 시간
 
 [조건·시간·비수치 명제 설계](../changes/question-evidence-propositions.md).
