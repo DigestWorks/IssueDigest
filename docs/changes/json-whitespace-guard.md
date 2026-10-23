@@ -28,7 +28,7 @@ Read test-driven-development skill. Meaningful tests: 0/256/257 boundary; whole 
 
 - [x] Task spec/quality and whole-branch review C0I0M0; 새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0.
 - [x] Read-only old actual v1/v2 argument replay under multiple synthetic partitions; preserve468/prior proof and current single native probe timeout/unknown usage. No new paid request.
-- [ ] Docs/privacy/links, Draft PR basePR104, Sites previousv126 and exact changed-doc snapshots, ownQA/SDD cleanup. No app/worker/main activation.
+- [x] Docs/privacy/links, Draft PR105 basePR104, Sitesv127/previousv126·7exact-doc snapshots, ownQA/SDD cleanup. No app/worker/main activation.
 
 ## 판단과 비용
 
