@@ -28,8 +28,8 @@ Run targeted new tests + existing role_alias_contract/role_reference tests, scop
 
 ## Controller gates
 
-- [ ] Task review spec+quality; final whole-branch review and appropriate fullQA.
-- [ ] Existing462 code/private evidence unchanged; actual stored source read-only roundtrip with explicit manual layout vs no semantic inference.
+- [x] Task spec/quality and final whole-branch review C0I0M0; fresh fullQA8894 on351cc8c/executabledde2931.
+- [x] Existing462 code/private evidence unchanged; original Source manual12 all-uncertain roundtrip/fourmutations, no semantic score or provider call.
 - [ ] Documentation/privacy/links, Draft PR basePR98, Sites previousv120 preserved, own QA cleanup. No app/worker/main deployment.
 
 
@@ -42,3 +42,12 @@ Run targeted new tests + existing role_alias_contract/role_reference tests, scop
 태스크 검토 I1은 typed DTO/Source의 원래 __dict__ map·key subclass가 정규화되는 공백이었다. 새 모듈에만 재귀 exactdict/exactstr 검사를 추가했고 dump-forbidden24회귀 RED→GREEN을 확인했다. 기존 helper/SDK/원문·기준은 유지했다. 수정 전 bf14eeb의 전체QA는 필요한 변경 때문에 중단했고 성공에서 제외한다. 수정 후 dde2931에서 새전체QA를 실행한다.
 
 수정 범위 재검토에서 I1해소·명세/품질 승인 C0I0M0을 확인했다. 전체 브랜치 검토·새전체QA와 게시 인계는 controller gate에 남긴다.
+
+
+## 최終 검증과 판단
+
+소스351cc8c(실행dde2931)에서 새 전체8,894개(Python8,074+JS820)·Ruff/format/mypy·ESLint/TypeScript/SPA빌드/OpenAPI 계약 검사를 통과했다. 실패/skip/warning0이다. 태스크 I1을 새 모듈에서 고친 뒤 수정 범위 C0I0M0, 전체 검토 M1을 두 README의 설계/구현 상태 구분으로 고친 뒤 수정 범위 C0I0M0을 확인했다. 초기 중단된 전체QA는 최종 성공에 포함하지 않는다.
+
+기존462실행 파일/과거 증거는 유지했으며 자체 QA컨테이너1개와 그 전용 익명 볼륨만 제거하고 포트25559닫힘을 확인했다. 기존 앱·DB·다른 QA와 작업 브랜치/격리 폴더는 유지한다. 새 유료 요청/과거 runner/앱·worker·main 배포0이다.
+
+작업 판단 기록: (1) 승인된 다음 단계인 순수 build/저장 validator만 구현했다. 범위 판단이 틀리면 앱 adapter 재작업이 필요할 수 있다. (2) 위치/형식 통과를 의미·진실·완전성으로 승격하지 않았다. 소비자는 별도 의미 인수를 거쳐야 하므로 앱 적용이 늦어질 수 있다. (3) 기존 격리 worktree를 재사용했다. 누적 PR 기반을 명시하지 않으면 검토 범위를 혼동할 수 있어 PR98/03b341d를 기준으로 고정했다. 미해결/보류 지적은 없다.
