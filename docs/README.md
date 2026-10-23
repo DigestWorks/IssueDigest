@@ -1,3 +1,5 @@
+최신 실제 검증: [columnar 생성1회](research/columnar-generation-acceptance.md). 새로운 입력 형식으로 실제 완료했으며 구조화 조건·시간/비수치 명제와 전체 질문 답변은 후속입니다. 기존 결과·비용은 유지합니다.
+
 현재 구현: [전체 원문 columnar 생성 SDK](changes/columnar-role-generation.md). 무손실 입력 모듈을 별도 생성기에 연결하며 원문/기존 생성기·점수·실패·비용을 유지합니다. 실제 모델과 앱 인수는 후속입니다.
 
 현재 구현: [전체 원문 columnar 입력 codec](changes/columnar-generation-source.md). 원문·후보·조건·순서를 전부 복원하는 순수 모듈을 추가했습니다.6자료가 동일하게 복원됐고 새 원문의 형식 설명 포함 비교 envelope는19,820입니다. 기존 SDK의 차단은 유지하며 실제 새 SDK/모델 수용·의미·앱 적용은 후속입니다.
