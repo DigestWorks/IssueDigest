@@ -1,3 +1,7 @@
+## PR 인계 · 전체 원문 입력 codec
+
+[Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95)은 PR94 브랜치 대상이며 미병합이다. 전체8,573개 검증과 원문/기존 증거 보존을 확인했고 소유 QA컨테이너·전용 익명 볼륨1개만 제거/포트25557닫힘을 확인했다. 브랜치·작업폴더와 기존 개발 앱은 유지한다. 계획판은 이전v116을 보존해 검증 결과/남은 SDK·앱 인수를 반영한다.
+
 ## 검증 완료 · 전체 원문 columnar 입력 codec · 2026-10-23 한국 시간
 
 [명세·구현·6자료 비교](../changes/columnar-generation-source.md). 원문/후보/조건·문장/순서를 전부 복원하는 별도 순수 codec을 구현했다. 실제 ID 열에만 prefix 압축을 적용하고 본문은 ID처럼 보여도 정수로 해석하지 않는다. 6자료 전체 payload/quote일치·새 원문 비교 envelope19,820/여유180, 작은3자료 overhead증가다. 실제 새 SDK/wire/모델 수용·의미는 후속이며 기존 생성기의 차단/실패/비용을 유지한다.
