@@ -39,8 +39,8 @@ Test genuine new schema/instruction including metadata in preflight exact20000/+
 
 ## Controller gates
 
-- [ ] Task spec/quality and broad final review; fresh fullQA.
-- [ ] Current6sources/11conditions fullquote prompt reconstruction and actual SDK mock transport; threshold/source/evidence/old464code and private preservation.
+- [x] Task spec/quality and broad final review; fresh fullQA.
+- [x] Current6sources/11conditions fullquote prompt reconstruction and actual SDK mock transport; threshold/source/evidence/old464code and private preservation.
 - [ ] Docs/privacy/links; Draft PR basePR100/Sitespreviousv122/ownQA+SDD cleanup. No real provider/app/main deployment.
 
 
@@ -49,3 +49,16 @@ Test genuine new schema/instruction including metadata in preflight exact20000/+
 실행d886dea·신규132/관련합계453검사와 scoped Ruff/format/mypy를 확인했다. 원문 metadata가 호출 중 바뀌는 합성 재현 RED 후 송신 전 source hash와 반환 evidence source hash를 비교해 거부하고 알려진 usage를 유지했다. 기존464코드·원래 SDK/Source/기준·모델 결과와 비용은 유지했다.
 
 기존6Source와 설계용 일반질문/긴자료 원래4질문/최대2,000자 합성질문의11조건을 새 실제 SDK에 연결했다.10조건은 각각1회 MockTransport/SDK 반환·실제/저장 DTO 재검증, 최대길이1조건은 송신0·usage미관측/startedFalse다. 긴자료 원래질문의 새 envelope는17,368~17,394이며 앞선 초안보다 input_format의 '-draft'6bytes가 줄었다. 전체 인용/질문/순서·정확 prompt/지침·strict도구·storeFalse/1800/30초·caller low/default·caller client수명을 대조했다. 응답은 합성 빈 명제/부족 이유이며 실제 모델이 고른 근거나 의미 성공이 아니다. 실제 provider0/과거runner0이며 모델 실제 schema수용·출력 충분성/의미·앱 인수는 남는다.
+
+
+## 판단과 비용
+
+1. 새 SDK에 총20,000/출력1,800을 채택했다. 기존 한도는 변경하지 않으며, 보수적 사전 비교에서 유효한 긴 질문도 차단되거나 실제 출력이 부족할 수 있어 별도 인수가 필요하다.
+2. 현재 인용 ID를 그대로 보낸다. 계약과 별칭 변환의 차이를 피하지만 입출력 크기가 커지고 추후 별칭 어댑터는 별도 버전이 필요할 수 있다.
+3. 기존 격리 작업 폴더와 런타임을 읽기 전용으로 재사용했다. 기존 API·영수증·worker 동작을 유지하는 대신 새 SDK의 로컬 방어와 PR100 기반 검토가 필요하다.
+4. 송신 전 원문 hash를 반환까지 묶는다. 인용 본문이 같아도 메타데이터가 바뀌면 사용할 만한 유료 응답을 거부할 수 있으며 관측 사용량을 보존한다.
+
+
+## 최종 검증
+
+태스크 C0I0M0·전체 C0I0M1의 현재 상태 설명을5f388a3에서 바로잡고 수정 범위 재검토 C0I0M0·미해결0이다. 실행d886dea 기준 새전체9,026개(Python8,206+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI 통과, 실패/skip/warning0이다. 문서 수정은 실행 코드에 영향을 주지 않는다. 문서6개/로컬 링크465·공개 텍스트/비공개 원문 제외 검사와 기존464파일·원래 증거 hash를 확인했다. 자체QA1개/전용 익명볼륨만 제거하고 다른 자원/개발 앱은 유지했다. 실제 provider 호출·모델 의미 평가·앱/main 배포는 하지 않았다. Draft PR101과 계획판 인계는 별도 게시 기록을 따른다.
