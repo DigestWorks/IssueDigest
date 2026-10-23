@@ -38,7 +38,7 @@ Own only2newfiles and checkbox above. Read Spec/Global Constraints as requiremen
 
 - [x] Task +fresh whole-branch review (I1 fixed, scoped C0/I0/M0); fresh fullQA on stable code.
 - [x] Frozen G~K+new fullsource canonical roundtrip, actual size incl guidance/schema/framing/output; preserve old rejections/criteria/usage/no paid calls;458code/642actual/121design/previous12+10+33evidence/privacy/link checks.
-- [ ] Draft PR/Sites previousv116 archive; archive ownSDD/clean ownQA only, retain branch/worktree. No app/main deployment.
+- [x] Draft PR95/Sites v117 previousv116 archive; ownSDD archived/ownQA removed, branch/worktree retained. No app/main deployment.
 
 ## 구현·오프라인 대조
 

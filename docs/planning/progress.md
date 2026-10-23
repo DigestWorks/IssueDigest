@@ -1,3 +1,9 @@
+## 최종 인계 · 전체 원문 입력 codec · 2026-10-23 한국 시간
+
+[Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95) · [Sites v117](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded(14:38:18 KST), source `a72b77db339d3216d2a72dd5fa16838b9484ada7`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0d66056020d88191a683237667e77e72`, deployment `appgdep_6adaf2bd24a48191947a0184285bab37`. 이전v116 보존·변경6문서 사본은 d15bc91 기준이며 이후 게시/완료 영수증은 이 저장소 원본이다. HTML102/로컬대상2,516/공개텍스트301·기존private60/신규12항목 제외 검사를 통과했다. 텍스트만 갱신해 브라우저QA를 반복하거나 사용자 탭을 열지 않았다.
+
+구현26db0d1·전체8,573검사/최종검토 C0I0M0·6자료 전체복원/비교19,820·여유180·작은3자료 증가·기존458실행파일/과거증거 보존·신규모델0이다. 초기I1/중단 검사와 원래 실패·부분 의미 점수를 보존한다. ID형 본문 압축 제외의 판단/크기 비용을 명세에 기록했고 보류/미해결 지적0이다. 소유 QA1개/전용익명볼륨1개만 제거·포트25557닫힘·소유SDD 비공개 보존 후 해당 임시폴더 정리, 브랜치/작업폴더 유지. main/개발앱/서버 배포0이며 별도versioned SDK·실제 모델/앱 인수가 다음이다. 최종 문서 push의 CI는 PR에서 확인하며 로컬8,573개 통과와 구분한다.
+
 ## PR 인계 · 전체 원문 입력 codec
 
 [Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95)은 PR94 브랜치 대상이며 미병합이다. 전체8,573개 검증과 원문/기존 증거 보존을 확인했고 소유 QA컨테이너·전용 익명 볼륨1개만 제거/포트25557닫힘을 확인했다. 브랜치·작업폴더와 기존 개발 앱은 유지한다. 계획판은 이전v116을 보존해 검증 결과/남은 SDK·앱 인수를 반영한다.
