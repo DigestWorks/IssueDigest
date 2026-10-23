@@ -28,7 +28,7 @@ Export `GENERATION_SOURCE_PACKET_INSTRUCTIONS` verbatim: `Columns align by zero-
 
 ## Task 1: Pure canonical codec and boundary tests
 
-- [ ] Implement source-aware columnar codec and TDD tests.
+- [x] Implement source-aware columnar codec and TDD tests.
 
 Own only2newfiles and checkbox above. Read Spec/Global Constraints as requirements. Tests first record missing-module RED, implement then focused checks. Synthetic literal expected projections/column encodings (all5modes including ties/empty/null/duplicate/indices/IDs); independent public dense/short/multiquote/zero-candidate/whitespace/Unicode/range/qualifier/atom-null-unit fixtures. Source reconstructed JSON must equal frozen existing source projection and whole quote text exactly; full candidates/slots/eligible IDs retained. Guard original Source nested model/container/scalar/required-marker subclass/unchecked changes before dump; packet raw tuple/subclass/key/float/true/index model/new fields/count/mode/pool/order/duplicate/reference/span/source mutations reject. Every new field and mode kind should have meaningful tamper coverage without exhaustively repeating old SDK leaves. Freshness mutation cannot alter next result, validate/decode raw actual object is plain JSONdict only; no BaseModel acceptance. Test complete index with256candidates if valid fixture permits,20quotes, repeated sentences/large lists without new hidden limits. Import +operations network/client purity. Synthetic only, no private saved trials or outside fixture reads. Scoped newtests+compact shared context+balanced generation and ruff/format/mypy; do not run fullQA. Detailed report via controller path, commit owned files/checkbox and report stable code before handoff.
 
