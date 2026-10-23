@@ -1,3 +1,5 @@
+최신 측정: [질문별 명제 SDK 예산](docs/research/question-evidence-sdk-budget.md). 전체 원문·질문1개·새 schema의 비교 envelope와 합성 전송을 확인했습니다. 최대 길이 질문은 차단되며 출력 토큰/실제 모델 수용은 미확인입니다. 제품 SDK·앱은 변경하지 않았습니다.
+
 현재 구현: [질문별 근거 명제 검증기](docs/changes/question-evidence-propositions-implementation.md). 수치 없는 정보·조건·기한·자격·승인·부정·절차를 원문 참조/질문 hash와 연결해 새로 만들고 저장 결과를 다시 검증합니다. 순수 구조 계약이며 모델 의미·진실·권한·앱 적용을 인증하지 않습니다.
 
 설계 기준: [질문별 근거 명제](docs/changes/question-evidence-propositions.md). 각각/이내·시간·자격·승인·법적 지위·절차를 원문 근거와 연결하는 순수 계약의 설계 기록입니다. 수동12행 위치 시제품은 모델 의미 성공이 아니며, 질문별 명제 생성 SDK·앱 연결은 아직 구현하지 않았습니다.
