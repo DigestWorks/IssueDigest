@@ -1,3 +1,5 @@
+다음 계약: [질문별 근거 명제](changes/question-evidence-propositions.md). 각각/이내·시간·자격·승인·법적 지위·절차를 수치 필드에 억지로 넣지 않고 원문 근거와 연결하는 별도 설계입니다. 수동12행 위치 시제품은 모델 의미 성공이 아니며 순수 계약/생성 SDK·앱 연결은 아직 구현하지 않았습니다.
+
 최신 실제 검증: [columnar 생성1회](research/columnar-generation-acceptance.md). 새로운 입력 형식으로 실제 완료했으며 구조화 조건·시간/비수치 명제와 전체 질문 답변은 후속입니다. 기존 결과·비용은 유지합니다.
 
 현재 구현: [전체 원문 columnar 생성 SDK](changes/columnar-role-generation.md). 무손실 입력 모듈을 별도 생성기에 연결하며 원문/기존 생성기·점수·실패·비용을 유지합니다. 실제 모델과 앱 인수는 후속입니다.

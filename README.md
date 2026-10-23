@@ -1,3 +1,5 @@
+다음 계약: [질문별 근거 명제](docs/changes/question-evidence-propositions.md). 각각/이내·시간·자격·승인·법적 지위·절차를 수치 필드에 억지로 넣지 않고 원문 근거와 연결하는 별도 설계입니다. 수동12행 위치 시제품은 모델 의미 성공이 아니며 순수 계약/생성 SDK·앱 연결은 아직 구현하지 않았습니다.
+
 최신 실제 검증: [columnar 생성1회](docs/research/columnar-generation-acceptance.md). 전체 원문 실제 요청/완료·SDK 수용을 확인했지만 분배/상한 조건은 부분 보존이며 시간/비수치 정보의 별도 경로가 필요합니다. 앱 반영은 보류합니다.
 
 현재 구현: [전체 원문 columnar 생성 SDK](docs/changes/columnar-role-generation.md). 별도 형식 지침·독립 영수증·실제 schema 포함 예산·무재시도/실패 비용 계약을 구현했습니다. 합성 SDK 전송과 실제 모델 의미·앱 연결은 구분합니다.
