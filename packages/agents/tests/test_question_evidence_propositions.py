@@ -955,3 +955,55 @@ def test_each_facet_ref_and_subject_predicate_must_stay_within_exact_support():
             selected["target_ids"] = [quantity["id"]]
             p["facets"].insert(0, quantity)
         rejected(mod, mod.build_question_evidence_propositions, src, QUESTION, narrowed)
+
+
+@pytest.mark.parametrize("shape", ["map_subclass", "key_subclass"])
+@pytest.mark.parametrize(
+    "owner,path",
+    [
+        ("input", ()),
+        ("input", ("coverage",)),
+        ("input", ("propositions", 0, "facets", 0, "value")),
+        ("input", ("propositions", 0, "subject_refs", 0)),
+        ("receipt", ()),
+        ("receipt", ("coverage",)),
+        ("receipt", ("propositions", 0, "facets", 0, "value")),
+        ("receipt", ("propositions", 0, "subject_refs", 0)),
+        ("source", (1,)),
+        ("source", (2,)),
+        ("source", (1, "document")),
+        ("source", (1, "citations", 0, "selector")),
+    ],
+)
+def test_actual_field_maps_and_keys_reject_subclasses_before_dump(monkeypatch, owner, path, shape):
+    mod, src = api(), document(TEXT)
+    data = packet(src)
+    result = mod.build_question_evidence_propositions(src, QUESTION, data)
+    typed = mod.QuestionEvidenceInput.model_validate_json(json.dumps(data), strict=True)
+    original = {"input": typed, "receipt": result, "source": src}[owner]
+    changed = deepcopy(original)
+    target = changed
+    for key in path:
+        target = getattr(target, key) if isinstance(target, BaseModel) else target[key]
+    field_map = (
+        Object(target.__dict__)
+        if shape == "map_subclass"
+        else {Text(key): value for key, value in target.__dict__.items()}
+    )
+    object.__setattr__(target, "__dict__", field_map)
+    dumps = []
+
+    def forbidden(*args, **kwargs):
+        dumps.append(True)
+        raise AssertionError("Invalid original field map or key was serialized")
+
+    monkeypatch.setattr(BaseModel, "model_dump", forbidden)
+    monkeypatch.setattr(BaseModel, "model_dump_json", forbidden)
+    if owner == "input":
+        rejected(mod, mod.build_question_evidence_propositions, src, QUESTION, changed)
+    elif owner == "receipt":
+        rejected(mod, mod.validate_question_evidence_propositions, src, QUESTION, changed)
+    else:
+        rejected(mod, mod.build_question_evidence_propositions, changed, QUESTION, data)
+        rejected(mod, mod.validate_question_evidence_propositions, changed, QUESTION, result)
+    assert dumps == []

@@ -158,9 +158,28 @@ class QuestionEvidencePropositions(_StrictModel):
     coverage: QuestionCoverage
 
 
+def _model_field_maps(value: Any) -> None:
+    # Field-name equality in the frozen guard does not distinguish str subclasses;
+    # inspect the original maps before extraction or serialization can erase them.
+    if isinstance(value, BaseModel):
+        fields = value.__dict__
+        if type(fields) is not dict or any(type(key) is not str for key in fields):
+            raise ValueError("Noncanonical original model field map")
+        for child in fields.values():
+            _model_field_maps(child)
+    elif isinstance(value, (tuple, list)):
+        for child in value:
+            _model_field_maps(child)
+
+
+def _guard_actual(value: Any, annotation: Any) -> None:
+    _model_field_maps(value)
+    _actual(value, annotation)
+
+
 def _original(value: Any, model: type[BaseModel]) -> None:
     if isinstance(value, BaseModel):
-        _actual(value, model)
+        _guard_actual(value, model)
     else:
         _copy_json(value)
         _required_raw(value, model)
@@ -177,7 +196,7 @@ def _python_fields(value: Any) -> Any:
 
 
 def _source(source: Source) -> tuple[str, dict[str, str]]:
-    _actual(source, Source)
+    _guard_actual(source, Source)
     sid, bundle, presentation = source
     if sid.version != 4 or sid != presentation.snapshot_id:
         raise ValueError("Invalid snapshot provenance")
@@ -320,7 +339,7 @@ def build_question_evidence_propositions(
 ) -> QuestionEvidencePropositions:
     """Bind explicit propositions to the complete current source and exact question."""
     try:
-        _actual(source, Source)
+        _guard_actual(source, Source)
         _original(data, QuestionEvidenceInput)
         question_sha256 = _question(question)
         source_sha256, quotes = _source(source)
@@ -343,7 +362,7 @@ def validate_question_evidence_propositions(
 ) -> QuestionEvidencePropositions:
     """Revalidate original shapes, hashes, source spans, and links; return a fresh DTO."""
     try:
-        _actual(source, Source)
+        _guard_actual(source, Source)
         _original(result, QuestionEvidencePropositions)
         question_sha256 = _question(question)
         source_sha256, quotes = _source(source)
