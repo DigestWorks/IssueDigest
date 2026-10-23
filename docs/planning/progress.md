@@ -1,3 +1,19 @@
+## 최종 인계 · 전체 원문 입력 codec · 2026-10-23 한국 시간
+
+[Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95) · [Sites v117](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded(14:38:18 KST), source `a72b77db339d3216d2a72dd5fa16838b9484ada7`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0d66056020d88191a683237667e77e72`, deployment `appgdep_6adaf2bd24a48191947a0184285bab37`. 이전v116 보존·변경6문서 사본은 d15bc91 기준이며 이후 게시/완료 영수증은 이 저장소 원본이다. HTML102/로컬대상2,516/공개텍스트301·기존private60/신규12항목 제외 검사를 통과했다. 텍스트만 갱신해 브라우저QA를 반복하거나 사용자 탭을 열지 않았다.
+
+구현26db0d1·전체8,573검사/최종검토 C0I0M0·6자료 전체복원/비교19,820·여유180·작은3자료 증가·기존458실행파일/과거증거 보존·신규모델0이다. 초기I1/중단 검사와 원래 실패·부분 의미 점수를 보존한다. ID형 본문 압축 제외의 판단/크기 비용을 명세에 기록했고 보류/미해결 지적0이다. 소유 QA1개/전용익명볼륨1개만 제거·포트25557닫힘·소유SDD 비공개 보존 후 해당 임시폴더 정리, 브랜치/작업폴더 유지. main/개발앱/서버 배포0이며 별도versioned SDK·실제 모델/앱 인수가 다음이다. 최종 문서 push의 CI는 PR에서 확인하며 로컬8,573개 통과와 구분한다.
+
+## PR 인계 · 전체 원문 입력 codec
+
+[Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95)은 PR94 브랜치 대상이며 미병합이다. 전체8,573개 검증과 원문/기존 증거 보존을 확인했고 소유 QA컨테이너·전용 익명 볼륨1개만 제거/포트25557닫힘을 확인했다. 브랜치·작업폴더와 기존 개발 앱은 유지한다. 계획판은 이전v116을 보존해 검증 결과/남은 SDK·앱 인수를 반영한다.
+
+## 검증 완료 · 전체 원문 columnar 입력 codec · 2026-10-23 한국 시간
+
+[명세·구현·6자료 비교](../changes/columnar-generation-source.md). 원문/후보/조건·문장/순서를 전부 복원하는 별도 순수 codec을 구현했다. 실제 ID 열에만 prefix 압축을 적용하고 본문은 ID처럼 보여도 정수로 해석하지 않는다. 6자료 전체 payload/quote일치·새 원문 비교 envelope19,820/여유180, 작은3자료 overhead증가다. 실제 새 SDK/wire/모델 수용·의미는 후속이며 기존 생성기의 차단/실패/비용을 유지한다.
+
+구현26db0d1·신규121/관련233·전체8,573검사(Python7,753+JS820)와 lint/format/types/build/OpenAPI 통과, 실패/skip/warning0. 초기 전체I1의 긴 본문 변환 오류는 RED→GREEN으로 수정/scoped최종 C0I0M0이며 초기 중단 전체검사는 통과 분모에 포함하지 않는다. ID형 본문을 압축 대상에서 제외한 결정의 비용은 일부 입력이 더 커질 수 있다는 점이고 내용은 동일하다. 458기존코드/642실제/121설계/이전12+10+33증거 보존·신규provider/앱 변경0. PR/Sites·이전v116·소유 임시 자원 인계는 최종 게시 영수증을 따른다.
+
 ## 최종 인계 · 신규 원문/질문 후보·입력 수용 진단 · 2026-10-23 한국 시간
 
 [Draft PR94](https://github.com/DigestWorks/IssueDigest/pull/94) · Sites v116 게시 성공(13:13:35 KST, source02b4967d62e6d192066cf7ea55aafb15bb6eaa5f), 이전v115 보존. 본문·변경6문서 요약은 게시 시24c6f6e 기준이며 이후 이 영수증/완료 체크만 갱신해 재게시하지 않는다.101HTML/로컬대상2,465/공개텍스트298/private60항목 및 신규원문ID/질문/전체본문 노출 검사 통과. 기존 레이아웃의 텍스트 변경이어서 브라우저QA를 반복하지 않았다.
