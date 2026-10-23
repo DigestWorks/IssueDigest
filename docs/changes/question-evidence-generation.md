@@ -41,7 +41,7 @@ Test genuine new schema/instruction including metadata in preflight exact20000/+
 
 - [x] Task spec/quality and broad final review; fresh fullQA.
 - [x] Current6sources/11conditions fullquote prompt reconstruction and actual SDK mock transport; threshold/source/evidence/old464code and private preservation.
-- [ ] Docs/privacy/links; Draft PR basePR100/Sitespreviousv122/ownQA+SDD cleanup. No real provider/app/main deployment.
+- [x] Docs/privacy/links; Draft PR101 basePR100/Sitesv123/previousv122/ownQA+SDD cleanup. No real provider/app/main deployment.
 
 
 ## 구현·오프라인 인수 관측
@@ -62,3 +62,6 @@ Test genuine new schema/instruction including metadata in preflight exact20000/+
 ## 최종 검증
 
 태스크 C0I0M0·전체 C0I0M1의 현재 상태 설명을5f388a3에서 바로잡고 수정 범위 재검토 C0I0M0·미해결0이다. 실행d886dea 기준 새전체9,026개(Python8,206+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI 통과, 실패/skip/warning0이다. 문서 수정은 실행 코드에 영향을 주지 않는다. 문서6개/로컬 링크465·공개 텍스트/비공개 원문 제외 검사와 기존464파일·원래 증거 hash를 확인했다. 자체QA1개/전용 익명볼륨만 제거하고 다른 자원/개발 앱은 유지했다. 실제 provider 호출·모델 의미 평가·앱/main 배포는 하지 않았다. Draft PR101과 계획판 인계는 별도 게시 기록을 따른다.
+
+
+게시: [Draft PR101](https://github.com/DigestWorks/IssueDigest/pull/101)·Sitesv123 public/native succeeded. 이전v122와6변경문서 사본(0b7f2c9)을 보존했다. HTML108/로컬대상2,843/공개텍스트319·비공개60+12항목 제외 확인. 기존 레이아웃 문구 갱신으로 새 브라우저QA·사용자탭 이동은 하지 않았다. SDD 증거와 네 판단을 보존 후 해당 임시폴더만 정리하고 브랜치/격리폴더는 유지했다. 후속 게시·완료 기록은 저장소 원본을 따른다. 실제 모델 완료·의미 검증·앱 연결은 남는다.

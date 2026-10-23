@@ -1,3 +1,9 @@
+## 최종 인계 · 질문별 근거 생성 SDK · 2026-10-23 한국 시간
+
+[Draft PR101](https://github.com/DigestWorks/IssueDigest/pull/101)은 PR100 기반·미병합이다. Sitesv123 public/native succeeded(2026-10-23T08:57:41.997308+00:00), source `1e7c3be287d40f3ba20b1bdc98dc6667f9c6a508`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6da44fb524e881918b75bfd7905cd3b5`, deployment `appgdep_6adb217825848191a8eae787655e7ff9`다. 이전v122/6문서 사본(0b7f2c9)을 보존했으며 게시 이후 완료 기록은 저장소 원본을 따른다. HTML108/로컬대상2,843/공개텍스트319·비공개60+12항목 제외 확인, 새브라우저QA/사용자탭 이동0이다.
+
+실행d886dea·현재문서 검증5f388a3에서 새전체9,026QA/실패·skip·warning0, 태스크/전체 M1 수정 재검토 C0I0M0·미해결0이다. 이전 실행464/원문/기준/결과/비용과 과거 증거를 유지하고 자체QA1개/전용볼륨·현재SDD만 정리했다. 증거/네 판단·비용은 비공개와 명세/PR에 보존, 다른 자원·브랜치/격리폴더 유지다. 새provider/과거runner/앱/worker/main배포0이다. 다음은 실제 모델의 질문별 의미·완료/출력 충분성 및 미관측 자료·전체 앱 인수다. 최종 문서 push의 원격CI는 로컬 성공과 구분한다.
+
 ## 검증 완료 · 질문별 근거 생성 SDK · 2026-10-23 한국 시간
 
 [Draft PR101](https://github.com/DigestWorks/IssueDigest/pull/101)은 PR100 브랜치 기반·미병합이다. 실행d886dea, 신규132/관련453·새전체9,026개(Python8,206+JS820), 정적 검사·빌드/OpenAPI·실패/skip/warning0을 확인했다. 태스크 C0I0M0·전체 C0I0M1의 상태 문구를5f388a3에서 수정해 해당 범위 재검토 C0I0M0·미해결0이다. 문서 수정으로 실행 코드는 바뀌지 않았다.
