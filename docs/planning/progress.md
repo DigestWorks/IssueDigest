@@ -1,3 +1,7 @@
+## 진행 · JSON 연속 공백 감지 · 2026-10-23 한국 시간
+
+[감지기 계획](../changes/json-whitespace-guard.md)에 따라 새 모듈2파일만 구현하며 기존468실행은 고정한다. 실제 API 경로/앱을 바꾸지 않는 독립 감지기이며 정상 formatting 오탐과 다른 정체 누락 가능성이 있다. [compact 지침 진단](../research/question-evidence-stall-investigation.md)은1회/60.106초 타임아웃·응답/사용량 미관측·재호출0으로 효과를 판정하지 않았다. 새 전체QA·독립 검토·기록된 인자 오프라인 재생을 진행하며 비용0·실제 절감으로 기록하지 않는다.
+
 ## 최종 인계 · v2 실제 미완료와 출력 정체 · 2026-10-23 한국 시간
 
 [Draft PR104](https://github.com/DigestWorks/IssueDigest/pull/104)은 PR103 기반·미병합이다. v2 실제 요청1/HTTP200이나 raw incomplete/max_output_tokens·SDK 거부·저장 결과 없음이다. 입력2,318/출력4,000/총6,318·추론1,281은 출력 포함·58.79초·재호출0,3필수+다른9명제 미평가를 유지한다. 부분 arguments9,436bytes/문자열 밖 공백6,622/끝 연속6,619는 읽기 전용 진단이고 JSON 수리/의미 성공 전환은 없다. 독립 검토는 문자열 내용603bytes 기준 보완 후 C0I0M0이다.

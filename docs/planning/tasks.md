@@ -1,3 +1,10 @@
+## 진행 · JSON 연속 공백 감지 · 2026-10-23 한국 시간
+
+- [x] compact 지침 진단을 사전 고정하고1회 송신;60.106초 타임아웃·응답/사용량 미관측·재호출0 보존.
+- [ ] [순수 증분 감지기](../changes/json-whitespace-guard.md) TDD·정적 검사·독립 검토·새 전체QA.
+- [ ] 기존 실제 인자 읽기 전용 재생·468실행/과거 증거 보존·문서/개인정보 검사·Draft PR/Sites 기록.
+- [ ] 실제 streaming 취소·사용량 미관측 처리와 완료/의미·앱 인수. 현재 앱/worker/main 활성화 없음.
+
 ## 실제 관측 · v2 미완료와 출력 정체 · 2026-10-23 한국 시간
 
 [사전 고정·결과·진단](../research/question-evidence-generation-v2-acceptance.md).
