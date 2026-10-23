@@ -20,7 +20,7 @@ Caller must feed each exact tool-argument delta before buffering/using it, latch
 
 ## Task 1: Incremental whitespace guard
 
-- [ ] Implement only new module/tests+checkbox with RED→GREEN TDD.
+- [x] Implement only new module/tests+checkbox with RED→GREEN TDD.
 
 Read test-driven-development skill. Meaningful tests: 0/256/257 boundary; whole vs1/2/mixed chunks across threshold and empty chunks; reset by legal non-whitespace; TAB/CR/LF combinations; long whitespace inside JSON strings preserved; opening/closing and escaped quotes/backslashes including boundaries/odd-even runs and literal backslash-u; Unicode/emoji/non-ASCII whitespace unchanged and not counted as outside JSON spaces. Invalid object/None/bytes/int/bool/str subclass rejects without calling malicious __str__/__repr__/iteration, failed latch and stable counts including rejection suffix not visited, no reset method/read-only public counters. Success same object identity/content; no partial return or input-bearing error/cause; no retained chunk/text state. Known valid json.dumps documents under different partitions as preservation cases; ordinary malformed/incomplete fragments demonstrate no JSON-validity claim. Use synthetic fixtures only. No real timing/network or provider API; no actual model/source data. Run focused suite/scoped Ruff/format/mypy/diff checks, not wholeQA. Do not mirror the implementation with a copied scanner oracle; test controlled cases and partition invariance. Commit owned3paths, write exact RED/GREEN/static/selfreview evidence in own SDD task report.
 
