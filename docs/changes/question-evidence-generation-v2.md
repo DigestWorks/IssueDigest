@@ -28,7 +28,7 @@ Read test-driven-development skill first. Meaningful new tests for independent m
 
 - [x] Task spec/quality and whole-branch review; fresh fullQA for v2 execution.
 - [x] Existing6Source/11conditions actual v2 mock wire/receipt, full input/hash/order and proposed capacity; old466/prior53trial/65SDK+historical proofs preserved.
-- [ ] Docs/privacy/links, Draft PR basePR102, Sites previousv124 preservation/publication, ownedQA+SDD cleanup. No actual paid request/app/worker/main activation in this implementation.
+- [x] Docs/privacy/links, Draft PR103 basePR102, Sitesv125/previousv124 preservation/publication, ownedQA+SDD cleanup. No actual paid request/app/worker/main activation in this implementation.
 
 ## 판단과 비용
 
@@ -45,3 +45,6 @@ Read test-driven-development skill first. Meaningful new tests for independent m
 ## 최종 검증
 
 태스크 명세/품질·전체 독립 검토 C0I0M0·미해결0이다. 실행089b058 기준 신규135/관련465·새전체9,161개(Python8,341+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI·실패/skip/warning0을 확인했다. 이전466실행·실제 미완료/사용량/소진 잠금·원문/질문/기준/과거 증거는 불변이다. 자체QA1개/전용 익명볼륨만 제거했고 다른 자원·앱/worker는 유지한다. 새 실제 provider 호출/의미 평가·앱/main 배포는 하지 않았다. 세 판단은 위 기록과 PR에 보존하고 최종 PR/Sites 게시 기록은 저장소 원본을 따른다.
+
+
+게시: [Draft PR103](https://github.com/DigestWorks/IssueDigest/pull/103)·Sitesv125 public/native succeeded. 이전v124와6변경문서의 정확 사본(ef1011f)을 Site source에 보존했다. HTML110/로컬대상2,960/공개텍스트326·비공개60+12항목 제외 검사 통과다. 기존 레이아웃 문구 갱신으로 새 브라우저QA·사용자탭 이동은 하지 않았다. 현재 SDD 증거/세 판단을 보존 후 해당 임시폴더만 정리하고 브랜치/격리폴더는 유지한다. 게시 이후 완료 기록은 저장소 원본을 따른다. 실제 모델 완료/의미·미관측 자료/전체 앱 인수는 남는다.

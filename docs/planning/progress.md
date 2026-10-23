@@ -1,3 +1,11 @@
+## 최종 인계 · 질문별 근거 생성 v2 · 2026-10-23 한국 시간
+
+[Draft PR103](https://github.com/DigestWorks/IssueDigest/pull/103)은 PR102 기반·미병합이다. 실행089b058, 신규135/관련465·새전체9,161개(Python8,341+JS820), 정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 검토 C0I0M0·미해결0이다. 기존6Source11조건의 실제 새SDK mock10/사전차단1은 전체 입력/질문·strict도구·4000/timeout60·저장 왕복을 보존했다. 합성 빈 결과로 실제 모델 의미 성공은 아니다.
+
+Sitesv125 public/native succeeded(2026-10-23T09:39:14.344508+00:00), source `2253300d24539646b2e312e867a601ed5e47f22c`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_fb9c1e5f8dd88191b4ddca467ec8e80b`, deployment `appgdep_6adb2b32030c8191a1def0328259c4e0`다. 이전v124/변경6문서 정확 사본(ef1011f)을 Site source에 보존했고 HTML110/로컬대상2,960/공개텍스트326·비공개60+12항목 제외 확인, 새브라우저QA/사용자탭 이동0이다. 게시 이후 완료 기록은 저장소 원본을 따른다.
+
+이전466실행·실제 미완료/사용량/소진 잠금·원문/기준/과거 증거는 불변이며 자체QA1개/전용 익명볼륨·현재SDD만 정리했다. 세 판단과 비용/증거를 명세/PR/비공개에 보존하고 다른 자원·브랜치/격리폴더는 유지한다. 새provider/과거runner/앱/worker/main활성화0이다. 다음은 v2실제 완료/질문별 의미·미관측 자료·앱 합산 예산/권한/복구 인수다. 최종 문서 push의 원격CI는 로컬 성공과 구분한다.
+
 ## 검증 완료 · 질문별 근거 생성 v2 · 2026-10-23 한국 시간
 
 [별도 v2 계약](../changes/question-evidence-generation-v2.md)·실행089b058에서 출력4,000/요청 timeout60·총20,000을 구현했다. 신규135/관련465·새전체9,161개(Python8,341+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI와 실패/skip/warning0을 확인했다. 태스크/전체 독립 검토 C0I0M0·미해결0이다.
