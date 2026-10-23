@@ -46,3 +46,7 @@
 후속 무호출 시제품에서는 반복 필드 이름을 명시 열 이름+행으로 바꾸고 atom/sentence도 명시 열로 표현했다. 전체 JSON scalar/type/list/order를 원래 prompt 값으로 복원해 동일함을 확인했다. 원문/25후보/52문장·출력 도구/지침/한도는 보존하며 input_format은 별도다. prompt는5,926bytes(3,115감소), 보수 envelope는20,503으로 **여전히503초과**다. 원문을 보존한 table 변환만으로 이 자료를 수용했다는 결론은 내리지 않는다. 시제품 decoder는 정상 입력 roundtrip용이고 production strict DTO/변조 방어·실제 모델 읽기/usage/의미/완료·지원 전체 자료 수용을 검증하지 않았다. 현재 SDK를 바꾸거나 이 시제품으로 실제 호출하지 않았다.
 
 기존458코드와 원래 실패/점수/비용을 유지한다. 이번은 단일 자료·개발 질문·이미 본 후보 목록에 대한 진단이며 일반 recall·독립 사람 평가·B2C 품질 인증이 아니다. 다음 설계는 최소503만 줄여 간신히 맞추는 목표가 아니라, 전체 근거와 명시 ID/조건을 보존하면서 실제 schema·프레이밍 여유/지원 자료군·모델 읽기까지 확인할 수 있는 용량 계약이다. 자동 원문 축약이나 예산 상향은 채택하지 않았다.
+
+독립 검토의 초기 I1은 연구용 source envelope의 raw_sha256이 HTML 파일의 CRLF를 LF로 읽은 값이라는 provenance 결함이었다. capture와 article 원본 바이트는 같았고 최초 메타데이터만 정규화본 해시였다. 원본 바이트 해시로 정정하고 초기9개 파일/manifest를 별도 보존했다. 같은 snapshot/UUID·본문/질문/기준을 유지했다. 후보 index도 재구성했으며 해당 index의 source hash를 포함해 전체 bytes가 수정 전후 동일했다(원본 HTML 해시가 이 index payload에 포함되는 것은 아님). source envelope의 raw_sha256만 변경됐다. 후보 평가·기존 preflight/용량 구성·원문 무손실 시제품의 JSON/bytes는 수정 전후 동일하고 추가 모델 호출은 없다. 초기 결함과 수정 범위 재검토는 최종 영수증에 함께 기록한다.
+
+독립 증거 검토 초기 C0/I1/M0·원본 provenance 정정 후 scoped 재검토 미해결 C0/I0/M0. 원본 capture/article exact bytes와17문단/1,306문자·8명제/10anchor·실제 preflight 거부23,618·시제품20,503/전체JSON복원·수정 전후7개 결과 bytes 불변을 독립 재현했다.458실행파일/642실제/121설계·직전구현12/연구10증거 불변·전체8,452QA/PR92·93 CI 통과 증거 재사용, 신규 전체QA/유료호출/서버자원0이다.
