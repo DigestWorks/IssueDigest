@@ -18,7 +18,7 @@ Target IDs bound/distribution exactly one local quantity, others []; per_member/
 
 ## Task 1: Pure contract and adversarial boundary tests
 
-- [ ] Implement new pure module and tests using RED→GREEN TDD.
+- [x] Implement new pure module and tests using RED→GREEN TDD.
 
 Own only the two new files above and this checkbox. Read binding design, existing pure-contract patterns and source guards. First demonstrate missing-module failing test with synthetic Source; then implement. Test all8facet variants and actual/raw successful roundtrip, exact question/source canonical hash independently computed, raw required markers, empty/zero-numeric/multiple citations, quote-relative Unicode repetition and preserving literal negative/relative/per-category/bound cues, partial/unknown state, dependencies empty/directed/cycle, no semantic certification. Include same number shared with differing metrics without inventing values.
 
