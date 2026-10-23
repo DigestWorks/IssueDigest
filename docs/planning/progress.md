@@ -1,3 +1,7 @@
+## PR 인계 · 전체 원문 생성 SDK
+
+[Draft PR96](https://github.com/DigestWorks/IssueDigest/pull/96)은 PR95 브랜치 대상이며 미병합이다. 전체8,696개·독립 검토 C0I0M0·6자료 SDK 사전 검사/합성 HTTP 전송/전체복원과 기존 증거 보존을 확인했다. 합성 빈 결과이며 실제 모델 의미 인수는 후속이다. 소유 QA1개와 전용익명볼륨1개 제거/포트25558닫힘을 확인했다. 브랜치/작업폴더와 기존 개발 앱은 유지하며 계획판에는 이전v117을 보존해 반영한다.
+
 ## 검증 완료 · 전체 원문 columnar 생성 SDK · 2026-10-23 한국 시간
 
 [명세·구현·6자료 SDK 수용](../changes/columnar-role-generation.md). 전체 원문/후보/조건을 보존하는 입력을 별도 generation SDK에 연결했다. 새 지침/profile/input_format/도구/hash와 strict 영수증·실제 raw/normalized schema포함20,000/출력1,800예산·단일 요청/무재시도·observed usage/송신 불확실성을 검증했다. 합성6전송은 빈 출력이며 실제 모델 추출/의미/비용 평가가 아니다. 새 원문은 실제 SDK envelope19,814/여유186이고 작은3자료는 증가한다. 기존 balancedL차단23,618/실패/부분 점수는 유지한다.
