@@ -30,7 +30,7 @@ Run targeted new tests + existing role_alias_contract/role_reference tests, scop
 
 - [x] Task spec/quality and final whole-branch review C0I0M0; fresh fullQA8894 on351cc8c/executabledde2931.
 - [x] Existing462 code/private evidence unchanged; original Source manual12 all-uncertain roundtrip/fourmutations, no semantic score or provider call.
-- [ ] Documentation/privacy/links, Draft PR basePR98, Sites previousv120 preserved, own QA cleanup. No app/worker/main deployment.
+- [x] Documentation/privacy/links, Draft PR99 basePR98, Sitesv121/previousv120 preserved, ownQA/SDD archived and cleaned. No app/worker/main deployment.
 
 
 ## 구현과 무호출 원문 대조
@@ -51,3 +51,6 @@ Run targeted new tests + existing role_alias_contract/role_reference tests, scop
 기존462실행 파일/과거 증거는 유지했으며 자체 QA컨테이너1개와 그 전용 익명 볼륨만 제거하고 포트25559닫힘을 확인했다. 기존 앱·DB·다른 QA와 작업 브랜치/격리 폴더는 유지한다. 새 유료 요청/과거 runner/앱·worker·main 배포0이다.
 
 작업 판단 기록: (1) 승인된 다음 단계인 순수 build/저장 validator만 구현했다. 범위 판단이 틀리면 앱 adapter 재작업이 필요할 수 있다. (2) 위치/형식 통과를 의미·진실·완전성으로 승격하지 않았다. 소비자는 별도 의미 인수를 거쳐야 하므로 앱 적용이 늦어질 수 있다. (3) 기존 격리 worktree를 재사용했다. 누적 PR 기반을 명시하지 않으면 검토 범위를 혼동할 수 있어 PR98/03b341d를 기준으로 고정했다. 미해결/보류 지적은 없다.
+
+
+[Draft PR99](https://github.com/DigestWorks/IssueDigest/pull/99)은 PR98 기반·미병합이다. Sitesv121/이전v120·현재6문서 사본을 보존했고 게시 이후 완료 기록은 저장소 progress 원본을 따른다. 전용 SDD 증거/판단을 비공개 보존한 뒤 해당 임시 폴더만 정리했다. 작업 브랜치/격리 폴더·기존 서비스는 유지한다. 다음은 새 생성 SDK의 실제 schema·전체 원문/질문·출력 예산 측정이며 순수 계약 성공으로 실제 의미/앱 인수를 대신하지 않는다.
