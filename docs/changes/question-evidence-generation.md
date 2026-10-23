@@ -23,7 +23,7 @@ Prompt canonical _json packet exactly {"input_format":"question-evidence-source-
 
 Framer is frozen borrowed actual Model handle; constructor validates lazily without calling it. Run validates actual handle/model/source/question then _preflight before any dispatch. Use unchanged _run_role_request(total20000/output1800) with identity/instructions, 30sec/no-store/requestlimit1/retries0. Caller owns transport retry policy/client lifecycle. Wrap borrowed model in existing _ObservedAuditModel, after runtime success inspect original captured response: exactly one ModelResponse with one ToolCallPart with exact new tool name and otherwise only optional ThinkingPart. Reject mixed prose/additional tools/builtin/files/unknown parts, preserve known cost. Model/raw incomplete, malformed/text-only/overflow/network outcomes retain runtime known_usage and may_have_started, never retry or repair.
 
-On success call pure build_question_evidence_propositions(source,question,output) to bind evidence, then independent SDK receipt with exact current prompt/instruction hashes and observed usage, then revalidate before returning. If pure build/final validator rejects after model response, retain known usage and started=True. Never normalize/strip/complete generated proposition fields or infer semantics. No lexical/date/math changes.
+Capture the exact pure source hash before dispatch (after valid preflight); after response reject if current source hash differs, even if quote-only prompt stays identical (e.g. presentation metadata drift). Preserve known usage on this rejection and never rebind old response to new source identity. On success call pure build_question_evidence_propositions(source,question,output) to bind evidence, then independent SDK receipt with exact current prompt/instruction hashes and observed usage, then revalidate before returning. If pure build/final validator rejects after model response, retain known usage and started=True. Never normalize/strip/complete generated proposition fields or infer semantics. No lexical/date/math changes.
 
 Stored validation freshly preflights current source/question. Reuse pure _original(result,QuestionEvidenceGeneration) for exact original field-map/key/container/scalar/type and required raw markers BEFORE any dump/read. Reuse _read then pure validate_question_evidence_propositions(source,question,checked.evidence) to reconstruct current evidence; require hashes/pure evidence equality and own profile/input_format/status/usage. Reject missing root/nested markers/nullable empty fields, old receipt/source/question/instruction/profile drift, actual unchecked subclasses/list vs canonicaltuple/rawtuple/strkey-subclass/model __dict__ map/key subclass. Return fresh canonical DTO/nested models, no mutation or default restoration.
 
@@ -42,3 +42,10 @@ Test genuine new schema/instruction including metadata in preflight exact20000/+
 - [ ] Task spec/quality and broad final review; fresh fullQA.
 - [ ] Current6sources/11conditions fullquote prompt reconstruction and actual SDK mock transport; threshold/source/evidence/old464code and private preservation.
 - [ ] Docs/privacy/links; Draft PR basePR100/Sitespreviousv122/ownQA+SDD cleanup. No real provider/app/main deployment.
+
+
+## 구현·오프라인 인수 관측
+
+실행d886dea·신규132/관련합계453검사와 scoped Ruff/format/mypy를 확인했다. 원문 metadata가 호출 중 바뀌는 합성 재현 RED 후 송신 전 source hash와 반환 evidence source hash를 비교해 거부하고 알려진 usage를 유지했다. 기존464코드·원래 SDK/Source/기준·모델 결과와 비용은 유지했다.
+
+기존6Source와 설계용 일반질문/긴자료 원래4질문/최대2,000자 합성질문의11조건을 새 실제 SDK에 연결했다.10조건은 각각1회 MockTransport/SDK 반환·실제/저장 DTO 재검증, 최대길이1조건은 송신0·usage미관측/startedFalse다. 긴자료 원래질문의 새 envelope는17,368~17,394이며 앞선 초안보다 input_format의 '-draft'6bytes가 줄었다. 전체 인용/질문/순서·정확 prompt/지침·strict도구·storeFalse/1800/30초·caller low/default·caller client수명을 대조했다. 응답은 합성 빈 명제/부족 이유이며 실제 모델이 고른 근거나 의미 성공이 아니다. 실제 provider0/과거runner0이며 모델 실제 schema수용·출력 충분성/의미·앱 인수는 남는다.
