@@ -1,3 +1,5 @@
+현재 구현: [JSON 연속 공백 감지기](changes/json-whitespace-guard.md). 신규155/새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·독립 검토를 통과했습니다. 기록된 v2 인자를 같은 위치에서 감지했지만 실제 요청 취소·앱 연결·비용 절감은 후속입니다. [compact 지침 진단](research/question-evidence-stall-investigation.md)은1회/60.106초 타임아웃·응답/사용량 미관측·재호출0으로 효과 미판정입니다.
+
 최신 실제 관측: [질문별 근거 생성 v2](research/question-evidence-generation-v2-acceptance.md). 출력4,000상한에서도 미완료·SDK 거부였고, 응답 끝 연속 공백6,619bytes를 확인했습니다. 재호출 없이 사용량/실패를 보존하며 출력 정체 제어를 먼저 검토합니다. 의미·앱 인수는 남습니다.
 
 현재 구현: [질문별 근거 생성 v2](changes/question-evidence-generation-v2.md). 별도 출력4,000/요청 timeout60·총20,000 계약을 구현했습니다. 신규135/전체9,161개 검사와 독립 검토를 통과했습니다. 이전 미완료·SDK·결과/비용을 유지하며 실제 완료/의미·앱 인수는 별도입니다.
