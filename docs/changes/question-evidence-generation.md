@@ -31,7 +31,7 @@ Error messages: invalid constructor "Invalid question evidence generation model"
 
 ## Task 1: Standalone question evidence SDK and boundaries
 
-- [ ] Implement new module and focused synthetic/mocked tests with RED→GREEN TDD.
+- [x] Implement new module and focused synthetic/mocked tests with RED→GREEN TDD.
 
 Own only2newfiles+checkbox. Read test-driven-development skill. Missing-module RED then meaningful tests for exact independent receipt/profile/tool/input markers, canonical source/quote/question preservation, zero-numeric/multiple citations, nonempty allfacet and empty insufficient outputs, raw+actual stored roundtrip fresh models, all required root/nested nullable/empty markers, source/question/instruction/catalog/profile drift. Protect Source and actual DTO/key-map original guards before dump; bool/int/string/container/model subclasses, unchecked nested DTO/list/tuple variants/raw tuples/extra/wrong types should fail without coercion/default repair.
 
