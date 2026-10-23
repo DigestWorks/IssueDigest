@@ -1,0 +1,50 @@
+# 질문별 근거 생성 v2 · 출력·시간 예산
+
+2026-10-23 한국 시간. 기반 PR102/3f6a2b1. [실제 v1 미완료](../research/question-evidence-generation-acceptance.md)를 보존하며 별도 v2를 구현했다. OpenSpec root:null이라 init 없이 spec-driven-workflow 2단계를 적용한다. Spec은 아래 계약이며 Task1이 구현한다. 실제 호출/의미 평가·앱 인수는 이번 합성 구현과 구분한다.
+
+## Global Constraints
+
+Freeze all466 existing non-Markdown files and all prior sources/questions/criteria/results/usage/provider namespaces/immutable proof. Implementer owns only new packages/agents/src/issuedigest_agents/question_evidence_generation_v2.py and packages/agents/tests/test_question_evidence_generation_v2.py plus Task1 checkbox. Never edit old runtime/helpers/contracts/SDK/tests/exports/deps/settings/application/worker/API/DB/UI/server/main. Read-only reuse permitted. Synthetic TDD only; no private sources/old runners/network/provider calls/fullQA/resources/subagents. Controller owns actual-source mock replay, fullQA, reviews, docs/PR/Sites and resource cleanup. Caller-owned required borrowed Model/client; no creation/closure/retry/repair/fallback. No source/question truncation/normalization, filtering, hidden lower cap, candidate/gold dependency. Structural result never certifies semantics/truth/completeness/access/human review. Safe fixed error messages, suppressed causes, observed known usage and dispatch uncertainty preserved. Preserve restore_introduced_modules/sync_model_loop test isolation.
+
+## Spec
+
+One new module, no changes to v1. Public APIs: QuestionEvidenceGenerationV2Error(RoleRequestError), QuestionEvidenceGenerationV2(_StrictModel), question_evidence_prompt_v2(source,question), validate_question_evidence_generation_v2(source,question,result), create_question_evidence_generator_v2(model), run_question_evidence_generator_v2(generator,source,question). DTO required fields same names/types as v1 with profile Literal["question-evidence-generation-v2"], input_format Literal["question-evidence-source-v2"], status Literal["unreviewed"], pure QuestionEvidencePropositions, prompt/instruction sha256 and KnownUsage. Require requests1/output<=4000/input+output<=20000. No restoration defaults. PROVIDER_IDENTITY="issuedigest_question_evidence_generation_v2"; exactly one strict tool fill_question_evidence_v2 with unchanged QuestionEvidenceInput. QUESTION_EVIDENCE_V2_INSTRUCTIONS equals v1 QUESTION_EVIDENCE_INSTRUCTIONS replacing only fill_question_evidence_v1 with fill_question_evidence_v2. No text rewriting/additional instruction.
+
+Prompt exact canonical _json {"input_format":"question-evidence-source-v2","question":original_question,"quotes":[{"citation_id":current_actual_id,"text":entire_current_quote},...]} in source order. Existing pure _question/_source original type guards before dump. Valid zero-numeric/multiple citations accepted only if full envelope fits. Use frozen _request_envelope with actual strict tools/instructions and output4000; <=20000 inclusive, +1 rejection before dispatch. This conservative bytes/schema/framing/output-reserve comparison is not actual provider token/context count. Exact valid question up to2000chars may still block; never truncate or silently lift a limit.
+
+Borrowed frozen actual Model handle constructed lazily. Local private runtime uses the same semantics as frozen _run_role_request but fixed request timeout60/maxoutput4000/total20000. Old helper's literal timeout30 must stay byte-identical. A small v2-local runtime duplication is permitted to preserve all old call/replay contracts; reuse existing observers/usage/canonical guards rather than copying their internals. Use Agent retries0, UsageLimits(request_limit1/output4000/total20000), openai_storeFalse, capture_run_messages, _known_usage/_validate_result_usage, exact raw one-request usage, original ModelResponse incomplete/state/finish_reason checks, exact dynamic output actual models/canonical guards and _captured_usage fallback. Local runtime raises sanitized RoleRequestError with correct known_usage/may_have_started. Timeout60 is request/transport settings, not an independently enforced total wall-clock SLA. Caller owns transport retry policy and lifecycle.
+
+Run mirrors v1 boundaries: validate actual generator/model/source/question and full preflight before dispatch; capture predispatch pure source hash. Wrap borrowed model in _ObservedAuditModel, permit exactly one original ModelResponse containing one exact ToolCallPart plus optional ThinkingPart only; reject mixed prose/multiple/unknown/builtin/file parts, preserve known usage. Pure build(source,question,output), compare current evidence.source_sha256 with predispatch hash (including presentation metadata drift even when prompt unchanged), independent receipt hashes/usage, freshly revalidate. Stored validation runs pure _original(result,QuestionEvidenceGenerationV2) and actual Source guard before _read/dump, then freshly preflights and uses pure validate_question_evidence_propositions. Exact hashes/pure evidence equality/current source+question+capacity/profile/input/status/usage; reject raw/actual missing markers/default restoration/subclass and unchecked values. Return fresh DTOs, never mutate original. Reject v1 receipts in v2 and v2 receipts in v1 without altering either original.
+
+Errors: constructor "Invalid question evidence v2 model"; prompt/preflight/run-invalid "Invalid question evidence v2 input"; stored "Invalid question evidence v2 generation"; dispatched/postresponse "Question evidence v2 generation failed". Known None vs observed KnownUsage (including request count/caps) and started uncertainty must not be erased on overflow/malformed/incomplete/network/post-build/final-validation/source drift failures.
+
+## Task 1: Bounded v2 SDK and synthetic boundaries
+
+- [x] Implement only new module/test plus this checkbox with RED→GREEN TDD.
+
+Read test-driven-development skill first. Meaningful new tests for independent markers/tool/exact v1-derived instruction bytes, full quote/question/source ordering/pure guards/zero numeric/multiple cites, all required root/nested nullable/empty markers and exact original type/key/container/subclass guards before serialization; fresh raw+actual stored reconstruction and drift. Existing tests/helpers are read-only; new tests may reuse existing fixture/data builders read-only when safe, but don't silently narrow coverage. Focus v2-specific lifetime, runtime60/4000 and failure ownership plus common receipt obligations. Test genuine schema admission at20000/+1, raw vs normalized envelope and long valid zero-send block. Inclusive observed usage4000/total20000; 4001/20001/requests!=1 and invalid raw usage reject with known cost. Real caller-owned Responses MockTransport must prove timeout60/all settings, actual strict schema/body/new markers/input, raw completed vs raw incomplete-with-valid-tool-JSON rejection, caller low/default and non-closed client/maxretries0. No real sleeps/provider. Exercise original response parts, malformed/unknown/network, postvalidation and metadata drift retaining usage; lazy constructor, zero dispatch invalid input, no retry/repair/fallback. Assert v1 module/runtime identities/receipt bounds/timeout30 remain unchanged/read-only (controller hashes whole466). Preserve module/loop fixture isolation. Run new focused tests plus adjacent v1 SDK and pure question contract; scoped Ruff/format/mypy. Commit only2newfiles+Task1checkbox; report exact RED/GREEN/static/commands/output/selfreview in own SDD report. No wholeQA, private data, network or resource creation.
+
+## Controller gates
+
+- [x] Task spec/quality and whole-branch review; fresh fullQA for v2 execution.
+- [x] Existing6Source/11conditions actual v2 mock wire/receipt, full input/hash/order and proposed capacity; old466/prior53trial/65SDK+historical proofs preserved.
+- [x] Docs/privacy/links, Draft PR103 basePR102, Sitesv125/previousv124 preservation/publication, ownedQA+SDD cleanup. No actual paid request/app/worker/main activation in this implementation.
+
+## 판단과 비용
+
+1. v2 출력 상한4,000/요청 timeout60을 채택했다. 관측 추론1,512와 수동 출력 참고값에 여유를 두되 완료를 보장하지 않으며, 최대 출력 허용량은 약2.22배/대기 설정은2배라 잠재 비용·지연이 늘 수 있다. 실제 비용 증가율/필요한 최소 한도는 미확인이다.
+2. 총20,000은 유지한다. 기존 긴 원문의 원래 질문은 단순 산술상 여유406~432지만 실제 v2 wire를 다시 검증해야 하며 최대길이 질문은 계속 차단된다. 입력을 줄이거나 기존 한도를 자동 상승시키지 않는다.
+3. 기존30초 runtime/v1을 동결하고 v2-local 작은 실행 경로를 별도로 둔다. 이전 요청/결과 재생 계약을 지키는 대신 경계 로직의 중복과 버전 간 유지보수 비용이 생긴다. 공통 내부 검증기는 읽기 전용 재사용한다.
+
+
+## 구현·모의 관측
+
+실행089b058에서 신규135/관련합계465개 검사와 scoped Ruff/format/mypy를 확인했다. v2실제 Responses 모의 전송은 strict도구/전체 인용·정확 질문·순서/출력4,000/timeout60/no-store와 caller low/default·client수명·저장 raw/actual DTO 재검증을 확인했다. 기존6Source/11조건 중10조건은 각각1회 전송·반환, 최대길이1조건은 송신0/knownusage미관측/startedFalse였다. 긴자료 원래 질문의 실제 v2 envelope는19,568~19,594·여유406~432로 사전 산술과 같았다. 합성 빈 응답이므로 실제 모델 완료·의미 성공을 인증하지 않는다. 기존466실행과 원래 실패/소진 잠금·기준/사용량은 유지했으며 전체QA·독립 검토/최종 인계는 진행 중이다.
+
+
+## 최종 검증
+
+태스크 명세/품질·전체 독립 검토 C0I0M0·미해결0이다. 실행089b058 기준 신규135/관련465·새전체9,161개(Python8,341+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI·실패/skip/warning0을 확인했다. 이전466실행·실제 미완료/사용량/소진 잠금·원문/질문/기준/과거 증거는 불변이다. 자체QA1개/전용 익명볼륨만 제거했고 다른 자원·앱/worker는 유지한다. 새 실제 provider 호출/의미 평가·앱/main 배포는 하지 않았다. 세 판단은 위 기록과 PR에 보존하고 최종 PR/Sites 게시 기록은 저장소 원본을 따른다.
+
+
+게시: [Draft PR103](https://github.com/DigestWorks/IssueDigest/pull/103)·Sitesv125 public/native succeeded. 이전v124와6변경문서의 정확 사본(ef1011f)을 Site source에 보존했다. HTML110/로컬대상2,960/공개텍스트326·비공개60+12항목 제외 검사 통과다. 기존 레이아웃 문구 갱신으로 새 브라우저QA·사용자탭 이동은 하지 않았다. 현재 SDD 증거/세 판단을 보존 후 해당 임시폴더만 정리하고 브랜치/격리폴더는 유지한다. 게시 이후 완료 기록은 저장소 원본을 따른다. 실제 모델 완료/의미·미관측 자료/전체 앱 인수는 남는다.
