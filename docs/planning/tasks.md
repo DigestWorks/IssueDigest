@@ -1,3 +1,12 @@
+## 현재 · 전체 원문 columnar 생성 SDK · 2026-10-23 한국 시간
+
+[명세·실제 SDK 경계](../changes/columnar-role-generation.md).
+
+- [x] 별도 새 형식 지침/profile/input_format/도구 이름·strict영수증·단일 요청/무재시도/known usage 구현·신규123/관련305검사.
+- [x] 태스크/전체 검토 C0I0M0·전체8,696검사·6자료 실제 SDK preflight/mock wire·460코드/과거 증거 보존.
+- [ ] Draft PR95기반 후속 PR·Sites/이전v117·소유QA/SDD 인계.
+- [ ] 실제 모델 완료·12명제 의미/역할 관계·비용/앱 인수. 합성 출력은 실제 의미 성공으로 세지 않음.
+
 ## 현재 · 전체 원문 columnar 입력 codec · 2026-10-23 한국 시간
 
 [명세·구현·비교와 남은 수용](../changes/columnar-generation-source.md).

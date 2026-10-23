@@ -46,8 +46,8 @@ New SDK preflight boundary uses max raw/normalized schema exact20000/+1; full ot
 
 ## Controller gates
 
-- [ ] Task spec/quality and fresh whole-branch review; fullQA on final stable code.
-- [ ] Six frozen source preflight/packet roundtrip/new-name raw+normalized SDK mock wire and exact instruction/schema envelope with original source/failure/usage/score preservation; no actual model call.
+- [x] Task spec/quality and fresh whole-branch review C0/I0/M0; fullQA8696 on stablee580e17/executable87e2746.
+- [x] Six frozen source preflight/packet roundtrip/new-name raw+normalized SDK mock wire and exact instruction/schema envelope with original source/failure/usage/score preservation; no actual model call.
 - [ ] 460 code/642actual/121design/prior12+10+33/codec75 preservation, privacy/docs; Draft PR base PR95, Sites previousv117 archive/publication; own QA/SDD cleanup. No app/main deployment.
 
 Actual provider/model completion, semantics on the predeclared source questions, relation quality, and app/worker activation remain a separate next acceptance stage. Passing SDK checks must not be described as those outcomes.
@@ -57,3 +57,28 @@ Actual provider/model completion, semantics on the predeclared source questions,
 1. 기존 동적 출력 모델이 수치 후보0개를 거부하므로 새 SDK도 송신 전에 거부한다. codec의 빈 후보 보존은 유지하며 임의 출력 schema를 만들지 않는다. 비용: 수치가 없는 자료에는 이 수치 역할 생성기를 실행할 수 없다. 일반 비수치 브리핑 경로와는 별개다.
 2. 기존 runtime은 여러 정상 도구 호출 중 하나를 선택할 수 있어 새 SDK에서 원래 응답을 관측해 정확 한 도구 호출/선택적 thinking만 허용한다. 섞인 설명문/추가 도구 등은 known usage를 남기고 거부한다. 비용: 사용할 수 있는 답이 포함돼 있어도 혼합 응답은 보수적으로 실패하며 재시도하지 않는다. 과거 runtime은 바꾸지 않는다.
 3. 기존 guard가 일부 scalar subclass/JSON 아닌 tuple을 그대로 허용할 수 있으므로 새 SDK에만 재사용 가능한 exact 원래 값/JSON/필수 필드 검사를 추가한다. 비용: 축약하거나 느슨하게 구성한 저장 기록은 거부되고 전체 canonical JSON을 제공해야 한다. 기존 버전 기록은 변경하지 않는다.
+
+## 구현·보존 원문 SDK 대조
+
+구현87e2746·신규123개/관련305개 및 scoped Ruff/format/mypy 통과. 새 generation profile/input_format·정확 prompt/instruction hash·단일 도구/선택적 thinking·실패 known usage·raw/actual 원래 타입/필수 필드를 검증한다. 기존 codec/SDK/runtime/출력 DTO를 수정하지 않았다. 전체 검토/QA와 게시 결과는 최종 인계를 따른다.
+
+기존G~K와 신규L의 원문을 바꾸지 않고 새 SDK `_preflight`와 caller-owned OpenAIResponsesModel/MockTransport를 각1회 실행했다. **합성 응답은 빈 contexts/events/bindings/relations**이며 실제 provider 요청·모델이 선택한 근거·의미 점수는0/미평가다. source packet 전체 JSON·quote 복원은 기존 보존 결과와 동일하며 새 SDK raw/JSON 영수증 재검증을 확인했다.
+
+| 자료 | 기존 balanced v2 envelope | 실제 새 SDK preflight envelope | 20,000 대비 여유 |
+| --- | ---: | ---: | ---: |
+| G | 15,398 | 15,429 | 4,571 |
+| H | 15,075 | 15,234 | 4,766 |
+| I | 15,113 | 15,272 | 4,728 |
+| J | 17,437 | 16,540 | 3,460 |
+| K | 15,611 | 15,326 | 4,674 |
+| L | 23,618 | 19,814 | 186 |
+
+전송할 실제 새 지침4,857UTF-8bytes와 새 도구 이름의 raw/normalized 출력 schema 중 큰 값(L6,081/5,821), prompt(L5,028), framing2,048/output1,800을 포함했다. 이전 codec의 기존 지침+추가 설명 비교19,820과 별개로 실제 새 SDK 지침/도구로 계산한 값이다. 실제 tokenizer 토큰 수·청구 usage나 OpenAI 서버의 수용 보장은 아니다. wire의 정확 canonical prompt·새 지침/strict 도구/schema·store=False/maxOutput1,800/timeout30·borrowed settings와 client 수명·자체 영수증을 확인했다.
+
+원래 balancedL의 차단23,618과 기존 결과/질문/기준·모든 사용량/부분 점수는 그대로다. 작은G/H/I는 기존보다 입력 비용이 증가하므로 보편적 압축 성공을 주장하지 않는다. 임의의 긴 Source는 여전히 한도 초과로 거부될 수 있으며 축약/한도 상향으로 우회하지 않는다. 초기 parent 합성 helper가 SDK의 문자열 content를 배열형으로 가정해 실패한 기록을 보존했고 실제 serializer 형식과 일치하도록 helper만 수정했다. 실제 provider 재호출이나 제품 코드 변경은 없다.
+
+다음은 이 새 SDK의 한 번씩 고정된 실제 모델 응답·미완료/known usage·사전12명제 의미/역할/관계 평가다. 합성 completed나 빈 결과를 실제 추출 성공으로 세지 않으며 앱/worker 활성화도 그 인수 후 별도로 판단한다.
+
+## 최종 전체 검증
+
+실행 구현87e2746/검증 head e580e17에서 신규123개 포함 전체8,696개(Python7,876+JS820)와 Ruff/format440/mypy·ESLint/TypeScript/생산빌드/OpenAPI drift가 통과했다. 실패/skip/warning0, 검사 전후 실행 코드 해시가 같다. 태스크·새 전체 독립 검토 C0/I0/M0·미해결/보류0이며 세 판단/비용은 위 기록과 같다. 기존460non-Markdown파일·실제642/설계121/이전구현12/연구10/신규원문33/직전codec75증거를 보존했다. 실제 provider 요청0/앱 변경0이다. 최종 PR/Sites/소유 임시 자원 인계는 진행 기록을 따른다.

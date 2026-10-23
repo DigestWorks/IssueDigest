@@ -1,3 +1,9 @@
+## 검증 완료 · 전체 원문 columnar 생성 SDK · 2026-10-23 한국 시간
+
+[명세·구현·6자료 SDK 수용](../changes/columnar-role-generation.md). 전체 원문/후보/조건을 보존하는 입력을 별도 generation SDK에 연결했다. 새 지침/profile/input_format/도구/hash와 strict 영수증·실제 raw/normalized schema포함20,000/출력1,800예산·단일 요청/무재시도·observed usage/송신 불확실성을 검증했다. 합성6전송은 빈 출력이며 실제 모델 추출/의미/비용 평가가 아니다. 새 원문은 실제 SDK envelope19,814/여유186이고 작은3자료는 증가한다. 기존 balancedL차단23,618/실패/부분 점수는 유지한다.
+
+실행87e2746/검증e580e17·신규123/관련305·전체8,696(Python7,876+JS820)·lint/format/types/build/OpenAPI 통과, 실패/skip/warning0. 태스크/새전체 독립 검토 C0I0M0·보류0, 460기존non-Markdown/642실제/121설계/이전12+10+33/codec75증거 불변·실제provider/앱 변경0. 빈 수치 후보 사전 거부·혼합 응답 보수적 거부·완전 canonical 저장 기록 요구의 세 판단/비용은 명세에 남겼다. 실제 모델 완료/12명제 의미/역할 관계·비용과 앱 인수가 다음이다. PR/Sites·이전v117·소유QA/SDD는 최종 게시 영수증을 따른다.
+
 ## 최종 인계 · 전체 원문 입력 codec · 2026-10-23 한국 시간
 
 [Draft PR95](https://github.com/DigestWorks/IssueDigest/pull/95) · [Sites v117](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded(14:38:18 KST), source `a72b77db339d3216d2a72dd5fa16838b9484ada7`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0d66056020d88191a683237667e77e72`, deployment `appgdep_6adaf2bd24a48191947a0184285bab37`. 이전v116 보존·변경6문서 사본은 d15bc91 기준이며 이후 게시/완료 영수증은 이 저장소 원본이다. HTML102/로컬대상2,516/공개텍스트301·기존private60/신규12항목 제외 검사를 통과했다. 텍스트만 갱신해 브라우저QA를 반복하거나 사용자 탭을 열지 않았다.
