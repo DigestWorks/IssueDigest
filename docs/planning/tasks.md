@@ -1,3 +1,13 @@
+## 현재 · 의미 보존/중요도 인수 기준 · 2026-10-23 한국 시간
+
+[기준·개발 분석·분모](../research/semantic-adjudication-protocol.md).
+
+- [x] 실제 분석 전 aaff147에 네 축·유보·분모·합성8경계 기준 고정.
+- [x] 기존 J4/K6의 원문/전체 원래 추출·연결을 읽고 비공개 provisional 개발 분석10개 기록. 질문 없는 중요도10개 미판정·기존 점수 불변.
+- [x] 독립 개발 검토 초기M1 명확화/최종C0/I0/M0·458실행파일/642실제/121설계/이전구현12증거·문서/개인정보 검증.
+- [x] [Draft PR93](https://github.com/DigestWorks/IssueDigest/pull/93)·Sites v115/이전v114·신규연구10증거/과거불변 인계.
+- [ ] 사람 판정·별도 미관측 자료/실제 질문의 사전 명제/후보 recall·앱 비용/권한/복구 인수. 자동 중요 누락/수리·앱 연결은 보류.
+
 ## 현재 · 역할 분류와 선택 필드 참조 분리 · 2026-10-22 한국 시간
 
 [primary/auxiliary·위치 비교·다음 계약](../changes/role-reference-coverage.md).
