@@ -1,6 +1,6 @@
 # 질문별 근거 생성 v2 · 출력·시간 예산
 
-2026-10-23 한국 시간. 기반 PR102/3f6a2b1. [실제 v1 미완료](../research/question-evidence-generation-acceptance.md)를 보존하며 별도 v2를 구현한다. OpenSpec root:null이라 init 없이 spec-driven-workflow 2단계를 적용한다. Spec은 아래 계약이며 Task1이 구현한다. 실제 호출/의미 평가·앱 인수는 이번 합성 구현과 구분한다.
+2026-10-23 한국 시간. 기반 PR102/3f6a2b1. [실제 v1 미완료](../research/question-evidence-generation-acceptance.md)를 보존하며 별도 v2를 구현했다. OpenSpec root:null이라 init 없이 spec-driven-workflow 2단계를 적용한다. Spec은 아래 계약이며 Task1이 구현한다. 실제 호출/의미 평가·앱 인수는 이번 합성 구현과 구분한다.
 
 ## Global Constraints
 
@@ -26,13 +26,13 @@ Read test-driven-development skill first. Meaningful new tests for independent m
 
 ## Controller gates
 
-- [ ] Task spec/quality and whole-branch review; fresh fullQA for v2 execution.
-- [ ] Existing6Source/11conditions actual v2 mock wire/receipt, full input/hash/order and proposed capacity; old466/prior53trial/65SDK+historical proofs preserved.
+- [x] Task spec/quality and whole-branch review; fresh fullQA for v2 execution.
+- [x] Existing6Source/11conditions actual v2 mock wire/receipt, full input/hash/order and proposed capacity; old466/prior53trial/65SDK+historical proofs preserved.
 - [ ] Docs/privacy/links, Draft PR basePR102, Sites previousv124 preservation/publication, ownedQA+SDD cleanup. No actual paid request/app/worker/main activation in this implementation.
 
 ## 판단과 비용
 
-1. v2 출력 상한4,000/요청 timeout60을 제안한다. 관측 추론1,512와 수동 출력 참고값에 여유를 두되 완료를 보장하지 않으며, 최대 출력 허용량은 약2.22배/대기 설정은2배라 잠재 비용·지연이 늘 수 있다. 실제 비용 증가율/필요한 최소 한도는 미확인이다.
+1. v2 출력 상한4,000/요청 timeout60을 채택했다. 관측 추론1,512와 수동 출력 참고값에 여유를 두되 완료를 보장하지 않으며, 최대 출력 허용량은 약2.22배/대기 설정은2배라 잠재 비용·지연이 늘 수 있다. 실제 비용 증가율/필요한 최소 한도는 미확인이다.
 2. 총20,000은 유지한다. 기존 긴 원문의 원래 질문은 단순 산술상 여유406~432지만 실제 v2 wire를 다시 검증해야 하며 최대길이 질문은 계속 차단된다. 입력을 줄이거나 기존 한도를 자동 상승시키지 않는다.
 3. 기존30초 runtime/v1을 동결하고 v2-local 작은 실행 경로를 별도로 둔다. 이전 요청/결과 재생 계약을 지키는 대신 경계 로직의 중복과 버전 간 유지보수 비용이 생긴다. 공통 내부 검증기는 읽기 전용 재사용한다.
 
@@ -40,3 +40,8 @@ Read test-driven-development skill first. Meaningful new tests for independent m
 ## 구현·모의 관측
 
 실행089b058에서 신규135/관련합계465개 검사와 scoped Ruff/format/mypy를 확인했다. v2실제 Responses 모의 전송은 strict도구/전체 인용·정확 질문·순서/출력4,000/timeout60/no-store와 caller low/default·client수명·저장 raw/actual DTO 재검증을 확인했다. 기존6Source/11조건 중10조건은 각각1회 전송·반환, 최대길이1조건은 송신0/knownusage미관측/startedFalse였다. 긴자료 원래 질문의 실제 v2 envelope는19,568~19,594·여유406~432로 사전 산술과 같았다. 합성 빈 응답이므로 실제 모델 완료·의미 성공을 인증하지 않는다. 기존466실행과 원래 실패/소진 잠금·기준/사용량은 유지했으며 전체QA·독립 검토/최종 인계는 진행 중이다.
+
+
+## 최종 검증
+
+태스크 명세/품질·전체 독립 검토 C0I0M0·미해결0이다. 실행089b058 기준 신규135/관련465·새전체9,161개(Python8,341+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI·실패/skip/warning0을 확인했다. 이전466실행·실제 미완료/사용량/소진 잠금·원문/질문/기준/과거 증거는 불변이다. 자체QA1개/전용 익명볼륨만 제거했고 다른 자원·앱/worker는 유지한다. 새 실제 provider 호출/의미 평가·앱/main 배포는 하지 않았다. 세 판단은 위 기록과 PR에 보존하고 최종 PR/Sites 게시 기록은 저장소 원본을 따른다.

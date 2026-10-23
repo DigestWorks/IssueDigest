@@ -1,3 +1,9 @@
+## 검증 완료 · 질문별 근거 생성 v2 · 2026-10-23 한국 시간
+
+[별도 v2 계약](../changes/question-evidence-generation-v2.md)·실행089b058에서 출력4,000/요청 timeout60·총20,000을 구현했다. 신규135/관련465·새전체9,161개(Python8,341+JS820), Ruff/format/mypy·웹 lint/types·빌드/OpenAPI와 실패/skip/warning0을 확인했다. 태스크/전체 독립 검토 C0I0M0·미해결0이다.
+
+기존6Source/11조건의 실제 새SDK 모의 전송10/사전차단1·전체 인용/정확 질문·strict 도구/4000/timeout60·저장 왕복은 일치했다. 긴자료 원래 질문 envelope19,568~19,594/여유406~432이며 합성 빈 결과이므로 모델 의미 성공은 아니다. 이전466실행·v1실제 미완료/사용량·원문/기준/결과/소진 잠금과 과거 증거를 유지했다. 자체QA1개/전용 익명볼륨만 정리하고 다른 자원은 유지했다. 세 판단과 비용은 명세에 보존했다. 새provider/과거runner/앱/worker/main활성화0, PR/Sites인계를 마무리한다.
+
 ## 구현 진행 · 질문별 근거 생성 v2 예산 · 2026-10-23 한국 시간
 
 [새 v2 계약](../changes/question-evidence-generation-v2.md)은 출력4,000/요청 timeout60으로 추론을 포함한 여유를 늘리되 총20,000과 전체 원문/정확 질문을 유지한다. 독립 profile/tool/receipt와 v2-local 실행 경로로 기존30초 helper/v1·실제 미완료/사용량·466실행과 과거 증거를 바꾸지 않는다. 단순 산술상10적합/1차단·긴자료 여유406~432이며 실제 새 wire/SDK·합성/전체QA·독립 검토를 진행한다. 약2.22배 출력 상한/2배 timeout은 실제 비용 증가율·성공·wall-clock SLA를 뜻하지 않는다. 실제 provider/앱/worker/main 활성화는 이번 구현에 포함하지 않는다.
