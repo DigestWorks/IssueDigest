@@ -1,3 +1,15 @@
+## 최종 인계 · 질문별 근거 생성 실제 미완료 · 2026-10-23 한국 시간
+
+[Draft PR102](https://github.com/DigestWorks/IssueDigest/pull/102)은 PR101 기반·미병합이다. 실제 요청1/HTTP200·raw incomplete/max_output_tokens·SDK 거부·knownusage2,318/1,800(추론1,512포함) 보존,29.685초·재호출0이다. 질문3명제/다른9명제는 미평가이며 의미 성공으로 세지 않는다. 독립 검토 M1 전체 요청 예산 표현 수정 후 C0I0M0이다.
+
+Sitesv124 public/native succeeded(2026-10-23T09:10:36.101765+00:00), source `590d2cd62314e0a3ce023835a4ce6faa00e4a14e`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c80cc5a292dc8191956231717ee69017`, deployment `appgdep_6adb247d558c81919730b1b56b0160a6`다. 이전v123/6문서 사본(7e7ea6c) 보존, HTML109/로컬대상2,901/공개텍스트322·비공개60+12항목 제외 검사 통과다. 문구만 갱신해 새브라우저QA/사용자탭 이동0, 이후 완료 기록은 저장소 원본을 따른다.
+
+기존466실행·최신 SDK65/과거실제642/설계121·이전12+10+33/codec75/SDK66/최근설계30·실제59·계약44·예산71증거는 불변이다. 실행 코드가 같아 기존9,026QA를 재사용했으며 새QA/서버자원·앱/worker/main배포0이다. 원래 실패/비용/기준·소진 잠금을 보존하고 브랜치/격리폴더를 유지한다. 다음은 추론 포함 출력 용량·지연시간/전체 요청 예산 사전 설계와 실제 완료/의미/앱 인수이며 이번 시도를 다시 호출하지 않는다. 최종 문서 push의 원격CI는 로컬 검증과 구분한다.
+
+## 실제 관측 · 질문별 근거 생성 미완료 · 2026-10-23 한국 시간
+
+[사전 고정·실행 결과](../research/question-evidence-generation-acceptance.md): 기존 전체 원문/개발 질문Q2·필수3명제를 사전에 고정하고 새 namespace에서 한 번 호출했다. HTTP200이나 raw incomplete/max_output_tokens이며 SDK는 거부했다. 입력2,318/출력1,800/총4,118·reasoning1,512는 출력 포함,29.685초·재시도0이다. 해당3명제와 다른9명제를 미평가로 유지하며 부분 tool JSON을 성공으로 수리하지 않는다. 원래466실행/원문/기준/결과/비용과 SDK65증거는 유지한다. 새SDK한도/기본모델·앱/worker/main배포·새QA자원0, 독립 검토 M1 예산 표현 수정 후 C0I0M0·기존 증거 보존을 확인했으며 PR/Sites인계를 진행한다. 기존9,026QA를 재사용하며 다음은 추론 포함 출력 용량/전체 요청 예산 검토다.
+
 ## 최종 인계 · 질문별 근거 생성 SDK · 2026-10-23 한국 시간
 
 [Draft PR101](https://github.com/DigestWorks/IssueDigest/pull/101)은 PR100 기반·미병합이다. Sitesv123 public/native succeeded(2026-10-23T08:57:41.997308+00:00), source `1e7c3be287d40f3ba20b1bdc98dc6667f9c6a508`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6da44fb524e881918b75bfd7905cd3b5`, deployment `appgdep_6adb217825848191a8eae787655e7ff9`다. 이전v122/6문서 사본(0b7f2c9)을 보존했으며 게시 이후 완료 기록은 저장소 원본을 따른다. HTML108/로컬대상2,843/공개텍스트319·비공개60+12항목 제외 확인, 새브라우저QA/사용자탭 이동0이다.

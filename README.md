@@ -1,3 +1,5 @@
+최신 실제 검증: [질문별 근거 생성](docs/research/question-evidence-generation-acceptance.md). 입력은 수용했지만 추론을 포함한 출력1,800상한에 도달해 미완료·SDK 거부입니다. 사용량을 보존했으며 의미 품질·앱 적용은 아직 인수하지 않았습니다.
+
 현재 구현: [질문별 명제 생성 SDK](docs/changes/question-evidence-generation.md). 전체 원문·질문과 새 형식의 예산 사전 검사, 원문 재검증·독립 영수증·실패 사용량을 연결했습니다. 모델 의미·제공자 수용/출력 충분성·앱 적용은 별도 인수입니다.
 
 측정 기록: [질문별 명제 SDK 예산](docs/research/question-evidence-sdk-budget.md). 전체 원문·질문1개·새 schema의 비교 envelope와 합성 전송을 확인했습니다. 최대 길이 질문은 차단되며 출력 토큰/실제 모델 수용은 미확인입니다. 측정 단계에서는 제품 SDK·앱을 변경하지 않았습니다.
