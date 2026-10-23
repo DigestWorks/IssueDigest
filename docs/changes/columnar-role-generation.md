@@ -36,7 +36,7 @@ Build frame with existing `_build_output`; own prompt/instruction SHA over exact
 
 ## Task 1: Standalone columnar generation SDK and boundaries
 
-- [ ] Implement the standalone SDK with TDD synthetic boundary and mock-wire tests.
+- [x] Implement the standalone SDK with TDD synthetic boundary and mock-wire tests.
 
 Own only two new files and checkbox. Requirements are Spec/Global Constraints above; report missing-module RED before implementing. Use existing synthetic source/alias packet fixtures with independent literal receipt/tool/input expectations, not only implementation-mirroring assertions. Confirm public prompt exactly codec packet, complete quote roundtrip via codec, all candidate IDs/slots maintained and no source metadata IDs leaked. Genuine new profile/input_format/hash, unchanged underlying output semantics, every root required marker/raw+actual before default restoration, frame/index markers, subclasses/unchecked nested tuple/list/model/key/container/scalar variants, source/instruction/prompt/catalog drift and old-receipt rejection.
 
