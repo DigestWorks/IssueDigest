@@ -1,3 +1,5 @@
+최신 실제 관측: [질문별 근거 생성 v2](research/question-evidence-generation-v2-acceptance.md). 출력4,000상한에서도 미완료·SDK 거부였고, 응답 끝 연속 공백6,619bytes를 확인했습니다. 재호출 없이 사용량/실패를 보존하며 출력 정체 제어를 먼저 검토합니다. 의미·앱 인수는 남습니다.
+
 현재 구현: [질문별 근거 생성 v2](changes/question-evidence-generation-v2.md). 별도 출력4,000/요청 timeout60·총20,000 계약을 구현했습니다. 신규135/전체9,161개 검사와 독립 검토를 통과했습니다. 이전 미완료·SDK·결과/비용을 유지하며 실제 완료/의미·앱 인수는 별도입니다.
 
 최신 실제 검증: [질문별 근거 생성](research/question-evidence-generation-acceptance.md). 입력은 수용했지만 추론을 포함한 출력1,800상한에 도달해 미완료·SDK 거부입니다. 사용량을 보존했으며 의미 품질·앱 적용은 아직 인수하지 않았습니다.
