@@ -111,7 +111,76 @@ def test_short_packet_decodes_the_complete_original_candidate_and_quote():
 )
 def test_canonical_shortest_columns_preserve_exact_types_ids_duplicates_and_order(values, expected):
     mod = api()
+    assert mod._column(values, id_bearing=True) == expected
+
+
+@pytest.mark.parametrize(
+    "quotes",
+    [
+        ("q" + "1" * 4301,),
+        ("q" + "1" * 4301, "s" + "2" * 4301, "n123456789"),
+        tuple(f"q{i}" for i in range(1, 13)),
+    ],
+)
+def test_literal_id_like_source_text_roundtrips_without_identifier_integer_conversion(quotes):
+    mod = api()
+    src = document(*quotes)
+    packet = mod.build_generation_source_packet(src)
+    assert json.loads(mod.generation_source_packet_prompt(src)) == packet
+    assert mod.validate_generation_source_packet(src, packet) == packet
+    decoded = mod.decode_generation_source_packet(src, packet)
+    assert [q["sentences"] for q in decoded["quotes"]] == [
+        [dict(id=f"s{i}", text=text)] for i, text in enumerate(quotes, 1)
+    ]
+    assert [quote["sentence_columns"]["text"] for quote in packet["quotes"]] == [
+        ["values", [text]] for text in quotes
+    ]
+    assert packet["context_id_slots"] == ["indexed", "c", list(range(1, 13))]
+    assert packet["reporting_event_id_slots"] == ["indexed", "e", list(range(1, 13))]
+
+
+@pytest.mark.parametrize(
+    "values,expected",
+    [
+        (["q" + "1" * 4301, "q" + "2" * 4301], ["values", ["q" + "1" * 4301, "q" + "2" * 4301]]),
+        (["q" + "1" * 4301] * 3, ["constant", "q" + "1" * 4301]),
+        (
+            ["q" + "1" * 4301, "q" + "2" * 4301] * 3,
+            ["dictionary", ["q" + "1" * 4301, "q" + "2" * 4301], [0, 1] * 3],
+        ),
+        ([f"s{i}" for i in range(1, 13)], ["values", [f"s{i}" for i in range(1, 13)]]),
+        (
+            [["s91", "s4"], [], ["s91"], ["s123"]],
+            ["values", [["s91", "s4"], [], ["s91"], ["s123"]]],
+        ),
+    ],
+)
+def test_literal_columns_only_use_values_constant_dictionary_even_for_id_like_content(
+    values, expected
+):
+    mod = api()
     assert mod._column(values) == expected
+
+
+def test_actual_identifier_columns_keep_canonical_prefix_encodings():
+    mod = api()
+    src = document(*("7명." for _ in range(20)))
+    packet = mod.build_generation_source_packet(src)
+    assert packet["candidate_columns"]["id"] == ["indexed", "n", list(range(1, 21))]
+    assert packet["candidate_columns"]["quote_id"] == ["indexed", "q", list(range(1, 21))]
+    assert packet["candidate_columns"]["sentence_ids"] == [
+        "indexed_lists",
+        "s",
+        [[i] for i in range(1, 21)],
+    ]
+    assert packet["eligible_status_sentence_ids"] == ["indexed", "s", list(range(1, 21))]
+    src = document(" ".join(f"{i}명." for i in range(1, 33)))
+    packet = mod.build_generation_source_packet(src)
+    assert packet["quotes"][0]["sentence_columns"]["id"] == ["indexed", "s", list(range(1, 33))]
+    decoded = mod.decode_generation_source_packet(src, packet)
+    assert [sentence["id"] for sentence in decoded["quotes"][0]["sentences"]] == [
+        f"s{i}" for i in range(1, 33)
+    ]
 
 
 def assert_plain_json(value):

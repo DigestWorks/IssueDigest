@@ -70,7 +70,7 @@ def _indexed(values: list[Any]) -> tuple[str, list[int]] | None:
     return prefix, [int(suffix) for _, suffix in parts]
 
 
-def _column(values: list[Any]) -> list[Any]:
+def _column(values: list[Any], *, id_bearing: bool = False) -> list[Any]:
     """Choose by canonical UTF-8 byte length, with stable specified option precedence."""
     options: list[list[Any]] = [["values", values]]
     if values:
@@ -87,19 +87,21 @@ def _column(values: list[Any]) -> list[Any]:
                 pool.append(value)
             indices.append(positions[key])
         options.append(["dictionary", pool, indices])
-        indexed = _indexed(values)
-        if indexed is not None:
-            options.append(["indexed", indexed[0], indexed[1]])
-        if all(type(value) is list for value in values):
-            flattened = [child for value in values for child in value]
-            indexed = _indexed(flattened)
+        # Only machine identifiers are eligible; literal source content stays opaque.
+        if id_bearing:
+            indexed = _indexed(values)
             if indexed is not None:
-                offset = 0
-                suffix_lists = []
-                for value in values:
-                    suffix_lists.append(indexed[1][offset : offset + len(value)])
-                    offset += len(value)
-                options.append(["indexed_lists", indexed[0], suffix_lists])
+                options.append(["indexed", indexed[0], indexed[1]])
+            if all(type(value) is list for value in values):
+                flattened = [child for value in values for child in value]
+                indexed = _indexed(flattened)
+                if indexed is not None:
+                    offset = 0
+                    suffix_lists = []
+                    for value in values:
+                        suffix_lists.append(indexed[1][offset : offset + len(value)])
+                        offset += len(value)
+                    options.append(["indexed_lists", indexed[0], suffix_lists])
     chosen = min(options, key=lambda option: len(_json(option).encode("utf-8")))
     return cast(list[Any], _copy_json(chosen))
 
@@ -118,7 +120,10 @@ def _encode(original: dict[str, Any]) -> dict[str, Any]:
         atom_columns=list(_ATOM_FIELDS),
         candidate_count=len(candidates),
         candidate_columns={
-            field: _column([candidate[field] for candidate in candidates])
+            field: _column(
+                [candidate[field] for candidate in candidates],
+                id_bearing=field in ("id", "quote_id", "sentence_ids"),
+            )
             for field in _CANDIDATE_FIELDS
         },
         quotes=[
@@ -126,14 +131,17 @@ def _encode(original: dict[str, Any]) -> dict[str, Any]:
                 quote_id=quote["quote_id"],
                 sentence_count=len(quote["sentences"]),
                 sentence_columns={
-                    field: _column([sentence[field] for sentence in quote["sentences"]])
+                    field: _column(
+                        [sentence[field] for sentence in quote["sentences"]],
+                        id_bearing=field == "id",
+                    )
                     for field in ("id", "text")
                 },
             )
             for quote in original["quotes"]
         ],
         **{
-            field: _column(original[field])
+            field: _column(original[field], id_bearing=True)
             for field in (
                 "eligible_status_sentence_ids",
                 "context_id_slots",
