@@ -1764,3 +1764,5 @@ legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번
 [Draft PR92](https://github.com/DigestWorks/IssueDigest/pull/92)은 설계 PR91 브랜치를 대상으로 한다. main/앱 배포는 하지 않는다. 소유 QA컨테이너1개 제거·포트 닫힘을 확인했고 다른 자원은 유지했다. Sites에는 기존v113을 보존해 현재 구현과 남은 인수를 반영한다.
 
 [Draft PR93](https://github.com/DigestWorks/IssueDigest/pull/93)은 참조 계약 PR92 브랜치를 대상으로 한다. 사전 기준/개발 분석/초기M1 및 수정 검토10개 비공개 연구 증거를 불변 manifest로 보존한다. Sites에는 이전v114를 보관하고 이번 인수 기준을 요약하며 main/앱 배포는 하지 않는다.
+
+[Draft PR94](https://github.com/DigestWorks/IssueDigest/pull/94)은 의미 기준 PR93 브랜치를 대상으로 한다. 원본·기준·진단·시제품·초기 provenance 결함/수정/검토33개 연구 증거를 비공개 불변 manifest로 보존한다. Sites에는 이전v115를 보존해 이번 차단/미판정/다음 용량 계약을 요약하며 main/앱 배포는 하지 않는다.

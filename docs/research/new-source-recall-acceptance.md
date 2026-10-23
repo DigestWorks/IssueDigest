@@ -50,3 +50,5 @@
 독립 검토의 초기 I1은 연구용 source envelope의 raw_sha256이 HTML 파일의 CRLF를 LF로 읽은 값이라는 provenance 결함이었다. capture와 article 원본 바이트는 같았고 최초 메타데이터만 정규화본 해시였다. 원본 바이트 해시로 정정하고 초기9개 파일/manifest를 별도 보존했다. 같은 snapshot/UUID·본문/질문/기준을 유지했다. 후보 index도 재구성했으며 해당 index의 source hash를 포함해 전체 bytes가 수정 전후 동일했다(원본 HTML 해시가 이 index payload에 포함되는 것은 아님). source envelope의 raw_sha256만 변경됐다. 후보 평가·기존 preflight/용량 구성·원문 무손실 시제품의 JSON/bytes는 수정 전후 동일하고 추가 모델 호출은 없다. 초기 결함과 수정 범위 재검토는 최종 영수증에 함께 기록한다.
 
 독립 증거 검토 초기 C0/I1/M0·원본 provenance 정정 후 scoped 재검토 미해결 C0/I0/M0. 원본 capture/article exact bytes와17문단/1,306문자·8명제/10anchor·실제 preflight 거부23,618·시제품20,503/전체JSON복원·수정 전후7개 결과 bytes 불변을 독립 재현했다.458실행파일/642실제/121설계·직전구현12/연구10증거 불변·전체8,452QA/PR92·93 CI 통과 증거 재사용, 신규 전체QA/유료호출/서버자원0이다.
+
+[Draft PR94](https://github.com/DigestWorks/IssueDigest/pull/94)은 의미 기준 PR93 브랜치를 대상으로 한다. 원본·기준·진단·시제품·초기 provenance 결함/수정/검토33개 연구 증거를 비공개 불변 manifest로 보존한다. Sites에는 이전v115를 보존해 이번 차단/미판정/다음 용량 계약을 요약하며 main/앱 배포는 하지 않는다.
