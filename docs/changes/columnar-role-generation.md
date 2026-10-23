@@ -48,7 +48,7 @@ New SDK preflight boundary uses max raw/normalized schema exact20000/+1; full ot
 
 - [x] Task spec/quality and fresh whole-branch review C0/I0/M0; fullQA8696 on stablee580e17/executable87e2746.
 - [x] Six frozen source preflight/packet roundtrip/new-name raw+normalized SDK mock wire and exact instruction/schema envelope with original source/failure/usage/score preservation; no actual model call.
-- [ ] 460 code/642actual/121design/prior12+10+33/codec75 preservation, privacy/docs; Draft PR base PR95, Sites previousv117 archive/publication; own QA/SDD cleanup. No app/main deployment.
+- [x] 460 code/642actual/121design/prior12+10+33/codec75 preservation, privacy/docs; Draft PR96 base PR95, Sitesv118 previousv117 archived; own QA/SDD archived/cleaned. No app/main deployment.
 
 Actual provider/model completion, semantics on the predeclared source questions, relation quality, and app/worker activation remain a separate next acceptance stage. Passing SDK checks must not be described as those outcomes.
 
