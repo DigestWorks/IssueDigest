@@ -120,6 +120,7 @@ class _BoundedBody(AsyncByteStream):
         self._attempted = False
         self.confirmed_closed = False
         self._failure: Reason | None = None
+        self.primary_reason: Reason | None = None
 
     async def __aiter__(self) -> AsyncIterator[bytes]:
         async for chunk in self._body:
@@ -134,13 +135,12 @@ class _BoundedBody(AsyncByteStream):
         # Native AsyncStream invokes close from its generator's finally. Preserve
         # that already-active failure if body cleanup raises a different exception.
         pending = sys.exception()
-        primary: Reason | None = None
         if isinstance(pending, asyncio.CancelledError):
-            primary = "timeout" if self._operation_deadline.expired() else "cancelled"
+            self.primary_reason = "timeout" if self._operation_deadline.expired() else "cancelled"
         elif isinstance(pending, TimeoutError):
-            primary = "timeout"
+            self.primary_reason = "timeout"
         elif isinstance(pending, Exception):
-            primary = "transport"
+            self.primary_reason = "transport"
         close_deadline = asyncio.timeout(STREAM_CLOSE_DEADLINE_SECONDS)
         try:
             async with close_deadline:
@@ -149,11 +149,11 @@ class _BoundedBody(AsyncByteStream):
             if close_deadline.expired():
                 raise _Failure("timeout")
         except asyncio.CancelledError:
-            self._failure = primary or "cancelled"
+            self._failure = self.primary_reason or "cancelled"
             raise
         except Exception:
             close_reason: Reason = "timeout" if close_deadline.expired() else "transport"
-            self._failure = primary or close_reason
+            self._failure = self.primary_reason or close_reason
             raise _Failure(self._failure) from None
 
 
@@ -482,7 +482,7 @@ async def run_guarded_responses_tool(
                 raise _Failure("output") from None
     except asyncio.CancelledError:
         cancelled = True
-        reason = "cancelled"
+        reason = body.primary_reason if body is not None and body.primary_reason else "cancelled"
     except TimeoutError:
         reason = "timeout"
     except JsonWhitespaceGuardError:
@@ -492,14 +492,16 @@ async def run_guarded_responses_tool(
         cancelled = reason == "cancelled"
         if task is not None and task.cancelling() > cancellations:
             cancelled = True
-            if reason == "timeout":
+            if reason == "timeout" and (body is None or body.primary_reason is None):
                 reason = "cancelled"
     except Exception:
         # The SDK closes in its generator's finally. A failed close may replace
         # CancelledError; preserve the task's outstanding cancellation intent.
         if task is not None and task.cancelling() > cancellations:
             cancelled = True
-            reason = "cancelled"
+            reason = (
+                body.primary_reason if body is not None and body.primary_reason else "cancelled"
+            )
         else:
             reason = "timeout" if deadline.expired() else "transport"
     finally:

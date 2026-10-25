@@ -954,3 +954,46 @@ def test_finite_float_numbers_still_validate(number: str, expected: float) -> No
     )
     assert isinstance(result, api().GuardedResponsesToolResult)
     assert result.output.text == expected
+
+
+@pytest.mark.parametrize("primary", ["transport", "timeout"])
+@pytest.mark.parametrize("mask_cancellation", [False, True])
+def test_native_cleanup_external_cancel_keeps_earlier_primary_reason(
+    primary: str, mask_cancellation: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(api(), "STREAM_DEADLINE_SECONDS", 0.005 if primary == "timeout" else 60)
+    monkeypatch.setattr(api(), "STREAM_CLOSE_DEADLINE_SECONDS", 0.05)
+
+    class ClosingBody(Body):
+        attempts = 0
+
+        async def __aiter__(self) -> AsyncIterator[bytes]:
+            async for chunk in super().__aiter__():
+                yield chunk
+            # The transport mode raises ReadError in super; timeout mode waits for
+            # the operation timer without signalling the test's close-start event.
+            await asyncio.Event().wait()
+
+        async def aclose(self) -> None:
+            self.attempts += 1
+            self.blocked.set()
+            try:
+                await asyncio.Event().wait()
+            except asyncio.CancelledError:
+                if mask_cancellation:
+                    raise RuntimeError("sensitive native cleanup details") from None
+                raise
+
+    rows = events()[:1]
+    rows[0]["response"]["usage"] = dict(input_tokens=10, output_tokens=5, total_tokens=15)
+    body = ClosingBody(rows, read_error=primary == "transport")
+    result, _, _ = run(body=body, cancel=True)
+    assert isinstance(result, api().GuardedResponsesCancelled)
+    assert result.reason == primary
+    assert result.known_usage.model_dump() == USAGE
+    assert result.usage_complete is False
+    assert result.stream_closed is False
+    assert body.attempts == 1
+    assert not body.closed
+    assert str(result) == "Guarded Responses request failed"
+    assert result.__cause__ is None
