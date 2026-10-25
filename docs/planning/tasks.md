@@ -1,7 +1,7 @@
 ## 진행 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
 
 - [x] [native transport 계약](../changes/guarded-responses-stream.md)·관측/최종 사용량·취소/응답 닫힘·명시적 한도 고정.
-- [ ] 새 모듈/합성 HTTP TDD·정적 검사·독립 검토·fresh 전체QA.
+- [x] 새 모듈/합성 HTTP TDD119·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0·새전체9,435개(Python8,615+JS820)·실패/skip/warning0.
 - [ ] [기존 인자 SSE 재생](../research/guarded-responses-stream-validation.md)·470실행/과거 증거 보존·문서/개인정보 검사·Draft PR/Sites·자체QA/SDD 정리.
 - [ ] 생성 SDK/worker 연결·실제 제공자 완료/의미/취소·과금·앱 인수. 기존 유료 경로는 유지.
 

@@ -2,9 +2,9 @@
 
 2026-10-20 KST 기준. IssueDigest는 질문에서 시작해 이슈의 맥락·쟁점·변화를 이해하는 B2C 브리핑 서비스다. [D016·D017·D019·D020·D021·D022](decisions.md)과 [제품 경험 인터뷰](../research/product-experience-interview.md)가 제품 방향의 원본이다. 이 문서는 현재 구현과 다음 구현을 구분한다. 두 사람의 공동 자료 검증을 최종 제품 구조로 확대하지 않는다.
 
-## M3 진행 · 중단 가능한 스트림 transport
+## M3 현재 구현 · 스트림 transport와 생성 연결
 
-[새 native 스트림](../changes/guarded-responses-stream.md)에 기존 공백 감지기를 연결한다. 관측 사용량과 최종 사용량 수신 여부, 불확실한 송신/응답 닫힘·외부 취소를 구분한다. 신규 경로만60초 operation deadline·8만 argument UTF-8bytes·1만 events로 제한하며 기존 SDK/영수증/앱은 유지한다. 합성 HTTP 검증과 실제 제공자의 중단·과금/생성 품질은 구분한다.
+[새 native 스트림](../changes/guarded-responses-stream.md)에 공백 감지기를 연결해 신규119/새전체9,435개(Python8,615+JS820)·독립 검토 C0I0M0를 통과했다. 모의 HTTP8회로 기존 미완료 인자의 닫힘/사용량을 재생했고 제공자 호출0이다. 관측 사용량과 최종 사용량 수신 여부, 불확실한 송신/응답 닫힘·외부 취소를 구분한다. 신규 경로만60초 operation deadline·acquired body 별도1초 cooperative 정리·8만 argument UTF-8bytes·1만 events로 제한하며 기존 SDK/영수증/앱은 유지한다. 합성 HTTP 검증과 실제 제공자의 중단·과금/생성 품질은 구분한다.
 
 ## M3 현재 구현 · 순수 공백 감지와 다음 통합
 

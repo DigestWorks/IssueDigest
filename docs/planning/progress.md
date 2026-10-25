@@ -1,3 +1,9 @@
+## 검증 완료 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
+
+[Draft PR106](https://github.com/DigestWorks/IssueDigest/pull/106)은 PR105 기반·미병합이다. 실행1d1d0c7·신규119/새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 검토 C0I0M0·미해결0이다. 실제 native SDK+모의 HTTP에서 단일 요청/무재시도·전체 입력/strict schema·닫힘/외부 취소·관측/최종 사용량을 검증했다. 기존470실행/과거 증거는 유지한다.
+
+기록된 v1/v2 인자 각각 네 분할을 새 transport로 재생했다. v2는 공백 감지 후 terminal까지 읽지 않고 HTTP를 닫아 known_usage None/usage_complete False를 유지한다. v1 미완료는 관측된 최종 사용량을 보존하고 실패한다. 모의 HTTP8회/제공자 호출0이며 실제 과금 절감·계산 취소·의미 성공의 증거가 아니다. 생성 SDK/worker 연결·실제 완료/의미·앱 인수는 후속이고 앱/worker/main 활성화0이다. 자체QA3개/전용 익명볼륨3개를 정리하고25590포트 닫힘을 확인했다. Sites/현재SDD 정리를 마무리한다.
+
 ## 진행 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
 
 [고정 계약](../changes/guarded-responses-stream.md)으로 실제 native SDK의 스트리밍 소비·공백 감지 후 HTTP 닫힘·관측/최종 사용량·취소 전파를 별도 구현한다. 기존470실행/이전 증거를 고정하고 합성 TDD·독립 검토·새 전체QA·기록된 인자 재생을 진행한다. 이번 제공자 호출0이며 기존 사용량 미관측을0/무료로 바꾸지 않는다. 앱/worker/main 활성화와 실제 제공자 중단·과금/의미 인수는 별도다.

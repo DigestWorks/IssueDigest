@@ -34,8 +34,8 @@ Read test-driven-development. Use real AsyncOpenAI with max_retries=0 and httpx.
 
 ## Controller gates
 
-- [ ] Independent task/wholebranch review and fresh fullQA.
-- [ ] Old recorded v1/v2 arguments through new mocked native HTTP/SSE path, no provider; preserve470/priorproof/unknown paid usage.
+- [x] Independent task/wholebranch review C0I0M0·새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0.
+- [x] Old recorded v1/v2 arguments through new mocked native HTTP/SSE path, no provider; preserve470/priorproof/unknown paid usage.
 - [ ] Docs/privacy/links·Draft PR basePR105·Sites previousv127/exact changed documents·ownQA/SDD cleanup; no app/worker/main activation.
 
 ## 판단과 비용
@@ -50,3 +50,7 @@ Read test-driven-development. Use real AsyncOpenAI with max_retries=0 and httpx.
 6. JSON 숫자의 Python float overflow도 거부한다. inf 성공을 막는 대신 큰 수를 정확히 표현할 수 있는 다른 숫자 모델에도 문자열 등 별도 표현이 필요할 수 있다.
 
 공식 API 이벤트 기준: [Responses streaming consumers](https://developers.openai.com/api/docs/guides/migrate-to-responses#7-update-streaming-consumers). 실제 배포된 SDK는 로컬 잠금 버전 코드로 확인하며 현재 제공자 동작·요금은 별도 인수한다.
+
+## 검증 결과
+
+실행1d1d0c7·합성119/새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0, 태스크/전체 검토 C0I0M0다. [검증 기록](../research/guarded-responses-stream-validation.md)과 [Draft PR106](https://github.com/DigestWorks/IssueDigest/pull/106)을 따른다. 실제 제공자 호출0·기존470실행/과거 증거 보존이며 기존 SDK/worker 연결은 후속이다.
