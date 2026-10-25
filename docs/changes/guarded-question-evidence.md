@@ -20,11 +20,15 @@ Read test-driven-development skill. RED tests before implementation, then GREEN 
 
 ## Controller gates
 
-- [ ] Independent task and whole-branch review, full repository checks.
-- [ ] Existing execution/private evidence integrity, documentation and privacy checks.
+- [x] Independent task and whole-branch review C0I0M0, full repository checks.
+- [x] Existing472 execution files/private69 prior-evidence integrity, documentation and privacy checks.
 - [ ] Draft PR, plan summary/history update or explicit Sites pending, own QA cleanup. App/worker/provider acceptance remains separate.
 
-## 判断・영향
+## 판단과 영향
 
 1. 원문 검증과 native transport를 새 SDK로 연결하고 기존 v2는 유지한다. 기존 저장 결과·재생을 보존하지만 앱에 적용하려면 versioned worker·예산/권한/복구 인수가 추가로 필요하다.
 2. 기존 정확한 지침·질문을 유지해 전달 경로의 효과만 분리한다. 이전의 출력 정체가 여전히 발생할 수 있으며 이번 합성 성공을 실제 모델 품질로 확대하지 않는다.
+
+## 검증 결과
+
+신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 원문/title/bill metadata 변경, 불완전/공백/취소, 영수증 변조와 모든 required 필드 누락을 합성으로 확인했다. 초기 RED24개 부재 실패→GREEN24, 추가 한도 초과 사용량 보존 결함1개를 재현·수정한 뒤 최종33개/관련287개를 통과했다. 전체 검사는 실패/skip/warning0이며 실제 provider semantic·worker/app readiness를 인증하지 않는다.

@@ -1,3 +1,7 @@
+## M3 진행 · 원문 검증과 중단 가능한 생성 연결
+
+[별도 async SDK](../changes/guarded-question-evidence.md)로 정확한 source·질문과 native 스트림을 연결하고, 완료 응답만 현재 원문·인용·저장 영수증 검증으로 넘긴다. 기존 v2와 앱 실행은 유지한다. 합성 연결33/관련287·새전체9,468개(Python8,648+JS820)·독립 검토를 통과했으며 실제 모델 의미·versioned worker의 합산 예산/권한/내구 복구·개발 반영은 후속 인수다.
+
 # IssueDigest 구현 계획
 
 2026-10-20 KST 기준. IssueDigest는 질문에서 시작해 이슈의 맥락·쟁점·변화를 이해하는 B2C 브리핑 서비스다. [D016·D017·D019·D020·D021·D022](decisions.md)과 [제품 경험 인터뷰](../research/product-experience-interview.md)가 제품 방향의 원본이다. 이 문서는 현재 구현과 다음 구현을 구분한다. 두 사람의 공동 자료 검증을 최종 제품 구조로 확대하지 않는다.
