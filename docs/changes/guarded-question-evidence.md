@@ -14,7 +14,7 @@
 
 ## Task 1: Connect source-specific generation to native stream
 
-- [ ] Implement the two new execution files only plus this checkbox with TDD.
+- [x] Implement the two new execution files only plus this checkbox with TDD.
 
 Read test-driven-development skill. RED tests before implementation, then GREEN and scoped lint/format/mypy. New synthetic tests must exercise real AsyncOpenAI with httpx2.MockTransport and close-observing SSE, exact question/full quotes/instructions/strict tool name/schema/wire options; one complete valid source-attributed proposition receipt + JSON save/revalidate roundtrip; valid empty insufficient response allowed but not semantic success. Assert native incomplete/invalid JSON/whitespace/transport/cancel observations survive wrapper; no partial receipt, no retries/client close; source quote/title/metadata mutation during await rejects retaining final usage; invalid source/question/budget/client/model preflight sends zero requests; tampered saved receipts/raw-required/constructed wrong types rejected. Use existing fixture module restoration pattern so imports do not poison frozen reload tests. Do not duplicate transport's entire event matrix: focus on integration boundaries and assertion of no app activation. Use deterministic events/deadline overrides, no private data/network/provider calls. Commit owned files; full report records RED/GREEN/static commands/results and self-review. Controller runs full QA once and independent task/final review. No subagent spawning by implementer.
 
