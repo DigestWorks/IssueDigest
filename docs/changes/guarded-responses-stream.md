@@ -28,7 +28,7 @@ On completed success only: parse exact assembled JSON without duplicate keys/non
 
 ## Task 1: Guarded native stream transport
 
-- [ ] Implement only new module/tests+checkbox with RED→GREEN TDD.
+- [x] Implement only new module/tests+checkbox with RED→GREEN TDD.
 
 Read test-driven-development. Use real AsyncOpenAI with max_retries=0 and httpx.MockTransport + close-observing AsyncByteStream supplying synthetic SSE. No provider/network/private fixtures. Spy wire body to assert all exact options/full prompt/instructions/strict schema/tool choice/one HTTP call; preflight rejects make0HTTPcalls. Successful complete typed output and usage; whole/1char/mixed/empty argument chunks, quoted long whitespace/Unicode unchanged. 256 vs257 outside whitespace; reject added/done/terminal snapshots with excess whitespace/mismatches; no suffix events consumed after guard failure; HTTP stream closed and borrowed client stays open. Valid observed nonterminal usage survives failure but is incomplete; no usage None neverzero; final usage preserved on invalidJSON/incomplete/overbudget; invalid/negative/bool/missing/inconsistent/decreasing usage cases. EOF, unknown event, reordered/wrong IDs/indexes/sequence/call name, second tools/text/refusal/errors, duplicates, missing done markers; schema output strictness/extra/wrongtype/duplicateJSONkeys/nonfinite; event/UTF8 bounds. Timeout/transport close errors and external cancellation tests use deterministic events or patched deadline (no60s waits); cancelled remains BaseException cancellation and carries usage. Sanitized fixed errors/cause, primary error/closed observations; no raw source values in repr/str. Strict focused pytest/scoped Ruff+format/mypy/diff only, no fullQA. Commit only owned3paths, write exact RED/GREEN/static/selfreview evidence in task report. No copied scanner oracle or tests that only mirror implementation.
 
@@ -43,5 +43,7 @@ Read test-driven-development. Use real AsyncOpenAI with max_retries=0 and httpx.
 1. 별도 native streaming transport를 추가하고 기존 SDK/앱은 유지한다. 기존 영수증을 위조하지 않는 대신 앱의 실제 응답은 아직 바뀌지 않으며 후속 생성 SDK·worker 연결 인수가 필요하다.
 2. 공백 감지 시 drain 없이 HTTP 응답을 닫고 관측 사용량/최종 여부를 나눈다. 알려진 비용을 보존하지만 제공자의 실제 중단·최종 과금은 미확인이며 비용 절감을 보장하지 않는다.
 3. 새 경로에60초 전체 deadline·8만 argument UTF-8bytes·1만 event 제한을 명시한다. 무한 소비를 제한하지만 정상적인 긴 실행을 차단할 수 있고 단일 native event의 decoder 메모리는 별도다.
+
+4. 정리 중 외부 취소도 CancelledError 하위 클래스로 전파하되 먼저 발생한 실패 reason을 보존한다. reason만 보는 호출자는 취소를 놓칠 수 있으므로 예외 종류를 먼저 처리해야 한다.
 
 공식 API 이벤트 기준: [Responses streaming consumers](https://developers.openai.com/api/docs/guides/migrate-to-responses#7-update-streaming-consumers). 실제 배포된 SDK는 로컬 잠금 버전 코드로 확인하며 현재 제공자 동작·요금은 별도 인수한다.
