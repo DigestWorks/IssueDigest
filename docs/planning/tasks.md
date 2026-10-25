@@ -1,3 +1,10 @@
+## 진행 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
+
+- [x] [native transport 계약](../changes/guarded-responses-stream.md)·관측/최종 사용량·취소/응답 닫힘·명시적 한도 고정.
+- [ ] 새 모듈/합성 HTTP TDD·정적 검사·독립 검토·fresh 전체QA.
+- [ ] [기존 인자 SSE 재생](../research/guarded-responses-stream-validation.md)·470실행/과거 증거 보존·문서/개인정보 검사·Draft PR/Sites·자체QA/SDD 정리.
+- [ ] 생성 SDK/worker 연결·실제 제공자 완료/의미/취소·과금·앱 인수. 기존 유료 경로는 유지.
+
 ## 진행 · JSON 연속 공백 감지 · 2026-10-23 한국 시간
 
 - [x] compact 지침 진단을 사전 고정하고1회 송신;60.106초 타임아웃·응답/사용량 미관측·재호출0 보존.
