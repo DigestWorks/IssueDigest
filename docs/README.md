@@ -1,3 +1,5 @@
+현재 구현: [질문별 근거 스트림 연결](changes/guarded-question-evidence.md). 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 실제 모델 의미·합산 예산/권한/복구·앱 인수는 후속이다. Sites v129에 요약을 게시했고 이전v128을 보존했다.
+
 현재 구현: [중단 가능한 Responses 스트림](changes/guarded-responses-stream.md). 신규119/새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·독립 검토를 통과했습니다. 모의 HTTP/SSE에서 공백 정체 후 닫힘·관측/최종 사용량·외부 취소를 검증했습니다. 이번 제공자 호출0이며 실제 제공자 중단/과금·기존 생성 SDK/앱 연결은 후속입니다.
 
 현재 구현: [JSON 연속 공백 감지기](changes/json-whitespace-guard.md). 신규155/새전체9,316개(Python8,496+JS820)·정적 검사/빌드/OpenAPI·독립 검토를 통과했습니다. 기록된 v2 인자를 같은 위치에서 감지했지만 실제 요청 취소·앱 연결·비용 절감은 후속입니다. [compact 지침 진단](research/question-evidence-stall-investigation.md)은1회/60.106초 타임아웃·응답/사용량 미관측·재호출0으로 효과 미판정입니다.
