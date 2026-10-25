@@ -3,7 +3,7 @@
 - [x] [정확한 입력·원문 재검증·관측 비용 계약](../changes/guarded-question-evidence.md) 고정.
 - [x] 새 async 생성 SDK/영수증·실제 native MockTransport 연결 TDD33/관련287.
 - [x] 독립 태스크/전체 검토 C0I0M0·전체9,468개(Python8,648+JS820)·기존472실행/69직전증거 보존.
-- [ ] 문서·Draft PR·계획 사이트 인계/자체QA 정리.
+- [x] 문서·Draft PR107·Sitesv129/이전v128/변경6문서 정확 사본·자체QA/전용volume 정리.
 - [ ] 실제 제공자 완료/의미·versioned worker/예산/권한/복구·앱 인수.
 
 ## 진행 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간

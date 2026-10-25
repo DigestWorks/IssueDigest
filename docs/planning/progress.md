@@ -1,6 +1,6 @@
 ## 현재 구현 · 질문별 근거 생성 스트림 연결 · 2026-10-25
 
-[새 SDK 계약](../changes/guarded-question-evidence.md). 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 원문/질문/인용·별도 저장 결과를 재검증하고 실패에도 관측된 비용과 취소를 유지한다. 합성 검증을 실제 모델 의미/제공자 과금·앱 인수로 세지 않는다. 실제 versioned worker/합산 예산/권한/복구 연결이 다음 단계이며 Sites 게시 영수증은 최종 인계에 기록한다.
+[새 SDK 계약](../changes/guarded-question-evidence.md). 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 원문/질문/인용·별도 저장 결과를 재검증하고 실패에도 관측된 비용과 취소를 유지한다. 합성 검증을 실제 모델 의미/제공자 과금·앱 인수로 세지 않는다. 실제 versioned worker/합산 예산/권한/복구 연결이 다음 단계이며 Sites 게시 결과는 아래 최종 인계를 따른다.
 
 ## 최종 인계 · Responses 스트림·사용량 관측 · 2026-10-25 한국 시간
 
@@ -15,6 +15,8 @@ Sitesv128 public/native succeeded(2026-10-25T10:44:16.362351+00:00), source `9fe
 [Draft PR106](https://github.com/DigestWorks/IssueDigest/pull/106)은 PR105 기반·미병합이다. 실행1d1d0c7·신규119/새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 검토 C0I0M0·미해결0이다. 실제 native SDK+모의 HTTP에서 단일 요청/무재시도·전체 입력/strict schema·닫힘/외부 취소·관측/최종 사용량을 검증했다. 기존470실행/과거 증거는 유지한다.
 
 기록된 v1/v2 인자 각각 네 분할을 새 transport로 재생했다. v2는 공백 감지 후 terminal까지 읽지 않고 HTTP를 닫아 known_usage None/usage_complete False를 유지한다. v1 미완료는 관측된 최종 사용량을 보존하고 실패한다. 모의 HTTP8회/제공자 호출0이며 실제 과금 절감·계산 취소·의미 성공의 증거가 아니다. 생성 SDK/worker 연결·실제 완료/의미·앱 인수는 후속이고 앱/worker/main 활성화0이다. 자체QA3개/전용 익명볼륨3개를 정리하고25590포트 닫힘을 확인했다. Sites/현재SDD 정리를 마무리한다.
+
+최종 인계: [Draft PR107](https://github.com/DigestWorks/IssueDigest/pull/107)·Sites v129 게시 성공(이전v128/변경6문서 정확 사본 보존). 사이트 문서 기준은dfd3c93, Site source ebe02c1이며 이후 인계 영수증은 저장소를 따른다. 자체 QA1개/전용 volume1개를 정리했다. 실제 모델 호출0·앱/worker/main 활성화0이며 다음은 실제 모델 의미·versioned worker/합산 예산/권한/복구 인수다.
 
 ## 진행 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
 

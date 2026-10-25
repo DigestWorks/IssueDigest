@@ -22,7 +22,7 @@ Read test-driven-development skill. RED tests before implementation, then GREEN 
 
 - [x] Independent task and whole-branch review C0I0M0, full repository checks.
 - [x] Existing472 execution files/private69 prior-evidence integrity, documentation and privacy checks.
-- [ ] Draft PR, plan summary/history update or explicit Sites pending, own QA cleanup. App/worker/provider acceptance remains separate.
+- [x] Draft PR107, Sitesv129/previousv128/6exact document snapshots, own QA1/volume1 cleanup. App/worker/provider acceptance remains separate.
 
 ## 판단과 영향
 
@@ -32,3 +32,5 @@ Read test-driven-development skill. RED tests before implementation, then GREEN 
 ## 검증 결과
 
 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 원문/title/bill metadata 변경, 불완전/공백/취소, 영수증 변조와 모든 required 필드 누락을 합성으로 확인했다. 초기 RED24개 부재 실패→GREEN24, 추가 한도 초과 사용량 보존 결함1개를 재현·수정한 뒤 최종33개/관련287개를 통과했다. 전체 검사는 실패/skip/warning0이며 실제 provider semantic·worker/app readiness를 인증하지 않는다.
+
+최종 인계: [Draft PR107](https://github.com/DigestWorks/IssueDigest/pull/107)·Sites v129 게시 성공(이전v128/변경6문서 정확 사본 보존). 사이트 문서 기준은dfd3c93, Site source ebe02c1이며 이후 인계 영수증은 저장소를 따른다. 자체 QA1개/전용 volume1개를 정리했다. 실제 모델 호출0·앱/worker/main 활성화0이며 다음은 실제 모델 의미·versioned worker/합산 예산/권한/복구 인수다.
