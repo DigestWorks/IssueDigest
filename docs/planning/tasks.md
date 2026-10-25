@@ -1,3 +1,12 @@
+## 실제 관측 · 질문별 근거 스트림 · 2026-10-25
+
+- [x] [원문/Q2/기준/단일 요청 사전 고정](../research/guarded-question-acceptance.md)·474실행/이전SDK36/과거 실제58·진단66 증거 보존.
+- [x] 실제1요청/HTTP200·completed·최종usage2,387/2,569·SDKoutput거부·재호출0.
+- [x] 원문 참조17회 exact·앞2명제 주체/서술어 근거 누락과uncertain 불일치 진단. 필수3/전체12 의미 미평가 유지.
+- [x] 독립 증거 검토 C0I0M0·사전 고정/기존 실행·과거 증거·문서/비공개자료 검사.
+- [ ] Draft PR/Sites 인계.
+- [ ] 주체/서술어 참조·uncertainty 보완 → 실제 구조/의미 → versioned worker/예산/권한/복구·앱 인수.
+
 ## 진행 · 질문별 근거 생성 스트림 연결 · 2026-10-25
 
 - [x] [정확한 입력·원문 재검증·관측 비용 계약](../changes/guarded-question-evidence.md) 고정.
