@@ -1,3 +1,7 @@
+## M3 실제 인수 · 생성 스트림의 원문 계약 거부
+
+[단일 실제 요청](../research/guarded-question-acceptance.md)은 모델 완료/최종 사용량까지 수신했지만 주체·서술어 참조 누락과 불확실 상태 불일치로 SDK가 거부했다. 인용 위치17회 exact를 의미 성공으로 세지 않으며 재호출/보정하지 않는다. 출력 지침·참조/uncertainty를 먼저 보완하고 실제 구조/의미를 인수한 뒤 versioned worker·합산 예산/권한/복구·앱 연결로 진행한다. 기존 앱·worker·SDK는 유지한다.
+
 ## M3 진행 · 원문 검증과 중단 가능한 생성 연결
 
 [별도 async SDK](../changes/guarded-question-evidence.md)로 정확한 source·질문과 native 스트림을 연결하고, 완료 응답만 현재 원문·인용·저장 영수증 검증으로 넘긴다. 기존 v2와 앱 실행은 유지한다. 합성 연결33/관련287·새전체9,468개(Python8,648+JS820)·독립 검토를 통과했으며 실제 모델 의미·versioned worker의 합산 예산/권한/내구 복구·개발 반영은 후속 인수다.
