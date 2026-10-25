@@ -6,7 +6,10 @@ This result is not a stored generation receipt and does not activate any app run
 
 import asyncio
 import json
+import math
 import re
+import sys
+from collections.abc import AsyncIterator
 from dataclasses import dataclass
 from typing import Any, Literal, cast
 
@@ -28,6 +31,7 @@ GUARDED_RESPONSES_PROFILE: Literal["guarded-responses-tool-v1"] = "guarded-respo
 STREAM_TOTAL_TOKEN_LIMIT = 20000
 STREAM_OUTPUT_TOKEN_LIMIT = 4000
 STREAM_DEADLINE_SECONDS = 60
+STREAM_CLOSE_DEADLINE_SECONDS = 1
 STREAM_ARGUMENT_BYTE_LIMIT = 80000
 STREAM_EVENT_LIMIT = 10000
 
@@ -105,6 +109,52 @@ class GuardedResponsesCancelled(asyncio.CancelledError, _Observations):
 class _Failure(Exception):
     def __init__(self, reason: Reason) -> None:
         self.reason = reason
+
+
+class _BoundedBody(AsyncByteStream):
+    """Own only an acquired response body; confirm one cooperative close attempt."""
+
+    def __init__(self, body: AsyncByteStream, operation_deadline: asyncio.Timeout) -> None:
+        self._body = body
+        self._operation_deadline = operation_deadline
+        self._attempted = False
+        self.confirmed_closed = False
+        self._failure: Reason | None = None
+
+    async def __aiter__(self) -> AsyncIterator[bytes]:
+        async for chunk in self._body:
+            yield chunk
+
+    async def aclose(self) -> None:
+        if self.confirmed_closed:
+            return
+        if self._attempted:
+            raise _Failure(self._failure or "transport") from None
+        self._attempted = True
+        # Native AsyncStream invokes close from its generator's finally. Preserve
+        # that already-active failure if body cleanup raises a different exception.
+        pending = sys.exception()
+        primary: Reason | None = None
+        if isinstance(pending, asyncio.CancelledError):
+            primary = "timeout" if self._operation_deadline.expired() else "cancelled"
+        elif isinstance(pending, TimeoutError):
+            primary = "timeout"
+        elif isinstance(pending, Exception):
+            primary = "transport"
+        close_deadline = asyncio.timeout(STREAM_CLOSE_DEADLINE_SECONDS)
+        try:
+            async with close_deadline:
+                await self._body.aclose()
+                self.confirmed_closed = True
+            if close_deadline.expired():
+                raise _Failure("timeout")
+        except asyncio.CancelledError:
+            self._failure = primary or "cancelled"
+            raise
+        except Exception:
+            close_reason: Reason = "timeout" if close_deadline.expired() else "transport"
+            self._failure = primary or close_reason
+            raise _Failure(self._failure) from None
 
 
 def _require(condition: bool, reason: Reason = "protocol") -> None:
@@ -324,6 +374,17 @@ def _constant(value: str) -> Any:
     raise _Failure("output")
 
 
+def _finite_numbers(value: Any) -> None:
+    if type(value) is float:
+        _require(math.isfinite(value), "output")
+    elif isinstance(value, dict):
+        for child in value.values():
+            _finite_numbers(child)
+    elif isinstance(value, list):
+        for child in value:
+            _finite_numbers(child)
+
+
 def _prepare(
     client: AsyncOpenAI, model: str, prompt: str, instructions: str, tool: ToolOutput[BaseModel]
 ) -> FunctionToolParam:
@@ -371,6 +432,7 @@ async def run_guarded_responses_tool(
         raise GuardedResponsesError(reason="input") from None
     state = _State(native["name"])
     stream: AsyncStream[ResponseStreamEvent] | None = None
+    body: _BoundedBody | None = None
     reason: Reason | None = None
     output: BaseModel | None = None
     stream_closed = False
@@ -397,6 +459,8 @@ async def run_guarded_responses_tool(
                 max_output_tokens=STREAM_OUTPUT_TOKEN_LIMIT,
                 timeout=STREAM_DEADLINE_SECONDS,
             )
+            body = _BoundedBody(cast(AsyncByteStream, stream.response.stream), deadline)
+            stream.response.stream = body
             terminal = False
             async for event in stream:
                 if state.consume(event.model_dump(exclude_unset=True, warnings=False)):
@@ -408,6 +472,7 @@ async def run_guarded_responses_tool(
                     state.arguments, object_pairs_hook=_pairs, parse_constant=_constant
                 )
                 _require(type(parsed) is dict, "output")
+                _finite_numbers(parsed)
                 output_type = cast(type[BaseModel], tool.output)
                 output = output_type.model_validate_json(state.arguments, strict=True)
                 _require(type(output) is output_type, "output")
@@ -424,6 +489,11 @@ async def run_guarded_responses_tool(
         reason = "whitespace"
     except _Failure as exc:
         reason = exc.reason
+        cancelled = reason == "cancelled"
+        if task is not None and task.cancelling() > cancellations:
+            cancelled = True
+            if reason == "timeout":
+                reason = "cancelled"
     except Exception:
         # The SDK closes in its generator's finally. A failed close may replace
         # CancelledError; preserve the task's outstanding cancellation intent.
@@ -434,21 +504,26 @@ async def run_guarded_responses_tool(
             reason = "timeout" if deadline.expired() else "transport"
     finally:
         if stream is not None:
+            close_deadline = asyncio.timeout(STREAM_CLOSE_DEADLINE_SECONDS)
             try:
-                # httpx marks is_closed before awaiting its body close. Confirm closure
-                # explicitly even if native EOF/error cleanup already set that flag.
-                if stream.response.is_closed:
-                    await cast(AsyncByteStream, stream.response.stream).aclose()
-                else:
-                    await stream.close()
-                stream_closed = stream.response.is_closed
+                async with close_deadline:
+                    # httpx marks is_closed before awaiting its body close. Confirm closure
+                    # explicitly even if native EOF/error cleanup already set that flag.
+                    if stream.response.is_closed:
+                        await cast(AsyncByteStream, stream.response.stream).aclose()
+                    else:
+                        await stream.close()
+                    stream_closed = (
+                        body is not None and body.confirmed_closed and stream.response.is_closed
+                    )
             except asyncio.CancelledError:
                 cancelled = True
                 reason = reason or "cancelled"
             except Exception:
                 if task is not None and task.cancelling() > cancellations:
                     cancelled = True
-                reason = reason or ("cancelled" if cancelled else "transport")
+                close_reason: Reason = "timeout" if close_deadline.expired() else "transport"
+                reason = reason or ("cancelled" if cancelled else close_reason)
     if reason is not None:
         error_type = GuardedResponsesCancelled if cancelled else GuardedResponsesError
         raise error_type(

@@ -802,3 +802,155 @@ def test_external_cancellation_during_failure_cleanup_still_propagates_as_cancel
     assert isinstance(result, api().GuardedResponsesCancelled)
     assert result.reason == "whitespace"
     assert result.stream_closed is False
+
+
+@pytest.mark.parametrize("number", ["1e999", "-1e999"])
+@pytest.mark.parametrize("location", ["scalar", "object", "array"])
+def test_exponent_overflow_is_rejected_before_strict_output(number: str, location: str) -> None:
+    class FloatOutput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        text: float
+
+    class NestedOutput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        text: dict[str, float]
+
+    class ArrayOutput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        text: tuple[float, ...]
+
+    value, output = {
+        "scalar": (number, FloatOutput),
+        "object": ('{"nested":' + number + "}", NestedOutput),
+        "array": ("[" + number + "]", ArrayOutput),
+    }[location]
+    arguments = '{"text":' + value + "}"
+    result, _, _ = run(
+        events(arguments), kwargs=dict(tool=ToolOutput(output, name="answer", strict=True))
+    )
+    failure(result, "output", known=USAGE, complete=True)
+
+
+@pytest.mark.parametrize("primary", ["success", "whitespace", "timeout"])
+@pytest.mark.parametrize("mask_close_timeout", [False, True])
+def test_stalled_cooperative_finally_close_has_its_own_deadline(
+    primary: str, mask_close_timeout: bool, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(api(), "STREAM_CLOSE_DEADLINE_SECONDS", 0.005, raising=False)
+    monkeypatch.setattr(api(), "STREAM_DEADLINE_SECONDS", 0.005 if primary == "timeout" else 60)
+
+    async def scenario() -> Any:
+        release = asyncio.Event()
+
+        class StalledBody(Body):
+            attempts = 0
+
+            async def aclose(self) -> None:
+                self.attempts += 1
+                # A confirmed native close is idempotent; it must not reach the
+                # second-call stall during the transport's final confirmation.
+                if primary == "timeout" and self.attempts == 1:
+                    await super().aclose()
+                    return
+                try:
+                    await release.wait()
+                except asyncio.CancelledError:
+                    if mask_close_timeout:
+                        raise RuntimeError("sensitive close timeout details") from None
+                    raise
+                await super().aclose()
+
+        rows = events() if primary != "timeout" else events()[:1]
+        if primary != "success":
+            rows[0]["response"]["usage"] = dict(input_tokens=10, output_tokens=5, total_tokens=15)
+        if primary == "whitespace":
+            rows[2]["delta"] = " " * 257
+        body = StalledBody(rows, wait=primary == "timeout")
+        # The release keeps the RED run finite without timing assertions. The fixed
+        # path must finish before this fallback event fires and leave no cleanup task.
+        timer = asyncio.get_running_loop().call_later(0.03, release.set)
+        try:
+            result, _, _ = await harness(body=body)
+            assert not release.is_set()
+            assert not isinstance(result, asyncio.CancelledError)
+            failure(
+                result,
+                "timeout" if primary == "success" else primary,
+                known=USAGE,
+                complete=primary == "success",
+                closed=primary == "timeout",
+            )
+            assert body.attempts == 1
+        finally:
+            timer.cancel()
+
+    asyncio.run(scenario())
+
+
+@pytest.mark.parametrize("primary", ["timeout", "cancelled", "transport"])
+def test_native_finally_cooperative_close_is_bounded_on_pending_read_failure(
+    primary: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(api(), "STREAM_CLOSE_DEADLINE_SECONDS", 0.005)
+    monkeypatch.setattr(api(), "STREAM_DEADLINE_SECONDS", 0.005 if primary == "timeout" else 60)
+
+    async def scenario() -> None:
+        release = asyncio.Event()
+
+        class StalledBody(Body):
+            attempts = 0
+
+            async def aclose(self) -> None:
+                self.attempts += 1
+                await release.wait()
+                await super().aclose()
+
+        rows = events()[:1]
+        rows[0]["response"]["usage"] = dict(input_tokens=10, output_tokens=5, total_tokens=15)
+        body = StalledBody(rows, wait=primary != "transport", read_error=primary == "transport")
+        timer = asyncio.get_running_loop().call_later(0.03, release.set)
+        try:
+            result, _, _ = await harness(body=body, cancel=primary == "cancelled")
+            assert not release.is_set()
+            assert not body.closed
+            assert body.attempts == 1
+            if primary == "cancelled":
+                assert isinstance(result, api().GuardedResponsesCancelled)
+                assert result.reason == "cancelled"
+                assert result.known_usage.model_dump() == USAGE
+                assert result.usage_complete is False
+                assert result.stream_closed is False
+            else:
+                failure(result, primary, known=USAGE, closed=False)
+        finally:
+            timer.cancel()
+
+    asyncio.run(scenario())
+
+
+def test_native_cancelled_error_survives_close_failure_without_task_cancel_count() -> None:
+    class CancelledBody(Body):
+        async def __aiter__(self) -> AsyncIterator[bytes]:
+            async for chunk in super().__aiter__():
+                yield chunk
+            raise asyncio.CancelledError("sensitive transport cancellation")
+
+    result, _, _ = run(body=CancelledBody(events()[:1], close_error=True))
+    assert isinstance(result, api().GuardedResponsesCancelled)
+    assert result.reason == "cancelled"
+    assert result.stream_closed is False
+    assert str(result) == "Guarded Responses request failed"
+
+
+@pytest.mark.parametrize("number, expected", [("1e308", 1e308), ("-1e308", -1e308), ("0.0", 0.0)])
+def test_finite_float_numbers_still_validate(number: str, expected: float) -> None:
+    class FloatOutput(BaseModel):
+        model_config = ConfigDict(extra="forbid")
+        text: float
+
+    result, _, _ = run(
+        events('{"text":' + number + "}"),
+        kwargs=dict(tool=ToolOutput(FloatOutput, name="answer", strict=True)),
+    )
+    assert isinstance(result, api().GuardedResponsesToolResult)
+    assert result.output.text == expected
