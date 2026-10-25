@@ -1,3 +1,11 @@
+## 최종 인계 · Responses 스트림·사용량 관측 · 2026-10-25 한국 시간
+
+[Draft PR106](https://github.com/DigestWorks/IssueDigest/pull/106)은 PR105 기반·미병합이다. 런타임ab7649a/테스트 격리1d1d0c7·신규119/전체9,435QA(Python8,615+JS820), 정적 검사/빌드/OpenAPI·실패/skip/warning0이다. 초기 태스크의 close/숫자 overflow와 전체 검토의 최초 오류 보존을 수정·재검토했고, 전체 실행에서 드러난 새 테스트 모듈 격리는 순서300개·좁은 검토로 보완했다. 최종 검토 C0I0M0·미해결0, 중단/실패 전체 실행은 성공으로 세지 않고 별도 보존한다.
+
+Sitesv128 public/native succeeded(2026-10-25T10:44:16.362351+00:00), source `9fe955ef5a95531070769f88d5e94cf964fd5a41`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_49e453ff6b7081918915c1f602258b15`, deployment `appgdep_6adddd73bf44819190c5b4f6f3a1da0c`다. 이전v127/변경7문서 정확 사본(be4c102)을 보존했고 HTML113/로컬대상3,143/공개텍스트339·비공개60+12항목 제외를 확인했다. 새브라우저QA/사용자탭 이동0이며 게시 이후 완료 기록은 저장소 원본을 따른다.
+
+기존470실행/과거 증거는 불변이고 단계 전체 제공자 호출0이다. 최종 코드 기준8회 모의 HTTP는 v2 조기닫힘/최종 usage 미관측과 v1 미완료/알려진 최종 usage를 보존했다. 실제 제공자의 계산 취소·과금 절감·의미·앱 인수로 확대하지 않는다. 자체QA3개/전용 익명볼륨3개·현재SDD만 정리하고25590닫힘·다른자원 변경0을 확인했다. 여섯 판단과 비용/검증을 명세·PR·비공개에 남겼으며 브랜치/격리폴더는 유지한다. 앱/worker/main 활성화0, 다음은 생성 SDK/worker 연결·실제 완료/의미·앱 인수다. 최종 문서 push의 원격CI는 로컬 검증과 구분한다.
+
 ## 검증 완료 · 중단 가능한 Responses 스트림 · 2026-10-25 한국 시간
 
 [Draft PR106](https://github.com/DigestWorks/IssueDigest/pull/106)은 PR105 기반·미병합이다. 실행1d1d0c7·신규119/새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 검토 C0I0M0·미해결0이다. 실제 native SDK+모의 HTTP에서 단일 요청/무재시도·전체 입력/strict schema·닫힘/외부 취소·관측/최종 사용량을 검증했다. 기존470실행/과거 증거는 유지한다.

@@ -36,7 +36,7 @@ Read test-driven-development. Use real AsyncOpenAI with max_retries=0 and httpx.
 
 - [x] Independent task/wholebranch review C0I0M0·새전체9,435개(Python8,615+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0.
 - [x] Old recorded v1/v2 arguments through new mocked native HTTP/SSE path, no provider; preserve470/priorproof/unknown paid usage.
-- [ ] Docs/privacy/links·Draft PR basePR105·Sites previousv127/exact changed documents·ownQA/SDD cleanup; no app/worker/main activation.
+- [x] Docs/privacy/links·Draft PR106 basePR105·Sitesv128/previousv127·7exact changed documents·ownQA3/volume3/SDD cleanup; no app/worker/main activation.
 
 ## 판단과 비용
 
