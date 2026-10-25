@@ -4,7 +4,8 @@ import asyncio
 import importlib
 import importlib.util
 import json
-from collections.abc import AsyncIterator
+import sys
+from collections.abc import AsyncIterator, Iterator
 from copy import deepcopy
 from dataclasses import FrozenInstanceError
 from typing import Any, cast
@@ -14,6 +15,25 @@ import pytest
 from openai import AsyncOpenAI
 from pydantic import BaseModel, ConfigDict
 from pydantic_ai import ToolOutput
+
+
+@pytest.fixture(scope="module", autouse=True)
+def restore_introduced_agent_modules() -> Iterator[None]:
+    package = importlib.import_module("issuedigest_agents")
+    existing = set(sys.modules)
+    attributes = vars(package).copy()
+    try:
+        yield
+    finally:
+        for name in set(sys.modules) - existing:
+            if name.startswith("issuedigest_agents."):
+                sys.modules.pop(name, None)
+        # Restore package attributes too: from-package imports can otherwise reuse
+        # unloaded helpers whose model classes precede later frozen reload tests.
+        for name in set(vars(package)) - attributes.keys():
+            delattr(package, name)
+        for name, value in attributes.items():
+            setattr(package, name, value)
 
 
 class Output(BaseModel):
