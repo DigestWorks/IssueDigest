@@ -2,6 +2,8 @@
 
 [실제 인수 기록](../research/guarded-question-acceptance.md). 같은 전체 원문·Q2·3필수/12기준과 새SDK 모델/settings/body를 사전 고정하고1회 호출했다. HTTP200/completed·31.842초·최종usage입력2,387/출력2,569를 받았으나 source contract가 주체/서술어 근거 누락+uncertain 불일치를 거부해 저장 결과를 만들지 못했고 의미 인수는 진행하지 않았다. 필수3명제는 SDK 거부로 미평가이며 의미0/3으로 세지 않는다. 기존474실행·SDK36/실제58/진단66 증거·원문/기준/실패/비용은 유지한다. 전체9,468QA는 코드 불변의 구조 증거로 재사용하며 신규전체QA/서버자원/앱활성화0이다. 다음은 정확참조·uncertainty 보완이며 독립 증거 검토 C0I0M0·사전 고정/보존·문서/비공개자료 검사를 통과했고 PR·Sites 인계를 진행한다.
 
+최종 인계: [Draft PR108](https://github.com/DigestWorks/IssueDigest/pull/108)·Sitesv130 public/native succeeded, 이전v129/변경6문서 정확 사본(2aac7d7)을 보존했다. Site source `a001c24ca3da84a8a3d67e8479da3b31b7942523`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0e5cc10ff5c08191b2fe1e9ce82629f3`, deployment `appgdep_6ade021330f88191bca7d767ec94cba1`다. HTML115/로컬대상3,270/공개텍스트345·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 신규전체QA/서버자원0, 실제 요청은 이번 최초1회뿐이다. 이후 인계 기록은 저장소 원본을 따르며 main/앱/worker는 유지한다.
+
 ## 현재 구현 · 질문별 근거 생성 스트림 연결 · 2026-10-25
 
 [새 SDK 계약](../changes/guarded-question-evidence.md). 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 원문/질문/인용·별도 저장 결과를 재검증하고 실패에도 관측된 비용과 취소를 유지한다. 합성 검증을 실제 모델 의미/제공자 과금·앱 인수로 세지 않는다. 실제 versioned worker/합산 예산/권한/복구 연결이 다음 단계이며 Sites 게시 결과는 아래 최종 인계를 따른다.

@@ -45,3 +45,5 @@ SDK 거부이므로 Q2필수P5/P9/P10은 모두 미평가다. 부분 구조를 �
 ## 검토·보존
 
 독립 증거 검토 C0/I0/M0로 사전 고정11파일·현재474실행/이전SDK36/과거실제58·진단66 증거와 정확 송신 body·응답 완료/최종usage·SDK 거부를 확인했다. 원래 인자의 native duplicate-key/nonfinite guard도 별도로 통과해 source contract 거부 원인과 구분했다. 수신 SSE1,156events와 HTTP1,311chunks를 구분했다. 실제 제공자 측 요청 audit/최종 청구서·의미·앱 인수는 미확인이다. PR107 CI도 통과했으나 이번 문서·제한 연구의 실제 의미 통과로 세지 않는다. 문서 링크·개인정보 검사·게시 기록은 최종 인계를 따른다.
+
+최종 인계: [Draft PR108](https://github.com/DigestWorks/IssueDigest/pull/108)·Sitesv130 public/native succeeded, 이전v129/변경6문서 정확 사본(2aac7d7)을 보존했다. Site source `a001c24ca3da84a8a3d67e8479da3b31b7942523`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0e5cc10ff5c08191b2fe1e9ce82629f3`, deployment `appgdep_6ade021330f88191bca7d767ec94cba1`다. HTML115/로컬대상3,270/공개텍스트345·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 신규전체QA/서버자원0, 실제 요청은 이번 최초1회뿐이다. 이후 인계 기록은 저장소 원본을 따르며 main/앱/worker는 유지한다.
