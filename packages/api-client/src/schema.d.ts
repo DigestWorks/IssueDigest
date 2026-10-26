@@ -140,6 +140,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Collection */
+        get: operations["collection_api_v1_workspaces__workspace_id__briefing_jobs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}": {
         parameters: {
             query?: never;
@@ -219,6 +236,23 @@ export interface paths {
         get: operations["load_evidence_api_v1_workspaces__workspace_id__evidence__snapshot_id__get"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/question-briefings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit */
+        post: operations["submit_api_v1_workspaces__workspace_id__question_briefings_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -350,6 +384,26 @@ export interface components {
             quotes: components["schemas"]["BriefingQuoteView"][];
             /** Text */
             text: string;
+        };
+        /** BriefingJobList */
+        BriefingJobList: {
+            /** Items */
+            items: components["schemas"]["BriefingJobSummary"][];
+        };
+        /** BriefingJobSummary */
+        BriefingJobSummary: {
+            /**
+             * Job Id
+             * Format: uuid4
+             */
+            job_id: string;
+            /** Question */
+            question: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "completed" | "failed" | "cancelled" | "indeterminate";
         };
         /** BriefingJobView */
         BriefingJobView: {
@@ -1648,6 +1702,57 @@ export interface components {
             /** Title */
             title: string;
         };
+        /** QuestionSubmissionErrorEvent */
+        QuestionSubmissionErrorEvent: {
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "unauthorized" | "forbidden" | "conflict" | "budget" | "unavailable";
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+        };
+        /** QuestionSubmissionProgress */
+        QuestionSubmissionProgress: {
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+            /**
+             * Stage
+             * @constant
+             */
+            stage: "analysing";
+        };
+        /** QuestionSubmissionRequest */
+        QuestionSubmissionRequest: {
+            /** Question */
+            question: string;
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+        };
+        /** QuestionSubmissionResult */
+        QuestionSubmissionResult: {
+            /** Job Id */
+            job_id: string | null;
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "briefing" | "no_match" | "blocked";
+            /**
+             * Request Id
+             * Format: uuid4
+             */
+            request_id: string;
+        };
         /** ReconciliationResolvedPayload */
         ReconciliationResolvedPayload: {
             /** Attempt Ids */
@@ -2859,6 +2964,37 @@ export interface operations {
             };
         };
     };
+    collection_api_v1_workspaces__workspace_id__briefing_jobs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BriefingJobList"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     read_api_v1_workspaces__workspace_id__briefing_jobs__job_id__get: {
         parameters: {
             query?: never;
@@ -3162,6 +3298,44 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["EvidenceUnavailableError"];
+                };
+            };
+        };
+    };
+    submit_api_v1_workspaces__workspace_id__question_briefings_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["QuestionSubmissionRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    "Cache-Control"?: "no-store";
+                    /** @description Server-generated request UUID. */
+                    "X-Request-ID"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "text/event-stream": string;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

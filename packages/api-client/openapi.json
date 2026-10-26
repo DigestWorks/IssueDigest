@@ -124,6 +124,59 @@
         "title": "BriefingClaimView",
         "type": "object"
       },
+      "BriefingJobList": {
+        "additionalProperties": false,
+        "properties": {
+          "items": {
+            "items": {
+              "$ref": "#/components/schemas/BriefingJobSummary"
+            },
+            "maxItems": 50,
+            "title": "Items",
+            "type": "array"
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "title": "BriefingJobList",
+        "type": "object"
+      },
+      "BriefingJobSummary": {
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "format": "uuid4",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed",
+              "cancelled",
+              "indeterminate"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "question",
+          "status"
+        ],
+        "title": "BriefingJobSummary",
+        "type": "object"
+      },
       "BriefingJobView": {
         "additionalProperties": false,
         "properties": {
@@ -3268,6 +3321,114 @@
         "title": "PublicSourceAttribution",
         "type": "object"
       },
+      "QuestionSubmissionErrorEvent": {
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "unauthorized",
+              "forbidden",
+              "conflict",
+              "budget",
+              "unavailable"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "kind"
+        ],
+        "title": "QuestionSubmissionErrorEvent",
+        "type": "object"
+      },
+      "QuestionSubmissionProgress": {
+        "additionalProperties": false,
+        "properties": {
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          },
+          "stage": {
+            "const": "analysing",
+            "title": "Stage",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "stage"
+        ],
+        "title": "QuestionSubmissionProgress",
+        "type": "object"
+      },
+      "QuestionSubmissionRequest": {
+        "additionalProperties": false,
+        "properties": {
+          "question": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "question"
+        ],
+        "title": "QuestionSubmissionRequest",
+        "type": "object"
+      },
+      "QuestionSubmissionResult": {
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "anyOf": [
+              {
+                "format": "uuid4",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Job Id"
+          },
+          "kind": {
+            "enum": [
+              "briefing",
+              "no_match",
+              "blocked"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "request_id": {
+            "format": "uuid4",
+            "title": "Request Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "kind",
+          "job_id"
+        ],
+        "title": "QuestionSubmissionResult",
+        "type": "object"
+      },
       "ReconciliationResolvedPayload": {
         "additionalProperties": false,
         "properties": {
@@ -6073,6 +6234,51 @@
         "summary": "Status"
       }
     },
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs": {
+      "get": {
+        "operationId": "collection_api_v1_workspaces__workspace_id__briefing_jobs_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefingJobList"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Collection"
+      }
+    },
     "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}": {
       "get": {
         "operationId": "read_api_v1_workspaces__workspace_id__briefing_jobs__job_id__get",
@@ -6708,6 +6914,76 @@
           }
         ],
         "summary": "Load Evidence"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/question-briefings": {
+      "post": {
+        "operationId": "submit_api_v1_workspaces__workspace_id__question_briefings_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/QuestionSubmissionRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/event-stream": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Successful Response",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store",
+                  "type": "string"
+                }
+              },
+              "X-Request-ID": {
+                "description": "Server-generated request UUID.",
+                "schema": {
+                  "format": "uuid",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Submit"
       }
     },
     "/api/v1/workspaces/{workspace_id}/research": {

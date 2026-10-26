@@ -20,6 +20,14 @@ from issuedigest_domain import (
     SubmissionAssessment,
     UsageBook,
 )
+from issuedigest_domain.question_submission import (
+    BriefingJobList,
+    BriefingJobSummary,
+    QuestionSubmissionErrorEvent,
+    QuestionSubmissionProgress,
+    QuestionSubmissionRequest,
+    QuestionSubmissionResult,
+)
 from issuedigest_domain.research_journey import ResearchRequest
 from pydantic.json_schema import models_json_schema
 
@@ -31,6 +39,12 @@ def add_evidence_schemas(schema: dict[str, Any]) -> dict[str, Any]:
     _, definitions = models_json_schema(
         [
             (ResearchRequest, "validation"),
+            (BriefingJobList, "validation"),
+            (BriefingJobSummary, "validation"),
+            (QuestionSubmissionRequest, "validation"),
+            (QuestionSubmissionResult, "validation"),
+            (QuestionSubmissionProgress, "validation"),
+            (QuestionSubmissionErrorEvent, "validation"),
             (RunHistory, "validation"),
             (ReplayBatch, "validation"),
             (SubmissionAssessment, "validation"),

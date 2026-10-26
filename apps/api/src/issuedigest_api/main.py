@@ -10,6 +10,7 @@ from fastapi import FastAPI, Request, Response
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from issuedigest_agents.question_submission import QuestionExecutionService
 from issuedigest_domain.status import Liveness, ServiceStatus
 from issuedigest_storage import EvidenceAccessRepository, WorkspaceAccessRepository
 from issuedigest_storage.briefing_jobs import BriefingJobRepository
@@ -22,6 +23,7 @@ from .briefings import briefings_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
 from .evidence import evidence_router
+from .question_submissions import question_submissions_router
 from .research import research_router
 from .search import search_router
 from .workspace_catalog import catalog_router
@@ -56,7 +58,10 @@ def _public_path(path: str) -> bool:
 def _protected_path(path: str) -> bool:
     return (
         _auth_path(path)
-        or re.fullmatch(r"/api/v1/workspaces/[^/]+/briefing-jobs/[^/]+(?:/cancel)?/?", path)
+        or re.fullmatch(
+            r"/api/v1/workspaces/[^/]+/(?:question-briefings|briefing-jobs(?:/[^/]+(?:/cancel)?)?)/?",
+            path,
+        )
         is not None
         or re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence(?:/[^/]+)?/?", path) is not None
         or re.fullmatch(
@@ -75,6 +80,7 @@ def create_app(
     research_model_available: bool = True,
     briefing_job_repository: BriefingJobRepository | None = None,
     public_repository: PublicBriefingRepository | None = None,
+    question_service: QuestionExecutionService | None = None,
 ) -> IssueDigestAPI:
     """Configure only from trusted server code; the default protected route fails closed."""
     application = IssueDigestAPI(title="IssueDigest API", version="v1")
@@ -136,7 +142,7 @@ def create_app(
                 },
             )
         if (
-            "/briefing-jobs/" in request.url.path
+            ("/briefing-jobs" in request.url.path or "/question-briefings" in request.url.path)
             and protected
             and response.status_code in {307, 308}
         ):
@@ -178,6 +184,7 @@ def create_app(
         research_router(research_repository, auth_service, model_available=research_model_available)
     )
     application.include_router(briefing_jobs_router(briefing_job_repository, auth_service))
+    application.include_router(question_submissions_router(question_service, auth_service))
     application.include_router(evidence_router(access_repository))
     application.include_router(briefings_router(public_repository))
     return application

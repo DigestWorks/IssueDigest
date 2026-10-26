@@ -7,7 +7,7 @@ transaction gate is held across a provider call. Reservations are never refunded
 import re
 from dataclasses import asdict, dataclass
 from decimal import Decimal
-from typing import Any
+from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from issuedigest_domain import EvidenceBundle
@@ -24,6 +24,7 @@ from .repository import StorageCorruption
 from .research import (
     ResearchBudgetExceeded,
     ResearchConflict,
+    ResearchForbidden,
     ResearchRepository,
 )
 from .research_schema import research_budget_months
@@ -70,6 +71,10 @@ def _usage(value: object) -> None:
         or value["requests"] != 1
     ):
         raise ValueError("Invalid observed usage")
+
+
+if TYPE_CHECKING:
+    from issuedigest_domain.question_submission import BriefingJobList
 
 
 @dataclass(frozen=True)
@@ -252,6 +257,41 @@ class BriefingJobRepository:
         if packet.inputs_sha256 != job.inputs_sha256 or packet.question != job.question:
             raise StorageCorruption("Briefing inputs changed")
         return packet
+
+    def list_current(self, token: str, workspace_id: UUID) -> "BriefingJobList | None":
+        """Stable bounded metadata under the same current shared rights as detail reads."""
+        from issuedigest_domain.question_submission import BriefingJobList, BriefingJobSummary
+
+        _id(workspace_id)
+
+        def read(conn: Connection) -> BriefingJobList | None:
+            EvidenceJobRepository._lock_jobs(conn)
+            if self._base._actor(conn, token, workspace_id) is None:
+                return None
+            rows = (
+                conn.execute(
+                    select(briefing_jobs)
+                    .where(briefing_jobs.c.workspace_id == workspace_id)
+                    .order_by(briefing_jobs.c.job_id)
+                    .limit(50)
+                    .with_for_update()
+                )
+                .mappings()
+                .all()
+            )
+            items = []
+            for row in rows:
+                if not ResearchRepository._member(conn, row["actor_id"], workspace_id, write=True):
+                    raise ResearchForbidden("Briefing job authority unavailable")
+                self._current(conn, row)
+                items.append(
+                    BriefingJobSummary(
+                        job_id=row["job_id"], question=row["question"], status=row["status"]
+                    )
+                )
+            return BriefingJobList(items=tuple(items))
+
+        return self._base._transaction(read)
 
     def inputs(
         self, token: str, workspace_id: UUID, plan_id: UUID, child_job_ids: tuple[UUID, ...]
