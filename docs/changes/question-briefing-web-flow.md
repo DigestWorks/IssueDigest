@@ -38,7 +38,7 @@ Task1 DTO/Protocol을 사용한다. 새 worker/question_service.py, scripts/ques
 
 ## Task 3 — 클라이언트·질문/기록 화면 연결
 
-- [ ] TDD 구현/태스크 검토.
+- [x] TDD 구현/태스크 검토.
 
 새 api-client/question-submissions.ts, web/question-composer.tsx, web/question-pending.ts, web/briefing-job-list.tsx, web/question-composer.css 및 새 client/화면 tests .test.tsx. 승인 수정: api-client/index.ts 새exports, web/routes/home.tsx 새질문/기록 컴포넌트 연결만. 기존 ResearchDesk·historical read·public·login·header·briefing reader는 수정하지 않는다. 기존 home/guest 테스트는 실제 변경된 신규질문 trigger를 새 endpoint로 맞추는 부분만 허용하고 기존auth/guest/legacyassertion을 삭제/약화하지 않는다. 기존 독립 ResearchDesk tests는 그대로다. strictSSEparser/auth/headers/idle/total/abort/stale/bodycap·후속EOF/UTF8·requestid mismatch·진짜새요청/같은retry·승인된guesthandoff·account/logoutscoping·loading/실제nav/no_match/blocked·old history/newSQLlist·에러후수동재시도·중복클릭0·XSS plaintext·서버metadataUI미노출을 검증한다. frontend-design skill을 적용하되 기존브랜드미감/문구절제를 우선한다. 기존 테스트를구현에맞춰약화하는 대신 실제UI동작을검사한다. 범위lint/type/test/build·보고/커밋. controller실제브라우저QA는 원래authfixture/mockSSE 응답으로 두테마/모바일/키보드 확인하고 제품에예시를넣지않는다. 서브에이전트 금지.
 

@@ -4,6 +4,9 @@ import '../evidence/reader.css';
 import BrandHeader from '../brand-header';
 import { AuthError, getSession, logout, type AuthFailure, type SessionInfo } from '@issuedigest/api-client';
 import ResearchDesk from '../research';
+import QuestionComposer from '../question-composer';
+import BriefingJobHistory from '../briefing-job-list';
+import {clearPendingQuestion,readPendingQuestion} from '../question-pending';
 import {PublicBriefingList} from '../public-briefings';
 import { useResearchDrafts } from '../research-drafts';
 import { clearGuestQuestionDraft, consumeGuestQuestionDraft, readGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
@@ -51,6 +54,7 @@ export default function Home() {
         const data = result.data;
         drafts.identify(data.user_id, data.memberships.map(item => item.workspace_id));
         const firstWorkspace = data.memberships[0]?.workspace_id ?? '';
+        if (firstWorkspace) readPendingQuestion(data.user_id, firstWorkspace); else clearPendingQuestion();
         const params = entryParams.current;
         const newResearch = !params.has('run') && params.get('view') !== 'saved';
         const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
@@ -59,7 +63,7 @@ export default function Home() {
         setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
         setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
       }
-    }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') drafts.clear(); setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
+    }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') {drafts.clear(); clearPendingQuestion();} setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
     return () => { current = false; controller.abort(); };
   }, [sessionAttempt]);
   useEffect(() => {
@@ -72,7 +76,7 @@ export default function Home() {
     setLogoutPending(true); setLogoutError(null);
     try {
       await logout({ signal: controller.signal });
-      if (mounted.current) { drafts.clear(); clearGuestQuestionDraft(); setRestoredQuestion(null); setGuestQuestion(''); setSession({ kind: 'loading' }); setWorkspaceId(''); void navigate('/login', { replace: true }); }
+      if (mounted.current) { drafts.clear(); clearPendingQuestion(); clearGuestQuestionDraft(); setRestoredQuestion(null); setGuestQuestion(''); setSession({ kind: 'loading' }); setWorkspaceId(''); void navigate('/login', { replace: true }); }
     } catch (error) {
       if (mounted.current) setLogoutError(error instanceof AuthError ? error : new AuthError('network'));
     } finally {
@@ -116,7 +120,12 @@ export default function Home() {
             {session.error.kind !== 'unauthorized' && <SupportInfo requestId={session.error.requestId} />}
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="접근 상태">접근 가능한 자료 범위가 없습니다.</p> : <>
-            {workspaceId && !logoutPending && <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />}
+            {workspaceId && !logoutPending && <>
+              {view === 'research' && !viewParams.has('run') ? <QuestionComposer actor={session.data.user_id} workspaceId={workspaceId} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} onInitialQuestionInitialized={() => setRestoredQuestion(null)} canEdit={membership?.role !== 'viewer'} /> : <>
+                {view === 'saved' && <BriefingJobHistory key={`${session.data.user_id}/${workspaceId}`} workspaceId={workspaceId} />}
+                <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />
+              </>}
+            </>}
           </>)}
         </section>
         {view === 'research' && !viewParams.has('run') && <PublicBriefingList/>}

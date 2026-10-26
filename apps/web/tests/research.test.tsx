@@ -1,8 +1,9 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router';
-import { expect, it, vi } from 'vitest';
+import { afterEach, expect, it, vi } from 'vitest';
 import Home from '../app/routes/home';
+import BriefingJobRoute from '../app/routes/briefing-job';
 import EvidenceRoute from '../app/routes/evidence';
 import App from '../app/root';
 import fixture from '../../../tests/fixtures/canvas-synthetic.json';
@@ -13,6 +14,9 @@ const source = { snapshot_id: snapshot, document_id: '00000000-0000-4000-8000-00
 const session = { schema_version: 1, user_id: snapshot, memberships: [{ workspace_id: workspace, role: 'owner' }] };
 const runId = '00000000-0000-4000-8000-000000000040';
 const now = '2026-10-15T00:00:00Z';
+afterEach(()=>sessionStorage.removeItem('issuedigest.question.pending.v1'));
+function submittedBriefing(input:Record<string,unknown>,jobId=runId){return new Response(`event: result\ndata: ${JSON.stringify({request_id:input.request_id,kind:'briefing',job_id:jobId})}\n\n`,{headers:{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-store','X-Request-ID':runId,'X-Accel-Buffering':'no'}});}
+function completedJob(){const citation=completedRun().result!.canvas.research.evidence[0].citations[0];const quote={snapshot_id:snapshot,citation_id:citation.citation_id,source_title:source.title,start:0,end:Array.from(citation.selector.quote).length,text:citation.selector.quote,citation_quote:citation.selector.quote};return {job_id:runId,question:'법안의 핵심은?',status:'completed',result:{outcome:'answer',message:null,modules:[{kind:'summary',title:'핵심 정리',claims:[{text:'합성 근거에 맞춘 AI 해석',epistemic_status:'source_statement',event_date:null,quotes:[quote]}]}],additional_quotes:[quote]}};}
 function completedRun(): ResearchRun {
   const canvas = structuredClone(fixture) as CanvasBundle;
   const proof = canvas.research.evidence[0];
@@ -102,15 +106,15 @@ it('shows the monthly budget limit without inventing a result or losing the ques
   let posts = 0;
   vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
     if (path.endsWith('/session')) return response(session);
-    if (path.endsWith('/research') && options.method === 'POST') {posts++; return response({}, 429);}
+    if (path.endsWith('/question-briefings') && options.method === 'POST') {posts++; return response({}, 429);}
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: []});
     throw Error(`unexpected ${path}`);
   });
   render(<MemoryRouter><Home /></MemoryRouter>);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
-  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
-  expect(await screen.findByText('이번 달 AI 조사 한도에 도달했습니다.')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
+  expect(await screen.findByText('이번 달 조사 한도에 도달했습니다.')).toBeInTheDocument();
   expect(screen.getByLabelText('무엇을 알아볼까요?')).toHaveValue('법안의 핵심은?');
   expect(screen.queryByRole('article', {name: '브리핑 화면'})).not.toBeInTheDocument();
   expect(posts).toBe(1);
@@ -121,28 +125,29 @@ it('starts one real run, shows progress, restores the generated result and opens
   let postCount = 0;
   vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
     if (path.endsWith('/session')) return response(session);
-    if (path.endsWith('/research') && options.method === 'POST') { postCount++; return response(queuedRun(JSON.parse(options.body as string))); }
+    if (path.endsWith('/question-briefings') && options.method === 'POST') { postCount++; const input=JSON.parse(options.body as string);return new Promise<Response>(resolve => {resolveRun=()=>resolve(submittedBriefing(input));}); }
+    if(path.endsWith(`/briefing-jobs/${runId}`))return response(completedJob());
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
     if (path.endsWith(`/research/${runId}`)) return new Promise<Response>(resolve => { resolveRun = resolve; });
     if (path.endsWith(`/evidence/${snapshot}`)) return response(completedRun().result!.canvas.research.evidence[0]);
     throw Error(`unexpected ${path}`);
   });
-  const router = createMemoryRouter([{path: '/', Component: Home}, {path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute}]);
+  const router = createMemoryRouter([{path: '/', Component: Home}, {path:'/workspaces/:workspaceId/briefings/:jobId',Component:BriefingJobRoute}, {path: '/workspaces/:workspaceId/evidence/:snapshotId', Component: EvidenceRoute}]);
   render(<RouterProvider router={router} />);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
-  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   expect(postCount).toBe(1);
   expect(screen.queryByText('합성 근거에 맞춘 AI 해석')).not.toBeInTheDocument();
   await waitFor(() => expect(resolveRun).toBeTypeOf('function'));
-  expect(screen.getByRole('status', {name: '브리핑 상태'})).toHaveTextContent('요청 접수');
+  expect(screen.getByText('질문을 접수하는 중…')).toHaveTextContent('질문을 접수');
   await act(async () => resolveRun(response(completedRun())));
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
   expect(screen.getAllByText(source.title).length).toBeGreaterThan(0);
-  expect(screen.getAllByRole('button', {name: /근거 열기: 공공기록법/})).toHaveLength(2);
-  await user.click(screen.getAllByRole('button', {name: /근거 열기: 공공기록법/})[0]);
+  expect(screen.getAllByRole('button', {name: '원문 열기'})).toHaveLength(2);
+  await user.click(screen.getAllByRole('button', {name: '원문 열기'})[0]);
   expect(within(await screen.findByRole('dialog')).getByRole('heading', {name:source.title})).toBeInTheDocument();
-  expect(router.state.location.pathname).toBe('/');
+  expect(router.state.location.pathname).toBe(`/workspaces/${workspace}/briefings/${runId}`);
   expect(screen.getByRole('dialog', {name:'원문과 인용 읽기'})).toBeInTheDocument();
   await waitFor(() => expect(screen.getByText(/인용 1 .*선택됨/)).toBeInTheDocument());
   expect(document.querySelector('mark')).toHaveTextContent('합성 테스트 전용');
@@ -232,7 +237,7 @@ it('does not replace a saved run when an earlier submission responds late', asyn
   vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
     if (path.endsWith('/session')) return response(session);
     if (path.endsWith(`/research/${runId}`)) return response(completedRun());
-    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/question-briefings') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
     throw Error(`unexpected ${path}`);
   });
@@ -240,12 +245,12 @@ it('does not replace a saved run when an earlier submission responds late', asyn
   render(<RouterProvider router={router} />);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('무엇을 알아볼까요?'), '새 질문은?');
-  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
   await user.click(screen.getByRole('button', {name: '브리핑 기록'}));
   await user.click(await screen.findByRole('button', {name: /법안의 핵심은\?/}));
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
-  await act(async () => releasePost(response({...queuedRun(submitted), run_id: lateId})));
+  await act(async () => releasePost(submittedBriefing(submitted,lateId)));
   expect(router.state.location.search).toBe(`?view=saved&run=${runId}`);
   expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
 });
@@ -259,7 +264,7 @@ it.each([
   let submitted!: Record<string, unknown>;
   vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
     if (path.endsWith('/session')) return response(session);
-    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/question-briefings') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: [completedRun()]});
     if (path.endsWith(`/research/${runId}`)) return response(completedRun());
     throw Error(`unexpected ${path}`);
@@ -268,11 +273,11 @@ it.each([
   render(<RouterProvider router={router} />);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('무엇을 알아볼까요?'), '법안의 핵심은?');
-  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
   await act(async () => { await router.navigate(direction); });
   expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
-  await act(async () => releasePost(response({...queuedRun(submitted), run_id: lateId})));
+  await act(async () => releasePost(submittedBriefing(submitted,lateId)));
   expect(router.state.location.search).toBe(`?view=research&run=${runId}`);
   expect(screen.getByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
 });
@@ -283,7 +288,7 @@ it('keeps the current tab when a valid submission responds after a tab switch', 
   vi.stubGlobal('fetch', async (path: string, options: RequestInit = {}) => {
     if (path.endsWith('/session')) return response(session);
     if (path.endsWith(`/research/${runId}`)) return response(queuedRun(submitted));
-    if (path.endsWith('/research') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
+    if (path.endsWith('/question-briefings') && options.method === 'POST') {submitted = JSON.parse(options.body as string); return new Promise<Response>(resolve => {releasePost = resolve;});}
     if (path.endsWith('/research')) return response({workspace_id: workspace, items: []});
     throw Error(`unexpected ${path}`);
   });
@@ -291,12 +296,12 @@ it('keeps the current tab when a valid submission responds after a tab switch', 
   render(<RouterProvider router={router} />);
   const user = userEvent.setup();
   await user.type(await screen.findByLabelText('무엇을 알아볼까요?'), '새 질문은?');
-  await user.click(screen.getByRole('button', {name: '브리핑 만들기'}));
+  await user.click(screen.getByRole('button', {name: '질문하기'}));
   await waitFor(() => expect(releasePost).toBeTypeOf('function'));
   await user.click(screen.getByRole('button', {name: '브리핑 기록'}));
-  await act(async () => releasePost(response(queuedRun(submitted))));
-  expect(router.state.location.search).toBe(`?view=saved&run=${runId}`);
-  expect(screen.getByText('요청 접수')).toBeInTheDocument();
+  await act(async () => releasePost(submittedBriefing(submitted)));
+  expect(router.state.location.search).toBe('?view=saved');
+  expect(screen.queryByText('요청 접수')).not.toBeInTheDocument();
 });
 
 it('allows cancellation again after a pending cancel was aborted by run navigation', async () => {

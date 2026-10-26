@@ -144,9 +144,9 @@ it('never sends a public identity as a private parent when a member explicitly s
   return fallback(path);
  });const {router}=mount('/briefings/synthetic-policy');const user=userEvent.setup();await screen.findByRole('heading',{name:first.title});
  await user.click(screen.getByRole('button',{name:'질문 이어가기'}));await screen.findByRole('textbox',{name:'무엇을 알아볼까요?'});
- expect(submissions).toHaveLength(0);await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));await waitFor(()=>expect(submissions).toHaveLength(1));
- expect(submissions[0]).toMatchObject({question:`${first.title}에 대해 더 알고 싶어요.`,parent_run_id:null});
- expect(Object.keys(submissions[0]).sort()).toEqual(['parent_run_id','question','request_id']);expect(router.state.location.search).not.toContain(first.title);
+ expect(submissions).toHaveLength(0);await user.click(screen.getByRole('button',{name:'질문하기'}));await waitFor(()=>expect(submissions).toHaveLength(1));
+ expect(submissions[0]).toMatchObject({question:`${first.title}에 대해 더 알고 싶어요.`});
+ expect(Object.keys(submissions[0]).sort()).toEqual(['question','request_id']);expect(router.state.location.search).not.toContain(first.title);
 });
 it('rechecks publication before a different exact citation in the open original is selected',async()=>{
  const options={withdrawn:false};api(options);mount('/briefings/synthetic-policy/versions/1');const user=userEvent.setup();
@@ -171,7 +171,7 @@ it.each(['이전에 작성한 질문',''])('explicit public handoff replaces an 
  await user.click(await screen.findByRole('link',{name:first.title}));await screen.findByRole('heading',{name:first.title});
  await user.click(screen.getByRole('link',{name:'질문으로 돌아가기'}));
  expect(await screen.findByRole('textbox',{name:'무엇을 알아볼까요?'})).toHaveValue('새로 이어갈 공개 질문을 편집함');expect(submissions).toHaveLength(0);
- await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));await waitFor(()=>expect(submissions).toHaveLength(1));
- expect(submissions[0]).toMatchObject({question:'새로 이어갈 공개 질문을 편집함',parent_run_id:null});
- expect(Object.keys(submissions[0]).sort()).toEqual(['parent_run_id','question','request_id']);
+ await user.click(screen.getByRole('button',{name:'질문하기'}));await waitFor(()=>expect(submissions).toHaveLength(1));
+ expect(submissions[0]).toMatchObject({question:'새로 이어갈 공개 질문을 편집함'});
+ expect(Object.keys(submissions[0]).sort()).toEqual(['question','request_id']);
 });

@@ -143,3 +143,5 @@ export type {PublicBriefingSummary, PublicBriefingDetail, PublicBriefingList, Pu
 export {validResearchClassifications, claimClassification} from './research-classification';
 export {getBriefingJob,cancelBriefingJob,BriefingJobError} from './briefing-jobs';
 export type {BriefingJobView,BriefingQuoteView,BriefingJobOptions} from './briefing-jobs';
+export {submitQuestion,listBriefingJobs,QuestionError} from './question-submissions';
+export type {QuestionRequest,QuestionResult,BriefingJobList} from './question-submissions';
