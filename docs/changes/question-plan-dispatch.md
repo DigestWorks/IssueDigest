@@ -14,6 +14,8 @@
 - Preserve asyncio.CancelledError, never hidden continuation/nextchild/queue on cancelled SQL waiter. Existing EvidenceDispatchError sanitized IDs may propagate (caller recovers same request); other existing sanitized auth/budget/conflict errors propagate. No token/question/original provider exception logging, no blanket catch swallowing unknown errors. Current per-source transaction can reserve/queue a prefix; errors do not undo dispatched work. Same request reuses children, no other request fallback.
 - TDD tests meaningful: expectedhash invalid/mismatch/retry before budget/row writes; defaultoldsubmit behavior; no_match0; onepending stops; actual first completed then second scheduled with deterministic IDs and one reservation each; repeated request no duplicate, finalcomplete0newqueue; blocked terminal stops; revoked access/source/presentation changed; cancellation/ambiguousack preserves pending and no laterchildren; sameengine/invalidinputnoSQL; strict/model_copy tamper. Real PostgreSQL index and DBOSClient/mockSSE integration for >=2sources, no providers. Newfixture cleans own questionplans/jobs and restores monkeypatch modules; no conftest edits. Cover cross-source mutation race between plan and admission with expectedhash rollback. Agent scoped tests/Ruff/format/mypy, controller fullQA/reviews/privacy/PR/Sites/cleanup. No agent subagents.
 
+DBOS 통합 테스트는 qpd_<UUID> 전용 schema를 migrate/config/client에 동일하게 지정한다. client/worker 종료 후 해당 schema만 정리하고 기본 dbos schema/queue가 변경되지 않았음을 검사한다. 운영 설정 변경이 아닌 테스트 격리이며 실패한 첫 전체 실행은 통과로 세지 않는다.
+
 ## Task 1
 
 - [x] 위4파일 범위만 TDD로 구현한다. spec/global constraints를 지킨다. 새로운 expected-source guard는 실제 transaction에서 예약 전 적용한다. ordered deterministic children/완료 prefix/첫 미완료 중단/no_match/현재권한/원문/예산/취소/재접수 검사를 포함한다. owned4파일+이 Task1 checkbox만 커밋하고 SDD 보고서에 RED/GREEN/명령/한계/자체검토를 남긴다.
@@ -28,3 +30,5 @@
 1. 자료별 순차 접수와 완료 후 재진행으로 기존 활성1개/예산 계약을 유지한다. 자동 연속 실행은 상위 orchestration 후속이며 실패한 자료를 건너뛰지 않는다.
 2. plan/source/order 기반 child UUID4를 결정적으로 유도한다. 새batchtable 없이 복구하지만 이 namespace/알고리즘은 이후 바꾸면 안 된다.
 3. 예약 전 expected-source guard를 기존 repository에 선택적으로 추가한다. 원문 변경 경쟁을 막지만 기존 저장 코드1개와 검사1개를 수정한다.
+
+4. 새 native 테스트의 DBOS 저장 공간을 고유 schema로 격리한다. 기본 queue의 다른 앱 소유권과 충돌하지 않지만 테스트 준비/정리가 늘고 전체 재검사가 필요하다.
