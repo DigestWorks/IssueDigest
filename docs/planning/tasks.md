@@ -1,8 +1,8 @@
-## 진행 · 근거 작업 접수·queue 전달 · 2026-10-26
+## 검증 완료 · 근거 작업 접수·queue 전달 · 2026-10-26
 
 - [x] [접수/queue 경계·명시 버전·ack 유실 계약](../changes/evidence-job-dispatch.md) 고정.
-- [ ] 신뢰 서버 dispatch·전용 queue TDD/실제 DBOSClient 연결.
-- [ ] 권한/source/예산·동일 요청/ack 유실·취소·payload/비밀 정보 차단 검사.
+- [x] 신뢰 서버 dispatch·전용 queue TDD/실제 DBOSClient 연결.
+- [x] 권한/source/예산·동일 요청/ack 유실·취소·payload/비밀 정보 차단 검사.
 - [ ] 독립 검토·전체 검사·기존481실행/이전46증거 보존·PR/Sites·자체QA 정리.
 - [ ] 질문 전용 검색·다자료/브리핑 변환·운영 정책/부하·개발 반영.
 

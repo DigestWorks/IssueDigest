@@ -26,3 +26,7 @@
 1. 먼저 신뢰 서버의 저장→queue 경계를 연결한다. 기존 앱 계약을 보존하지만 질문 전용 검색·브리핑 UI는 이번 완료 범위가 아니다.
 2. SQL 저장 뒤 queue ack가 불명확하면 같은 ID 재접수만 허용한다. 중복 모델 실행을 막지만 아직 queue에 안 들어간 pending도 예약을 유지한다.
 3. app_version 명시와 별도 단일 동시 queue를 사용한다. 예측 가능한 routing을 얻지만 운영자는 같은 version/queue의 worker를 준비해야 하며 처리량 인수가 남는다.
+
+## 검증 결과
+
+실행afac2d7/테스트보완b6cbd98·신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·최종 수정 재검토 C0I0M0. 초기 minor1은 실제 완료 선행 RED2건으로 재현하고 결정적 pending gate로 해소했다. [상세 검증·한계](../research/evidence-job-dispatch-validation.md)를 따른다. 실제 제공자/운영 서버/앱 활성화0이다.

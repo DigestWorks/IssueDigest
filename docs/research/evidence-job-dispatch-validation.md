@@ -12,7 +12,7 @@
 
 ## 검증
 
-전용 합성 PostgreSQL과 실제 DBOSClient/queue·native AsyncOpenAI/모의 SSE를 사용했다. 모듈 부재 RED13건과 실효 queue 설정 불일치의 미차단 RED를 확인한 뒤 구현했다. 신규 집중 검사23개·Ruff/format4파일·mypy2소스가 통과했다. 전체 검사와 독립 검토 결과는 완료 후 반영한다.
+전용 합성 PostgreSQL과 실제 DBOSClient/queue·native AsyncOpenAI/모의 SSE를 사용했다. 모듈 부재 RED13건과 실효 queue 설정 불일치의 미차단 RED를 확인한 뒤 구현했다. 신규 집중 검사23개·Ruff/format4파일·mypy2소스가 통과했다. 실행afac2d7/테스트보완b6cbd98·신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·최종 수정 재검토 C0I0M0·미해결0다. 초기 minor1의 중복 접수 상태 단정은 완료 선행 RED2건으로 재현하고 실제 worker의 claim 전 대기/해제를 명시해 해결했다. 최초 중단 전체 실행은 별도 보존하며 통과로 세지 않았다.
 
 - app_version 형식 검사는 SQL/queue보다 앞선다. 원래 repository의 UUID/질문/모델/Decimal·권한·source·합산 예산 계약을 유지한다.
 - None/권한·source·예산 실패, 현재 pending 재조회 거부, terminal 상태는 enqueue하지 않는다.

@@ -1,4 +1,4 @@
-진행 중: [근거 작업 접수·queue 전달](docs/changes/evidence-job-dispatch.md). 저장→명시 버전 queue 전달·동일 ID 재접수를 연결합니다. 실제 모델/운영 서버 변경은 없으며 질문 전용 검색·브리핑 변환/표시는 후속입니다.
+현재 구현: [근거 작업 접수·queue 전달](docs/changes/evidence-job-dispatch.md). 신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토/수정 재검토를 통과했습니다. 저장→명시 버전 queue 전달·동일 ID 재접수와 권한/원문 재검사를 연결했습니다. 실제 제공자 호출0·현재 앱 활성화0이며 질문 전용 검색·브리핑 변환/표시는 후속입니다.
 
 현재 구현: [영속 근거 작업·비동기 worker](docs/changes/durable-evidence-worker.md). 신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0를 통과했습니다. SQL 송신 의도·중단 후 무재호출·공유 예약 예산·현재 권한/원문 검증을 연결했습니다. 이번 실제 AI 호출0회이며 서비스 요청·브리핑 변환·개발 배포는 후속입니다.
 

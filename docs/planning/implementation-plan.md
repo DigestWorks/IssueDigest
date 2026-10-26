@@ -1,6 +1,6 @@
-## M3 진행 · 근거 작업 접수·queue 전달
+## M3 검증 완료 · 근거 작업 접수·queue 전달
 
-[명시 접수·dispatch 계약](../changes/evidence-job-dispatch.md). 실제 DBOSClient의 별도 queue에 저장한 작업 ID만 전달한다. enqueue ack가 유실되더라도 원래 예약과 ID를 보존하며 동일 요청으로 재접수한다. 기존 API/UI/기본worker를 유지하고 D019 질문 검색·브리핑 변환/표시는 다음 연결이다. 실제 제공자 호출0·개발 활성화0이다.
+[접수·dispatch 계약](../changes/evidence-job-dispatch.md)·[검증 범위](../research/evidence-job-dispatch-validation.md). 신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 수정 재검토 C0I0M0다. 실제 DBOSClient/queue·모의 SSE에서 동일 ID/예약1/HTTP1을 조건별로 확인했다. 실행 순서에 기대던 테스트는 결정적 gate로 보완했다. 기존481실행/이전46증거와 앱/기본worker/main은 유지한다. 질문 전용 검색·다자료/브리핑 변환/표시·운영 정책/부하·개발 적용은 다음이다.
 
 ## M3 검증 완료 · 영속 근거 작업과 복구
 
