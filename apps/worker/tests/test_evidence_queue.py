@@ -3,6 +3,7 @@
 import asyncio
 import importlib
 import sys
+import threading
 from decimal import Decimal
 from pathlib import Path
 from uuid import uuid4
@@ -68,6 +69,17 @@ def test_real_queue_duplicate_and_committed_ack_loss(
     jobs, inputs = queue_admission
     dispatch = importlib.import_module("issuedigest_agents.evidence_dispatch")
     requests = []
+    entered, release = threading.Event(), threading.Event()
+    worker = importlib.import_module("issuedigest_worker.evidence_worker")
+    execute = worker.execute_evidence_job
+
+    async def gated_execute(*args, **kwargs):
+        entered.set()
+        # Async waiting keeps both the DBOS and caller event loops available.
+        assert await asyncio.to_thread(release.wait, 20), "Worker gate was not released"
+        return await execute(*args, **kwargs)
+
+    monkeypatch.setattr(worker, "execute_evidence_job", gated_execute)
 
     async def run():
         def serve(request):
@@ -104,9 +116,17 @@ def test_real_queue_duplicate_and_committed_ack_loss(
                 assert registered.queue._worker_concurrency == 1
                 assert registered.queue._concurrency == 1
                 original = client.enqueue_async
+                acknowledged = []
+
+                async def enqueue(options, *args, **kwargs):
+                    handle = await original(options, *args, **kwargs)
+                    acknowledged.append(options["workflow_id"])
+                    return handle
+
+                monkeypatch.setattr(client, "enqueue_async", enqueue)
 
                 async def lost(*args, **kwargs):
-                    await original(*args, **kwargs)
+                    await enqueue(*args, **kwargs)
                     raise RuntimeError("SECRET ACK question/token")
 
                 if ack_loss:
@@ -117,14 +137,19 @@ def test_real_queue_duplicate_and_committed_ack_loss(
                         )
                     assert caught.value.__context__ is None
                     assert "SECRET" not in str(caught.value)
-                    monkeypatch.setattr(client, "enqueue_async", original)
+                    monkeypatch.setattr(client, "enqueue_async", enqueue)
                 first = await dispatch.submit_evidence_job(
                     jobs, client=client, app_version="evidence-test-v1", **inputs
                 )
+                assert await asyncio.to_thread(entered.wait, 10), "Worker did not reach gate"
                 second = await dispatch.submit_evidence_job(
                     jobs, client=client, app_version="evidence-test-v1", **inputs
                 )
                 assert first == second and first.queued
+                assert acknowledged == [first.workflow_id] * (3 if ack_loss else 2)
+                assert jobs.prepare(first.job_id)[0].status == "pending"
+                assert requests == []
+                release.set()
 
                 handle = await client.retrieve_workflow_async(first.workflow_id)
                 await asyncio.wait_for(handle.get_result(), timeout=20)
@@ -146,6 +171,7 @@ def test_real_queue_duplicate_and_committed_ack_loss(
                         == 1
                     )
             finally:
+                release.set()
                 client.destroy()
                 DBOS.destroy(destroy_registry=True)
 
