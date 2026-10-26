@@ -30,6 +30,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 from sqlalchemy.engine import Connection, Engine
 
+from .briefing_job_schema import briefing_jobs
 from .repository import EvidenceRepository, StorageCorruption, _uuid4
 from .research import (
     ResearchBudgetExceeded,
@@ -262,6 +263,13 @@ class EvidenceJobRepository:
                 if prior["input_sha256"] != identity:
                     raise ResearchConflict("Evidence request changed")
                 return self._dto(prior)
+            if conn.scalar(
+                select(briefing_jobs.c.job_id).where(
+                    briefing_jobs.c.workspace_id == workspace_id,
+                    briefing_jobs.c.status.in_(["pending", "running"]),
+                )
+            ):
+                raise ResearchConflict("Workspace briefing already active")
             month = conn.scalar(select(func.to_char(func.clock_timestamp(), "YYYY-MM")))
             conn.execute(
                 pg_insert(research_budget_months).values(month=month).on_conflict_do_nothing()

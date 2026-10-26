@@ -1,3 +1,12 @@
+## 진행 · 최종 브리핑 접수·저장 · 2026-10-26
+
+- [x] [선택 분석 고정·공유 예약·송신 의도·현재 원문/권한 계약](../changes/durable-briefing-jobs.md) 고정.
+- [x] Task1 저장소/schema/migration·양방향 실행 차단·신규79/관련167·독립 검토 C0I0M0.
+- [x] Task2 생성 worker/완료 재열람·TDD/scoped 검사·독립 검토 C0I0M0.
+- [x] 새 전체10,054개/정적/타입/빌드/OpenAPI·495원본/3예외/이전48증거 보존.
+- [x] privacy·문서·Draft PR117/Sitesv139·이전v138/7문서 사본·자체 QA/volume2 정리(최종 인계).
+- [ ] queue/API/UI·실제 모델 의미·개발 적용(후속).
+
 ## 진행 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
 
 - [x] [무손실 입력·한도·단일 stream·조합 검증·비용 계약](../changes/question-briefing-generation.md) 고정.

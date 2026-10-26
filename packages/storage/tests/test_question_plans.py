@@ -216,7 +216,9 @@ def test_malformed_retrieval_fails_closed(plans, engine, monkeypatch, result):
 def test_migration_and_import_leave_old_rows_and_registry_untouched(plans, engine, database_url):
     from decimal import Decimal
 
-    from alembic import command
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+    from alembic.script import ScriptDirectory
     from issuedigest_storage.evidence_jobs import EvidenceJobRepository
     from issuedigest_storage.schema import metadata as old_metadata
     from sqlalchemy import inspect
@@ -238,22 +240,28 @@ def test_migration_and_import_leave_old_rows_and_registry_untouched(plans, engin
     assert "question_source_plans" not in old_registry
     importlib.reload(api())
     assert set(old_metadata.tables) == old_registry
-    with engine.connect() as conn:
+    config = migration_config(database_url)
+    revision = ScriptDirectory.from_config(config).get_revision("0011_question_source_plans")
+    with engine.begin() as conn:
         old = {
             table: conn.execute(text("SELECT * FROM " + table)).all()
             for table in ("evidence_jobs", "research_budget_months", "evidence_snapshots")
         }
-    before = set(inspect(engine).get_table_names())
-    config = migration_config(database_url)
-    command.downgrade(config, "0010_evidence_jobs")
-    try:
-        assert set(inspect(engine).get_table_names()) == before - {"question_source_plans"}
-        with engine.connect() as conn:
-            for table, rows in old.items():
-                assert conn.execute(text("SELECT * FROM " + table)).all() == rows
-    finally:
-        command.upgrade(config, "0011_question_source_plans")
-    assert set(inspect(engine).get_table_names()) == before
+        before = set(inspect(conn).get_table_names())
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
+        with Operations.context(MigrationContext.configure(conn)):
+            revision.module.downgrade()
+            try:
+                assert set(inspect(conn).get_table_names()) == before - {"question_source_plans"}
+                for table, rows in old.items():
+                    assert conn.execute(text("SELECT * FROM " + table)).all() == rows
+                assert (
+                    conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+                )
+            finally:
+                revision.module.upgrade()
+        assert set(inspect(conn).get_table_names()) == before
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
     assert EvidenceJobRepository(engine).get(token, workspace, job.job_id).status == "pending"
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM evidence_jobs WHERE job_id=:j"), {"j": job.job_id})
