@@ -45,7 +45,7 @@ Task1 DTO/Protocol을 사용한다. 새 worker/question_service.py, scripts/ques
 ## Controller gates
 
 - [x] 태스크/전체 독립 검토·전체 체크·허용diff/oldAST·privacy.
-- [ ] 실제 브라우저·7문서·Draft PR·Sites·전용 QA 정리. server/main 반영 여부 별도 명시.
+- [x] 실제 브라우저·7문서·Draft PR121·Sitesv143·전용 QA 정리. server/main 반영0 별도 명시.
 
 ## 전체 검증에서 승인한 보완
 
