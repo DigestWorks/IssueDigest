@@ -2,6 +2,8 @@
 
 [계약](../changes/question-source-plans.md)·[검증](../research/question-source-plans-validation.md). 질문만으로 기존 저장 색인에서 최대5자료를 선택하고 원문/제목 hash를 고정한다. 같은 요청은 재검색하지 않고 현재 권한·원문을 재검증하며 no_match도 유지한다. 실행9ecdce0/기존 검사 보완14e1585·신규62/전체9,657개(Python8,837+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0이다. 태스크 C0I0M1/전체 C0I0M2 후 문서 보완 재검토 C0I0M0이며 비차단 후속1개(표시 정보 단독 삭제 집중 검사)를 남겼다. 기존484실행은 그대로이고 승인한 migration 검사1개만 수정했으며 이전52증거를 보존했다. 실제 제공자/운영 변경0·앱/기본worker/main 유지다. 다자료 AI 실행·브리핑 표시·개발 적용은 후속이며 PR/Sites·자체QA 정리는 최종 인계를 따른다.
 
+최종 인계: [Draft PR112](https://github.com/DigestWorks/IssueDigest/pull/112)·[Sitesv134](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded. 이전v133과 변경7문서의 정확 사본(7cf3552)을 보존했다. Site source `3704954703d97a9f2872d7a4022431ee9dc5ebcd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a85308e949cc8191b6ca110a73193d04`, deployment `appgdep_6aded7187e8481919a25f09f7239ef3d`다. HTML119/로컬대상3,536/공개텍스트365·비공개60+12항목 제외를 확인했다. 자체QA1/전용volume1 정리와 포트 닫힘을 확인했다. 사용자 탭 이동·신규 브라우저 검사0(기존 레이아웃의 텍스트 변경)이며 앱/기본worker/main 활성화0이다. 비차단 표시 정보 단독 삭제 검사1개는 후속이며 다섯 판단과 비용은 명세/검증 기록에 남겼다. 원격CI는 로컬 전체 검사와 구분한다. PR 채팅 첨부는 도구의100개 한도로 실패했으며 링크는 유효하다. 이후 인계는 저장소 원본을 따른다.
+
 ## 검증 완료 · 근거 작업 접수·DBOS queue 전달 · 2026-10-26
 
 [새 계약](../changes/evidence-job-dispatch.md)·[검증 기록](../research/evidence-job-dispatch-validation.md). 실행afac2d7/테스트보완b6cbd98·신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·최종 수정 재검토 C0I0M0·미해결0다. 태스크/전체 검토의 minor1(중복 접수 테스트의 실행 순서 의존)은 실제 완료 선행 RED2건으로 재현하고 결정적 대기/해제로 보완했다. 최초 전체 중단 실행은 통과로 세지 않고 보존했다. 기존481실행/이전46증거·앱/기본worker/main을 유지하며 실제 제공자/운영 서버 변경0이다. 질문 전용 검색·브리핑 변환/표시는 후속이며 PR/Sites/자체QA 정리는 최종 인계를 따른다.

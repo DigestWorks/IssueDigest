@@ -27,3 +27,5 @@
 5. 동일 hash의 표시 정보 복원을 유지한다. 표시 정보 삭제만으로는 실패하지 않으며, 이 경우만의 집중 회귀 검사는 후속으로 남는다.
 
 선택한 여러 자료를 영속 AI 작업으로 연결하고 결과를 브리핑으로 변환하는 경로는 아직 연결하지 않았다. 현재 앱·기본 worker·main은 유지한다.
+
+최종 인계: [Draft PR112](https://github.com/DigestWorks/IssueDigest/pull/112)·[Sitesv134](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded. 이전v133과 변경7문서의 정확 사본(7cf3552)을 보존했다. Site source `3704954703d97a9f2872d7a4022431ee9dc5ebcd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a85308e949cc8191b6ca110a73193d04`, deployment `appgdep_6aded7187e8481919a25f09f7239ef3d`다. HTML119/로컬대상3,536/공개텍스트365·비공개60+12항목 제외를 확인했다. 자체QA1/전용volume1 정리와 포트 닫힘을 확인했다. 사용자 탭 이동·신규 브라우저 검사0(기존 레이아웃의 텍스트 변경)이며 앱/기본worker/main 활성화0이다. 비차단 표시 정보 단독 삭제 검사1개는 후속이며 다섯 판단과 비용은 명세/검증 기록에 남겼다. 원격CI는 로컬 전체 검사와 구분한다. PR 채팅 첨부는 도구의100개 한도로 실패했으며 링크는 유효하다. 이후 인계는 저장소 원본을 따른다.
