@@ -1,3 +1,11 @@
+## 진행 · 질문별 순차 AI 작업 연결 · 2026-10-26
+
+- [x] [기대 원문 hash·순차 접수·자식 요청 ID 계약](../changes/question-plan-dispatch.md) 고정.
+- [x] 예약 전 source guard·순차 dispatch TDD/실제DBOS 모의 stream 집중91개·정적 검사.
+- [x] 독립 검토·새 전체9,716개/정적/타입/빌드/API 계약 검사·기존488실행/이전43증거 보존.
+- [x] Draft PR113·Sitesv135/이전v134+정확7문서 보존·자체QA3/전용volume3 정리(최종 인계).
+- [ ] 자동 진행·브리핑 변환/API/UI·실제품질/운영부하·개발 적용.
+
 ## 구현·집중 검사 완료 · 질문별 자료 선택 영속화 · 2026-10-26
 
 - [x] [질문 전용 검색·선택/hash 고정·재접수 계약](../changes/question-source-plans.md) 고정.

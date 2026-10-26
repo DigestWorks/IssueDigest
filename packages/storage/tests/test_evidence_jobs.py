@@ -651,3 +651,50 @@ def test_authenticated_worker_lock_order_race(jobs, engine, public_operation, wo
         if worker_operation == "claim"
         else "completed"
     )
+
+
+@pytest.mark.parametrize("expected", [True, 1, "", "A" * 64, "a" * 63, "a" * 64 + "\n"])
+def test_expected_source_hash_invalid_before_sql(jobs, engine, expected):
+    from sqlalchemy import event
+
+    def forbidden(*args):
+        pytest.fail("invalid expected hash issued SQL")
+
+    event.listen(engine, "before_cursor_execute", forbidden)
+    try:
+        with pytest.raises(ValueError):
+            jobs.submit(
+                "invalid",
+                uuid4(),
+                uuid4(),
+                uuid4(),
+                "q",
+                model="gpt-6.1-sol",
+                reservation_usd=Decimal(".25"),
+                expected_source_sha256=expected,
+            )
+    finally:
+        event.remove(engine, "before_cursor_execute", forbidden)
+
+
+def test_expected_source_mismatch_precedes_budget_and_retry_lookup(jobs, engine):
+    token, workspace, snapshot = seed(engine)
+    request = uuid4()
+    args = (token, workspace, request, snapshot, "q")
+    options = dict(model="gpt-6.1-sol", reservation_usd=Decimal(".25"))
+    with pytest.raises(api().ResearchConflict):
+        jobs.submit(*args, **options, expected_source_sha256="f" * 64)
+    with engine.connect() as conn:
+        assert conn.scalar(text("SELECT count(*) FROM evidence_jobs")) == 0
+        assert conn.scalar(text("SELECT count(*) FROM research_budget_months")) == 0
+    job = jobs.submit(*args, **options)
+    assert jobs.submit(*args, **options, expected_source_sha256=job.source_sha256) == job
+    with engine.begin() as conn:
+        conn.execute(text("UPDATE research_budget_months SET reserved_usd=10,reservation_count=40"))
+    with pytest.raises(api().ResearchConflict):
+        jobs.submit(*args, **options, expected_source_sha256="f" * 64)
+    with engine.connect() as conn:
+        assert conn.scalar(text("SELECT count(*) FROM evidence_jobs")) == 1
+        assert conn.execute(
+            text("SELECT reserved_usd,reservation_count FROM research_budget_months")
+        ).one() == (Decimal("10"), 40)
