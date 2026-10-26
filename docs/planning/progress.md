@@ -1,3 +1,9 @@
+## 검증 완료 · 근거 작업 접수·DBOS queue 전달 · 2026-10-26
+
+[새 계약](../changes/evidence-job-dispatch.md)·[검증 기록](../research/evidence-job-dispatch-validation.md). 실행afac2d7/테스트보완b6cbd98·신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·최종 수정 재검토 C0I0M0·미해결0다. 태스크/전체 검토의 minor1(중복 접수 테스트의 실행 순서 의존)은 실제 완료 선행 RED2건으로 재현하고 결정적 대기/해제로 보완했다. 최초 전체 중단 실행은 통과로 세지 않고 보존했다. 기존481실행/이전46증거·앱/기본worker/main을 유지하며 실제 제공자/운영 서버 변경0이다. 질문 전용 검색·브리핑 변환/표시는 후속이며 PR/Sites/자체QA 정리는 최종 인계를 따른다.
+
+최종 인계: [Draft PR111](https://github.com/DigestWorks/IssueDigest/pull/111)·Sitesv133 public/native succeeded, 이전v132/변경7문서 정확 사본(6d34b9d)을 보존했다. Site source `f5ac8a5a648141f5c80489c5b1f8ab7df770bd05`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_5639c730356881918e26559a86052fc4`, deployment `appgdep_6adecd95977481919b5729248554e88e`다. HTML118/로컬대상3,468/공개텍스트360·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 자체QA1/전용volume1과 이번 임시 로그3개를 정리하고 전용 포트 닫힘을 확인했다. 세 판단과 영향은 명세/검증 기록에 남겼다. 이후 인계는 저장소 원본을 따르며 앱/기본worker/main 활성화0이다. 최종 문서 push의 원격CI는 로컬 전체 검증과 구분한다.
+
 ## 검증 완료 · 영속 근거 작업·비동기 worker · 2026-10-26
 
 [새 계약](../changes/durable-evidence-worker.md)·[검증 기록](../research/durable-evidence-worker-validation.md). 실행abfbe26·신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0·미해결0다. 최초 검토의 완료 취소 응답/잠금 역전2건은 회귀7건 RED 재현 후 수정·좁은 재검토로 해소했다. 최초 중단된 전체 검사는 통과로 세지 않고 보존했다. 기존476실행/이전68증거·앱/기본worker/main은 유지하며 제공자 호출0·운영 서버/DB 변경0이다. 서비스 요청·브리핑 변환·예약 정책/부하·개발 반영은 후속이며 PR/Sites/정리는 최종 인계를 따른다.
