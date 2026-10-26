@@ -20,7 +20,8 @@
 
 ## Controller gates
 
-- [ ] Independent task and whole-branch review, full QA/lint/type/build/OpenAPI, old496/previous44preservation, privacy/docs/DraftPR/Sites/ownedQAcleanup.
+- [x] Independent task/wholebranch review C0I0M0; full9,945/lint/type/build/OpenAPI; old496/previous44preservation.
+- [ ] privacy/docs/DraftPR/Sites/ownedQAcleanup final handoff.
 - [ ] Durable final admission/reservation/current rights, actual model meaning, storage/API/UI/development acceptance (outside this change).
 
 ## 판단과 비용

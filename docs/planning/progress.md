@@ -1,3 +1,9 @@
+## 검증 완료 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
+
+[생성 계약](../changes/question-briefing-generation.md)·[검증 범위](../research/question-briefing-generation-validation.md). 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0, 독립 태스크/전체 검토 C0I0M0·미해결0이다. 기존496실행·이전44증거는 유지한다. 전체 원문·명제·조건을 자르지 않는 단일 native 생성 SDK와 조합 검증·최종/합산 사용량 기록을 연결했다.
+
+이번 검증은 모의 provider 전송·SDK 계약이다. 실제 제공자 호출/의미 인수·최종 내구 접수/재무 예약·영속 저장/API/UI·개발 적용은 별도이며 앱/기본worker/main/운영 변경0이다. 긴 원문/다자료는 기존20,000한도에서 차단될 수 있다. Draft PR·Sites·자체 QA 정리의 최종 인계는 아래 기록한다.
+
 ## 최종 인계 · 질문별 브리핑 조합 · 2026-10-26
 
 [Draft PR115](https://github.com/DigestWorks/IssueDigest/pull/115)은 feat/question-plan-runner 기반·미병합이다. 실행 ac7a914, 신규97/새 전체9,886개(Python9,066+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·태스크/전체 검토 C0I0M0·미해결0이다. 기존494실행·이전44증거와 전체 검사 시작 이후 신규2파일 bytes가 일치한다.

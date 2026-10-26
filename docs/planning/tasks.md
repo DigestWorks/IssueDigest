@@ -1,3 +1,11 @@
+## 진행 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
+
+- [x] [무손실 입력·한도·단일 stream·조합 검증·비용 계약](../changes/question-briefing-generation.md) 고정.
+- [x] 신규2파일 TDD·집중59개·독립 태스크/전체 검토 C0I0M0.
+- [x] 새 전체9,945개/정적/타입/빌드/OpenAPI·기존496실행/이전44증거 보존.
+- [ ] privacy·문서·Draft PR/Sites·자체 QA 정리(최종 인계).
+- [ ] 실제 제공자 의미·최종 내구 접수/예약·저장/API/UI·개발 적용(후속).
+
 ## 진행 · 질문별 브리핑 조합 · 2026-10-26
 
 - [x] [미검토·원문 재검증·불확실성·coverage 조합 계약](../changes/question-briefing-composition.md) 고정.
