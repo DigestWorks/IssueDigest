@@ -1,3 +1,5 @@
+진행 중: [영속 근거 작업·비동기 worker](docs/changes/durable-evidence-worker.md). 새 생성 SDK를 별도 내부 SQL 작업·DBOS workflow에 연결하고 있습니다. 송신 의도·복구·관측 사용량·현재 권한/원문을 검증하며 기존 앱과 기본 worker는 유지합니다. 실제 AI 호출·개발 서버 활성화는 이번 변경에 포함하지 않습니다.
+
 현재 구현: [정확한 근거 필드·불확실 상태 지침](docs/changes/guarded-question-reference-rules.md). 신규47/관련532·scoped정적검사·독립 코드 검토를 통과했습니다. 실제1요청에서 모델 완료/명제3개 SDK수용·JSON 재검증을 확인했으며, 필수3명제는 AI 개발판정에서 보존을 확인했으며, 전체9,515개·정적 검사/빌드/OpenAPI도 통과했습니다. 일반 품질·앱 인수와 구분합니다.
 
 최신 실제 관측: [질문별 근거 스트림 인수](docs/research/guarded-question-acceptance.md). 요청1회/HTTP200·모델 완료·최종 사용량2,387/2,569를 확인했지만 주체/서술어 참조 누락과 불확실 상태 불일치로 SDK가 거부했습니다. 재호출/자동 보정 없이 원래 결과를 보존하며 의미·앱 인수는 남습니다.

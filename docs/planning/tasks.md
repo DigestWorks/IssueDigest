@@ -1,3 +1,11 @@
+## 진행 · 영속 근거 작업·비동기 worker · 2026-10-26
+
+- [x] [새 작업/공유 예산/권한/재생 계약](../changes/durable-evidence-worker.md) 고정.
+- [ ] 별도 job migration/repository·비동기 guarded-v2·실제 DBOS 연결 TDD.
+- [ ] 불명확 송신/취소/권한·source 변경·공유 예산·현재 검증 replay 검사.
+- [ ] 독립 검토·전체 검사·기존476실행/68이전증거 보존·PR/Sites·QA 정리.
+- [ ] 서비스 enqueue/브리핑 변환·다자료/운영 예약 정책·개발 배포 인수.
+
 ## 진행 · 정확한 근거 필드·불확실 상태 · 2026-10-26
 
 - [x] [새 guarded-v2 지침/영수증](../changes/guarded-question-reference-rules.md) 고정·328byte/기존 입력 envelope19,907.

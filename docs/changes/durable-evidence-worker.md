@@ -33,3 +33,5 @@ Read test-driven-development. Use dedicated synthetic PostgreSQL URL supplied by
 1. 기존 모델/비용/결과 계약을 바꾸지 않고 내부 근거 작업을 별도 영속 행·DBOS workflow로 만든다. 기존 복구를 보존하지만 서비스 enqueue·브리핑 변환 연결과 개발 배포는 후속이다.
 2. 송신 의도를 먼저 영속화하고 결과가 모호하면 재호출하지 않는다. 중복 비용을 막지만 실제 송신 전 중단된 작업도 indeterminate로 남을 수 있다.
 3. 월 예약 pool은 공유하고 예약 금액은 서버가 명시해야 한다. 전체 예약 상한은 유지하지만 이 금액이 실제 청구 상한이라는 보장은 아니며 운영 비용 정책 검증이 남는다.
+
+4. 기존 auth helper가 여러 workspace에서 공유하는 사용자 행도 잠그므로 새 작업의 짧은 SQL transaction을 전용 advisory namespace로 직렬화한다. AI await까지 유지하지 않으며 잠금 역전을 방지하지만 처리량 병목이 생길 수 있어 운영 부하 인수가 남는다.
