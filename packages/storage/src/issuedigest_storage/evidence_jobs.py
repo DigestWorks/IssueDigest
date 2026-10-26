@@ -118,8 +118,21 @@ class EvidenceJobRepository:
         self._base = ResearchRepository(engine)
 
     @staticmethod
+    def _lock_jobs(conn: Connection) -> None:
+        # Session/member checks also lock shared auth_users across workspaces.
+        # Order every short new-job SQL transaction before those and job row locks;
+        # this transaction gate is never held across native I/O.
+        key = int.from_bytes(
+            sha256(b"issuedigest:evidence-jobs:transaction-v1").digest()[:8],
+            "big",
+            signed=True,
+        )
+        conn.scalar(select(func.pg_advisory_xact_lock(key)))
+
+    @staticmethod
     def _row(conn: Connection, job_id: UUID) -> Any:
         _uuid4(job_id)
+        EvidenceJobRepository._lock_jobs(conn)
         row = (
             conn.execute(
                 select(evidence_jobs).where(evidence_jobs.c.job_id == job_id).with_for_update()
@@ -208,16 +221,10 @@ class EvidenceJobRepository:
         reservation_usd = reservation_usd.quantize(Decimal(".01"))
 
         def save(conn: Connection) -> EvidenceJob | None:
+            self._lock_jobs(conn)
             actor = self._base._actor(conn, token, workspace_id, write=True)
             if actor is None:
                 return None
-            conn.scalar(
-                select(
-                    func.pg_advisory_xact_lock(
-                        int.from_bytes(workspace_id.bytes[:8], "big", signed=True)
-                    )
-                )
-            )
             bundle = EvidenceRepository._load(conn, workspace_id, snapshot_id)
             if bundle is None:
                 raise ResearchConflict("Evidence source unavailable")
@@ -306,8 +313,10 @@ class EvidenceJobRepository:
 
     def get(self, token: str, workspace_id: UUID, job_id: UUID) -> EvidenceJob | None:
         _uuid4(workspace_id)
+        _uuid4(job_id)
 
         def read(conn: Connection) -> EvidenceJob | None:
+            self._lock_jobs(conn)
             if self._base._actor(conn, token, workspace_id) is None:
                 return None
             row = self._row(conn, job_id)
@@ -320,13 +329,17 @@ class EvidenceJobRepository:
 
     def cancel(self, token: str, workspace_id: UUID, job_id: UUID) -> EvidenceJob | None:
         _uuid4(workspace_id)
+        _uuid4(job_id)
 
         def stop(conn: Connection) -> EvidenceJob | None:
+            self._lock_jobs(conn)
             if self._base._actor(conn, token, workspace_id, write=True) is None:
                 return None
             row = self._row(conn, job_id)
             if row["workspace_id"] != workspace_id:
                 return None
+            if row["status"] == "completed":
+                self._current(conn, row)
             if row["status"] in ("pending", "running"):
                 conn.execute(
                     update(evidence_jobs)

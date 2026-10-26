@@ -446,3 +446,198 @@ def test_actual_old_run_and_new_job_share_pool(jobs, engine):
         assert conn.execute(
             text("SELECT reserved_usd,reservation_count FROM research_budget_months")
         ).one() == (Decimal("10"), 2)
+
+
+@pytest.mark.parametrize("change", ["revoke", "title", "delete"])
+def test_completed_cancel_revalidates_original_authority_and_source(jobs, engine, change):
+    from issuedigest_storage.auth_schema import auth_workspace_memberships
+    from issuedigest_storage.repository import StorageCorruption
+    from issuedigest_storage.research import ResearchConflict, ResearchForbidden, ResearchRepository
+    from sqlalchemy import update
+
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    receipt = completion_receipt(jobs, job)
+    jobs.claim(
+        job.job_id,
+        prompt_sha256=receipt["prompt_sha256"],
+        instructions_sha256=receipt["instructions_sha256"],
+    )
+    jobs.finish(
+        job.job_id,
+        receipt=receipt,
+        known_usage=receipt["usage"],
+        usage_complete=True,
+        stream_closed=True,
+    )
+    editor = uuid4()
+    identity = IdentityRepository(engine)
+    identity.register_identity(editor, "synthetic", str(editor))
+    identity.set_membership(editor, workspace, "editor")
+    editor_token = SessionRepository(engine).issue_session(editor).token
+    if change == "revoke":
+        with engine.begin() as conn:
+            conn.execute(
+                update(auth_workspace_memberships)
+                .where(auth_workspace_memberships.c.user_id != editor)
+                .values(active=False)
+            )
+    elif change == "title":
+        _, source = jobs.prepare(job.job_id)
+        ResearchRepository(engine).upsert_presentation(
+            source[2].model_copy(update={"title": "changed"})
+        )
+    else:
+        with engine.begin() as conn:
+            for table in ("snapshot_citations", "outbox"):
+                conn.execute(
+                    text("DELETE FROM " + table + " WHERE snapshot_id=:sid"), {"sid": snapshot}
+                )
+            conn.execute(
+                text("DELETE FROM evidence_snapshots WHERE snapshot_id=:sid"), {"sid": snapshot}
+            )
+    with pytest.raises((ResearchForbidden, ResearchConflict, StorageCorruption)):
+        jobs.cancel(editor_token, workspace, job.job_id)
+
+
+def completion_receipt(jobs, job):
+    from hashlib import sha256
+
+    from issuedigest_agents.guarded_question_evidence_v2 import (
+        GUARDED_QUESTION_V2_INSTRUCTIONS,
+        GuardedQuestionEvidenceGenerationV2,
+        _preflight,
+    )
+    from issuedigest_agents.question_evidence_propositions import (
+        build_question_evidence_propositions,
+    )
+
+    _, source = jobs.prepare(job.job_id)
+    prompt, _ = _preflight(source, job.question)
+    evidence = build_question_evidence_propositions(
+        source,
+        job.question,
+        dict(
+            propositions=[],
+            coverage=dict(linked_proposition_ids=[], unresolved_reason="insufficient"),
+        ),
+    )
+    return GuardedQuestionEvidenceGenerationV2(
+        profile="guarded-question-evidence-v2",
+        transport_profile="guarded-responses-tool-v1",
+        input_format="question-evidence-source-v2",
+        status="unreviewed",
+        evidence=evidence,
+        prompt_sha256=sha256(prompt.encode()).hexdigest(),
+        instructions_sha256=sha256(GUARDED_QUESTION_V2_INSTRUCTIONS.encode()).hexdigest(),
+        usage=dict(input_tokens=10, output_tokens=5, requests=1),
+    ).model_dump(mode="json")
+
+
+@pytest.mark.parametrize("public_operation", ["get", "cancel"])
+@pytest.mark.parametrize("worker_operation", ["claim", "finish"])
+def test_authenticated_worker_lock_order_race(jobs, engine, public_operation, worker_operation):
+    from concurrent.futures import ThreadPoolExecutor
+    from threading import Event, get_ident
+    from time import monotonic
+
+    from sqlalchemy import event
+
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    receipt = completion_receipt(jobs, job)
+    if worker_operation == "finish":
+        assert jobs.claim(
+            job.job_id,
+            prompt_sha256=receipt["prompt_sha256"],
+            instructions_sha256=receipt["instructions_sha256"],
+        )
+    public_locked, release_public, worker_started = Event(), Event(), Event()
+    ids = {}
+
+    def before(conn, cursor, statement, parameters, context, executemany):
+        if get_ident() == ids.get("worker_thread"):
+            ids.setdefault("worker_pid", conn.connection.driver_connection.info.backend_pid)
+            worker_started.set()
+
+    def after(conn, cursor, statement, parameters, context, executemany):
+        if (
+            get_ident() == ids.get("public_thread")
+            and "auth_workspace_memberships" in statement
+            and "FOR UPDATE" in statement
+            and not public_locked.is_set()
+        ):
+            ids["public_pid"] = conn.connection.driver_connection.info.backend_pid
+            public_locked.set()
+            assert release_public.wait(10)
+
+    def public():
+        ids["public_thread"] = get_ident()
+        return getattr(jobs, public_operation)(token, workspace, job.job_id)
+
+    def worker():
+        ids["worker_thread"] = get_ident()
+        if worker_operation == "claim":
+            return jobs.claim(
+                job.job_id,
+                prompt_sha256=receipt["prompt_sha256"],
+                instructions_sha256=receipt["instructions_sha256"],
+            )
+        return jobs.finish(
+            job.job_id,
+            receipt=receipt,
+            known_usage=receipt["usage"],
+            usage_complete=True,
+            stream_closed=True,
+        )
+
+    event.listen(engine, "before_cursor_execute", before)
+    event.listen(engine, "after_cursor_execute", after)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            first = pool.submit(public)
+            try:
+                assert public_locked.wait(5)
+                second = pool.submit(worker)
+                assert worker_started.wait(5)
+                with engine.connect() as observer:
+                    deadline = monotonic() + 5
+                    while ids["public_pid"] not in observer.scalar(
+                        text("SELECT pg_blocking_pids(:pid)"), {"pid": ids["worker_pid"]}
+                    ):
+                        assert monotonic() < deadline, (
+                            "worker did not block behind public transaction"
+                        )
+                        Event().wait(0.01)
+                release_public.set()
+                assert first.result(timeout=10) is not None
+                second.result(timeout=10)
+            finally:
+                release_public.set()
+    finally:
+        event.remove(engine, "before_cursor_execute", before)
+        event.remove(engine, "after_cursor_execute", after)
+    state = jobs.prepare(job.job_id)[0].status
+    assert state == (
+        "cancelled"
+        if public_operation == "cancel"
+        else "running"
+        if worker_operation == "claim"
+        else "completed"
+    )
