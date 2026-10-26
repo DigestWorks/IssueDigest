@@ -14,8 +14,8 @@ function save(value: PendingStore) {
     /* Storage may be unavailable. */
   }
 }
-function read(actor: string): PendingStore {
-  const empty = { actor, entries: [] };
+function read(actor?: string): PendingStore {
+  const empty = { actor: actor ?? '', entries: [] };
   try {
     const raw = sessionStorage.getItem(key);
     if (!raw) return empty;
@@ -38,7 +38,7 @@ function read(actor: string): PendingStore {
     if (
       Object.keys(store).length !== 2 ||
       !uuid(store.actor) ||
-      store.actor !== actor ||
+      (actor !== undefined && store.actor !== actor) ||
       !Array.isArray(store.entries) ||
       store.entries.length > 50 ||
       !store.entries.every(
@@ -65,8 +65,9 @@ function read(actor: string): PendingStore {
     return empty;
   }
 }
+/** A direct protected reader can invalidate a workspace before session identification. */
 export function clearPendingQuestion(actor?: string, workspace?: string) {
-  if (actor && workspace) {
+  if (workspace) {
     const store = read(actor);
     save({
       ...store,

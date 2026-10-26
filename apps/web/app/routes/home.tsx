@@ -6,7 +6,6 @@ import { AuthError, getSession, logout, type AuthFailure, type SessionInfo } fro
 import ResearchDesk from '../research';
 import QuestionComposer from '../question-composer';
 import BriefingJobHistory from '../briefing-job-list';
-import {clearPendingQuestion,reconcilePendingQuestions} from '../question-pending';
 import {PublicBriefingList} from '../public-briefings';
 import { useResearchDrafts } from '../research-drafts';
 import { clearGuestQuestionDraft, consumeGuestQuestionDraft, readGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
@@ -55,7 +54,6 @@ export default function Home() {
         const data = result.data;
         drafts.identify(data.user_id, data.memberships.map(item => item.workspace_id));
         const firstWorkspace = data.memberships[0]?.workspace_id ?? '';
-        reconcilePendingQuestions(data.user_id, data.memberships.map(item => item.workspace_id));
         setDeniedWorkspace('');
         const params = entryParams.current;
         const newResearch = !params.has('run') && params.get('view') !== 'saved';
@@ -65,7 +63,7 @@ export default function Home() {
         setRestoredQuestion(question ? {userId: data.user_id, workspaceId: firstWorkspace, question} : null);
         setGuestQuestion(''); setSession({kind: 'ready', data}); setWorkspaceId(firstWorkspace);
       }
-    }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') {drafts.clear(); clearPendingQuestion();} setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
+    }, error => { if (current) { if (error instanceof AuthError && error.kind === 'unauthorized') {drafts.clear();} setSession({ kind: 'failure', error: error instanceof AuthError ? error : new AuthError('network') }); } });
     return () => { current = false; controller.abort(); };
   }, [sessionAttempt]);
   useEffect(() => {
@@ -78,7 +76,7 @@ export default function Home() {
     setLogoutPending(true); setLogoutError(null);
     try {
       await logout({ signal: controller.signal });
-      if (mounted.current) { drafts.clear(); clearPendingQuestion(); clearGuestQuestionDraft(); setRestoredQuestion(null); setGuestQuestion(''); setSession({ kind: 'loading' }); setWorkspaceId(''); void navigate('/login', { replace: true }); }
+      if (mounted.current) { drafts.clear(); clearGuestQuestionDraft(); setRestoredQuestion(null); setGuestQuestion(''); setSession({ kind: 'loading' }); setWorkspaceId(''); void navigate('/login', { replace: true }); }
     } catch (error) {
       if (mounted.current) setLogoutError(error instanceof AuthError ? error : new AuthError('network'));
     } finally {
@@ -125,8 +123,8 @@ export default function Home() {
             {deniedWorkspace === workspaceId && <button type="button" onClick={() => {setSession({kind: 'loading'}); setSessionAttempt(value => value + 1);}}>접근 상태 다시 확인</button>}
             {workspaceId && !logoutPending && <>
               {view === 'research' && !viewParams.has('run') ? <QuestionComposer actor={session.data.user_id} workspaceId={workspaceId} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} onInitialQuestionInitialized={() => setRestoredQuestion(null)} canEdit={membership?.role !== 'viewer' && deniedWorkspace !== workspaceId} /> : <>
-                {view === 'saved' && <BriefingJobHistory key={`${session.data.user_id}/${workspaceId}`} workspaceId={workspaceId} onAuthorityLoss={() => {clearPendingQuestion(session.data.user_id, workspaceId); drafts.clearWorkspace(workspaceId); setRestoredQuestion(null); setDeniedWorkspace(workspaceId);}} />}
-                <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />
+                {view === 'saved' && <BriefingJobHistory key={`briefings/${session.data.user_id}/${workspaceId}`} workspaceId={workspaceId} onAuthorityLoss={() => {drafts.clearWorkspace(workspaceId); setRestoredQuestion(null); setDeniedWorkspace(workspaceId);}} />}
+                <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`research/${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />
               </>}
             </>}
           </>)}
