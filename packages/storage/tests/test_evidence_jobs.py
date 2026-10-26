@@ -243,27 +243,37 @@ def test_atomic_duplicate_claims(jobs, engine):
 
 
 def test_migration_only_new_table_and_old_rows(jobs, engine, database_url):
-    from alembic import command
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+    from alembic.script import ScriptDirectory
     from sqlalchemy import inspect
 
     from conftest import migration_config
 
     token, workspace, snapshot = seed(engine)
-    with engine.connect() as conn:
-        old = conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
     config = migration_config(database_url)
-    before = set(inspect(engine).get_table_names())
-    command.downgrade(config, "0009_policy_intake")
-    try:
-        assert set(inspect(engine).get_table_names()) == before - {"evidence_jobs"}
-        with engine.connect() as conn:
-            assert (
-                conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
-                == old
-            )
-    finally:
-        command.upgrade(config, "0010_evidence_jobs")
-    assert set(inspect(engine).get_table_names()) == before
+    revision = ScriptDirectory.from_config(config).get_revision("0010_evidence_jobs")
+    with engine.begin() as conn:
+        old = conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
+        version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
+        before = set(inspect(conn).get_table_names())
+        with Operations.context(MigrationContext.configure(conn)):
+            revision.module.downgrade()
+            try:
+                assert set(inspect(conn).get_table_names()) == before - {"evidence_jobs"}
+                assert (
+                    conn.execute(
+                        text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")
+                    ).all()
+                    == old
+                )
+                assert (
+                    conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+                )
+            finally:
+                revision.module.upgrade()
+        assert set(inspect(conn).get_table_names()) == before
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
 
 
 def test_source_metadata_change_rejects_same_request(jobs, engine):

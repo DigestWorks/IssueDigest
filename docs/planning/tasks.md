@@ -1,3 +1,14 @@
+## 구현·집중 검사 완료 · 질문별 자료 선택 영속화 · 2026-10-26
+
+- [x] [질문 전용 검색·선택/hash 고정·재접수 계약](../changes/question-source-plans.md) 고정.
+- [x] strict 계획 DTO·repository/migration·기존 lexical 검색 연결 TDD.
+- [x] 역할/자료/동시성·변조·재검색0·no_match·예산/run/job 무변경 집중62개+승인된 기존 migration 검사1개(합계63개)·scoped 정적 검사.
+- [x] 기존 파일484개 변경 없이 보존·승인된 기존 migration 검사1개만 수정·이전 증거52개 보존.
+- [x] 독립 최종 검토 C0I0M2 비차단·lazy presentation 복구 계약 문서화.
+- [ ] 전체QA·PR/Sites·자체QA 정리.
+- [ ] presentation만 삭제한 saved get/retry 집중 검사(비차단 후속).
+- [ ] 다자료 AI 실행·브리핑 변환/표시·운영 부하·개발 반영.
+
 ## 검증 완료 · 근거 작업 접수·queue 전달 · 2026-10-26
 
 - [x] [접수/queue 경계·명시 버전·ack 유실 계약](../changes/evidence-job-dispatch.md) 고정.
