@@ -1,3 +1,11 @@
+## 진행 · 질문별 브리핑 조합 · 2026-10-26
+
+- [x] [미검토·원문 재검증·불확실성·coverage 조합 계약](../changes/question-briefing-composition.md) 고정.
+- [x] 신규2파일 TDD·집중97개·독립 태스크/전체 검토 C0I0M0.
+- [x] 새 전체9,886개/정적/타입/빌드/OpenAPI·기존494실행/이전44증거 보존.
+- [x] privacy·문서·Draft PR115/Sitesv137·이전v136/7문서 사본·자체QA/volume1 정리(최종 인계).
+- [ ] 실제 최종 생성·저장/API/UI·의미 인수·개발 적용(후속).
+
 ## 진행 · 질문별 자동 분석·검증 결과 수집 · 2026-10-26
 
 - [x] [boundedwait·현재 권한/원문·완료 영수증 수집 계약](../changes/question-plan-runner.md) 고정.
