@@ -49,6 +49,18 @@ function sameQuote(a: BriefingQuoteView, b: BriefingQuoteView) {
     a.text === b.text
   );
 }
+function containsQuote(job: BriefingJobView, quote: BriefingQuoteView) {
+  return (
+    job.status === 'completed' &&
+    job.result !== null &&
+    [
+      ...job.result.additional_quotes,
+      ...job.result.modules.flatMap((module) =>
+        module.claims.flatMap((claim) => claim.quotes),
+      ),
+    ].some((currentQuote) => sameQuote(currentQuote, quote))
+  );
+}
 export function BriefingJobReader({
   workspaceId,
   jobId,
@@ -165,16 +177,7 @@ export function BriefingJobReader({
       });
       if (!valid()) return;
       accept(data);
-      const all = data.result
-        ? [
-            ...data.result.additional_quotes,
-            ...data.result.modules.flatMap((m) =>
-              m.claims.flatMap((c) => c.quotes),
-            ),
-          ]
-        : [];
-      if (!all.some((q) => sameQuote(q, quote)))
-        throw new BriefingJobError('malformed');
+      if (!containsQuote(data, quote)) throw new BriefingJobError('malformed');
       const proof = await getEvidence(workspaceId, quote.snapshot_id, {
         signal: controller.signal,
       });
@@ -190,6 +193,17 @@ export function BriefingJobReader({
           .join('') !== quote.text
       )
         throw new BriefingJobError('malformed');
+      // Evidence membership does not establish the originating job's current authority.
+      const latest = await getBriefingJob(workspaceId, jobId, {
+        signal: controller.signal,
+      });
+      if (!valid()) return;
+      if (
+        latest.data.question !== data.question ||
+        !containsQuote(latest.data, quote)
+      )
+        throw new BriefingJobError('malformed');
+      accept(latest.data);
       setReader({
         identity: `${workspaceId}/${jobId}`,
         snapshotId: quote.snapshot_id,

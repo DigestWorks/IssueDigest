@@ -159,3 +159,26 @@ it('accepts real modules with codepoint quote and aborts body reading', async ()
   controller.abort();
   await expect(pending).rejects.toMatchObject({ kind: 'aborted' });
 });
+it.each(['status', 'epistemic_status', 'module_kind'])(
+  'rejects array-valued enum %s without coercion',
+  async (field) => {
+    const data = completed();
+    if (field === 'status')
+      Object.assign(data, { status: ['pending'], result: null });
+    if (field === 'epistemic_status')
+      Object.assign(data.result.modules[0].claims[0], {
+        epistemic_status: ['source_statement'],
+      });
+    if (field === 'module_kind') {
+      Object.assign(data.result.modules[1], { kind: ['comparison'] });
+      data.result.modules[1].claims.length = 1;
+    }
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(() => Promise.resolve(response(data))),
+    );
+    await expect(getBriefingJob(jobId, jobId)).rejects.toMatchObject({
+      kind: 'malformed',
+    });
+  },
+);

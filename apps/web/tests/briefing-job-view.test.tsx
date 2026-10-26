@@ -242,7 +242,7 @@ it('shows insufficient evidence message only', async () => {
   await screen.findByText('근거가 부족합니다.');
   expect(screen.queryByText('요약')).toBeNull();
 });
-it('discards late requests after recheck and unmount', async () => {
+it('discards a stale request after recheck', async () => {
   let resolve!: (r: Response) => void;
   let first = true;
   vi.stubGlobal(
@@ -399,4 +399,108 @@ it('exposes cancellation connection failure and retry without treating it as wit
   await screen.findByRole('alert');
   expect(screen.getByRole('button', { name: '브리핑 취소' })).toBeEnabled();
   expect(screen.getByRole('button', { name: '다시 조회' })).toBeEnabled();
+});
+function originalFixture() {
+  const data = completed();
+  const proof = structuredClone(fixture.research.evidence[0]);
+  proof.document.workspace_id = jobId;
+  const citation = proof.citations[0];
+  const q = {
+    snapshot_id: jobId,
+    citation_id: citation.citation_id,
+    source_title: '합성 원자료',
+    start: 0,
+    end: Array.from(citation.selector.quote).length,
+    text: citation.selector.quote,
+    citation_quote: citation.selector.quote,
+  };
+  data.result.modules = [
+    {
+      kind: 'summary',
+      title: '요약',
+      claims: [
+        {
+          text: '합성 자료',
+          epistemic_status: 'source_statement',
+          event_date: null,
+          quotes: [q],
+        },
+      ],
+    },
+  ];
+  return { data, proof };
+}
+it.each(['denied', 'binding_changed', 'focus_denied'])(
+  'rejects a delayed original when job authority changes: %s',
+  async (mode) => {
+    const { data, proof } = originalFixture();
+    let resolve!: (r: Response) => void;
+    let changed = false;
+    let evidenceSignal: AbortSignal | undefined;
+    const fetcher = vi
+      .fn()
+      .mockImplementation((url: string, options: RequestInit) => {
+        if (url.includes('/evidence/')) {
+          evidenceSignal = options.signal ?? undefined;
+          return new Promise((r) => {
+            resolve = r;
+          });
+        }
+        if (changed) {
+          if (mode === 'binding_changed') {
+            const next = structuredClone(data);
+            next.result.modules[0].claims[0].quotes[0].source_title =
+              '다른 결합';
+            return Promise.resolve(response(next));
+          }
+          return Promise.resolve(response({}, 403));
+        }
+        return Promise.resolve(response(data));
+      });
+    vi.stubGlobal('fetch', fetcher);
+    mount();
+    await screen.findByText('요약');
+    fireEvent.click(screen.getByRole('button', { name: '원문 열기' }));
+    await waitFor(() => expect(evidenceSignal).toBeDefined());
+    changed = true;
+    if (mode === 'focus_denied') {
+      fireEvent.focus(window);
+      await screen.findByRole('alert');
+      expect(evidenceSignal!.aborted).toBe(true);
+    }
+    await act(async () => resolve(response(proof)));
+    await screen.findByRole('alert');
+    expect(screen.queryByRole('dialog')).toBeNull();
+    expect(screen.queryByText('요약')).toBeNull();
+    expect(screen.queryByText('합성 자료')).toBeNull();
+    if (mode !== 'focus_denied')
+      expect(
+        fetcher.mock.calls.filter((c) => !c[0].includes('/evidence/')),
+      ).toHaveLength(3);
+  },
+);
+it('ignores a body resolving after unmount and aborts its request', async () => {
+  let resolve!: (value: unknown) => void;
+  let signal: AbortSignal | undefined;
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation((_url: string, options: RequestInit) => {
+      signal = options.signal ?? undefined;
+      return Promise.resolve({
+        ok: true,
+        headers: response(job).headers,
+        json: () =>
+          new Promise((r) => {
+            resolve = r;
+          }),
+      });
+    }),
+  );
+  const view = mount();
+  await waitFor(() => expect(resolve).toBeDefined());
+  view.unmount();
+  expect(signal!.aborted).toBe(true);
+  await act(async () => resolve(completed()));
+  expect(screen.queryByText('요약')).toBeNull();
+  expect(screen.queryByRole('dialog')).toBeNull();
 });

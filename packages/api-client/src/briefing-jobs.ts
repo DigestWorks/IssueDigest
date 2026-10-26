@@ -69,7 +69,8 @@ function quote(v: unknown) {
 function moduleView(v: unknown) {
   if (
     !exact(v, ['kind', 'title', 'claims']) ||
-    !['summary', 'comparison', 'timeline'].includes(String(v.kind)) ||
+    typeof v.kind !== 'string' ||
+    !['summary', 'comparison', 'timeline'].includes(v.kind) ||
     !text(v.title, 100)
   )
     return false;
@@ -80,7 +81,8 @@ function moduleView(v: unknown) {
     (c) =>
       exact(c, ['text', 'epistemic_status', 'event_date', 'quotes']) &&
       text(c.text, 400) &&
-      ['source_statement', 'uncertain'].includes(String(c.epistemic_status)) &&
+      typeof c.epistemic_status === 'string' &&
+      ['source_statement', 'uncertain'].includes(c.epistemic_status) &&
       (v.kind === 'timeline' ? date(c.event_date) : c.event_date === null) &&
       list(c.quotes, 1, 960, quote),
   );
@@ -108,6 +110,7 @@ function valid(v: unknown, jobId: string): v is BriefingJobView {
     isId(v.job_id) &&
     v.job_id.toLowerCase() === jobId.toLowerCase() &&
     text(v.question, 1500) &&
+    typeof v.status === 'string' &&
     [
       'pending',
       'running',
@@ -115,7 +118,7 @@ function valid(v: unknown, jobId: string): v is BriefingJobView {
       'failed',
       'cancelled',
       'indeterminate',
-    ].includes(String(v.status)) &&
+    ].includes(v.status) &&
     (v.status === 'completed' ? result(v.result) : v.result === null)
   );
 }
