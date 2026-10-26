@@ -1,3 +1,9 @@
+## 검증 완료 · 최종 브리핑 실행 큐 · 2026-10-26
+
+[작업 계약](../changes/briefing-job-dispatch.md)·[검증](../research/briefing-job-dispatch-validation.md). 신규17/전체10,071개(Python9,251+JS820), 정적/타입/빌드/OpenAPI·독립 태스크/전체 검토 통과. 기존504개 실행 파일과 이전52개 증거 파일은 변경하지 않았다. 접수한 최종 작업의 현재 권한을 확인하고 DBOS에 같은 작업 ID로 전달한다. 실제 SQL·모의 제공자·native DBOS에서 중복/불명확 응답·재열람을 확인했다.
+
+질문 API·화면·개발 서버에는 아직 연결하지 않았다. main/실제 제공자/운영 변경0이며 기본 worker 활성화도 없다. PR·Sites·임시 자원 정리 결과는 아래 최종 인계에 남긴다.
+
 ## 검증 완료 · 최종 브리핑 접수·저장 · 2026-10-26
 
 [작업 계약](../changes/durable-briefing-jobs.md)·[검증 범위](../research/durable-briefing-jobs-validation.md). 신규109/새 전체10,054개(Python9,234+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·독립 Task1/Task2/전체 검토 C0I0M0·미해결0이다. 기존495파일·이전48증거를 보존하고3개 기존 예외의 범위를 확인했다. 공유 예약·원문/원래 권한 재검사·송신 의도·완료 저장/검증 재열람·중단/취소 비용을 연결했다.

@@ -25,5 +25,5 @@ DBOS enqueue_async options는 정확 workflow_name=`issuedigest_question_briefin
 
 ## Controller gates
 
-- [ ] 독립 태스크/전체 검토·전체 검사·기존 실행 byte 보존·privacy.
+- [x] 독립 태스크/전체 검토·전체 검사·기존 실행 byte 보존·privacy.
 - [ ] 기록·Draft PR·Sites 갱신·전용 QA 정리. API/화면/서버는 후속.
