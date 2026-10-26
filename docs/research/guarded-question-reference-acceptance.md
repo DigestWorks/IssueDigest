@@ -37,3 +37,5 @@ HTTP/모델 terminal 완료·strict DTO·현재 원문/질문과 새 SDK 저장 
 ## 증거 검토
 
 독립 검토 C0/I0/M0. 단일 소진 요청·사전 고정12파일/정확 body와328byte 차이·현재476실행 파일/이전474실행·51/36과거 증거 보존·raw 인자와 새 저장 결과 동일성·현재 원문/JSON 재검증을 확인했다. 자동 보정·추가 제공자 호출0이다. 실제 제공자 측 request audit·청구서·앱 저장/worker 복구 인수는 별도다. 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. PR/Sites 결과는 최종 인계에 기록한다.
+
+최종 인계: [Draft PR109](https://github.com/DigestWorks/IssueDigest/pull/109)·Sitesv131 public/native succeeded, 이전v130/변경7문서 정확 사본(70325c2)을 보존했다. Site source `ae602f7f73f4314d026e28e9c70e1b649f882686`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_fef73bb1d6748191b31a9c00d425ad76`, deployment `appgdep_6adeb6fd9a408191933065b216cac3fc`다. HTML116/로컬대상3,335/공개텍스트350·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 자체QA1/전용volume1을 정리했으며 실제 요청은 이번 최초1회뿐이다. 이후 인계는 저장소 원본을 따르고 main/앱/worker 활성화는 없다.

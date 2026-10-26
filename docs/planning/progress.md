@@ -1,6 +1,8 @@
 ## 현재 구현·실제 관측 · 정확한 근거 필드·불확실 상태 · 2026-10-26
 
-[새 SDK 계약](../changes/guarded-question-reference-rules.md)·[실제 인수](../research/guarded-question-reference-acceptance.md). 신규47/관련532·scoped정적검사·태스크/전체 코드 검토 C0I0M0. 같은 원문/Q2·새328byte 지침/envelope19,907을 사전 고정해 실제1요청/HTTP200/completed·30.925초·명제3개 SDK수용/JSON저장 재검증을 확인했다. 최종usage2,444/2,781(추론포함)을 보존했고 재호출/보정0이다. 독립 AI개발판정은 필수3명제 explicit3/다른9미평가이며 증거검토 C0I0M0다. 일반/사람/holdout 품질로 확대하지 않는다. 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. Sites/PR 인계를 진행한다. 기존474실행/과거 결과·비용·앱/worker/main은 유지한다.
+[새 SDK 계약](../changes/guarded-question-reference-rules.md)·[실제 인수](../research/guarded-question-reference-acceptance.md). 신규47/관련532·scoped정적검사·태스크/전체 코드 검토 C0I0M0. 같은 원문/Q2·새328byte 지침/envelope19,907을 사전 고정해 실제1요청/HTTP200/completed·30.925초·명제3개 SDK수용/JSON저장 재검증을 확인했다. 최종usage2,444/2,781(추론포함)을 보존했고 재호출/보정0이다. 독립 AI개발판정은 필수3명제 explicit3/다른9미평가이며 증거검토 C0I0M0다. 일반/사람/holdout 품질로 확대하지 않는다. 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. Sites/PR 최종 인계는 아래 기록을 따른다. 기존474실행/과거 결과·비용·앱/worker/main은 유지한다.
+
+최종 인계: [Draft PR109](https://github.com/DigestWorks/IssueDigest/pull/109)·Sitesv131 public/native succeeded, 이전v130/변경7문서 정확 사본(70325c2)을 보존했다. Site source `ae602f7f73f4314d026e28e9c70e1b649f882686`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_fef73bb1d6748191b31a9c00d425ad76`, deployment `appgdep_6adeb6fd9a408191933065b216cac3fc`다. HTML116/로컬대상3,335/공개텍스트350·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 자체QA1/전용volume1을 정리했으며 실제 요청은 이번 최초1회뿐이다. 이후 인계는 저장소 원본을 따르고 main/앱/worker 활성화는 없다.
 
 ## 실제 관측 · 질문별 근거 스트림 · 2026-10-25
 
