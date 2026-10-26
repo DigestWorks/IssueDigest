@@ -1,6 +1,6 @@
-## 진행 중 · 영속 근거 작업·비동기 worker · 2026-10-26
+## 검증 완료 · 영속 근거 작업·비동기 worker · 2026-10-26
 
-[새 계약](../changes/durable-evidence-worker.md). 기존 ResearchRun의 gpt-5.4-mini/가격/출력 계약을 바꾸지 않고 내부 근거 작업과 DBOS workflow를 별도로 연결한다. 기존 월 예약 pool10USD/40회 공유·명시 서버 예약 금액·송신 전 영속 의도·모호한 결과 무재호출·현재 권한/원문 재검증을 구현 중이다. 실제 제공자/서버 변경0이며 앱/기본worker/main은 유지한다. 완료 후 Sites를 갱신한다.
+[새 계약](../changes/durable-evidence-worker.md)·[검증 기록](../research/durable-evidence-worker-validation.md). 실행abfbe26·신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0·미해결0다. 최초 검토의 완료 취소 응답/잠금 역전2건은 회귀7건 RED 재현 후 수정·좁은 재검토로 해소했다. 최초 중단된 전체 검사는 통과로 세지 않고 보존했다. 기존476실행/이전68증거·앱/기본worker/main은 유지하며 제공자 호출0·운영 서버/DB 변경0이다. 서비스 요청·브리핑 변환·예약 정책/부하·개발 반영은 후속이며 PR/Sites/정리는 최종 인계를 따른다.
 
 ## 현재 구현·실제 관측 · 정확한 근거 필드·불확실 상태 · 2026-10-26
 

@@ -1,6 +1,6 @@
-## M3 진행 · 영속 근거 작업과 복구
+## M3 검증 완료 · 영속 근거 작업과 복구
 
-[고정 계약](../changes/durable-evidence-worker.md)에 따라 새 guarded-v2를 내부 SQL 작업·별도 async DBOS workflow에 연결한다. 기존 run의 모델·가격·결과와 과거 복구 단계는 유지하고 월 예약 pool은 공유한다. 단일 송신 의도·중단 후 무재호출·취소 뒤 관측 사용량·현재 권한/원문 재검증을 합성 PostgreSQL/실제 DBOS로 검증 중이다. 서비스 enqueue·브리핑 변환·개발 배포와 운영 예약 정책 인수는 후속이다. 실제 제공자 호출0이다.
+[내부 저장·worker 계약](../changes/durable-evidence-worker.md)·[검증 범위](../research/durable-evidence-worker-validation.md). 신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0다. 전용 합성 PostgreSQL/실제 DBOS에서 단일 송신·중단/캐시 재개·취소/권한/원문 변경·사용량 보존을 확인했다. 기존476실행/이전68증거와 앱/기본worker/main은 유지한다. 서비스 enqueue·브리핑 변환·다자료·예약 정책/부하 인수·개발 배포가 다음이다. 실제 제공자 호출0이며 청구/의미/앱 인수를 뜻하지 않는다.
 
 ## M3 진행 · 명시적 근거 필드·불확실 상태
 

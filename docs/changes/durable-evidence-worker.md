@@ -24,7 +24,7 @@ Read test-driven-development. Use dedicated synthetic PostgreSQL URL supplied by
 
 ## Controller gates
 
-- [ ] Task/whole-branch review, full checks and isolated actual DBOS/PostgreSQL/no-provider integration evidence.
+- [x] Task/whole-branch review, full checks and isolated actual DBOS/PostgreSQL/no-provider integration evidence.
 - [ ] Historical476 execution/previous evidence preservation, docs/privacy, Draft PR, Sites summary/previous snapshot, ownQA/SDD cleanup.
 - [ ] Service-side enqueue/briefing conversion/multi-source orchestration and operator reservation policy validation before development deployment. No live activation in this change.
 
@@ -35,3 +35,7 @@ Read test-driven-development. Use dedicated synthetic PostgreSQL URL supplied by
 3. 월 예약 pool은 공유하고 예약 금액은 서버가 명시해야 한다. 전체 예약 상한은 유지하지만 이 금액이 실제 청구 상한이라는 보장은 아니며 운영 비용 정책 검증이 남는다.
 
 4. 기존 auth helper가 여러 workspace에서 공유하는 사용자 행도 잠그므로 새 작업의 짧은 SQL transaction을 전용 advisory namespace로 직렬화한다. AI await까지 유지하지 않으며 잠금 역전을 방지하지만 처리량 병목이 생길 수 있어 운영 부하 인수가 남는다.
+
+## 검증 결과
+
+실행abfbe26·신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·최종 검토 C0I0M0. 초기 I2는 완료 취소 검증/SQL 잠금 순서 수정 후 회귀7·좁은 재검토로 해소했다. [상세 범위·한계](../research/durable-evidence-worker-validation.md)를 따른다. 실제 제공자/서버/앱 활성화0이다.

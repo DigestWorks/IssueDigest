@@ -1,4 +1,4 @@
-진행 중: [영속 근거 작업·비동기 worker](docs/changes/durable-evidence-worker.md). 새 생성 SDK를 별도 내부 SQL 작업·DBOS workflow에 연결하고 있습니다. 송신 의도·복구·관측 사용량·현재 권한/원문을 검증하며 기존 앱과 기본 worker는 유지합니다. 실제 AI 호출·개발 서버 활성화는 이번 변경에 포함하지 않습니다.
+현재 구현: [영속 근거 작업·비동기 worker](docs/changes/durable-evidence-worker.md). 신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0를 통과했습니다. SQL 송신 의도·중단 후 무재호출·공유 예약 예산·현재 권한/원문 검증을 연결했습니다. 이번 실제 AI 호출0회이며 서비스 요청·브리핑 변환·개발 배포는 후속입니다.
 
 현재 구현: [정확한 근거 필드·불확실 상태 지침](docs/changes/guarded-question-reference-rules.md). 신규47/관련532·scoped정적검사·독립 코드 검토를 통과했습니다. 실제1요청에서 모델 완료/명제3개 SDK수용·JSON 재검증을 확인했으며, 필수3명제는 AI 개발판정에서 보존을 확인했으며, 전체9,515개·정적 검사/빌드/OpenAPI도 통과했습니다. 일반 품질·앱 인수와 구분합니다.
 
