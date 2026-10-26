@@ -1,10 +1,18 @@
+## 최종 인계 · 개발 전환 사전 검증 · 2026-10-26
+
+[Draft PR122](https://github.com/DigestWorks/IssueDigest/pull/122)은 feat/question-briefing-web-flow 기반 문서 변경이며 미병합이다. 제품537파일은 이전 검증본과 같고 별도 서버9170e06/locked 환경/SPA를 준비했다. 실제 공동DB0009·기존 API/worker/웹/collector/cron은 전환하지 않았다. 서버 밖 full/app 백업·별도PG18.6 복원과 기존23테이블 정규화 rowhash/count(auth_sessions.last_activity_at 제외), 복원DB의0012/전용DBOS·DML/DDL·실제 시작/종료·잘못된 상속 schema/재실행·이전DBOS 보존을 확인했다. 독립 재검토 C0I0M0다.
+
+Sitesv144 public/native succeeded(2026-10-26T12:56:21.396596+00:00), source `98c8af54e3c22a6996bf7b7e103b0035f7e3ec69`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_fb5df48a46ac819197e1fba7765dd883`, deployment `appgdep_6adf4de635148191a3ab4e8e4bf3de45`. 이전v143과 변경4문서 정확 사본(80ffe2b)을 보존했다. HTML129/로컬대상4,270/공개텍스트415·실제 비공개60+12항목 제외를 확인했다. 텍스트만 갱신해 Sites 브라우저검사는 반복하지 않았으며 사용자 탭 이동0이다. 게시 이후 최종 인계는 저장소 원본을 따른다.
+
+자체 복원DB1/volume1만 정리했고 서버 밖 백업/증거는 비공개로 유지한다. 기존 외부 home/API status200·비회원session401/no-cookie를 확인했다. 실제 생성/사용자 로그인·공동DB/main 변경0이다. OpenAI Models 읽기 권한 추가를 요청한 상태이며 api.model.read 부족403을 Responses 쓰기 거부/모델 부재로 해석하지 않는다. 갱신 후 실제 모델 접근 확인·최종 전환 검토·DB/API/worker/웹 전환·HTTPS/사후 보존을 이어간다. PR 첨부 도구는 지연돼 일반 링크로 제공한다.
+
 ## 개발 전환 준비 · 모델 접근 확인 대기 · 2026-10-26
 
 [작업 범위](../changes/question-web-development.md)·[확인과 한계](../research/question-web-development-readiness.md). 서버에 제품9170e06의 별도 locked source/venv/static을 준비했다. 기존 schema0009/API/worker/웹·수집기/cron은 유지했다. 활성run/workflow0, 앱 DDL 없음·개발자 기존 소유 역할 권한을 확인했다.
 
 서버 밖 full/app 백업과 별도PG18.6 복원에서 기존23테이블 정규화 row hash/count(auth_sessions.last_activity_at 제외)가 일치했다. 복원 DB의0012·전용 DBOS·새3테이블 좁은DML·금지DDL/DELETE4종42501·실제 API/worker 기동/종료를 검증했다. 잘못된 상속 schema 하네스를 고정해 재실행과 이전 DBOS 전체 행 보존을 확인했다. 독립 검토 미해결0, 외부 요청/생성/새 작업0이다. 전용 복원DB1/volume1만 정리하고 비공개 백업은 보존했다.
 
-모델 조회는 api.model.read 부족403으로, 키의 Models 읽기 권한 추가를 요청했다. 동일 사용자 키임을 확인했으며 Responses 쓰기 거부/모델 부재로 해석하지 않는다. 사용자 권한 갱신 후 실제 모델 접근·최종 전환 검토·공동DB migration/기존 단일 executor/웹 전환·HTTPS 검증을 이어간다. 현재 개발 사이트는 이전 코드이며 생성 호출·기존 실행/공동DB/main 변경0이다. 제품537파일은 기존 검증본과 동일하며 전체 검사를 반복하지 않았다. Sites 요약 반영 대기.
+모델 조회는 api.model.read 부족403으로, 키의 Models 읽기 권한 추가를 요청했다. 동일 사용자 키임을 확인했으며 Responses 쓰기 거부/모델 부재로 해석하지 않는다. 사용자 권한 갱신 후 실제 모델 접근·최종 전환 검토·공동DB migration/기존 단일 executor/웹 전환·HTTPS 검증을 이어간다. 현재 개발 사이트는 이전 코드이며 생성 호출·기존 실행/공동DB/main 변경0이다. 제품537파일은 기존 검증본과 동일하며 전체 검사를 반복하지 않았다. Sitesv144 요약 게시 완료(상단 최종 인계).
 
 ## 최종 인계 · 질문 제출·브리핑 화면 연결 · 2026-10-26
 
