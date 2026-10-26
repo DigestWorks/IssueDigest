@@ -1,3 +1,7 @@
+## M3 검증 완료 · 영속 근거 작업과 복구
+
+[내부 저장·worker 계약](../changes/durable-evidence-worker.md)·[검증 범위](../research/durable-evidence-worker-validation.md). 신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0다. 전용 합성 PostgreSQL/실제 DBOS에서 단일 송신·중단/캐시 재개·취소/권한/원문 변경·사용량 보존을 확인했다. 기존476실행/이전68증거와 앱/기본worker/main은 유지한다. 서비스 enqueue·브리핑 변환·다자료·예약 정책/부하 인수·개발 배포가 다음이다. 실제 제공자 호출0이며 청구/의미/앱 인수를 뜻하지 않는다.
+
 ## M3 진행 · 명시적 근거 필드·불확실 상태
 
 [guarded-v2](../changes/guarded-question-reference-rules.md)는 실제 빈 필드 조건을328byte로 명시하고 이전 SDK/검증기는 보존한다. [단일 실제 인수](../research/guarded-question-reference-acceptance.md)에서 명제3개의 SDK수용/원문 검증/JSON왕복을 확인했다. 필수3명제는 비맹검 AI개발판정 explicit3/다른9미평가·독립 증거 검토 C0I0M0이며 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. 실제 worker/합산 예산/권한/복구·앱 인수는 별도로 남는다.

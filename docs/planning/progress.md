@@ -1,3 +1,9 @@
+## 검증 완료 · 영속 근거 작업·비동기 worker · 2026-10-26
+
+[새 계약](../changes/durable-evidence-worker.md)·[검증 기록](../research/durable-evidence-worker-validation.md). 실행abfbe26·신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0·미해결0다. 최초 검토의 완료 취소 응답/잠금 역전2건은 회귀7건 RED 재현 후 수정·좁은 재검토로 해소했다. 최초 중단된 전체 검사는 통과로 세지 않고 보존했다. 기존476실행/이전68증거·앱/기본worker/main은 유지하며 제공자 호출0·운영 서버/DB 변경0이다. 서비스 요청·브리핑 변환·예약 정책/부하·개발 반영은 후속이며 PR/Sites/정리는 최종 인계를 따른다.
+
+최종 인계: [Draft PR110](https://github.com/DigestWorks/IssueDigest/pull/110)·Sitesv132 public/native succeeded, 이전v131/변경7문서 정확 사본(03ec9e9)을 보존했다. Site source `fcedd616dd2871eeb18b4d7355203e7b69a1cdab`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a43137d78bb4819199961d654929f981`, deployment `appgdep_6adec48114e8819197f3088fd6e211ce`다. HTML117/로컬대상3,401/공개텍스트355·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 자체QA1/전용volume1을 정리하고 전용 포트 닫힘을 확인했다. 네 판단과 영향은 명세/검증 기록에 남겼다. 이후 인계는 저장소 원본을 따르며 앱/worker/main 활성화0이다. 최종 문서 push의 원격CI는 로컬 전체 검증과 구분한다.
+
 ## 현재 구현·실제 관측 · 정확한 근거 필드·불확실 상태 · 2026-10-26
 
 [새 SDK 계약](../changes/guarded-question-reference-rules.md)·[실제 인수](../research/guarded-question-reference-acceptance.md). 신규47/관련532·scoped정적검사·태스크/전체 코드 검토 C0I0M0. 같은 원문/Q2·새328byte 지침/envelope19,907을 사전 고정해 실제1요청/HTTP200/completed·30.925초·명제3개 SDK수용/JSON저장 재검증을 확인했다. 최종usage2,444/2,781(추론포함)을 보존했고 재호출/보정0이다. 독립 AI개발판정은 필수3명제 explicit3/다른9미평가이며 증거검토 C0I0M0다. 일반/사람/holdout 품질로 확대하지 않는다. 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. Sites/PR 최종 인계는 아래 기록을 따른다. 기존474실행/과거 결과·비용·앱/worker/main은 유지한다.
