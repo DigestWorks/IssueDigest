@@ -3,7 +3,7 @@
 - [x] [caller-lived 실행 연결 계약](../changes/question-briefing-runner.md)·TDD82개·독립 태스크/전체 검토.
 - [x] native 분석→최종 queue·완료 원문 영수증·동시/재접수 중복0·현재 권한·예약/timeout/cancel 검사.
 - [x] 전체10,208개·정적/타입/빌드/OpenAPI·기존517실행/이전82증거 보존.
-- [ ] Draft PR·Sites·privacy·전용 QA 정리(최종 인계).
+- [x] Draft PR120·Sitesv142·privacy·전용 QA2 정리(진행 기록의 최종 인계).
 - [ ] 기존 질문 API·화면 전환·실제 모델 의미/개발 적용·독립 부모 복구.
 
 ## 구현 · 저장 브리핑 조회·읽기 화면 · 2026-10-26

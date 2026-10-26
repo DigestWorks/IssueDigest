@@ -23,4 +23,4 @@ Ruff/format/mypy 및 신규+기존 questionrunner/briefingworker/queue 집중 �
 ## Controller gates
 
 - [x] 독립 태스크/전체 검토·전체 검사·계약·oldbytes/이전증거·privacy.
-- [ ] 진행문서·Draft PR·Sites·전용 QA 정리. HTTP 질문 버튼/서버 전환은 별도.
+- [x] 진행문서·Draft PR·Sites·전용 QA 정리. HTTP 질문 버튼/서버 전환은 별도.

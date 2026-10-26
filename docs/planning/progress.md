@@ -1,3 +1,11 @@
+## 최종 인계 · 질문 분석→최종 브리핑 실행 연결 · 2026-10-26
+
+[Draft PR120](https://github.com/DigestWorks/IssueDigest/pull/120)은 feat/briefing-job-http-view 기반·미병합이다. 실행e6ccca3 전체검사9,351Python+854JS에 보강3개를 더해 신규82/총10,208개(Python9,354+JS854)를 검증했다. daf112c는 기존79개 byteprefix/AST와 실행 코드를 그대로 두고 실제 SQL 권한/원문 변경·INSERT 도중 취소3개만 추가했으며 전체82module도 통과했다. 단일 최종source root 성공으로 표현하지 않는다. 정적/타입/빌드/OpenAPI·독립 태스크I1보완/재검토·전체 검토 C0I0M0다. [검증 범위](../research/question-briefing-runner-validation.md).
+
+Sitesv142 public/native succeeded(2026-10-26T11:06:47.622321+00:00), source `19dc126920c55e32708598cfa1560a96dc5c90bd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_c08ed7d6e0d481918819ffaa4b4e8176`, deployment `appgdep_6adf3439b0ac81919c15037b36f14d53`. 이전v141와 변경7문서 정확 사본(875eaf8)을 보존했다. HTML127/로컬대상4,116/공개텍스트405·실제 비공개60+12항목 제외를 확인했다. 새 UI가 없어 브라우저 검사는 반복하지 않았고 사용자 탭 이동0이다. 게시 이후 최종 인계는 저장소 원본을 따른다.
+
+기존517실행·이전82증거 불변이다. 전용 QA2/익명volume2와 자신의 SDD2디렉터리를 보존 후 정리했고25605/25606포트 닫힘을 확인했다. 실제 제공자 호출·서버 변경·main 병합·기본 worker 활성화0. 기존 질문 HTTP API/화면 전환·개발 적용·실제 의미 품질·독립 부모 복구는 남아 있다.5판단과 비용은 검증 기록에 보존했다. PR 첨부는 대화100개 한도로 실패해 일반 링크로 제공한다. GitHub 검사 자동화를 재활성화하지 않았다.
+
 ## 검증 완료 · 질문 분석→최종 브리핑 실행 연결 · 2026-10-26
 
 [작업 계약](../changes/question-briefing-runner.md)·[검증](../research/question-briefing-runner-validation.md). 신규82/전체10,208개(Python9,354+JS854)·정적/타입/빌드/OpenAPI·독립 검토 통과. 한 요청의 자료 분석→최종 접수·queue를 연결했다. 같은 원래 요청ID와 공유 실행 큐·현재 원문/권한·기존 예약 계약을 보존한다. 자료 없음/분석 중단이면 최종 생성0이다.
