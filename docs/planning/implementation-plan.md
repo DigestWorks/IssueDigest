@@ -1,3 +1,7 @@
+## M3 진행 · 질문별 자료 선택 영속화
+
+[질문 전용 검색 계획](../changes/question-source-plans.md)으로 원래 질문·선택 순서·현재 source hash를 저장한다. 같은 request는 재검색하지 않고 원래 자료를 다시 검증한다. no_match를 현실의 근거 부재·의미 판정으로 표시하지 않는다. 기존485실행/이전52증거·앱/기본worker/main을 유지하며 실제 제공자/예산 예약 변경0이다. 다자료 AI 실행·브리핑 변환/표시·부하 인수·개발 적용이 후속이다.
+
 ## M3 검증 완료 · 근거 작업 접수·queue 전달
 
 [접수·dispatch 계약](../changes/evidence-job-dispatch.md)·[검증 범위](../research/evidence-job-dispatch-validation.md). 신규23/새전체9,595개(Python8,775+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 수정 재검토 C0I0M0다. 실제 DBOSClient/queue·모의 SSE에서 동일 ID/예약1/HTTP1을 조건별로 확인했다. 실행 순서에 기대던 테스트는 결정적 gate로 보완했다. 기존481실행/이전46증거와 앱/기본worker/main은 유지한다. 질문 전용 검색·다자료/브리핑 변환/표시·운영 정책/부하·개발 적용은 다음이다.
