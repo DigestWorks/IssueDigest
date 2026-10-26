@@ -18,7 +18,7 @@
 
 ## Task 1: Durable job repository and registered async worker
 
-- [ ] TDD the five owned files and migration/worker integration.
+- [x] TDD the five owned files and migration/worker integration.
 
 Read test-driven-development. Use dedicated synthetic PostgreSQL URL supplied by controller (see dispatch), existing auth/evidence public fixtures, real native AsyncOpenAI/httpx2.MockTransport SSE (no provider), and actual installed DBOS for integration. RED missing module before implementation; GREEN focused tests + Ruff/format/mypy. Meaningful tests: migration upgrade/downgrade only new table and old rows unchanged; import has no DB/network/model work; cross-layer source hash agrees; session/role/workspace/source rejection; idempotency/change conflicts; shared old/new budget exact boundaries/concurrency; atomic duplicate claims; persisted intent then process/restart-style recovery ->indeterminate0additionalHTTP; completed receipt/job replay ->0additionalHTTP; commit-then-raise success remains completed; cancel/revoke/source/title mutation during model call blocks result retains usage/reservation; terminal invalid/output/whitespace/transport/cancel observations; unknown usage staysNone; over-cap observed usage persists; opaque receipt/profile/hash/type corruption rejected by deep worker read helper; completed result unreviewed/never Canvas. Actual DBOS registration/start/checkpoint replay verifies fixed workflow ID/name, one native request, and current authority checked even cached step. No existing paid runner, private fixture, server or production change. Keep new fixtures isolated; fullQA controller-owned. Commit only owned files+Task1 checkbox. Report exact RED/GREEN/static, public interfaces, limitations and self-review; no subagent spawning.
 

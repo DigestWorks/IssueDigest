@@ -1,0 +1,448 @@
+"""Dedicated synthetic durable job integration."""
+
+import importlib
+from decimal import Decimal
+from uuid import uuid4
+
+import pytest
+from issuedigest_domain import EvidenceBundle
+from issuedigest_storage import EvidenceRepository, IdentityRepository, SessionRepository
+from sqlalchemy import text
+
+from conftest import bundle_data
+
+
+def api():
+    name = "issuedigest_storage.evidence_jobs"
+    assert importlib.util.find_spec(name) is not None, "Missing durable job repository"
+    return importlib.import_module(name)
+
+
+@pytest.fixture
+def jobs(engine):
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE evidence_jobs"))
+    yield api().EvidenceJobRepository(engine)
+    with engine.begin() as conn:
+        conn.execute(text("TRUNCATE evidence_jobs"))
+
+
+def seed(engine):
+    bundle = EvidenceBundle.model_validate(bundle_data())
+    snapshot, actor = uuid4(), uuid4()
+    EvidenceRepository(engine).save(snapshot, bundle)
+    identity = IdentityRepository(engine)
+    identity.register_identity(actor, "synthetic", str(actor))
+    identity.set_membership(actor, bundle.document.workspace_id, "owner")
+    return (
+        SessionRepository(engine).issue_session(actor).token,
+        bundle.document.workspace_id,
+        snapshot,
+    )
+
+
+def test_repository_exists():
+    assert api().EvidenceJobRepository
+
+
+def test_idempotency_claim_recovery_and_budget(jobs, engine):
+    token, workspace, snapshot = seed(engine)
+    request = uuid4()
+    job = jobs.submit(
+        token,
+        workspace,
+        request,
+        snapshot,
+        " exact ",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal("1.00"),
+    )
+    again = jobs.submit(
+        token,
+        workspace,
+        request,
+        snapshot,
+        " exact ",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal("1.00"),
+    )
+    assert again.job_id == job.job_id
+    with pytest.raises(api().ResearchConflict):
+        jobs.submit(
+            token,
+            workspace,
+            request,
+            snapshot,
+            "changed",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal("1.00"),
+        )
+    assert jobs.claim(job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64)
+    assert not jobs.claim(job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64)
+    assert jobs.recover(job.job_id).status == "indeterminate"
+    assert jobs.get(token, workspace, job.job_id).receipt is None
+    with engine.connect() as conn:
+        row = conn.execute(
+            text("SELECT reserved_usd,reservation_count FROM research_budget_months")
+        ).one()
+        assert row == (Decimal("1.00"), 1)
+
+
+@pytest.mark.parametrize(
+    "reservation", [1, 1.0, True, Decimal("NaN"), Decimal("0"), Decimal("10.01"), Decimal(".001")]
+)
+def test_exact_reservation(jobs, engine, reservation):
+    token, workspace, snapshot = seed(engine)
+    with pytest.raises(ValueError):
+        jobs.submit(
+            token,
+            workspace,
+            uuid4(),
+            snapshot,
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=reservation,
+        )
+
+
+def test_source_hash_matches_agents(jobs, engine):
+    from issuedigest_agents.question_evidence_propositions import _source
+
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    _, source = jobs.prepare(job.job_id)
+    assert job.source_sha256 == _source(source)[0]
+
+
+def test_observations_over_cap_and_unknown_are_not_free(jobs, engine):
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    assert jobs.recover(job.job_id).known_usage is None
+    jobs.claim(job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64)
+    huge = dict(input_tokens=2**70, output_tokens=9000, requests=1)
+    failed = jobs.finish(
+        job.job_id, known_usage=huge, usage_complete=True, stream_closed=True, reason="output"
+    )
+    assert failed.known_usage == huge and failed.receipt is None and failed.status == "failed"
+    assert (
+        jobs.finish(
+            job.job_id, known_usage=dict(input_tokens=1, output_tokens=1, requests=1)
+        ).known_usage
+        == huge
+    )
+
+
+def test_budget_combines_old_pool_and_new(jobs, engine):
+    token, workspace, snapshot = seed(engine)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO research_budget_months VALUES "
+                "(to_char(clock_timestamp(),'YYYY-MM'),9.75,39)"
+            )
+        )
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    assert job.status == "pending"
+    jobs.cancel(token, workspace, job.job_id)
+    with pytest.raises(api().ResearchBudgetExceeded):
+        jobs.submit(
+            token,
+            workspace,
+            uuid4(),
+            snapshot,
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".01"),
+        )
+
+
+def test_viewer_can_read_current_job(jobs, engine):
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    viewer = uuid4()
+    identity = IdentityRepository(engine)
+    identity.register_identity(viewer, "synthetic", str(viewer))
+    identity.set_membership(viewer, workspace, "viewer")
+    viewer_token = SessionRepository(engine).issue_session(viewer).token
+    assert jobs.get(viewer_token, workspace, job.job_id).job_id == job.job_id
+    with pytest.raises(api().ResearchForbidden):
+        jobs.cancel(viewer_token, workspace, job.job_id)
+
+
+@pytest.fixture(scope="module", autouse=True)
+def restore_introduced_agent_modules():
+    import sys
+
+    package = importlib.import_module("issuedigest_agents")
+    existing, attributes = set(sys.modules), vars(package).copy()
+    yield
+    for name in set(sys.modules) - existing:
+        if name.startswith("issuedigest_agents."):
+            sys.modules.pop(name, None)
+    for name in set(vars(package)) - attributes.keys():
+        delattr(package, name)
+    for name, value in attributes.items():
+        setattr(package, name, value)
+
+
+def test_atomic_duplicate_claims(jobs, engine):
+    from concurrent.futures import ThreadPoolExecutor
+
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(
+            pool.map(
+                lambda _: jobs.claim(
+                    job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64
+                ),
+                range(2),
+            )
+        )
+    assert sorted(results) == [False, True]
+
+
+def test_migration_only_new_table_and_old_rows(jobs, engine, database_url):
+    from alembic import command
+    from sqlalchemy import inspect
+
+    from conftest import migration_config
+
+    token, workspace, snapshot = seed(engine)
+    with engine.connect() as conn:
+        old = conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
+    config = migration_config(database_url)
+    before = set(inspect(engine).get_table_names())
+    command.downgrade(config, "0009_policy_intake")
+    try:
+        assert set(inspect(engine).get_table_names()) == before - {"evidence_jobs"}
+        with engine.connect() as conn:
+            assert (
+                conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
+                == old
+            )
+    finally:
+        command.upgrade(config, "0010_evidence_jobs")
+    assert set(inspect(engine).get_table_names()) == before
+
+
+def test_source_metadata_change_rejects_same_request(jobs, engine):
+    from issuedigest_storage.repository import StorageCorruption
+    from issuedigest_storage.research import ResearchRepository
+
+    token, workspace, snapshot = seed(engine)
+    request = uuid4()
+    job = jobs.submit(
+        token,
+        workspace,
+        request,
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    _, source = jobs.prepare(job.job_id)
+    ResearchRepository(engine).upsert_presentation(
+        source[2].model_copy(update={"title": "changed"})
+    )
+    with pytest.raises(api().ResearchConflict):
+        jobs.submit(
+            token,
+            workspace,
+            request,
+            snapshot,
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".25"),
+        )
+    with pytest.raises(StorageCorruption):
+        jobs.prepare(job.job_id)
+
+
+@pytest.mark.parametrize(
+    "question,model",
+    [
+        ("", "gpt-6.1-sol"),
+        ("  ", "gpt-6.1-sol"),
+        ("q" * 1501, "gpt-6.1-sol"),
+        ("q", "gpt-5.4-mini"),
+        ("q", True),
+    ],
+)
+def test_exact_question_and_model(jobs, engine, question, model):
+    token, workspace, snapshot = seed(engine)
+    with pytest.raises(ValueError):
+        jobs.submit(
+            token,
+            workspace,
+            uuid4(),
+            snapshot,
+            question,
+            model=model,
+            reservation_usd=Decimal(".25"),
+        )
+
+
+def test_invalid_session_other_workspace_and_missing_source(jobs, engine):
+    from issuedigest_storage.sessions import AuthenticationDenied
+
+    token, workspace, snapshot = seed(engine)
+    with pytest.raises(AuthenticationDenied):
+        jobs.submit(
+            "invalid",
+            workspace,
+            uuid4(),
+            snapshot,
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".25"),
+        )
+    assert (
+        jobs.submit(
+            token,
+            uuid4(),
+            uuid4(),
+            snapshot,
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".25"),
+        )
+        is None
+    )
+    with pytest.raises(api().ResearchConflict):
+        jobs.submit(
+            token,
+            workspace,
+            uuid4(),
+            uuid4(),
+            "q",
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".25"),
+        )
+
+
+def test_concurrent_shared_budget_last_reservation(jobs, engine):
+    from concurrent.futures import ThreadPoolExecutor
+
+    one = seed(engine)
+    two = seed(engine)
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO research_budget_months VALUES "
+                "(to_char(clock_timestamp(),'YYYY-MM'),9.75,39)"
+            )
+        )
+
+    def submit_one(seed_data):
+        token, workspace, snapshot = seed_data
+        try:
+            return jobs.submit(
+                token,
+                workspace,
+                uuid4(),
+                snapshot,
+                "q",
+                model="gpt-6.1-sol",
+                reservation_usd=Decimal(".25"),
+            ).status
+        except api().ResearchBudgetExceeded:
+            return "budget"
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        assert sorted(pool.map(submit_one, [one, two])) == ["budget", "pending"]
+
+
+def test_finish_storage_rejects_mismatched_source_identity(jobs, engine):
+    from issuedigest_storage.repository import StorageCorruption
+
+    token, workspace, snapshot = seed(engine)
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "q",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal(".25"),
+    )
+    jobs.claim(job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64)
+    usage = dict(input_tokens=10, output_tokens=5, requests=1)
+    fake = dict(
+        profile="guarded-question-evidence-v2",
+        status="unreviewed",
+        prompt_sha256="a" * 64,
+        instructions_sha256="b" * 64,
+        usage=usage,
+        evidence={"source_sha256": "f" * 64},
+    )
+    with pytest.raises(StorageCorruption):
+        jobs.finish(
+            job.job_id, receipt=fake, known_usage=usage, usage_complete=True, stream_closed=True
+        )
+    assert jobs.prepare(job.job_id)[0].status == "running"
+
+
+def test_actual_old_run_and_new_job_share_pool(jobs, engine):
+    from issuedigest_domain.research_journey import ResearchRequest
+    from issuedigest_storage.research import ResearchRepository
+
+    token, workspace, snapshot = seed(engine)
+    old = ResearchRepository(engine).submit(
+        token, workspace, ResearchRequest(request_id=uuid4(), question="old")
+    )
+    assert old is not None
+    job = jobs.submit(
+        token,
+        workspace,
+        uuid4(),
+        snapshot,
+        "new",
+        model="gpt-6.1-sol",
+        reservation_usd=Decimal("9.75"),
+    )
+    assert job.status == "pending"
+    with engine.connect() as conn:
+        assert conn.execute(
+            text("SELECT reserved_usd,reservation_count FROM research_budget_months")
+        ).one() == (Decimal("10"), 2)
