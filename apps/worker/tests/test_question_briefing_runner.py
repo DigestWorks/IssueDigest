@@ -599,3 +599,221 @@ def test_extra_dataclass_fields_rejected(stages):
     object.__setattr__(stages.evidence, "extra", "injected")
     with pytest.raises(api().QuestionBriefingRunError):
         invoke(stages)
+
+
+class FinalBoundaryClient:
+    """Observe transport attempts after pre-existing real completed analysis."""
+
+    def __init__(self):
+        self.enqueues = []
+        self.waits = []
+
+    async def enqueue_async(self, *args, **kwargs):
+        self.enqueues.append((args, kwargs))
+        raise AssertionError("Final boundary must not enqueue")
+
+    async def retrieve_workflow_async(self, *args, **kwargs):
+        self.waits.append((args, kwargs))
+        raise AssertionError("Completed analysis must not wait")
+
+
+async def complete_final_boundary_analysis(admitted):
+    """Produce a real stored SDK receipt before exercising final admission guards."""
+    import json
+
+    import httpx2 as httpx
+    from issuedigest_agents.question_dispatch import _child
+    from issuedigest_worker.evidence_worker import execute_evidence_job
+    from openai import AsyncOpenAI
+    from test_guarded_responses_stream import Body, events
+    from test_question_evidence_propositions import packet
+
+    repos, args, src = admitted
+    plan = await asyncio.to_thread(
+        repos[0].submit, args["token"], args["workspace_id"], args["request_id"], args["question"]
+    )
+    assert plan is not None and len(plan.sources) == 1
+    child_id = _child(plan.plan_id, plan.sources[0].snapshot_id, 0)
+    job = await asyncio.to_thread(
+        repos[1].submit,
+        args["token"],
+        args["workspace_id"],
+        child_id,
+        src[0],
+        args["question"],
+        model=args["model"],
+        reservation_usd=args["evidence_reservation_usd"],
+    )
+    requests = []
+
+    def serve(request):
+        requests.append(json.loads(request.content))
+        stream = events(json.dumps(packet(src)))
+        for row in stream:
+            for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
+                if item is not None:
+                    item["name"] = "fill_question_evidence_v2"
+        return httpx.Response(
+            200, headers={"content-type": "text/event-stream"}, stream=Body(stream)
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
+        provider = AsyncOpenAI(api_key="synthetic", http_client=http, max_retries=0)
+        try:
+            await execute_evidence_job(
+                repos[1], job.job_id, client=provider, check_ownership=lambda _: True
+            )
+        finally:
+            await provider.close()
+    saved = await asyncio.to_thread(repos[1].get, args["token"], args["workspace_id"], job.job_id)
+    assert saved.status == "completed" and saved.receipt is not None
+    assert len(requests) == 1 and "fill_question_evidence_v2" in str(requests[0]["tools"])
+    return requests
+
+
+def final_boundary_sql_state(engine):
+    from sqlalchemy import text
+
+    with engine.connect() as conn:
+        return tuple(
+            conn.execute(
+                text(
+                    "SELECT (SELECT count(*) FROM evidence_jobs WHERE status='completed'), "
+                    "(SELECT count(*) FROM briefing_jobs), "
+                    "(SELECT coalesce(sum(reserved_usd),0) FROM research_budget_months)"
+                )
+            ).one()
+        )
+
+
+@pytest.mark.parametrize("change", ["authority", "source"])
+def test_actual_current_sql_change_after_analysis_prevents_final_admission(
+    admitted, engine, monkeypatch, change
+):
+    from issuedigest_storage.repository import StorageCorruption
+    from issuedigest_storage.research import ResearchForbidden
+    from sqlalchemy import text
+
+    runner, client = api(), FinalBoundaryClient()
+    repos, args, src = admitted
+    original = runner.submit_briefing_job
+    reached_final = []
+
+    async def mutate_then_submit(*pos, **kwargs):
+        # This boundary is reached only after the actual runner collected real SDK receipts.
+        reached_final.append(pos[4:6])
+
+        def mutate():
+            with engine.begin() as conn:
+                if change == "authority":
+                    conn.execute(
+                        text(
+                            "UPDATE auth_workspace_memberships SET role='viewer' "
+                            "WHERE workspace_id=:workspace"
+                        ),
+                        {"workspace": args["workspace_id"]},
+                    )
+                else:
+                    conn.execute(
+                        text(
+                            "UPDATE parsed_representations SET "
+                            "payload=jsonb_set(payload,'{text}','\"changed\"') "
+                            "WHERE representation_id=:representation"
+                        ),
+                        {"representation": src[1].representation.representation_id},
+                    )
+
+        await asyncio.to_thread(mutate)
+        return await original(*pos, **kwargs)
+
+    monkeypatch.setattr(runner, "submit_briefing_job", mutate_then_submit)
+
+    async def exercise():
+        requests = await complete_final_boundary_analysis(admitted)
+        before = await asyncio.to_thread(final_boundary_sql_state, engine)
+        assert before[0:2] == (1, 0)
+        with pytest.raises(ResearchForbidden if change == "authority" else StorageCorruption):
+            await runner.run_question_briefing(*repos, **(args | dict(client=client)))
+        assert len(reached_final) == 1
+        assert await asyncio.to_thread(final_boundary_sql_state, engine) == before
+        assert client.enqueues == client.waits == []
+        assert len(requests) == 1
+
+    asyncio.run(exercise())
+
+
+def test_actual_final_sql_admission_survives_cancel_without_continuation(
+    admitted, engine, monkeypatch
+):
+    import threading
+
+    from sqlalchemy import event, text
+
+    runner, client = api(), FinalBoundaryClient()
+    repos, args, _ = admitted
+    entered, release, finished = threading.Event(), threading.Event(), threading.Event()
+    submit_thread = []
+    original = repos[2].submit
+
+    def gated_insert(conn, cursor, statement, parameters, context, executemany):
+        if statement.lstrip().startswith("INSERT INTO briefing_jobs"):
+            submit_thread.append(threading.get_ident())
+            entered.set()
+            assert release.wait(20), "SQL admission barrier not released"
+
+    def submit(*pos, **kwargs):
+        try:
+            return original(*pos, **kwargs)
+        finally:
+            finished.set()
+
+    monkeypatch.setattr(repos[2], "submit", submit)
+
+    async def exercise():
+        requests = await complete_final_boundary_analysis(admitted)
+        before = await asyncio.to_thread(final_boundary_sql_state, engine)
+        event.listen(engine, "before_cursor_execute", gated_insert)
+        task = asyncio.create_task(
+            runner.run_question_briefing(*repos, **(args | dict(client=client)))
+        )
+        try:
+            assert await asyncio.to_thread(entered.wait, 10), "Final INSERT not reached"
+            assert len(submit_thread) == 1 and submit_thread[0] != threading.get_ident()
+            task.cancel()
+            with pytest.raises(asyncio.CancelledError):
+                await asyncio.wait_for(task, 2)
+            assert not finished.is_set()
+            assert client.enqueues == [] and len(requests) == 1
+            release.set()
+            assert await asyncio.to_thread(finished.wait, 10), "SQL thread did not finish"
+            await asyncio.sleep(0)
+            after = await asyncio.to_thread(final_boundary_sql_state, engine)
+            assert after == (1, 1, before[2] + args["briefing_reservation_usd"])
+
+            def pending():
+                with engine.connect() as conn:
+                    return tuple(
+                        conn.execute(
+                            text(
+                                "SELECT status,request_id,reservation_usd,receipt "
+                                "FROM briefing_jobs"
+                            )
+                        ).one()
+                    )
+
+            assert await asyncio.to_thread(pending) == (
+                "pending",
+                args["request_id"],
+                args["briefing_reservation_usd"],
+                None,
+            )
+            assert client.enqueues == client.waits == [] and len(requests) == 1
+        finally:
+            release.set()
+            if not task.done():
+                task.cancel()
+            await asyncio.gather(task, return_exceptions=True)
+            await asyncio.to_thread(finished.wait, 10)
+            event.remove(engine, "before_cursor_execute", gated_insert)
+
+    asyncio.run(exercise())
