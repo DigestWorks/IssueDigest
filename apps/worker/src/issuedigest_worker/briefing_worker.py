@@ -7,9 +7,14 @@ from functools import wraps
 from hashlib import sha256
 from uuid import UUID
 
-from issuedigest_agents.guarded_question_evidence_v2 import (
-    GuardedQuestionEvidenceGenerationV2,
-    validate_guarded_question_evidence_v2,
+from issuedigest_agents.briefing_receipts import (
+    validate_briefing_binding as _bound,
+)
+from issuedigest_agents.briefing_receipts import (
+    validate_briefing_packet as _packet,
+)
+from issuedigest_agents.briefing_receipts import (
+    validate_stored_briefing,
 )
 from issuedigest_agents.guarded_responses_stream import (
     GuardedResponsesCancelled,
@@ -18,12 +23,10 @@ from issuedigest_agents.guarded_responses_stream import (
 from issuedigest_agents.question_briefing_generation import (
     BRIEFING_GENERATION_INSTRUCTIONS,
     QuestionBriefingGeneration,
-    question_briefing_prompt,
     run_question_briefing_generation,
     validate_question_briefing_generation,
 )
-from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobInputs, BriefingJobRepository
-from issuedigest_storage.evidence_jobs import EvidenceJob
+from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobRepository
 from issuedigest_storage.repository import StorageCorruption
 from issuedigest_storage.research import ResearchBudgetExceeded, ResearchConflict, ResearchForbidden
 from openai import AsyncOpenAI
@@ -71,60 +74,6 @@ def _owned(job_id: UUID, check_ownership: Ownership) -> None:
         raise ValueError("Briefing ownership unavailable")
     if allowed is not True:
         raise ResearchForbidden("Briefing ownership unavailable")
-
-
-def _packet(
-    packet: BriefingJobInputs,
-) -> tuple[tuple[GuardedQuestionEvidenceGenerationV2, ...], str]:
-    if (
-        type(packet) is not BriefingJobInputs
-        or type(packet.question) is not str
-        or type(packet.sources) is not tuple
-        or type(packet.children) is not tuple
-        or not 1 <= len(packet.sources) <= 5
-        or len(packet.sources) != len(packet.children)
-        or type(packet.inputs_sha256) is not str
-    ):
-        raise ValueError("Briefing inputs unavailable")
-    receipts = []
-    for source, child in zip(packet.sources, packet.children, strict=True):
-        if (
-            type(source) is not tuple
-            or type(child) is not EvidenceJob
-            or child.status != "completed"
-            or child.question != packet.question
-            or child.snapshot_id != source[0]
-            or child.model != "gpt-6.1-sol"
-            or type(child.receipt) is not dict
-            or child.usage_complete is not True
-            or child.stream_closed is not True
-        ):
-            raise ValueError("Briefing evidence unavailable")
-        receipt = validate_guarded_question_evidence_v2(source, packet.question, child.receipt)
-        if (
-            receipt.prompt_sha256 != child.prompt_sha256
-            or receipt.instructions_sha256 != child.instructions_sha256
-            or receipt.usage.model_dump() != child.known_usage
-        ):
-            raise ValueError("Briefing evidence changed")
-        receipts.append(receipt)
-    checked = tuple(receipts)
-    prompt = question_briefing_prompt(packet.question, packet.sources, checked)
-    return checked, sha256(prompt.encode()).hexdigest()
-
-
-def _bound(job: BriefingJob, packet: BriefingJobInputs, prompt_hash: str) -> None:
-    if (
-        type(job) is not BriefingJob
-        or job.question != packet.question
-        or job.inputs_sha256 != packet.inputs_sha256
-        or job.prompt_sha256 != prompt_hash
-        or job.instructions_sha256 != _INSTRUCTIONS_HASH
-        or job.profile != "question-briefing-generation-v1"
-        or job.model != "gpt-6.1-sol"
-        or job.child_job_ids != tuple(c.job_id for c in packet.children)
-    ):
-        raise ValueError("Briefing job inputs changed")
 
 
 @_safe
@@ -184,19 +133,7 @@ async def read_completed_briefing_job(
     job, packet = await asyncio.to_thread(repository.prepare, job_id)
     if job.status != "completed":
         return None
-    receipts, prompt_hash = _packet(packet)
-    _bound(job, packet, prompt_hash)
-    if job.receipt is None:
-        raise ValueError("Briefing completion unavailable")
-    result = validate_question_briefing_generation(
-        packet.question, packet.sources, receipts, job.receipt
-    )
-    if (
-        result.usage.model_dump() != job.known_usage
-        or job.usage_complete is not True
-        or job.stream_closed is not True
-    ):
-        raise ValueError("Briefing completion changed")
+    result = validate_stored_briefing(job, packet)
     _owned(job_id, check_ownership)
     return result
 

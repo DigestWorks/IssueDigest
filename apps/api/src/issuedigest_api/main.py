@@ -12,10 +12,12 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from issuedigest_domain.status import Liveness, ServiceStatus
 from issuedigest_storage import EvidenceAccessRepository, WorkspaceAccessRepository
+from issuedigest_storage.briefing_jobs import BriefingJobRepository
 from issuedigest_storage.public_briefings import PublicBriefingRepository
 from issuedigest_storage.research import ResearchRepository
 
 from .auth import AuthService, auth_router
+from .briefing_jobs import briefing_jobs_router
 from .briefings import briefings_router
 from .contracts import add_evidence_schemas
 from .errors import EvidencePathValidationError
@@ -54,6 +56,8 @@ def _public_path(path: str) -> bool:
 def _protected_path(path: str) -> bool:
     return (
         _auth_path(path)
+        or re.fullmatch(r"/api/v1/workspaces/[^/]+/briefing-jobs/[^/]+(?:/cancel)?/?", path)
+        is not None
         or re.fullmatch(r"/api/v1/workspaces/[^/]+/evidence(?:/[^/]+)?/?", path) is not None
         or re.fullmatch(
             r"/api/v1/workspaces/[^/]+/research(?:/sources|/[^/]+(?:/cancel)?)?/?", path
@@ -69,6 +73,7 @@ def create_app(
     workspace_repository: WorkspaceAccessRepository | None = None,
     research_repository: ResearchRepository | None = None,
     research_model_available: bool = True,
+    briefing_job_repository: BriefingJobRepository | None = None,
     public_repository: PublicBriefingRepository | None = None,
 ) -> IssueDigestAPI:
     """Configure only from trusted server code; the default protected route fails closed."""
@@ -130,6 +135,12 @@ def create_app(
                     )
                 },
             )
+        if (
+            "/briefing-jobs/" in request.url.path
+            and protected
+            and response.status_code in {307, 308}
+        ):
+            response = JSONResponse(status_code=422, content={"detail": "Invalid briefing request"})
         if _auth_path(request.url.path) and response.status_code in {307, 308}:
             # Automatic slash redirects otherwise copy sensitive callback queries to Location.
             response = JSONResponse(status_code=404, content={"detail": "Not Found"})
@@ -166,6 +177,7 @@ def create_app(
     application.include_router(
         research_router(research_repository, auth_service, model_available=research_model_available)
     )
+    application.include_router(briefing_jobs_router(briefing_job_repository, auth_service))
     application.include_router(evidence_router(access_repository))
     application.include_router(briefings_router(public_repository))
     return application

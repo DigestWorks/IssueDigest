@@ -140,6 +140,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read */
+        get: operations["read_api_v1_workspaces__workspace_id__briefing_jobs__job_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel */
+        post: operations["cancel_api_v1_workspaces__workspace_id__briefing_jobs__job_id__cancel_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/workspaces/{workspace_id}/evidence": {
         parameters: {
             query?: never;
@@ -302,6 +336,85 @@ export interface components {
              * @enum {string}
              */
             kind: "run.awaiting_reconciliation";
+        };
+        /** BriefingClaimView */
+        BriefingClaimView: {
+            /**
+             * Epistemic Status
+             * @enum {string}
+             */
+            epistemic_status: "source_statement" | "uncertain";
+            /** Event Date */
+            event_date: string | null;
+            /** Quotes */
+            quotes: components["schemas"]["BriefingQuoteView"][];
+            /** Text */
+            text: string;
+        };
+        /** BriefingJobView */
+        BriefingJobView: {
+            /**
+             * Job Id
+             * Format: uuid4
+             */
+            job_id: string;
+            /** Question */
+            question: string;
+            result: components["schemas"]["BriefingResultView"] | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pending" | "running" | "completed" | "failed" | "cancelled" | "indeterminate";
+        };
+        /** BriefingModuleView */
+        BriefingModuleView: {
+            /** Claims */
+            claims: components["schemas"]["BriefingClaimView"][];
+            /**
+             * Kind
+             * @enum {string}
+             */
+            kind: "summary" | "comparison" | "timeline";
+            /** Title */
+            title: string;
+        };
+        /** BriefingQuoteView */
+        BriefingQuoteView: {
+            /**
+             * Citation Id
+             * Format: uuid4
+             */
+            citation_id: string;
+            /** Citation Quote */
+            citation_quote: string;
+            /** End */
+            end: number;
+            /**
+             * Snapshot Id
+             * Format: uuid4
+             */
+            snapshot_id: string;
+            /** Source Title */
+            source_title: string;
+            /** Start */
+            start: number;
+            /** Text */
+            text: string;
+        };
+        /** BriefingResultView */
+        BriefingResultView: {
+            /** Additional Quotes */
+            additional_quotes: components["schemas"]["BriefingQuoteView"][];
+            /** Message */
+            message: string | null;
+            /** Modules */
+            modules: components["schemas"]["BriefingModuleView"][];
+            /**
+             * Outcome
+             * @enum {string}
+             */
+            outcome: "answer" | "insufficient_evidence";
         };
         /** BudgetAssessment */
         BudgetAssessment: {
@@ -933,7 +1046,7 @@ export interface components {
             /** Loc */
             loc: [
                 "path" | "query",
-                "workspace_id" | "snapshot_id" | "run_id" | "limit"
+                "workspace_id" | "snapshot_id" | "run_id" | "job_id" | "limit"
             ];
             /**
              * Msg
@@ -2742,6 +2855,70 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ServiceStatus"];
+                };
+            };
+        };
+    };
+    read_api_v1_workspaces__workspace_id__briefing_jobs__job_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BriefingJobView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    cancel_api_v1_workspaces__workspace_id__briefing_jobs__job_id__cancel_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                workspace_id: string;
+                job_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BriefingJobView"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -2,9 +2,10 @@
 name = "issuedigest-api"
 version = "0.0.0"
 requires-python = ">=3.13,<3.14"
-dependencies = ["fastapi==0.143.0", "uvicorn==0.54.0", "issuedigest-domain", "issuedigest-storage", "httpx2==2.13.1", "google-auth==2.62.0", "cryptography==50.0.2"]
+dependencies = ["fastapi==0.143.0", "uvicorn==0.54.0", "issuedigest-domain", "issuedigest-storage", "issuedigest-agents", "httpx2==2.13.1", "google-auth==2.62.0", "cryptography==50.0.2"]
 
 [tool.uv.sources]
+issuedigest-agents = {workspace = true}
 issuedigest-domain = {workspace = true}
 issuedigest-storage = {workspace = true}
 

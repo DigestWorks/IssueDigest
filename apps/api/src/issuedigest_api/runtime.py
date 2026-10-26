@@ -12,6 +12,7 @@ from issuedigest_storage import (
     WorkspaceAccessRepository,
     create_storage_engine,
 )
+from issuedigest_storage.briefing_jobs import BriefingJobRepository
 from issuedigest_storage.public_briefings import PublicBriefingRepository
 from issuedigest_storage.research import ResearchRepository
 from sqlalchemy import Engine
@@ -36,6 +37,7 @@ def create_configured_app() -> IssueDigestAPI:
             auth_service=AuthService(config, oauth, sessions, GoogleOAuthProvider(config)),
             workspace_repository=workspace,
             research_repository=ResearchRepository(engine),
+            briefing_job_repository=BriefingJobRepository(engine),
             public_repository=PublicBriefingRepository(engine),
             research_model_available=os.environ.get("ISSUEDIGEST_RESEARCH_ENABLED") == "1",
         )

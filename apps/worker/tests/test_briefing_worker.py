@@ -503,7 +503,11 @@ def test_full_sdk_preflight_failure_precedes_reservation(jobs, engine, monkeypat
     def too_large(*args):
         raise ValueError("synthetic complete input exceeds envelope")
 
-    monkeypatch.setattr(api(), "question_briefing_prompt", too_large)
+    monkeypatch.setattr(
+        importlib.import_module("issuedigest_agents.briefing_receipts"),
+        "question_briefing_prompt",
+        too_large,
+    )
     with pytest.raises(ValueError):
         admit(jobs, p)
     with engine.connect() as c:
