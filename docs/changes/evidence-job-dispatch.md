@@ -14,7 +14,7 @@
 
 ## Task 1: 접수와 queue의 명시 연결
 
-- [ ] 네 파일 TDD. 입력 app_version 검증은 SQL/queue 이전, submit None/권한/예산/source 실패 enqueue0, 저장 먼저/queue payload UUID만, pending재시도/terminal무enqueue, enqueue 실패와 실제 commit-then-raise ack loss 재접수, cancellation, borrowed client 보존/import 무작업. 실제 DBOS queue를 등록/launch하고 두 접수를 같은 workflow ID로 보내 native SSE HTTP1/공통예약1/완료 unreviewed·기존 completed replay 무enqueue를 확인한다. queue 오류에 질문/토큰/예외 원문 노출0. 신규파일 Ruff/format/mypy와 집중 테스트 후 owned files+이 체크박스만 commit, 보고서에 정확 RED/GREEN/인터페이스/한계/스스로 검토 기록. Subagent 추가 금지.
+- [x] 네 파일 TDD. 입력 app_version 검증은 SQL/queue 이전, submit None/권한/예산/source 실패 enqueue0, 저장 먼저/queue payload UUID만, pending재시도/terminal무enqueue, enqueue 실패와 실제 commit-then-raise ack loss 재접수, cancellation, borrowed client 보존/import 무작업. 실제 DBOS queue를 등록/launch하고 두 접수를 같은 workflow ID로 보내 native SSE HTTP1/공통예약1/완료 unreviewed·기존 completed replay 무enqueue를 확인한다. queue 오류에 질문/토큰/예외 원문 노출0. 신규파일 Ruff/format/mypy와 집중 테스트 후 owned files+이 체크박스만 commit, 보고서에 정확 RED/GREEN/인터페이스/한계/스스로 검토 기록. Subagent 추가 금지.
 
 ## Controller gates
 
