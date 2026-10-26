@@ -1,3 +1,7 @@
+## 진행 · 근거 작업 접수·DBOS queue 전달 · 2026-10-26
+
+[새 계약](../changes/evidence-job-dispatch.md). 저장된 작업을 명시 버전의 전용 queue로 전달하고 ack 유실 후 같은 ID를 재사용하는 신뢰 서버 경로를 구현한다. 기존481실행/이전46증거를 고정하며 실제 제공자/운영 서버 변경0이다. D019 질문 검색·브리핑 변환/표시는 후속이며 현재 앱/기본worker/main은 유지한다.
+
 ## 검증 완료 · 영속 근거 작업·비동기 worker · 2026-10-26
 
 [새 계약](../changes/durable-evidence-worker.md)·[검증 기록](../research/durable-evidence-worker-validation.md). 실행abfbe26·신규57/새전체9,572개(Python8,752+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·독립 최종 검토 C0I0M0·미해결0다. 최초 검토의 완료 취소 응답/잠금 역전2건은 회귀7건 RED 재현 후 수정·좁은 재검토로 해소했다. 최초 중단된 전체 검사는 통과로 세지 않고 보존했다. 기존476실행/이전68증거·앱/기본worker/main은 유지하며 제공자 호출0·운영 서버/DB 변경0이다. 서비스 요청·브리핑 변환·예약 정책/부하·개발 반영은 후속이며 PR/Sites/정리는 최종 인계를 따른다.
