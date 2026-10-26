@@ -2,6 +2,7 @@
 
 import asyncio
 import importlib
+import os
 from decimal import Decimal
 from uuid import uuid4
 
@@ -19,7 +20,7 @@ def repositories():
     from issuedigest_storage.question_plans import QuestionPlanRepository
     from sqlalchemy import create_engine
 
-    engine = create_engine("postgresql+psycopg://issuedigest_test@127.0.0.1:25605/issuedigest_test")
+    engine = create_engine(os.environ["ISSUEDIGEST_TEST_DATABASE_URL"])
     return (
         QuestionPlanRepository(engine),
         EvidenceJobRepository(engine),

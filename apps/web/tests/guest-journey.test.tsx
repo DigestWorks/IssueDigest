@@ -71,10 +71,12 @@ it('clears guest storage only after successful logout and preserves other keys',
   expect(sessionStorage.getItem(key)).toBeNull(); expect(sessionStorage.getItem('unrelated')).toBe('keep'); expect(screen.queryByLabelText('이어갈 질문')).not.toBeInTheDocument();
 });
 it('keeps guest restoration within the first authorized membership', async () => {
-  seed(); const fetch=signedIn(); mount();
+  seed(); const fetch=signedIn([{workspace_id: workspace, role: 'editor'}, {workspace_id: otherWorkspace, role: 'editor'}]); mount();
   expect(await screen.findByRole('textbox', {name: '무엇을 알아볼까요?'})).toHaveValue('로그인 전에 쓴 질문');
-  await waitFor(() => expect(fetch.mock.calls.some(([path]) => path.includes(workspace) && path.endsWith('/research'))).toBe(true));
-  expect(fetch.mock.calls.filter(([path]) => path.endsWith('/research')).every(([path]) => path.includes(workspace))).toBe(true);
+  expect(fetch.mock.calls.some(([,options]) => options?.method === 'POST')).toBe(false);
+  await userEvent.click(screen.getByRole('button', {name: '질문하기'}));
+  await waitFor(() => expect(fetch.mock.calls.some(([path,options]) => path.includes(workspace) && path.endsWith('/question-briefings') && options?.method === 'POST')).toBe(true));
+  expect(fetch.mock.calls.filter(([path]) => path.endsWith('/question-briefings')).every(([path]) => path.includes(workspace))).toBe(true);
 });
 it('reports refused guest storage without navigating or losing the typed question', async () => {
   vi.stubGlobal('fetch', async () => response({}, 401)); const {router} = mount(); const user = userEvent.setup();

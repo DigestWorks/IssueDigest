@@ -1,3 +1,12 @@
+## 구현 · 질문 제출·브리핑 화면 연결 · 2026-10-26
+
+- [x] [엄격한 SSE·현재 권한 목록·소유 worker·화면 계약](../changes/question-briefing-web-flow.md).
+- [x] 세 태스크 TDD/독립 검토·취소/다중 범위/권한 상실 보완.
+- [x] 전체10,327개·정적/타입/빌드/OpenAPI·실제 모바일/PC 브라우저.
+- [x] 기존499개/승인20변경/이전58증거·AST/privacy 확인.
+- [x] Draft PR121·Sitesv143·전용 QA/미리보기 정리(최종 인계).
+- [ ] 전용 DBOS 스키마 사전 준비·개인 개발 서버 executor 전환·실제 모델 의미 품질.
+
 ## 구현 · 질문 분석→최종 브리핑 실행 연결 · 2026-10-26
 
 - [x] [caller-lived 실행 연결 계약](../changes/question-briefing-runner.md)·TDD82개·독립 태스크/전체 검토.

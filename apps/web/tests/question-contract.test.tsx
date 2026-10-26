@@ -1,12 +1,14 @@
 import {act, render, screen, waitFor} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {createMemoryRouter, RouterProvider} from 'react-router';
-import {expect, it, vi} from 'vitest';
+import {afterEach,expect, it, vi} from 'vitest';
 import App from '../app/root';
 import Home from '../app/routes/home';
 import EvidenceRoute from '../app/routes/evidence';
-import {completedRun, queuedRun, runId, session, source} from './research-data';
+import {completedRun, runId, session, source} from './research-data';
 import {response, snapshot, workspace} from './workspace-data';
+
+afterEach(()=>sessionStorage.removeItem('issuedigest.question.pending.v1'));
 
 function mount(entry = '/') {
  const router = createMemoryRouter([{path:'/', Component:App, children:[{index:true, Component:Home}, {path:'workspaces/:workspaceId/evidence/:snapshotId', Component:EvidenceRoute}]}], {initialEntries:[entry]});
@@ -18,23 +20,18 @@ it.each(['completed', 'no-hit'] as const)('submits only a question and reads ser
  const posted:Record<string,unknown>[]=[];
  vi.stubGlobal('fetch', async(path:string, options:RequestInit={})=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research') && options.method==='POST') { const input=JSON.parse(options.body as string);posted.push(input);return response(queuedRun(input)); }
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return new Promise<Response>(resolve=>{release=resolve;});
-  if(path.endsWith(`/evidence/${snapshot}`))return response(completedRun().result!.canvas.research.evidence[0]);
+  if(path.endsWith('/question-briefings') && options.method==='POST') {posted.push(JSON.parse(options.body as string));return new Promise<Response>(resolve=>{release=resolve;});}
   throw Error(path);
  });
- mount();const user=userEvent.setup();
+ const router=mount();const user=userEvent.setup();
  await user.type(await screen.findByLabelText('무엇을 알아볼까요?'),'우주 탐사 현황');
- await user.click(screen.getByRole('button',{name:'브리핑 만들기'}));
- await waitFor(()=>expect(posted).toHaveLength(1));
- expect(posted[0]).toEqual({request_id:expect.any(String), question:'우주 탐사 현황', parent_run_id:null});
- expect(await screen.findByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
- await waitFor(()=>expect(release).toBeTypeOf('function'));
- const queued=queuedRun(posted[0]);
- await act(async()=>release(response(outcome==='completed'?{...completedRun(), request_id:queued.request_id,question:queued.question}:{...queued,status:'failed',error_code:'insufficient_evidence',events:[...queued.events,{sequence:2,status:'failed',created_at:queued.created_at}]})));
- if(outcome==='completed')expect(await screen.findByText('합성 근거에 맞춘 AI 해석')).toBeInTheDocument();
- else expect(await screen.findByRole('alert')).toHaveTextContent('확인 가능한 자료가 부족합니다.');
+ await user.click(screen.getByRole('button',{name:'질문하기'}));
+ expect(posted).toHaveLength(1);
+ expect(posted[0]).toEqual({request_id:expect.any(String), question:'우주 탐사 현황'});
+ expect(screen.getByText('질문을 접수하는 중…')).toBeInTheDocument();
+ await act(async()=>release(new Response(`event: progress\ndata: ${JSON.stringify({request_id:posted[0].request_id,stage:'analysing'})}\n\nevent: result\ndata: ${JSON.stringify({request_id:posted[0].request_id,kind:outcome==='completed'?'briefing':'no_match',job_id:outcome==='completed'?runId:null})}\n\n`,{headers:{'Content-Type':'text/event-stream; charset=utf-8','Cache-Control':'no-store','X-Request-ID':runId,'X-Accel-Buffering':'no'}})));
+ if(outcome==='completed')expect(router.state.location.pathname).toBe(`/workspaces/${workspace}/briefings/${runId}`);
+ else expect(await screen.findByText('질문에 답할 수 있는 근거를 찾지 못했습니다.')).toBeInTheDocument();
 });
 
 it.each([401,403,404])('clears current Canvas, titles, reader and question draft on exact-original HTTP %s',async status=>{
@@ -119,21 +116,20 @@ it('blocks duplicate submits and rechecks an ambiguous POST with the identical q
  const posted:Record<string,unknown>[]=[];let release!:(value:Response)=>void;
  vi.stubGlobal('fetch',async(path:string,options:RequestInit={})=>{
   if(path.endsWith('/session'))return response(session);
-  if(path.endsWith('/research') && options.method==='POST') {
+  if(path.endsWith('/question-briefings') && options.method==='POST') {
    posted.push(JSON.parse(options.body as string));
-   return posted.length===1?new Promise<Response>(resolve=>{release=resolve;}):response(queuedRun(posted[0]));
+   return new Promise<Response>(resolve=>{release=resolve;});
   }
-  if(path.endsWith('/research'))return response({workspace_id:workspace,items:[]});
-  if(path.endsWith(`/research/${runId}`))return response(queuedRun(posted[0]));
   throw Error(path);
  });
  mount();const user=userEvent.setup();await user.type(await screen.findByLabelText('무엇을 알아볼까요?'),'다시 확인할 질문');
- await user.dblClick(screen.getByRole('button',{name:'브리핑 만들기'}));
- expect(posted).toHaveLength(1);expect(screen.getByRole('button',{name:'요청 접수 중…'})).toBeDisabled();
+ await user.dblClick(screen.getByRole('button',{name:'질문하기'}));
+ expect(posted).toHaveLength(1);expect(screen.getByRole('button',{name:'브리핑 만드는 중…'})).toBeDisabled();
  await act(async()=>release(response({},503)));
- await user.click(await screen.findByRole('button',{name:'같은 요청 다시 확인'}));
+ await user.click(await screen.findByRole('button',{name:'같은 질문 다시 확인'}));
  expect(posted).toHaveLength(2);expect(posted[1]).toEqual(posted[0]);
- expect(await screen.findByRole('status',{name:'브리핑 상태'})).toHaveTextContent('요청 접수');
+ expect(screen.getByText('질문을 접수하는 중…')).toBeInTheDocument();
+ await act(async()=>release(response({},503)));
 });
 
 it.each([401,403,404].flatMap(status=>['owner','viewer'].map(role=>({status,role}))))('shows a standalone history denial and explicitly rechecks restored access (HTTP $status, $role)',async({status,role})=>{

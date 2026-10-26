@@ -9,6 +9,9 @@ import { launchDevelopment } from './dev.mjs';
 describe('development process selection', () => {
   it.each([
     [{}, 'issuedigest_api.main:app', false],
+    [{ ISSUEDIGEST_QUESTION_BRIEFING_ENABLED: '1' }, 'issuedigest_api.main:app', false],
+    [{ ISSUEDIGEST_CONFIGURED_RUNTIME: '1', ISSUEDIGEST_QUESTION_BRIEFING_ENABLED: '0' }, 'issuedigest_api.runtime:create_configured_app', true],
+    [{ ISSUEDIGEST_CONFIGURED_RUNTIME: '1', ISSUEDIGEST_QUESTION_BRIEFING_ENABLED: '1' }, 'scripts.question_briefing_app:create_question_briefing_app', true],
     [{ ISSUEDIGEST_CONFIGURED_RUNTIME: '0' }, 'issuedigest_api.main:app', false],
     [{ ISSUEDIGEST_CONFIGURED_RUNTIME: '1' }, 'issuedigest_api.runtime:create_configured_app', true],
   ])('selects the explicit runtime only on opt-in %j', (environment, target, factory) => {
@@ -21,6 +24,8 @@ describe('development process selection', () => {
     expect(args).toContain(target);
     expect(args).toContain('--no-access-log');
     expect(args.includes('--factory')).toBe(factory);
+    expect(args.includes('--all-packages')).toBe(target.startsWith('scripts.'));
+    expect(args.includes('--package')).toBe(!target.startsWith('scripts.'));
     stop(0);
   });
 

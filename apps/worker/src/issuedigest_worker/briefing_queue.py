@@ -18,10 +18,8 @@ class RegisteredBriefingQueue:
     queue: Queue
 
 
-def register_briefing_queue(
-    repository: BriefingJobRepository, *, client: AsyncOpenAI, check_ownership: Ownership
-) -> RegisteredBriefingQueue:
-    """Register after caller launch, outside its event loop."""
+def configure_briefing_queue() -> Queue:
+    """Configure the persisted shared queue after launch, outside the event loop."""
     queue = DBOS.register_queue(
         "issuedigest_guarded_evidence_v1",
         global_concurrency=1,
@@ -30,6 +28,14 @@ def register_briefing_queue(
     )
     if queue.global_concurrency != 1 or queue.worker_concurrency != 1:
         raise ValueError("Briefing queue limits unavailable")
+
+    return queue
+
+
+def register_briefing_workflow(
+    repository: BriefingJobRepository, *, client: AsyncOpenAI, check_ownership: Ownership
+) -> Callable[..., Any]:
+    """Register before launch so recovery can resolve the unchanged workflow."""
 
     @DBOS.step(name="issuedigest_question_briefing_call_v1", retries_allowed=False)
     async def call(job_id: str) -> None:
@@ -53,4 +59,15 @@ def register_briefing_queue(
         await call(job_id)
         await read_completed_briefing_job(repository, parsed, check_ownership=check_ownership)
 
+    return workflow
+
+
+def register_briefing_queue(
+    repository: BriefingJobRepository, *, client: AsyncOpenAI, check_ownership: Ownership
+) -> RegisteredBriefingQueue:
+    """Compatibility composition: configure after caller launch, outside its loop."""
+    queue = configure_briefing_queue()
+    workflow = register_briefing_workflow(
+        repository, client=client, check_ownership=check_ownership
+    )
     return RegisteredBriefingQueue(workflow, queue)

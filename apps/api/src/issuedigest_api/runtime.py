@@ -1,10 +1,11 @@
 """Opt-in Uvicorn factory; explicit configuration, owned engine, no migrations."""
 
 import os
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from issuedigest_agents.question_submission import QuestionExecutionService
 from issuedigest_storage import (
     EvidenceAccessRepository,
     OAuthRepository,
@@ -24,7 +25,9 @@ from .google_oauth import GoogleOAuthProvider
 from .main import IssueDigestAPI, create_app
 
 
-def create_configured_app() -> IssueDigestAPI:
+def create_configured_app(
+    *, service_factory: Callable[[Engine], QuestionExecutionService] | None = None
+) -> IssueDigestAPI:
     config = AuthConfig.from_environment(os.environ)
     engine: Engine | None = None
     try:
@@ -32,8 +35,10 @@ def create_configured_app() -> IssueDigestAPI:
         oauth = OAuthRepository(engine)
         sessions = SessionRepository(engine)
         workspace = WorkspaceAccessRepository(engine)
+        service = service_factory(engine) if service_factory is not None else None
         application = create_app(
             EvidenceAccessRepository(engine),
+            question_service=service,
             auth_service=AuthService(config, oauth, sessions, GoogleOAuthProvider(config)),
             workspace_repository=workspace,
             research_repository=ResearchRepository(engine),
@@ -48,11 +53,24 @@ def create_configured_app() -> IssueDigestAPI:
 
     @asynccontextmanager
     async def owned_lifespan(app: FastAPI) -> AsyncIterator[None]:
+        failed = False
         try:
+            if service is not None:
+                await service.start()
             yield
+        except Exception:
+            failed = True
         finally:
-            assert engine is not None
-            await run_in_threadpool(engine.dispose)
+            try:
+                if service is not None:
+                    await service.aclose()
+            except Exception:
+                failed = True
+            finally:
+                assert engine is not None
+                await run_in_threadpool(engine.dispose)
+        if failed:
+            raise RuntimeConfigurationError()
 
     application.router.lifespan_context = owned_lifespan
     return application

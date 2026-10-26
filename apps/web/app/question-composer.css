@@ -1,0 +1,34 @@
+.question-composer[aria-busy="true"] {
+  border-color: var(--green);
+}
+.question-composer button {
+  min-height: 44px;
+}
+.question-composer [role="status"]:empty {
+  display: none;
+}
+.question-composer [role="status"] {
+  margin: 1rem 0 0;
+  line-height: 1.7;
+}
+.briefing-job-list {
+  margin-block: 1.5rem 3rem;
+}
+.briefing-job-list ul {
+  list-style: none;
+  padding: 0;
+}
+.briefing-job-list li {
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line, #8b8b8b);
+}
+.briefing-job-list a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+.briefing-job-list small {
+  display: block;
+  opacity: 0.75;
+}

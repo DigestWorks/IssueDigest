@@ -1,4 +1,5 @@
 import { createContext, useContext, useRef, type ReactNode } from 'react';
+import { clearPendingQuestion, reconcilePendingQuestions } from './question-pending';
 
 type Draft = { question: string };
 type Drafts = {
@@ -23,17 +24,19 @@ export function ResearchDraftProvider({children}: {children: ReactNode}) {
       const next = userId.toLowerCase();
       if (identity.current !== next) drafts.current.clear();
       identity.current = next;
+      reconcilePendingQuestions(next, workspaces);
       const allowed = new Set(workspaces.map(id => id.toLowerCase()));
       for (const draftKey of drafts.current.keys()) {
         if (!allowed.has(draftKey.split('/')[0])) drafts.current.delete(draftKey);
       }
     },
-    clear() { identity.current = null; drafts.current.clear(); },
+    clear() { identity.current = null; drafts.current.clear(); clearPendingQuestion(); },
     read(workspaceId, runId) { return identity.current ? drafts.current.get(key(workspaceId, runId)) ?? null : null; },
     write(workspaceId, runId, draft) {
       if (identity.current) drafts.current.set(key(workspaceId, runId), {question: draft.question});
     },
     clearWorkspace(workspaceId) {
+      clearPendingQuestion(identity.current ?? undefined, workspaceId);
       for (const draftKey of drafts.current.keys()) {
         if (draftKey.startsWith(`${workspaceId.toLowerCase()}/`)) drafts.current.delete(draftKey);
       }

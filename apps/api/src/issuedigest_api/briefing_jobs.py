@@ -13,6 +13,7 @@ from issuedigest_domain.briefing_job_view import (
     BriefingQuoteView,
     BriefingResultView,
 )
+from issuedigest_domain.question_submission import BriefingJobList
 from issuedigest_storage import AuthenticationDenied
 from issuedigest_storage.briefing_jobs import BriefingJobInputs, BriefingJobRepository
 from issuedigest_storage.research import ResearchConflict, ResearchForbidden
@@ -150,6 +151,39 @@ def briefing_jobs_router(
         if repository is None:
             raise HTTPException(503, "Briefing service unavailable")
         return token
+
+    @router.get("/api/v1/workspaces/{workspace_id}/briefing-jobs", response_model=BriefingJobList)
+    async def collection(
+        request: Request,
+        workspace_id: UUID4,
+        token: Annotated[str | None, Security(COOKIE_AUTH)],
+    ) -> BriefingJobList:
+        valid = check(token)
+        if request.query_params:
+            raise HTTPException(422, "Invalid briefing request")
+        assert repository is not None
+        try:
+            result = await run_in_threadpool(repository.list_current, valid, workspace_id)
+            if result is None:
+                raise HTTPException(404, "Briefing jobs not found")
+            if type(result) is not BriefingJobList or result.__pydantic_extra__:
+                raise ValueError
+            if any(
+                set(item.__dict__) != set(type(item).model_fields) or item.__pydantic_extra__
+                for item in result.items
+            ):
+                raise ValueError
+            return BriefingJobList.model_validate_json(result.model_dump_json(warnings=False))
+        except HTTPException:
+            raise
+        except AuthenticationDenied:
+            raise HTTPException(401, "Authentication required") from None
+        except ResearchForbidden:
+            raise HTTPException(403, "Briefing access forbidden") from None
+        except ResearchConflict:
+            raise HTTPException(409, "Briefing request conflicts") from None
+        except Exception:
+            raise HTTPException(503, "Briefing service unavailable") from None
 
     @router.get(BASE, response_model=BriefingJobView)
     async def read(

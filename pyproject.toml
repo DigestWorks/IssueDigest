@@ -26,4 +26,4 @@ select = ["E", "F", "I", "UP", "B"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-files = ["apps/worker/src", "apps/api/src", "packages/domain/src", "packages/storage/src", "packages/storage/migrations", "scripts/export_openapi.py", "packages/ingestion/src", "packages/agents/src", "packages/connectors/src"]
+files = ["apps/worker/src", "apps/api/src", "packages/domain/src", "packages/storage/src", "packages/storage/migrations", "scripts/export_openapi.py", "scripts/question_briefing_app.py", "packages/ingestion/src", "packages/agents/src", "packages/connectors/src"]

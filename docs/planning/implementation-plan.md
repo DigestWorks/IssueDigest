@@ -1,3 +1,7 @@
+## 현재 구현 · 질문 제출·브리핑 화면 연결
+
+질문 제출부터 실제 분석·최종 접수, 생성 상태·완료 브리핑·원문·저장 목록까지 연결했다. [검증과 운영 전환 경계](../research/question-briefing-web-flow-validation.md). 기존 개발 서버와 main은 전환하지 않았다. 전용 DBOS 스키마 준비와 기존 executor 안전한 교체, 실제 모델 의미 품질을 이어서 확인한다.
+
 ## 현재 구현 · 질문 분석→최종 브리핑 실행 연결
 
 한 요청의 자료 분석 완료부터 최종 생성 접수/queue까지 기존 코어로 연결했다. [검증과 한계](../research/question-briefing-runner-validation.md). 질문 API·화면/개발 서버 전환·실제 모델 의미·독립 부모 복구는 남아 있다.
