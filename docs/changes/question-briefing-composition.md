@@ -20,7 +20,7 @@
 ## Controller gates
 
 - [x] Independent task/whole-branch review C0I0M0; full 9,886 tests/lint/type/build/OpenAPI; preservation494/44.
-- [ ] privacy/docs/Draft PR/Sites/owned QA cleanup final handoff.
+- [x] privacy/docs/Draft PR115/Sitesv137/previousv136+7exactdocs/ownedQA1+volume1 cleanup final handoff.
 - [ ] Actual final-generation durable admission/provider meaning, storage/API/UI and development acceptance (outside this change).
 
 ## 판단과 비용
