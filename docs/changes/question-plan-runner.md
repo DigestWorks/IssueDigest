@@ -16,7 +16,7 @@
 
 ## Task 1
 
-- [ ] 신규2파일을 TDD로 구현한다. global constraints를 지키고 기존492파일은 수정하지 않는다. 자동 진행·boundedwait/timeout/cancel·현재권한/원문·완료 영수증 검증·native2자료/재접수/동시요청·테스트 격리를 검사한다. scoped검사 후 owned2파일+Task1checkbox만 커밋하고 SDD보고서에 정확RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
+- [x] 신규2파일을 TDD로 구현한다. global constraints를 지키고 기존492파일은 수정하지 않는다. 자동 진행·boundedwait/timeout/cancel·현재권한/원문·완료 영수증 검증·native2자료/재접수/동시요청·테스트 격리를 검사한다. scoped검사 후 owned2파일+Task1checkbox만 커밋하고 SDD보고서에 정확RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
 
 ## Controller gates
 
