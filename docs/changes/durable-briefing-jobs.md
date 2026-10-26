@@ -27,7 +27,8 @@
 
 ## Controller gates
 
-- [ ] Independent eachtask/wholebranch review, full test/lint/type/build/OpenAPI;495unchanged+3narrowexceptions/previous48preservation; privacy/docs/DraftPR/Sites/ownedcleanup.
+- [x] Independent eachtask/wholebranch review C0I0M0; full10,054/lint/type/build/OpenAPI;495unchanged+3narrowexceptions/previous48preservation.
+- [ ] privacy/docs/DraftPR/Sites/ownedcleanup final handoff.
 - [ ] Queue/API/UI/devactivation/actual model meaning/legacy-global scheduling (outside this change).
 
 ## 판단과 비용

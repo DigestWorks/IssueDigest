@@ -1,6 +1,12 @@
+## 검증 완료 · 최종 브리핑 접수·저장 · 2026-10-26
+
+[작업 계약](../changes/durable-briefing-jobs.md)·[검증 범위](../research/durable-briefing-jobs-validation.md). 신규109/새 전체10,054개(Python9,234+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·독립 Task1/Task2/전체 검토 C0I0M0·미해결0이다. 기존495파일·이전48증거를 보존하고3개 기존 예외의 범위를 확인했다. 공유 예약·원문/원래 권한 재검사·송신 의도·완료 저장/검증 재열람·중단/취소 비용을 연결했다.
+
+사용자 요청으로 GitHub Verify foundation을 끄고 독립 main용 Production deployment는 유지했다. 개인 메일 설정 변경0이다. 실제 제공자/운영 변경·앱/기본worker/main 활성화0, queue/API/UI·실제 모델 의미·개발 적용은 후속이다. DraftPR·Sites·자체 QA 정리의 최종 인계를 아래 기록한다.
+
 ## 최종 인계 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
 
-[Draft PR116](https://github.com/DigestWorks/IssueDigest/pull/116)은 feat/question-briefing-composition 기반·미병합이다. 실행 a383a29, 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·태스크/전체 독립 검토 C0I0M0·미해결0이다. 기존496실행·이전44증거·실제 입력3아티팩트는 불변이며 전체 검사 시작 이후 새2파일 bytes도 같다. 과거1자료/3명제의 사전 envelope16,390/20,000 수용은 실제 생성/의미 성공이 아니다.
+[Draft PR116](https://github.com/DigestWorks/IssueDigest/pull/116)은 feat/question-briefing-composition 기반·미병합이다. 실행 a383a29, 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·태스크/전체 독립 검토 C0I0M0·미해결0이다. 기존495실행·이전44증거·실제 입력3아티팩트는 불변이며 전체 검사 시작 이후 새2파일 bytes도 같다. 과거1자료/3명제의 사전 envelope16,390/20,000 수용은 실제 생성/의미 성공이 아니다.
 
 Sitesv138 public/native succeeded(2026-10-26T07:32:20.154012+00:00), source `f17fa1b2897324fcc419f9f97bd3072b2e524299`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ed582900675c81919c7af8279501358f`, deployment `appgdep_6adf01f2daa881918ce5deaf48e2b3e3`다. 이전v137 정확 source/상대 경로 rewrite와 변경7문서 정확 사본(9d268fb)을 보존했다. HTML123/로컬대상3,818/공개텍스트385·비공개60+12항목 제외, 새브라우저QA/사용자탭 이동0이다. 이 게시 이후 최종 인계는 저장소 원본을 따른다.
 
@@ -8,7 +14,7 @@ Sitesv138 public/native succeeded(2026-10-26T07:32:20.154012+00:00), source `f17
 
 ## 검증 완료 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
 
-[생성 계약](../changes/question-briefing-generation.md)·[검증 범위](../research/question-briefing-generation-validation.md). 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0, 독립 태스크/전체 검토 C0I0M0·미해결0이다. 기존496실행·이전44증거는 유지한다. 전체 원문·명제·조건을 자르지 않는 단일 native 생성 SDK와 조합 검증·최종/합산 사용량 기록을 연결했다.
+[생성 계약](../changes/question-briefing-generation.md)·[검증 범위](../research/question-briefing-generation-validation.md). 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0, 독립 태스크/전체 검토 C0I0M0·미해결0이다. 기존495실행·이전44증거는 유지한다. 전체 원문·명제·조건을 자르지 않는 단일 native 생성 SDK와 조합 검증·최종/합산 사용량 기록을 연결했다.
 
 이번 검증은 모의 provider 전송·SDK 계약이다. 실제 제공자 호출/의미 인수·최종 내구 접수/재무 예약·영속 저장/API/UI·개발 적용은 별도이며 앱/기본worker/main/운영 변경0이다. 긴 원문/다자료는 기존20,000한도에서 차단될 수 있다. Draft PR·Sites·자체 QA 정리의 최종 인계는 아래 기록한다.
 
@@ -2030,3 +2036,7 @@ legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번
 [Draft PR93](https://github.com/DigestWorks/IssueDigest/pull/93)은 참조 계약 PR92 브랜치를 대상으로 한다. 사전 기준/개발 분석/초기M1 및 수정 검토10개 비공개 연구 증거를 불변 manifest로 보존한다. Sites에는 이전v114를 보관하고 이번 인수 기준을 요약하며 main/앱 배포는 하지 않는다.
 
 [Draft PR94](https://github.com/DigestWorks/IssueDigest/pull/94)은 의미 기준 PR93 브랜치를 대상으로 한다. 원본·기준·진단·시제품·초기 provenance 결함/수정/검토33개 연구 증거를 비공개 불변 manifest로 보존한다. Sites에는 이전v115를 보존해 이번 차단/미판정/다음 용량 계약을 요약하며 main/앱 배포는 하지 않는다.
+
+새0012 이후 기존0011 테스트의 head 가정이 맞지 않아, 해당 migration 검사 한 함수만 실제0011 SQL·기존 행·버전 stamp 보존 검사로 수정한다.
+
+사용자 요청으로 Verify foundation 자동 검사를 비활성화하고 main용 Production deployment는 유지했다. 개인 이메일 설정은 변경하지 않았다. 발견된 인증 테스트 URL 마스킹 오류는 해당 테스트 한 줄로 한정해 수정한다.
