@@ -12,7 +12,7 @@
 
 ## Task 1: Versioned exact field-rule generator
 
-- [ ] Implement only the new two Python files plus this checkbox using TDD.
+- [x] Implement only the new two Python files plus this checkbox using TDD.
 
 Read test-driven-development. RED before implementation, GREEN then focused Ruff/format/mypy and related frozen guarded-v1/native/source tests. Real AsyncOpenAI+httpx2.MockTransport SSE integration asserts exact328-byte suffix, new instructions wire/hash, unchanged full prompt/tool/schema/options, one request and borrowed client remains open. Successful nonempty source-attributed proposition + JSON save/revalidate; empty insufficient accepted but unreviewed. Source_statement with missing subject or predicate, missing quantity metric, unanchored relative time rejects; same structurally uncertain data may pass without filling/replacing any field. Old/new receipt/hash substitutions fail. New instructions envelope checked before dispatch (case old envelope fits but new exceeds; boundary <=20000). Native error/cancel/observed usage, source mutation and output rejection retain prior guarantees; do not duplicate all native event matrix. Strict unchecked DTO/raw omission tests can reuse existing fixtures/guards. Module import isolation must preserve frozen reload tests. No private source/real network/model calls; public fixtures only. Commit owned files after scoped tests; write report with RED/GREEN/selfreview/static results. Controller runs fullQA/reviews; do not spawn subagents.
 
