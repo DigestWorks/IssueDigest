@@ -200,6 +200,7 @@ class EvidenceJobRepository:
         *,
         model: str,
         reservation_usd: Decimal,
+        expected_source_sha256: str | None = None,
     ) -> EvidenceJob | None:
         for value in (workspace_id, request_id, snapshot_id):
             _uuid4(value)
@@ -218,6 +219,11 @@ class EvidenceJobRepository:
             or reservation_usd != reservation_usd.quantize(Decimal(".01"))
         ):
             raise ValueError("Invalid evidence reservation")
+        if expected_source_sha256 is not None and (
+            type(expected_source_sha256) is not str
+            or re.fullmatch("[0-9a-f]{64}", expected_source_sha256) is None
+        ):
+            raise ValueError("Invalid expected evidence source hash")
         reservation_usd = reservation_usd.quantize(Decimal(".01"))
 
         def save(conn: Connection) -> EvidenceJob | None:
@@ -230,6 +236,8 @@ class EvidenceJobRepository:
                 raise ResearchConflict("Evidence source unavailable")
             presentation = self._base._presentation(conn, workspace_id, snapshot_id, bundle)
             hashed = source_digest((snapshot_id, bundle, presentation))
+            if expected_source_sha256 is not None and hashed != expected_source_sha256:
+                raise ResearchConflict("Evidence source changed")
             identity = digest(
                 dict(
                     snapshot_id=str(snapshot_id),

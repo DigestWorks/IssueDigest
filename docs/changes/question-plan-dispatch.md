@@ -16,7 +16,7 @@
 
 ## Task 1
 
-- [ ] 위4파일 범위만 TDD로 구현한다. spec/global constraints를 지킨다. 새로운 expected-source guard는 실제 transaction에서 예약 전 적용한다. ordered deterministic children/완료 prefix/첫 미완료 중단/no_match/현재권한/원문/예산/취소/재접수 검사를 포함한다. owned4파일+이 Task1 checkbox만 커밋하고 SDD 보고서에 RED/GREEN/명령/한계/자체검토를 남긴다.
+- [x] 위4파일 범위만 TDD로 구현한다. spec/global constraints를 지킨다. 새로운 expected-source guard는 실제 transaction에서 예약 전 적용한다. ordered deterministic children/완료 prefix/첫 미완료 중단/no_match/현재권한/원문/예산/취소/재접수 검사를 포함한다. owned4파일+이 Task1 checkbox만 커밋하고 SDD 보고서에 RED/GREEN/명령/한계/자체검토를 남긴다.
 
 ## Controller gates
 
