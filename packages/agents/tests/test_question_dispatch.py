@@ -415,6 +415,8 @@ def test_real_dbos_mock_sse_two_source_complete_resume(
     import httpx2 as httpx
     from dbos import DBOS, DBOSClient
     from openai import AsyncOpenAI
+    from sqlalchemy.schema import DropSchema
+    from sqlalchemy.sql import quoted_name
     from test_evidence_worker import native_body
 
     _, jobs, inputs = admission
@@ -422,6 +424,28 @@ def test_real_dbos_mock_sse_two_source_complete_resume(
     execute = worker.execute_evidence_job
     entered, release = threading.Event(), threading.Event()
     requests = []
+    schema = "qpd_" + uuid4().hex
+
+    def default_state():
+        with engine.connect() as conn:
+            metadata = conn.execute(
+                text(
+                    "SELECT c.oid,c.relname,c.relkind FROM pg_class c "
+                    "JOIN pg_namespace n ON n.oid=c.relnamespace "
+                    "WHERE n.nspname='dbos' ORDER BY c.relname"
+                )
+            ).all()
+            queues = (
+                conn.execute(text("SELECT * FROM dbos.queues ORDER BY name")).all()
+                if conn.scalar(text("SELECT to_regclass('dbos.queues')")) is not None
+                else None
+            )
+            exists = conn.scalar(
+                text("SELECT EXISTS (SELECT FROM pg_namespace WHERE nspname='dbos')")
+            )
+        return exists, metadata, queues
+
+    before_default = default_state()
 
     async def gated(*args, **kwargs):
         entered.set()
@@ -439,19 +463,28 @@ def test_real_dbos_mock_sse_two_source_complete_resume(
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
             provider = AsyncOpenAI(api_key="synthetic", http_client=http, max_retries=0)
-            DBOS.migrate(database_url, application_role=engine.url.username)
-            DBOS(
-                config=dict(
-                    name="question-dispatch-synthetic",
-                    system_database_url=database_url,
-                    application_version="question-test-v1",
-                    run_admin_server=False,
-                )
-            )
-            client = DBOSClient(
-                system_database_url=database_url, application_name="question-dispatch-synthetic"
-            )
+            client = None
             try:
+                DBOS.migrate(database_url, schema=schema, application_role=engine.url.username)
+                with engine.connect() as conn:
+                    assert conn.scalar(
+                        text("SELECT EXISTS (SELECT FROM pg_namespace WHERE nspname=:schema)"),
+                        {"schema": schema},
+                    )
+                DBOS(
+                    config=dict(
+                        name="question-dispatch-synthetic",
+                        system_database_url=database_url,
+                        dbos_system_schema=schema,
+                        application_version="question-test-v1",
+                        run_admin_server=False,
+                    )
+                )
+                client = DBOSClient(
+                    system_database_url=database_url,
+                    application_name="question-dispatch-synthetic",
+                    dbos_system_schema=schema,
+                )
                 DBOS.launch()
                 await asyncio.to_thread(
                     importlib.import_module(
@@ -494,10 +527,27 @@ def test_real_dbos_mock_sse_two_source_complete_resume(
                 assert not provider.is_closed()
             finally:
                 release.set()
-                client.destroy()
-                DBOS.destroy(destroy_registry=True)
+                try:
+                    if client is not None:
+                        client.destroy()
+                finally:
+                    try:
+                        DBOS.destroy(destroy_registry=True)
+                    finally:
+                        await provider.close()
 
-    asyncio.run(run())
+    try:
+        asyncio.run(run())
+    finally:
+        # Only this test's freshly generated schema is owned; default dbos is untouched.
+        with engine.begin() as conn:
+            conn.execute(DropSchema(quoted_name(schema, True), cascade=True, if_exists=True))
+    with engine.connect() as conn:
+        assert not conn.scalar(
+            text("SELECT EXISTS (SELECT FROM pg_namespace WHERE nspname=:schema)"),
+            {"schema": schema},
+        )
+    assert default_state() == before_default
 
 
 def test_changed_reservation_is_conflict_not_silent_partial(admission, engine):
