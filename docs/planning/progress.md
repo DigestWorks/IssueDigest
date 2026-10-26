@@ -1,3 +1,11 @@
+## 최종 인계 · 저장 브리핑 조회·읽기 화면 · 2026-10-26
+
+[Draft PR119](https://github.com/DigestWorks/IssueDigest/pull/119)은 feat/briefing-job-dispatch 기반·미병합이다. 실행 5af8a9d, 신규55/전체10,126개(Python9,272+JS854)를 확인했다. Worker1,115개 불변 통과·API 선행 agents5,423개·나머지 Python2,735개의 수집 목록 합집합을 검증했다(API1개 중복 제외·무작위 UUID suffix11개만 정규화·고유9,272 유지). 단일 중단 없는 root 성공과 구분한다. 정적/타입/빌드/OpenAPI·두테마/모바일 브라우저·독립 검토 미해결0이다. 기존 numeric/selection reload 테스트 두 곳의 격리를 보완했고 실제 분석 검증 조건은 유지했다.
+
+Sitesv141 public/native succeeded(2026-10-26T10:39:57.623023+00:00), source `735455493fee2d7d6b908b6bf4593b5f448b88dd`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_76c34e694fb88191b676f1ebcd4858d6`, deployment `appgdep_6adf2ded117c8191a23449dadb4ee8d1`. 이전v140와 문서7개 정확 사본(e42baf0)을 보존했다. HTML126/로컬대상4,040/공개텍스트400·비공개60+12항목 제외. 사용자 탭 이동0이며 게시 후 최종 인계는 저장소 원본을 따른다.
+
+기존494실행·이전39증거 불변,14개 승인 수정 및 실행 AST/잠금 버전을 확인했다. 전용 QA1/익명volume1·자체 미리보기/헤드리스세션·현재SDD만 정리했고25603/25604포트 닫힘을 확인했다. 실제 제공자 호출·서버 변경·main 병합·기본 worker 활성화0. 기존 질문 전송 전체경로의 전환과 개발 서버 반영·실제 모델 의미 인수는 남았다. 13판단과 비용을 검증 기록에 보존했다. PR 첨부는 대화 첨부100개 한도로 실패해 일반 링크로 제공한다. GitHub 검사 자동화는 재활성화하지 않았다.
+
 ## 검증 완료 · 저장 브리핑 조회·읽기 화면 · 2026-10-26
 
 [작업 계약](../changes/briefing-job-http-view.md)·[검증](../research/briefing-job-http-view-validation.md). 신규55/전체10,126개(Python9,272+JS854), lint/format/type/build/OpenAPI·최종 독립 검토 통과. 생성 상태/완료 결과/취소 API와 비공개 읽기 화면을 연결했다. worker와 API는 공통 검증을 사용하며 현재 권한·모든 원문·최종 영수증을 검사한다. 실제 반환된 요약·비교·날짜 타임라인만 렌더링하고 정확한 원문 인용을 연다.

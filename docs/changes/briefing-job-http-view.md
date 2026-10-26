@@ -42,4 +42,4 @@ Task1 확정 DTO를 사용한다. 허용: 새 packages/api-client/src/briefing-j
 ## Controller gates
 
 - [x] 태스크별/전체 독립 검토, 전체 검사·계약·변경 범위·privacy.
-- [ ] 기록·Draft PR·Sites·전용 QA 정리. 실제 화면/서버 적용과 질문 전송 전체경로는 별도.
+- [x] 기록·Draft PR·Sites·전용 QA 정리. 실제 화면/서버 적용과 질문 전송 전체경로는 별도.
