@@ -239,7 +239,7 @@ def test_same_engine_and_exact_repositories_required_before_sql(admission, engin
     from issuedigest_storage.evidence_jobs import EvidenceJobRepository
 
     plans, jobs, inputs = admission
-    other = create_storage_engine(str(engine.url))
+    other = create_storage_engine(engine.url.render_as_string(hide_password=False))
 
     def forbidden(*args):
         pytest.fail("repository mismatch issued SQL")
