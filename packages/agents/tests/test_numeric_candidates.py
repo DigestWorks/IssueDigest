@@ -419,32 +419,40 @@ def test_import_and_all_apis_have_no_external_side_effects(monkeypatch):
     def denied(*args, **kwargs):
         raise AssertionError("External side effect")
 
-    with monkeypatch.context() as patch:
-        patch.setattr(builtins, "open", denied)
-        patch.setattr(io, "open", denied)
-        getenv = os.getenv
+    original_module = sdk()
+    original_namespace = vars(original_module).copy()
+    try:
+        with monkeypatch.context() as patch:
+            patch.setattr(builtins, "open", denied)
+            patch.setattr(io, "open", denied)
+            getenv = os.getenv
 
-        def guarded_getenv(key, *args):
-            if key != "PYDANTIC_DISABLE_PLUGINS":
-                return denied(key)
-            return getenv(key, *args)
+            def guarded_getenv(key, *args):
+                if key != "PYDANTIC_DISABLE_PLUGINS":
+                    return denied(key)
+                return getenv(key, *args)
 
-        patch.setattr(os, "getenv", guarded_getenv)
-        patch.setattr(socket, "socket", denied)
-        patch.setattr(pydantic_ai, "Agent", denied)
-        patch.setattr(pydantic_ai.models.openai, "AsyncOpenAI", denied)
-        api = importlib.reload(sdk())
-        index = api.build_numeric_candidates(src)
-        assert api.validate_numeric_candidates(src, index) == index
-        assert (
-            json.loads(api.numeric_candidates_packet(src, index))["candidates"][0]["expression"][
-                "text"
-            ]
-            == "1명"
-        )
-        for call in (api.build_numeric_candidates,):
-            with pytest.raises(api.NumericCandidateError):
-                call(None)
+            patch.setattr(os, "getenv", guarded_getenv)
+            patch.setattr(socket, "socket", denied)
+            patch.setattr(pydantic_ai, "Agent", denied)
+            patch.setattr(pydantic_ai.models.openai, "AsyncOpenAI", denied)
+            api = importlib.reload(sdk())
+            index = api.build_numeric_candidates(src)
+            assert api.validate_numeric_candidates(src, index) == index
+            assert (
+                json.loads(api.numeric_candidates_packet(src, index))["candidates"][0][
+                    "expression"
+                ]["text"]
+                == "1명"
+            )
+            for call in (api.build_numeric_candidates,):
+                with pytest.raises(api.NumericCandidateError):
+                    call(None)
+
+    finally:
+        # Dependent modules may already retain these exact model classes.
+        vars(original_module).clear()
+        vars(original_module).update(original_namespace)
 
 
 @pytest.mark.parametrize("text,number", [("제12조", "12"), ("제3항", "3"), ("제2호", "2")])

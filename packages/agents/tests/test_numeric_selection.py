@@ -905,52 +905,60 @@ def test_import_create_prompt_validate_are_lazy_no_key_request_write_or_model_li
     monkeypatch,
 ):
     api = sdk()
-    src = document("A 10")
-    proposal = pure(src, [fact()])
-    model, calls = model_response({"facts": [], "relations": []})
+    original_namespace = vars(api).copy()
+    try:
+        src = document("A 10")
+        proposal = pure(src, [fact()])
+        model, calls = model_response({"facts": [], "relations": []})
 
-    def forbidden(*args, **kwargs):
-        pytest.fail("Unexpected client/key/file/model lifecycle")
+        def forbidden(*args, **kwargs):
+            pytest.fail("Unexpected client/key/file/model lifecycle")
 
-    import builtins
-    import os
+        import builtins
+        import os
 
-    import openai
+        import openai
 
-    monkeypatch.setattr(openai.AsyncOpenAI, "__init__", forbidden)
-    monkeypatch.setattr(openai.OpenAI, "__init__", forbidden)
-    monkeypatch.setattr(api.Agent, "__init__", forbidden)
-    monkeypatch.setattr(builtins, "open", forbidden)
-    original_getenv = os.getenv
+        monkeypatch.setattr(openai.AsyncOpenAI, "__init__", forbidden)
+        monkeypatch.setattr(openai.OpenAI, "__init__", forbidden)
+        monkeypatch.setattr(api.Agent, "__init__", forbidden)
+        monkeypatch.setattr(builtins, "open", forbidden)
+        original_getenv = os.getenv
 
-    def no_credentials(key, *args):
-        if "KEY" in key or "TOKEN" in key:
-            forbidden()
-        return original_getenv(key, *args)
+        def no_credentials(key, *args):
+            if "KEY" in key or "TOKEN" in key:
+                forbidden()
+            return original_getenv(key, *args)
 
-    monkeypatch.setattr(os, "getenv", no_credentials)
-    original_getitem = type(os.environ).__getitem__
+        monkeypatch.setattr(os, "getenv", no_credentials)
+        original_getitem = type(os.environ).__getitem__
 
-    def no_environ_credentials(environ, key):
-        if "KEY" in key or "TOKEN" in key:
-            forbidden()
-        return original_getitem(environ, key)
+        def no_environ_credentials(environ, key):
+            if "KEY" in key or "TOKEN" in key:
+                forbidden()
+            return original_getitem(environ, key)
 
-    monkeypatch.setattr(type(os.environ), "__getitem__", no_environ_credentials)
-    monkeypatch.setattr(api, "Agent", forbidden)
-    monkeypatch.setattr(FunctionModel, "__aenter__", forbidden)
-    monkeypatch.setattr(FunctionModel, "__aexit__", forbidden)
-    importlib.reload(api)
-    monkeypatch.setattr(api, "Agent", forbidden)
-    selector = api.create_numeric_selector(model)
-    assert selector.model is model
-    assert api.numeric_selection_prompt(src)
-    assert (
-        api.validate_numeric_selection(src, proposal.model_dump(mode="json")).status == "unreviewed"
-    )
-    assert calls == []
-    with pytest.raises(api.NumericEvidenceError):
-        api.create_numeric_selector(None)
+        monkeypatch.setattr(type(os.environ), "__getitem__", no_environ_credentials)
+        monkeypatch.setattr(api, "Agent", forbidden)
+        monkeypatch.setattr(FunctionModel, "__aenter__", forbidden)
+        monkeypatch.setattr(FunctionModel, "__aexit__", forbidden)
+        importlib.reload(api)
+        monkeypatch.setattr(api, "Agent", forbidden)
+        selector = api.create_numeric_selector(model)
+        assert selector.model is model
+        assert api.numeric_selection_prompt(src)
+        assert (
+            api.validate_numeric_selection(src, proposal.model_dump(mode="json")).status
+            == "unreviewed"
+        )
+        assert calls == []
+        with pytest.raises(api.NumericEvidenceError):
+            api.create_numeric_selector(None)
+
+    finally:
+        # Cached evaluators may retain these exact proposal model classes.
+        vars(api).clear()
+        vars(api).update(original_namespace)
 
 
 def test_run_borrows_without_enter_exit_or_closing(sync_model_loop, monkeypatch):

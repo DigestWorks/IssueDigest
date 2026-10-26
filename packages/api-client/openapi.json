@@ -76,6 +76,240 @@
         "title": "AwaitingReconciliationPayload",
         "type": "object"
       },
+      "BriefingClaimView": {
+        "additionalProperties": false,
+        "properties": {
+          "epistemic_status": {
+            "enum": [
+              "source_statement",
+              "uncertain"
+            ],
+            "title": "Epistemic Status",
+            "type": "string"
+          },
+          "event_date": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Event Date"
+          },
+          "quotes": {
+            "items": {
+              "$ref": "#/components/schemas/BriefingQuoteView"
+            },
+            "maxItems": 960,
+            "minItems": 1,
+            "title": "Quotes",
+            "type": "array"
+          },
+          "text": {
+            "maxLength": 400,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text",
+          "epistemic_status",
+          "event_date",
+          "quotes"
+        ],
+        "title": "BriefingClaimView",
+        "type": "object"
+      },
+      "BriefingJobView": {
+        "additionalProperties": false,
+        "properties": {
+          "job_id": {
+            "format": "uuid4",
+            "title": "Job Id",
+            "type": "string"
+          },
+          "question": {
+            "maxLength": 1500,
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "result": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/BriefingResultView"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "status": {
+            "enum": [
+              "pending",
+              "running",
+              "completed",
+              "failed",
+              "cancelled",
+              "indeterminate"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "job_id",
+          "question",
+          "status",
+          "result"
+        ],
+        "title": "BriefingJobView",
+        "type": "object"
+      },
+      "BriefingModuleView": {
+        "additionalProperties": false,
+        "properties": {
+          "claims": {
+            "items": {
+              "$ref": "#/components/schemas/BriefingClaimView"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Claims",
+            "type": "array"
+          },
+          "kind": {
+            "enum": [
+              "summary",
+              "comparison",
+              "timeline"
+            ],
+            "title": "Kind",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 100,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "kind",
+          "title",
+          "claims"
+        ],
+        "title": "BriefingModuleView",
+        "type": "object"
+      },
+      "BriefingQuoteView": {
+        "additionalProperties": false,
+        "properties": {
+          "citation_id": {
+            "format": "uuid4",
+            "title": "Citation Id",
+            "type": "string"
+          },
+          "citation_quote": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Citation Quote",
+            "type": "string"
+          },
+          "end": {
+            "exclusiveMinimum": 0.0,
+            "title": "End",
+            "type": "integer"
+          },
+          "snapshot_id": {
+            "format": "uuid4",
+            "title": "Snapshot Id",
+            "type": "string"
+          },
+          "source_title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Source Title",
+            "type": "string"
+          },
+          "start": {
+            "minimum": 0.0,
+            "title": "Start",
+            "type": "integer"
+          },
+          "text": {
+            "maxLength": 20000,
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "snapshot_id",
+          "citation_id",
+          "source_title",
+          "start",
+          "end",
+          "text",
+          "citation_quote"
+        ],
+        "title": "BriefingQuoteView",
+        "type": "object"
+      },
+      "BriefingResultView": {
+        "additionalProperties": false,
+        "properties": {
+          "additional_quotes": {
+            "items": {
+              "$ref": "#/components/schemas/BriefingQuoteView"
+            },
+            "maxItems": 960,
+            "title": "Additional Quotes",
+            "type": "array"
+          },
+          "message": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Message"
+          },
+          "modules": {
+            "items": {
+              "$ref": "#/components/schemas/BriefingModuleView"
+            },
+            "maxItems": 3,
+            "title": "Modules",
+            "type": "array"
+          },
+          "outcome": {
+            "enum": [
+              "answer",
+              "insufficient_evidence"
+            ],
+            "title": "Outcome",
+            "type": "string"
+          }
+        },
+        "required": [
+          "outcome",
+          "message",
+          "modules",
+          "additional_quotes"
+        ],
+        "title": "BriefingResultView",
+        "type": "object"
+      },
       "BudgetAssessment": {
         "additionalProperties": false,
         "properties": {
@@ -1592,6 +1826,7 @@
                   "workspace_id",
                   "snapshot_id",
                   "run_id",
+                  "job_id",
                   "limit"
                 ],
                 "type": "string"
@@ -5836,6 +6071,129 @@
           }
         },
         "summary": "Status"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}": {
+      "get": {
+        "operationId": "read_api_v1_workspaces__workspace_id__briefing_jobs__job_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefingJobView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Read"
+      }
+    },
+    "/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}/cancel": {
+      "post": {
+        "operationId": "cancel_api_v1_workspaces__workspace_id__briefing_jobs__job_id__cancel_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "workspace_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Workspace Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "job_id",
+            "required": true,
+            "schema": {
+              "format": "uuid4",
+              "title": "Job Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "maxProperties": 0,
+                "type": "object"
+              }
+            }
+          },
+          "description": "Send exactly the UTF-8 bytes '{}' with application/json.",
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BriefingJobView"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "SessionCookie": []
+          }
+        ],
+        "summary": "Cancel"
       }
     },
     "/api/v1/workspaces/{workspace_id}/evidence": {
