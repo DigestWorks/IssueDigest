@@ -16,7 +16,7 @@
 
 ## Task 1: 질문별 검색 선택 영속화
 
-- [ ] 신규5파일을 TDD로 구현한다. 위 global constraints를 읽고 그대로 따른다. 정확 질문과 ordered current sources·source_digest를 고정하고 재접수 때 검색하지 않는다. 역할·동시성·상태/타입/행/원문 변조·no_match·기존 budget/run/job 무변경·migration/import 격리 검사를 포함한다. 기존485파일을 수정하지 않는다. scoped 정적 검사와 집중 테스트 후 owned5파일+이 추적 명세의 Task1 체크박스만 커밋하고 ignored SDD 보고서에 정확 RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
+- [x] 신규5파일을 TDD로 구현한다. 위 global constraints를 읽고 그대로 따른다. 정확 질문과 ordered current sources·source_digest를 고정하고 재접수 때 검색하지 않는다. 역할·동시성·상태/타입/행/원문 변조·no_match·기존 budget/run/job 무변경·migration/import 격리 검사를 포함한다. 기존485파일을 수정하지 않는다. scoped 정적 검사와 집중 테스트 후 owned5파일+이 추적 명세의 Task1 체크박스만 커밋하고 ignored SDD 보고서에 정확 RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
 
 ## Controller gates
 
