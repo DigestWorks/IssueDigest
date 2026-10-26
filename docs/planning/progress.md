@@ -1,3 +1,9 @@
+## 검증 완료 · 질문별 브리핑 조합 · 2026-10-26
+
+[조합 계약](../changes/question-briefing-composition.md)·[검증 범위](../research/question-briefing-composition-validation.md). 신규97개·새 전체9,886개(Python9,066+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0, 독립 태스크/전체 검토 C0I0M0·미해결0이다. 기존494실행·이전44증거는 유지했다. 현재 원문·모든 영수증을 재검증하고 문장의 전이 불확실성·출처별 미반영 coverage·직접 근거 날짜를 보존한다. 모든 결과는 미검토이며 의미·진실/독립 사실검증을 인증하지 않는다.
+
+이번 구현은 순수 브리핑 제안 조합·전체 재구성 검사다. 실제 최종 생성·영속 저장/API/UI·개발 적용은 후속이며 앱/기본 worker/main/운영 자원 변경과 실제 제공자 호출0이다. 전체 검사는 전용 로컬 합성 QA만 사용했다. Draft PR·Sites와 자체 QA 정리 최종 인계는 아래에 기록한다.
+
 ## 검증 완료 · 질문별 자동 분석·검증 결과 수집 · 2026-10-26
 
 [계약](../changes/question-plan-runner.md)·[검증](../research/question-plan-runner-validation.md). 한 실행에서 기존 작업 완료를 기다리고 다음 자료를 진행한다. 완료 결과를 현재 세션/원문·canonical 영수증으로 다시 검증하며 부분 결과 없이 unreviewed 묶음으로 반환한다. 실행dca3341·신규73/기존queue5 포함 집중78·새 전체9,789개(Python8,969+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·태스크/전체 독립 검토 C0I0M0다. 기존492실행/이전49증거 보존, 실제 제공자/운영 변경0·앱/기본worker/main 유지다. 프로세스와 독립된 부모 복구·브리핑 합성/저장/API/UI·실제 의미/부하·개발 적용은 후속이며 PR/Sites·자체QA 정리는 최종 인계를 따른다.
