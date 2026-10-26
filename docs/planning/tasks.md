@@ -3,7 +3,7 @@
 - [x] [boundedwait·현재 권한/원문·완료 영수증 수집 계약](../changes/question-plan-runner.md) 고정.
 - [x] 자동 진행·timeout/cancel·완료 수집·native2자료/동시요청/재열람 신규73+기존queue5=78집중·정적 검사.
 - [x] 독립 검토·새 전체9,789개/정적/타입/빌드/OpenAPI·기존492실행/이전49증거 보존.
-- [ ] Draft PR/Sites·자체QA 정리(최종 인계).
+- [x] Draft PR114·Sitesv136/이전v135+정확7문서 보존·자체QA2/전용volume2 정리(최종 인계).
 - [ ] 브리핑 합성·저장/API/UI·독립 부모 복구·실제품질/운영부하·개발 적용.
 
 ## 진행 · 질문별 순차 AI 작업 연결 · 2026-10-26
