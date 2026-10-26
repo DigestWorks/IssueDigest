@@ -18,11 +18,15 @@ Read test-driven-development. RED before implementation, GREEN then focused Ruff
 
 ## Controller gates
 
-- [ ] Independent task/whole-branch review, full checks, historical byte preservation and docs/privacy checks.
-- [ ] New instructions measured against old full development input; preregister source/criteria/rubric/settings/wire/hash, consume at most1 real request in a new private namespace after code review. No retries/repair/limit increase; partial/invalid output not semantic success. Preserve all old paid namespaces.
-- [ ] Compare completion/structural acceptance/JSON saved validation and P5/P9/P10 meaning separately, other9/total12 unchanged. Independent evidence review; no general/holdout/human truth claims.
+- [x] Independent task/whole-branch review C0I0M0, full9,515 checks, historical byte preservation and docs/privacy checks.
+- [x] New instructions measured against old full development input; preregister source/criteria/rubric/settings/wire/hash, consume at most1 real request in a new private namespace after code review. No retries/repair/limit increase; partial/invalid output not semantic success. Preserve all old paid namespaces.
+- [x] Compare completion/structural acceptance/JSON saved validation and P5/P9/P10 meaning separately, other9/total12 unchanged. Independent evidence review; no general/holdout/human truth claims.
 - [ ] Draft PR, Sites summary/previous version and exact docs snapshots, ownQA/SDD cleanup; no app activation.
 
 ## 판단과 영향
 
 새 버전 지침에서 실제 빈 필드 조건을 명시하고 기존 검증기·SDK는 유지한다. 과거 실행 재생을 보존하지만 버전별 요청 조율 코드가 일부 중복되며 실제 모델의 규칙 준수를 보장하지 않는다. 지침328bytes를 요청 예산에 포함하므로 상한 근처 입력은 기존 경로보다 먼저 차단될 수 있다.
+
+## 검증 결과
+
+신규47/관련532·새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 코드 검토 C0I0M0다. [실제1회](../research/guarded-question-reference-acceptance.md)에서 모델 완료/명제3개 SDK수용·현재 원문/JSON 왕복·최종usage2,444/2,781을 확인했다. 독립 AI 개발판정은 P5/P9/P10 explicit3·다른9미평가, 증거 검토 C0I0M0다. 이전474실행/원문·응답·실패·사용량은 보존하며 앱/worker/main 활성화는 하지 않았다.

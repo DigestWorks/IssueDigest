@@ -1,3 +1,12 @@
+## 진행 · 정확한 근거 필드·불확실 상태 · 2026-10-26
+
+- [x] [새 guarded-v2 지침/영수증](../changes/guarded-question-reference-rules.md) 고정·328byte/기존 입력 envelope19,907.
+- [x] TDD47/관련532·독립 코드 검토 C0I0M0·전체9,515/정적 검사/빌드/OpenAPI·이전474실행/51+36증거 보존.
+- [x] 사전 고정 후 실제1회·completed/SDK수용/JSON왕복·최종usage2,444/2,781·재호출0.
+- [x] 필수3명제 explicit3(AI 비맹검 개발판정)/다른9미평가·독립 증거 검토 C0I0M0.
+- [ ] Draft PR·Sites·검증자원 정리/인계.
+- [ ] 실제 구조/의미 이후 versioned worker·합산 예산/권한/복구·앱 인수.
+
 ## 실제 관측 · 질문별 근거 스트림 · 2026-10-25
 
 - [x] [원문/Q2/기준/단일 요청 사전 고정](../research/guarded-question-acceptance.md)·474실행/이전SDK36/과거 실제58·진단66 증거 보존.

@@ -1,3 +1,7 @@
+## 현재 구현·실제 관측 · 정확한 근거 필드·불확실 상태 · 2026-10-26
+
+[새 SDK 계약](../changes/guarded-question-reference-rules.md)·[실제 인수](../research/guarded-question-reference-acceptance.md). 신규47/관련532·scoped정적검사·태스크/전체 코드 검토 C0I0M0. 같은 원문/Q2·새328byte 지침/envelope19,907을 사전 고정해 실제1요청/HTTP200/completed·30.925초·명제3개 SDK수용/JSON저장 재검증을 확인했다. 최종usage2,444/2,781(추론포함)을 보존했고 재호출/보정0이다. 독립 AI개발판정은 필수3명제 explicit3/다른9미평가이며 증거검토 C0I0M0다. 일반/사람/holdout 품질로 확대하지 않는다. 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. Sites/PR 인계를 진행한다. 기존474실행/과거 결과·비용·앱/worker/main은 유지한다.
+
 ## 실제 관측 · 질문별 근거 스트림 · 2026-10-25
 
 [실제 인수 기록](../research/guarded-question-acceptance.md). 같은 전체 원문·Q2·3필수/12기준과 새SDK 모델/settings/body를 사전 고정하고1회 호출했다. HTTP200/completed·31.842초·최종usage입력2,387/출력2,569를 받았으나 source contract가 주체/서술어 근거 누락+uncertain 불일치를 거부해 저장 결과를 만들지 못했고 의미 인수는 진행하지 않았다. 필수3명제는 SDK 거부로 미평가이며 의미0/3으로 세지 않는다. 기존474실행·SDK36/실제58/진단66 증거·원문/기준/실패/비용은 유지한다. 전체9,468QA는 코드 불변의 구조 증거로 재사용하며 신규전체QA/서버자원/앱활성화0이다. 다음은 정확참조·uncertainty 보완이며 독립 증거 검토 C0I0M0·사전 고정/보존·문서/비공개자료 검사를 통과했고 PR·Sites 인계를 진행한다.
