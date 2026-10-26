@@ -1,3 +1,11 @@
+## 최종 인계 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
+
+[Draft PR116](https://github.com/DigestWorks/IssueDigest/pull/116)은 feat/question-briefing-composition 기반·미병합이다. 실행 a383a29, 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·태스크/전체 독립 검토 C0I0M0·미해결0이다. 기존496실행·이전44증거·실제 입력3아티팩트는 불변이며 전체 검사 시작 이후 새2파일 bytes도 같다. 과거1자료/3명제의 사전 envelope16,390/20,000 수용은 실제 생성/의미 성공이 아니다.
+
+Sitesv138 public/native succeeded(2026-10-26T07:32:20.154012+00:00), source `f17fa1b2897324fcc419f9f97bd3072b2e524299`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ed582900675c81919c7af8279501358f`, deployment `appgdep_6adf01f2daa881918ce5deaf48e2b3e3`다. 이전v137 정확 source/상대 경로 rewrite와 변경7문서 정확 사본(9d268fb)을 보존했다. HTML123/로컬대상3,818/공개텍스트385·비공개60+12항목 제외, 새브라우저QA/사용자탭 이동0이다. 이 게시 이후 최종 인계는 저장소 원본을 따른다.
+
+자체QA1/전용 익명volume1과 현재SDD만 정리하고25599포트 닫힘을 확인했다. 앱/기본worker/main/운영 변경·실제 제공자 호출0이다. 전체 입력 유지로 긴 입력·다자료가 차단될 수 있으며 SDK는 최종 내구 접수/금전 예약/현재 권한을 대신하지 않는다. 두 판단과 비용을 명세·검증 기록·PR에 남겼다. 다음은 최종 내구 접수/예약·실제 모델 의미·영속 저장/API/UI·개발 적용이다. PR 첨부는 대화 첨부100개 한도로 실패했으나 링크·기록을 보존한다. 원격 CI 보고와 로컬 전체 검증은 구분한다.
+
 ## 검증 완료 · 질문별 브리핑 최종 생성 SDK · 2026-10-26
 
 [생성 계약](../changes/question-briefing-generation.md)·[검증 범위](../research/question-briefing-generation-validation.md). 신규59/새 전체9,945개(Python9,125+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0, 독립 태스크/전체 검토 C0I0M0·미해결0이다. 기존496실행·이전44증거는 유지한다. 전체 원문·명제·조건을 자르지 않는 단일 native 생성 SDK와 조합 검증·최종/합산 사용량 기록을 연결했다.

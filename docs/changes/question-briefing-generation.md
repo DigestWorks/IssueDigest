@@ -21,7 +21,7 @@
 ## Controller gates
 
 - [x] Independent task/wholebranch review C0I0M0; full9,945/lint/type/build/OpenAPI; old496/previous44preservation.
-- [ ] privacy/docs/DraftPR/Sites/ownedQAcleanup final handoff.
+- [x] privacy/docs/DraftPR116/Sitesv138/previousv137+7exactdocs/ownedQA1+volume1 cleanup final handoff.
 - [ ] Durable final admission/reservation/current rights, actual model meaning, storage/API/UI/development acceptance (outside this change).
 
 ## 판단과 비용
