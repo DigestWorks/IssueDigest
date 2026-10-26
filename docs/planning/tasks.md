@@ -1,3 +1,11 @@
+## 진행 · 질문별 자동 분석·검증 결과 수집 · 2026-10-26
+
+- [x] [boundedwait·현재 권한/원문·완료 영수증 수집 계약](../changes/question-plan-runner.md) 고정.
+- [x] 자동 진행·timeout/cancel·완료 수집·native2자료/동시요청/재열람 신규73+기존queue5=78집중·정적 검사.
+- [x] 독립 검토·새 전체9,789개/정적/타입/빌드/OpenAPI·기존492실행/이전49증거 보존.
+- [x] Draft PR114·Sitesv136/이전v135+정확7문서 보존·자체QA2/전용volume2 정리(최종 인계).
+- [ ] 브리핑 합성·저장/API/UI·독립 부모 복구·실제품질/운영부하·개발 적용.
+
 ## 진행 · 질문별 순차 AI 작업 연결 · 2026-10-26
 
 - [x] [기대 원문 hash·순차 접수·자식 요청 ID 계약](../changes/question-plan-dispatch.md) 고정.
@@ -6,14 +14,14 @@
 - [x] Draft PR113·Sitesv135/이전v134+정확7문서 보존·자체QA3/전용volume3 정리(최종 인계).
 - [ ] 자동 진행·브리핑 변환/API/UI·실제품질/운영부하·개발 적용.
 
-## 구현·집중 검사 완료 · 질문별 자료 선택 영속화 · 2026-10-26
+## 검증 완료 · 질문별 자료 선택 영속화 · 2026-10-26
 
 - [x] [질문 전용 검색·선택/hash 고정·재접수 계약](../changes/question-source-plans.md) 고정.
 - [x] strict 계획 DTO·repository/migration·기존 lexical 검색 연결 TDD.
 - [x] 역할/자료/동시성·변조·재검색0·no_match·예산/run/job 무변경 집중62개+승인된 기존 migration 검사1개(합계63개)·scoped 정적 검사.
 - [x] 기존 파일484개 변경 없이 보존·승인된 기존 migration 검사1개만 수정·이전 증거52개 보존.
 - [x] 독립 최종 검토 C0I0M2 비차단·lazy presentation 복구 계약 문서화.
-- [ ] 전체QA·PR/Sites·자체QA 정리.
+- [x] 새 전체9,657개/정적/타입/빌드/OpenAPI·Draft PR112/Sitesv134·자체QA 정리(기존 최종 인계 확인).
 - [ ] presentation만 삭제한 saved get/retry 집중 검사(비차단 후속).
 - [ ] 다자료 AI 실행·브리핑 변환/표시·운영 부하·개발 반영.
 
