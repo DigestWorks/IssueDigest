@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
 import {
   listBriefingJobs,
+  QuestionError,
   type BriefingJobList,
 } from '@issuedigest/api-client';
 import './question-composer.css';
@@ -15,8 +16,10 @@ const labels = {
 };
 export default function BriefingJobHistory({
   workspaceId,
+  onAuthorityLoss,
 }: {
   workspaceId: string;
+  onAuthorityLoss?: () => void;
 }) {
   const [items, setItems] = useState<BriefingJobList | null>(null);
   const [failed, setFailed] = useState(false);
@@ -30,8 +33,15 @@ export default function BriefingJobHistory({
       (result) => {
         if (current) setItems(result.data);
       },
-      () => {
-        if (current) setFailed(true);
+      (error) => {
+        if (current) {
+          setFailed(true);
+          if (
+            error instanceof QuestionError &&
+            ['unauthorized', 'forbidden', 'not-found'].includes(error.kind)
+          )
+            onAuthorityLoss?.();
+        }
       },
     );
     return () => {

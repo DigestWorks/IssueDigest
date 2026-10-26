@@ -42,7 +42,7 @@ export default function QuestionComposer({
   const current = useRef(true);
   useEffect(() => {
     if (!canEdit) {
-      clearPendingQuestion();
+      clearPendingQuestion(actor, workspaceId);
       setPending(null);
     }
     current.current = true;
@@ -75,7 +75,7 @@ export default function QuestionComposer({
         },
       });
       if (!current.current) return;
-      clearPendingQuestion();
+      clearPendingQuestion(actor, workspaceId);
       setPending(null);
       if (result.data.kind === 'briefing') {
         setMessage('');
@@ -92,7 +92,7 @@ export default function QuestionComposer({
       if (!current.current) return;
       const kind = error instanceof QuestionError ? error.kind : 'unavailable';
       if (['unauthorized', 'forbidden', 'not-found'].includes(kind)) {
-        clearPendingQuestion();
+        clearPendingQuestion(actor, workspaceId);
         setPending(null);
         setQuestion('');
         drafts.clearWorkspace(workspaceId);

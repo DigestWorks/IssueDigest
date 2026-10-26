@@ -6,7 +6,7 @@ import { AuthError, getSession, logout, type AuthFailure, type SessionInfo } fro
 import ResearchDesk from '../research';
 import QuestionComposer from '../question-composer';
 import BriefingJobHistory from '../briefing-job-list';
-import {clearPendingQuestion,readPendingQuestion} from '../question-pending';
+import {clearPendingQuestion,reconcilePendingQuestions} from '../question-pending';
 import {PublicBriefingList} from '../public-briefings';
 import { useResearchDrafts } from '../research-drafts';
 import { clearGuestQuestionDraft, consumeGuestQuestionDraft, readGuestQuestionDraft, writeGuestQuestionDraft } from '../guest-question';
@@ -31,6 +31,7 @@ export default function Home() {
   const [sessionAttempt, setSessionAttempt] = useState(0);
   const [workspaceId, setWorkspaceId] = useState('');
   const [logoutPending, setLogoutPending] = useState(false);
+  const [deniedWorkspace, setDeniedWorkspace] = useState('');
   const [logoutError, setLogoutError] = useState<AuthError | null>(null);
   const [viewParams, setViewParams] = useSearchParams();
   const view = viewParams.get('view') === 'saved' ? 'saved' : 'research';
@@ -54,7 +55,8 @@ export default function Home() {
         const data = result.data;
         drafts.identify(data.user_id, data.memberships.map(item => item.workspace_id));
         const firstWorkspace = data.memberships[0]?.workspace_id ?? '';
-        if (firstWorkspace) readPendingQuestion(data.user_id, firstWorkspace); else clearPendingQuestion();
+        reconcilePendingQuestions(data.user_id, data.memberships.map(item => item.workspace_id));
+        setDeniedWorkspace('');
         const params = entryParams.current;
         const newResearch = !params.has('run') && params.get('view') !== 'saved';
         const question = firstWorkspace && newResearch ? consumeGuestQuestionDraft() : null;
@@ -120,9 +122,10 @@ export default function Home() {
             {session.error.kind !== 'unauthorized' && <SupportInfo requestId={session.error.requestId} />}
           </>}
           {session.kind === 'ready' && (session.data.memberships.length === 0 ? <p role="status" aria-label="접근 상태">접근 가능한 자료 범위가 없습니다.</p> : <>
+            {deniedWorkspace === workspaceId && <button type="button" onClick={() => {setSession({kind: 'loading'}); setSessionAttempt(value => value + 1);}}>접근 상태 다시 확인</button>}
             {workspaceId && !logoutPending && <>
-              {view === 'research' && !viewParams.has('run') ? <QuestionComposer actor={session.data.user_id} workspaceId={workspaceId} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} onInitialQuestionInitialized={() => setRestoredQuestion(null)} canEdit={membership?.role !== 'viewer'} /> : <>
-                {view === 'saved' && <BriefingJobHistory key={`${session.data.user_id}/${workspaceId}`} workspaceId={workspaceId} />}
+              {view === 'research' && !viewParams.has('run') ? <QuestionComposer actor={session.data.user_id} workspaceId={workspaceId} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} onInitialQuestionInitialized={() => setRestoredQuestion(null)} canEdit={membership?.role !== 'viewer' && deniedWorkspace !== workspaceId} /> : <>
+                {view === 'saved' && <BriefingJobHistory key={`${session.data.user_id}/${workspaceId}`} workspaceId={workspaceId} onAuthorityLoss={() => {clearPendingQuestion(session.data.user_id, workspaceId); drafts.clearWorkspace(workspaceId); setRestoredQuestion(null); setDeniedWorkspace(workspaceId);}} />}
                 <ResearchDesk onInitialQuestionInitialized={() => setRestoredQuestion(null)} key={`${session.data.user_id}/${workspaceId}`} initialQuestion={restoredQuestion?.userId === session.data.user_id && restoredQuestion.workspaceId === workspaceId ? restoredQuestion.question : undefined} workspaceId={workspaceId} canEdit={membership?.role !== 'viewer'} view={view} />
               </>}
             </>}

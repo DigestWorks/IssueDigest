@@ -4,6 +4,8 @@ import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
 import QuestionComposer from '../app/question-composer';
 import {
+  clearPendingQuestion,
+  reconcilePendingQuestions,
   readPendingQuestion,
   writePendingQuestion,
 } from '../app/question-pending';
@@ -148,3 +150,42 @@ it.each([401, 403, 404])(
     expect(readPendingQuestion(actor, workspace)).toBeNull();
   },
 );
+it('preserves workspace A request across B selection and explicitly retries A with its original UUID', async () => {
+  writePendingQuestion(actor, workspace, {
+    request_id: actor,
+    question: 'A 질문',
+  });
+  expect(readPendingQuestion(actor, actor)).toBeNull();
+  writePendingQuestion(actor, actor, {
+    request_id: workspace,
+    question: 'B 질문',
+  });
+  expect(readPendingQuestion(actor, workspace)).toEqual({
+    request_id: actor,
+    question: 'A 질문',
+  });
+  const fetch = vi.fn().mockRejectedValue(new TypeError());
+  vi.stubGlobal('fetch', fetch);
+  mount();
+  expect(fetch).not.toHaveBeenCalled();
+  await userEvent.click(
+    screen.getByRole('button', { name: '같은 질문 다시 확인' }),
+  );
+  await screen.findByText(/응답을 확인하지/);
+  expect(JSON.parse(fetch.mock.calls[0][1].body).request_id).toBe(actor);
+});
+
+it('scopes completion cleanup and reconciles membership loss separately', () => {
+  writePendingQuestion(actor, workspace, { request_id: actor, question: 'A' });
+  writePendingQuestion(actor, actor, { request_id: workspace, question: 'B' });
+  clearPendingQuestion(actor, workspace);
+  expect(readPendingQuestion(actor, actor)?.question).toBe('B');
+  writePendingQuestion(actor, workspace, { request_id: actor, question: 'A' });
+  reconcilePendingQuestions(actor, [workspace, actor]);
+  expect(readPendingQuestion(actor, workspace)?.request_id).toBe(actor);
+  reconcilePendingQuestions(actor, [workspace]);
+  expect(readPendingQuestion(actor, actor)).toBeNull();
+  expect(readPendingQuestion(actor, workspace)?.request_id).toBe(actor);
+  clearPendingQuestion();
+  expect(readPendingQuestion(actor, workspace)).toBeNull();
+});
