@@ -23,7 +23,7 @@
 
 ## Task 2
 
-- [ ] Implement worker admission/execute/canonical replay tests using approved Task1 interface and unchanged generation SDK. Native mocked provider/realSQL, current checks/offloop/usage/recovery; optional explicit DBOS registration only with native isolated proof. TDD/scoped checks; commit owned2files+this checkbox; report exactcommands/interfaces/limits/selfreview.
+- [x] Implement worker admission/execute/canonical replay tests using approved Task1 interface and unchanged generation SDK. Native mocked provider/realSQL, current checks/offloop/usage/recovery; optional explicit DBOS registration only with native isolated proof. TDD/scoped checks; commit owned2files+this checkbox; report exactcommands/interfaces/limits/selfreview.
 
 ## Controller gates
 
