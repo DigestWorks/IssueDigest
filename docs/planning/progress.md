@@ -2040,3 +2040,14 @@ legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번
 새0012 이후 기존0011 테스트의 head 가정이 맞지 않아, 해당 migration 검사 한 함수만 실제0011 SQL·기존 행·버전 stamp 보존 검사로 수정한다.
 
 사용자 요청으로 Verify foundation 자동 검사를 비활성화하고 main용 Production deployment는 유지했다. 개인 이메일 설정은 변경하지 않았다. 발견된 인증 테스트 URL 마스킹 오류는 해당 테스트 한 줄로 한정해 수정한다.
+
+
+## 최종 인계 · 2026-10-26
+
+[Draft PR117](https://github.com/DigestWorks/IssueDigest/pull/117), base `feat/question-briefing-generation`. 코드 `032980f`, 문서 사본 `7a711c5437a6482d4092a89bea23436d1db19a66`. 신규109/전체10,054개(Python9,234+JS820), 정적/타입/빌드/OpenAPI와 최종 독립 검토를 통과했다. 검토에서 찾은 저장 직전 권한 재확인 누락은 회귀 검사 후 수정했다.
+
+[계획판 v139](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) 공개 게시 성공. source `be6eae062b51580d0043e445884548e8b16c9ba2`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_04ca01a3aa94819189851a9000fc2337`, deployment `appgdep_6adf120f5cb48191b9e0d9f9e4c200b5`. 이전 v138을 보존하고 7개 문서를 정확히 복사했다. HTML124/로컬 링크·앵커3891/공개 텍스트390개를 확인했고, 실제 비공개 자료 값72종과 접속·키 값 노출이 없다. 기존 레이아웃의 텍스트 갱신으로 브라우저 검사는 생략했다.
+
+자체 QA 컨테이너2개와 각각의 전용 볼륨2개만 삭제하고 두 로컬 포트의 종료를 확인했다. PR 카드 첨부는 대화 첨부 개수 한도(100)로 실패했으며 위 PR 링크를 제공한다. GitHub 자동 검사는 사용자 요청대로 비활성화, main 자동 배포는 유지한다.
+
+현재 웹 화면·운영 DB·기본 worker·main은 변경하지 않았다. 다음 완료 기준은 질문 접수→생성 중 표시→근거 연결 브리핑→재열람이며, 이를 위한 queue/API/UI 연결과 실제 품질 검증이 남아 있다.
