@@ -1,0 +1,34 @@
+# 질문별 근거 참조·불확실 상태 규칙 보완
+
+2026-10-26 KST. [실제1회 거부](../research/guarded-question-acceptance.md)에서 정확한 인용17회가 있어도 subject_refs/predicate_refs를 비우고 source_statement를 제출한 두 명제를 확인했다. 검증기를 완화하지 않고 새 guarded-v2 SDK의 지침을 명확히 한다. 이전 응답·SDK·모든 비용을 보존한다.
+
+## Global Constraints
+
+- Only new `packages/agents/src/issuedigest_agents/guarded_question_evidence_v2.py` and its new test file may change execution code. Existing474 tracked non-Markdown files (including both previous generators, source validators, transport, worker, exports, dependencies) remain byte-identical. Documentation may change. No automatic repair/filling/downgrade, retries/fallback, app/worker activation, DB/server writes or main merge. Implementer makes no actual provider/network calls.
+- New version-local SDK mirrors the existing async guarded SDK's strict source/hash/usage/receipt/error/cancellation guarantees, with public `GuardedQuestionEvidenceGenerationV2`, `GuardedQuestionEvidenceV2Error`, `run_guarded_question_evidence_v2(*, client: AsyncOpenAI, model: str, source: Source, question: str)` and `validate_guarded_question_evidence_v2(source, question, result)`. Reuse existing pure helpers rather than clone their internals. A narrow version-local request/receipt orchestration duplicate is acceptable to preserve frozen historical execution. New receipt profile exact `guarded-question-evidence-v2`; transport_profile remains `guarded-responses-tool-v1`, input_format remains `question-evidence-source-v2`, status unreviewed. Do not impersonate v1 receipt or silently migrate it.
+- `REFERENCE_RULES_SUFFIX` exact bytes (one leading ASCII space, no trailing newline): ` Field rules: fill subject_refs and predicate_refs with exact spans when supported. If subject_refs or predicate_refs is empty, epistemic_status must be uncertain. Empty quantity metric_refs or relative-time anchor_refs also requires uncertain. Broad supporting_refs cannot replace these fields; never invent missing references.`
+- `GUARDED_QUESTION_V2_INSTRUCTIONS = QUESTION_EVIDENCE_V2_INSTRUCTIONS + REFERENCE_RULES_SUFFIX`. Whole prompt/quotes/question/tool name `fill_question_evidence_v2` and existing schema remain unchanged. Reuse v2 input preflight then additionally enforce `_request_envelope(prompt, tools, GUARDED_QUESTION_V2_INSTRUCTIONS, 4000) <= 20000` before native transport. Stored instructions hash and saved validation use the new exact instructions, not the old ones. No changed token/output/deadline/stream limits, no new provider settings or model default.
+- Same actual-type/raw-required guards, original source hash before/after await/construction/validation, strict budgets, source proposition validator, one borrowed native call and lifecycle, sanitized observational errors, cancellation identity, known observed/final usage and close confirmation as guarded v1. Preserve valid over-budget terminal observations before rejecting output. Unknown ordinary failures claim no invented final usage/closure. Reject missing/forged profiles/hashes/original DTO/raw required fields. Native failure carries original reason/observations unchanged; source rejection after completed transport retains known usage. Missing references with source_statement must still fail; uncertain with legitimately empty fields may structurally pass without certifying semantic coverage. Broad support alone never fills field references.
+
+## Task 1: Versioned exact field-rule generator
+
+- [x] Implement only the new two Python files plus this checkbox using TDD.
+
+Read test-driven-development. RED before implementation, GREEN then focused Ruff/format/mypy and related frozen guarded-v1/native/source tests. Real AsyncOpenAI+httpx2.MockTransport SSE integration asserts exact328-byte suffix, new instructions wire/hash, unchanged full prompt/tool/schema/options, one request and borrowed client remains open. Successful nonempty source-attributed proposition + JSON save/revalidate; empty insufficient accepted but unreviewed. Source_statement with missing subject or predicate, missing quantity metric, unanchored relative time rejects; same structurally uncertain data may pass without filling/replacing any field. Old/new receipt/hash substitutions fail. New instructions envelope checked before dispatch (case old envelope fits but new exceeds; boundary <=20000). Native error/cancel/observed usage, source mutation and output rejection retain prior guarantees; do not duplicate all native event matrix. Strict unchecked DTO/raw omission tests can reuse existing fixtures/guards. Module import isolation must preserve frozen reload tests. No private source/real network/model calls; public fixtures only. Commit owned files after scoped tests; write report with RED/GREEN/selfreview/static results. Controller runs fullQA/reviews; do not spawn subagents.
+
+## Controller gates
+
+- [x] Independent task/whole-branch review C0I0M0, full9,515 checks, historical byte preservation and docs/privacy checks.
+- [x] New instructions measured against old full development input; preregister source/criteria/rubric/settings/wire/hash, consume at most1 real request in a new private namespace after code review. No retries/repair/limit increase; partial/invalid output not semantic success. Preserve all old paid namespaces.
+- [x] Compare completion/structural acceptance/JSON saved validation and P5/P9/P10 meaning separately, other9/total12 unchanged. Independent evidence review; no general/holdout/human truth claims.
+- [x] Draft PR109, Sitesv131/previousv130/7exact docs snapshots, ownQA1/volume1/SDD cleanup; no app activation.
+
+## 판단과 영향
+
+새 버전 지침에서 실제 빈 필드 조건을 명시하고 기존 검증기·SDK는 유지한다. 과거 실행 재생을 보존하지만 버전별 요청 조율 코드가 일부 중복되며 실제 모델의 규칙 준수를 보장하지 않는다. 지침328bytes를 요청 예산에 포함하므로 상한 근처 입력은 기존 경로보다 먼저 차단될 수 있다.
+
+## 검증 결과
+
+신규47/관련532·새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0·태스크/전체 코드 검토 C0I0M0다. [실제1회](../research/guarded-question-reference-acceptance.md)에서 모델 완료/명제3개 SDK수용·현재 원문/JSON 왕복·최종usage2,444/2,781을 확인했다. 독립 AI 개발판정은 P5/P9/P10 explicit3·다른9미평가, 증거 검토 C0I0M0다. 이전474실행/원문·응답·실패·사용량은 보존하며 앱/worker/main 활성화는 하지 않았다.
+
+최종 인계: [Draft PR109](https://github.com/DigestWorks/IssueDigest/pull/109)·Sitesv131 public/native succeeded, 이전v130/변경7문서 정확 사본(70325c2)을 보존했다. Site source `ae602f7f73f4314d026e28e9c70e1b649f882686`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_fef73bb1d6748191b31a9c00d425ad76`, deployment `appgdep_6adeb6fd9a408191933065b216cac3fc`다. HTML116/로컬대상3,335/공개텍스트350·비공개60+12항목 제외를 확인했고 사용자 탭 이동/새브라우저QA0이다. 자체QA1/전용volume1을 정리했으며 실제 요청은 이번 최초1회뿐이다. 이후 인계는 저장소 원본을 따르고 main/앱/worker 활성화는 없다.

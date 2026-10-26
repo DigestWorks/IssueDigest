@@ -1,3 +1,7 @@
+## M3 진행 · 명시적 근거 필드·불확실 상태
+
+[guarded-v2](../changes/guarded-question-reference-rules.md)는 실제 빈 필드 조건을328byte로 명시하고 이전 SDK/검증기는 보존한다. [단일 실제 인수](../research/guarded-question-reference-acceptance.md)에서 명제3개의 SDK수용/원문 검증/JSON왕복을 확인했다. 필수3명제는 비맹검 AI개발판정 explicit3/다른9미평가·독립 증거 검토 C0I0M0이며 새전체9,515개(Python8,695+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0를 통과했다. 실제 worker/합산 예산/권한/복구·앱 인수는 별도로 남는다.
+
 ## M3 실제 인수 · 생성 스트림의 원문 계약 거부
 
 [단일 실제 요청](../research/guarded-question-acceptance.md)은 모델 완료/최종 사용량까지 수신했지만 주체·서술어 참조 누락과 불확실 상태 불일치로 SDK가 거부했다. 인용 위치17회 exact를 의미 성공으로 세지 않으며 재호출/보정하지 않는다. 출력 지침·참조/uncertainty를 먼저 보완하고 실제 구조/의미를 인수한 뒤 versioned worker·합산 예산/권한/복구·앱 연결로 진행한다. 기존 앱·worker·SDK는 유지한다.

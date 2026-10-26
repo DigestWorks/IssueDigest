@@ -1,3 +1,5 @@
+현재 구현: [정확한 근거 필드·불확실 상태 지침](docs/changes/guarded-question-reference-rules.md). 신규47/관련532·scoped정적검사·독립 코드 검토를 통과했습니다. 실제1요청에서 모델 완료/명제3개 SDK수용·JSON 재검증을 확인했으며, 필수3명제는 AI 개발판정에서 보존을 확인했으며, 전체9,515개·정적 검사/빌드/OpenAPI도 통과했습니다. 일반 품질·앱 인수와 구분합니다.
+
 최신 실제 관측: [질문별 근거 스트림 인수](docs/research/guarded-question-acceptance.md). 요청1회/HTTP200·모델 완료·최종 사용량2,387/2,569를 확인했지만 주체/서술어 참조 누락과 불확실 상태 불일치로 SDK가 거부했습니다. 재호출/자동 보정 없이 원래 결과를 보존하며 의미·앱 인수는 남습니다.
 
 현재 구현: [질문별 근거 스트림 연결](docs/changes/guarded-question-evidence.md). 신규33/관련287·새전체9,468개(Python8,648+JS820)·정적 검사/빌드/OpenAPI·독립 검토 C0I0M0를 통과했다. 기존472실행 파일과 직전69개 증거를 보존했으며 제공자 호출0·앱/worker/main 활성화0이다. 실제 모델 의미와 versioned worker/앱 인수는 남는다.
