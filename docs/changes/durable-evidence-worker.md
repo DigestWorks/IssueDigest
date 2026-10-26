@@ -25,7 +25,7 @@ Read test-driven-development. Use dedicated synthetic PostgreSQL URL supplied by
 ## Controller gates
 
 - [x] Task/whole-branch review, full checks and isolated actual DBOS/PostgreSQL/no-provider integration evidence.
-- [ ] Historical476 execution/previous evidence preservation, docs/privacy, Draft PR, Sites summary/previous snapshot, ownQA/SDD cleanup.
+- [x] Historical476 execution/previous evidence preservation, docs/privacy, Draft PR, Sites summary/previous snapshot, ownQA/SDD cleanup.
 - [ ] Service-side enqueue/briefing conversion/multi-source orchestration and operator reservation policy validation before development deployment. No live activation in this change.
 
 ## 판단과 영향
