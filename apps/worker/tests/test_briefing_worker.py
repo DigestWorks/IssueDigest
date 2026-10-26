@@ -528,3 +528,29 @@ def test_ownership_loss_during_claim_sends_nothing(jobs, engine, monkeypatch):
     with pytest.raises(ResearchForbidden):
         asyncio.run(exercise(jobs, job, ownership=lambda _: not lost))
     assert jobs.prepare(job.job_id)[0].known_usage is None
+
+
+def test_ownership_loss_during_post_sdk_prepare_rejects_receipt(jobs, engine, monkeypatch):
+    from issuedigest_storage.research import ResearchForbidden
+
+    job = admit(jobs, seed(engine))
+    original = jobs.prepare
+    lost = False
+    calls = 0
+
+    def prepare(*args, **kwargs):
+        nonlocal lost, calls
+        packet = original(*args, **kwargs)
+        calls += 1
+        if calls == 2:
+            # First prepare precedes the SDK; the second follows its success.
+            lost = True
+        return packet
+
+    monkeypatch.setattr(jobs, "prepare", prepare)
+    with pytest.raises(ResearchForbidden):
+        asyncio.run(exercise(jobs, job, ownership=lambda _: not lost))
+    saved = original(job.job_id)[0]
+    assert saved.status == "failed" and saved.receipt is None
+    assert saved.known_usage == dict(input_tokens=10, output_tokens=5, requests=1)
+    assert saved.usage_complete is True and saved.stream_closed is True

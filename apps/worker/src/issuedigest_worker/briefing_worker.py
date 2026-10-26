@@ -275,6 +275,7 @@ async def execute_briefing_job(
     try:
         _owned(job_id, check_ownership)
         current, current_packet = await asyncio.to_thread(repository.prepare, job_id)
+        _owned(job_id, check_ownership)
         current_receipts, current_prompt = _packet(current_packet)
         _bound(current, current_packet, current_prompt)
         validate_question_briefing_generation(
