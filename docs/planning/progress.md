@@ -1,3 +1,9 @@
+## 검증 완료 · 질문 분석→최종 브리핑 실행 연결 · 2026-10-26
+
+[작업 계약](../changes/question-briefing-runner.md)·[검증](../research/question-briefing-runner-validation.md). 신규82/전체10,208개(Python9,354+JS854)·정적/타입/빌드/OpenAPI·독립 검토 통과. 한 요청의 자료 분석→최종 접수·queue를 연결했다. 같은 원래 요청ID와 공유 실행 큐·현재 원문/권한·기존 예약 계약을 보존한다. 자료 없음/분석 중단이면 최종 생성0이다.
+
+전용 SQL·native DBOS/MockSSE에서 동시 동일 요청은 분석1+최종1 호출이며 완료 재접수의 호출/예약 증가0을 확인했다. 이는 실제 모델 의미 인수가 아니다. 기존517실행·이전82증거는 불변이다. 기존 질문 API/화면·독립 부모 복구·개발/운영 반영은 남아 있다. PR·Sites·QA 정리는 최종 인계에 기록한다.
+
 ## 최종 인계 · 저장 브리핑 조회·읽기 화면 · 2026-10-26
 
 [Draft PR119](https://github.com/DigestWorks/IssueDigest/pull/119)은 feat/briefing-job-dispatch 기반·미병합이다. 실행 5af8a9d, 신규55/전체10,126개(Python9,272+JS854)를 확인했다. Worker1,115개 불변 통과·API 선행 agents5,423개·나머지 Python2,735개의 수집 목록 합집합을 검증했다(API1개 중복 제외·무작위 UUID suffix11개만 정규화·고유9,272 유지). 단일 중단 없는 root 성공과 구분한다. 정적/타입/빌드/OpenAPI·두테마/모바일 브라우저·독립 검토 미해결0이다. 기존 numeric/selection reload 테스트 두 곳의 격리를 보완했고 실제 분석 검증 조건은 유지했다.
