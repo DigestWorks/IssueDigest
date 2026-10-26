@@ -1,3 +1,11 @@
+## 검증 완료 · 질문 제출·브리핑 화면 연결 · 2026-10-26
+
+[작업 계약](../changes/question-briefing-web-flow.md)·[검증](../research/question-briefing-web-flow-validation.md). 신규119/전체10,327개(Python9,412+JS915)·정적/타입/빌드/OpenAPI·독립 검토 통과. 새 질문은 실제 분석→최종 생성 코어로 전달하고, 생성 중 표시와 완료 브리핑·근거 읽기·저장 목록을 연결한다. 기존 run URL과 공개 읽기/인증/예산 정책은 보존한다.
+
+합성 PostgreSQL/native DBOS/MockSSE HTTP 전체 흐름, 동일 요청 동시/재접수 중복0, recovery·API 응답성·같은 loop provider 종료를 검증했다. 취소 finalizer 완료를 기다리는 bridge와 actor/workspace별 pending/권한 상실 정리를 독립 검토 후 보완했다. 실제 브라우저1280/390px·두테마·생성 중/중복 방지/완료 이동/저장 목록·넘침/콘솔오류0·단일 명시 POST를 확인했다. 합성 응답이며 실제 유료 모델 의미 인수는 아니다.
+
+기존499개 파일/승인20변경/이전58증거와 기존 저장 메서드·중첩 workflow AST를 확인했다. 개발 서버 접속은 확인했으나 현재 배포 코드는 별도이므로 이번 UI가 적용됐다고 주장하지 않는다. 별도 DBOS 스키마 사전 준비·기존 executor 안전한 전환·실제 의미 품질이 남아 있다. main/운영 변경·실제 제공자 호출0. PR/Sites/자원 정리는 최종 인계에 기록한다.
+
 ## 최종 인계 · 질문 분석→최종 브리핑 실행 연결 · 2026-10-26
 
 [Draft PR120](https://github.com/DigestWorks/IssueDigest/pull/120)은 feat/briefing-job-http-view 기반·미병합이다. 실행e6ccca3 전체검사9,351Python+854JS에 보강3개를 더해 신규82/총10,208개(Python9,354+JS854)를 검증했다. daf112c는 기존79개 byteprefix/AST와 실행 코드를 그대로 두고 실제 SQL 권한/원문 변경·INSERT 도중 취소3개만 추가했으며 전체82module도 통과했다. 단일 최종source root 성공으로 표현하지 않는다. 정적/타입/빌드/OpenAPI·독립 태스크I1보완/재검토·전체 검토 C0I0M0다. [검증 범위](../research/question-briefing-runner-validation.md).

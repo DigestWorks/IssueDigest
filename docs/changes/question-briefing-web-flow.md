@@ -32,7 +32,7 @@ UI는 기존 paper/ink/green tokens·BrandHeader·44px/keyboard/focus·두테마
 
 ## Task 2 — 소유 worker host·root factory·실제 HTTP 통합
 
-- [ ] TDD 구현/태스크 검토.
+- [x] TDD 구현/태스크 검토.
 
 Task1 DTO/Protocol을 사용한다. 새 worker/question_service.py, scripts/question_briefing_app.py, worker/tests/test_question_service.py, api/tests/test_question_briefing_runtime.py. 승인 수정: worker/briefing_queue.py 등록 본문/설정 추출만(기존 step/workflow 본문 AST/이름/정책 유지); api/runtime.py optional service_factory callback/lifespan만, scripts/dev.mjs 명시 flag factory선택, scripts/dev.test.mjs 새 경우 추가(기존assertions 유지). 필요 시 mypy 설정에는 새 root script만 추가(기존 entry 유지)한다. 실제 native DBOS/MockSSE·ASGI stream→등록분석→final→기존HTTP read까지 증명하고 same request2concurrent/replay0increment를 확인한다. loop/thread/provider close 동일성·lease foreign singleton/기동실패정리·currentauthority/예산·신규secret환경 validation·미리migration되지않은schemafailclosed·startupworkflow등록순서·APIliveness responsiveness·shutdown intent를 검사한다. 테스트고유 qwh_UUID schema만 migrate/drop하고 user/default schema는 바꾸지 않는다. 기존 helper/provider/version bytes 변화0. scopedtests/mypy/format/Ruff·보고/owned커밋. 실제 provider/remote0. 서브에이전트 금지.
 
@@ -44,5 +44,11 @@ Task1 DTO/Protocol을 사용한다. 새 worker/question_service.py, scripts/ques
 
 ## Controller gates
 
-- [ ] 태스크/전체 독립 검토·전체 체크·허용diff/oldAST·privacy.
+- [x] 태스크/전체 독립 검토·전체 체크·허용diff/oldAST·privacy.
 - [ ] 실제 브라우저·7문서·Draft PR·Sites·전용 QA 정리. server/main 반영 여부 별도 명시.
+
+## 전체 검증에서 승인한 보완
+
+기존 runner 테스트 helper의 폐기된 고정 QA 포트는 명시 test DB 환경변수로 바꿨다. 모든 해당 테스트/fixture 함수 AST는 그대로이며 기존82개와 전체 회귀를 다시 확인했다. Home을 직접 mount한 기존 통합 검사의 새 질문 trigger/fixture만 SSE로 맞췄고 legacy/auth/Back/원문 검증은 보존했다. 기존 shared draft provider는 새 pending 저장도 같은 현재 권한 상실 경계에서 지우도록 연결했으며 원문 reader/ResearchDesk 자체는 바꾸지 않았다.
+
+전체 검사는 기존 포트 오류를 바로잡은 뒤 단일 root 명령으로 통과했다. 최종 UI 보완은 Python 단계 중 완료했고, Python 등 다른 실행 bytes 불변과 JS 단계 시작 전 최종 UI hash 고정을 별도 확인했다. 최초 실패 로그와 최종 성공을 구분해 보존한다.
