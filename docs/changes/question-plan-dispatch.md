@@ -22,7 +22,7 @@ DBOS 통합 테스트는 qpd_<UUID> 전용 schema를 migrate/config/client에 �
 
 ## Controller gates
 
-- [ ] 독립 태스크/전체 검토·전체검사·동결 실행/이전증거 보존·privacy·문서/DraftPR/Sites·자체QA정리.
+- [x] 독립 태스크/전체/수정 검토·새 전체9,716개/정적/타입/빌드/OpenAPI·기존488실행/이전43증거 보존·privacy·문서/Draft PR113/Sitesv135·자체QA3/volume3 정리.
 - [ ] 자동 진행 parentworkflow·다자료 결과의 브리핑 변환·API/UI·실제품질/운영부하·개발 적용(이번 제외).
 
 ## 판단과 비용

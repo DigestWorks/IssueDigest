@@ -2,6 +2,8 @@
 
 [계약](../changes/question-plan-dispatch.md)·[검증](../research/question-plan-dispatch-validation.md). 고정 자료의 기대 hash를 예약 전 비교하고 결정적인 자식 요청으로 접수한다. 완료한 작업은 재사용하며 첫 미완료/실패에서 반환한다. 실행df8cd6f/테스트 격리 보완6c6f65b·집중91/새 전체9,716개(Python8,896+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0이다. 태스크/전체/최종 수정 검토 C0I0M0다. 최초 전체 실행의 queue 소유권 충돌3건은 새 테스트만 고유 schema로 격리해 해결했고 새 DB에서 전체 재검증했다. 기존488실행/이전43증거 보존·실제 제공자/운영 변경0·앱/기본worker/main 유지다. 자동 진행·브리핑 변환/API/UI·실제 품질/부하·개발 반영은 후속이며 PR/Sites·자체QA 정리는 최종 인계를 따른다.
 
+최종 인계: [Draft PR113](https://github.com/DigestWorks/IssueDigest/pull/113)·[Sitesv135](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded. 이전v134와 변경7문서 정확 사본(9a07d6c)을 보존했다. Site source `a4c5a44f81de77b4b6bc8b0abeaef9d425ed0902`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6d7221835ff8819186bbfe4f474d2970`, deployment `appgdep_6adeea3abf4081919988caf0ba5c38b3`다. HTML120/로컬대상3,605/공개텍스트370·비공개60+12항목 제외를 확인했다. 자체QA3/전용volume3을 정확 소유권 확인 후 정리하고 포트 닫힘을 확인했다. 사용자 탭 이동/신규 브라우저 검사0(기존 레이아웃 텍스트 변경)이다. 실제 제공자/운영 변경·앱/기본worker/main 활성화0이며 자동 진행/브리핑/API/UI 인수는 후속이다. 네 판단과 비용은 명세/검증 기록에 남겼다. PR 채팅 첨부는 도구100개 한도로 실패했지만 링크는 유효하다. 원격CI는 로컬 전체 검사와 구분하며 이후 인계는 저장소 원본을 따른다.
+
 ## 검증 완료 · 질문별 자료 선택 영속화 · 2026-10-26
 
 [계약](../changes/question-source-plans.md)·[검증](../research/question-source-plans-validation.md). 질문만으로 기존 저장 색인에서 최대5자료를 선택하고 원문/제목 hash를 고정한다. 같은 요청은 재검색하지 않고 현재 권한·원문을 재검증하며 no_match도 유지한다. 실행9ecdce0/기존 검사 보완14e1585·신규62/전체9,657개(Python8,837+JS820)·정적 검사/빌드/OpenAPI·실패/skip/warning0이다. 태스크 C0I0M1/전체 C0I0M2 후 문서 보완 재검토 C0I0M0이며 비차단 후속1개(표시 정보 단독 삭제 집중 검사)를 남겼다. 기존484실행은 그대로이고 승인한 migration 검사1개만 수정했으며 이전52증거를 보존했다. 실제 제공자/운영 변경0·앱/기본worker/main 유지다. 다자료 AI 실행·브리핑 표시·개발 적용은 후속이며 PR/Sites·자체QA 정리는 최종 인계를 따른다.

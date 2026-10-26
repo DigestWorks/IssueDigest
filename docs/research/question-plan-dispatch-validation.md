@@ -25,3 +25,5 @@
 첫 전체 실행은 기존 queue 검사3개 실패/8,893개 통과로 종료해 통과로 세지 않았다. 원인은 새 native 테스트가 기본 dbos.queues에 다른 앱 이름으로 같은 고정 queue를 남긴 테스트 간섭이었다. 새 테스트만 고유 qpd_<UUID> schema를 사용하고 종료 후 정리하며, 기본 schema/queue 불변을 검사하도록 보완했다. 앱 실행 코드는 변경하지 않았다. 신선한 전용 DB에서 전체 검사를 다시 수행한다.
 
 4. 테스트 전용 DBOS schema를 격리했다. 기존 queue와의 충돌을 막는 대신 테스트 준비/정리와 전체 재검사 비용이 늘었다.
+
+최종 인계: [Draft PR113](https://github.com/DigestWorks/IssueDigest/pull/113)·[Sitesv135](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public/native succeeded. 이전v134와 변경7문서 정확 사본(9a07d6c)을 보존했다. Site source `a4c5a44f81de77b4b6bc8b0abeaef9d425ed0902`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6d7221835ff8819186bbfe4f474d2970`, deployment `appgdep_6adeea3abf4081919988caf0ba5c38b3`다. HTML120/로컬대상3,605/공개텍스트370·비공개60+12항목 제외를 확인했다. 자체QA3/전용volume3을 정확 소유권 확인 후 정리하고 포트 닫힘을 확인했다. 사용자 탭 이동/신규 브라우저 검사0(기존 레이아웃 텍스트 변경)이다. 실제 제공자/운영 변경·앱/기본worker/main 활성화0이며 자동 진행/브리핑/API/UI 인수는 후속이다. 네 판단과 비용은 명세/검증 기록에 남겼다. PR 채팅 첨부는 도구100개 한도로 실패했지만 링크는 유효하다. 원격CI는 로컬 전체 검사와 구분하며 이후 인계는 저장소 원본을 따른다.
