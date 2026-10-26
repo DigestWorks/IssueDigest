@@ -2901,7 +2901,12 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody?: never;
+        /** @description Send exactly the UTF-8 bytes '{}' with application/json. */
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
         responses: {
             /** @description Successful Response */
             200: {

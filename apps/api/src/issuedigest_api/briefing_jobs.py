@@ -162,7 +162,25 @@ def briefing_jobs_router(
             raise HTTPException(422, "Invalid briefing request")
         return await run_in_threadpool(view, check(token), workspace_id, job_id, False)
 
-    @router.post(BASE + "/cancel", response_model=BriefingJobView)
+    @router.post(
+        BASE + "/cancel",
+        response_model=BriefingJobView,
+        openapi_extra={
+            "requestBody": {
+                "required": True,
+                "description": "Send exactly the UTF-8 bytes '{}' with application/json.",
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "maxProperties": 0,
+                        }
+                    }
+                },
+            }
+        },
+    )
     async def cancel(
         request: Request,
         workspace_id: UUID4,

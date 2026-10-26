@@ -5,7 +5,7 @@ import importlib
 import sys
 from pathlib import Path
 from types import SimpleNamespace
-from uuid import uuid4
+from uuid import UUID, uuid4
 
 import pytest
 from fastapi.testclient import TestClient
@@ -221,17 +221,31 @@ def test_projection_dependency_closure_dates_uncertainty_and_dedupe(briefing_see
         reference,
         source,
     )
-    from test_question_evidence_propositions import proposition
+    from test_question_evidence_propositions import proposition, ref
 
     src = source(TEXT + " 2026-10-26")
     data = packet(src)
-    data["propositions"] += [
-        proposition(src, "p2", depends_on_ids=["p3"]),
-        proposition(src, "p3", epistemic_status="uncertain", subject_refs=[]),
-        proposition(src, "p4"),
-        proposition(src, "p5"),
+
+    def supported(identifier, literal, dependencies=(), extra=()):
+        return proposition(
+            src,
+            identifier,
+            supporting_refs=[ref(src, literal), *(ref(src, value) for value in extra)],
+            subject_refs=[],
+            predicate_refs=[],
+            facets=[],
+            epistemic_status="uncertain",
+            depends_on_ids=list(dependencies),
+        )
+
+    data["propositions"] = [
+        supported("p1", "2026-10-26", ("p2",)),
+        supported("p2", "기관", ("p3",)),
+        supported("p3", "계획한다", extra=("기관",)),
+        supported("p4", "좌석"),
+        supported("p5", "수용 인원", ("p6",)),
+        supported("p6", "승인 후"),
     ]
-    data["propositions"][0]["depends_on_ids"] = ["p2"]
     data["coverage"] = dict(
         linked_proposition_ids=["p4", "p1", "p5"], unresolved_reason="ambiguous"
     )
@@ -254,10 +268,23 @@ def test_projection_dependency_closure_dates_uncertainty_and_dedupe(briefing_see
     )
     assert projected.modules[0].claims[0].epistemic_status == "uncertain"
     assert projected.modules[2].claims[0].event_date.isoformat() == "2026-10-26"
-    quotes = projected.modules[0].claims[0].quotes
-    keys = [(q.snapshot_id, q.citation_id, q.start, q.end, q.text) for q in quotes]
-    assert len(keys) == len(set(keys))
-    assert projected.additional_quotes
+
+    def key(quote):
+        return (quote.snapshot_id, quote.citation_id, quote.start, quote.end, quote.text)
+
+    def expected(literal):
+        span = ref(src, literal)
+        return (src[0], UUID(span["citation_id"]), span["start"], span["end"], literal)
+
+    assert [key(q) for q in projected.modules[0].claims[0].quotes] == [
+        expected("2026-10-26"),
+        expected("기관"),
+        expected("계획한다"),
+    ]
+    assert [key(q) for q in projected.additional_quotes] == [
+        expected("수용 인원"),
+        expected("승인 후"),
+    ]
 
 
 @pytest.mark.parametrize("status", ["running", "failed", "cancelled", "indeterminate"])
@@ -391,3 +418,18 @@ def test_fixed_failures_and_repository_configuration(failure, expected):
     assert "private token source" not in response.text
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["x-request-id"]
+
+
+def test_cancel_openapi_requires_exact_empty_json_object():
+    schema = create_app().openapi()
+    operation = schema["paths"]["/api/v1/workspaces/{workspace_id}/briefing-jobs/{job_id}/cancel"][
+        "post"
+    ]
+    body = operation["requestBody"]
+    assert body["required"] is True
+    assert body["content"] == {
+        "application/json": {
+            "schema": {"type": "object", "additionalProperties": False, "maxProperties": 0}
+        }
+    }
+    assert "UTF-8" in body["description"] and "'{}'" in body["description"]

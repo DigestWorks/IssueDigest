@@ -6153,6 +6153,19 @@
             }
           }
         ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "additionalProperties": false,
+                "maxProperties": 0,
+                "type": "object"
+              }
+            }
+          },
+          "description": "Send exactly the UTF-8 bytes '{}' with application/json.",
+          "required": true
+        },
         "responses": {
           "200": {
             "content": {
