@@ -148,6 +148,7 @@ def test_startup_failure_releases_only_owned_state(monkeypatch, failure):
 def test_cancelled_bridge_finishes_worker_caller_without_stopping_host(monkeypatch):
     api = service_api()
     entered, cancelled = threading.Event(), threading.Event()
+    finalizing, release = threading.Event(), threading.Event()
 
     async def noop(self):
         pass
@@ -157,6 +158,8 @@ def test_cancelled_bridge_finishes_worker_caller_without_stopping_host(monkeypat
         try:
             await asyncio.Event().wait()
         finally:
+            finalizing.set()
+            await asyncio.to_thread(release.wait, 2)
             cancelled.set()
 
     monkeypatch.setattr(api.OwnedQuestionExecutionService, "_start_worker", noop)
@@ -171,12 +174,23 @@ def test_cancelled_bridge_finishes_worker_caller_without_stopping_host(monkeypat
         await service.start()
         caller = asyncio.create_task(service.authorize("A" * 43, uuid4(), uuid4(), "질문"))
         assert await asyncio.to_thread(entered.wait, 2)
-        caller.cancel()
-        with pytest.raises(asyncio.CancelledError):
-            await caller
-        assert await asyncio.to_thread(cancelled.wait, 2)
-        assert service._thread.is_alive()
-        await service.aclose()
+        try:
+            caller.cancel()
+            assert await asyncio.to_thread(finalizing.wait, 2)
+            await asyncio.sleep(0.02)
+            assert not caller.done(), "Caller returned before worker finalizer finished"
+            assert len(service._callers) == 1
+            assert not cancelled.is_set()
+            assert service._thread.is_alive()
+            release.set()
+            with pytest.raises(asyncio.CancelledError):
+                await caller
+            assert cancelled.is_set()
+            assert not service._callers
+            assert service._thread.is_alive()
+        finally:
+            release.set()
+            await service.aclose()
 
     asyncio.run(exercise())
 

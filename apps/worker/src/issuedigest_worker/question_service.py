@@ -101,12 +101,46 @@ class OwnedQuestionExecutionService:
         if self._loop is None:
             operation.close()
             raise QuestionSubmissionError("unavailable")
-        future = asyncio.run_coroutine_threadsafe(operation, self._loop)
-        self._callers.add(future)
+        loop = self._loop
+        cancellation: Future[None] = Future()
+        completed: Future[None] = Future()
+
+        async def execute() -> T:
+            task = asyncio.current_task()
+            assert task is not None
+            task.add_done_callback(lambda _: completed.set_result(None))
+            # Never cancel this wrapper through its concurrent future: that
+            # future can acknowledge cancellation before the Task terminates.
+            if cancellation.cancelled():
+                operation.close()
+                raise asyncio.CancelledError
+
+            def cancel_worker(request: Future[None]) -> None:
+                if request.cancelled():
+                    loop.call_soon_threadsafe(task.cancel)
+
+            cancellation.add_done_callback(cancel_worker)
+            return await operation
+
+        future = asyncio.run_coroutine_threadsafe(execute(), loop)
+        result = asyncio.wrap_future(future)
+        # A cancelled API caller still owns the wrapper until its completion
+        # acknowledgement. Retrieve any cleanup error without exposing its text.
+        result.add_done_callback(lambda value: None if value.cancelled() else value.exception())
+        self._callers.add(cancellation)
         try:
-            return await asyncio.wrap_future(future)
+            return await asyncio.shield(result)
+        except asyncio.CancelledError:
+            cancellation.cancel()
+            acknowledgement = asyncio.wrap_future(completed)
+            while not acknowledgement.done():
+                try:
+                    await asyncio.shield(acknowledgement)
+                except asyncio.CancelledError:
+                    continue
+            raise
         finally:
-            self._callers.discard(future)
+            self._callers.discard(cancellation)
 
     async def start(self) -> None:
         if self._started and not self._closed:
