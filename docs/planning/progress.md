@@ -1,3 +1,9 @@
+## 검증 완료 · 저장 브리핑 조회·읽기 화면 · 2026-10-26
+
+[작업 계약](../changes/briefing-job-http-view.md)·[검증](../research/briefing-job-http-view-validation.md). 신규55/전체10,126개(Python9,272+JS854), lint/format/type/build/OpenAPI·최종 독립 검토 통과. 생성 상태/완료 결과/취소 API와 비공개 읽기 화면을 연결했다. worker와 API는 공통 검증을 사용하며 현재 권한·모든 원문·최종 영수증을 검사한다. 실제 반환된 요약·비교·날짜 타임라인만 렌더링하고 정확한 원문 인용을 연다.
+
+브라우저 합성 응답에서1280px 비교2열/390px1열·두테마·가로넘침0·원문창/Escape/초점복원·reducedmotion·콘솔오류0·GET4/모델0을 확인했다. 기존 실행494개/이전39증거를 보존하고14개 허용 수정 및 실행 AST/잠금 버전 유지를 확인했다. 질문 전송 전체경로·기존 질문 버튼 전환·개발/운영 서버 적용은 아직 남았다. PR/Sites/자원 정리는 최종 인계에 기록한다.
+
 ## 검증 완료 · 최종 브리핑 실행 큐 · 2026-10-26
 
 [작업 계약](../changes/briefing-job-dispatch.md)·[검증](../research/briefing-job-dispatch-validation.md). 신규17/전체10,071개(Python9,251+JS820), 정적/타입/빌드/OpenAPI·독립 태스크/전체 검토 통과. 기존504개 실행 파일과 이전52개 증거 파일은 변경하지 않았다. 접수한 최종 작업의 현재 권한을 확인하고 DBOS에 같은 작업 ID로 전달한다. 실제 SQL·모의 제공자·native DBOS에서 중복/불명확 응답·재열람을 확인했다.

@@ -13,7 +13,7 @@
 
 - [x] 구현·TDD·태스크 검토.
 
-허용: 새 packages/agents/src/issuedigest_agents/briefing_receipts.py, 새 packages/domain/src/issuedigest_domain/briefing_job_view.py, 새 apps/api/src/issuedigest_api/briefing_jobs.py, 새 apps/api/tests/test_briefing_jobs_api.py. 수정 apps/worker/src/issuedigest_worker/briefing_worker.py(검증 helper 추출/위임만), apps/api/src/issuedigest_api/main.py(명시 repo 인수·router/protected path), runtime.py(동일 owned engine repo 주입만), apps/api/pyproject.toml(API→workspaceagents), uv.lock, packages/api-client/openapi.json와 src/schema.d.ts(생성만). 추가 허용: apps/api/src/issuedigest_api/errors.py의 path loc Literal에 job_id만 추가하고, apps/worker/tests/test_briefing_worker.py의 test_full_sdk_preflight_failure_precedes_reservation에서 monkeypatch 대상 api() 표현식 하나만 importlib.import_module("issuedigest_agents.briefing_receipts")로 바꾼다. 추출 후 실제 사용되는 helper를 테스트하며 기존 assertion과 실패 주입은 그대로다. private test hook을 위해 호환 wrapper를 만들지 않는다. 기존 provider·worker 실행 정책·다른 tests/exports는 유지한다.
+허용: 새 packages/agents/src/issuedigest_agents/briefing_receipts.py, 새 packages/domain/src/issuedigest_domain/briefing_job_view.py, 새 apps/api/src/issuedigest_api/briefing_jobs.py, 새 apps/api/tests/test_briefing_jobs_api.py. 수정 apps/worker/src/issuedigest_worker/briefing_worker.py(검증 helper 추출/위임만), apps/api/src/issuedigest_api/main.py(명시 repo 인수·router/protected path), runtime.py(동일 owned engine repo 주입만), apps/api/pyproject.toml(API→workspaceagents), uv.lock, packages/api-client/openapi.json와 src/schema.d.ts(생성만). 최종 QA 추가 허용: packages/agents/tests/test_numeric_candidates.py와 test_numeric_selection.py의 import-side-effects 테스트가 reload로 바꾼 원래 module namespace를 finally에서 복원하도록 격리한다. 기존 무외부부작용 assertion·실제 reload·금지 monkeypatch는 모두 유지하고 실제 수치 모듈은 변경하지 않는다. 기존 API main만으로 먼저 로딩된 v2와 reload된 v1의 클래스 identity가 갈라지는 3-node RED 재현을 먼저 검증했다. 최종 QA 추가 허용: apps/api/tests/test_contracts.py의 기존 정확 경로 집합3곳에 새 조회·취소 경로 두 개씩만 추가한다(6줄). 기존 equality·경로·schema/ref/discriminator 검사는 유지한다. 추가 허용: apps/api/src/issuedigest_api/errors.py의 path loc Literal에 job_id만 추가하고, apps/worker/tests/test_briefing_worker.py의 test_full_sdk_preflight_failure_precedes_reservation에서 monkeypatch 대상 api() 표현식 하나만 importlib.import_module("issuedigest_agents.briefing_receipts")로 바꾼다. 추출 후 실제 사용되는 helper를 테스트하며 기존 assertion과 실패 주입은 그대로다. private test hook을 위해 호환 wrapper를 만들지 않는다. 기존 provider·worker 실행 정책·다른 tests/exports는 유지한다.
 
 재사용 모듈로 기존 worker `_packet`/`_bound`의 동작을 그대로 옮긴다. 이름은 validate_briefing_packet, validate_briefing_binding이고 worker는 기존 private 이름 alias로 import해 기존 동작을 유지한다. 새 `validate_stored_briefing(job,packet)`은 동일 깊은 child/현재 prompt/hash/binding·완료 receipt canonical SDK 검증 및 job.known_usage/usage_complete/stream_closed 일치를 확인해 QuestionBriefingGeneration을 반환한다. 완료가 아니거나 receipt가 없으면 fixed ValueError, 모델/DB/클라이언트 생성 없이 검증한다. worker read_completed는 동일 ownership checks/SQL prepare 후 새 helper에 위임한다. 기존 worker 경계 검사를 유지한다.
 
@@ -41,5 +41,5 @@ Task1 확정 DTO를 사용한다. 허용: 새 packages/api-client/src/briefing-j
 
 ## Controller gates
 
-- [ ] 태스크별/전체 독립 검토, 전체 검사·계약·변경 범위·privacy.
+- [x] 태스크별/전체 독립 검토, 전체 검사·계약·변경 범위·privacy.
 - [ ] 기록·Draft PR·Sites·전용 QA 정리. 실제 화면/서버 적용과 질문 전송 전체경로는 별도.
