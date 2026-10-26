@@ -27,7 +27,7 @@
 
 ## Task 2: 타입 클라이언트와 실제 상태·결과 읽기 화면
 
-- [ ] 구현·TDD·태스크 검토.
+- [x] 구현·TDD·태스크 검토.
 
 Task1 확정 DTO를 사용한다. 허용: 새 packages/api-client/src/briefing-jobs.ts + index.ts의 export만, 새 apps/web/app/routes/briefing-job.tsx, 새 apps/web/app/briefing-job.css, apps/web/app/routes.ts에 `/workspaces/:workspaceId/briefings/:jobId` 추가, 새 apps/web/tests/briefing-job-client.test.ts와 briefing-job-view.test.tsx. 기존 질문 제출/공개브리핑/세션/OAuth/Canvas를 바꾸지 않고 기존 BrandHeader·테마·원문 EvidenceDrawer를 재사용한다. ID 입력/가상완료/비활성메뉴/자동모델요청은 없다. 읽기 URL은 내부 링크 대상이며 질문 전송 전체경로는 후속임을 기록한다.
 

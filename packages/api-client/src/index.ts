@@ -141,3 +141,5 @@ export {listPublicBriefings, getPublicBriefing, PublicBriefingError} from './bri
 export type {PublicBriefingSummary, PublicBriefingDetail, PublicBriefingList, PublicSourceAttribution, PublicBriefingOptions, PublicBriefingFailure, PublicBriefingErrorResponse} from './briefings';
 
 export {validResearchClassifications, claimClassification} from './research-classification';
+export {getBriefingJob,cancelBriefingJob,BriefingJobError} from './briefing-jobs';
+export type {BriefingJobView,BriefingQuoteView,BriefingJobOptions} from './briefing-jobs';

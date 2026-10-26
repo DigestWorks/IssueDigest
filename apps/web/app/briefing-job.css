@@ -1,0 +1,76 @@
+.briefing-job {
+  width: min(100% - 2rem, 46rem);
+  margin: 3rem auto 6rem;
+  overflow-wrap: anywhere;
+  line-height: 1.8;
+}
+.briefing-job h1 {
+  font-size: clamp(1.6rem, 5vw, 2.5rem);
+  line-height: 1.4;
+  letter-spacing: -0.035em;
+}
+.briefing-job h2 {
+  font-size: 1.3rem;
+  margin-top: 2.5rem;
+}
+.briefing-job-label,
+.briefing-job-note {
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+.briefing-job section {
+  border-top: 1px solid var(--line);
+  margin-top: 2rem;
+}
+.briefing-job article {
+  margin-block: 1.5rem;
+}
+.briefing-job blockquote {
+  margin: 1rem 0;
+  padding: 0.5rem 1rem;
+  border-left: 2px solid var(--green);
+}
+.briefing-job cite {
+  display: block;
+  font-style: normal;
+  color: var(--muted);
+}
+.briefing-job button,
+.briefing-job summary,
+.briefing-job a {
+  min-height: 44px;
+  padding: 0.6rem 0.8rem;
+}
+.briefing-job button {
+  background: var(--paper);
+  color: var(--green);
+  border: 1px solid var(--control-border);
+  border-radius: 0.3rem;
+  cursor: pointer;
+}
+.briefing-job button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.briefing-job summary {
+  cursor: pointer;
+  color: var(--green);
+}
+.briefing-job :focus-visible {
+  outline: 2px solid var(--green);
+  outline-offset: 3px;
+}
+@media (max-width: 480px) {
+  .briefing-job {
+    margin-top: 1.5rem;
+  }
+  .briefing-job blockquote {
+    padding-inline: 0.65rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .briefing-job * {
+    scroll-behavior: auto;
+    transition: none;
+  }
+}
