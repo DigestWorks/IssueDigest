@@ -1,3 +1,11 @@
+## 진행 · 질문별 자료 선택 영속화 · 2026-10-26
+
+- [x] [질문 전용 검색·선택/hash 고정·재접수 계약](../changes/question-source-plans.md) 고정.
+- [ ] strict 계획 DTO·repository/migration·기존 lexical 검색 연결 TDD.
+- [ ] 역할/자료/동시성·변조·재검색0·no_match·예산/run/job 무변경 검사.
+- [ ] 독립 검토·전체 검사·기존485실행/이전52증거 보존·PR/Sites·자체QA 정리.
+- [ ] 다자료 AI 실행·브리핑 변환/표시·운영 부하·개발 반영.
+
 ## 검증 완료 · 근거 작업 접수·queue 전달 · 2026-10-26
 
 - [x] [접수/queue 경계·명시 버전·ack 유실 계약](../changes/evidence-job-dispatch.md) 고정.
