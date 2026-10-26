@@ -4,7 +4,7 @@
 
 ## Global Constraints
 
-- 신규5파일만 실행 변경: `packages/domain/src/issuedigest_domain/question_source_plan.py`, `packages/domain/tests/test_question_source_plan.py`, `packages/storage/src/issuedigest_storage/question_plans.py`, `packages/storage/migrations/versions/0011_question_source_plans.py`, `packages/storage/tests/test_question_plans.py`. 기존485 실행 파일·이전52증거·AI 모델/SDK/workflow/queue·API/UI·exports/dependencies/config는 그대로 둔다. 문서 변경 허용. 실제 제공자 호출·운영 서버/DB·main 병합/앱 활성화0.
+- 신규5파일과 아래 명시한 기존 migration 검사1개만 변경: `packages/domain/src/issuedigest_domain/question_source_plan.py`, `packages/domain/tests/test_question_source_plan.py`, `packages/storage/src/issuedigest_storage/question_plans.py`, `packages/storage/migrations/versions/0011_question_source_plans.py`, `packages/storage/tests/test_question_plans.py`. 기존484 실행 파일·이전52증거·AI 모델/SDK/workflow/queue·API/UI·exports/dependencies/config는 그대로 둔다. 기존 `packages/storage/tests/test_evidence_jobs.py`의 migration 검사만 동일 연결/트랜잭션의 실제0010 revision upgrade/downgrade 작업을 검사하도록 수정한다. 향후 head 전체를 되돌리거나 version stamp로 우회하지 않는다. 나머지 기존484파일은 보존한다. 문서 변경 허용. 실제 제공자 호출·운영 서버/DB·main 병합/앱 활성화0.
 - Domain frozen strict extra-forbid models: `QuestionSourceChoice(snapshot_id: UUID4, source_sha256: lower64hex)`; `QuestionSourcePlan(profile='question-source-plan-v1', retrieval_profile='question-topics-ko-v2', plan_id:UUID4, workspace_id:UUID4, request_id:UUID4, question:strict str nonblank<=1500 preserved, status:Literal['selected','no_match'], reason:Literal['no_terms','no_candidates']|None, sources:tuple[QuestionSourceChoice,...] max5)`. selected requires1..5 unique snapshot IDs/reasonNone; no_match requires0 and explicit reason. No source text/receipt/model facts/actor/private credentials in domain DTO. Exact UUID4/type checks; strict JSON roundtrip accepted, bool/coercion/unknown model_copy fields rejected by storage read reconstruction. No optional parent context in this version; no UI parent mixing or browser source ID input.
 - `QuestionPlanRepository(engine)` with `submit(token, workspace_id, request_id, question)->QuestionSourcePlan|None`, `get(token, workspace_id, plan_id)->QuestionSourcePlan|None`. Inputs exact UUID4/nonblank string<=1500 before SQL, no normalization/truncation/rewording. Same current session/member rules as ResearchRepository: submit owner/editor, get current read member; original submitter must still be current writer before any saved result is returned. No cross-workspace lookup/result. Narrow reuse existing ResearchRepository._actor/_member/_presentation/_transaction, EvidenceRepository._load, evidence_jobs.source_digest/_lock_jobs. Acquire same evidence-job advisory transaction gate BEFORE any auth/user/plan locks, consistently on every new operation. SQL only, never provider I/O; this may serialize bounded searches with new-job SQL operations and must be documented as throughput cost. No new independent lock order or auth classification.
 - Use new separate MetaData/table `question_source_plans`: UUID plan/workspace/actor/request columns; exact question, input hash, domain payload JSONB + canonical payload hash (including original actor identity so row/payload tampering rejects). Unique workspace+actor+request. Additional minimal fixed columns/constraints implementation choice. Domain payload must match top-level plan/workspace/request/question exactly. Hash uses sorted compact UTF8 JSON allow_nan=False; hash is corruption detection, not signature. Import must not change legacy global metadata registry or perform DB/network/model work.
@@ -14,13 +14,15 @@
 - Migration revision `0011_question_source_plans`, down_revision `0010_evidence_jobs`; upgrade creates only new table/constraints/index, downgrade drops only it. No old schema/data changes/import writes. New tests clean new table before/after (root fixture doesn't know it), never edit conftest or past fixtures. Test migration preservation includes existing evidence_jobs and research budget rows/old metadata snapshot.
 - TDD using dedicated local PostgreSQL synthetic sources/index/identities; no provider/server/private fixtures. RED missing modules, GREEN meaningful domain/raw guards + real existing lexical index integration, deterministic duplicate request concurrency, current role/session/workspace/source/presentation rejection, persisted no_match and plan reuse without search/budget/run/job mutations, tamper/rehashed corruption, old/evidence job migration and lock order preservation. Agent owns scoped tests/Ruff/format/mypy; controller full QA/reviews/historical audits/publication. No agent subagents.
 
+저장 계획의 get/재접수에서도 기존 `_presentation`의 지연 복구를 허용한다. presentation 행만 없고 canonical 원문이 존재하면 기존 경로로 presentation을 재구성하며, 재구성한 원문/presentation의 hash가 저장값과 일치할 때만 원래 계획을 반환한다. 원문이 없거나 변경됐거나 재구성한 presentation hash가 다르면 계속 거부한다. presentation만 삭제한 경우의 별도 집중 검사는 비차단 후속으로 남기며 이번 검증 통과 항목으로 세지 않는다.
+
 ## Task 1: 질문별 검색 선택 영속화
 
-- [x] 신규5파일을 TDD로 구현한다. 위 global constraints를 읽고 그대로 따른다. 정확 질문과 ordered current sources·source_digest를 고정하고 재접수 때 검색하지 않는다. 역할·동시성·상태/타입/행/원문 변조·no_match·기존 budget/run/job 무변경·migration/import 격리 검사를 포함한다. 기존485파일을 수정하지 않는다. scoped 정적 검사와 집중 테스트 후 owned5파일+이 추적 명세의 Task1 체크박스만 커밋하고 ignored SDD 보고서에 정확 RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
+- [x] 신규5파일을 TDD로 구현한다. 위 global constraints를 읽고 그대로 따른다. 정확 질문과 ordered current sources·source_digest를 고정하고 재접수 때 검색하지 않는다. 역할·동시성·상태/타입/행/원문 변조·no_match·기존 budget/run/job 무변경·migration/import 격리 검사를 포함한다. 기존 migration 검사1개 예외 외484파일을 보존한다. scoped 정적 검사와 집중 테스트 후 owned5파일+이 추적 명세의 Task1 체크박스만 커밋하고 ignored SDD 보고서에 정확 RED/GREEN/명령/인터페이스/한계/자체검토를 남긴다.
 
 ## Controller gates
 
-- [ ] 독립 태스크/전체 검토·전체 검사·기존485실행/이전52증거 보존·privacy·문서/PR/Sites·자체QA 정리.
+- [ ] 독립 태스크/전체 검토·전체 검사·기존484실행+기존 migration 검사1개 검토/이전52증거 보존·privacy·문서/PR/Sites·자체QA 정리.
 - [ ] 이 계획의 다자료 AI 실행 연결·브리핑 변환/표시·운영 정책/부하·개발 적용. 이번 활성화 없음.
 
 ## 판단과 영향
@@ -28,3 +30,5 @@
 1. 새 질문은 기존 문자 기반 저장 색인에서 최대5자료를 선택한다. 추가 AI 비용 없이 D019 질문 검색을 연결하지만 의미 검색/관련성·현실의 근거 유무를 보장하지 않는다.
 2. 같은 request의 자료 선택과 no_match를 고정한다. 재접수 일관성을 얻지만 새 자료 반영은 새로운 request가 필요하다.
 3. 기존 새 작업의 SQL gate를 공유한다. 사용자/자료 잠금 순서 역전을 막지만 검색 중 다른 새 작업 SQL도 기다릴 수 있어 부하 인수가 필요하다.
+
+4. 새 migration으로 드러난 기존0010 검사 가정을 수정한다. 같은 연결에서0010의 실제 작업만 검사하여 최신 head를 훼손하지 않는다. 기존 검사1개를 바꾸는 비용이 있으며 나머지484파일과 실행 코드는 보존하고 전체 migration 경로는 별도 검사한다.
