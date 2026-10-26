@@ -144,17 +144,15 @@ it('accepts real modules with codepoint quote and aborts body reading', async ()
   const controller = new AbortController();
   vi.stubGlobal(
     'fetch',
-    vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        headers: new Headers({
-          'Content-Type': 'application/json',
-          'Cache-Control': 'no-store',
-          'X-Request-ID': jobId,
-        }),
-        json: () => new Promise(() => {}),
+    vi.fn().mockResolvedValue({
+      ok: true,
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-store',
+        'X-Request-ID': jobId,
       }),
+      json: () => new Promise(() => {}),
+    }),
   );
   const pending = getBriefingJob(jobId, jobId, { signal: controller.signal });
   await Promise.resolve();

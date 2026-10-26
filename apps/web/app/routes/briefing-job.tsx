@@ -215,6 +215,31 @@ export function BriefingJobReader({
       </blockquote>
     ));
   }
+  function claimContent(
+    claim: NonNullable<
+      BriefingJobView['result']
+    >['modules'][number]['claims'][number],
+  ) {
+    return (
+      <>
+        {claim.event_date && (
+          <time className="briefing-job-date" dateTime={claim.event_date}>
+            {claim.event_date}
+          </time>
+        )}
+        <p className="briefing-job-label">
+          {claim.epistemic_status === 'source_statement'
+            ? '자료의 서술'
+            : '확인하기 어려움'}
+        </p>
+        <p className="briefing-job-claim">{claim.text}</p>
+        <details>
+          <summary>근거 읽기</summary>
+          {quotes(claim.quotes)}
+        </details>
+      </>
+    );
+  }
   return (
     <>
       <BrandHeader />
@@ -243,31 +268,35 @@ export function BriefingJobReader({
               <p>{job.result.message}</p>
             ) : (
               job.result?.modules.map((module, i) => (
-                <section key={i} aria-label={module.title}>
+                <section
+                  key={i}
+                  aria-label={module.title}
+                  className={`briefing-job-module briefing-job-${module.kind}`}
+                >
                   <h2>{module.title}</h2>
-                  {module.claims.map((claim, j) => (
-                    <article key={j}>
-                      <p className="briefing-job-label">
-                        {claim.epistemic_status === 'source_statement'
-                          ? '자료의 서술'
-                          : '확인하기 어려움'}
-                        {claim.event_date && (
-                          <>
-                            {' '}
-                            ·{' '}
-                            <time dateTime={claim.event_date}>
-                              {claim.event_date}
-                            </time>
-                          </>
-                        )}
-                      </p>
-                      <p>{claim.text}</p>
-                      <details>
-                        <summary>근거 읽기</summary>
-                        {quotes(claim.quotes)}
-                      </details>
-                    </article>
-                  ))}
+                  {module.kind === 'timeline' ? (
+                    <ol
+                      className="briefing-job-timeline-list"
+                      aria-label={`${module.title} 항목`}
+                    >
+                      {module.claims.map((claim, j) => (
+                        <li key={j}>{claimContent(claim)}</li>
+                      ))}
+                    </ol>
+                  ) : module.kind === 'comparison' ? (
+                    <ul
+                      className="briefing-job-comparison-list"
+                      aria-label={`${module.title} 항목`}
+                    >
+                      {module.claims.map((claim, j) => (
+                        <li key={j}>{claimContent(claim)}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    module.claims.map((claim, j) => (
+                      <article key={j}>{claimContent(claim)}</article>
+                    ))
+                  )}
                 </section>
               ))
             )}

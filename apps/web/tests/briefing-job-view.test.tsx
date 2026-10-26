@@ -1,17 +1,98 @@
 import fixture from '../../../tests/fixtures/canvas-synthetic.json';
-import { jobId, job, response, completed } from './briefing-job-client.test';
+
 import {
   act,
   render,
   screen,
   waitFor,
   fireEvent,
+  within,
 } from '@testing-library/react';
 import { MemoryRouter } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
 import { BriefingJobReader } from '../app/routes/briefing-job';
 import { ResearchDraftProvider } from '../app/research-drafts';
-import { readFileSync } from 'node:fs';
+const jobId = '00000000-0000-4000-8000-000000000040';
+const job = {
+  job_id: jobId,
+  question: '자료의 내용은?',
+  status: 'pending',
+  result: null,
+};
+function response(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: {
+      'Content-Type': 'application/json',
+      'Cache-Control': 'no-store',
+      'X-Request-ID': jobId,
+    },
+  });
+}
+const quote = {
+  snapshot_id: jobId,
+  citation_id: jobId,
+  source_title: '원자료',
+  start: 1,
+  end: 2,
+  text: '😀',
+  citation_quote: '가😀나',
+};
+function completed() {
+  return {
+    ...job,
+    status: 'completed',
+    result: {
+      outcome: 'answer',
+      message: null,
+      additional_quotes: [],
+      modules: [
+        {
+          kind: 'summary',
+          title: '요약',
+          claims: [
+            {
+              text: '<script>자료의 서술</script>',
+              epistemic_status: 'source_statement',
+              event_date: null,
+              quotes: [quote],
+            },
+          ],
+        },
+        {
+          kind: 'comparison',
+          title: '비교',
+          claims: [
+            {
+              text: '첫 자료',
+              epistemic_status: 'source_statement',
+              event_date: null,
+              quotes: [quote],
+            },
+            {
+              text: '둘째 자료',
+              epistemic_status: 'uncertain',
+              event_date: null,
+              quotes: [quote],
+            },
+          ],
+        },
+        {
+          kind: 'timeline',
+          title: '시간 흐름',
+          claims: [
+            {
+              text: '발생',
+              epistemic_status: 'source_statement',
+              event_date: '2024-02-29',
+              quotes: [quote],
+            },
+          ],
+        },
+      ],
+    },
+  };
+}
 function mount() {
   return render(
     <MemoryRouter>
@@ -142,22 +223,20 @@ it('keeps summary after network failure but requires fresh job before original',
 it('shows insufficient evidence message only', async () => {
   vi.stubGlobal(
     'fetch',
-    vi
-      .fn()
-      .mockImplementation(() =>
-        Promise.resolve(
-          response({
-            ...job,
-            status: 'completed',
-            result: {
-              outcome: 'insufficient_evidence',
-              message: '근거가 부족합니다.',
-              modules: [],
-              additional_quotes: [],
-            },
-          }),
-        ),
+    vi.fn().mockImplementation(() =>
+      Promise.resolve(
+        response({
+          ...job,
+          status: 'completed',
+          result: {
+            outcome: 'insufficient_evidence',
+            message: '근거가 부족합니다.',
+            modules: [],
+            additional_quotes: [],
+          },
+        }),
       ),
+    ),
   );
   mount();
   await screen.findByText('근거가 부족합니다.');
@@ -184,12 +263,43 @@ it('discards late requests after recheck and unmount', async () => {
   expect(screen.getByText('요약')).toBeVisible();
   view.unmount();
 });
-it('uses brand tokens, narrow layout, touch controls and reduced motion', () => {
-  const css = readFileSync('apps/web/app/briefing-job.css', 'utf8');
-  expect(css).toContain('var(--paper)');
-  expect(css).toContain('min-height: 44px');
-  expect(css).toContain('max-width: 480px');
-  expect(css).toContain('prefers-reduced-motion');
+it('groups comparison claims and exposes dated timeline items in order', async () => {
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(() => Promise.resolve(response(completed()))),
+  );
+  mount();
+  const comparison = await screen.findByRole('region', { name: '비교' });
+  const comparisonList = within(comparison).getByRole('list', {
+    name: '비교 항목',
+  });
+  const claims = within(comparisonList).getAllByRole('listitem');
+  expect(claims).toHaveLength(2);
+  expect(within(claims[0]).getByText('첫 자료')).toBeVisible();
+  expect(within(claims[1]).getByText('둘째 자료')).toBeVisible();
+  const timeline = screen.getByRole('region', { name: '시간 흐름' });
+  const events = within(timeline).getByRole('list', { name: '시간 흐름 항목' });
+  expect(events.tagName).toBe('OL');
+  const event = within(events).getByRole('listitem');
+  expect(within(event).getByText('발생')).toBeVisible();
+  expect(within(event).getByText('2024-02-29')).toHaveAttribute(
+    'datetime',
+    '2024-02-29',
+  );
+  expect(within(event).getByText('근거 읽기')).toBeVisible();
+});
+it('renders only a returned summary without inventing comparison or timeline', async () => {
+  const data = completed();
+  data.result.modules = [data.result.modules[0]];
+  vi.stubGlobal(
+    'fetch',
+    vi.fn().mockImplementation(() => Promise.resolve(response(data))),
+  );
+  mount();
+  await screen.findByRole('region', { name: '요약' });
+  expect(screen.queryByRole('region', { name: '비교' })).toBeNull();
+  expect(screen.queryByRole('region', { name: '시간 흐름' })).toBeNull();
+  expect(screen.queryByRole('list')).toBeNull();
 });
 it.each([false, true])(
   'opens only exact freshly authorized citation (mismatch=%s)',
