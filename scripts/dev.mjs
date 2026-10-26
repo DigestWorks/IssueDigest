@@ -6,9 +6,11 @@ import { protectedDevelopmentEnvironment } from './dev-environment.mjs';
 // Each process group includes its reload children, so stopping dev closes both apps.
 export function launchDevelopment(environment = process.env, apiOnly = false) {
   const configured = environment.ISSUEDIGEST_CONFIGURED_RUNTIME === '1';
+  const questionBriefing = configured && environment.ISSUEDIGEST_QUESTION_BRIEFING_ENABLED === '1';
   const apiArgs = [
-    'run', '--package', 'issuedigest-api', 'uvicorn',
-    configured ? 'issuedigest_api.runtime:create_configured_app' : 'issuedigest_api.main:app',
+    'run', ...(questionBriefing ? ['--all-packages'] : ['--package', 'issuedigest-api']), 'uvicorn',
+    questionBriefing ? 'scripts.question_briefing_app:create_question_briefing_app'
+      : configured ? 'issuedigest_api.runtime:create_configured_app' : 'issuedigest_api.main:app',
     ...(configured ? ['--factory'] : []),
     '--no-access-log', '--reload', '--host', '127.0.0.1', '--port', '8000',
   ];
