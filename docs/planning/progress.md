@@ -1,3 +1,9 @@
+## 검증 완료 · 최종 브리핑 실행 큐 · 2026-10-26
+
+[작업 계약](../changes/briefing-job-dispatch.md)·[검증](../research/briefing-job-dispatch-validation.md). 신규17/전체10,071개(Python9,251+JS820), 정적/타입/빌드/OpenAPI·독립 태스크/전체 검토 통과. 기존504개 실행 파일과 이전52개 증거 파일은 변경하지 않았다. 접수한 최종 작업의 현재 권한을 확인하고 DBOS에 같은 작업 ID로 전달한다. 실제 SQL·모의 제공자·native DBOS에서 중복/불명확 응답·재열람을 확인했다.
+
+질문 API·화면·개발 서버에는 아직 연결하지 않았다. main/실제 제공자/운영 변경0이며 기본 worker 활성화도 없다. PR·Sites·임시 자원 정리 결과는 아래 최종 인계에 남긴다.
+
 ## 검증 완료 · 최종 브리핑 접수·저장 · 2026-10-26
 
 [작업 계약](../changes/durable-briefing-jobs.md)·[검증 범위](../research/durable-briefing-jobs-validation.md). 신규109/새 전체10,054개(Python9,234+JS820)·정적/타입/빌드/OpenAPI·실패/skip/warning0·독립 Task1/Task2/전체 검토 C0I0M0·미해결0이다. 기존495파일·이전48증거를 보존하고3개 기존 예외의 범위를 확인했다. 공유 예약·원문/원래 권한 재검사·송신 의도·완료 저장/검증 재열람·중단/취소 비용을 연결했다.
@@ -2051,3 +2057,12 @@ legacy condition의 넓은 해석은 원래 기준과 비교하기 위해 이번
 자체 QA 컨테이너2개와 각각의 전용 볼륨2개만 삭제하고 두 로컬 포트의 종료를 확인했다. PR 카드 첨부는 대화 첨부 개수 한도(100)로 실패했으며 위 PR 링크를 제공한다. GitHub 자동 검사는 사용자 요청대로 비활성화, main 자동 배포는 유지한다.
 
 현재 웹 화면·운영 DB·기본 worker·main은 변경하지 않았다. 다음 완료 기준은 질문 접수→생성 중 표시→근거 연결 브리핑→재열람이며, 이를 위한 queue/API/UI 연결과 실제 품질 검증이 남아 있다.
+
+
+## 최종 인계 · 2026-10-26
+
+[Draft PR118](https://github.com/DigestWorks/IssueDigest/pull/118), base `feat/durable-briefing-jobs`. 코드 `466655e`, 계획판 문서 사본 `1df6de21026dab9b0f3a4169f13c1843749d7838`. 신규17/전체10,071개(Python9,251+JS820), 정적/타입/빌드/OpenAPI·독립 태스크/전체 검토 통과. 기존 실행504파일·이전52증거 보존.
+
+[계획판 v140](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site/) public 게시 성공. source `50d5323e772fad04350b05357bd001f0776f5246`, saved `appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_7cd0cf0a55f08191844e1fe844425e71`, deployment `appgdep_6adf1bd6c4c88191aab79a8c93b030e4`. 이전 v139 보존·7문서 정확 복사, HTML125/로컬 링크·앵커3965/공개 텍스트395개를 검사했다. 실제 비공개 자료 값72종·접속/키 값은 노출하지 않았다. 기존 레이아웃의 텍스트 갱신이므로 브라우저 검사는 생략했다. 사용자 탭을 열거나 이동하지 않았다.
+
+전용 QA 컨테이너1개와 소유 볼륨1개만 제거하고 해당 포트 종료를 확인했다. PR 카드 첨부는 대화 첨부100개 한도로 실패했으며 직접 링크를 제공한다. 실제 제공자·운영 DB·main·기본 worker·개발 서버 변경0이다. 질문 API·생성 중 표시·브리핑/근거/재열람 화면과 실제 개발 적용은 여전히 남아 있다. 초기 정리 전 스타일 검사 실패 로그는 보존했고, 정리 후 최종 전체 검사는 모두 통과했다.
