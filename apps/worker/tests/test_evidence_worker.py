@@ -542,3 +542,65 @@ def test_preflight_failure_is_terminal_without_a_native_call(jobs, engine):
         asyncio.run(exercise(jobs, job))
     saved = jobs.prepare(job.job_id)[0]
     assert saved.status == "failed" and saved.known_usage is None and saved.reason == "input"
+
+
+@pytest.mark.parametrize(
+    "stage,want",
+    [
+        ("dto_schema", "dto_schema"),
+        (None, "unavailable"),
+        ("private secret body", "unavailable"),
+        ([], "unavailable"),
+    ],
+)
+@pytest.mark.parametrize("broken_handler", [False, True])
+def test_rejection_logs_only_stage_and_handler_failure_preserves_sql(
+    jobs, engine, monkeypatch, caplog, stage, want, broken_handler
+):
+    import logging
+
+    from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
+    from issuedigest_agents.numeric_evidence import KnownUsage
+
+    worker = importlib.import_module("issuedigest_worker.evidence_worker")
+    job, _, _ = submit(jobs, engine)
+    error = GuardedResponsesError(
+        reason="output",
+        known_usage=KnownUsage(input_tokens=10, output_tokens=5, requests=1),
+        may_have_started=True,
+        usage_complete=True,
+        stream_closed=True,
+    )
+    error._diagnostic_stage = stage
+
+    async def reject(**kwargs):
+        raise error from ValueError("private secret body api-key question source output")
+
+    class Broken(logging.Handler):
+        def emit(self, record):
+            raise RuntimeError("private secret handler detail")
+
+    monkeypatch.setattr(worker, "run_guarded_question_evidence_v2", reject)
+    logger = logging.getLogger(worker.__name__)
+    handler = Broken()
+    if broken_handler:
+        logger.addHandler(handler)
+    try:
+        with caplog.at_level(logging.WARNING, logger=worker.__name__):
+            with pytest.raises(GuardedResponsesError) as got:
+                asyncio.run(exercise(jobs, job))
+        assert got.value is error
+        saved = jobs.prepare(job.job_id)[0]
+        assert saved.status == "failed" and saved.reason == "output" and saved.receipt is None
+        assert saved.known_usage == dict(input_tokens=10, output_tokens=5, requests=1)
+        assert saved.usage_complete is True and saved.stream_closed is True
+        assert "private" not in caplog.text and str(job.job_id) not in caplog.text
+        if not broken_handler:
+            (record,) = [r for r in caplog.records if r.name == worker.__name__]
+            assert record.getMessage() == f"evidence_generation_rejected stage={want}"
+            assert f"stage={want}" in caplog.text
+            assert record.diagnostic_stage == want
+            assert record.exc_info is None and record.exc_text is None and record.args == (want,)
+    finally:
+        if broken_handler:
+            logger.removeHandler(handler)

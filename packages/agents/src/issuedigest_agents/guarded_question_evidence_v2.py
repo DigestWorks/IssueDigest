@@ -78,12 +78,16 @@ def validate_guarded_question_evidence_v2(
     result: GuardedQuestionEvidenceGenerationV2 | dict[str, Any],
 ) -> GuardedQuestionEvidenceGenerationV2:
     """Rebuild fresh evidence and receipt from original actual types and current source."""
+    diagnostic_stage = "source_integrity"
     try:
         _guard_actual(source, Source)
+        diagnostic_stage = "generation_receipt"
         _original(result, GuardedQuestionEvidenceGenerationV2)
         prompt, _ = _preflight(source, question)
         checked = _read(GuardedQuestionEvidenceGenerationV2, result)
+        diagnostic_stage = "evidence_contract"
         evidence = validate_question_evidence_propositions(source, question, checked.evidence)
+        diagnostic_stage = "generation_receipt"
         _budget(checked.usage)
         if (
             evidence != checked.evidence
@@ -93,21 +97,28 @@ def validate_guarded_question_evidence_v2(
             raise ValueError("Changed question evidence receipt")
         return checked
     except Exception:
-        raise GuardedQuestionEvidenceV2Error(reason="input") from None
+        raise GuardedQuestionEvidenceV2Error(
+            reason="input", diagnostic_stage=diagnostic_stage
+        ) from None
 
 
 async def run_guarded_question_evidence_v2(
     *, client: AsyncOpenAI, model: str, source: Source, question: str
 ) -> GuardedQuestionEvidenceGenerationV2:
     """Make one native request; caller owns the client and all application acceptance."""
+    diagnostic_stage = "source_integrity"
     try:
         _guard_actual(source, Source)
+        diagnostic_stage = "input"
         prompt, tools = _preflight(source, question)
         source_hash, _ = _source(source)
     except Exception:
-        raise GuardedQuestionEvidenceV2Error(reason="input") from None
+        raise GuardedQuestionEvidenceV2Error(
+            reason="input", diagnostic_stage=diagnostic_stage
+        ) from None
     terminal = False
     known = None
+    diagnostic_stage = "stream"
     try:
         result = await run_guarded_responses_tool(
             client=client,
@@ -116,6 +127,7 @@ async def run_guarded_question_evidence_v2(
             instructions=GUARDED_QUESTION_V2_INSTRUCTIONS,
             tool=tools[0],
         )
+        diagnostic_stage = "native_receipt"
         if (
             type(result) is not GuardedResponsesToolResult
             or type(result.profile) is not str
@@ -123,15 +135,23 @@ async def run_guarded_question_evidence_v2(
             or result.usage_complete is not True
         ):
             raise ValueError("Invalid native completion")
+        diagnostic_stage = "native_usage"
         _guard_actual(result.usage, KnownUsage)
         KnownUsage.model_validate(result.usage.__dict__, strict=True)
         known, terminal = result.usage, True
         _budget(result.usage)
-        if type(result.output) is not QuestionEvidenceInput or _source(source)[0] != source_hash:
-            raise ValueError("Changed source or output")
+        diagnostic_stage = "native_output"
+        if type(result.output) is not QuestionEvidenceInput:
+            raise ValueError("Changed output")
+        diagnostic_stage = "source_integrity"
+        if _source(source)[0] != source_hash:
+            raise ValueError("Changed source")
+        diagnostic_stage = "evidence_contract"
         evidence = build_question_evidence_propositions(source, question, result.output)
+        diagnostic_stage = "source_integrity"
         if evidence.source_sha256 != source_hash or _source(source)[0] != source_hash:
             raise ValueError("Changed source during evidence construction")
+        diagnostic_stage = "generation_receipt"
         receipt = GuardedQuestionEvidenceGenerationV2(
             profile="guarded-question-evidence-v2",
             transport_profile="guarded-responses-tool-v1",
@@ -143,6 +163,7 @@ async def run_guarded_question_evidence_v2(
             usage=known,
         )
         checked = validate_guarded_question_evidence_v2(source, question, receipt)
+        diagnostic_stage = "source_integrity"
         if _source(source)[0] != source_hash:
             raise ValueError("Changed source during receipt validation")
         return checked
@@ -150,6 +171,7 @@ async def run_guarded_question_evidence_v2(
         if not terminal:
             raise GuardedQuestionEvidenceV2Error(
                 reason=error.reason,
+                diagnostic_stage=error.diagnostic_stage,
                 known_usage=error.known_usage,
                 may_have_started=error.may_have_started,
                 usage_complete=error.usage_complete,
@@ -157,6 +179,7 @@ async def run_guarded_question_evidence_v2(
             ) from None
         raise GuardedQuestionEvidenceV2Error(
             reason="output",
+            diagnostic_stage=error.diagnostic_stage,
             known_usage=known,
             may_have_started=True,
             usage_complete=True,
@@ -165,6 +188,7 @@ async def run_guarded_question_evidence_v2(
     except Exception:
         raise GuardedQuestionEvidenceV2Error(
             reason="output",
+            diagnostic_stage=diagnostic_stage,
             known_usage=known,
             may_have_started=True,
             usage_complete=terminal,

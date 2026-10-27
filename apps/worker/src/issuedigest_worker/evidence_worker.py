@@ -1,6 +1,7 @@
 """Explicit private durable evidence workflow; no import-time activation."""
 
 import asyncio
+import logging
 from collections.abc import Callable
 from hashlib import sha256
 from typing import Any
@@ -15,6 +16,7 @@ from issuedigest_agents.guarded_question_evidence_v2 import (
     validate_guarded_question_evidence_v2,
 )
 from issuedigest_agents.guarded_responses_stream import (
+    DIAGNOSTIC_STAGES,
     GuardedResponsesCancelled,
     GuardedResponsesError,
 )
@@ -83,6 +85,19 @@ async def execute_evidence_job(
             client=client, model=job.model, source=source, question=job.question
         )
     except (GuardedResponsesError, GuardedResponsesCancelled) as error:
+        try:
+            stage = error.diagnostic_stage
+            safe_stage = (
+                stage if type(stage) is str and stage in DIAGNOSTIC_STAGES else "unavailable"
+            )
+            logging.getLogger(__name__).warning(
+                "evidence_generation_rejected stage=%s",
+                safe_stage,
+                extra={"diagnostic_stage": safe_stage},
+            )
+        except Exception:
+            # Observability must not interfere with durable failure observations.
+            pass
         repository.finish(
             job_id,
             known_usage=error.known_usage.model_dump() if error.known_usage is not None else None,

@@ -200,6 +200,7 @@ def test_source_mutation_during_await_rejects_with_terminal_usage(field):
     got, _, requests = run(src, mutate=mutate)
     failure(got, "output", known=USAGE, complete=True)
     assert len(requests) == 1
+    assert got.diagnostic_stage == "source_integrity"
 
 
 @pytest.mark.parametrize("kind", ["source", "question", "budget", "client", "model"])
@@ -257,8 +258,11 @@ def test_saved_tampering_and_original_types_reject(kind):
         question += " "
     else:
         object.__setattr__(src[2], "title", "changed metadata")
-    with pytest.raises(mod.GuardedQuestionEvidenceV2Error):
+    with pytest.raises(mod.GuardedQuestionEvidenceV2Error) as rejected:
         mod.validate_guarded_question_evidence_v2(src, question, raw)
+    assert rejected.value.diagnostic_stage == (
+        "evidence_contract" if kind in ("question", "source") else "generation_receipt"
+    )
 
 
 @pytest.mark.parametrize(
@@ -297,6 +301,17 @@ def test_unchecked_native_boundary_never_manufactures_receipt(monkeypatch, kind)
         known=known,
         complete=kind in ("output", "usage_budget"),
         closed=kind in ("output", "usage_budget"),
+    )
+    assert (
+        got.diagnostic_stage
+        == {
+            "output": "native_output",
+            "profile": "native_receipt",
+            "complete": "native_receipt",
+            "usage_type": "native_usage",
+            "usage_budget": "native_usage",
+            "unknown": "stream",
+        }[kind]
     )
     assert requests == []
 
@@ -447,3 +462,29 @@ def test_native_observations_are_forwarded_without_inventing_completion(monkeypa
     got, _, requests = run(src)
     failure(got, "transport", known=USAGE, complete=False, closed=False)
     assert requests == []
+
+
+def test_contract_rejection_has_source_stage_after_native_schema_acceptance():
+    src = document(TEXT)
+    data = packet(src)
+    data["propositions"][0]["subject_refs"] = []
+    data["propositions"][0]["epistemic_status"] = "source_statement"
+    got, _, requests = run(src, data)
+    failure(got, "output", known=USAGE, complete=True)
+    assert got.diagnostic_stage == "evidence_contract"
+    assert len(requests) == 1
+
+
+def test_native_json_stage_survives_source_wrapper():
+    stream = rows(EMPTY)
+    for row in stream:
+        if "delta" in row:
+            row["delta"] = "{"
+        if "arguments" in row:
+            row["arguments"] = "{"
+        for value in [row.get("item"), *row.get("response", {}).get("output", [])]:
+            if value and value["status"] == "completed":
+                value["arguments"] = "{"
+    got, _, _ = run(document(TEXT), stream=Body(stream))
+    failure(got, "output", known=USAGE, complete=True)
+    assert got.diagnostic_stage == "json_parse"
