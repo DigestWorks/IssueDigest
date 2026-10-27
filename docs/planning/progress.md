@@ -1,3 +1,7 @@
+## 구현 검토 · 정확 텍스트 내구 실행 · 2026-10-27
+
+[Draft PR128](https://github.com/DigestWorks/IssueDigest/pull/128)은 feat/question-text-generation 기반이다. 구현96ac2381b8fc8de854659310d8bbc637820a91f1·전체10,519개 검사·독립 코드 검토와 별도 실제 실패 검토를 보존했다. 실제 분석1회 공백 정체/최종0으로 최종/앱 인수는 남으며 공동DB/개발 서비스는 바꾸지 않았다. 원래 응답은 재호출/수리하지 않는다. PR첨부는 앱의100개 제한으로 일반 링크를 제공하며 Sites 게시 정보는 이후 인계한다.
+
 ## 검증 결과 · 정확 텍스트 참조 내구 실행 · 2026-10-27
 
 [계약](../changes/question-text-runtime.md)·[검증](../research/question-text-runtime-validation.md). 계획/작업 버전 고정·별도 내구 workflow·엄격한 v2/v3 최종 조합/저장 읽기를 연결했다. 관련283개 native 경로와 전체10,519개(Python9,604+JS915)·정적/타입/빌드/OpenAPI, 태스크별 및 전체 독립 검토를 통과했다. 최초 JS 경합 실패와 수정/최종 성공을 별도 보존한다.
