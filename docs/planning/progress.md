@@ -1,3 +1,11 @@
+## 최종 인계 · 근거 생성 모델 비교 · 2026-10-27
+
+[Draft PR133](https://github.com/DigestWorks/IssueDigest/pull/133), 결과e727d31·검토72c4110. 모델만 Astra로 바꾼 실제 분석1회가 완료·SDKv5 수용/재검증을 통과했다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가다. private 도구40개·동결/모의 사전 검토·별도 실제/내용 검토를 보존했다. 입력2,412/출력1,348·cache write2,276의 공식 단가 추정0.09721달러를 예약1달러/실제 청구와 구분한다.
+
+Sitesv156 public/native succeeded(2026-10-27T08:15:39.587384+00:00), sourcee8f5851f2a059ed6493062ab8dfebfdb195b18b4, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_b4f2b7ba3780819191c494db4c3a3867, deployment appgdep_6ae05d9d56c48191926e536ba9d89fa5. 이전v155와 변경6문서72c4110 사본을 보존했다. HTML141/로컬대상5,329/공개텍스트499의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 브라우저 검사를 생략하고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+제품/검사552파일과 과거 열 묶음696개 기록을 보존했다. 모델 읽기GET1·새 유료 분석POST1·최종0이며 standalone 영수증을 기존 내구 작업으로 재라벨하지 않았다. 다음은 소유 격리 DB의 실제 내구 분석/최종 생성·SQL 저장/재열람 인수다. 현재 앱·공동DB·main/운영과 Actions 설정은 유지했고 Verify foundation은 disabled_manually다. 한 표본의 성공으로 원인 증명/일반 품질/생성 안정성·운영 모델 채택을 인증하지 않는다.
+
 ## 구현 검토 · 근거 생성 모델 비교 · 2026-10-27
 
 [Draft PR133](https://github.com/DigestWorks/IssueDigest/pull/133), 결과e727d31은 feat/question-format-diagnostics 기반이다. 모델만 Astra로 바꾼 분석1회 SDK 수용·필수3단위3/3 제한 AI 개발판정·다른9 미평가를 기록했다. 도구40개/독립 사전·실제 검토·원응답/usage를 보존했다. 실제 최종/SQL·앱 인수와 모델 채택은 남는다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
