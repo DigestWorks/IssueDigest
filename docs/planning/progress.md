@@ -1,3 +1,25 @@
+## 최종 인계 · 근거 범위의 정확 참조 · 2026-10-27
+
+[Draft PR130](https://github.com/DigestWorks/IssueDigest/pull/130), 구현44ecdaf186b1916b0025c728c7147a3ffc1b9f51·검토b8d3cc6f0394bf8b40a51e79b97d1bf59529501e. 신규77/관련331·전체10,662개와 두 독립 코드 검토·원래 인자 재현의 별도 검토를 기록했다. 새 순수 계약만 명제3개/참조23개 구조를 수용했으며 과거v4 실패/usage와 의미·실제/앱 인수는 그대로다.
+
+Sitesv153 public/native succeeded(2026-10-27T06:46:12.753648+00:00), source0f01be6b2aceebaee7440b7776a261d21a32882d, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_23659d81fb708191b1c3737a1204bbc1, deployment appgdep_6ae048a69a8881919b441e3d1414eae8. 이전v152와 변경6문서b8d3cc6 사본을 보존했다. HTML138/로컬대상5,029/공개텍스트478의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 새 브라우저 검사를 생략하고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다.
+
+기존546개 실행 파일·이전 일곱 묶음521개 기록과 원래 인자를 보존했다. 자신의 QA3/volume를 정리했고 모델 API 호출·공유DB/개발 서비스·main/운영 변경0이다. Verify foundation은 disabled_manually다. 다음은 새 생성 SDK/지침·내구 버전/최종·앱 연결이며 과거 영수증을 재라벨하지 않는다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+## 구현 검토 · 근거 범위의 정확 참조 · 2026-10-27
+
+[Draft PR130](https://github.com/DigestWorks/IssueDigest/pull/130)은 feat/question-compact-json 기반이다. 구현44ecdaf186b1916b0025c728c7147a3ffc1b9f51·전체10,662개 검사와 두 독립 코드 검토·원래 인자의 별도 오프라인 재현 검토를 보존했다. 새 순수 계약의 구조 수용과 과거SDK 실패/실제 의미/앱 인수를 구분한다. PR첨부는 앱100개 제한으로 일반 링크를 제공하며 Sites 게시 후 인계한다.
+
+## 검증 완료 · 명시된 근거 범위의 정확 참조 · 2026-10-27
+
+[계약](../changes/question-scoped-text-references.md)·[검증](../research/question-scoped-text-references-validation.md). 별도 순수 converter·신규77/관련331개, 태스크 및 전체 독립 검토와 전체10,662개(Python9,747+JS915)·정적/타입/빌드/OpenAPI를 통과했다. 기존546개 실행 파일과 이전 일곱 묶음521개 기록을 보존했다.
+
+이전 인자를 변경 없이 오프라인 재생한 결과 기존 converter는 계속 거부하고 새 순수 계약은 명제3개·참조23개의 정확 위치/전체 canonical 검증을 통과했다. 독립 결과 검토도 동일 hash/원문/입력 불변을 확인했다. 이전v4 실패/usage를 바꾸거나 새 생성 영수증을 만들지 않았다. 새 모델 API 호출0, 의미/필수3단위/전체12단위·최종/앱 인수 미평가다. 공유DB/개발 서비스·main/운영과 Actions는 변경하지 않았다. 다음은 별도 생성 SDK/지침·내구 버전/최종·앱 연결이며 PR/Sites 게시 후 인계한다.
+
+## 진행 · 명시된 근거 범위의 정확 참조 · 2026-10-27
+
+[계약](../changes/question-scoped-text-references.md). 지원 근거는 전체 원문에서 유일하게 고정하고, 같은 명제의 나머지 참조는 그 범위 안의 유일 위치로 결정하는 별도 순수 converter를 구현한다. 중복 위치/모호한 지원·지원 밖·다른 citation은 거부하고 기존 nested facet membership·불확실성·관계·source hash 검사를 유지한다. 이전 실제 응답은 수리/재접수하지 않으며 모델 호출·앱 전환은 없다.
+
 ## 최종 인계 · 완결된 compact JSON 후보 · 2026-10-27
 
 [Draft PR129](https://github.com/DigestWorks/IssueDigest/pull/129)은 feat/question-text-runtime 기반이며 구현/결과a8d3fe2e07e2f98082805db1a0bb1c4d465bb6a5를 보존한다. 신규66/관련258·전체10,585개와 두 코드 검토·별도 실제 결과 검토를 기록했다. 새 실제1회는 native 완료/입력2,402·출력1,265를 관측했으나 반복 수치 참조로 전체 거부됐다. SDK/필수3단위·전체12단위·최종/앱 성공으로 표시하지 않는다.

@@ -1,3 +1,5 @@
+현재 구현: [명시된 근거 범위의 정확 참조](changes/question-scoped-text-references.md)·[검증](research/question-scoped-text-references-validation.md). 지원 문장의 위치를 먼저 확정하는 별도 순수 코어를 추가했습니다. 저장된 이전 인자는 새 순수 계약에서 구조 검증을 통과하지만, 기존 SDK 실행 결과와 개발 사이트는 바꾸지 않았습니다.
+
 현재 후보: [완결된 compact JSON SDK](changes/question-compact-json.md)·[검증](research/question-compact-json-validation.md). 전체10,585개 검사는 통과했으며 새 실제1회는 모델 응답이 완결됐지만 반복 수치 참조로 전체 거부됐습니다. 개발 사이트는 변경하지 않았고 근거 범위의 위치 결정 계약이 다음입니다.
 
 현재 구현: [정확 텍스트 참조 내구 실행](changes/question-text-runtime.md)·[검증](research/question-text-runtime-validation.md). 계획 버전 고정·분석/최종 저장 연결과 전체10,519개 검사는 통과했습니다. 새 실제 분석1회는 공백 정체로 실패했고 최종 생성0이며, 개발 사이트 적용은 보류했습니다.
