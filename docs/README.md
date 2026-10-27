@@ -1,4 +1,4 @@
-현재 진행: [Astra 내구 분석·최종 저장 검증](research/question-native-final-validation.md)·[지원 계약](changes/question-astra-runtime.md)·[전체 인수](changes/question-native-final-acceptance.md). 저장·실행·SDK 지원과 모의 저장/재열람을 구현했고 태스크별 검토를 통과했습니다. 전체 검사·제한 실제 인수는 진행 중이며 현재 앱은 그대로입니다.
+최신 인수: [Astra 내구 분석·최종 저장 검증](research/question-native-final-validation.md)·[지원 계약](changes/question-astra-runtime.md)·[전체 인수](changes/question-native-final-acceptance.md). 저장·실행·SDK 지원과 전체10,936개 검사를 통과했고 실제 분석1/최종1→SQL 저장·재열람·재접수 추가0을 확인했습니다. 분석/최종 필수3조건3/3은 제한된 AI 개발판정이고 다른9는 미평가입니다. 현재 앱은 그대로입니다.
 
 최신 실제 비교: [근거 생성 모델](research/question-model-comparison.md)·[계약](changes/question-model-comparison.md). 기존 요청에서 model만 Astra로 바꾼 분석1회가 완료·SDK 수용을 통과했습니다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가입니다. 실제 최종 생성/SQL·앱 인수와 운영 모델 채택은 남습니다.
 

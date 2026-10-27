@@ -1,6 +1,10 @@
-## 진행 · Astra 내구 실행/최종 저장 지원 · 2026-10-27
+## 실제 인수 · Astra 내구 분석/최종 저장 · 2026-10-27
 
-[지원 계약](../changes/question-astra-runtime.md)·[전체 인수](../changes/question-native-final-acceptance.md). 전체 실행을 준비하며 Sol 전용 runner/저장/최종 계약을 무송신2개 검사로 확인했다. 기존 Sol bytes/이력을 보존하고 Astra/v5·동일 모델/예약>=1 결합과 migration0015를 먼저 구현한다. 저장 정책·migration0015와 SDK/실행·최종 영수증 모델 연결을 구현했고 태스크별 독립 검토를 통과했다. 관련273개·모의 ANSWER 저장/재열람/재접수0과 기존 Sol 요청 bytes를 확인했다. 전체10,936개·정적/타입/빌드/OpenAPI와 전체 독립 검토를 통과했다. 격리 native 실제 인수를 준비 중이다. 공동DB/앱/main/운영은 그대로이고 이번 새 유료 호출은 아직0이다.
+[Draft PR134](https://github.com/DigestWorks/IssueDigest/pull/134)·[지원 계약](../changes/question-astra-runtime.md)·[인수](../changes/question-native-final-acceptance.md)·[검증](../research/question-native-final-validation.md). Sol 전용 저장/실행/최종 SDK에 Astra/v5·최종v1·동일 모델/각 예약>=1 결합과 migration0015를 구현했다. 기존 Sol bytes·예약·identity·재생/기본 설정은 보존한다. 코드6c0ab03에서 전체10,936개·정적/타입/빌드/OpenAPI·태스크별/전체 독립 검토를 통과했다.
+
+도구98개·검토/보완·모의 ANSWER·동결/덤프 사전 승인 후 새 실제 분석1/최종1이 완료됐다. 두 요청·원응답 모델은 모두 Astra이고 SQL hash·전체 reader JSON·재열람·재접수 추가0이 일치했다. 분석 필수3조건3/3·최종 사용자 문장 대응3조건3/3은 제한된 AI 개발판정이며 다른9는 미평가다. 입력5,385/출력1,624·캐시 쓰기5,112의 공식 단가 추정 합계0.14783달러를 예약2달러/청구 확정과 구분한다.
+
+첫 실패 모의는 strict boolean 검사에 반환 객체를 넣은 도구 오류였고39파일/DB 사본을 보존했다. 한 줄 보완·재검토 후 새 모의와 실제를 실행했다. 실제 재시도0·스트림 명시 닫힘/EOFfalse를 보존하고 과거 성공·실패를 재라벨하지 않았다. 기존552파일 중538 unchanged/14 의도 변경+5 신설, 이전11묶음764파일을 보존했다. 현재 개발 앱·공동DB·기본 모델·main/운영·Actions는 그대로다. 전용 QA4개·전용 볼륨 제거/포트 종료를 확인했고 덤프와 원응답·SQL은 보존했다. 계획판 게시 정보는 이후 인계를 따른다.
 
 ## 최종 인계 · 근거 생성 모델 비교 · 2026-10-27
 

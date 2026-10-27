@@ -21,7 +21,7 @@ migration0015로 evidence_jobs 모델/profile CHECK를 Sol의 기존2/3/5 또는
 - [x] T1: 저장 모델/모델-예약 정책·migration0015·이전/신규/거부/downgrade TDD.
 - [x] T2: 최종SDK·dispatch/runner/worker·저장 읽기 모델 결합·Sol byte 회귀·native 합성 Astra ANSWER 저장/재열람/재접수0. 구현 완료, 독립 검토 대기.
 - [x] 태스크별·전체 독립 검토와 전체10,936개/정적/타입/빌드/OpenAPI.
-- [ ] 전체 인수 도구 갱신·모의/독립 승인 후 제한 실제. 결과는 별도 기록.
+- [x] 전체 인수 도구98개·모의/독립 승인·새 실제 분석1/최종1→SQL 재열람·재접수0. [결과](../research/question-native-final-validation.md)에 한 사례의 의미 판정과 남은 앱 경계를 기록.
 
 ## 적용 경계
 
