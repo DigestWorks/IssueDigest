@@ -1,3 +1,7 @@
+## 구현 검토 · 근거 범위의 정확 참조 · 2026-10-27
+
+[Draft PR130](https://github.com/DigestWorks/IssueDigest/pull/130)은 feat/question-compact-json 기반이다. 구현44ecdaf186b1916b0025c728c7147a3ffc1b9f51·전체10,662개 검사와 두 독립 코드 검토·원래 인자의 별도 오프라인 재현 검토를 보존했다. 새 순수 계약의 구조 수용과 과거SDK 실패/실제 의미/앱 인수를 구분한다. PR첨부는 앱100개 제한으로 일반 링크를 제공하며 Sites 게시 후 인계한다.
+
 ## 검증 완료 · 명시된 근거 범위의 정확 참조 · 2026-10-27
 
 [계약](../changes/question-scoped-text-references.md)·[검증](../research/question-scoped-text-references-validation.md). 별도 순수 converter·신규77/관련331개, 태스크 및 전체 독립 검토와 전체10,662개(Python9,747+JS915)·정적/타입/빌드/OpenAPI를 통과했다. 기존546개 실행 파일과 이전 일곱 묶음521개 기록을 보존했다.
