@@ -46,6 +46,7 @@ briefing_jobs = Table(
     CheckConstraint(
         "status IN ('pending','running','completed','failed','cancelled','indeterminate')"
     ),
+    # Historical 0012 imports this baseline; 0015 alone extends live model CHECKs.
     CheckConstraint("model = 'gpt-6.1-sol' AND profile = 'question-briefing-generation-v1'"),
     CheckConstraint("reservation_usd > 0 AND reservation_usd <= 10"),
 )

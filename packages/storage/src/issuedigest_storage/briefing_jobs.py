@@ -11,6 +11,7 @@ from typing import TYPE_CHECKING, Any
 from uuid import UUID, uuid4
 
 from issuedigest_domain import EvidenceBundle
+from issuedigest_domain.question_model_policy import briefing_model_allowed, reservation_allowed
 from issuedigest_domain.question_source_plan import QuestionSourcePlan
 from issuedigest_domain.research_journey import SourcePresentation
 from sqlalchemy import func, insert, select, update
@@ -145,7 +146,8 @@ class BriefingJobRepository:
             _hashes(row["inputs_sha256"], row["prompt_sha256"], row["instructions_sha256"])
             _usage(row["known_usage"])
             if (
-                row["model"] != MODEL
+                not briefing_model_allowed(row["model"])
+                or not reservation_allowed(row["model"], row["reservation_usd"])
                 or row["profile"] != PROFILE
                 or type(row["question"]) is not str
                 or not row["question"].strip()
@@ -161,6 +163,7 @@ class BriefingJobRepository:
             receipt = row["receipt"] if row["status"] == "completed" else None
             if row["status"] == "completed" and (
                 type(receipt) is not dict
+                or receipt.get("model") != row["model"]
                 or digest(receipt) != row["receipt_sha256"]
                 or row["known_usage"] is None
                 or not row["usage_complete"]
@@ -241,6 +244,8 @@ class BriefingJobRepository:
                 snapshot_id=str(child.snapshot_id),
             )
             fingerprints.append(dict(child=child_fields, source_sha256=source_digest(source)))
+        if len({child.model for child in children}) != 1:
+            raise ResearchConflict("Briefing child models differ")
         fingerprint = digest(
             dict(
                 actor_id=str(actor),
@@ -257,7 +262,11 @@ class BriefingJobRepository:
         packet = cls._packet(
             conn, row["actor_id"], row["workspace_id"], row["plan_id"], job.child_job_ids
         )
-        if packet.inputs_sha256 != job.inputs_sha256 or packet.question != job.question:
+        if (
+            packet.inputs_sha256 != job.inputs_sha256
+            or packet.question != job.question
+            or any(child.model != job.model for child in packet.children)
+        ):
             raise StorageCorruption("Briefing inputs changed")
         return packet
 
@@ -329,14 +338,9 @@ class BriefingJobRepository:
         _ids(workspace_id, plan_id, child_job_ids)
         _id(request_id)
         _hashes(expected_inputs_sha256, prompt_sha256, instructions_sha256)
-        if type(model) is not str or model != MODEL:
+        if not briefing_model_allowed(model):
             raise ValueError("Invalid briefing model")
-        if (
-            type(reservation_usd) is not Decimal
-            or not reservation_usd.is_finite()
-            or not Decimal("0") < reservation_usd <= Decimal("10")
-            or reservation_usd != reservation_usd.quantize(Decimal(".01"))
-        ):
+        if not reservation_allowed(model, reservation_usd):
             raise ValueError("Invalid briefing reservation")
         reservation_usd = reservation_usd.quantize(Decimal(".01"))
 
@@ -346,6 +350,8 @@ class BriefingJobRepository:
             if actor is None:
                 return None
             packet = self._packet(conn, actor, workspace_id, plan_id, child_job_ids)
+            if any(child.model != model for child in packet.children):
+                raise ResearchConflict("Briefing model differs from children")
             if packet.inputs_sha256 != expected_inputs_sha256:
                 raise ResearchConflict("Briefing inputs changed")
             prior = (
@@ -548,6 +554,7 @@ class BriefingJobRepository:
             row = self._row(conn, job_id)
             self._dto(row)
             if row["status"] == "completed":
+                self._current(conn, row)
                 return self._dto(row)
             previous = row["known_usage"]
             usage = known_usage
@@ -565,7 +572,7 @@ class BriefingJobRepository:
                     receipt.get("prompt_sha256") != row["prompt_sha256"]
                     or receipt.get("instructions_sha256") != row["instructions_sha256"]
                     or receipt.get("profile") != PROFILE
-                    or receipt.get("model") != MODEL
+                    or receipt.get("model") != row["model"]
                     or receipt.get("status") != "unreviewed"
                     or type(briefing) is not dict
                     or briefing.get("workspace_id") != str(row["workspace_id"])

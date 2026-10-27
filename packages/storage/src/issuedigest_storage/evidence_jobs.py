@@ -9,6 +9,7 @@ from typing import Any
 from uuid import UUID, uuid4
 
 from issuedigest_domain import EvidenceBundle
+from issuedigest_domain.question_model_policy import evidence_model_allowed, reservation_allowed
 from issuedigest_domain.research_journey import SourcePresentation
 from sqlalchemy import (
     Boolean,
@@ -66,7 +67,7 @@ evidence_jobs = Table(
         "status IN ('pending','running','completed','failed','cancelled','indeterminate')"
     ),
     # Historical migrations 0010/0013 require this v2/v3 baseline.
-    # Migration 0014 alone extends the actual database CHECK to v5.
+    # Migrations 0014/0015 extend live CHECKs to v5/Astra; keep this baseline unchanged.
     CheckConstraint(
         "model = 'gpt-6.1-sol' AND profile IN "
         "('guarded-question-evidence-v2','guarded-question-evidence-v3')"
@@ -154,14 +155,8 @@ class EvidenceJobRepository:
     @staticmethod
     def _dto(row: Any) -> EvidenceJob:
         receipt = row["receipt"] if row["status"] == "completed" else None
-        if row["model"] != "gpt-6.1-sol" or (
-            type(row["profile"]) is not str
-            or row["profile"]
-            not in (
-                "guarded-question-evidence-v2",
-                "guarded-question-evidence-v3",
-                "guarded-question-evidence-v5",
-            )
+        if not evidence_model_allowed(row["model"], row["profile"]) or not reservation_allowed(
+            row["model"], row["reservation_usd"]
         ):
             raise StorageCorruption("Evidence job identity changed")
         usage = row["known_usage"]
@@ -189,6 +184,7 @@ class EvidenceJobRepository:
 
     @staticmethod
     def _current(conn: Connection, row: Any) -> tuple[UUID, EvidenceBundle, SourcePresentation]:
+        EvidenceJobRepository._dto(row)
         if not ResearchRepository._member(conn, row["actor_id"], row["workspace_id"], write=True):
             raise ResearchForbidden("Evidence job authority unavailable")
         bundle = EvidenceRepository._load(conn, row["workspace_id"], row["snapshot_id"])
@@ -229,26 +225,13 @@ class EvidenceJobRepository:
         for value in (workspace_id, request_id, snapshot_id):
             _uuid4(value)
         if (
-            type(profile) is not str
-            or profile
-            not in (
-                "guarded-question-evidence-v2",
-                "guarded-question-evidence-v3",
-                "guarded-question-evidence-v5",
-            )
+            not evidence_model_allowed(model, profile)
             or type(question) is not str
             or not question.strip()
             or len(question) > 1500
-            or type(model) is not str
-            or model != "gpt-6.1-sol"
         ):
             raise ValueError("Invalid evidence job input")
-        if (
-            type(reservation_usd) is not Decimal
-            or not reservation_usd.is_finite()
-            or not Decimal("0") < reservation_usd <= Decimal("10")
-            or reservation_usd != reservation_usd.quantize(Decimal(".01"))
-        ):
+        if not reservation_allowed(model, reservation_usd):
             raise ValueError("Invalid evidence reservation")
         if expected_source_sha256 is not None and (
             type(expected_source_sha256) is not str
@@ -471,6 +454,7 @@ class EvidenceJobRepository:
 
         def complete(conn: Connection) -> EvidenceJob:
             row = self._row(conn, job_id)
+            self._dto(row)
             if row["status"] == "completed":
                 return self._dto(row)
             previous = row["known_usage"]

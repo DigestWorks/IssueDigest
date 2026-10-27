@@ -30,6 +30,25 @@ def clean_jobs(engine):
         conn.execute(text("TRUNCATE question_source_plans, evidence_jobs, briefing_jobs"))
 
 
+@pytest.fixture(autouse=True)
+def revision_0014(engine, database_url, clean_jobs):
+    """Exercise historic 0014 in its actual schema, then restore moving head."""
+    module = (
+        ScriptDirectory.from_config(migration_config(database_url))
+        .get_revision("0015_question_astra_models")
+        .module
+    )
+    with engine.begin() as conn:
+        with Operations.context(MigrationContext.configure(conn)):
+            module.downgrade()
+    try:
+        yield
+    finally:
+        with engine.begin() as conn:
+            with Operations.context(MigrationContext.configure(conn)):
+                module.upgrade()
+
+
 def revision(database_url):
     return ScriptDirectory.from_config(migration_config(database_url)).get_revision(REVISION).module
 

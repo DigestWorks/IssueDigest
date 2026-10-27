@@ -35,13 +35,12 @@ def revision_0013(engine, database_url):
 
     from conftest import migration_config
 
-    current = (
-        ScriptDirectory.from_config(migration_config(database_url))
-        .get_revision("0014_question_scoped_profile")
-        .module
-    )
+    scripts = ScriptDirectory.from_config(migration_config(database_url))
+    newer = scripts.get_revision("0015_question_astra_models").module
+    current = scripts.get_revision("0014_question_scoped_profile").module
     with engine.begin() as conn:
         with Operations.context(MigrationContext.configure(conn)):
+            newer.downgrade()
             current.downgrade()
     try:
         yield
@@ -49,6 +48,7 @@ def revision_0013(engine, database_url):
         with engine.begin() as conn:
             with Operations.context(MigrationContext.configure(conn)):
                 current.upgrade()
+                newer.upgrade()
 
 
 def test_plan_profile_frozen_and_private(engine):
