@@ -1,3 +1,13 @@
+## 개인 개발 서버 적용 완료 · 2026-10-27
+
+[개발 앱](https://dev.issuedigest.projects.ai.kr/)에 검증 소스9170e06의 질문→분석→최종 브리핑 API·단일 executor·화면을 반영했다. Models 권한 갱신 뒤 모델 조회 성공, DB0012/분리 DBOS·새3테이블 제한 권한·외부 HTTPS/보호 경계·정적 자산을 확인했다. 기존 공개 목록·23테이블 정규화 행·이전 DBOS·역할/기존/default 권한과 OAuth/DB/origin 설정을 보존했다. 전후 서버 밖 백업을 별도PG18.6에 복원해23/26테이블 일치를 확인하고 자신의 검증DB/volume만 정리했다.
+
+[확인·중간 실패·한계](../research/question-web-development-activation.md). 전환 도구의 종료 경합으로 API가 일시 중단됐고 종료 상태/저장 설정을 재검증해 마무리했다. 실제 생성 호출0·사용자 세션 대행0·main 병합0이다. 사용자 브라우저 로그인 유지와 실제 질문의 생성·저장·문장 의미 품질 검증은 남아 있다. 제품537파일은 이전 검증본과 같다.
+
+## 개인 개발 전환 진행 · 2026-10-27
+
+OpenAI Models 권한 갱신 뒤 실제 gpt-6.1-sol 조회가 성공했다. 생성 호출은0이다. 오늘의 서버 밖 full/app 백업과 별도PG18.6 복원에서 기존23테이블 정규화 rowhash/count가 일치했다. 고정 소스9170e06·기존 개인 Nginx 쓰기 가능·공개/보호 HTTP 경계를 다시 확인했다. 실제 DB/실행기/웹을 바꾸기 전 전환·복귀 스크립트를 검토 중이며 현재는 이전 환경이다. main/공용 checkout·수집기·OAuth/세션은 변경하지 않는다.
+
 ## 최종 인계 · 개발 전환 사전 검증 · 2026-10-26
 
 [Draft PR122](https://github.com/DigestWorks/IssueDigest/pull/122)은 feat/question-briefing-web-flow 기반 문서 변경이며 미병합이다. 제품537파일은 이전 검증본과 같고 별도 서버9170e06/locked 환경/SPA를 준비했다. 실제 공동DB0009·기존 API/worker/웹/collector/cron은 전환하지 않았다. 서버 밖 full/app 백업·별도PG18.6 복원과 기존23테이블 정규화 rowhash/count(auth_sessions.last_activity_at 제외), 복원DB의0012/전용DBOS·DML/DDL·실제 시작/종료·잘못된 상속 schema/재실행·이전DBOS 보존을 확인했다. 독립 재검토 C0I0M0다.
