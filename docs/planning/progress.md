@@ -1,3 +1,7 @@
+## 구현 검토 · 근거 생성 모델 비교 · 2026-10-27
+
+[Draft PR133](https://github.com/DigestWorks/IssueDigest/pull/133), 결과e727d31은 feat/question-format-diagnostics 기반이다. 모델만 Astra로 바꾼 분석1회 SDK 수용·필수3단위3/3 제한 AI 개발판정·다른9 미평가를 기록했다. 도구40개/독립 사전·실제 검토·원응답/usage를 보존했다. 실제 최종/SQL·앱 인수와 모델 채택은 남는다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
+
 ## 실제 비교 결과 · 근거 생성 모델 · 2026-10-27
 
 [계약](../changes/question-model-comparison.md)·[검증](../research/question-model-comparison.md). 기존SDKv5와 전송 설정을 유지하고 model만 Astra로 바꾼 실제 분석1회가 모델 완료·SDK 수용·local JSON 재검증을 통과했다. 명제3개/참조20회·필수3단위3/3 AI 개발판정, 나머지9는 미평가다. 사용량2,412/1,348와 cache write 반영 공식 단가 추정0.09721달러를 기록했으며 청구 확정/예약1달러와 구분한다.
