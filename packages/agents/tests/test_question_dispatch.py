@@ -643,7 +643,12 @@ def test_completed_acknowledgement_race_still_stops_at_first_pending(
 
 
 @pytest.mark.parametrize(
-    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+    "profile",
+    [
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ],
 )
 def test_stored_profile_survives_config_change_and_partial_resume(admission, engine, profile):
     import json
@@ -673,9 +678,7 @@ def test_stored_profile_survives_config_change_and_partial_resume(admission, eng
                 )
             )
         )
-        tool = (
-            "fill_question_evidence_v2" if profile.endswith("v2") else "fill_question_evidence_v3"
-        )
+        tool = "fill_question_evidence_" + profile.rsplit("-", 1)[1]
         for row in rows:
             for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
                 if item is not None:
@@ -725,7 +728,11 @@ def test_stored_profile_survives_config_change_and_partial_resume(admission, eng
                 expected = (
                     "issuedigest_guarded_evidence_job_v1"
                     if profile.endswith("v2")
-                    else "issuedigest_guarded_evidence_job_v2"
+                    else (
+                        "issuedigest_guarded_evidence_job_v2"
+                        if profile.endswith("v3")
+                        else "issuedigest_guarded_evidence_job_v3"
+                    )
                 )
                 assert len(queue.calls) == 2
                 assert all(call[0]["workflow_name"] == expected for call in queue.calls)

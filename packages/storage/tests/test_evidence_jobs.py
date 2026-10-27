@@ -254,26 +254,39 @@ def test_migration_only_new_table_and_old_rows(jobs, engine, database_url):
     config = migration_config(database_url)
     revision = ScriptDirectory.from_config(config).get_revision("0010_evidence_jobs")
     with engine.begin() as conn:
-        old = conn.execute(text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")).all()
-        version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
-        before = set(inspect(conn).get_table_names())
-        with Operations.context(MigrationContext.configure(conn)):
-            revision.module.downgrade()
-            try:
-                assert set(inspect(conn).get_table_names()) == before - {"evidence_jobs"}
-                assert (
-                    conn.execute(
-                        text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")
-                    ).all()
-                    == old
-                )
-                assert (
-                    conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
-                )
-            finally:
-                revision.module.upgrade()
-        assert set(inspect(conn).get_table_names()) == before
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+        # Historical table recreation must not leak its baseline CHECKs into moving head.
+        checkpoint = conn.begin_nested()
+        try:
+            old = conn.execute(
+                text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")
+            ).all()
+            version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
+            before = set(inspect(conn).get_table_names())
+            with Operations.context(MigrationContext.configure(conn)):
+                revision.module.downgrade()
+                try:
+                    assert set(inspect(conn).get_table_names()) == before - {"evidence_jobs"}
+                    assert (
+                        conn.execute(
+                            text("SELECT snapshot_id,workspace_id FROM evidence_snapshots")
+                        ).all()
+                        == old
+                    )
+                    assert (
+                        conn.execute(text("SELECT version_num FROM alembic_version")).all()
+                        == version
+                    )
+                finally:
+                    revision.module.upgrade()
+            assert set(inspect(conn).get_table_names()) == before
+            assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+        finally:
+            checkpoint.rollback()
+        for table in ("question_source_plans", "evidence_jobs"):
+            assert any(
+                "guarded-question-evidence-v5" in check["sqltext"]
+                for check in inspect(conn).get_check_constraints(table)
+            )
 
 
 def test_source_metadata_change_rejects_same_request(jobs, engine):

@@ -65,6 +65,8 @@ evidence_jobs = Table(
     CheckConstraint(
         "status IN ('pending','running','completed','failed','cancelled','indeterminate')"
     ),
+    # Historical migrations 0010/0013 require this v2/v3 baseline.
+    # Migration 0014 alone extends the actual database CHECK to v5.
     CheckConstraint(
         "model = 'gpt-6.1-sol' AND profile IN "
         "('guarded-question-evidence-v2','guarded-question-evidence-v3')"
@@ -155,7 +157,11 @@ class EvidenceJobRepository:
         if row["model"] != "gpt-6.1-sol" or (
             type(row["profile"]) is not str
             or row["profile"]
-            not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+            not in (
+                "guarded-question-evidence-v2",
+                "guarded-question-evidence-v3",
+                "guarded-question-evidence-v5",
+            )
         ):
             raise StorageCorruption("Evidence job identity changed")
         usage = row["known_usage"]
@@ -173,11 +179,7 @@ class EvidenceJobRepository:
         if receipt is not None and (
             receipt.get("profile") != row["profile"]
             or receipt.get("input_format")
-            != (
-                "question-evidence-source-v3"
-                if row["profile"] == "guarded-question-evidence-v3"
-                else "question-evidence-source-v2"
-            )
+            != ("question-evidence-source-" + row["profile"].rsplit("-", 1)[1])
         ):
             raise StorageCorruption("Evidence job receipt profile changed")
         fields: dict[str, Any] = {
@@ -228,7 +230,12 @@ class EvidenceJobRepository:
             _uuid4(value)
         if (
             type(profile) is not str
-            or profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+            or profile
+            not in (
+                "guarded-question-evidence-v2",
+                "guarded-question-evidence-v3",
+                "guarded-question-evidence-v5",
+            )
             or type(question) is not str
             or not question.strip()
             or len(question) > 1500
@@ -485,11 +492,7 @@ class EvidenceJobRepository:
                         or receipt.get("status") != "unreviewed"
                         or receipt.get("transport_profile") != "guarded-responses-tool-v1"
                         or receipt.get("input_format")
-                        != (
-                            "question-evidence-source-v3"
-                            if row["profile"] == "guarded-question-evidence-v3"
-                            else "question-evidence-source-v2"
-                        )
+                        != ("question-evidence-source-" + row["profile"].rsplit("-", 1)[1])
                         or type(receipt.get("evidence")) is not dict
                         or receipt["evidence"].get("source_sha256") != row["source_sha256"]
                         or receipt["evidence"].get("question_sha256")

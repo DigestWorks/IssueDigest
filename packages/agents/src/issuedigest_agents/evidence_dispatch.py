@@ -53,6 +53,7 @@ async def submit_evidence_job(
     if type(profile) is not str or profile not in (
         "guarded-question-evidence-v2",
         "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
     ):
         raise ValueError("Invalid evidence profile")
     job = await asyncio.to_thread(
@@ -86,7 +87,11 @@ async def submit_evidence_job(
                 "workflow_name": (
                     "issuedigest_guarded_evidence_job_v1"
                     if job.profile == "guarded-question-evidence-v2"
-                    else "issuedigest_guarded_evidence_job_v2"
+                    else (
+                        "issuedigest_guarded_evidence_job_v2"
+                        if job.profile == "guarded-question-evidence-v3"
+                        else "issuedigest_guarded_evidence_job_v3"
+                    )
                 ),
                 "queue_name": "issuedigest_guarded_evidence_v1",
                 "workflow_id": workflow_id,

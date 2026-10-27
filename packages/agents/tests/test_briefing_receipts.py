@@ -9,15 +9,23 @@ import pytest
 from issuedigest_domain.question_source_plan import QuestionSourceChoice, QuestionSourcePlan
 from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobInputs
 from issuedigest_storage.evidence_jobs import EvidenceJob
-from test_question_briefing import claim, proposal, receipt, receipt_v3, reference, source
+from test_question_briefing import (
+    claim,
+    proposal,
+    receipt,
+    receipt_v3,
+    receipt_v5,
+    reference,
+    source,
+)
 from test_question_briefing import restore_imports as restore_imports
 from test_question_briefing_generation import run
-from test_question_evidence_propositions import QUESTION
+from test_question_evidence_propositions import QUESTION, TEXT
 
 
 def packet(version):
-    src = source()
-    rec = (receipt if version == 2 else receipt_v3)(src)
+    src = source(TEXT.replace("기관은 반복한다", "반복한다")) if version == 5 else source()
+    rec = {2: receipt, 3: receipt_v3, 5: receipt_v5}[version](src)
     plan = QuestionSourcePlan(
         plan_id=uuid4(),
         workspace_id=src[1].document.workspace_id,
@@ -49,7 +57,7 @@ def packet(version):
     return BriefingJobInputs(QUESTION, plan, (src,), (child,), "1" * 64), rec
 
 
-@pytest.mark.parametrize("version", [2, 3])
+@pytest.mark.parametrize("version", [2, 3, 5])
 def test_saved_read_uses_original_version_and_matches_final_binding(version):
     from issuedigest_agents.briefing_receipts import validate_stored_briefing
 

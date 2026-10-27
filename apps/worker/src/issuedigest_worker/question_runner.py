@@ -15,6 +15,7 @@ from dbos import DBOSClient, WorkflowHandleAsync
 from issuedigest_agents.evidence_dispatch import EvidenceDispatch
 from issuedigest_agents.guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
 from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvidenceGenerationV3
+from issuedigest_agents.guarded_question_evidence_v5 import GuardedQuestionEvidenceGenerationV5
 from issuedigest_agents.question_briefing import QuestionEvidenceReceipt
 from issuedigest_agents.question_dispatch import (
     QuestionDispatch,
@@ -166,7 +167,11 @@ def _collect(
     profile = plans.get_evidence_profile(token, workspace_id, plan.plan_id)
     if profile is None:
         return None
-    if profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+    if profile not in (
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ):
         raise QuestionRunError("receipt")
 
     def authorization(expected: UUID, source: QuestionSourceChoice) -> Callable[[UUID], bool]:
@@ -196,7 +201,11 @@ def _collect(
             is not (
                 GuardedQuestionEvidenceGenerationV2
                 if profile == "guarded-question-evidence-v2"
-                else GuardedQuestionEvidenceGenerationV3
+                else (
+                    GuardedQuestionEvidenceGenerationV3
+                    if profile == "guarded-question-evidence-v3"
+                    else GuardedQuestionEvidenceGenerationV5
+                )
             )
             or receipt.profile != profile
             or receipt.status != "unreviewed"

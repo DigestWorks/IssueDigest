@@ -15,6 +15,7 @@ from issuedigest_agents.briefing_dispatch import (
 from issuedigest_agents.evidence_dispatch import EvidenceDispatchError
 from issuedigest_agents.guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
 from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvidenceGenerationV3
+from issuedigest_agents.guarded_question_evidence_v5 import GuardedQuestionEvidenceGenerationV5
 from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
 from issuedigest_agents.question_dispatch import QuestionDispatch
 from issuedigest_storage.briefing_jobs import REASONS, BriefingJob, BriefingJobRepository
@@ -127,6 +128,7 @@ async def run_question_briefing(
                     not in (
                         GuardedQuestionEvidenceGenerationV2,
                         GuardedQuestionEvidenceGenerationV3,
+                        GuardedQuestionEvidenceGenerationV5,
                     )
                     for r in evidence.receipts
                 )

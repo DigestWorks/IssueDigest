@@ -108,7 +108,12 @@ def _job(
         or type(admitted) is not EvidenceJob
         or type(job.job_id) is not UUID
         or job.job_id.version != 4
-        or profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+        or profile
+        not in (
+            "guarded-question-evidence-v2",
+            "guarded-question-evidence-v3",
+            "guarded-question-evidence-v5",
+        )
         or type(job.profile) is not str
         or job.profile != profile
         or admitted.profile != profile
@@ -178,7 +183,11 @@ async def advance_question_plan(
     profile = await asyncio.to_thread(plans.get_evidence_profile, token, workspace_id, plan.plan_id)
     if profile is None:
         return None
-    if profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+    if profile not in (
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ):
         raise StorageCorruption("Question dispatch profile integrity check failed")
     if not plan.sources:
         return QuestionDispatch(plan.plan_id, "no_match", 0, 0, ())

@@ -391,3 +391,9 @@ D022 사전 평가 범위 판단: 호출0 상태에서 신규 합성C의 미지�
 ### D022 후속 · 지원 근거를 먼저 확정하는 위치 결정 · 2026-10-27
 
 [계약](../changes/question-scoped-text-references.md). 기존 전체 원문 유일성은 그대로 두고 별도 순수 converter에 지원 범위의 유일성을 정의한다. supporting_refs 자체는 전역 유일하고, 나머지는 같은 명제/같은 citation의 한 지원 범위 안에 완전히 들어가야 한다. 겹친 지원이 같은 위치를 감싸면 한 후보로 세되, 서로 다른 후보나 모호한 지원은 거부한다. canonical facet membership·불확실성 등은 완화하지 않는다. 원래 인자의 새 순수 계약 통과를 이전SDK 실행 성공/새 실제 의미 성공으로 바꾸지 않으며 새 생성 버전은 별도로 연결한다.
+
+### D022 후속 · 범위 참조의 생성/내구 버전과 실제 인수 경계 · 2026-10-27
+
+새v5 SDK/영수증·migration0014·별도 workflow를 추가하고 저장 계획의 버전으로 모든 재개를 고정한다. 기존v2/v3 identity/최종 bytes와 실험v4 실패를 보존한다. metadata CHECK는 역사적 baseline이며 명시 migration으로 최신 DB를 만든다. 상세는 [계약](../changes/question-scoped-runtime.md)·[검증](../research/question-scoped-runtime-validation.md).
+
+전체10,791개·독립 검토와 모의 ANSWER 저장/재열람·재접수 추가0을 통과했지만 제한 실제 분석1회는 공백 정체로 실패했다. 최종0·usage 미관측/예약을 보존하며 재호출/수리하지 않는다. 실제 의미/최종·앱 인수와 생성 안정성은 미충족이다. 공동DB/개발 서비스/main/운영을 바꾸지 않고 다음은 별도 생성 안정성 개선이다.

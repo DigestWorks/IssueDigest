@@ -28,7 +28,11 @@ from openai import AsyncOpenAI
 from sqlalchemy import Engine
 
 from .briefing_queue import configure_briefing_queue, register_briefing_workflow
-from .evidence_worker import register_evidence_workflow, register_evidence_workflow_v3
+from .evidence_worker import (
+    register_evidence_workflow,
+    register_evidence_workflow_v3,
+    register_evidence_workflow_v5,
+)
 from .question_briefing_runner import QuestionBriefingRun, run_question_briefing
 from .research_recovery import research_worker_lock
 
@@ -54,7 +58,11 @@ class QuestionServiceConfig:
             or self.schema.startswith("pg_")
             or type(self.evidence_profile) is not str
             or self.evidence_profile
-            not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+            not in (
+                "guarded-question-evidence-v2",
+                "guarded-question-evidence-v3",
+                "guarded-question-evidence-v5",
+            )
             or self.app_version != "question-briefing-http-v1"
         ):
             raise QuestionSubmissionError("unavailable")
@@ -202,6 +210,7 @@ class OwnedQuestionExecutionService:
         DBOS(config=runtime_config)  # type: ignore[arg-type]
         register_evidence_workflow(self._evidence, client=self._provider, check_ownership=owned)
         register_evidence_workflow_v3(self._evidence, client=self._provider, check_ownership=owned)
+        register_evidence_workflow_v5(self._evidence, client=self._provider, check_ownership=owned)
         register_briefing_workflow(self._briefings, client=self._provider, check_ownership=owned)
         DBOS.launch()
         await asyncio.to_thread(configure_briefing_queue)

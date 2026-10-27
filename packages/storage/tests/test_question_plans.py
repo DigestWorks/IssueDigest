@@ -243,25 +243,38 @@ def test_migration_and_import_leave_old_rows_and_registry_untouched(plans, engin
     config = migration_config(database_url)
     revision = ScriptDirectory.from_config(config).get_revision("0011_question_source_plans")
     with engine.begin() as conn:
-        old = {
-            table: conn.execute(text("SELECT * FROM " + table)).all()
-            for table in ("evidence_jobs", "research_budget_months", "evidence_snapshots")
-        }
-        before = set(inspect(conn).get_table_names())
-        version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
-        with Operations.context(MigrationContext.configure(conn)):
-            revision.module.downgrade()
-            try:
-                assert set(inspect(conn).get_table_names()) == before - {"question_source_plans"}
-                for table, rows in old.items():
-                    assert conn.execute(text("SELECT * FROM " + table)).all() == rows
-                assert (
-                    conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
-                )
-            finally:
-                revision.module.upgrade()
-        assert set(inspect(conn).get_table_names()) == before
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+        # Historical table recreation must not leak its baseline CHECKs into moving head.
+        checkpoint = conn.begin_nested()
+        try:
+            old = {
+                table: conn.execute(text("SELECT * FROM " + table)).all()
+                for table in ("evidence_jobs", "research_budget_months", "evidence_snapshots")
+            }
+            before = set(inspect(conn).get_table_names())
+            version = conn.execute(text("SELECT version_num FROM alembic_version")).all()
+            with Operations.context(MigrationContext.configure(conn)):
+                revision.module.downgrade()
+                try:
+                    assert set(inspect(conn).get_table_names()) == before - {
+                        "question_source_plans"
+                    }
+                    for table, rows in old.items():
+                        assert conn.execute(text("SELECT * FROM " + table)).all() == rows
+                    assert (
+                        conn.execute(text("SELECT version_num FROM alembic_version")).all()
+                        == version
+                    )
+                finally:
+                    revision.module.upgrade()
+            assert set(inspect(conn).get_table_names()) == before
+            assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == version
+        finally:
+            checkpoint.rollback()
+        for table in ("question_source_plans", "evidence_jobs"):
+            assert any(
+                "guarded-question-evidence-v5" in check["sqltext"]
+                for check in inspect(conn).get_check_constraints(table)
+            )
     assert EvidenceJobRepository(engine).get(token, workspace, job.job_id).status == "pending"
     with engine.begin() as conn:
         conn.execute(text("DELETE FROM evidence_jobs WHERE job_id=:j"), {"j": job.job_id})

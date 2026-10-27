@@ -36,7 +36,12 @@ def validate_briefing_packet(
             type(source) is not tuple
             or type(child) is not EvidenceJob
             or type(child.profile) is not str
-            or child.profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+            or child.profile
+            not in (
+                "guarded-question-evidence-v2",
+                "guarded-question-evidence-v3",
+                "guarded-question-evidence-v5",
+            )
             or child.status != "completed"
             or child.question != packet.question
             or child.snapshot_id != source[0]

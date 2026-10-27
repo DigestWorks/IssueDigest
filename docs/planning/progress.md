@@ -1,3 +1,9 @@
+## 검증 결과 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
+
+[계약](../changes/question-scoped-runtime.md)·[검증](../research/question-scoped-runtime-validation.md). 새v5 SDK·migration0014·버전별 내구 큐/최종 조합·SQL 저장 읽기를 연결했다. 전체10,791개와 정적/타입/빌드/OpenAPI·태스크별/전체 독립 검토를 통과했다. 모의는 ANSWER 저장/재열람 일치·재접수 추가0이다.
+
+실제 분석1회는 연속 공백 한도로 실패했고 최종 생성0이다. 완료/최종 usage 미관측·분석 예약을 보존하며 재호출/수리하지 않았다. 실제 최종·내용 의미·앱 인수는 남는다. 과거 여덟 묶음561개 기록과 새 원응답/SQL/dump를 보존했다. 공동DB/개발 서비스·main/운영은 그대로이며 Actions는 disabled_manually다. 다음은 생성 정체의 별도 개선이며 PR/Sites 게시 정보는 이후 기록한다.
+
 ## 최종 인계 · 근거 범위의 정확 참조 · 2026-10-27
 
 [Draft PR130](https://github.com/DigestWorks/IssueDigest/pull/130), 구현44ecdaf186b1916b0025c728c7147a3ffc1b9f51·검토b8d3cc6f0394bf8b40a51e79b97d1bf59529501e. 신규77/관련331·전체10,662개와 두 독립 코드 검토·원래 인자 재현의 별도 검토를 기록했다. 새 순수 계약만 명제3개/참조23개 구조를 수용했으며 과거v4 실패/usage와 의미·실제/앱 인수는 그대로다.

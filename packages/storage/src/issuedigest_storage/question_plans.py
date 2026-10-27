@@ -32,7 +32,11 @@ from .evidence_jobs import EvidenceJobRepository, digest, source_digest
 from .repository import EvidenceRepository, StorageCorruption
 from .research import ResearchConflict, ResearchForbidden, ResearchRepository
 
-EVIDENCE_PROFILES = ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+EVIDENCE_PROFILES = (
+    "guarded-question-evidence-v2",
+    "guarded-question-evidence-v3",
+    "guarded-question-evidence-v5",
+)
 
 
 def validate_evidence_profile(value: object) -> str:
@@ -55,6 +59,8 @@ question_source_plans = Table(
     ],
     Column("payload", JSONB, nullable=False),
     Column("evidence_profile", String, nullable=False, server_default=EVIDENCE_PROFILES[0]),
+    # Historical migrations 0011/0013 require this v2/v3 baseline.
+    # Migration 0014 alone extends the actual database CHECK to v5.
     CheckConstraint(
         "evidence_profile IN ('guarded-question-evidence-v2', 'guarded-question-evidence-v3')",
         name="question_source_plans_evidence_profile_check",

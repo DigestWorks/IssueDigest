@@ -571,3 +571,22 @@ def test_v3_invalid_original_metadata_stops_before_provider(field, value):
     got, _, requests = run((src,), (evidence,), proposal(claim(reference(src))))
     failure(got, "input", started=False, closed=False)
     assert requests == []
+
+
+def test_native_v5_preserves_original_final_wire():
+    from test_question_briefing import receipt_v5
+
+    src = source(TEXT.replace("기관은 반복한다", "반복한다"))
+    submitted = proposal(claim(reference(src)))
+    old, _, old_requests = run((src,), (receipt(src),), submitted)
+    evidence = receipt_v5(src)
+    got, _, requests = run((src,), (evidence,), submitted)
+    assert type(got) is api().QuestionBriefingGeneration
+    assert requests[0].content == old_requests[0].content
+    assert got.briefing.sources[0].receipt == evidence
+    assert (
+        api().validate_question_briefing_generation(
+            QUESTION, (src,), (evidence,), got.model_dump(mode="json")
+        )
+        == got
+    )
