@@ -690,3 +690,67 @@ def test_date_elsewhere_in_same_quote_is_not_support():
         dict(kind="timeline", title="날짜", claims=[claim(reference(src), event_date="2026-10-26")])
     )
     reject(mod.build_question_briefing, QUESTION, (src,), (receipt(src, data),), submitted)
+
+
+def receipt_v3(src, data=None):
+    guarded = importlib.import_module("issuedigest_agents.guarded_question_evidence_v3")
+    old = receipt(src, data)
+    prompt, _ = guarded._preflight(src, QUESTION)
+    return guarded.GuardedQuestionEvidenceGenerationV3(
+        profile="guarded-question-evidence-v3",
+        transport_profile=old.transport_profile,
+        input_format="question-evidence-source-v3",
+        status=old.status,
+        evidence=old.evidence,
+        prompt_sha256=sha256(prompt.encode()).hexdigest(),
+        instructions_sha256=sha256(guarded.GUARDED_QUESTION_V3_INSTRUCTIONS.encode()).hexdigest(),
+        usage=old.usage,
+    )
+
+
+def test_v3_preserves_original_receipt_and_round_trips_saved_composition():
+    mod, src, _, submitted = setup()
+    evidence = receipt_v3(src)
+    result = mod.build_question_briefing(QUESTION, (src,), (evidence,), submitted)
+    assert type(result.sources[0].receipt) is type(evidence)
+    assert result.sources[0].receipt == evidence
+    assert (
+        mod.validate_question_briefing(
+            QUESTION, (src,), (evidence,), result.model_dump(mode="json")
+        )
+        == result
+    )
+    assert result.proposal.model_dump(mode="json") == submitted
+
+
+def test_composer_rejects_mixed_receipt_versions_and_unknown_subclasses():
+    mod, first, old, submitted = setup()
+    second = source()
+    reject(
+        mod.build_question_briefing, QUESTION, (first, second), (old, receipt_v3(second)), submitted
+    )
+    parent = type(receipt_v3(first))
+
+    class Unknown(parent):
+        pass
+
+    fake = Unknown.model_construct(**receipt_v3(first).__dict__)
+    reject(mod.build_question_briefing, QUESTION, (first,), (fake,), submitted)
+
+
+def test_v3_preserves_dependency_uncertainty_and_coverage():
+    mod, src, _, _ = setup()
+    data = packet(src)
+    data["propositions"] += [
+        proposition(src, "p2", depends_on_ids=["p3"]),
+        proposition(src, "p3", epistemic_status="uncertain", subject_refs=[]),
+        proposition(src, "p4"),
+    ]
+    data["coverage"]["linked_proposition_ids"] = ["p2", "p4"]
+    evidence = receipt_v3(src, data)
+    submitted = proposal(claim(reference(src, "p2")))
+    result = mod.build_question_briefing(QUESTION, (src,), (evidence,), submitted)
+    assert result.modules[0].claims[0].epistemic_status == "uncertain"
+    assert result.coverage[0].uncovered_linked_proposition_ids == ("p4",)
+    object.__setattr__(evidence.usage, "input_tokens", True)
+    reject(mod.build_question_briefing, QUESTION, (src,), (evidence,), submitted)

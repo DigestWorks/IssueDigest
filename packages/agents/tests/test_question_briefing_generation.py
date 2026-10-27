@@ -531,3 +531,43 @@ def test_prompt_is_pure_and_no_link_probe_is_never_a_success(monkeypatch):
         name.startswith(("issuedigest_api", "issuedigest_worker", "dbos"))
         for name in set(sys.modules) - before
     )
+
+
+def test_native_v3_preserves_receipt_and_original_final_wire():
+    from test_question_briefing import receipt_v3
+
+    src = source()
+    submitted = proposal(claim(reference(src)))
+    old, _, old_requests = run((src,), (receipt(src),), submitted)
+    evidence = receipt_v3(src)
+    got, _, requests = run((src,), (evidence,), submitted)
+    assert type(got) is api().QuestionBriefingGeneration
+    assert requests[0].content == old_requests[0].content
+    assert got.briefing.sources[0].receipt == evidence
+    assert got.briefing.sources[0].receipt.profile == "guarded-question-evidence-v3"
+    assert (
+        api().validate_question_briefing_generation(
+            QUESTION, (src,), (evidence,), got.model_dump(mode="json")
+        )
+        == got
+    )
+
+
+@pytest.mark.parametrize(
+    "field,value",
+    [
+        ("prompt_sha256", "0" * 64),
+        ("instructions_sha256", "0" * 64),
+        ("input_format", "question-evidence-source-v2"),
+        ("profile", "guarded-question-evidence-v2"),
+    ],
+)
+def test_v3_invalid_original_metadata_stops_before_provider(field, value):
+    from test_question_briefing import receipt_v3
+
+    src = source()
+    evidence = receipt_v3(src)
+    object.__setattr__(evidence, field, value)
+    got, _, requests = run((src,), (evidence,), proposal(claim(reference(src))))
+    failure(got, "input", started=False, closed=False)
+    assert requests == []

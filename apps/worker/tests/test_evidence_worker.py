@@ -35,7 +35,7 @@ def restore_introduced_modules():
             setattr(package, name, value)
 
 
-def native_body():
+def native_body(profile="guarded-question-evidence-v2"):
     import json
 
     from test_guarded_responses_stream import Body, events
@@ -47,7 +47,11 @@ def native_body():
     for row in stream:
         for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
             if item is not None:
-                item["name"] = "fill_question_evidence_v2"
+                item["name"] = (
+                    "fill_question_evidence_v2"
+                    if profile.endswith("v2")
+                    else "fill_question_evidence_v3"
+                )
     return Body(stream)
 
 
@@ -59,20 +63,26 @@ async def exercise(jobs, job, *, mutate=None, body=None, ownership=None):
         if mutate:
             mutate()
         return httpx.Response(
-            200, headers={"content-type": "text/event-stream"}, stream=body or native_body()
+            200,
+            headers={"content-type": "text/event-stream"},
+            stream=body or native_body(job.profile),
         )
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
         client = AsyncOpenAI(api_key="synthetic", http_client=http, max_retries=0)
         worker = importlib.import_module("issuedigest_worker.evidence_worker")
         result = await worker.execute_evidence_job(
-            jobs, job.job_id, client=client, check_ownership=ownership or (lambda _: True)
+            jobs,
+            job.job_id,
+            client=client,
+            check_ownership=ownership or (lambda _: True),
+            expected_profile=job.profile,
         )
         assert not client.is_closed()
         return result, requests
 
 
-def submit(jobs, engine):
+def submit(jobs, engine, profile="guarded-question-evidence-v2"):
     token, workspace, snapshot = seed(engine)
     job = jobs.submit(
         token,
@@ -80,6 +90,7 @@ def submit(jobs, engine):
         uuid4(),
         snapshot,
         "합성 질문?",
+        profile=profile,
         model="gpt-6.1-sol",
         reservation_usd=Decimal(".50"),
     )
@@ -105,8 +116,11 @@ def test_committed_intent_never_reissues(jobs, engine):
     assert jobs.recover(job.job_id).status == "indeterminate"
 
 
-def test_cancel_during_call_retains_usage(jobs, engine):
-    job, token, workspace = submit(jobs, engine)
+@pytest.mark.parametrize(
+    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+)
+def test_cancel_during_call_retains_usage(jobs, engine, profile):
+    job, token, workspace = submit(jobs, engine, profile)
     result, requests = asyncio.run(
         exercise(jobs, job, mutate=lambda: jobs.cancel(token, workspace, job.job_id))
     )
@@ -400,14 +414,17 @@ def test_receipt_semantics_rechecked_even_with_recomputed_hash(jobs, engine):
         asyncio.run(exercise(jobs, job))
 
 
+@pytest.mark.parametrize(
+    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+)
 def test_actual_dbos_cached_step_rechecks_current_authority(
-    jobs, engine, database_url, monkeypatch
+    jobs, engine, database_url, monkeypatch, profile
 ):
     from dbos import DBOS, SetWorkflowID
     from issuedigest_storage.research import ResearchForbidden
 
     worker = importlib.import_module("issuedigest_worker.evidence_worker")
-    job, _, _ = submit(jobs, engine)
+    job, _, _ = submit(jobs, engine, profile)
     requests = []
     reads = 0
     original = worker.read_completed_evidence_job
@@ -425,7 +442,7 @@ def test_actual_dbos_cached_step_rechecks_current_authority(
         def serve(request):
             requests.append(request)
             return httpx.Response(
-                200, headers={"content-type": "text/event-stream"}, stream=native_body()
+                200, headers={"content-type": "text/event-stream"}, stream=native_body(profile)
             )
 
         async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
@@ -440,9 +457,12 @@ def test_actual_dbos_cached_step_rechecks_current_authority(
                 }
             )
             try:
-                workflow = worker.register_evidence_workflow(
-                    jobs, client=client, check_ownership=lambda _: True
+                register = (
+                    worker.register_evidence_workflow
+                    if profile.endswith("v2")
+                    else worker.register_evidence_workflow_v3
                 )
+                workflow = register(jobs, client=client, check_ownership=lambda _: True)
                 DBOS.launch()
                 identifier = "guarded-evidence-" + str(job.job_id)
                 with SetWorkflowID(identifier):
@@ -450,9 +470,10 @@ def test_actual_dbos_cached_step_rechecks_current_authority(
                 with pytest.raises(asyncio.CancelledError):
                     await handle.get_result()
                 steps = await DBOS.list_workflow_steps_async(identifier)
-                assert (
-                    len(steps) == 1
-                    and steps[0]["function_name"] == "issuedigest_guarded_evidence_call_v1"
+                assert len(steps) == 1 and steps[0]["function_name"] == (
+                    "issuedigest_guarded_evidence_call_v1"
+                    if profile.endswith("v2")
+                    else "issuedigest_guarded_evidence_call_v2"
                 )
                 assert steps[0]["output"] is None
                 monkeypatch.setattr(worker, "read_completed_evidence_job", original)
@@ -604,3 +625,32 @@ def test_rejection_logs_only_stage_and_handler_failure_preserves_sql(
     finally:
         if broken_handler:
             logger.removeHandler(handler)
+
+
+@pytest.mark.parametrize(
+    "job_profile,profile",
+    [
+        ("guarded-question-evidence-v2", "guarded-question-evidence-v3"),
+        ("guarded-question-evidence-v3", "guarded-question-evidence-v2"),
+        ("guarded-question-evidence-v2", "unknown"),
+    ],
+)
+def test_wrong_workflow_profile_leaves_pending_job_untouched(jobs, engine, job_profile, profile):
+    job, token, workspace = submit(jobs, engine, job_profile)
+    worker = importlib.import_module("issuedigest_worker.evidence_worker")
+
+    async def wrong_flow():
+        async with AsyncOpenAI(api_key="synthetic", max_retries=0) as client:
+            with pytest.raises(ValueError):
+                await worker.execute_evidence_job(
+                    jobs,
+                    job.job_id,
+                    client=client,
+                    check_ownership=lambda _: True,
+                    expected_profile=profile,
+                )
+
+    asyncio.run(wrong_flow())
+    current = jobs.get(token, workspace, job.job_id)
+    assert current.status == "pending"
+    assert current.prompt_sha256 is None and current.known_usage is None

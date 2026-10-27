@@ -5,10 +5,7 @@ from hashlib import sha256
 from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobInputs
 from issuedigest_storage.evidence_jobs import EvidenceJob
 
-from .guarded_question_evidence_v2 import (
-    GuardedQuestionEvidenceGenerationV2,
-    validate_guarded_question_evidence_v2,
-)
+from .question_briefing import QuestionEvidenceReceipt, validate_question_evidence_receipt
 from .question_briefing_generation import (
     BRIEFING_GENERATION_INSTRUCTIONS,
     QuestionBriefingGeneration,
@@ -21,7 +18,7 @@ _INSTRUCTIONS_HASH = sha256(BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest
 
 def validate_briefing_packet(
     packet: BriefingJobInputs,
-) -> tuple[tuple[GuardedQuestionEvidenceGenerationV2, ...], str]:
+) -> tuple[tuple[QuestionEvidenceReceipt, ...], str]:
     if (
         type(packet) is not BriefingJobInputs
         or type(packet.question) is not str
@@ -32,11 +29,14 @@ def validate_briefing_packet(
         or type(packet.inputs_sha256) is not str
     ):
         raise ValueError("Briefing inputs unavailable")
-    receipts = []
+    receipts: list[QuestionEvidenceReceipt] = []
+    profiles: set[str] = set()
     for source, child in zip(packet.sources, packet.children, strict=True):
         if (
             type(source) is not tuple
             or type(child) is not EvidenceJob
+            or type(child.profile) is not str
+            or child.profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
             or child.status != "completed"
             or child.question != packet.question
             or child.snapshot_id != source[0]
@@ -46,9 +46,14 @@ def validate_briefing_packet(
             or child.stream_closed is not True
         ):
             raise ValueError("Briefing evidence unavailable")
-        receipt = validate_guarded_question_evidence_v2(source, packet.question, child.receipt)
+        receipt = validate_question_evidence_receipt(source, packet.question, child.receipt)
+        profiles.add(receipt.profile)
         if (
-            receipt.prompt_sha256 != child.prompt_sha256
+            child.source_sha256 != receipt.evidence.source_sha256
+            or child.workspace_id != source[1].document.workspace_id
+            or receipt.profile != child.profile
+            or len(profiles) != 1
+            or receipt.prompt_sha256 != child.prompt_sha256
             or receipt.instructions_sha256 != child.instructions_sha256
             or receipt.usage.model_dump() != child.known_usage
         ):
@@ -64,6 +69,8 @@ def validate_briefing_binding(
 ) -> None:
     if (
         type(job) is not BriefingJob
+        or job.workspace_id != packet.plan.workspace_id
+        or job.plan_id != packet.plan.plan_id
         or job.question != packet.question
         or job.inputs_sha256 != packet.inputs_sha256
         or job.prompt_sha256 != prompt_hash

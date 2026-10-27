@@ -14,6 +14,7 @@ from issuedigest_agents.briefing_dispatch import (
 )
 from issuedigest_agents.evidence_dispatch import EvidenceDispatchError
 from issuedigest_agents.guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
+from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvidenceGenerationV3
 from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
 from issuedigest_agents.question_dispatch import QuestionDispatch
 from issuedigest_storage.briefing_jobs import REASONS, BriefingJob, BriefingJobRepository
@@ -122,7 +123,12 @@ async def run_question_briefing(
                 or set(vars(evidence)) != set(QuestionEvidenceRun.__dataclass_fields__)
                 or type(evidence.receipts) is not tuple
                 or any(
-                    type(r) is not GuardedQuestionEvidenceGenerationV2 for r in evidence.receipts
+                    type(r)
+                    not in (
+                        GuardedQuestionEvidenceGenerationV2,
+                        GuardedQuestionEvidenceGenerationV3,
+                    )
+                    for r in evidence.receipts
                 )
             ):
                 raise QuestionBriefingRunError
@@ -139,6 +145,8 @@ async def run_question_briefing(
                 dispatch.status != "evidence_complete"
                 or len(evidence.receipts) != dispatch.completed_count
             ):
+                raise QuestionBriefingRunError
+            if len({r.profile for r in evidence.receipts}) != 1:
                 raise QuestionBriefingRunError
             children = tuple(ack.job_id for ack in dispatch.dispatches)
             job = await submit_briefing_job(

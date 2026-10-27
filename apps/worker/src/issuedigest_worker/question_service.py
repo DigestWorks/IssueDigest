@@ -28,7 +28,7 @@ from openai import AsyncOpenAI
 from sqlalchemy import Engine
 
 from .briefing_queue import configure_briefing_queue, register_briefing_workflow
-from .evidence_worker import register_evidence_workflow
+from .evidence_worker import register_evidence_workflow, register_evidence_workflow_v3
 from .question_briefing_runner import QuestionBriefingRun, run_question_briefing
 from .research_recovery import research_worker_lock
 
@@ -40,6 +40,7 @@ class QuestionServiceConfig:
     api_key: str = field(repr=False)
     schema: str = "issuedigest_question_briefing"
     app_version: str = "question-briefing-http-v1"
+    evidence_profile: str = "guarded-question-evidence-v2"
 
     def __post_init__(self) -> None:
         if (
@@ -51,6 +52,9 @@ class QuestionServiceConfig:
             or re.fullmatch(r"[a-z][a-z0-9_]{0,62}", self.schema) is None
             or self.schema in {"dbos", "public"}
             or self.schema.startswith("pg_")
+            or type(self.evidence_profile) is not str
+            or self.evidence_profile
+            not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
             or self.app_version != "question-briefing-http-v1"
         ):
             raise QuestionSubmissionError("unavailable")
@@ -61,6 +65,9 @@ class QuestionServiceConfig:
             raise QuestionSubmissionError("unavailable")
         return cls(
             api_key=values.get("OPENAI_API_KEY", ""),
+            evidence_profile=values.get(
+                "ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE", "guarded-question-evidence-v2"
+            ),
             schema=values.get(
                 "ISSUEDIGEST_QUESTION_BRIEFING_SCHEMA", "issuedigest_question_briefing"
             ),
@@ -70,7 +77,7 @@ class QuestionServiceConfig:
 class OwnedQuestionExecutionService:
     def __init__(self, engine: Engine, config: QuestionServiceConfig):
         self.engine, self.config = engine, config
-        self._plans = QuestionPlanRepository(engine)
+        self._plans = QuestionPlanRepository(engine, evidence_profile=config.evidence_profile)
         self._evidence = EvidenceJobRepository(engine)
         self._briefings = BriefingJobRepository(engine)
         self._loop: asyncio.AbstractEventLoop | None = None
@@ -194,6 +201,7 @@ class OwnedQuestionExecutionService:
         )
         DBOS(config=runtime_config)  # type: ignore[arg-type]
         register_evidence_workflow(self._evidence, client=self._provider, check_ownership=owned)
+        register_evidence_workflow_v3(self._evidence, client=self._provider, check_ownership=owned)
         register_briefing_workflow(self._briefings, client=self._provider, check_ownership=owned)
         DBOS.launch()
         await asyncio.to_thread(configure_briefing_queue)
