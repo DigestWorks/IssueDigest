@@ -1,3 +1,11 @@
+## 최종 인계 · 생성 정체 비교 진단 · 2026-10-27
+
+[Draft PR132](https://github.com/DigestWorks/IssueDigest/pull/132), 진단2d719d3·검토9d6ecf4. 두 실패의 동일 guard 재현과 완결 응답의 구조 예, schema/입력 동일·지침/tool/format 차이를 기록했다. 진단7개와 독립 spec/품질 검토를 통과했다. 원인은 미확정이며 제품/개발 사이트와 과거 실패는 유지한다. 기존 제품/검사552파일·아홉 묶음678개 기록을 보존했고 추가 API 호출0이다.
+
+Sitesv155 public/native succeeded(2026-10-27T07:48:15.313273+00:00), sourceccfa27a8d24a97f67cc288010a06fb228c8f9659, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_74a831a52f6881919eb7b00d4fa15cee, deployment appgdep_6ae0572c324c819189d727225fbc5b60. 이전v154와 변경6문서9d6ecf4 사본을 보존했다. HTML140/로컬대상5,226/공개텍스트492의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 브라우저 검사를 생략하고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+다음은 지침만 추가하는 버전 증가 대신 모델/전송/출력 구조를 분리한 후보 선정·단일 변수 비교 설계다. 현재 증거로 특정 대체안의 효과를 단정하지 않으며 실제 생성 안정성·최종/앱 인수와 개인 개발 전환은 후속이다. DB/main/운영·Actions 설정 변경0이고 Verify foundation은 disabled_manually다.
+
 ## 구현 검토 · 생성 정체 비교 진단 · 2026-10-27
 
 [Draft PR132](https://github.com/DigestWorks/IssueDigest/pull/132), 진단2d719d3은 feat/question-scoped-runtime 기반이다. 재현7개·독립 결과 검토를 통과했으며 과거678개 기록·제품552파일을 보존했다. 추가 호출/DB/개발 서비스 변경0이다. 제공자 내부 원인은 미확정이며 실제 생성/최종·앱 인수는 남는다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
