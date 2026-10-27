@@ -1,3 +1,11 @@
+## 최종 인계 · 거부 단계 진단 · 2026-10-27
+
+[Draft PR124](https://github.com/DigestWorks/IssueDigest/pull/124)은 research/question-live-acceptance 기반이며 개인 개발 API에 검증 소스478cc09를 적용했다. 제공자 요청/지침/성공 영수증을 유지하고 오류 단계/안전 로그만 보강했다. Python9,435개(worker1,221+나머지8,214)·JS915개 및 린트·타입·빌드·OpenAPI, 태스크/최종/운영 검토의 미해결0이다. 시각 의존 테스트 실패/보완과 분할 불변 증거를 보존했다. 새3모듈 live hash·기존 설정/static·외부 HTTP/보호 경계·lease1/새 작업0을 확인했다.
+
+Sitesv147 public/native succeeded(2026-10-27T02:46:37.029497+00:00), sourcedb9ed0ce1a184fa1458c1549b9e0cdf58b50fb86, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_06028479ee3c8191add22d8b9c65aee2, deployment appgdep_6ae0107febcc8191b6bdefcc9e8007be. 이전v146과 변경8문서의ea6c352 기준 사본을 보존했고 HTML132/로컬대상4,507/공개텍스트436·비공개 값 제외를 확인했다. 사용자 탭 이동0이며 이후 상태는 저장소 원본을 따른다. PR첨부는100개 한도로 일반 링크를 사용한다.
+
+자신의 QA컨테이너/volume를 정리했고 frontend/DB구조/수집기/main은 변경하지 않았다. 추가 실제 모델 호출0이며 과거 실패 원인/의미 품질은 아직 미확인이다. 다음은 별도 신규 시도에서 진단을 관측하는 실제 인수다.
+
 ## 개인 개발 반영 · 거부 단계 진단 · 2026-10-27
 
 [실제 검증/적용](../research/evidence-rejection-diagnostics-validation.md). 소스478cc09를 분리된 locked 환경에 준비하고 개인 API만 정상 전환했다. 현재3모듈의 경로/해시 일치·전체 환경 보존·단일 lease1·새 작업0과 외부 HTTPS/비회원 경계를 확인했다. 기존 home/공개 목록과 Nginx/static config는 불변이다. frontend/DB 구조/수집기/main은 바꾸지 않았다.
