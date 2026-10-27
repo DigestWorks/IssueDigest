@@ -1,3 +1,11 @@
+## 최종 인계 · Astra 내구 분석/최종 저장 실제 인수 · 2026-10-27
+
+[Draft PR134](https://github.com/DigestWorks/IssueDigest/pull/134), base feat/question-model-comparison. 코드6c0ab03·결과 사본10440db. 전체10,936개·private 도구98개·태스크/전체/동결/실제 내용 독립 검토를 통과했다. 새 실제 분석1/최종1→ANSWER SQL 저장/전체 reader JSON·재열람·재접수 추가0, 분석/최종 필수3조건 각각3/3 제한 AI 개발판정·다른9 미평가를 기록했다. 공식 단가 추정0.14783달러를 예약2달러/청구 확정과 구분한다.
+
+Sitesv157 public/native succeeded(2026-10-27T09:40:24.754799+00:00), source 6767199441e6eb6f96d6501c2194b69fd007f9bd, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_af7662c8978c8191aa8d984c77d397b1, deployment appgdep_6ae07179f3fc81918e54e835bab21a81. 이전v156과7문서10440db 사본을 보존했다. HTML142/로컬대상5,435/공개텍스트509·추가 실제 입력9종 제외/508텍스트·7문서3사본 byte일치를 확인했다. 기존 레이아웃의 문구/기록 갱신으로 브라우저 검사는 생략하고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다.
+
+전용 QA4개·전용 볼륨 제거/포트 종료와 이전11묶음764기록 보존을 확인했다. 첫 실패 모의39파일/덤프와 새 모의/실제 SQL·원응답·사용량은 별도 불변 증거로 보존한다. PR 카드 첨부는 대화100개 한도로 실패해 일반 링크를 제공한다. 현재 개발 앱·공동DB·기본 모델·main/운영·Actions 변경0, Verify foundation disabled_manually 유지다. 다음은 공동DB 백업/복원·migration/설정·개발 앱 질문/생성/재열람의 실제 연결 인수다.
+
 ## 실제 인수 · Astra 내구 분석/최종 저장 · 2026-10-27
 
 [Draft PR134](https://github.com/DigestWorks/IssueDigest/pull/134)·[지원 계약](../changes/question-astra-runtime.md)·[인수](../changes/question-native-final-acceptance.md)·[검증](../research/question-native-final-validation.md). Sol 전용 저장/실행/최종 SDK에 Astra/v5·최종v1·동일 모델/각 예약>=1 결합과 migration0015를 구현했다. 기존 Sol bytes·예약·identity·재생/기본 설정은 보존한다. 코드6c0ab03에서 전체10,936개·정적/타입/빌드/OpenAPI·태스크별/전체 독립 검토를 통과했다.
