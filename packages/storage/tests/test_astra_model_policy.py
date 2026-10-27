@@ -472,7 +472,7 @@ def test_database_itself_rejects_underfunded_astra(engine, table, value):
 
 
 @pytest.mark.parametrize("table", TABLES)
-def test_underfunded_astra_corruption_rejected_by_dto_prepare_and_finish(engine, table):
+def test_underfunded_astra_corruption_rejected_by_dto_and_current(engine, table):
     if table == "evidence_jobs":
         jobs, job, _ = evidence(engine)
     else:
@@ -575,3 +575,87 @@ def test_pending_final_current_read_binds_child_model(engine):
         )
     with pytest.raises(StorageCorruption):
         jobs.prepare(job.job_id)
+
+
+@pytest.mark.parametrize("operation", ["submit", "completed_finish"])
+@pytest.mark.parametrize("changed", ["model", "reservation", "both"])
+def test_evidence_replay_revalidates_persisted_model_and_reservation_identity(
+    engine, operation, changed
+):
+    jobs, job, p = evidence(engine)
+    if operation == "completed_finish":
+        assert jobs.claim(job.job_id, prompt_sha256="a" * 64, instructions_sha256="b" * 64)
+        usage = dict(input_tokens=10, output_tokens=5, requests=1)
+        receipt = dict(
+            profile=V5,
+            status="unreviewed",
+            transport_profile="guarded-responses-tool-v1",
+            input_format="question-evidence-source-v5",
+            prompt_sha256="a" * 64,
+            instructions_sha256="b" * 64,
+            usage=usage,
+            evidence=dict(
+                source_sha256=job.source_sha256,
+                question_sha256=sha256("앞".encode()).hexdigest(),
+            ),
+        )
+        jobs.finish(
+            job.job_id,
+            receipt=receipt,
+            known_usage=usage,
+            usage_complete=True,
+            stream_closed=True,
+        )
+    with engine.begin() as conn:
+        row = conn.execute(text("SELECT * FROM evidence_jobs")).mappings().one()
+        original_hash = row["input_sha256"]
+        request_id = row["request_id"]
+        model = SOL if changed in ("model", "both") else ASTRA
+        amount = Decimal(".25") if changed == "both" else Decimal("2.00")
+        if changed == "model":
+            amount = Decimal("1.00")
+        conn.execute(
+            text("UPDATE evidence_jobs SET model=:model,reservation_usd=:amount"),
+            dict(model=model, amount=amount),
+        )
+    with engine.connect() as conn:
+        before_job = conn.execute(text("SELECT * FROM evidence_jobs")).all()
+        before_budget = conn.execute(text("SELECT * FROM research_budget_months")).all()
+        before_sessions = conn.execute(text("SELECT * FROM auth_sessions")).all()
+        assert conn.scalar(text("SELECT input_sha256 FROM evidence_jobs")) == original_hash
+    writes = []
+
+    def observe(conn, cursor, statement, parameters, context, executemany):
+        if statement.lstrip().upper().startswith(("INSERT", "UPDATE", "DELETE")):
+            writes.append(statement)
+
+    event.listen(engine, "before_cursor_execute", observe)
+    try:
+        with pytest.raises((StorageCorruption, ResearchConflict)):
+            if operation == "submit":
+                jobs.submit(
+                    p[0],
+                    p[1],
+                    request_id,
+                    p[2],
+                    "앞",
+                    model=ASTRA,
+                    profile=V5,
+                    reservation_usd=Decimal("1.00"),
+                )
+            else:
+                jobs.finish(
+                    job.job_id,
+                    known_usage=dict(input_tokens=100, output_tokens=50, requests=1),
+                    usage_complete=True,
+                    stream_closed=True,
+                )
+    finally:
+        event.remove(engine, "before_cursor_execute", observe)
+    # Authentication's existing transactional last-activity touch is rolled back;
+    # the rejected replay must never attempt a job/budget/usage mutation.
+    assert all(statement.startswith("UPDATE auth_sessions ") for statement in writes)
+    with engine.connect() as conn:
+        assert conn.execute(text("SELECT * FROM evidence_jobs")).all() == before_job
+        assert conn.execute(text("SELECT * FROM research_budget_months")).all() == before_budget
+        assert conn.execute(text("SELECT * FROM auth_sessions")).all() == before_sessions

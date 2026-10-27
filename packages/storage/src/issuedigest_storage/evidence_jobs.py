@@ -276,6 +276,7 @@ class EvidenceJobRepository:
             if prior is not None:
                 if prior["input_sha256"] != identity or prior["profile"] != profile:
                     raise ResearchConflict("Evidence request changed")
+                self._current(conn, prior)
                 return self._dto(prior)
             if conn.scalar(
                 select(briefing_jobs.c.job_id).where(
@@ -456,6 +457,7 @@ class EvidenceJobRepository:
             row = self._row(conn, job_id)
             self._dto(row)
             if row["status"] == "completed":
+                self._current(conn, row)
                 return self._dto(row)
             previous = row["known_usage"]
             usage = known_usage
