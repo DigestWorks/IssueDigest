@@ -1,3 +1,11 @@
+## 최종 인계 · 정확 텍스트 생성 SDK v3 · 2026-10-27
+
+[Draft PR127](https://github.com/DigestWorks/IssueDigest/pull/127)은 feat/question-text-references 기반이다. 새 v3 SDK·신규60/관련528개와 두 독립 코드 검토, 전체10,466개(Python9,551+JS915)·정적/타입/빌드/OpenAPI를 확인했다. 지침 보완 전 중단한 agents 검사는 세지 않았고 나머지 기존539파일/최종 agents 소스 불변 증거를 보존했다. 실제1요청에서 SDK 수용·입력2,395/출력1,287·별도 AI 개발판정의 필수3명제 관계 보존3/3을 확인했다. 다른9개/전체12개와 최종 생성·저장·앱은 미평가다.
+
+Sitesv150 public/native succeeded(2026-10-27T04:01:32.585951+00:00), sourcea54634e147c38630e14c4e958ee29f9023ed7cd7, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_956ebb0d3184819183a6b9493b61ab60, deployment appgdep_6ae0220a771081918fe8be3bebb4b977. 이전v149와 변경5문서8f713fbc95e8bca4aaac7e6c6bd92ec1d91b6725 사본을 보존했다. HTML135/로컬대상4,756/공개텍스트456·비공개 값 제외를 확인했다. 문구 변경만 해 새 브라우저 검사는 생략했고 사용자 탭 이동0이다. 이후 상태는 저장소 원본을 따른다.
+
+자신의 QA3/익명volume를 정리했다. 이전 실패/실제 소비·사전 기준·원응답/영수증은 비공개 보존한다. 공동DB·개발 실행기·사용자 세션·main/운영 배포는 바꾸지 않았고 Verify foundation Actions는 disabled_manually다. PR첨부는100개 제한으로 일반 링크를 사용한다. 다음은 새 내구 버전·질문 실행 경로 연결과 실제 최종 브리핑/앱 인수다.
+
 ## 검증 완료 · 정확 텍스트 생성 SDK v3 · 2026-10-27
 
 [계약](../changes/question-text-generation.md)·[검증](../research/question-text-generation-validation.md). 새 도구/지침·버전 영수증으로 정확 텍스트 참조 코어를 native SDK에 연결했다. 신규60/관련528개·두 독립 코드 검토를 통과했다. 고정 입력의 사전 한도 초과는 무송신으로 보존하고 중복 설명만 줄여 원문/질문/한도를 유지했다.
