@@ -1,3 +1,5 @@
+최신 인수: [Astra 내구 분석·최종 저장 검증](research/question-native-final-validation.md)·[지원 계약](changes/question-astra-runtime.md)·[전체 인수](changes/question-native-final-acceptance.md). 저장·실행·SDK 지원과 전체10,936개 검사를 통과했고 실제 분석1/최종1→SQL 저장·재열람·재접수 추가0을 확인했습니다. 분석/최종 필수3조건3/3은 제한된 AI 개발판정이고 다른9는 미평가입니다. 현재 앱은 그대로입니다.
+
 최신 실제 비교: [근거 생성 모델](research/question-model-comparison.md)·[계약](changes/question-model-comparison.md). 기존 요청에서 model만 Astra로 바꾼 분석1회가 완료·SDK 수용을 통과했습니다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가입니다. 실제 최종 생성/SQL·앱 인수와 운영 모델 채택은 남습니다.
 
 최신 진단: [생성 정체 비교](research/question-format-diagnostics.md)·[범위](changes/question-format-diagnostics.md). 같은 출력 schema의 허용된 값 뒤 두 응답이 공백 반복으로 중단됐고 과거 완결 예도 있었습니다. 제공자 내부 원인은 미확정이며 추가 호출 없이 다음 비교 설계의 범위를 좁혔습니다. 제품/개발 사이트는 변경하지 않았습니다.

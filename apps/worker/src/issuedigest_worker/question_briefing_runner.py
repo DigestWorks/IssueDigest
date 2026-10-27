@@ -18,6 +18,11 @@ from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvide
 from issuedigest_agents.guarded_question_evidence_v5 import GuardedQuestionEvidenceGenerationV5
 from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
 from issuedigest_agents.question_dispatch import QuestionDispatch
+from issuedigest_domain.question_model_policy import (
+    briefing_model_allowed,
+    evidence_model_allowed,
+    reservation_allowed,
+)
 from issuedigest_storage.briefing_jobs import REASONS, BriefingJob, BriefingJobRepository
 from issuedigest_storage.evidence_jobs import EvidenceJobRepository
 from issuedigest_storage.question_plans import QuestionPlanRepository
@@ -46,16 +51,6 @@ class QuestionBriefingRunError(Exception):
 
 def _uuid(value: object) -> bool:
     return type(value) is UUID and value.version == 4
-
-
-def _money(value: Decimal) -> bool:
-    if type(value) is not Decimal or not value.is_finite() or not 0 < value <= 10:
-        return False
-    parts = value.as_tuple()
-    exponent = parts.exponent
-    if not isinstance(exponent, int):
-        return False
-    return exponent >= -2 or not any(parts.digits[max(0, len(parts.digits) + exponent + 2) :])
 
 
 async def run_question_briefing(
@@ -96,10 +91,9 @@ async def run_question_briefing(
         or type(question) is not str
         or not 1 <= len(question) <= 1500
         or not question.strip()
-        or type(model) is not str
-        or model != "gpt-6.1-sol"
-        or not _money(evidence_reservation_usd)
-        or not _money(briefing_reservation_usd)
+        or not briefing_model_allowed(model)
+        or not reservation_allowed(model, evidence_reservation_usd)
+        or not reservation_allowed(model, briefing_reservation_usd)
     ):
         raise ValueError("Invalid question briefing run inputs")
     async with asyncio.timeout(total_timeout_seconds):
@@ -148,7 +142,9 @@ async def run_question_briefing(
                 or len(evidence.receipts) != dispatch.completed_count
             ):
                 raise QuestionBriefingRunError
-            if len({r.profile for r in evidence.receipts}) != 1:
+            if len({r.profile for r in evidence.receipts}) != 1 or any(
+                not evidence_model_allowed(model, receipt.profile) for receipt in evidence.receipts
+            ):
                 raise QuestionBriefingRunError
             children = tuple(ack.job_id for ack in dispatch.dispatches)
             job = await submit_briefing_job(
@@ -175,7 +171,7 @@ async def run_question_briefing(
                 not in ("pending", "running", "completed", "failed", "cancelled", "indeterminate")
                 or type(job.profile) is not str
                 or job.profile != "question-briefing-generation-v1"
-                or not _money(job.reservation_usd)
+                or not reservation_allowed(job.model, job.reservation_usd)
                 or type(job.usage_complete) is not bool
                 or type(job.stream_closed) is not bool
                 or any(

@@ -259,16 +259,26 @@ def test_migration_only_owned_table(jobs, engine, database_url):
         "0012_briefing_jobs"
     )
     with engine.begin() as conn:
-        before = set(inspect(conn).get_table_names())
-        stamp = conn.execute(text("SELECT version_num FROM alembic_version")).all()
-        with Operations.context(MigrationContext.configure(conn)):
-            rev.module.downgrade()
-            try:
-                assert set(inspect(conn).get_table_names()) == before - {"briefing_jobs"}
-                assert conn.execute(text("SELECT version_num FROM alembic_version")).all() == stamp
-            finally:
-                rev.module.upgrade()
-        assert set(inspect(conn).get_table_names()) == before
+        checkpoint = conn.begin_nested()
+        try:
+            before = set(inspect(conn).get_table_names())
+            stamp = conn.execute(text("SELECT version_num FROM alembic_version")).all()
+            with Operations.context(MigrationContext.configure(conn)):
+                rev.module.downgrade()
+                try:
+                    assert set(inspect(conn).get_table_names()) == before - {"briefing_jobs"}
+                    assert (
+                        conn.execute(text("SELECT version_num FROM alembic_version")).all() == stamp
+                    )
+                finally:
+                    rev.module.upgrade()
+            assert set(inspect(conn).get_table_names()) == before
+        finally:
+            checkpoint.rollback()
+        assert any(
+            "gpt-6-astra" in check["sqltext"]
+            for check in inspect(conn).get_check_constraints("briefing_jobs")
+        )
 
 
 @pytest.mark.parametrize(

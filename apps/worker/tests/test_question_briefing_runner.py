@@ -387,14 +387,18 @@ def admitted(engine):
 
 
 @pytest.mark.parametrize(
-    "profile",
+    "profile,model,partial",
     [
-        "guarded-question-evidence-v2",
-        "guarded-question-evidence-v3",
-        "guarded-question-evidence-v5",
+        ("guarded-question-evidence-v2", "gpt-6.1-sol", False),
+        ("guarded-question-evidence-v3", "gpt-6.1-sol", False),
+        ("guarded-question-evidence-v5", "gpt-6.1-sol", False),
+        ("guarded-question-evidence-v5", "gpt-6-astra", False),
+        ("guarded-question-evidence-v5", "gpt-6-astra", True),
     ],
 )
-def test_native_composition_replay_receipt_offloop(admitted, engine, database_url, profile):
+def test_native_composition_replay_receipt_offloop(
+    admitted, engine, database_url, profile, model, partial, monkeypatch
+):
     import json
     import threading
 
@@ -417,6 +421,11 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
     from test_question_briefing_generation import rows
 
     repos, args, src = admitted
+    args = args | dict(model=model)
+    if model == "gpt-6-astra":
+        args |= dict(
+            evidence_reservation_usd=Decimal("1.00"), briefing_reservation_usd=Decimal("1.00")
+        )
     repos = (QuestionPlanRepository(engine, evidence_profile=profile), *repos[1:])
     schema, requests, threads = "qbr_" + uuid4().hex, [], []
 
@@ -511,6 +520,26 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                     check_ownership=lambda _: True,
                 )
                 event.listen(engine, "before_cursor_execute", sql)
+                if partial:
+
+                    async def stop_final(*args, **kwargs):
+                        raise asyncio.CancelledError()
+
+                    with monkeypatch.context() as patch:
+                        patch.setattr(api(), "submit_briefing_job", stop_final)
+                        with pytest.raises(asyncio.CancelledError):
+                            await api().run_question_briefing(
+                                *repos, **(args | dict(client=client))
+                            )
+                    assert len(requests) == 1
+                    before_partial = await asyncio.to_thread(counts)
+                    from issuedigest_storage.research import ResearchConflict
+
+                    with pytest.raises(ResearchConflict):
+                        await api().run_question_briefing(
+                            *repos, **(args | dict(client=client, model="gpt-6.1-sol"))
+                        )
+                    assert len(requests) == 1 and await asyncio.to_thread(counts) == before_partial
                 a, b = await asyncio.gather(
                     *(
                         asyncio.create_task(
@@ -528,13 +557,33 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                 receipt = await read_completed_briefing_job(
                     repos[2], a.briefing.job_id, check_ownership=lambda _: True
                 )
-                assert receipt.status == "unreviewed"
+                assert receipt.status == "unreviewed" and receipt.model == model
                 assert receipt.briefing.proposal.outcome == "answer"
+                with engine.connect() as conn:
+                    from issuedigest_storage.evidence_jobs import digest
+
+                    final_row = (
+                        conn.execute(text("SELECT model,receipt,receipt_sha256 FROM briefing_jobs"))
+                        .mappings()
+                        .one()
+                    )
+                    assert final_row["model"] == model
+                    assert final_row["receipt"] == receipt.model_dump(mode="json")
+                    assert digest(final_row["receipt"]) == final_row["receipt_sha256"]
                 child = a.evidence.dispatches[0].job_id
                 evidence = await asyncio.to_thread(
                     read_completed_evidence_job, repos[1], child, check_ownership=lambda _: True
                 )
                 assert evidence.profile == profile
+                with engine.connect() as conn:
+                    child_row = (
+                        conn.execute(text("SELECT model,receipt,receipt_sha256 FROM evidence_jobs"))
+                        .mappings()
+                        .one()
+                    )
+                    assert child_row["model"] == model
+                    assert child_row["receipt"] == evidence.model_dump(mode="json")
+                    assert digest(child_row["receipt"]) == child_row["receipt_sha256"]
                 assert receipt.briefing.sources[0].receipt == evidence
                 saved_plan = await asyncio.to_thread(
                     repos[0].get_evidence_profile,
@@ -544,6 +593,7 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                 )
                 assert saved_plan == profile
                 assert len(requests) == 2
+                assert all(json.loads(r.content)["model"] == model for r in requests)
                 assert threads and not any(name == "qbr-caller" for _, name in threads)
                 before = await asyncio.to_thread(counts)
                 assert (
@@ -879,3 +929,22 @@ def test_actual_final_sql_admission_survives_cancel_without_continuation(
             event.remove(engine, "before_cursor_execute", gated_insert)
 
     asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("field", ["evidence_reservation_usd", "briefing_reservation_usd"])
+@pytest.mark.parametrize("amount", [Decimal(".99"), Decimal(".001"), True])
+def test_astra_underfunded_controls_precede_native_helpers(monkeypatch, field, amount):
+    runner = api()
+
+    async def forbidden(*args, **kwargs):
+        pytest.fail("Invalid Astra reservation reached admission")
+
+    monkeypatch.setattr(runner, "run_question_plan", forbidden)
+    options = inputs() | dict(
+        model="gpt-6-astra",
+        evidence_reservation_usd=Decimal("1.00"),
+        briefing_reservation_usd=Decimal("1.00"),
+    )
+    options[field] = amount
+    with pytest.raises(ValueError):
+        asyncio.run(runner.run_question_briefing(*repositories(), **options))

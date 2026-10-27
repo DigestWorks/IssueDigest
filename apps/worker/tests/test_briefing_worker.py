@@ -558,3 +558,51 @@ def test_ownership_loss_during_post_sdk_prepare_rejects_receipt(jobs, engine, mo
     assert saved.status == "failed" and saved.receipt is None
     assert saved.known_usage == dict(input_tokens=10, output_tokens=5, requests=1)
     assert saved.usage_complete is True and saved.stream_closed is True
+
+
+@pytest.mark.parametrize(
+    "model,reservation", [("gpt-6-astra", Decimal(".99")), ("other", Decimal("1.00"))]
+)
+def test_expanded_model_controls_reject_before_inputs_or_reservation(
+    jobs, monkeypatch, model, reservation
+):
+    def forbidden(*args, **kwargs):
+        pytest.fail("Invalid final model/reservation reached repository")
+
+    monkeypatch.setattr(jobs, "inputs", forbidden)
+    monkeypatch.setattr(jobs, "submit", forbidden)
+    with pytest.raises(ValueError):
+        asyncio.run(
+            api().submit_briefing_job(
+                jobs,
+                "synthetic",
+                uuid4(),
+                uuid4(),
+                uuid4(),
+                (uuid4(),),
+                model=model,
+                reservation_usd=reservation,
+            )
+        )
+
+
+def test_final_requested_model_must_match_valid_child_before_reservation(jobs, engine, monkeypatch):
+    p = seed(engine)
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Mismatched final model reached reservation")
+
+    monkeypatch.setattr(jobs, "submit", forbidden)
+    with pytest.raises(ValueError):
+        asyncio.run(
+            api().submit_briefing_job(
+                jobs,
+                p[0],
+                p[1],
+                uuid4(),
+                p[2],
+                p[3],
+                model="gpt-6-astra",
+                reservation_usd=Decimal("1.00"),
+            )
+        )
