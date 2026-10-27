@@ -387,7 +387,12 @@ def admitted(engine):
 
 
 @pytest.mark.parametrize(
-    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+    "profile",
+    [
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ],
 )
 def test_native_composition_replay_receipt_offloop(admitted, engine, database_url, profile):
     import json
@@ -402,6 +407,7 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
         read_completed_evidence_job,
         register_evidence_workflow,
         register_evidence_workflow_v3,
+        register_evidence_workflow_v5,
     )
     from openai import AsyncOpenAI
     from sqlalchemy import event, text
@@ -436,15 +442,13 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
     def serve(request):
         requests.append(request)
         data = json.loads(request.content)
-        tool_name = (
-            "fill_question_evidence_v2" if profile.endswith("v2") else "fill_question_evidence_v3"
-        )
+        tool_name = "fill_question_evidence_" + profile.rsplit("-", 1)[1]
         if tool_name in str(data["tools"]):
             from test_question_evidence_propositions import packet
             from test_question_text_references import text_only
 
             data = packet(src)
-            if profile.endswith("v3"):
+            if not profile.endswith("v2"):
                 data = text_only(data)
 
                 def unique_refs(value):
@@ -494,6 +498,9 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                     repos[1], client=provider, check_ownership=lambda _: True
                 )
                 register_evidence_workflow_v3(
+                    repos[1], client=provider, check_ownership=lambda _: True
+                )
+                register_evidence_workflow_v5(
                     repos[1], client=provider, check_ownership=lambda _: True
                 )
                 DBOS.launch()

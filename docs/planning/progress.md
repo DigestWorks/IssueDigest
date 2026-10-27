@@ -1,3 +1,21 @@
+## 최종 인계 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
+
+[Draft PR131](https://github.com/DigestWorks/IssueDigest/pull/131), 구현a40101c·검증2b40997. 전체10,791개·독립 코드/실제 실패 검토를 보존했다. 모의 저장/재열람·재접수 추가0을 통과했으나 실제 분석1회는 whitespace 실패/최종0으로 실제 의미/최종·앱 인수와 개인 개발 적용은 남는다.
+
+Sitesv154 public/native succeeded(2026-10-27T07:20:49.010113+00:00), source235a7d6dc15eb57189cc4ca8d42c97cccbf104c7, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_335a0f5879f08191a64efdebd4114a5e, deployment appgdep_6ae050c209488191aed8115cf5bed885. 이전v153과 변경6문서2b40997 사본을 보존했다. HTML139/로컬대상5,126/공개텍스트485의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 브라우저 검사를 생략하고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다.
+
+기준548개 중528개와 과거 여덟 묶음561개 기록을 보존했다. 자신의 QA4/volume를 정리했고 원응답/닫힘·최종 usage 미관측/예약·SQL/journal·실제/모의 dump를 보존했다. 공동DB/개발 서비스·사용자 세션·main/운영은 바꾸지 않았다. Verify foundation은 disabled_manually다. 다음은 관측된 생성 정체의 오프라인 진단과 별도 보완이며 실제 재호출/응답 수리는 하지 않았다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+## 구현 검토 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
+
+[Draft PR131](https://github.com/DigestWorks/IssueDigest/pull/131), 구현a40101c은 feat/question-scoped-text-references 기반이다. 전체10,791개·독립 코드 검토·모의 전체 경로를 통과했으며 실제 분석1회 whitespace 실패/최종0을 별도 검토했다. 실제 의미/최종·앱 인수와 개인 개발 적용은 남는다. QA4/volume를 정리했고 과거561개 기록을 보존했다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
+
+## 검증 결과 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
+
+[계약](../changes/question-scoped-runtime.md)·[검증](../research/question-scoped-runtime-validation.md). 새v5 SDK·migration0014·버전별 내구 큐/최종 조합·SQL 저장 읽기를 연결했다. 전체10,791개와 정적/타입/빌드/OpenAPI·태스크별/전체 독립 검토를 통과했다. 모의는 ANSWER 저장/재열람 일치·재접수 추가0이다.
+
+실제 분석1회는 연속 공백 한도로 실패했고 최종 생성0이다. 완료/최종 usage 미관측·분석 예약을 보존하며 재호출/수리하지 않았다. 실제 최종·내용 의미·앱 인수는 남는다. 과거 여덟 묶음561개 기록과 새 원응답/SQL/dump를 보존했다. 공동DB/개발 서비스·main/운영은 그대로이며 Actions는 disabled_manually다. 다음은 생성 정체의 별도 개선이며 PR/Sites 게시 정보는 이후 기록한다.
+
 ## 최종 인계 · 근거 범위의 정확 참조 · 2026-10-27
 
 [Draft PR130](https://github.com/DigestWorks/IssueDigest/pull/130), 구현44ecdaf186b1916b0025c728c7147a3ffc1b9f51·검토b8d3cc6f0394bf8b40a51e79b97d1bf59529501e. 신규77/관련331·전체10,662개와 두 독립 코드 검토·원래 인자 재현의 별도 검토를 기록했다. 새 순수 계약만 명제3개/참조23개 구조를 수용했으며 과거v4 실패/usage와 의미·실제/앱 인수는 그대로다.

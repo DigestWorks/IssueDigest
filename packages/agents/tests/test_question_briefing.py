@@ -754,3 +754,40 @@ def test_v3_preserves_dependency_uncertainty_and_coverage():
     assert result.coverage[0].uncovered_linked_proposition_ids == ("p4",)
     object.__setattr__(evidence.usage, "input_tokens", True)
     reject(mod.build_question_briefing, QUESTION, (src,), (evidence,), submitted)
+
+
+def receipt_v5(src, data=None):
+    guarded = importlib.import_module("issuedigest_agents.guarded_question_evidence_v5")
+    scoped = importlib.import_module("issuedigest_agents.question_scoped_text_references")
+    from test_question_text_references import text_only
+
+    prompt, _ = guarded._preflight(src, QUESTION)
+    result = guarded.GuardedQuestionEvidenceGenerationV5(
+        profile="guarded-question-evidence-v5",
+        transport_profile="guarded-responses-tool-v1",
+        input_format="question-evidence-source-v5",
+        status="unreviewed",
+        evidence=scoped.build_question_scoped_text_evidence(
+            src, QUESTION, text_only(data or packet(src))
+        ),
+        prompt_sha256=sha256(prompt.encode()).hexdigest(),
+        instructions_sha256=sha256(guarded.GUARDED_QUESTION_V5_INSTRUCTIONS.encode()).hexdigest(),
+        usage=guarded.KnownUsage(input_tokens=10, output_tokens=5, requests=1),
+    )
+    return guarded.validate_guarded_question_evidence_v5(src, QUESTION, result)
+
+
+def test_v5_original_validator_composition_and_homogeneous_boundary():
+    src = source(TEXT.replace("기관은 반복한다", "반복한다"))
+    rec = receipt_v5(src)
+    submitted = proposal(claim(reference(src)))
+    result = api().build_question_briefing(QUESTION, (src,), (rec,), submitted)
+    assert result.sources[0].receipt == rec
+    assert (
+        api().validate_question_briefing(QUESTION, (src,), (rec,), result.model_dump(mode="json"))
+        == result
+    )
+    other = source()
+    reject(
+        api().build_question_briefing, QUESTION, (src, other), (rec, receipt_v3(other)), submitted
+    )

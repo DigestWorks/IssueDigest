@@ -124,6 +124,7 @@ def test_startup_failure_releases_only_owned_state(monkeypatch, failure):
     monkeypatch.setattr(api, "DBOS", Runtime)
     monkeypatch.setattr(api, "register_evidence_workflow", phase("register"))
     monkeypatch.setattr(api, "register_evidence_workflow_v3", phase("register-v3"))
+    monkeypatch.setattr(api, "register_evidence_workflow_v5", phase("register-v5"))
     monkeypatch.setattr(api, "register_briefing_workflow", phase("register-final"))
     monkeypatch.setattr(api, "configure_briefing_queue", phase("queue"))
     monkeypatch.setattr(
@@ -303,7 +304,11 @@ def test_evidence_profile_configuration_is_private_and_strict():
     assert api.QuestionServiceConfig.from_environment(env).evidence_profile == (
         "guarded-question-evidence-v2"
     )
-    for profile in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+    for profile in (
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ):
         config = api.QuestionServiceConfig.from_environment(
             env | {"ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile}
         )

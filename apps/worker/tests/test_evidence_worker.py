@@ -47,11 +47,7 @@ def native_body(profile="guarded-question-evidence-v2"):
     for row in stream:
         for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
             if item is not None:
-                item["name"] = (
-                    "fill_question_evidence_v2"
-                    if profile.endswith("v2")
-                    else "fill_question_evidence_v3"
-                )
+                item["name"] = "fill_question_evidence_" + profile.rsplit("-", 1)[1]
     return Body(stream)
 
 
@@ -117,7 +113,12 @@ def test_committed_intent_never_reissues(jobs, engine):
 
 
 @pytest.mark.parametrize(
-    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+    "profile",
+    [
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ],
 )
 def test_cancel_during_call_retains_usage(jobs, engine, profile):
     job, token, workspace = submit(jobs, engine, profile)
@@ -415,7 +416,12 @@ def test_receipt_semantics_rechecked_even_with_recomputed_hash(jobs, engine):
 
 
 @pytest.mark.parametrize(
-    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+    "profile",
+    [
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+        "guarded-question-evidence-v5",
+    ],
 )
 def test_actual_dbos_cached_step_rechecks_current_authority(
     jobs, engine, database_url, monkeypatch, profile
@@ -460,7 +466,11 @@ def test_actual_dbos_cached_step_rechecks_current_authority(
                 register = (
                     worker.register_evidence_workflow
                     if profile.endswith("v2")
-                    else worker.register_evidence_workflow_v3
+                    else (
+                        worker.register_evidence_workflow_v3
+                        if profile.endswith("v3")
+                        else worker.register_evidence_workflow_v5
+                    )
                 )
                 workflow = register(jobs, client=client, check_ownership=lambda _: True)
                 DBOS.launch()
@@ -473,7 +483,11 @@ def test_actual_dbos_cached_step_rechecks_current_authority(
                 assert len(steps) == 1 and steps[0]["function_name"] == (
                     "issuedigest_guarded_evidence_call_v1"
                     if profile.endswith("v2")
-                    else "issuedigest_guarded_evidence_call_v2"
+                    else (
+                        "issuedigest_guarded_evidence_call_v2"
+                        if profile.endswith("v3")
+                        else "issuedigest_guarded_evidence_call_v3"
+                    )
                 )
                 assert steps[0]["output"] is None
                 monkeypatch.setattr(worker, "read_completed_evidence_job", original)
@@ -654,3 +668,36 @@ def test_wrong_workflow_profile_leaves_pending_job_untouched(jobs, engine, job_p
     current = jobs.get(token, workspace, job.job_id)
     assert current.status == "pending"
     assert current.prompt_sha256 is None and current.known_usage is None
+
+
+@pytest.mark.parametrize("stored", ["v2", "v3", "v5"])
+@pytest.mark.parametrize("expected", ["v2", "v3", "v4", "v5", "unknown"])
+def test_wrong_workflow_profile_precedes_claim_finish_and_provider(stored, expected):
+    from types import SimpleNamespace
+
+    if stored == expected:
+        return
+    worker = importlib.import_module("issuedigest_worker.evidence_worker")
+    calls = []
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("Wrong-profile workflow reached a state mutation or provider")
+
+    job_id = uuid4()
+    repository = SimpleNamespace(
+        prepare=lambda _: (SimpleNamespace(profile="guarded-question-evidence-" + stored), None),
+        claim=forbidden,
+        finish=forbidden,
+        recover=forbidden,
+    )
+    with pytest.raises(ValueError, match="profile mismatch"):
+        asyncio.run(
+            worker.execute_evidence_job(
+                repository,
+                job_id,
+                client=SimpleNamespace(responses=SimpleNamespace(create=forbidden)),
+                check_ownership=lambda identifier: calls.append(identifier) is None,
+                expected_profile="guarded-question-evidence-" + expected,
+            )
+        )
+    assert calls == [job_id]

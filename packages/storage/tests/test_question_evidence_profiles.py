@@ -26,6 +26,31 @@ def clean_profile_rows(engine):
         conn.execute(text("TRUNCATE question_source_plans, evidence_jobs, briefing_jobs"))
 
 
+@pytest.fixture
+def revision_0013(engine, database_url):
+    """Historic 0013 contracts target their revision, independently of moving head."""
+    from alembic.migration import MigrationContext
+    from alembic.operations import Operations
+    from alembic.script import ScriptDirectory
+
+    from conftest import migration_config
+
+    current = (
+        ScriptDirectory.from_config(migration_config(database_url))
+        .get_revision("0014_question_scoped_profile")
+        .module
+    )
+    with engine.begin() as conn:
+        with Operations.context(MigrationContext.configure(conn)):
+            current.downgrade()
+    try:
+        yield
+    finally:
+        with engine.begin() as conn:
+            with Operations.context(MigrationContext.configure(conn)):
+                current.upgrade()
+
+
 def test_plan_profile_frozen_and_private(engine):
     token, workspace, _ = seed(engine)
     request = uuid4()
@@ -144,7 +169,7 @@ def test_v3_finish_exact_labels(engine, wrong):
         )
 
 
-def test_migration_preserves_v2_refuses_v3_and_reupgrades(engine, database_url):
+def test_migration_preserves_v2_refuses_v3_and_reupgrades(engine, database_url, revision_0013):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
     from alembic.script import ScriptDirectory
@@ -181,7 +206,7 @@ def test_migration_preserves_v2_refuses_v3_and_reupgrades(engine, database_url):
 )
 @pytest.mark.parametrize("replace_known", [False, True])
 def test_migration_refuses_unrecognized_profile_constraint(
-    engine, database_url, expression, replace_known
+    engine, database_url, expression, replace_known, revision_0013
 ):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations
@@ -253,7 +278,7 @@ def test_briefing_rejects_mixed_children(engine):
 @pytest.mark.parametrize("operation", ["upgrade", "downgrade"])
 @pytest.mark.parametrize("change", ["unknown", "ambiguous", "nullable", "default"])
 def test_migration_plan_schema_rejection_is_non_destructive(
-    engine, database_url, operation, change
+    engine, database_url, operation, change, revision_0013
 ):
     from alembic.migration import MigrationContext
     from alembic.operations import Operations

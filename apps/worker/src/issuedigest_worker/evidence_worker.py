@@ -20,6 +20,11 @@ from issuedigest_agents.guarded_question_evidence_v3 import (
 from issuedigest_agents.guarded_question_evidence_v3 import (
     _preflight as _preflight_v3,
 )
+from issuedigest_agents.guarded_question_evidence_v5 import (
+    GUARDED_QUESTION_V5_INSTRUCTIONS,
+    run_guarded_question_evidence_v5,
+)
+from issuedigest_agents.guarded_question_evidence_v5 import _preflight as _preflight_v5
 from issuedigest_agents.guarded_responses_stream import (
     DIAGNOSTIC_STAGES,
     GuardedResponsesCancelled,
@@ -77,7 +82,12 @@ async def execute_evidence_job(
     job, source = repository.prepare(job_id)
     if (
         type(expected_profile) is not str
-        or expected_profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+        or expected_profile
+        not in (
+            "guarded-question-evidence-v2",
+            "guarded-question-evidence-v3",
+            "guarded-question-evidence-v5",
+        )
         or job.profile != expected_profile
     ):
         raise ValueError("Evidence workflow profile mismatch")
@@ -90,12 +100,20 @@ async def execute_evidence_job(
         prompt, _ = (
             _preflight(source, job.question)
             if expected_profile == "guarded-question-evidence-v2"
-            else _preflight_v3(source, job.question)
+            else (
+                _preflight_v3(source, job.question)
+                if expected_profile == "guarded-question-evidence-v3"
+                else _preflight_v5(source, job.question)
+            )
         )
         instructions = (
             GUARDED_QUESTION_V2_INSTRUCTIONS
             if expected_profile == "guarded-question-evidence-v2"
-            else GUARDED_QUESTION_V3_INSTRUCTIONS
+            else (
+                GUARDED_QUESTION_V3_INSTRUCTIONS
+                if expected_profile == "guarded-question-evidence-v3"
+                else GUARDED_QUESTION_V5_INSTRUCTIONS
+            )
         )
     except Exception:
         repository.finish(job_id, reason="input")
@@ -113,8 +131,12 @@ async def execute_evidence_job(
             result = await run_guarded_question_evidence_v2(
                 client=client, model=job.model, source=source, question=job.question
             )
-        else:
+        elif expected_profile == "guarded-question-evidence-v3":
             result = await run_guarded_question_evidence_v3(
+                client=client, model=job.model, source=source, question=job.question
+            )
+        else:
+            result = await run_guarded_question_evidence_v5(
                 client=client, model=job.model, source=source, question=job.question
             )
     except (GuardedResponsesError, GuardedResponsesCancelled) as error:
@@ -217,6 +239,37 @@ def register_evidence_workflow_v3(
         )
 
     @DBOS.workflow(name="issuedigest_guarded_evidence_job_v2")
+    async def workflow(job_id: str) -> None:
+        parsed = UUID(job_id)
+        if (
+            str(parsed) != job_id
+            or parsed.version != 4
+            or DBOS.workflow_id != "guarded-evidence-" + job_id
+        ):
+            raise ValueError("Invalid evidence workflow identity")
+        _owned(parsed, check_ownership)
+        await call(job_id)
+        read_completed_evidence_job(repository, parsed, check_ownership=check_ownership)
+
+    return workflow
+
+
+def register_evidence_workflow_v5(
+    repository: EvidenceJobRepository, *, client: AsyncOpenAI, check_ownership: Ownership
+) -> Callable[..., Any]:
+    """Register only; caller owns DBOS configuration, launch and workflow starts."""
+
+    @DBOS.step(name="issuedigest_guarded_evidence_call_v3", retries_allowed=False)
+    async def call(job_id: str) -> None:
+        await execute_evidence_job(
+            repository,
+            UUID(job_id),
+            client=client,
+            check_ownership=check_ownership,
+            expected_profile="guarded-question-evidence-v5",
+        )
+
+    @DBOS.workflow(name="issuedigest_guarded_evidence_job_v3")
     async def workflow(job_id: str) -> None:
         parsed = UUID(job_id)
         if (

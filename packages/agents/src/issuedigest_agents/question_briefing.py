@@ -20,6 +20,10 @@ from .guarded_question_evidence_v3 import (
     GuardedQuestionEvidenceGenerationV3,
     validate_guarded_question_evidence_v3,
 )
+from .guarded_question_evidence_v5 import (
+    GuardedQuestionEvidenceGenerationV5,
+    validate_guarded_question_evidence_v5,
+)
 from .numeric_evidence import Source, _StrictModel
 from .numeric_selection_evaluation import _read
 from .question_evidence_propositions import (
@@ -32,7 +36,9 @@ from .question_evidence_propositions import (
 )
 
 QuestionEvidenceReceipt = Annotated[
-    GuardedQuestionEvidenceGenerationV2 | GuardedQuestionEvidenceGenerationV3,
+    GuardedQuestionEvidenceGenerationV2
+    | GuardedQuestionEvidenceGenerationV3
+    | GuardedQuestionEvidenceGenerationV5,
     Field(discriminator="profile"),
 ]
 
@@ -48,12 +54,16 @@ def validate_question_evidence_receipt(
             return validate_guarded_question_evidence_v2(source, question, receipt)
         if receipt["profile"] == "guarded-question-evidence-v3":
             return validate_guarded_question_evidence_v3(source, question, receipt)
+        if receipt["profile"] == "guarded-question-evidence-v5":
+            return validate_guarded_question_evidence_v5(source, question, receipt)
     else:
         _guard_actual(receipt, QuestionEvidenceReceipt)
         if type(receipt) is GuardedQuestionEvidenceGenerationV2:
             return validate_guarded_question_evidence_v2(source, question, receipt)
         if type(receipt) is GuardedQuestionEvidenceGenerationV3:
             return validate_guarded_question_evidence_v3(source, question, receipt)
+        if type(receipt) is GuardedQuestionEvidenceGenerationV5:
+            return validate_guarded_question_evidence_v5(source, question, receipt)
     raise ValueError("Invalid evidence profile")
 
 
