@@ -1,3 +1,5 @@
+최신 실제 비교: [근거 생성 모델](research/question-model-comparison.md)·[계약](changes/question-model-comparison.md). 기존 요청에서 model만 Astra로 바꾼 분석1회가 완료·SDK 수용을 통과했습니다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가입니다. 실제 최종 생성/SQL·앱 인수와 운영 모델 채택은 남습니다.
+
 최신 진단: [생성 정체 비교](research/question-format-diagnostics.md)·[범위](changes/question-format-diagnostics.md). 같은 출력 schema의 허용된 값 뒤 두 응답이 공백 반복으로 중단됐고 과거 완결 예도 있었습니다. 제공자 내부 원인은 미확정이며 추가 호출 없이 다음 비교 설계의 범위를 좁혔습니다. 제품/개발 사이트는 변경하지 않았습니다.
 
 현재 구현: [근거 범위 참조의 생성·내구 실행](changes/question-scoped-runtime.md)·[검증](research/question-scoped-runtime-validation.md). 새 생성 SDK와 실행 큐·최종/SQL 읽기를 연결했습니다. 전체10,791개·독립 검토와 모의 저장/재열람은 통과했으나 실제 분석1회는 공백 정체로 실패했고 최종 생성0입니다. 개발 사이트는 그대로이며 생성 안정성·실제 최종/앱 인수는 남습니다.
