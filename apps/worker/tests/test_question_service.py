@@ -123,6 +123,7 @@ def test_startup_failure_releases_only_owned_state(monkeypatch, failure):
     monkeypatch.setattr(api, "AsyncOpenAI", Provider)
     monkeypatch.setattr(api, "DBOS", Runtime)
     monkeypatch.setattr(api, "register_evidence_workflow", phase("register"))
+    monkeypatch.setattr(api, "register_evidence_workflow_v3", phase("register-v3"))
     monkeypatch.setattr(api, "register_briefing_workflow", phase("register-final"))
     monkeypatch.setattr(api, "configure_briefing_queue", phase("queue"))
     monkeypatch.setattr(
@@ -142,7 +143,12 @@ def test_startup_failure_releases_only_owned_state(monkeypatch, failure):
     if failure in ("register", "launch", "queue"):
         assert "destroy" in events and "provider-close" in events and "release" in events
     if failure == "queue":
-        assert events.index("register") < events.index("register-final") < events.index("launch")
+        assert (
+            events.index("register")
+            < events.index("register-v3")
+            < events.index("register-final")
+            < events.index("launch")
+        )
 
 
 def test_cancelled_bridge_finishes_worker_caller_without_stopping_host(monkeypatch):
@@ -289,3 +295,21 @@ def test_close_failure_is_sanitized_after_thread_cleanup(monkeypatch):
         assert not service._thread.is_alive()
 
     asyncio.run(exercise())
+
+
+def test_evidence_profile_configuration_is_private_and_strict():
+    api = service_api()
+    env = {"ISSUEDIGEST_QUESTION_BRIEFING_ENABLED": "1", "OPENAI_API_KEY": "synthetic"}
+    assert api.QuestionServiceConfig.from_environment(env).evidence_profile == (
+        "guarded-question-evidence-v2"
+    )
+    for profile in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+        config = api.QuestionServiceConfig.from_environment(
+            env | {"ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile}
+        )
+        assert config.evidence_profile == profile
+    for profile in ("", "v3", "guarded-question-evidence-v4"):
+        with pytest.raises(QuestionSubmissionError):
+            api.QuestionServiceConfig.from_environment(
+                env | {"ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile}
+            )

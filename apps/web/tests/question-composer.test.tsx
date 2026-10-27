@@ -68,9 +68,11 @@ it('shows busy immediately, prevents duplicate requests and navigates on real re
     'aria-busy',
     'false',
   );
-  expect(
-    screen.getByRole('status').parentElement?.parentElement,
-  ).toHaveTextContent(`/workspaces/${workspace}/briefings/${workspace}`);
+  await waitFor(() =>
+    expect(screen.getByTestId('location')).toHaveTextContent(
+      `/workspaces/${workspace}/briefings/${workspace}`,
+    ),
+  );
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(readPendingQuestion(actor, workspace)).toBeNull();
 });

@@ -22,7 +22,7 @@ def isolated_modules():
     before, attrs = set(sys.modules), [vars(p).copy() for p in packages]
     yield
     for name in set(sys.modules) - before:
-        if name.startswith(("issuedigest_agents.", "issuedigest_worker.evidence_")):
+        if name.startswith(("issuedigest_agents.", "issuedigest_worker.")):
             sys.modules.pop(name, None)
     sys.path[:] = paths
     for package, original in zip(packages, attrs, strict=True):
@@ -339,7 +339,9 @@ def test_source_race_after_plan_before_admission_rolls_back(
 
     monkeypatch.setattr(plans, "submit", changed)
     client = QueueClient()
-    with pytest.raises(ResearchConflict):
+    from issuedigest_storage.repository import StorageCorruption
+
+    with pytest.raises((ResearchConflict, StorageCorruption)):
         asyncio.run(advance(admission, client))
     expected = (1, 1) if completed_prefix else (0, 0)
     assert client.calls == [] and counts(engine) == expected
@@ -638,3 +640,98 @@ def test_completed_acknowledgement_race_still_stops_at_first_pending(
     assert result.status == "in_progress" and len(result.dispatches) == 1
     assert result.dispatches[0].status == "completed" and not result.dispatches[0].queued
     assert client.calls == [] and counts(engine) == (1, 1)
+
+
+@pytest.mark.parametrize(
+    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+)
+def test_stored_profile_survives_config_change_and_partial_resume(admission, engine, profile):
+    import json
+
+    import httpx2 as httpx
+    from issuedigest_agents.question_dispatch import advance_question_plan
+    from issuedigest_storage.question_plans import QuestionPlanRepository
+    from issuedigest_worker.evidence_worker import execute_evidence_job
+    from issuedigest_worker.question_runner import run_question_plan
+    from openai import AsyncOpenAI
+    from test_guarded_responses_stream import Body, events
+
+    original, jobs, args = admission
+    plans = QuestionPlanRepository(original.engine, evidence_profile=profile)
+    queue, requests = QueueClient(), []
+    other_profile = (
+        "guarded-question-evidence-v3" if profile.endswith("v2") else "guarded-question-evidence-v2"
+    )
+
+    def serve(request):
+        requests.append(request)
+        rows = events(
+            json.dumps(
+                dict(
+                    propositions=[],
+                    coverage=dict(linked_proposition_ids=[], unresolved_reason="insufficient"),
+                )
+            )
+        )
+        tool = (
+            "fill_question_evidence_v2" if profile.endswith("v2") else "fill_question_evidence_v3"
+        )
+        for row in rows:
+            for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
+                if item is not None:
+                    item["name"] = tool
+        return httpx.Response(200, headers={"content-type": "text/event-stream"}, stream=Body(rows))
+
+    async def exercise():
+        async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
+            async with AsyncOpenAI(api_key="synthetic", http_client=http, max_retries=0) as client:
+                first = await advance_question_plan(
+                    plans, jobs, client=queue, app_version="test-v1", **args
+                )
+                assert first.completed_count == 0 and first.total_sources == 2
+                receipt = await execute_evidence_job(
+                    jobs,
+                    first.dispatches[0].job_id,
+                    client=client,
+                    check_ownership=lambda _: True,
+                    expected_profile=profile,
+                )
+                assert receipt.profile == profile
+                resumed_plans = QuestionPlanRepository(engine, evidence_profile=other_profile)
+                second = await advance_question_plan(
+                    resumed_plans, jobs, client=queue, app_version="test-v1", **args
+                )
+                assert second.plan_id == first.plan_id and second.completed_count == 1
+                assert counts(engine) == (2, 2)
+                await execute_evidence_job(
+                    jobs,
+                    second.dispatches[-1].job_id,
+                    client=client,
+                    check_ownership=lambda _: True,
+                    expected_profile=profile,
+                )
+                result = await run_question_plan(
+                    resumed_plans, jobs, client=queue, app_version="test-v1", **args
+                )
+                assert result.dispatch.status == "evidence_complete"
+                assert [r.profile for r in result.receipts] == [profile, profile]
+                assert (
+                    await run_question_plan(
+                        resumed_plans, jobs, client=queue, app_version="test-v1", **args
+                    )
+                    == result
+                )
+                assert len(requests) == 2 and counts(engine) == (2, 2)
+                expected = (
+                    "issuedigest_guarded_evidence_job_v1"
+                    if profile.endswith("v2")
+                    else "issuedigest_guarded_evidence_job_v2"
+                )
+                assert len(queue.calls) == 2
+                assert all(call[0]["workflow_name"] == expected for call in queue.calls)
+                assert all(
+                    call[0]["queue_name"] == "issuedigest_guarded_evidence_v1"
+                    for call in queue.calls
+                )
+
+    asyncio.run(exercise())

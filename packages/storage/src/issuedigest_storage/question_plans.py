@@ -13,7 +13,16 @@ from uuid import UUID, uuid4
 
 from issuedigest_domain.question_source_plan import QuestionSourceChoice, QuestionSourcePlan
 from pydantic import ValidationError
-from sqlalchemy import Column, MetaData, String, Table, UniqueConstraint, insert, select
+from sqlalchemy import (
+    CheckConstraint,
+    Column,
+    MetaData,
+    String,
+    Table,
+    UniqueConstraint,
+    insert,
+    select,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.engine import Connection, Engine
@@ -22,6 +31,15 @@ from . import research_retrieval
 from .evidence_jobs import EvidenceJobRepository, digest, source_digest
 from .repository import EvidenceRepository, StorageCorruption
 from .research import ResearchConflict, ResearchForbidden, ResearchRepository
+
+EVIDENCE_PROFILES = ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+
+
+def validate_evidence_profile(value: object) -> str:
+    if type(value) is not str or value not in EVIDENCE_PROFILES:
+        raise ValueError("Invalid evidence profile")
+    return value
+
 
 metadata = MetaData()
 question_source_plans = Table(
@@ -36,6 +54,11 @@ question_source_plans = Table(
         for name in ("question", "input_sha256", "payload_sha256")
     ],
     Column("payload", JSONB, nullable=False),
+    Column("evidence_profile", String, nullable=False, server_default=EVIDENCE_PROFILES[0]),
+    CheckConstraint(
+        "evidence_profile IN ('guarded-question-evidence-v2', 'guarded-question-evidence-v3')",
+        name="question_source_plans_evidence_profile_check",
+    ),
     UniqueConstraint("workspace_id", "actor_id", "request_id"),
 )
 
@@ -45,21 +68,29 @@ def _id(value: object) -> None:
         raise ValueError("A UUID v4 is required")
 
 
-def _input(actor: UUID, workspace: UUID, request: UUID, question: str) -> str:
-    return digest(
-        dict(
-            actor_id=str(actor),
-            workspace_id=str(workspace),
-            request_id=str(request),
-            question=question,
-            profile="question-source-plan-v1",
-            retrieval_profile="question-topics-ko-v2",
-        )
+def _input(
+    actor: UUID,
+    workspace: UUID,
+    request: UUID,
+    question: str,
+    evidence_profile: str = EVIDENCE_PROFILES[0],
+) -> str:
+    identity = dict(
+        actor_id=str(actor),
+        workspace_id=str(workspace),
+        request_id=str(request),
+        question=question,
+        profile="question-source-plan-v1",
+        retrieval_profile="question-topics-ko-v2",
     )
+    if evidence_profile != EVIDENCE_PROFILES[0]:
+        identity["evidence_profile"] = validate_evidence_profile(evidence_profile)
+    return digest(identity)
 
 
 class QuestionPlanRepository:
-    def __init__(self, engine: Engine):
+    def __init__(self, engine: Engine, *, evidence_profile: str = EVIDENCE_PROFILES[0]):
+        self.evidence_profile = validate_evidence_profile(evidence_profile)
         self.engine = engine
         self._base = ResearchRepository(engine)
 
@@ -79,6 +110,7 @@ class QuestionPlanRepository:
         try:
             for field in ("plan_id", "workspace_id", "actor_id", "request_id"):
                 _id(row[field])
+            profile = validate_evidence_profile(row["evidence_profile"])
             raw = row["payload"]
             if type(raw) is not dict or set(raw) != set(QuestionSourcePlan.model_fields):
                 raise ValueError
@@ -98,7 +130,9 @@ class QuestionPlanRepository:
                 or plan.question != row["question"]
                 or row["payload_sha256"] != digest(dict(actor_id=str(row["actor_id"]), payload=raw))
                 or row["input_sha256"]
-                != _input(row["actor_id"], plan.workspace_id, plan.request_id, plan.question)
+                != _input(
+                    row["actor_id"], plan.workspace_id, plan.request_id, plan.question, profile
+                )
             ):
                 raise ValueError
         except (ValidationError, ValueError, TypeError, KeyError):
@@ -178,7 +212,10 @@ class QuestionPlanRepository:
                     actor_id=actor,
                     request_id=request_id,
                     question=question,
-                    input_sha256=_input(actor, workspace_id, request_id, question),
+                    input_sha256=_input(
+                        actor, workspace_id, request_id, question, self.evidence_profile
+                    ),
+                    evidence_profile=self.evidence_profile,
                     payload=payload,
                     payload_sha256=digest(dict(actor_id=str(actor), payload=payload)),
                 )
@@ -208,5 +245,32 @@ class QuestionPlanRepository:
                 .one_or_none()
             )
             return self._dto(conn, row) if row is not None else None
+
+        return self._base._transaction(read)
+
+    def get_evidence_profile(self, token: str, workspace_id: UUID, plan_id: UUID) -> str | None:
+        _id(workspace_id)
+        _id(plan_id)
+
+        def read(conn: Connection) -> str | None:
+            EvidenceJobRepository._lock_jobs(conn)
+            if self._base._actor(conn, token, workspace_id) is None:
+                return None
+            row = (
+                conn.execute(
+                    select(question_source_plans)
+                    .where(
+                        question_source_plans.c.workspace_id == workspace_id,
+                        question_source_plans.c.plan_id == plan_id,
+                    )
+                    .with_for_update()
+                )
+                .mappings()
+                .one_or_none()
+            )
+            if row is None:
+                return None
+            self._dto(conn, row)
+            return validate_evidence_profile(row["evidence_profile"])
 
         return self._base._transaction(read)

@@ -208,6 +208,7 @@ class BriefingJobRepository:
                 child_row["actor_id"] != actor
                 or child.workspace_id != workspace
                 or child.status != "completed"
+                or child.profile != row["evidence_profile"]
                 or child.question != plan.question
                 or child.snapshot_id != choice.snapshot_id
                 or child.source_sha256 != choice.source_sha256
@@ -232,6 +233,8 @@ class BriefingJobRepository:
             children.append(child)
             sources.append(source)
             child_fields = asdict(child)
+            if child.profile == "guarded-question-evidence-v2":
+                child_fields.pop("profile")
             child_fields.update(
                 job_id=str(child.job_id),
                 workspace_id=str(child.workspace_id),

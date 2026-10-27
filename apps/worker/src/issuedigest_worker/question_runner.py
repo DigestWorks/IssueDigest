@@ -14,6 +14,8 @@ from uuid import UUID
 from dbos import DBOSClient, WorkflowHandleAsync
 from issuedigest_agents.evidence_dispatch import EvidenceDispatch
 from issuedigest_agents.guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
+from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvidenceGenerationV3
+from issuedigest_agents.question_briefing import QuestionEvidenceReceipt
 from issuedigest_agents.question_dispatch import (
     QuestionDispatch,
     _job,
@@ -35,7 +37,7 @@ class QuestionEvidenceRun:
     """Validated private transport progress and unreviewed synthesis inputs only."""
 
     dispatch: QuestionDispatch
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...]
+    receipts: tuple[QuestionEvidenceReceipt, ...]
 
 
 class QuestionRunError(Exception):
@@ -123,13 +125,24 @@ def _wait_authorized(
     plan = _plan(saved, workspace_id, request_id, question)
     if plan.plan_id != dispatch.plan_id or len(plan.sources) != dispatch.total_sources:
         raise QuestionRunError("progress")
+    profile = plans.get_evidence_profile(token, workspace_id, plan.plan_id)
+    if profile is None:
+        return False
     ack = dispatch.dispatches[-1]
     current = jobs.get(token, workspace_id, ack.job_id)
     if current is None:
         return False
     if current.job_id != ack.job_id:
         raise QuestionRunError("progress")
-    _job(current, current, plan.sources[dispatch.completed_count], workspace_id, question, model)
+    _job(
+        current,
+        current,
+        plan.sources[dispatch.completed_count],
+        workspace_id,
+        question,
+        model,
+        profile,
+    )
     return True
 
 
@@ -142,7 +155,7 @@ def _collect(
     request_id: UUID,
     question: str,
     model: str,
-) -> tuple[GuardedQuestionEvidenceGenerationV2, ...] | None:
+) -> tuple[QuestionEvidenceReceipt, ...] | None:
     saved = plans.submit(token, workspace_id, request_id, question)
     if saved is None:
         return None
@@ -150,14 +163,22 @@ def _collect(
     if plan.plan_id != dispatch.plan_id or len(plan.sources) != dispatch.total_sources:
         raise QuestionRunError("receipt")
 
+    profile = plans.get_evidence_profile(token, workspace_id, plan.plan_id)
+    if profile is None:
+        return None
+    if profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+        raise QuestionRunError("receipt")
+
     def authorization(expected: UUID, source: QuestionSourceChoice) -> Callable[[UUID], bool]:
         def authorized(job_id: UUID) -> bool:
             if type(job_id) is not UUID or job_id != expected:
                 return False
+            if plans.get_evidence_profile(token, workspace_id, plan.plan_id) != profile:
+                return False
             current = jobs.get(token, workspace_id, expected)
             if current is None or current.job_id != expected:
                 return False
-            _job(current, current, source, workspace_id, question, model)
+            _job(current, current, source, workspace_id, question, model, profile)
             return current.status == "completed"
 
         return authorized
@@ -171,7 +192,13 @@ def _collect(
             jobs, ack.job_id, check_ownership=authorized
         )
         if (
-            type(receipt) is not GuardedQuestionEvidenceGenerationV2
+            type(receipt)
+            is not (
+                GuardedQuestionEvidenceGenerationV2
+                if profile == "guarded-question-evidence-v2"
+                else GuardedQuestionEvidenceGenerationV3
+            )
+            or receipt.profile != profile
             or receipt.status != "unreviewed"
         ):
             raise QuestionRunError("receipt")
@@ -179,7 +206,10 @@ def _collect(
     final = plans.submit(token, workspace_id, request_id, question)
     if final is None:
         return None
-    if _plan(final, workspace_id, request_id, question) != plan:
+    if (
+        _plan(final, workspace_id, request_id, question) != plan
+        or plans.get_evidence_profile(token, workspace_id, plan.plan_id) != profile
+    ):
         raise QuestionRunError("receipt")
     return tuple(receipts)
 

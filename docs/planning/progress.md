@@ -1,3 +1,27 @@
+## 최종 인계 · 정확 텍스트 내구 실행 · 2026-10-27
+
+[Draft PR128](https://github.com/DigestWorks/IssueDigest/pull/128), 구현96ac2381b8fc8de854659310d8bbc637820a91f1·결과 검토22ee8436d9b2a8b3c4554a5afb53358a72715446. 전체10,519개·독립 코드/실제 실패 검토를 기록했다. 모의 전체 연결은 통과했지만 실제 분석1회는 공백 정체로 실패·최종0이며 개발 전환은 보류했다.
+
+Sitesv151 public/native succeeded(2026-10-27T05:37:23.173999+00:00), sourcef5307593baf9a4a4aead7c0e4ddb5fc83f0839be, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_0ef1391b051081918d258514fc50e703, deployment appgdep_6ae0388603f48191bd1792656a58daf5. 이전v150과 변경6문서22ee843 사본을 보존했다. HTML136/로컬대상4,844/공개텍스트464의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 새 브라우저 검사를 생략했고 탭 이동0이다. 이후 진행은 저장소 원본을 따른다.
+
+개인 QA4/익명volume를 정리했고 실제 dump/원응답·실패/usage 미관측·예약/기준·이전319개 증거를 보존했다. 공동DB·개발 서비스·main/운영과 Actions 설정은 바꾸지 않았다. 다음은 생성 정체의 별도 개선과 새 사전 인수이며, 실제 최종 생성·앱 검증 후에 개인 개발 전환을 진행한다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+## 구현 검토 · 정확 텍스트 내구 실행 · 2026-10-27
+
+[Draft PR128](https://github.com/DigestWorks/IssueDigest/pull/128)은 feat/question-text-generation 기반이다. 구현96ac2381b8fc8de854659310d8bbc637820a91f1·전체10,519개 검사·독립 코드 검토와 별도 실제 실패 검토를 보존했다. 실제 분석1회 공백 정체/최종0으로 최종/앱 인수는 남으며 공동DB/개발 서비스는 바꾸지 않았다. 원래 응답은 재호출/수리하지 않는다. PR첨부는 앱의100개 제한으로 일반 링크를 제공하며 Sites 게시 정보는 이후 인계한다.
+
+## 검증 결과 · 정확 텍스트 참조 내구 실행 · 2026-10-27
+
+[계약](../changes/question-text-runtime.md)·[검증](../research/question-text-runtime-validation.md). 계획/작업 버전 고정·별도 내구 workflow·엄격한 v2/v3 최종 조합/저장 읽기를 연결했다. 관련283개 native 경로와 전체10,519개(Python9,604+JS915)·정적/타입/빌드/OpenAPI, 태스크별 및 전체 독립 검토를 통과했다. 최초 JS 경합 실패와 수정/최종 성공을 별도 보존한다.
+
+모의에서는 ANSWER 저장/재열람 일치·재접수 추가0을 확인했다. 새 실제는 분석1회 whitespace 실패·최종0이다. 최종 usage 미관측으로0비용이라 표시하지 않으며0.50달러 예약과 송신/실패를 보존했다. 직전 성공 SDK와 요청 body가 같아 실행 연결의 입력 변경은 없었으나 안정성은 충족하지 못했다. 이전 다섯 묶음319개 증거·기준541개 중 나머지522개 파일을 보존했다. 자신의 QA4와 익명volume를 정리하고 실제 DB dump를 남겼다.
+
+공동DB/개발 서비스·사용자 세션·main/운영을 변경하지 않았다. Verify foundation은 disabled_manually다. 실제 생성 안정성 보완·최종 생성 인수 후 백업/복원·공동 migration·개인 개발 전환이 다음이며 PR/Sites는 게시 후 인계한다.
+
+## 진행 · 정확 텍스트 참조 내구 실행 연결 · 2026-10-27
+
+[계약](../changes/question-text-runtime.md). 계획에 생성 버전을 고정하고 v2/v3의 분석 workflow·최종 조합·저장/재열람을 연결한다. 기존v2 작업/요청 bytes·실패/소비를 보존하며 혼합/라벨 변경은 거부한다. migration0013과 opt-in 서버 설정을 구현하고 실제 인수/개발 적용은 분리한다. Sites 반영 대기.
+
 ## 최종 인계 · 정확 텍스트 생성 SDK v3 · 2026-10-27
 
 [Draft PR127](https://github.com/DigestWorks/IssueDigest/pull/127)은 feat/question-text-references 기반이다. 새 v3 SDK·신규60/관련528개와 두 독립 코드 검토, 전체10,466개(Python9,551+JS915)·정적/타입/빌드/OpenAPI를 확인했다. 지침 보완 전 중단한 agents 검사는 세지 않았고 나머지 기존539파일/최종 agents 소스 불변 증거를 보존했다. 실제1요청에서 SDK 수용·입력2,395/출력1,287·별도 AI 개발판정의 필수3명제 관계 보존3/3을 확인했다. 다른9개/전체12개와 최종 생성·저장·앱은 미평가다.

@@ -143,7 +143,9 @@ def stages(monkeypatch):
 
     runner, args = api(), inputs()
     child, plan_id, job_id = uuid4(), uuid4(), uuid4()
-    receipt = GuardedQuestionEvidenceGenerationV2.model_construct()
+    receipt = GuardedQuestionEvidenceGenerationV2.model_construct(
+        profile="guarded-question-evidence-v2"
+    )
     dispatch = QuestionDispatch(
         plan_id,
         "evidence_complete",
@@ -384,15 +386,23 @@ def admitted(engine):
         conn.execute(text("TRUNCATE briefing_jobs,evidence_jobs,question_source_plans"))
 
 
-def test_native_composition_replay_receipt_offloop(admitted, engine, database_url):
+@pytest.mark.parametrize(
+    "profile", ["guarded-question-evidence-v2", "guarded-question-evidence-v3"]
+)
+def test_native_composition_replay_receipt_offloop(admitted, engine, database_url, profile):
     import json
     import threading
 
     import httpx2 as httpx
     from dbos import DBOS, DBOSClient
+    from issuedigest_storage.question_plans import QuestionPlanRepository
     from issuedigest_worker.briefing_queue import register_briefing_queue
     from issuedigest_worker.briefing_worker import read_completed_briefing_job
-    from issuedigest_worker.evidence_queue import register_evidence_queue
+    from issuedigest_worker.evidence_worker import (
+        read_completed_evidence_job,
+        register_evidence_workflow,
+        register_evidence_workflow_v3,
+    )
     from openai import AsyncOpenAI
     from sqlalchemy import event, text
     from sqlalchemy.schema import DropSchema
@@ -401,6 +411,7 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
     from test_question_briefing_generation import rows
 
     repos, args, src = admitted
+    repos = (QuestionPlanRepository(engine, evidence_profile=profile), *repos[1:])
     schema, requests, threads = "qbr_" + uuid4().hex, [], []
 
     def sql(*_):
@@ -425,19 +436,38 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
     def serve(request):
         requests.append(request)
         data = json.loads(request.content)
-        if "fill_question_evidence_v2" in str(data["tools"]):
+        tool_name = (
+            "fill_question_evidence_v2" if profile.endswith("v2") else "fill_question_evidence_v3"
+        )
+        if tool_name in str(data["tools"]):
             from test_question_evidence_propositions import packet
+            from test_question_text_references import text_only
 
-            stream = events(json.dumps(packet(src)))
+            data = packet(src)
+            if profile.endswith("v3"):
+                data = text_only(data)
+
+                def unique_refs(value):
+                    if isinstance(value, dict):
+                        if "citation_id" in value and value.get("text") == "기관":
+                            value["text"] = "기관은 좌석"
+                        for child in value.values():
+                            unique_refs(child)
+                    elif isinstance(value, list):
+                        for child in value:
+                            unique_refs(child)
+
+                unique_refs(data)
+            stream = events(json.dumps(data))
             for row in stream:
                 for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
                     if item is not None:
-                        item["name"] = "fill_question_evidence_v2"
+                        item["name"] = tool_name
             body = Body(stream)
         else:
-            body = Body(
-                rows(dict(outcome="insufficient_evidence", message="합성 근거 부족", modules=[]))
-            )
+            from test_question_briefing import claim, proposal, reference
+
+            body = Body(rows(proposal(claim(reference(src)))))
         return httpx.Response(200, headers={"content-type": "text/event-stream"}, stream=body)
 
     async def exercise():
@@ -460,13 +490,13 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                     application_name="qbr-synthetic",
                     dbos_system_schema=schema,
                 )
-                DBOS.launch()
-                await asyncio.to_thread(
-                    register_evidence_queue,
-                    repos[1],
-                    client=provider,
-                    check_ownership=lambda _: True,
+                register_evidence_workflow(
+                    repos[1], client=provider, check_ownership=lambda _: True
                 )
+                register_evidence_workflow_v3(
+                    repos[1], client=provider, check_ownership=lambda _: True
+                )
+                DBOS.launch()
                 await asyncio.to_thread(
                     register_briefing_queue,
                     repos[2],
@@ -492,12 +522,36 @@ def test_native_composition_replay_receipt_offloop(admitted, engine, database_ur
                     repos[2], a.briefing.job_id, check_ownership=lambda _: True
                 )
                 assert receipt.status == "unreviewed"
+                assert receipt.briefing.proposal.outcome == "answer"
+                child = a.evidence.dispatches[0].job_id
+                evidence = await asyncio.to_thread(
+                    read_completed_evidence_job, repos[1], child, check_ownership=lambda _: True
+                )
+                assert evidence.profile == profile
+                assert receipt.briefing.sources[0].receipt == evidence
+                saved_plan = await asyncio.to_thread(
+                    repos[0].get_evidence_profile,
+                    args["token"],
+                    args["workspace_id"],
+                    a.evidence.plan_id,
+                )
+                assert saved_plan == profile
                 assert len(requests) == 2
                 assert threads and not any(name == "qbr-caller" for _, name in threads)
                 before = await asyncio.to_thread(counts)
-                replay = await api().run_question_briefing(*repos, **(args | dict(client=client)))
+                assert (
+                    before[:2] == (1, 1)
+                    and before[2]
+                    == args["evidence_reservation_usd"] + args["briefing_reservation_usd"]
+                )
+                resumed = (QuestionPlanRepository(engine), *repos[1:])
+                replay = await api().run_question_briefing(*resumed, **(args | dict(client=client)))
                 assert replay.briefing.status == "completed" and replay.briefing.queued is False
                 assert len(requests) == 2 and await asyncio.to_thread(counts) == before
+                reread = await read_completed_briefing_job(
+                    repos[2], replay.briefing.job_id, check_ownership=lambda _: True
+                )
+                assert reread == receipt
                 assert not provider.is_closed()
             finally:
                 if event.contains(engine, "before_cursor_execute", sql):

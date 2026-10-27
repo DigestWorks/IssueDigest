@@ -13,7 +13,6 @@ from pydantic import BaseModel, model_validator
 from pydantic_ai import ToolOutput
 
 from .guarded_question_evidence import _budget, _hash
-from .guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
 from .guarded_responses_stream import (
     GUARDED_RESPONSES_PROFILE,
     GuardedResponsesError,
@@ -25,6 +24,7 @@ from .numeric_selection_evaluation import _read
 from .question_briefing import (
     QuestionBriefing,
     QuestionBriefingProposal,
+    QuestionEvidenceReceipt,
     build_question_briefing,
     validate_question_briefing,
 )
@@ -67,9 +67,7 @@ class QuestionBriefingGeneration(_StrictModel):
         return self
 
 
-def _aggregate(
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...], final: KnownUsage
-) -> KnownUsage:
+def _aggregate(receipts: tuple[QuestionEvidenceReceipt, ...], final: KnownUsage) -> KnownUsage:
     return KnownUsage(
         input_tokens=final.input_tokens + sum(r.usage.input_tokens for r in receipts),
         output_tokens=final.output_tokens + sum(r.usage.output_tokens for r in receipts),
@@ -80,7 +78,7 @@ def _aggregate(
 def _preflight(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
 ) -> tuple[str, list[ToolOutput[BaseModel]], QuestionBriefing]:
     probe = build_question_briefing(
         question,
@@ -127,7 +125,7 @@ def _preflight(
 def question_briefing_prompt(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
 ) -> str:
     """Canonical complete input within fixed bounds; no authorization or network."""
     try:
@@ -140,7 +138,7 @@ def question_briefing_prompt(
 def validate_question_briefing_generation(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
     result: QuestionBriefingGeneration | dict[str, Any],
 ) -> QuestionBriefingGeneration:
     """Rebuild against current inputs; consistent replacements are not signatures."""
@@ -166,8 +164,8 @@ def validate_question_briefing_generation(
 def _unchanged(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
-    originals: tuple[tuple[Source, ...], tuple[GuardedQuestionEvidenceGenerationV2, ...]],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
+    originals: tuple[tuple[Source, ...], tuple[QuestionEvidenceReceipt, ...]],
     prompt: str,
     probe: QuestionBriefing,
 ) -> None:
@@ -182,7 +180,7 @@ async def run_question_briefing_generation(
     model: str,
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
 ) -> QuestionBriefingGeneration:
     """One borrowed request; callers must separately admit/reserve and authorize it."""
     failure: QuestionBriefingGenerationError | None = None

@@ -10,15 +10,24 @@ from uuid import UUID
 from dbos import DBOS
 from issuedigest_agents.guarded_question_evidence_v2 import (
     GUARDED_QUESTION_V2_INSTRUCTIONS,
-    GuardedQuestionEvidenceGenerationV2,
     _preflight,
     run_guarded_question_evidence_v2,
-    validate_guarded_question_evidence_v2,
+)
+from issuedigest_agents.guarded_question_evidence_v3 import (
+    GUARDED_QUESTION_V3_INSTRUCTIONS,
+    run_guarded_question_evidence_v3,
+)
+from issuedigest_agents.guarded_question_evidence_v3 import (
+    _preflight as _preflight_v3,
 )
 from issuedigest_agents.guarded_responses_stream import (
     DIAGNOSTIC_STAGES,
     GuardedResponsesCancelled,
     GuardedResponsesError,
+)
+from issuedigest_agents.question_briefing import (
+    QuestionEvidenceReceipt,
+    validate_question_evidence_receipt,
 )
 from issuedigest_storage.evidence_jobs import EvidenceJobRepository
 from issuedigest_storage.research import ResearchForbidden
@@ -34,13 +43,15 @@ def _owned(job_id: UUID, check_ownership: Ownership) -> None:
 
 def read_completed_evidence_job(
     repository: EvidenceJobRepository, job_id: UUID, *, check_ownership: Ownership
-) -> GuardedQuestionEvidenceGenerationV2 | None:
+) -> QuestionEvidenceReceipt | None:
     """Deep current-source receipt read; SQL's opaque payload is never enough."""
     _owned(job_id, check_ownership)
     job, source = repository.prepare(job_id)
     if job.status != "completed" or job.receipt is None:
         return None
-    receipt = validate_guarded_question_evidence_v2(source, job.question, job.receipt)
+    receipt = validate_question_evidence_receipt(source, job.question, job.receipt)
+    if receipt.profile != job.profile:
+        raise ValueError("Evidence job receipt profile changed")
     if (
         receipt.prompt_sha256 != job.prompt_sha256
         or receipt.instructions_sha256 != job.instructions_sha256
@@ -59,17 +70,33 @@ async def execute_evidence_job(
     *,
     client: AsyncOpenAI,
     check_ownership: Ownership,
-) -> GuardedQuestionEvidenceGenerationV2 | None:
+    expected_profile: str = "guarded-question-evidence-v2",
+) -> QuestionEvidenceReceipt | None:
     """One native request at most, with a separately committed SQL intent."""
     _owned(job_id, check_ownership)
     job, source = repository.prepare(job_id)
+    if (
+        type(expected_profile) is not str
+        or expected_profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+        or job.profile != expected_profile
+    ):
+        raise ValueError("Evidence workflow profile mismatch")
     if job.status == "completed":
         return read_completed_evidence_job(repository, job_id, check_ownership=check_ownership)
     if job.status != "pending":
         repository.recover(job_id)
         return None
     try:
-        prompt, _ = _preflight(source, job.question)
+        prompt, _ = (
+            _preflight(source, job.question)
+            if expected_profile == "guarded-question-evidence-v2"
+            else _preflight_v3(source, job.question)
+        )
+        instructions = (
+            GUARDED_QUESTION_V2_INSTRUCTIONS
+            if expected_profile == "guarded-question-evidence-v2"
+            else GUARDED_QUESTION_V3_INSTRUCTIONS
+        )
     except Exception:
         repository.finish(job_id, reason="input")
         raise ValueError("Evidence job input unavailable") from None
@@ -77,13 +104,19 @@ async def execute_evidence_job(
     if not repository.claim(
         job_id,
         prompt_sha256=sha256(prompt.encode()).hexdigest(),
-        instructions_sha256=sha256(GUARDED_QUESTION_V2_INSTRUCTIONS.encode()).hexdigest(),
+        instructions_sha256=sha256(instructions.encode()).hexdigest(),
     ):
         return None
     try:
-        result = await run_guarded_question_evidence_v2(
-            client=client, model=job.model, source=source, question=job.question
-        )
+        result: QuestionEvidenceReceipt
+        if expected_profile == "guarded-question-evidence-v2":
+            result = await run_guarded_question_evidence_v2(
+                client=client, model=job.model, source=source, question=job.question
+            )
+        else:
+            result = await run_guarded_question_evidence_v3(
+                client=client, model=job.model, source=source, question=job.question
+            )
     except (GuardedResponsesError, GuardedResponsesCancelled) as error:
         try:
             stage = error.diagnostic_stage
@@ -116,7 +149,9 @@ async def execute_evidence_job(
     try:
         _owned(job_id, check_ownership)
         current, current_source = repository.prepare(job_id)
-        validate_guarded_question_evidence_v2(current_source, current.question, result)
+        if current.profile != expected_profile or result.profile != expected_profile:
+            raise ValueError("Evidence workflow profile mismatch")
+        validate_question_evidence_receipt(current_source, current.question, result)
         saved = repository.finish(
             job_id,
             receipt=result.model_dump(mode="json"),
@@ -151,6 +186,37 @@ def register_evidence_workflow(
         )
 
     @DBOS.workflow(name="issuedigest_guarded_evidence_job_v1")
+    async def workflow(job_id: str) -> None:
+        parsed = UUID(job_id)
+        if (
+            str(parsed) != job_id
+            or parsed.version != 4
+            or DBOS.workflow_id != "guarded-evidence-" + job_id
+        ):
+            raise ValueError("Invalid evidence workflow identity")
+        _owned(parsed, check_ownership)
+        await call(job_id)
+        read_completed_evidence_job(repository, parsed, check_ownership=check_ownership)
+
+    return workflow
+
+
+def register_evidence_workflow_v3(
+    repository: EvidenceJobRepository, *, client: AsyncOpenAI, check_ownership: Ownership
+) -> Callable[..., Any]:
+    """Register only; caller owns DBOS configuration, launch and workflow starts."""
+
+    @DBOS.step(name="issuedigest_guarded_evidence_call_v2", retries_allowed=False)
+    async def call(job_id: str) -> None:
+        await execute_evidence_job(
+            repository,
+            UUID(job_id),
+            client=client,
+            check_ownership=check_ownership,
+            expected_profile="guarded-question-evidence-v3",
+        )
+
+    @DBOS.workflow(name="issuedigest_guarded_evidence_job_v2")
     async def workflow(job_id: str) -> None:
         parsed = UUID(job_id)
         if (

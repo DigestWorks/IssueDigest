@@ -65,7 +65,10 @@ evidence_jobs = Table(
     CheckConstraint(
         "status IN ('pending','running','completed','failed','cancelled','indeterminate')"
     ),
-    CheckConstraint("model = 'gpt-6.1-sol' AND profile = 'guarded-question-evidence-v2'"),
+    CheckConstraint(
+        "model = 'gpt-6.1-sol' AND profile IN "
+        "('guarded-question-evidence-v2','guarded-question-evidence-v3')"
+    ),
     CheckConstraint("reservation_usd > 0 AND reservation_usd <= 10"),
 )
 Index(
@@ -111,6 +114,7 @@ class EvidenceJob:
     usage_complete: bool
     stream_closed: bool
     reason: str | None
+    profile: str = "guarded-question-evidence-v2"
 
 
 class EvidenceJobRepository:
@@ -148,7 +152,11 @@ class EvidenceJobRepository:
     @staticmethod
     def _dto(row: Any) -> EvidenceJob:
         receipt = row["receipt"] if row["status"] == "completed" else None
-        if row["model"] != "gpt-6.1-sol" or row["profile"] != "guarded-question-evidence-v2":
+        if row["model"] != "gpt-6.1-sol" or (
+            type(row["profile"]) is not str
+            or row["profile"]
+            not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+        ):
             raise StorageCorruption("Evidence job identity changed")
         usage = row["known_usage"]
         if usage is not None and (
@@ -162,6 +170,16 @@ class EvidenceJobRepository:
             raise StorageCorruption("Evidence job receipt unavailable")
         if receipt is not None and digest(receipt) != row["receipt_sha256"]:
             raise StorageCorruption("Evidence job receipt changed")
+        if receipt is not None and (
+            receipt.get("profile") != row["profile"]
+            or receipt.get("input_format")
+            != (
+                "question-evidence-source-v3"
+                if row["profile"] == "guarded-question-evidence-v3"
+                else "question-evidence-source-v2"
+            )
+        ):
+            raise StorageCorruption("Evidence job receipt profile changed")
         fields: dict[str, Any] = {
             n: receipt if n == "receipt" else row[n] for n in EvidenceJob.__dataclass_fields__
         }
@@ -187,6 +205,8 @@ class EvidenceJobRepository:
             model=row["model"],
             reservation_usd=str(row["reservation_usd"]),
         )
+        if row["profile"] != "guarded-question-evidence-v2":
+            identity["profile"] = row["profile"]
         if digest(identity) != row["input_sha256"]:
             raise StorageCorruption("Evidence job input changed")
         return source
@@ -202,11 +222,14 @@ class EvidenceJobRepository:
         model: str,
         reservation_usd: Decimal,
         expected_source_sha256: str | None = None,
+        profile: str = "guarded-question-evidence-v2",
     ) -> EvidenceJob | None:
         for value in (workspace_id, request_id, snapshot_id):
             _uuid4(value)
         if (
-            type(question) is not str
+            type(profile) is not str
+            or profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+            or type(question) is not str
             or not question.strip()
             or len(question) > 1500
             or type(model) is not str
@@ -246,6 +269,7 @@ class EvidenceJobRepository:
                     question=question,
                     model=model,
                     reservation_usd=str(reservation_usd),
+                    **({"profile": profile} if profile != "guarded-question-evidence-v2" else {}),
                 )
             )
             prior = (
@@ -260,7 +284,7 @@ class EvidenceJobRepository:
                 .one_or_none()
             )
             if prior is not None:
-                if prior["input_sha256"] != identity:
+                if prior["input_sha256"] != identity or prior["profile"] != profile:
                     raise ResearchConflict("Evidence request changed")
                 return self._dto(prior)
             if conn.scalar(
@@ -305,7 +329,7 @@ class EvidenceJobRepository:
                     snapshot_id=snapshot_id,
                     question=question,
                     model=model,
-                    profile="guarded-question-evidence-v2",
+                    profile=profile,
                     source_sha256=hashed,
                     input_sha256=identity,
                     reservation_usd=reservation_usd,
@@ -457,10 +481,15 @@ class EvidenceJobRepository:
                     if (
                         receipt.get("prompt_sha256") != row["prompt_sha256"]
                         or receipt.get("instructions_sha256") != row["instructions_sha256"]
-                        or receipt.get("profile") != "guarded-question-evidence-v2"
+                        or receipt.get("profile") != row["profile"]
                         or receipt.get("status") != "unreviewed"
                         or receipt.get("transport_profile") != "guarded-responses-tool-v1"
-                        or receipt.get("input_format") != "question-evidence-source-v2"
+                        or receipt.get("input_format")
+                        != (
+                            "question-evidence-source-v3"
+                            if row["profile"] == "guarded-question-evidence-v3"
+                            else "question-evidence-source-v2"
+                        )
                         or type(receipt.get("evidence")) is not dict
                         or receipt["evidence"].get("source_sha256") != row["source_sha256"]
                         or receipt["evidence"].get("question_sha256")

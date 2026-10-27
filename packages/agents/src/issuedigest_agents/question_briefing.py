@@ -16,6 +16,10 @@ from .guarded_question_evidence_v2 import (
     GuardedQuestionEvidenceGenerationV2,
     validate_guarded_question_evidence_v2,
 )
+from .guarded_question_evidence_v3 import (
+    GuardedQuestionEvidenceGenerationV3,
+    validate_guarded_question_evidence_v3,
+)
 from .numeric_evidence import Source, _StrictModel
 from .numeric_selection_evaluation import _read
 from .question_evidence_propositions import (
@@ -26,6 +30,31 @@ from .question_evidence_propositions import (
     _original,
     _source,
 )
+
+QuestionEvidenceReceipt = Annotated[
+    GuardedQuestionEvidenceGenerationV2 | GuardedQuestionEvidenceGenerationV3,
+    Field(discriminator="profile"),
+]
+
+
+def validate_question_evidence_receipt(
+    source: Source, question: str, receipt: QuestionEvidenceReceipt | dict[str, Any]
+) -> QuestionEvidenceReceipt:
+    """Use the original strict version validator without conversion or relabeling."""
+    if isinstance(receipt, dict):
+        if type(receipt) is not dict or type(receipt.get("profile")) is not str:
+            raise ValueError("Invalid evidence profile")
+        if receipt["profile"] == "guarded-question-evidence-v2":
+            return validate_guarded_question_evidence_v2(source, question, receipt)
+        if receipt["profile"] == "guarded-question-evidence-v3":
+            return validate_guarded_question_evidence_v3(source, question, receipt)
+    else:
+        _guard_actual(receipt, QuestionEvidenceReceipt)
+        if type(receipt) is GuardedQuestionEvidenceGenerationV2:
+            return validate_guarded_question_evidence_v2(source, question, receipt)
+        if type(receipt) is GuardedQuestionEvidenceGenerationV3:
+            return validate_guarded_question_evidence_v3(source, question, receipt)
+    raise ValueError("Invalid evidence profile")
 
 
 class QuestionBriefingError(ValueError):
@@ -119,7 +148,7 @@ class QuestionBriefingModule(_StrictModel):
 class QuestionBriefingSource(_StrictModel):
     snapshot_id: UUID4
     source_sha256: Sha256
-    receipt: GuardedQuestionEvidenceGenerationV2
+    receipt: QuestionEvidenceReceipt
 
 
 class QuestionBriefingCoverage(QuestionCoverage):
@@ -166,15 +195,19 @@ def _closure(propositions: dict[str, EvidenceProposition], ids: tuple[str, ...])
 def _build(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
     proposal: QuestionBriefingProposal | dict[str, Any],
 ) -> QuestionBriefing:
     if type(question) is not str or not 1 <= len(question) <= 1500:
         raise ValueError("Invalid question")
     _nonblank(question)
     _guard_actual(sources, tuple[Source, ...])
-    _guard_actual(receipts, tuple[GuardedQuestionEvidenceGenerationV2, ...])
-    if not 1 <= len(sources) <= 5 or len(receipts) != len(sources):
+    _guard_actual(receipts, tuple[QuestionEvidenceReceipt, ...])
+    if (
+        not 1 <= len(sources) <= 5
+        or len(receipts) != len(sources)
+        or len({receipt.profile for receipt in receipts}) != 1
+    ):
         raise ValueError("Invalid source count")
     _original(proposal, QuestionBriefingProposal)
     submitted = _read(QuestionBriefingProposal, proposal)
@@ -199,7 +232,7 @@ def _build(
         snapshots.add(sid)
         versions.add(version)
         citations.update(identifiers)
-        checked = validate_guarded_question_evidence_v2(source, question, receipt)
+        checked = validate_question_evidence_receipt(source, question, receipt)
         bound.append(
             QuestionBriefingSource(snapshot_id=sid, source_sha256=source_hash, receipt=checked)
         )
@@ -293,7 +326,7 @@ def _build(
 def build_question_briefing(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
     proposal: QuestionBriefingProposal | dict[str, Any],
 ) -> QuestionBriefing:
     """Compose only current validated source receipts; no semantic approval."""
@@ -308,7 +341,7 @@ def build_question_briefing(
 def validate_question_briefing(
     question: str,
     sources: tuple[Source, ...],
-    receipts: tuple[GuardedQuestionEvidenceGenerationV2, ...],
+    receipts: tuple[QuestionEvidenceReceipt, ...],
     result: QuestionBriefing | dict[str, Any],
 ) -> QuestionBriefing:
     """Rebuild the entire saved composition and reject any divergence, without repair."""

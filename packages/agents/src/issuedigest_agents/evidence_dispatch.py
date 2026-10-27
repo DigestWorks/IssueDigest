@@ -41,6 +41,7 @@ async def submit_evidence_job(
     question: str,
     model: str,
     reservation_usd: Decimal,
+    profile: str = "guarded-question-evidence-v2",
 ) -> EvidenceDispatch | None:
     """Commit admission before queueing; caller owns client/version and retries.
 
@@ -49,6 +50,11 @@ async def submit_evidence_job(
     """
     if type(app_version) is not str or re.fullmatch(r"[A-Za-z0-9._-]{1,128}", app_version) is None:
         raise ValueError("Invalid evidence application version")
+    if type(profile) is not str or profile not in (
+        "guarded-question-evidence-v2",
+        "guarded-question-evidence-v3",
+    ):
+        raise ValueError("Invalid evidence profile")
     job = await asyncio.to_thread(
         repository.submit,
         token,
@@ -58,21 +64,30 @@ async def submit_evidence_job(
         question,
         model=model,
         reservation_usd=reservation_usd,
+        profile=profile,
     )
     if job is None:
         return None
+    if job.profile != profile:
+        raise ValueError("Evidence dispatch profile mismatch")
     workflow_id = "guarded-evidence-" + str(job.job_id)
     if job.status == "pending":
         job = await asyncio.to_thread(repository.get, token, workspace_id, job.job_id)
         if job is None:
             return None
+    if job.profile != profile:
+        raise ValueError("Evidence dispatch profile mismatch")
     if job.status != "pending":
         return EvidenceDispatch(job.job_id, workflow_id, job.status, False)
     failed = False
     try:
         await client.enqueue_async(
             {
-                "workflow_name": "issuedigest_guarded_evidence_job_v1",
+                "workflow_name": (
+                    "issuedigest_guarded_evidence_job_v1"
+                    if job.profile == "guarded-question-evidence-v2"
+                    else "issuedigest_guarded_evidence_job_v2"
+                ),
                 "queue_name": "issuedigest_guarded_evidence_v1",
                 "workflow_id": workflow_id,
                 "app_version": app_version,

@@ -101,12 +101,17 @@ def _job(
     workspace: UUID,
     question: str,
     model: str,
+    profile: str = "guarded-question-evidence-v2",
 ) -> None:
     if (
         type(job) is not EvidenceJob
         or type(admitted) is not EvidenceJob
         or type(job.job_id) is not UUID
         or job.job_id.version != 4
+        or profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3")
+        or type(job.profile) is not str
+        or job.profile != profile
+        or admitted.profile != profile
         or job.job_id != admitted.job_id
         or job.workspace_id != workspace
         or job.snapshot_id != source.snapshot_id
@@ -170,6 +175,11 @@ async def advance_question_plan(
     if saved is None:
         return None
     plan = _plan(saved, workspace_id, request_id, question)
+    profile = await asyncio.to_thread(plans.get_evidence_profile, token, workspace_id, plan.plan_id)
+    if profile is None:
+        return None
+    if profile not in ("guarded-question-evidence-v2", "guarded-question-evidence-v3"):
+        raise StorageCorruption("Question dispatch profile integrity check failed")
     if not plan.sources:
         return QuestionDispatch(plan.plan_id, "no_match", 0, 0, ())
     dispatches: list[EvidenceDispatch] = []
@@ -186,13 +196,14 @@ async def advance_question_plan(
             model=model,
             reservation_usd=reservation_usd,
             expected_source_sha256=source.source_sha256,
+            profile=profile,
         )
         if admitted is None:
             return None
         current = await asyncio.to_thread(jobs.get, token, workspace_id, admitted.job_id)
         if current is None:
             return None
-        _job(current, admitted, source, workspace_id, question, model)
+        _job(current, admitted, source, workspace_id, question, model, profile)
         if current.status == "pending":
             ack = await submit_evidence_job(
                 jobs,
@@ -205,6 +216,7 @@ async def advance_question_plan(
                 question=question,
                 model=model,
                 reservation_usd=reservation_usd,
+                profile=profile,
             )
             if ack is None:
                 return None
