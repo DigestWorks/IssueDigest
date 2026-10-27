@@ -1,3 +1,5 @@
+현재 후보: [완결된 compact JSON SDK](changes/question-compact-json.md)·[검증](research/question-compact-json-validation.md). 전체10,585개 검사는 통과했으며 새 실제1회는 모델 응답이 완결됐지만 반복 수치 참조로 전체 거부됐습니다. 개발 사이트는 변경하지 않았고 근거 범위의 위치 결정 계약이 다음입니다.
+
 현재 구현: [정확 텍스트 참조 내구 실행](changes/question-text-runtime.md)·[검증](research/question-text-runtime-validation.md). 계획 버전 고정·분석/최종 저장 연결과 전체10,519개 검사는 통과했습니다. 새 실제 분석1회는 공백 정체로 실패했고 최종 생성0이며, 개발 사이트 적용은 보류했습니다.
 
 현재 구현: [질문 제출·브리핑 화면 연결](changes/question-briefing-web-flow.md). 실제 질문 API와 생성 상태, 완성 브리핑·저장 기록을 연결했습니다. 신규119/전체10,327개·정적/타입/빌드/OpenAPI·독립 검토와 모바일/PC 브라우저 검증 통과. 개발 서버 전환과 실제 모델 의미 품질은 별도 확인이 남아 있습니다.

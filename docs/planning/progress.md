@@ -1,3 +1,13 @@
+## 검증 결과 · 완결된 compact JSON 후보 · 2026-10-27
+
+[계약](../changes/question-compact-json.md)·[검증](../research/question-compact-json-validation.md). 별도v4 출력 지시·신규66/관련258개와 두 독립 코드 검토, 전체10,585개(Python9,670+JS915)·정적/타입/빌드/OpenAPI를 통과했다. 이전544개 추적 non-Markdown 파일과 실제 여섯 묶음437개 기록은 보존했다.
+
+새 실제1회는 native/JSON/DTO 완료했지만 짧은 반복 수치 참조로 evidence_contract에서 거부됐다. 입력2,402/출력1,265·추가송신/재시도0이다. 해당 근거 안에서는 유일해도 현재 전체 원문 유일성 규칙과 다르므로 과거 출력 수리/부분 성공률을 인정하지 않는다. 필수3단위/전체12단위·최종/앱 인수는 미평가다. 자신의 QA3/volume를 정리했고 공유DB/개발 서비스·main/운영·Actions를 바꾸지 않았다. 다음은 명시 근거 범위에서 안전하게 유일 위치를 결정하는 새 계약 설계다. PR/Sites 게시 정보는 최종 인계에 기록한다.
+
+## 진행 · 완결된 compact JSON 후보 · 2026-10-27
+
+[계약](../changes/question-compact-json.md). 직전 실제 분석의 공백 정체를 근거로 기존 출력 지시 한 문장만 완결된 JSON/문자열 밖 formatting 공백 금지로 바꾸는 별도v4 SDK 후보를 검증한다. strict schema·원문/질문·참조/불확실성·공백 감지·예산/시간은 유지한다. 공식 JSON mode 경고는 참고 근거이며 이번 strict tool 실패의 원인 증명은 아니다. 이전SDK/내구 연결/개발 앱은 유지하고 새 실제1회 전 모의·검토·freeze를 확인한다.
+
 ## 최종 인계 · 정확 텍스트 내구 실행 · 2026-10-27
 
 [Draft PR128](https://github.com/DigestWorks/IssueDigest/pull/128), 구현96ac2381b8fc8de854659310d8bbc637820a91f1·결과 검토22ee8436d9b2a8b3c4554a5afb53358a72715446. 전체10,519개·독립 코드/실제 실패 검토를 기록했다. 모의 전체 연결은 통과했지만 실제 분석1회는 공백 정체로 실패·최종0이며 개발 전환은 보류했다.
