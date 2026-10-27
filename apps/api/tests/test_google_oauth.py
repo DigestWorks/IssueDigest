@@ -158,7 +158,7 @@ def test_real_signature_form_exchange_and_private_identity(signing):
         {"azp": "wrong"},
         {"iat": True},
         {"exp": True},
-        {"iat": int(time.time()) + 600},
+        pytest.param(lambda: {"iat": int(time.time()) + 600}, id="future-issued"),
         {"exp": 1},
         {"nonce": "wrong"},
         {"nonce": None},
@@ -170,6 +170,7 @@ def test_real_signature_form_exchange_and_private_identity(signing):
     ],
 )
 def test_signed_invalid_claims_denied_without_sensitive_errors(signing, changes):
+    changes = changes() if callable(changes) else changes
     with pytest.raises(module().ProviderDenied) as caught:
         exchange(signing, payload=claims(**changes))
     assert str(caught.value) == "Provider identity denied"

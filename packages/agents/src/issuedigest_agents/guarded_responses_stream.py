@@ -46,6 +46,22 @@ Reason = Literal[
     "limit",
     "cancelled",
 ]
+DIAGNOSTIC_STAGES = frozenset(
+    {
+        "input",
+        "stream",
+        "json_parse",
+        "json_value",
+        "dto_schema",
+        "output_integrity",
+        "native_receipt",
+        "native_usage",
+        "native_output",
+        "source_integrity",
+        "evidence_contract",
+        "generation_receipt",
+    }
+)
 _MESSAGE = "Guarded Responses request failed"
 
 
@@ -66,12 +82,22 @@ class _Observations:
         may_have_started: bool = False,
         usage_complete: bool = False,
         stream_closed: bool = False,
+        diagnostic_stage: str | None = None,
     ) -> None:
+        self._diagnostic_stage = (
+            diagnostic_stage
+            if type(diagnostic_stage) is str and diagnostic_stage in DIAGNOSTIC_STAGES
+            else None
+        )
         self._reason = reason
         self._known_usage = known_usage
         self._may_have_started = may_have_started
         self._usage_complete = usage_complete
         self._stream_closed = stream_closed
+
+    @property
+    def diagnostic_stage(self) -> str | None:
+        return self._diagnostic_stage
 
     @property
     def reason(self) -> Reason:
@@ -429,11 +455,12 @@ async def run_guarded_responses_tool(
     try:
         native = _prepare(client, model, prompt, instructions, tool)
     except Exception:
-        raise GuardedResponsesError(reason="input") from None
+        raise GuardedResponsesError(reason="input", diagnostic_stage="input") from None
     state = _State(native["name"])
     stream: AsyncStream[ResponseStreamEvent] | None = None
     body: _BoundedBody | None = None
     reason: Reason | None = None
+    diagnostic_stage = "stream"
     output: BaseModel | None = None
     stream_closed = False
     cancelled = False
@@ -468,16 +495,24 @@ async def run_guarded_responses_tool(
                     break
             _require(terminal)
             try:
+                diagnostic_stage = "json_parse"
                 parsed = json.loads(
                     state.arguments, object_pairs_hook=_pairs, parse_constant=_constant
                 )
+                diagnostic_stage = "json_value"
                 _require(type(parsed) is dict, "output")
                 _finite_numbers(parsed)
                 output_type = cast(type[BaseModel], tool.output)
+                diagnostic_stage = "dto_schema"
                 output = output_type.model_validate_json(state.arguments, strict=True)
+                diagnostic_stage = "output_integrity"
                 _require(type(output) is output_type, "output")
                 _canonical_models(output, output_type)
                 _actual_models(output, output_type)
+            except _Failure:
+                if diagnostic_stage == "json_parse":
+                    diagnostic_stage = "json_value"
+                raise _Failure("output") from None
             except Exception:
                 raise _Failure("output") from None
     except asyncio.CancelledError:
@@ -505,6 +540,8 @@ async def run_guarded_responses_tool(
         else:
             reason = "timeout" if deadline.expired() else "transport"
     finally:
+        if reason is None:
+            diagnostic_stage = "stream"
         if stream is not None:
             close_deadline = asyncio.timeout(STREAM_CLOSE_DEADLINE_SECONDS)
             try:
@@ -534,6 +571,7 @@ async def run_guarded_responses_tool(
             may_have_started=may_have_started,
             usage_complete=state.usage_complete,
             stream_closed=stream_closed,
+            diagnostic_stage=diagnostic_stage,
         ) from None
     assert output is not None and state.known_usage is not None
     return GuardedResponsesToolResult(GUARDED_RESPONSES_PROFILE, output, state.known_usage, True)

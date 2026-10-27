@@ -1,3 +1,27 @@
+## 최종 인계 · 거부 단계 진단 · 2026-10-27
+
+[Draft PR124](https://github.com/DigestWorks/IssueDigest/pull/124)은 research/question-live-acceptance 기반이며 개인 개발 API에 검증 소스478cc09를 적용했다. 제공자 요청/지침/성공 영수증을 유지하고 오류 단계/안전 로그만 보강했다. Python9,435개(worker1,221+나머지8,214)·JS915개 및 린트·타입·빌드·OpenAPI, 태스크/최종/운영 검토의 미해결0이다. 시각 의존 테스트 실패/보완과 분할 불변 증거를 보존했다. 새3모듈 live hash·기존 설정/static·외부 HTTP/보호 경계·lease1/새 작업0을 확인했다.
+
+Sitesv147 public/native succeeded(2026-10-27T02:46:37.029497+00:00), sourcedb9ed0ce1a184fa1458c1549b9e0cdf58b50fb86, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_06028479ee3c8191add22d8b9c65aee2, deployment appgdep_6ae0107febcc8191b6bdefcc9e8007be. 이전v146과 변경8문서의ea6c352 기준 사본을 보존했고 HTML132/로컬대상4,507/공개텍스트436·비공개 값 제외를 확인했다. 사용자 탭 이동0이며 이후 상태는 저장소 원본을 따른다. PR첨부는100개 한도로 일반 링크를 사용한다.
+
+자신의 QA컨테이너/volume를 정리했고 frontend/DB구조/수집기/main은 변경하지 않았다. 추가 실제 모델 호출0이며 과거 실패 원인/의미 품질은 아직 미확인이다. 다음은 별도 신규 시도에서 진단을 관측하는 실제 인수다.
+
+## 개인 개발 반영 · 거부 단계 진단 · 2026-10-27
+
+[실제 검증/적용](../research/evidence-rejection-diagnostics-validation.md). 소스478cc09를 분리된 locked 환경에 준비하고 개인 API만 정상 전환했다. 현재3모듈의 경로/해시 일치·전체 환경 보존·단일 lease1·새 작업0과 외부 HTTPS/비회원 경계를 확인했다. 기존 home/공개 목록과 Nginx/static config는 불변이다. frontend/DB 구조/수집기/main은 바꾸지 않았다.
+
+추가 실제 모델 호출0·과거 실패 원인은 미확인이다. 이제 다음 실패의 JSON/DTO/원문/영수증 단계를 비밀값 없는 로그에서 확인할 수 있다. 전용 QA/volume는 정리했고 자료/사용자 로그인은 조작하지 않았다. Draft PR/계획판 게시 결과는 최종 인계에 기록한다.
+
+## 검증 완료 · 근거 거부 단계 진단 · 2026-10-27
+
+[계약](../changes/evidence-rejection-diagnostics.md)·[검증](../research/evidence-rejection-diagnostics-validation.md). 고정12단계의 오류 관측·하위 단계 보존·민감정보 없는 콘솔/구조화 로그를 추가했다. TDD/집중 검사·태스크/최종 검토 C0I0M0를 확인했다. 기존 OAuth 검사의 수집 시각 의존성을601초로 재현해 테스트만 보완했고 인증 코드는 보존했다.
+
+Python전체9,435개(worker1,221+후속8,214), JS915개와 린트·타입·빌드·OpenAPI를 확인했다. 초기 실패와 잘못된 중복 선택 중단은 보존했고 중복 합산하지 않았다. 분할 사이 worker/실행 바이트는 불변이다. 모델 요청·지침·성공 영수증 AST·기존 증거를 유지한다. 추가 실제 호출0, 과거 실패 원인은 미확인이다. 개인 개발 API 적용을 이어간다.
+
+## 진행 · 안전한 검증 단계 진단 · 2026-10-27
+
+[구현 계약](../changes/evidence-rejection-diagnostics.md)에 따라 고정 allowlist 단계만 내부 오류와 서버 로그에 남긴다. 출력/원문 계약과 모델 요청은 유지한다. TDD·집중211개/종료 처리 회귀132개·태스크/전체 정적 검토를 마쳤으며 전체 통합 검사는 진행 중이다. 콘솔에도 단계가 표시되도록 보완했고 종료 오류가 이전 출력 오류 단계를 덮지 않도록 검사했다. 과거 실제 실패의 원인은 아직 미확인이며 추가 모델 요청은 없다. 전체 검사 뒤 개인 개발 API에 진단만 반영한다. Sites는 완료 기록 때 갱신한다.
+
 ## 최종 인계 · 실제 분석 인수 · 2026-10-27
 
 [Draft PR123](https://github.com/DigestWorks/IssueDigest/pull/123)은 ops/question-web-development 기반 문서 변경이다. 실제 분석1회 검증 거부/최종0과 관측 한계를 기록했으며 제품/개발 서버/main 변경은 없다. 모의 검사와 실제 의미 성공을 구분했다. 실패 DB 사본/archive 목록을 보존하고 자신의 QA컨테이너/익명volume만 정리했다. 원응답 미수집으로 구체 거부 분기는 미확인이며 다음 작업은 비공개 검증 단계 진단이다.

@@ -704,6 +704,16 @@ def test_malformed_nonterminal_observation_retains_prior_counters(usage: Any) ->
 def test_successful_terminal_with_close_failure_stays_failure_and_keeps_usage() -> None:
     result, _, _ = run(body=Body(events(), close_error=True))
     failure(result, "transport", known=USAGE, complete=True, closed=False)
+    assert result.diagnostic_stage == "stream"
+
+
+@pytest.mark.parametrize(
+    "arguments,stage", [("{", "json_parse"), ("[]", "json_value"), ("{}", "dto_schema")]
+)
+def test_output_rejection_stage_survives_secondary_close_failure(arguments, stage):
+    result, _, _ = run(body=Body(events(arguments), close_error=True))
+    failure(result, "output", known=USAGE, complete=True, closed=False)
+    assert result.diagnostic_stage == stage
 
 
 def test_http_failure_does_not_retry_or_leak_provider_details() -> None:
@@ -1017,3 +1027,29 @@ def test_native_cleanup_external_cancel_keeps_earlier_primary_reason(
     assert not body.closed
     assert str(result) == "Guarded Responses request failed"
     assert result.__cause__ is None
+
+
+@pytest.mark.parametrize(
+    "arguments,stage",
+    [
+        ("{", "json_parse"),
+        ("[]", "json_value"),
+        ('{"text":"secret","text":"other"}', "json_value"),
+        ('{"text":NaN}', "json_value"),
+        ('{"text":1e999}', "json_value"),
+        ('{"text":42}', "dto_schema"),
+    ],
+)
+def test_rejection_diagnostic_distinguishes_real_native_output(arguments, stage):
+    got, body, requests = run(events(arguments))
+    failure(got, "output", known=dict(input_tokens=10, output_tokens=5, requests=1), complete=True)
+    assert got.diagnostic_stage == stage
+    assert body.closed and len(requests) == 1
+    assert "secret" not in str(got)
+
+
+@pytest.mark.parametrize("stage", ["secret raw body", [], {}, 42])
+def test_diagnostic_rejects_untrusted_values(stage):
+    error = api().GuardedResponsesError(reason="output", diagnostic_stage=stage)
+    assert error.diagnostic_stage is None
+    assert "secret" not in str(error)
