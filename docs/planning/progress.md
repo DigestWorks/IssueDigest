@@ -1,3 +1,7 @@
+## 진행 · Astra 내구 실행/최종 저장 지원 · 2026-10-27
+
+[지원 계약](../changes/question-astra-runtime.md)·[전체 인수](../changes/question-native-final-acceptance.md). 전체 실행을 준비하며 Sol 전용 runner/저장/최종 계약을 무송신2개 검사로 확인했다. 기존 Sol bytes/이력을 보존하고 Astra/v5·동일 모델/예약>=1 결합과 migration0015를 먼저 구현한다. 저장 정책·migration0015와 SDK/실행·최종 영수증 모델 연결을 구현했고 태스크별 독립 검토를 통과했다. 관련273개·모의 ANSWER 저장/재열람/재접수0과 기존 Sol 요청 bytes를 확인했다. 전체10,936개·정적/타입/빌드/OpenAPI와 전체 독립 검토를 통과했다. 격리 native 실제 인수를 준비 중이다. 공동DB/앱/main/운영은 그대로이고 이번 새 유료 호출은 아직0이다.
+
 ## 최종 인계 · 근거 생성 모델 비교 · 2026-10-27
 
 [Draft PR133](https://github.com/DigestWorks/IssueDigest/pull/133), 결과e727d31·검토72c4110. 모델만 Astra로 바꾼 실제 분석1회가 완료·SDKv5 수용/재검증을 통과했다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가다. private 도구40개·동결/모의 사전 검토·별도 실제/내용 검토를 보존했다. 입력2,412/출력1,348·cache write2,276의 공식 단가 추정0.09721달러를 예약1달러/실제 청구와 구분한다.
