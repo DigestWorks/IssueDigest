@@ -1,3 +1,11 @@
+## 최종 인계 · 정확 텍스트 참조 코어 · 2026-10-27
+
+[Draft PR126](https://github.com/DigestWorks/IssueDigest/pull/126)은 research/question-diagnostic-acceptance 기반이다. 신규56/관련603개·전체10,406개(Python9,491+JS915)·린트/타입/빌드/OpenAPI와 두 독립 검토 C0/I0/M0를 확인했다. 기존537파일과 과거 실패/소비를 보존했고 자신의 QA/volume는 정리했다. 실제 호출0·생성기/worker/API/앱/main 배포0이다. 다음은 새 도구·지침/영수증·내구 버전 연결과 실제 의미/개발 적용 인수다.
+
+Sitesv149 public/native succeeded(2026-10-27T03:41:33.404465+00:00), source44a4e25f0675f82e7feaff612132f4ea36da31af, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_e3cc2a6092948191bdecfa5c668d2b18, deployment appgdep_6ae01d5ee4348191ace504f6c18f0c69. 이전v148과 변경5문서178cc419352d54e82c65620dcc3cb1ad0047b82c 사본을 보존했다. HTML134/로컬대상4,671/공개텍스트449·비공개 값 제외를 확인했다. 정적 문구만 수정해 새 브라우저 검사는 하지 않았고 사용자 탭 이동0이다. 게시 credential 만료는 같은 Site에서 갱신해 완료했다. 이후 원본은 저장소를 따른다.
+
+Verify foundation Actions는 disabled_manually이며 다시 활성화하지 않았다. PR첨부는100개 제한으로 일반 링크를 사용한다. 초기 전체 검사의 환경 오류와 중단 로그는 보존하며 새 전체 통과 수에 더하지 않는다.
+
 ## 검증 완료 · 정확 텍스트 참조 · 2026-10-27
 
 [구현](../changes/question-text-references.md)·[검증](../research/question-text-references-validation.md). 모델은 citation_id/text만 제안하고 서버가 정확 유일 매칭으로 위치를 결정하는 순수 코어를 추가했다. 반복/중첩·누락·Unicode 차이·오프셋 주입/변조를 거부하고 기존 명제 계약에 위임한다. 새56/관련603개와 두 독립 검토 C0/I0/M0를 확인했다.
@@ -6,7 +14,7 @@
 
 ## 진행 · 정확 텍스트 참조 계약 · 2026-10-27
 
-[명세](../changes/question-text-references.md). 모델의 위치 계산 대신 citation별 유일한 정확 인용문으로 서버가 위치를 결정하는 별도 순수 계약을 구현한다. 중복·누락은 거부하고 기존 명제/의미 guards·과거 응답·생성기/앱을 보존한다. 새 SDK·내구 작업·실제 의미/개발 적용은 후속이다. Sites 반영 대기.
+[명세](../changes/question-text-references.md). 모델의 위치 계산 대신 citation별 유일한 정확 인용문으로 서버가 위치를 결정하는 별도 순수 계약을 구현한다. 중복·누락은 거부하고 기존 명제/의미 guards·과거 응답·생성기/앱을 보존한다. 새 SDK·내구 작업·실제 의미/개발 적용은 후속이다. Sitesv149에 요약을 반영했다.
 
 ## 최종 인계 · 실제 원문 참조 진단 · 2026-10-27
 
@@ -886,7 +894,7 @@ B/F는 고정 기준 소표본 충족이고 A는 필수 광역 범위 누락, E�
 
 # 측정 대상·적용 범위 계약 · 착수 · 2026-10-21
 
-[명세](../changes/measurement-scope-contract.md). 측정 대상과 지역·집단·기관 범위를 별도 정확 원문으로 저장하고 발표자와 구분하는 순수 계약을 추가한다. 기존 실행408파일·원래 실제 결과/기준을 보존하며 기존 프레임/문맥 resolver를 재사용한다. 단어 차단이나 자동 수정은 하지 않는다. 구현·독립검토·전체 검증 진행 중, Sites 반영 대기. 새 모델0·앱/서버/main/운영 변경0. 상태 근거 후보·새 provider 연결·미관측 자료 인수는 후속이다.
+[명세](../changes/measurement-scope-contract.md). 측정 대상과 지역·집단·기관 범위를 별도 정확 원문으로 저장하고 발표자와 구분하는 순수 계약을 추가한다. 기존 실행408파일·원래 실제 결과/기준을 보존하며 기존 프레임/문맥 resolver를 재사용한다. 단어 차단이나 자동 수정은 하지 않는다. 구현·독립검토·전체 검증 진행 중, Sitesv149에 요약을 반영했다. 새 모델0·앱/서버/main/운영 변경0. 상태 근거 후보·새 provider 연결·미관측 자료 인수는 후속이다.
 
 # 범위·상태 지침 · Sites v84 출판 영수증 · 2026-10-21 KST
 
@@ -918,7 +926,7 @@ B/F는 고정 기준 소표본 충족이고 A는 필수 광역 범위 누락, E�
 
 # 문맥 참조 프레임·생성 SDK · 착수 · 2026-10-20
 
-[명세](../changes/contextual-frame-generation.md). 새 역할/관계 프레임과 단일 borrowed-model 요청에 문맥 참조를 연결한다. 기존 생성 경로/앱/운영과 원래 실제 결과는 보존한다. source0347c46/전체6056을 baseline으로 두고 새 실행4파일만 추가한다. 명시 문맥으로 기존 전체문장 구조검사를 재사용한 뒤 정확한 짧은 span을 복원하며 wrapper 전용 재검증을 요구한다. 합성 SDK 인수와 실제 AI 선택 인수는 구분한다. 구현/독립검토/전체QA 진행 중, Sites 반영 대기.
+[명세](../changes/contextual-frame-generation.md). 새 역할/관계 프레임과 단일 borrowed-model 요청에 문맥 참조를 연결한다. 기존 생성 경로/앱/운영과 원래 실제 결과는 보존한다. source0347c46/전체6056을 baseline으로 두고 새 실행4파일만 추가한다. 명시 문맥으로 기존 전체문장 구조검사를 재사용한 뒤 정확한 짧은 span을 복원하며 wrapper 전용 재검증을 요구한다. 합성 SDK 인수와 실제 AI 선택 인수는 구분한다. 구현/독립검토/전체QA 진행 중, Sitesv149에 요약을 반영했다.
 
 # 문맥 기반 원문 참조 · Sites v82 출판 영수증 · 2026-10-20
 
@@ -944,7 +952,7 @@ PR59는 미병합 Draft다. 모델 비교는 신규2회/retry0·반환1/거부1�
 
 [비교 기록](../research/frame-model-comparison.md). 실행 코드는 sourceefa9bf2 그대로이며 현재 전체5937개 검사 증거를 재사용했다. 동일 두 자료/기준/지침/schema/한도에서 GPT-5.4 고정 버전으로 신규2회/retry0: 반환1/거부1·고정 의미 기준 수동충족1/2다. 기존 mini0/2와 모든 raw/gold/비용은 보존한다. A의 발표자·필수 직접 관계는 개선됐고 넓은 대상/맥락 상태 근거의 해석 한계도 기록했다. B의 raw 측정값/역할은 나아졌지만 반복 비교anchor4·cue2로 전체 거부됐고 수준/증감 관계 의미는 후속이다.
 
-신규 input6730/output1845, 공식 Standard 요율 참고$0.0445(mini$0.0128685의약3.46배)이며 실제 청구액/환율은 미검증이다. 관측cache_read/reasoning0·default tier와 반환/실패 usage 일치를 확인했다. 단일 annotator/알려진 개발 표본이며 최신전체모델/운영기본값을 정한 것이 아니다. 다음은 반복 표현의 위치 참조 계약·미관측 자료 인수다. 앱/main/운영 변경0, Sites 반영 대기.
+신규 input6730/output1845, 공식 Standard 요율 참고$0.0445(mini$0.0128685의약3.46배)이며 실제 청구액/환율은 미검증이다. 관측cache_read/reasoning0·default tier와 반환/실패 usage 일치를 확인했다. 단일 annotator/알려진 개발 표본이며 최신전체모델/운영기본값을 정한 것이 아니다. 다음은 반복 표현의 위치 참조 계약·미관측 자료 인수다. 앱/main/운영 변경0, Sitesv149에 요약을 반영했다.
 
 # 수치 프레임 생성 · Sites v80 출판 영수증 · 2026-10-20
 
@@ -968,7 +976,7 @@ known input6730/output1738/requests2이며 반환/거부 usage가 각각 raw와 
 
 초기 신규65/agents1598·정적 검사 이후 독립 작업 검토가 I1(일반 dictionary를 현재 dynamic SDK 객체로 다시 파싱하는 우회)을 발견했다. 고정된 실제 root/nested 노드를 dump 전에 요구하고 root/fact/anchor/relation/cue5종 RED→GREEN·신규70/정적 검사를 확인했다. scoped 재검토는 I1 ADDRESSED, 새 C/I0이다. 공개 validate의 dictionary 허용·관측 usage 보존은 유지한다. 기존397파일은 동일하며 별도 전체 검토/최종 gate·실제 인수는 진행 중이다.
 
-수정 전 fullgate는 혼합 소스 검사를 피하기 위해 소유 프로세스 그룹에 SIGINT로 중단(exit130/798통과·중단 cleanup 경고)했고 PASS로 집계하지 않았다. 소유 QA DB도 삭제 후 다른 loopback 포트에 깨끗하게 재생성했다. 고정 의미 기준/원래 gold는 그대로이며 아직 신규 paid0이다. Sites 반영 대기.
+수정 전 fullgate는 혼합 소스 검사를 피하기 위해 소유 프로세스 그룹에 SIGINT로 중단(exit130/798통과·중단 cleanup 경고)했고 PASS로 집계하지 않았다. 소유 QA DB도 삭제 후 다른 loopback 포트에 깨끗하게 재생성했다. 고정 의미 기준/원래 gold는 그대로이며 아직 신규 paid0이다. Sitesv149에 요약을 반영했다.
 
 # 수치 프레임 생성 · 착수 · 2026-10-20
 
@@ -1530,7 +1538,7 @@ SDK 단독 상한은 요청1회·입력+출력12,000/출력500/15초다. 실제 
 
 - 요구/범위: 내부 파이프라인 다음 개발 계속. `feat/policy-collection-intake`, [명세](../changes/policy-collection-intake.md)·M2, PR38 기반9bd61d2에서 시작한다. 시간당 raw 수집기를 유지하고 특정 성공 원본을 검토한 명시 편입·중복 재사용·새 승인 버전·원자 원문/표시/검색/receipt·새 질문의 최신 승인 선택을 연결한다.
 - 경계/판단: 첫 추적은 옛 metadata의 동일성을 추정하지 않고 검증된 기준 버전을 만든다. 이후 source fingerprint와 승인 인용 selector/순서가 같아야 기존 snapshot을 재사용하며 인용 선택이 바뀌면 새 승인 버전이다. 과거 인용/브리핑과 generic 역사 검색을 보존한다.
-- 현재/검증: OpenSpec root=null과 clean isolated worktree를 확인하고 세 task/API/인수 기준을 정리했다. 구현·실제 적용은 미완료, 기존0008·개발 앱·계정/세션·공개 게시와 collector는 아직 변경하지 않았다. 현재 Sites 반영 대기. 추가 read-only 확인에서 기존 수집기는 원래 수동1회와 수정 후 실제 예약1회가 모두 성공했고0008·자료13/인용37/공개1·활성 조사0을 유지했다. 서버 밖 full/app 백업과 별도 복원본의22테이블 전체 row hash 일치를 확인했다.
+- 현재/검증: OpenSpec root=null과 clean isolated worktree를 확인하고 세 task/API/인수 기준을 정리했다. 구현·실제 적용은 미완료, 기존0008·개발 앱·계정/세션·공개 게시와 collector는 아직 변경하지 않았다. 현재 Sitesv149에 요약을 반영했다. 추가 read-only 확인에서 기존 수집기는 원래 수동1회와 수정 후 실제 예약1회가 모두 성공했고0008·자료13/인용37/공개1·활성 조사0을 유지했다. 서버 밖 full/app 백업과 별도 복원본의22테이블 전체 row hash 일치를 확인했다.
 - 저장부 중간 인수: 제품5cd29ca의 storage566개(새45개)·Ruff/format/mypy·별도 코드 리뷰 C0/I0/M0을 통과했다. 원자 저장·같은 요청 재실행·변경/동일/되돌림·인용 선택 보존을 확인했다. 실제 데이터의 별도 복원본에서0009를 적용해 기존22테이블 전체 row hash 보존과 새 receipt0을 확인했다. 승인 CLI와 최신 승인 검색은 구현 중이며 실제DB/앱/collector는 그대로다.
 - 다음: 저장 transaction→승인 SDK/CLI→최신 승인 검색을 작업별 TDD/독립 검토로 구현하고 전체 검사를 수행한다. 실제 백업/복원·한 건 승인 적용과 기존 app SELECT/안전 재시작 가능 여부는 controller가 확인한다. main/운영 유예(D013)와 사용자 탭을 유지한다.
 
