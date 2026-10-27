@@ -1,3 +1,21 @@
+## 최종 인계 · 실제 원문 참조 진단 · 2026-10-27
+
+[Draft PR125](https://github.com/DigestWorks/IssueDigest/pull/125)은 feat/evidence-rejection-diagnostics 기반의 기록 전용 변경이다. 신규 실제 분석1회에서 모델 완료/DTO 수용 후 원문 위치 불일치로 거부됐고 최종0이다. 응답·송신/소비·실패 SQL/DBOS를 보존했다. 별도 결과 검토가 전체20참조 등장/고유15개·동일9글자 차이·미평가 의미 기준을 확인했다. 제품537파일은 불변이며 개발 서비스/공동DB/main/운영 변경0이다. 다음은 결정적인 원문 참조 계약과 회귀 구현이다.
+
+Sitesv148 public/native succeeded(2026-10-27T03:09:02.416613+00:00), sourceb787f77ba2845f43de765537e4fd3987abdceecb, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_801ad3b103dc81918b041a6b5f371f1b, deployment appgdep_6ae015c123c48191ad44958654ade890. 이전v147과 변경3문서 d658c90 사본을 보존했다. HTML133/로컬대상4,588/공개텍스트440·비공개 값 제외를 확인했고 사용자 탭 이동0이다. PR첨부는100개 한도로 일반 링크를 사용한다.
+
+소유 QA/익명volume를 정리했고 실제 실패 사본은 archive 목록 확인만 했으며 이번 복원 재검사는 하지 않았다. Verify foundation Actions는 disabled_manually를 확인했다. 앱 성공/최종 의미 인수로 표시하지 않으며 Sites의 당시 사본 이후 상태는 저장소 원본을 따른다.
+
+## 결과 · 새 진단 실제 인수 · 2026-10-27
+
+[검증 결과](../research/question-diagnostic-acceptance.md). 신규 분석1회에서 모델 완료·DTO 통과 후 evidence_contract 거부를 확인했다. 입력2,444/출력2,785, 사용량 완료/닫힘true, 최종0·재시도0이다. 오프라인으로 참조 등장20개(고유15개)의 인용문은 원문에 있지만 선언 위치가9글자 어긋난 것을 확인했다. 이전 실패의 원인은 여전히 미확인이다. 의미3명제/최종 브리핑은 미평가이며 성공으로 세지 않는다.
+
+모의2요청/저장·재열람/재사용 추가0·수집 도구5검사와 독립 사전 검토를 확인했다. 실제 원응답·수집 상태·실패 SQL/DBOS·사용량은 비공개 보존한다. 제품537파일·개발 실행기/공동DB/main 변경0이다. 다음은 모델의 위치 계산을 서버의 정확 매칭으로 분리하는 새 계약 설계다. 독립 결과 검토 C0/I0/M0와 사본 보존 후 소유 QA/volume 정리를 마쳤다. Sitesv148에 결과를 반영했다.
+
+## 진행 · 새 진단 실제 인수 · 2026-10-27
+
+[사전 기준](../research/question-diagnostic-acceptance.md). 기존 실패를 유지하고 같은 입력/기준의 신규 제한 시도를 준비한다. 비공개 스트림 복사·소유 격리 DB·모의 저장/재열람과 별도 검토 후 실제 분석1/최종1 이하로 확인한다. 제품·공동DB·main 변경0, 이번 실제 호출은 아직0이며 Sites 반영 대기다.
+
 ## 최종 인계 · 거부 단계 진단 · 2026-10-27
 
 [Draft PR124](https://github.com/DigestWorks/IssueDigest/pull/124)은 research/question-live-acceptance 기반이며 개인 개발 API에 검증 소스478cc09를 적용했다. 제공자 요청/지침/성공 영수증을 유지하고 오류 단계/안전 로그만 보강했다. Python9,435개(worker1,221+나머지8,214)·JS915개 및 린트·타입·빌드·OpenAPI, 태스크/최종/운영 검토의 미해결0이다. 시각 의존 테스트 실패/보완과 분할 불변 증거를 보존했다. 새3모듈 live hash·기존 설정/static·외부 HTTP/보호 경계·lease1/새 작업0을 확인했다.
