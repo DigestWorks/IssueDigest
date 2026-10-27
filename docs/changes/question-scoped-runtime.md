@@ -26,7 +26,8 @@ migration0014로 실제 DB의 plan/evidence CHECK만 v2/v3/v5로 확장한다. �
 - [x] T2: 실행 allowlist·migration0014·이전 요청/행/제약·downgrade/새/기존 설치 TDD.
 - [x] T3: dispatch/worker/runner/service·최종 조합/저장 읽기 연결·native ANSWER 저장/재열람·재접수 추가0·v2/v3 회귀.
 - [x] 태스크별/전체 독립 검토·전체 검사/정적/타입/빌드/OpenAPI·이전 실제 기록 보존.
-- [ ] 고정 원문/질문/기준·소유 격리 DB/합성 신원으로 제한 실제 분석1/최종1 이하·무재시도·결과/기록/PR/Sites.
+- [x] 고정 원문/질문/기준·소유 격리 DB/합성 신원으로 제한 실제1시도·분석1 whitespace 실패/최종0·무재시도·독립 결과 검토/기록/Draft PR131.
+- [ ] Sites 기록 게시. 실제 생성/최종/앱 인수는 미충족.
 
 ## 실제 검증·전환 경계
 

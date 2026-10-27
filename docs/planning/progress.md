@@ -1,3 +1,7 @@
+## 구현 검토 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
+
+[Draft PR131](https://github.com/DigestWorks/IssueDigest/pull/131), 구현a40101c은 feat/question-scoped-text-references 기반이다. 전체10,791개·독립 코드 검토·모의 전체 경로를 통과했으며 실제 분석1회 whitespace 실패/최종0을 별도 검토했다. 실제 의미/최종·앱 인수와 개인 개발 적용은 남는다. QA4/volume를 정리했고 과거561개 기록을 보존했다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
+
 ## 검증 결과 · 근거 범위 참조의 생성·내구 실행 · 2026-10-27
 
 [계약](../changes/question-scoped-runtime.md)·[검증](../research/question-scoped-runtime-validation.md). 새v5 SDK·migration0014·버전별 내구 큐/최종 조합·SQL 저장 읽기를 연결했다. 전체10,791개와 정적/타입/빌드/OpenAPI·태스크별/전체 독립 검토를 통과했다. 모의는 ANSWER 저장/재열람 일치·재접수 추가0이다.
