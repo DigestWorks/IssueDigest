@@ -1,3 +1,9 @@
+## 개인 개발 반영 · 거부 단계 진단 · 2026-10-27
+
+[실제 검증/적용](../research/evidence-rejection-diagnostics-validation.md). 소스478cc09를 분리된 locked 환경에 준비하고 개인 API만 정상 전환했다. 현재3모듈의 경로/해시 일치·전체 환경 보존·단일 lease1·새 작업0과 외부 HTTPS/비회원 경계를 확인했다. 기존 home/공개 목록과 Nginx/static config는 불변이다. frontend/DB 구조/수집기/main은 바꾸지 않았다.
+
+추가 실제 모델 호출0·과거 실패 원인은 미확인이다. 이제 다음 실패의 JSON/DTO/원문/영수증 단계를 비밀값 없는 로그에서 확인할 수 있다. 전용 QA/volume는 정리했고 자료/사용자 로그인은 조작하지 않았다. Draft PR/계획판 게시 결과는 최종 인계에 기록한다.
+
 ## 검증 완료 · 근거 거부 단계 진단 · 2026-10-27
 
 [계약](../changes/evidence-rejection-diagnostics.md)·[검증](../research/evidence-rejection-diagnostics-validation.md). 고정12단계의 오류 관측·하위 단계 보존·민감정보 없는 콘솔/구조화 로그를 추가했다. TDD/집중 검사·태스크/최종 검토 C0I0M0를 확인했다. 기존 OAuth 검사의 수집 시각 의존성을601초로 재현해 테스트만 보완했고 인증 코드는 보존했다.
