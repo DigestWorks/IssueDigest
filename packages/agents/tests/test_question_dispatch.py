@@ -742,3 +742,37 @@ def test_stored_profile_survives_config_change_and_partial_resume(admission, eng
                 )
 
     asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("version", [2, 3])
+def test_astra_legacy_stored_plan_rejected_without_child_admission(admission, engine, version):
+    from issuedigest_storage.question_plans import QuestionPlanRepository
+
+    plans, jobs, inputs = admission
+    plans = QuestionPlanRepository(engine, evidence_profile=f"guarded-question-evidence-v{version}")
+    client = QueueClient()
+    with pytest.raises(ValueError):
+        asyncio.run(
+            advance(
+                (plans, jobs, inputs), client, model="gpt-6-astra", reservation_usd=Decimal("1.00")
+            )
+        )
+    assert client.calls == [] and counts(engine) == (0, 0)
+
+
+def test_astra_stored_v5_plan_resumes_using_default_repository(admission, engine):
+    from issuedigest_storage.question_plans import QuestionPlanRepository
+
+    _, jobs, inputs = admission
+    plans = QuestionPlanRepository(engine, evidence_profile="guarded-question-evidence-v5")
+    plans.submit(inputs["token"], inputs["workspace_id"], inputs["request_id"], inputs["question"])
+    client = QueueClient()
+    saved = asyncio.run(
+        advance(
+            (QuestionPlanRepository(engine), jobs, inputs),
+            client,
+            model="gpt-6-astra",
+            reservation_usd=Decimal("1.00"),
+        )
+    )
+    assert saved.status == "in_progress" and len(client.calls) == 1 and counts(engine) == (1, 1)

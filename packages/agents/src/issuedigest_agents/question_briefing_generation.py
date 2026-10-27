@@ -5,8 +5,9 @@ meaning, historical provider execution, current rights, or monetary cost.
 """
 
 from copy import deepcopy
-from typing import Any, Literal, Self
+from typing import Any, Literal, Self, cast
 
+from issuedigest_domain.question_model_policy import briefing_model_allowed, evidence_model_allowed
 from issuedigest_domain.sources import Sha256
 from openai import AsyncOpenAI
 from pydantic import BaseModel, model_validator
@@ -54,7 +55,7 @@ class QuestionBriefingGeneration(_StrictModel):
     transport_profile: Literal["guarded-responses-tool-v1"]
     input_format: Literal["question-briefing-source-v1"]
     status: Literal["unreviewed"]
-    model: Literal["gpt-6.1-sol"]
+    model: Literal["gpt-6.1-sol", "gpt-6-astra"]
     briefing: QuestionBriefing
     prompt_sha256: Sha256
     instructions_sha256: Sha256
@@ -146,6 +147,10 @@ def validate_question_briefing_generation(
         _original(result, QuestionBriefingGeneration)
         prompt, _, _ = _preflight(question, sources, receipts)
         checked = _read(QuestionBriefingGeneration, result)
+        if not briefing_model_allowed(checked.model) or any(
+            not evidence_model_allowed(checked.model, receipt.profile) for receipt in receipts
+        ):
+            raise ValueError("Invalid final model/profile")
         briefing = validate_question_briefing(question, sources, receipts, checked.briefing)
         _budget(checked.usage)
         if (
@@ -185,7 +190,9 @@ async def run_question_briefing_generation(
     """One borrowed request; callers must separately admit/reserve and authorize it."""
     failure: QuestionBriefingGenerationError | None = None
     try:
-        if type(model) is not str or model != "gpt-6.1-sol":
+        if not briefing_model_allowed(model) or any(
+            not evidence_model_allowed(model, receipt.profile) for receipt in receipts
+        ):
             raise ValueError("Invalid final model")
         prompt, tools, probe = _preflight(question, sources, receipts)
         originals = deepcopy((sources, receipts))
@@ -225,7 +232,7 @@ async def run_question_briefing_generation(
             transport_profile=GUARDED_RESPONSES_PROFILE,
             input_format="question-briefing-source-v1",
             status="unreviewed",
-            model="gpt-6.1-sol",
+            model=cast(Literal["gpt-6.1-sol", "gpt-6-astra"], model),
             briefing=briefing,
             prompt_sha256=_hash(prompt),
             instructions_sha256=_hash(BRIEFING_GENERATION_INSTRUCTIONS),

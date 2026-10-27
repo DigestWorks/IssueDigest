@@ -2,6 +2,11 @@
 
 from hashlib import sha256
 
+from issuedigest_domain.question_model_policy import (
+    briefing_model_allowed,
+    evidence_model_allowed,
+    reservation_allowed,
+)
 from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobInputs
 from issuedigest_storage.evidence_jobs import EvidenceJob
 
@@ -31,6 +36,7 @@ def validate_briefing_packet(
         raise ValueError("Briefing inputs unavailable")
     receipts: list[QuestionEvidenceReceipt] = []
     profiles: set[str] = set()
+    models: set[str] = set()
     for source, child in zip(packet.sources, packet.children, strict=True):
         if (
             type(source) is not tuple
@@ -45,7 +51,7 @@ def validate_briefing_packet(
             or child.status != "completed"
             or child.question != packet.question
             or child.snapshot_id != source[0]
-            or child.model != "gpt-6.1-sol"
+            or not evidence_model_allowed(child.model, child.profile)
             or type(child.receipt) is not dict
             or child.usage_complete is not True
             or child.stream_closed is not True
@@ -53,11 +59,13 @@ def validate_briefing_packet(
             raise ValueError("Briefing evidence unavailable")
         receipt = validate_question_evidence_receipt(source, packet.question, child.receipt)
         profiles.add(receipt.profile)
+        models.add(child.model)
         if (
             child.source_sha256 != receipt.evidence.source_sha256
             or child.workspace_id != source[1].document.workspace_id
             or receipt.profile != child.profile
             or len(profiles) != 1
+            or len(models) != 1
             or receipt.prompt_sha256 != child.prompt_sha256
             or receipt.instructions_sha256 != child.instructions_sha256
             or receipt.usage.model_dump() != child.known_usage
@@ -81,7 +89,9 @@ def validate_briefing_binding(
         or job.prompt_sha256 != prompt_hash
         or job.instructions_sha256 != _INSTRUCTIONS_HASH
         or job.profile != "question-briefing-generation-v1"
-        or job.model != "gpt-6.1-sol"
+        or not briefing_model_allowed(job.model)
+        or not reservation_allowed(job.model, job.reservation_usd)
+        or any(child.model != job.model for child in packet.children)
         or job.child_job_ids != tuple(c.job_id for c in packet.children)
     ):
         raise ValueError("Briefing job inputs changed")
@@ -101,7 +111,8 @@ def validate_stored_briefing(
         packet.question, packet.sources, receipts, job.receipt
     )
     if (
-        result.usage.model_dump() != job.known_usage
+        result.model != job.model
+        or result.usage.model_dump() != job.known_usage
         or job.usage_complete is not True
         or job.stream_closed is not True
     ):

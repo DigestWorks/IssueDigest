@@ -16,6 +16,11 @@ from typing import Literal
 from uuid import UUID
 
 from dbos import DBOSClient
+from issuedigest_domain.question_model_policy import (
+    briefing_model_allowed,
+    evidence_model_allowed,
+    reservation_allowed,
+)
 from issuedigest_domain.question_source_plan import QuestionSourceChoice, QuestionSourcePlan
 from issuedigest_storage.evidence_jobs import EvidenceJob, EvidenceJobRepository
 from issuedigest_storage.question_plans import QuestionPlanRepository
@@ -114,6 +119,7 @@ def _job(
             "guarded-question-evidence-v3",
             "guarded-question-evidence-v5",
         )
+        or not evidence_model_allowed(model, profile)
         or type(job.profile) is not str
         or job.profile != profile
         or admitted.profile != profile
@@ -163,16 +169,10 @@ async def advance_question_plan(
         type(question) is not str
         or not question.strip()
         or len(question) > 1500
-        or type(model) is not str
-        or model != "gpt-6.1-sol"
+        or not briefing_model_allowed(model)
     ):
         raise ValueError("Invalid question dispatch input")
-    if (
-        type(reservation_usd) is not Decimal
-        or not reservation_usd.is_finite()
-        or not Decimal("0") < reservation_usd <= Decimal("10")
-        or reservation_usd != reservation_usd.quantize(Decimal(".01"))
-    ):
+    if not reservation_allowed(model, reservation_usd):
         raise ValueError("Invalid evidence reservation")
     if type(app_version) is not str or re.fullmatch(r"[A-Za-z0-9._-]{1,128}", app_version) is None:
         raise ValueError("Invalid evidence application version")
@@ -189,6 +189,8 @@ async def advance_question_plan(
         "guarded-question-evidence-v5",
     ):
         raise StorageCorruption("Question dispatch profile integrity check failed")
+    if not evidence_model_allowed(model, profile):
+        raise ValueError("Invalid evidence model/profile")
     if not plan.sources:
         return QuestionDispatch(plan.plan_id, "no_match", 0, 0, ())
     dispatches: list[EvidenceDispatch] = []

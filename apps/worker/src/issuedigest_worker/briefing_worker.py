@@ -26,6 +26,7 @@ from issuedigest_agents.question_briefing_generation import (
     run_question_briefing_generation,
     validate_question_briefing_generation,
 )
+from issuedigest_domain.question_model_policy import briefing_model_allowed, reservation_allowed
 from issuedigest_storage.briefing_jobs import BriefingJob, BriefingJobRepository
 from issuedigest_storage.repository import StorageCorruption
 from issuedigest_storage.research import ResearchBudgetExceeded, ResearchConflict, ResearchForbidden
@@ -98,17 +99,16 @@ async def submit_briefing_job(
     if (
         len(set(child_job_ids)) != len(child_job_ids)
         or type(token) is not str
-        or type(model) is not str
-        or model != "gpt-6.1-sol"
-        or type(reservation_usd) is not Decimal
-        or not reservation_usd.is_finite()
-        or not 0 < reservation_usd <= 10
+        or not briefing_model_allowed(model)
+        or not reservation_allowed(model, reservation_usd)
     ):
         raise ValueError("Invalid briefing admission")
     packet = await asyncio.to_thread(repository.inputs, token, workspace_id, plan_id, child_job_ids)
     if packet is None:
         return None
     _, prompt_hash = _packet(packet)
+    if any(child.model != model for child in packet.children):
+        raise ValueError("Briefing child model mismatch")
     return await asyncio.to_thread(
         repository.submit,
         token,
@@ -215,6 +215,8 @@ async def execute_briefing_job(
         _owned(job_id, check_ownership)
         current_receipts, current_prompt = _packet(current_packet)
         _bound(current, current_packet, current_prompt)
+        if result.model != current.model:
+            raise ValueError("Briefing result model mismatch")
         validate_question_briefing_generation(
             current_packet.question, current_packet.sources, current_receipts, result
         )
