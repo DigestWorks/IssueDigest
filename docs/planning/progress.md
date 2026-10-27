@@ -1,3 +1,7 @@
+## 구현 검토 · 생성 정체 비교 진단 · 2026-10-27
+
+[Draft PR132](https://github.com/DigestWorks/IssueDigest/pull/132), 진단2d719d3은 feat/question-scoped-runtime 기반이다. 재현7개·독립 결과 검토를 통과했으며 과거678개 기록·제품552파일을 보존했다. 추가 호출/DB/개발 서비스 변경0이다. 제공자 내부 원인은 미확정이며 실제 생성/최종·앱 인수는 남는다. PR첨부는100개 제한으로 일반 링크를 사용한다. Sites 게시 정보는 이후 기록한다.
+
 ## 비교 진단 · 생성 정체 · 2026-10-27
 
 [범위](../changes/question-format-diagnostics.md)·[결과](../research/question-format-diagnostics.md). 추가 호출 없이v3/v5 실패와v4 완결 응답을 비교했다. 같은 parameter schema/질문/인용에서 두 실패가 같은 허용된 수치 상한 값 뒤 공백257로 중단됐다. 완결 예도 있으므로 schema의 명백한 막다른 길이라고 단정하지 않는다. 지침/tool/input_format이 함께 달라 단일 변수 실험은 아니며 제공자 내부 원인은 미확정이다.
