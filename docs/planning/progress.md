@@ -1,3 +1,21 @@
+## 최종 인계 · 완결된 compact JSON 후보 · 2026-10-27
+
+[Draft PR129](https://github.com/DigestWorks/IssueDigest/pull/129)은 feat/question-text-runtime 기반이며 구현/결과a8d3fe2e07e2f98082805db1a0bb1c4d465bb6a5를 보존한다. 신규66/관련258·전체10,585개와 두 코드 검토·별도 실제 결과 검토를 기록했다. 새 실제1회는 native 완료/입력2,402·출력1,265를 관측했으나 반복 수치 참조로 전체 거부됐다. SDK/필수3단위·전체12단위·최종/앱 성공으로 표시하지 않는다.
+
+Sitesv152 public/native succeeded(2026-10-27T06:17:41.366128+00:00), source8dafe2ba42430a6c96dfa7a58071638017c02bcb, saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_6abaa12d540c8191837f69f584e9ca29, deployment appgdep_6ae041f81a3c81919d207ec4ae628f14. 이전v151과 변경6문서a8d3fe2 사본을 보존했다. HTML137/로컬대상4,935/공개텍스트471의 링크·비공개 값 제외를 확인했다. 문구/기록만 갱신해 새 브라우저 검사를 생략하고 사용자 탭 이동0이다. 이후 진행은 저장소 원본을 따른다.
+
+기존544실행 파일·이전 여섯 묶음437개 기록과 새 원응답/기준/usage를 보존했다. 실제 전 동결6,949개는 그대로였고 이후 체크박스 변경 명세만 사전 사본으로 구분했다. 자신의 QA3/volume를 정리했고 공유DB·개발 서비스·main/운영은 바꾸지 않았다. Verify foundation은 disabled_manually다. 다음은 명시된 근거 범위에서 유일 위치를 결정하는 새 계약 설계이며 기존 응답 수리/재호출은 하지 않는다. PR첨부는100개 제한으로 일반 링크를 사용한다.
+
+## 검증 결과 · 완결된 compact JSON 후보 · 2026-10-27
+
+[계약](../changes/question-compact-json.md)·[검증](../research/question-compact-json-validation.md). 별도v4 출력 지시·신규66/관련258개와 두 독립 코드 검토, 전체10,585개(Python9,670+JS915)·정적/타입/빌드/OpenAPI를 통과했다. 이전544개 추적 non-Markdown 파일과 실제 여섯 묶음437개 기록은 보존했다.
+
+새 실제1회는 native/JSON/DTO 완료했지만 짧은 반복 수치 참조로 evidence_contract에서 거부됐다. 입력2,402/출력1,265·추가송신/재시도0이다. 해당 근거 안에서는 유일해도 현재 전체 원문 유일성 규칙과 다르므로 과거 출력 수리/부분 성공률을 인정하지 않는다. 필수3단위/전체12단위·최종/앱 인수는 미평가다. 자신의 QA3/volume를 정리했고 공유DB/개발 서비스·main/운영·Actions를 바꾸지 않았다. 다음은 명시 근거 범위에서 안전하게 유일 위치를 결정하는 새 계약 설계다. PR/Sites 게시 정보는 최종 인계에 기록한다.
+
+## 진행 · 완결된 compact JSON 후보 · 2026-10-27
+
+[계약](../changes/question-compact-json.md). 직전 실제 분석의 공백 정체를 근거로 기존 출력 지시 한 문장만 완결된 JSON/문자열 밖 formatting 공백 금지로 바꾸는 별도v4 SDK 후보를 검증한다. strict schema·원문/질문·참조/불확실성·공백 감지·예산/시간은 유지한다. 공식 JSON mode 경고는 참고 근거이며 이번 strict tool 실패의 원인 증명은 아니다. 이전SDK/내구 연결/개발 앱은 유지하고 새 실제1회 전 모의·검토·freeze를 확인한다.
+
 ## 최종 인계 · 정확 텍스트 내구 실행 · 2026-10-27
 
 [Draft PR128](https://github.com/DigestWorks/IssueDigest/pull/128), 구현96ac2381b8fc8de854659310d8bbc637820a91f1·결과 검토22ee8436d9b2a8b3c4554a5afb53358a72715446. 전체10,519개·독립 코드/실제 실패 검토를 기록했다. 모의 전체 연결은 통과했지만 실제 분석1회는 공백 정체로 실패·최종0이며 개발 전환은 보류했다.
