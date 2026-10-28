@@ -77,3 +77,7 @@ __all__ = [
     "locate_policy_html_quote",
     "to_policy_html_representation",
 ]
+
+from .legal_html import LegalHtmlExtraction, LegalHtmlLimits, extract_legal_html
+
+__all__ += ["LegalHtmlExtraction", "LegalHtmlLimits", "extract_legal_html"]

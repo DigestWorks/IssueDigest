@@ -27,7 +27,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.engine import Connection, Engine
 
-from . import research_retrieval
+from . import question_retrieval_v3 as research_retrieval
 from .evidence_jobs import EvidenceJobRepository, digest, source_digest
 from .repository import EvidenceRepository, StorageCorruption
 from .research import ResearchConflict, ResearchForbidden, ResearchRepository
@@ -80,6 +80,7 @@ def _input(
     request: UUID,
     question: str,
     evidence_profile: str = EVIDENCE_PROFILES[0],
+    retrieval_profile: str = "question-topics-ko-v2",
 ) -> str:
     identity = dict(
         actor_id=str(actor),
@@ -87,7 +88,7 @@ def _input(
         request_id=str(request),
         question=question,
         profile="question-source-plan-v1",
-        retrieval_profile="question-topics-ko-v2",
+        retrieval_profile=retrieval_profile,
     )
     if evidence_profile != EVIDENCE_PROFILES[0]:
         identity["evidence_profile"] = validate_evidence_profile(evidence_profile)
@@ -137,7 +138,12 @@ class QuestionPlanRepository:
                 or row["payload_sha256"] != digest(dict(actor_id=str(row["actor_id"]), payload=raw))
                 or row["input_sha256"]
                 != _input(
-                    row["actor_id"], plan.workspace_id, plan.request_id, plan.question, profile
+                    row["actor_id"],
+                    plan.workspace_id,
+                    plan.request_id,
+                    plan.question,
+                    profile,
+                    plan.retrieval_profile,
                 )
             ):
                 raise ValueError
@@ -203,6 +209,7 @@ class QuestionPlanRepository:
             )
             plan = QuestionSourcePlan(
                 plan_id=uuid4(),
+                retrieval_profile=research_retrieval.RETRIEVAL_PROFILE,
                 workspace_id=workspace_id,
                 request_id=request_id,
                 question=question,
@@ -219,7 +226,12 @@ class QuestionPlanRepository:
                     request_id=request_id,
                     question=question,
                     input_sha256=_input(
-                        actor, workspace_id, request_id, question, self.evidence_profile
+                        actor,
+                        workspace_id,
+                        request_id,
+                        question,
+                        self.evidence_profile,
+                        plan.retrieval_profile,
                     ),
                     evidence_profile=self.evidence_profile,
                     payload=payload,

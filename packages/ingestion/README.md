@@ -727,3 +727,16 @@ uv run ruff check packages/ingestion/src packages/ingestion/tests/test_hwpx.py
 uv run ruff format --check packages/ingestion/src packages/ingestion/tests/test_hwpx.py
 uv run mypy packages/ingestion/src
 ```
+
+## 공식 법령 HTML
+
+`extract_legal_html(raw, canonical_url)`은 이미 확보한 국가법령정보센터 `lsInfoR.do` 본문을 오프라인으로 추출한다. URL의 법령 버전·시행일과 원문 메타데이터·표시 헤더를 대조하며, 조문과 부칙을 함께 보존한다. 숨겨진 법령 문단·시행일 예외가 있으면 불완전한 원문으로 처리하고 거부한다. 메뉴·연락처·스크립트·입력 컨트롤은 본문에 넣지 않는다.
+
+```python
+from issuedigest_ingestion import extract_legal_html
+
+extracted = extract_legal_html(raw_bytes, canonical_url)
+# extracted.text, raw_sha256, text_sha256, parser provenance
+```
+
+이 함수는 네트워크·DB·모델을 호출하지 않으며 최신 법령 조회나 개별 조항의 현재 효력을 판정하지 않는다. `LegalHtmlLimits`로 원본/텍스트 크기·깊이·노드 수를 제한한다. 반환된 전체 표현과 AI 입력에 선택한 정확 인용 범위는 별개다. 기존 EvidenceBundle·인용·등록 계약을 사용하며 공개 게시를 수행하지 않는다.

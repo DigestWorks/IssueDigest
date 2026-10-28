@@ -16,7 +16,9 @@ class QuestionSourcePlan(BaseModel):
     model_config = ConfigDict(strict=True, frozen=True, extra="forbid")
 
     profile: Literal["question-source-plan-v1"] = "question-source-plan-v1"
-    retrieval_profile: Literal["question-topics-ko-v2"] = "question-topics-ko-v2"
+    retrieval_profile: Literal["question-topics-ko-v2", "question-legal-aliases-ko-v3"] = (
+        "question-topics-ko-v2"
+    )
     plan_id: UUID4
     workspace_id: UUID4
     request_id: UUID4

@@ -537,3 +537,41 @@ def test_same_actor_request_in_two_workspaces_is_separate(plans, engine):
     assert first.plan_id != second.plan_id
     assert plans.get(token, other, first.plan_id) is None
     assert plans.get(token, workspace, second.plan_id) is None
+
+
+def test_new_plan_records_legal_alias_profile_and_old_v2_no_match_stays_frozen(plans, engine):
+    token, workspace, _ = seed(engine)
+    request = uuid4()
+    question = "최근에 스토킹법 관련하여 궁금해."
+    original = plans.submit(token, workspace, request, question)
+    # Model an authentic historical v2 receipt using its unchanged input algorithm.
+    raw = original.model_dump(mode="json")
+    raw["retrieval_profile"] = "question-topics-ko-v2"
+    with engine.begin() as conn:
+        actor = conn.scalar(select(api().question_source_plans.c.actor_id))
+        conn.execute(
+            update(api().question_source_plans).values(
+                payload=raw,
+                input_sha256=api()._input(actor, workspace, request, question),
+                payload_sha256=api().digest(dict(actor_id=str(actor), payload=raw)),
+            )
+        )
+        before = conn.execute(select(api().question_source_plans)).mappings().one()
+    source = save(engine, workspace, "스토킹범죄의 처벌 등에 관한 법률")
+    historic = plans.submit(token, workspace, request, question)
+    assert historic.status == "no_match"
+    assert historic.retrieval_profile == "question-topics-ko-v2"
+    with engine.connect() as conn:
+        assert conn.execute(select(api().question_source_plans)).mappings().one() == before
+    fresh = plans.submit(token, workspace, uuid4(), question)
+    assert fresh.retrieval_profile == "question-legal-aliases-ko-v3"
+    assert tuple(item.snapshot_id for item in fresh.sources) == (source,)
+    assert plans.get(token, workspace, fresh.plan_id) == fresh
+
+
+def test_new_legal_question_does_not_select_unrelated_conversational_filler(plans, engine):
+    token, workspace, _ = seed(engine)
+    save(engine, workspace, "산업 지원 정책과 관련하여 관계 기관과 협의한다.")
+    plan = plans.submit(token, workspace, uuid4(), "최근에 스토킹법 관련하여 궁금해.")
+    assert plan.status == "no_match" and plan.reason == "no_candidates"
+    assert plan.sources == ()
