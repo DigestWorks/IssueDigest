@@ -1,3 +1,9 @@
+## 기록 게시·인계 · 2026-10-28 KST
+
+[계획판v160](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 배포 succeeded, 2026-10-28T18:24:19.939577+09:00. source cd253dbe7e3746a372d328f2c8497fb96d291d48·saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_ade7a0b8817c8191aa3c09e8887e9218·deployment appgdep_6ae1bf3570ec81919dc736177d5ecd5b. 저장소625ffef 문서6개를 byte일치로 반영하고 이전v159를 보존했다. 링크/자산/앵커5,773개와 공개 텍스트550개에서 실제 비밀값 제외를 확인했다. 사용자 탭은 열지 않았다. 이후 정정/인계는 저장소 원본을 따른다.
+
+두 격리 실제검증 DB를 private archive로 저장하고 pg_restore 목록을 검증한 뒤 소유 QA5개만 정리했다. 제품41c8e53·전체11,056개·실제 최종 생성/SQL 재열람·개발 반영을 완료했고, 실제 로그인 사용자 화면 및 다양한 이슈 품질은 남아 있다.
+
 ## 실제 브리핑 생성·저장과 개발 적용 · 2026-10-28 KST
 
 [변경·결과](../changes/briefing-output-v4.md). 공식 자료3건의 실제 분석을 재사용해 최종 요약·비교 생성, SQL 저장과 정확 재열람을 확인했다. 생성·저장 규격을 단순화하고 원문·명제·기존 결과 호환성을 보존했다. 전체11,056개·정적/타입/빌드/OpenAPI·독립 검토를 통과했다.
