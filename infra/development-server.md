@@ -1,3 +1,5 @@
+최근 개발 반영: [스토킹 원문3건·법률 별칭 검색v3](../docs/changes/stalking-source-intake.md). 제품28866c0·기존DB/환경/세션·정적자산을 유지하고 API 소스만 교체했습니다. 실제 런타임 검색과 기존 질문/분석 행 보존을 확인했으며 사용자 질문의 최종 품질은 별도입니다.
+
 ## 최신 개인 개발 API · 2026-10-28 KST
 
 [적용 결과](../docs/research/question-astra-app-runtime-validation.md). 제품e686086·DB0015에 명시 Astra/v5·각1달러 예약을 연결했다. 전체10,946개·독립 검토·서버 밖 전후 full/app 백업·별도PG18.6 public27테이블 복원·이관 리허설/행·ACL 보존을 확인했다. 원래 Sol 기본/이력·공개/비회원 경계·계정/세션·Nginx/static·수집기/cron·main/운영은 유지한다. 사용자 로그인·질문을 대신하지 않았고 Models GET200/유료POST0과 선행 격리 실제 인수를 구분한다. 실제 process/source/복귀 기록은 서버 private 상태에 보존한다. 아래 초기 기록은 현재 상태의 완료 증거가 아니다.
