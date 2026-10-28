@@ -12,13 +12,12 @@ from issuedigest_storage.evidence_jobs import EvidenceJob
 
 from .question_briefing import QuestionEvidenceReceipt, validate_question_evidence_receipt
 from .question_briefing_generation import (
-    BRIEFING_GENERATION_INSTRUCTIONS,
+    BRIEFING_INPUT_V1,
     QuestionBriefingGeneration,
+    briefing_input_format_from_instructions_hash,
     question_briefing_prompt,
     validate_question_briefing_generation,
 )
-
-_INSTRUCTIONS_HASH = sha256(BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest()
 
 
 def validate_briefing_evidence(
@@ -78,15 +77,19 @@ def validate_briefing_evidence(
 
 def validate_briefing_packet(
     packet: BriefingJobInputs,
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> tuple[tuple[QuestionEvidenceReceipt, ...], str]:
     checked = validate_briefing_evidence(packet)
-    prompt = question_briefing_prompt(packet.question, packet.sources, checked)
+    prompt = question_briefing_prompt(packet.question, packet.sources, checked, input_format)
     return checked, sha256(prompt.encode()).hexdigest()
 
 
 def validate_briefing_binding(
     job: BriefingJob, packet: BriefingJobInputs, prompt_hash: str
 ) -> None:
+    if type(job) is not BriefingJob:
+        raise ValueError("Briefing job inputs changed")
+    briefing_input_format_from_instructions_hash(job.instructions_sha256)
     if (
         type(job) is not BriefingJob
         or job.workspace_id != packet.plan.workspace_id
@@ -94,7 +97,6 @@ def validate_briefing_binding(
         or job.question != packet.question
         or job.inputs_sha256 != packet.inputs_sha256
         or job.prompt_sha256 != prompt_hash
-        or job.instructions_sha256 != _INSTRUCTIONS_HASH
         or job.profile != "question-briefing-generation-v1"
         or not briefing_model_allowed(job.model)
         or not reservation_allowed(job.model, job.reservation_usd)
@@ -110,7 +112,8 @@ def validate_stored_briefing(
     """Validate a completed receipt without creating a client or performing I/O."""
     if type(job) is not BriefingJob or job.status != "completed":
         raise ValueError("Briefing completion unavailable")
-    receipts, prompt_hash = validate_briefing_packet(packet)
+    input_format = briefing_input_format_from_instructions_hash(job.instructions_sha256)
+    receipts, prompt_hash = validate_briefing_packet(packet, input_format)
     validate_briefing_binding(job, packet, prompt_hash)
     if job.receipt is None:
         raise ValueError("Briefing completion unavailable")
@@ -118,7 +121,9 @@ def validate_stored_briefing(
         packet.question, packet.sources, receipts, job.receipt
     )
     if (
-        result.model != job.model
+        result.input_format != input_format
+        or result.instructions_sha256 != job.instructions_sha256
+        or result.model != job.model
         or result.usage.model_dump() != job.known_usage
         or job.usage_complete is not True
         or job.stream_closed is not True

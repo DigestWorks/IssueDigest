@@ -381,8 +381,11 @@ def test_invalid_model_profile_is_rejected_before_start(model, profile):
     "status,kind",
     [("no_match", "no_match"), ("blocked", "blocked"), ("evidence_complete", "blocked")],
 )
+@pytest.mark.parametrize(
+    "input_format", ["question-briefing-source-v1", "question-briefing-source-v2"]
+)
 def test_run_bridge_passes_configured_model_and_reservations(
-    monkeypatch, model, profile, amount, status, kind
+    monkeypatch, model, profile, amount, status, kind, input_format
 ):
     from decimal import Decimal
     from types import SimpleNamespace
@@ -399,7 +402,9 @@ def test_run_bridge_passes_configured_model_and_reservations(
     monkeypatch.setattr(api, "run_question_briefing", run)
     service = api.OwnedQuestionExecutionService(
         create_engine("postgresql+psycopg://synthetic@127.0.0.1:25607/synthetic"),
-        api.QuestionServiceConfig(api_key="synthetic", model=model, evidence_profile=profile),
+        api.QuestionServiceConfig(
+            api_key="synthetic", model=model, evidence_profile=profile, input_format=input_format
+        ),
     )
     service._client = object()
     result = asyncio.run(service._run_worker("A" * 43, uuid4(), uuid4(), "질문"))
@@ -407,6 +412,10 @@ def test_run_bridge_passes_configured_model_and_reservations(
     assert captured["model"] == model
     assert captured["evidence_reservation_usd"] == Decimal(amount)
     assert captured["briefing_reservation_usd"] == Decimal(amount)
+    if input_format == "question-briefing-source-v1":
+        assert "input_format" not in captured
+    else:
+        assert captured["input_format"] == input_format
 
 
 def test_provider_ignores_ambient_endpoint_tenant_and_proxy(monkeypatch):
@@ -488,3 +497,20 @@ def test_provider_ignores_ambient_endpoint_tenant_and_proxy(monkeypatch):
         assert providers[0].is_closed()
 
     asyncio.run(exercise())
+
+
+def test_final_input_format_default_and_strict_explicit_opt_in():
+    api = importlib.import_module("issuedigest_worker.question_service")
+    env = {"ISSUEDIGEST_QUESTION_BRIEFING_ENABLED": "1", "OPENAI_API_KEY": "synthetic"}
+    assert (
+        api.QuestionServiceConfig.from_environment(env).input_format
+        == "question-briefing-source-v1"
+    )
+    env["ISSUEDIGEST_QUESTION_BRIEFING_INPUT_FORMAT"] = "question-briefing-source-v2"
+    assert (
+        api.QuestionServiceConfig.from_environment(env).input_format
+        == "question-briefing-source-v2"
+    )
+    env["ISSUEDIGEST_QUESTION_BRIEFING_INPUT_FORMAT"] = "unknown"
+    with pytest.raises(QuestionSubmissionError):
+        api.QuestionServiceConfig.from_environment(env)

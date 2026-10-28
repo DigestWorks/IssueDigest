@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from decimal import Decimal
 from functools import partial
 from threading import Event, Lock, Thread
-from typing import Any
+from typing import Any, cast
 from uuid import UUID
 
 import dbos._dbos as dbos_runtime
@@ -52,6 +52,7 @@ class QuestionServiceConfig:
     app_version: str = "question-briefing-http-v1"
     evidence_profile: str = "guarded-question-evidence-v2"
     model: str = SOL_MODEL
+    input_format: str = "question-briefing-source-v1"
 
     def __post_init__(self) -> None:
         if (
@@ -70,6 +71,9 @@ class QuestionServiceConfig:
                 "guarded-question-evidence-v3",
                 "guarded-question-evidence-v5",
             )
+            or type(self.input_format) is not str
+            or self.input_format
+            not in ("question-briefing-source-v1", "question-briefing-source-v2")
             or not evidence_model_allowed(self.model, self.evidence_profile)
             or self.app_version != "question-briefing-http-v1"
         ):
@@ -90,6 +94,9 @@ class QuestionServiceConfig:
         return cls(
             api_key=values.get("OPENAI_API_KEY", ""),
             model=values.get("ISSUEDIGEST_QUESTION_MODEL", SOL_MODEL),
+            input_format=values.get(
+                "ISSUEDIGEST_QUESTION_BRIEFING_INPUT_FORMAT", "question-briefing-source-v1"
+            ),
             evidence_profile=values.get(
                 "ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE", "guarded-question-evidence-v2"
             ),
@@ -370,6 +377,12 @@ class OwnedQuestionExecutionService:
             model=self.config.model,
             evidence_reservation_usd=self.config.evidence_reservation_usd,
             briefing_reservation_usd=self.config.briefing_reservation_usd,
+            **cast(
+                Any,
+                {"input_format": self.config.input_format}
+                if self.config.input_format != "question-briefing-source-v1"
+                else {},
+            ),
         )
         if type(result) is not QuestionBriefingRun:
             raise QuestionSubmissionError("unavailable")

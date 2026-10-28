@@ -4,6 +4,7 @@ Complete evidence is retained within fixed bounds. Structural validation does no
 meaning, historical provider execution, current rights, or monetary cost.
 """
 
+import json
 from copy import deepcopy
 from typing import Any, Literal, Self, cast
 
@@ -46,6 +47,32 @@ BRIEFING_GENERATION_INSTRUCTIONS = (
 )
 
 
+BRIEFING_INPUT_V1 = "question-briefing-source-v1"
+BRIEFING_INPUT_V2 = "question-briefing-source-v2"
+
+
+def briefing_generation_instructions(input_format: str = BRIEFING_INPUT_V1) -> str:
+    """Resolve only immutable, explicitly supported input/instruction pairs."""
+    if type(input_format) is not str:
+        raise ValueError("Invalid briefing input format")
+    if input_format == BRIEFING_INPUT_V1:
+        return BRIEFING_GENERATION_INSTRUCTIONS
+    if input_format == BRIEFING_INPUT_V2:
+        from .briefing_input_v2 import INPUT_V2_DECODING_INSTRUCTIONS
+
+        return BRIEFING_GENERATION_INSTRUCTIONS + INPUT_V2_DECODING_INSTRUCTIONS
+    raise ValueError("Invalid briefing input format")
+
+
+def briefing_input_format_from_instructions_hash(instructions_sha256: str) -> str:
+    for input_format in (BRIEFING_INPUT_V1, BRIEFING_INPUT_V2):
+        if type(instructions_sha256) is str and instructions_sha256 == _hash(
+            briefing_generation_instructions(input_format)
+        ):
+            return input_format
+    raise ValueError("Invalid briefing instructions hash")
+
+
 class QuestionBriefingGenerationError(GuardedResponsesError):
     """Context-free failure retaining only observations for the final stage."""
 
@@ -53,7 +80,7 @@ class QuestionBriefingGenerationError(GuardedResponsesError):
 class QuestionBriefingGeneration(_StrictModel):
     profile: Literal["question-briefing-generation-v1"]
     transport_profile: Literal["guarded-responses-tool-v1"]
-    input_format: Literal["question-briefing-source-v1"]
+    input_format: Literal["question-briefing-source-v1", "question-briefing-source-v2"]
     status: Literal["unreviewed"]
     model: Literal["gpt-6.1-sol", "gpt-6-astra"]
     briefing: QuestionBriefing
@@ -80,7 +107,9 @@ def _preflight(
     question: str,
     sources: tuple[Source, ...],
     receipts: tuple[QuestionEvidenceReceipt, ...],
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> tuple[str, list[ToolOutput[BaseModel]], QuestionBriefing]:
+    instructions = briefing_generation_instructions(input_format)
     probe = build_question_briefing(
         question,
         sources,
@@ -111,6 +140,10 @@ def _preflight(
             ],
         }
     )
+    if input_format == BRIEFING_INPUT_V2:
+        from .briefing_input_v2 import encode_briefing_input_v2
+
+        prompt = _json(encode_briefing_input_v2(json.loads(prompt)))
     tools: list[ToolOutput[BaseModel]] = [
         ToolOutput(
             QuestionBriefingProposal,
@@ -118,7 +151,7 @@ def _preflight(
             strict=True,
         )
     ]
-    if _request_envelope(prompt, tools, BRIEFING_GENERATION_INSTRUCTIONS, 4000) > 20000:
+    if _request_envelope(prompt, tools, instructions, 4000) > 20000:
         raise ValueError("Invalid final request envelope")
     return prompt, tools, probe
 
@@ -127,10 +160,11 @@ def question_briefing_prompt(
     question: str,
     sources: tuple[Source, ...],
     receipts: tuple[QuestionEvidenceReceipt, ...],
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> str:
     """Canonical complete input within fixed bounds; no authorization or network."""
     try:
-        return _preflight(question, sources, receipts)[0]
+        return _preflight(question, sources, receipts, input_format)[0]
     except Exception:
         pass
     raise QuestionBriefingGenerationError(reason="input")
@@ -145,8 +179,9 @@ def validate_question_briefing_generation(
     """Rebuild against current inputs; consistent replacements are not signatures."""
     try:
         _original(result, QuestionBriefingGeneration)
-        prompt, _, _ = _preflight(question, sources, receipts)
         checked = _read(QuestionBriefingGeneration, result)
+        instructions = briefing_generation_instructions(checked.input_format)
+        prompt, _, _ = _preflight(question, sources, receipts, checked.input_format)
         if not briefing_model_allowed(checked.model) or any(
             not evidence_model_allowed(checked.model, receipt.profile) for receipt in receipts
         ):
@@ -156,7 +191,7 @@ def validate_question_briefing_generation(
         if (
             briefing != checked.briefing
             or checked.prompt_sha256 != _hash(prompt)
-            or checked.instructions_sha256 != _hash(BRIEFING_GENERATION_INSTRUCTIONS)
+            or checked.instructions_sha256 != _hash(instructions)
             or checked.aggregate_usage != _aggregate(receipts, checked.usage)
         ):
             raise ValueError("Changed generation")
@@ -173,8 +208,9 @@ def _unchanged(
     originals: tuple[tuple[Source, ...], tuple[QuestionEvidenceReceipt, ...]],
     prompt: str,
     probe: QuestionBriefing,
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> None:
-    current_prompt, _, current_probe = _preflight(question, sources, receipts)
+    current_prompt, _, current_probe = _preflight(question, sources, receipts, input_format)
     if (sources, receipts) != originals or current_prompt != prompt or current_probe != probe:
         raise ValueError("Changed final inputs")
 
@@ -186,6 +222,7 @@ async def run_question_briefing_generation(
     question: str,
     sources: tuple[Source, ...],
     receipts: tuple[QuestionEvidenceReceipt, ...],
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> QuestionBriefingGeneration:
     """One borrowed request; callers must separately admit/reserve and authorize it."""
     failure: QuestionBriefingGenerationError | None = None
@@ -194,9 +231,10 @@ async def run_question_briefing_generation(
             not evidence_model_allowed(model, receipt.profile) for receipt in receipts
         ):
             raise ValueError("Invalid final model")
-        prompt, tools, probe = _preflight(question, sources, receipts)
+        instructions = briefing_generation_instructions(input_format)
+        prompt, tools, probe = _preflight(question, sources, receipts, input_format)
         originals = deepcopy((sources, receipts))
-        _unchanged(question, sources, receipts, originals, prompt, probe)
+        _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
     except Exception:
         failure = QuestionBriefingGenerationError(reason="input")
     if failure is not None:
@@ -208,7 +246,7 @@ async def run_question_briefing_generation(
             client=client,
             model=model,
             prompt=prompt,
-            instructions=BRIEFING_GENERATION_INSTRUCTIONS,
+            instructions=instructions,
             tool=tools[0],
         )
         if (
@@ -224,23 +262,25 @@ async def run_question_briefing_generation(
         _budget(known)
         if type(result.output) is not QuestionBriefingProposal:
             raise ValueError("Invalid final proposal")
-        _unchanged(question, sources, receipts, originals, prompt, probe)
+        _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
         briefing = build_question_briefing(question, sources, receipts, result.output)
-        _unchanged(question, sources, receipts, originals, prompt, probe)
+        _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
         generated = QuestionBriefingGeneration(
             profile="question-briefing-generation-v1",
             transport_profile=GUARDED_RESPONSES_PROFILE,
-            input_format="question-briefing-source-v1",
+            input_format=cast(
+                Literal["question-briefing-source-v1", "question-briefing-source-v2"], input_format
+            ),
             status="unreviewed",
             model=cast(Literal["gpt-6.1-sol", "gpt-6-astra"], model),
             briefing=briefing,
             prompt_sha256=_hash(prompt),
-            instructions_sha256=_hash(BRIEFING_GENERATION_INSTRUCTIONS),
+            instructions_sha256=_hash(instructions),
             usage=known,
             aggregate_usage=_aggregate(receipts, known),
         )
         checked = validate_question_briefing_generation(question, sources, receipts, generated)
-        _unchanged(question, sources, receipts, originals, prompt, probe)
+        _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
         return checked
     except GuardedResponsesError as error:
         failure = QuestionBriefingGenerationError(

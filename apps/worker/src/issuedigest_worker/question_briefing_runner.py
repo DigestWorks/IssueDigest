@@ -19,6 +19,10 @@ from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvide
 from issuedigest_agents.guarded_question_evidence_v5 import GuardedQuestionEvidenceGenerationV5
 from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
 from issuedigest_agents.question_briefing import build_question_briefing
+from issuedigest_agents.question_briefing_generation import (
+    BRIEFING_INPUT_V1,
+    briefing_generation_instructions,
+)
 from issuedigest_agents.question_dispatch import QuestionDispatch
 from issuedigest_domain.question_model_policy import (
     briefing_model_allowed,
@@ -105,12 +109,14 @@ async def run_question_briefing(
     evidence_reservation_usd: Decimal,
     briefing_reservation_usd: Decimal,
     total_timeout_seconds: int = 600,
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> QuestionBriefingRun | None:
     """Compose existing guarded helpers using the original request and borrowed client.
 
     Cancellation can outlive SQL admission, but creates no continuation or refund.
     Explicitly repeat the same request to discover its durable progress.
     """
+    briefing_generation_instructions(input_format)
     if (
         type(plans) is not QuestionPlanRepository
         or type(evidence_jobs) is not EvidenceJobRepository
@@ -200,6 +206,7 @@ async def run_question_briefing(
                 children,
                 model=model,
                 reservation_usd=briefing_reservation_usd,
+                **({"input_format": input_format} if input_format != BRIEFING_INPUT_V1 else {}),
             )
             if job is None:
                 return None

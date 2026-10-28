@@ -21,8 +21,10 @@ from issuedigest_agents.guarded_responses_stream import (
     GuardedResponsesError,
 )
 from issuedigest_agents.question_briefing_generation import (
-    BRIEFING_GENERATION_INSTRUCTIONS,
+    BRIEFING_INPUT_V1,
     QuestionBriefingGeneration,
+    briefing_generation_instructions,
+    briefing_input_format_from_instructions_hash,
     run_question_briefing_generation,
     validate_question_briefing_generation,
 )
@@ -33,7 +35,6 @@ from issuedigest_storage.research import ResearchBudgetExceeded, ResearchConflic
 from openai import AsyncOpenAI
 
 Ownership = Callable[[UUID], bool]
-_INSTRUCTIONS_HASH = sha256(BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest()
 
 
 def _safe[**P, R](operation: Callable[P, Awaitable[R]]) -> Callable[P, Awaitable[R]]:
@@ -88,8 +89,10 @@ async def submit_briefing_job(
     *,
     model: str,
     reservation_usd: Decimal,
+    input_format: str = BRIEFING_INPUT_V1,
 ) -> BriefingJob | None:
     """Deep complete SDK preflight precedes the repository's atomic reservation."""
+    instructions_hash = sha256(briefing_generation_instructions(input_format).encode()).hexdigest()
     for value in (workspace_id, request_id, plan_id):
         _id(value)
     if type(child_job_ids) is not tuple or not 1 <= len(child_job_ids) <= 5:
@@ -106,7 +109,7 @@ async def submit_briefing_job(
     packet = await asyncio.to_thread(repository.inputs, token, workspace_id, plan_id, child_job_ids)
     if packet is None:
         return None
-    _, prompt_hash = _packet(packet)
+    _, prompt_hash = _packet(packet, input_format)
     if any(child.model != model for child in packet.children):
         raise ValueError("Briefing child model mismatch")
     return await asyncio.to_thread(
@@ -120,7 +123,7 @@ async def submit_briefing_job(
         reservation_usd=reservation_usd,
         expected_inputs_sha256=packet.inputs_sha256,
         prompt_sha256=prompt_hash,
-        instructions_sha256=_INSTRUCTIONS_HASH,
+        instructions_sha256=instructions_hash,
     )
 
 
@@ -157,7 +160,8 @@ async def execute_briefing_job(
         return None
     invalid = False
     try:
-        receipts, prompt_hash = _packet(packet)
+        input_format = briefing_input_format_from_instructions_hash(job.instructions_sha256)
+        receipts, prompt_hash = _packet(packet, input_format)
         _bound(job, packet, prompt_hash)
     except Exception:
         invalid = True
@@ -170,7 +174,7 @@ async def execute_briefing_job(
         job_id,
         expected_inputs_sha256=packet.inputs_sha256,
         prompt_sha256=prompt_hash,
-        instructions_sha256=_INSTRUCTIONS_HASH,
+        instructions_sha256=job.instructions_sha256,
     ):
         return None
     unknown = False
@@ -182,6 +186,7 @@ async def execute_briefing_job(
             question=packet.question,
             sources=packet.sources,
             receipts=receipts,
+            **({"input_format": input_format} if input_format != BRIEFING_INPUT_V1 else {}),
         )
     except ResearchForbidden:
         await asyncio.to_thread(repository.finish, job_id, reason="input")
@@ -213,9 +218,14 @@ async def execute_briefing_job(
         _owned(job_id, check_ownership)
         current, current_packet = await asyncio.to_thread(repository.prepare, job_id)
         _owned(job_id, check_ownership)
-        current_receipts, current_prompt = _packet(current_packet)
+        current_format = briefing_input_format_from_instructions_hash(current.instructions_sha256)
+        current_receipts, current_prompt = _packet(current_packet, current_format)
         _bound(current, current_packet, current_prompt)
-        if result.model != current.model:
+        if (
+            result.model != current.model
+            or result.input_format != current_format
+            or result.instructions_sha256 != current.instructions_sha256
+        ):
             raise ValueError("Briefing result model mismatch")
         validate_question_briefing_generation(
             current_packet.question, current_packet.sources, current_receipts, result

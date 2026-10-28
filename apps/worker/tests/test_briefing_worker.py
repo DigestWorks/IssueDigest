@@ -606,3 +606,67 @@ def test_final_requested_model_must_match_valid_child_before_reservation(jobs, e
                 reservation_usd=Decimal("1.00"),
             )
         )
+
+
+@pytest.mark.parametrize("selected", ["question-briefing-source-v1", "question-briefing-source-v2"])
+def test_v2_admission_execution_replay_and_v1_idempotency_conflict(jobs, engine, selected):
+    from issuedigest_agents.question_briefing_generation import (
+        briefing_generation_instructions,
+        briefing_input_format_from_instructions_hash,
+    )
+    from issuedigest_storage.research import ResearchConflict
+
+    p = seed(engine)
+    request_id = uuid4()
+
+    async def submit(input_format):
+        return await api().submit_briefing_job(
+            jobs,
+            p[0],
+            p[1],
+            request_id,
+            p[2],
+            p[3],
+            model="gpt-6.1-sol",
+            reservation_usd=Decimal(".25"),
+            input_format=input_format,
+        )
+
+    v2 = selected
+    job = asyncio.run(submit(v2))
+    assert briefing_input_format_from_instructions_hash(job.instructions_sha256) == v2
+    assert (
+        job.instructions_sha256 == sha256(briefing_generation_instructions(v2).encode()).hexdigest()
+    )
+    result, requests = asyncio.run(exercise(jobs, job))
+    assert result.input_format == v2 and len(requests) == 1
+    replay, calls = asyncio.run(exercise(jobs, job))
+    assert replay == result and calls == []
+    with pytest.raises(ResearchConflict):
+        asyncio.run(
+            submit(
+                "question-briefing-source-v1"
+                if selected == "question-briefing-source-v2"
+                else "question-briefing-source-v2"
+            )
+        )
+
+
+@pytest.mark.parametrize("hash_value", ["0" * 64, "v1"])
+def test_pending_unknown_instructions_never_calls_provider(jobs, engine, hash_value):
+    p = seed(engine)
+    job = admit(jobs, p)
+    if hash_value == "v1":
+        from issuedigest_agents.question_briefing_generation import briefing_generation_instructions
+
+        hash_value = sha256(
+            briefing_generation_instructions("question-briefing-source-v2").encode()
+        ).hexdigest()
+    with engine.begin() as c:
+        c.execute(
+            text("UPDATE briefing_jobs SET instructions_sha256=:hash WHERE job_id=:id"),
+            {"hash": hash_value, "id": job.job_id},
+        )
+    with pytest.raises(ValueError):
+        asyncio.run(exercise(jobs, job))
+    assert jobs.prepare(job.job_id)[0].status == "failed"

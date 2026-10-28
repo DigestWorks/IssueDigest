@@ -55,6 +55,8 @@ def inputs():
         ("question", " "),
         ("question", "x" * 1501),
         ("model", "other"),
+        ("input_format", "unknown"),
+        ("input_format", None),
         ("evidence_reservation_usd", 0.25),
         ("briefing_reservation_usd", Decimal("NaN")),
         ("briefing_reservation_usd", Decimal(".001")),

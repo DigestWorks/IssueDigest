@@ -590,3 +590,49 @@ def test_native_v5_preserves_original_final_wire():
         )
         == got
     )
+
+
+def test_v2_explicit_format_and_hash_pair_roundtrip():
+    mod = api()
+    sources, receipts, submitted = setup()
+    got, body, requests = run(
+        sources, receipts, submitted, options={"input_format": "question-briefing-source-v2"}
+    )
+    assert type(got) is mod.QuestionBriefingGeneration
+    assert got.input_format == "question-briefing-source-v2"
+    assert (
+        mod.briefing_input_format_from_instructions_hash(got.instructions_sha256)
+        == got.input_format
+    )
+    assert mod.validate_question_briefing_generation(QUESTION, sources, receipts, got) == got
+    wire = json.loads(requests[0].content)
+    assert wire["instructions"] == mod.briefing_generation_instructions(got.input_format)
+    changed = got.model_dump(mode="json")
+    changed["input_format"] = "question-briefing-source-v1"
+    with pytest.raises(mod.QuestionBriefingGenerationError):
+        mod.validate_question_briefing_generation(QUESTION, sources, receipts, changed)
+    with pytest.raises(ValueError):
+        mod.briefing_input_format_from_instructions_hash("0" * 64)
+
+
+def test_unknown_input_format_fails_before_http():
+    sources, receipts, submitted = setup()
+    got, _, requests = run(sources, receipts, submitted, options={"input_format": "unknown"})
+    failure(got, "input", started=False, closed=False)
+    assert requests == []
+
+
+def test_historical_v1_instructions_and_provider_request_bytes_are_stable():
+    from hashlib import sha256
+
+    mod = api()
+    sources, receipts, submitted = setup()
+    first, _, calls = run(sources, receipts, submitted)
+    explicit, _, explicit_calls = run(
+        sources, receipts, submitted, options={"input_format": "question-briefing-source-v1"}
+    )
+    assert calls[0].content == explicit_calls[0].content
+    assert first == explicit
+    assert sha256(mod.BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest() == (
+        "026e3c82fbeb8a426635c8ef0a4224546715b31c89c49f6ecfbe50e92bbbc09d"
+    )
