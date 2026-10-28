@@ -133,6 +133,17 @@ async def exercise(jobs, job, *, mutate=None, ownership=None, body=None):
     from test_question_briefing_generation import rows
 
     requests = []
+    formats = {
+        sha256(
+            api().briefing_generation_instructions(f"question-briefing-source-v{n}").encode()
+        ).hexdigest(): n
+        for n in (1, 2, 3, 4)
+    }
+    version = formats.get(job.instructions_sha256, 1)
+    data = dict(outcome="insufficient_evidence", message="합성 근거 부족", modules=[])
+    if version in (3, 4):
+        data = {"result": {"outcome": "insufficient_evidence", "message": "합성 근거 부족"}}
+    name = f"compose_question_briefing_v{version - 1 if version >= 3 else 1}"
 
     def serve(request):
         requests.append(request)
@@ -141,29 +152,7 @@ async def exercise(jobs, job, *, mutate=None, ownership=None, body=None):
         return httpx.Response(
             200,
             headers={"content-type": "text/event-stream"},
-            stream=body
-            or Body(
-                rows(
-                    {"result": {"outcome": "insufficient_evidence", "message": "합성 근거 부족"}}
-                    if job.instructions_sha256
-                    == sha256(
-                        api()
-                        .briefing_generation_instructions("question-briefing-source-v3")
-                        .encode()
-                    ).hexdigest()
-                    else dict(
-                        outcome="insufficient_evidence", message="합성 근거 부족", modules=[]
-                    ),
-                    "compose_question_briefing_v2"
-                    if job.instructions_sha256
-                    == sha256(
-                        api()
-                        .briefing_generation_instructions("question-briefing-source-v3")
-                        .encode()
-                    ).hexdigest()
-                    else "compose_question_briefing_v1",
-                )
-            ),
+            stream=body or Body(rows(data, name)),
         )
 
     async with httpx.AsyncClient(transport=httpx.MockTransport(serve)) as http:
@@ -629,7 +618,12 @@ def test_final_requested_model_must_match_valid_child_before_reservation(jobs, e
 
 @pytest.mark.parametrize(
     "selected",
-    ["question-briefing-source-v1", "question-briefing-source-v2", "question-briefing-source-v3"],
+    [
+        "question-briefing-source-v1",
+        "question-briefing-source-v2",
+        "question-briefing-source-v3",
+        "question-briefing-source-v4",
+    ],
 )
 def test_v2_admission_execution_replay_and_v1_idempotency_conflict(jobs, engine, selected):
     from issuedigest_agents.question_briefing_generation import (

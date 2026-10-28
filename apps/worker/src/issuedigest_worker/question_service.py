@@ -77,6 +77,7 @@ class QuestionServiceConfig:
                 "question-briefing-source-v1",
                 "question-briefing-source-v2",
                 "question-briefing-source-v3",
+                "question-briefing-source-v4",
             )
             or not evidence_model_allowed(self.model, self.evidence_profile)
             or self.app_version != "question-briefing-http-v1"

@@ -383,7 +383,12 @@ def test_invalid_model_profile_is_rejected_before_start(model, profile):
 )
 @pytest.mark.parametrize(
     "input_format",
-    ["question-briefing-source-v1", "question-briefing-source-v2", "question-briefing-source-v3"],
+    [
+        "question-briefing-source-v1",
+        "question-briefing-source-v2",
+        "question-briefing-source-v3",
+        "question-briefing-source-v4",
+    ],
 )
 def test_run_bridge_passes_configured_model_and_reservations(
     monkeypatch, model, profile, amount, status, kind, input_format

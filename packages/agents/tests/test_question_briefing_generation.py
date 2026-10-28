@@ -37,7 +37,9 @@ async def exercise(
 ):
     mod = api()
     name = (
-        "compose_question_briefing_v2"
+        "compose_question_briefing_v3"
+        if (options or {}).get("input_format") == "question-briefing-source-v4"
+        else "compose_question_briefing_v2"
         if (options or {}).get("input_format") == "question-briefing-source-v3"
         else "compose_question_briefing_v1"
     )
@@ -682,3 +684,16 @@ def test_v3_rejects_answer_with_extra_message_without_dropping_it():
     )
     assert len(calls) == 1
     assert type(got) is api().QuestionBriefingGenerationError
+
+
+def test_v4_structural_tool_native_to_canonical():
+    sources, receipts, _ = setup()
+    from test_briefing_input_v4 import answer
+
+    got, _, calls = run(
+        sources, receipts, answer(), options={"input_format": "question-briefing-source-v4"}
+    )
+    assert type(got) is api().QuestionBriefingGeneration
+    assert got.input_format == "question-briefing-source-v4"
+    assert got.briefing.modules[0].claims[0].event_date is None
+    assert json.loads(calls[0].content)["tools"][0]["name"] == "compose_question_briefing_v3"
