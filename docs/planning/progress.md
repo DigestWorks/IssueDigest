@@ -1,3 +1,9 @@
+## 읽기 화면 최종 인계 · 2026-10-28 KST
+
+[계획판v161](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 배포 succeeded, 2026-10-28T18:48:21.288331+09:00. source a2443505aade56fde1f5cb8ce7fd78b78b662ad3·saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a4ddba507b5c8191907095aaa6197ae3·deployment appgdep_6ae1c4d37b588191b116ddbf9dd1be81. 원본cf4399c의 문서3개를 byte일치로 반영하고 이전v160을 보존했다. 링크/자산/앵커5,891개와 공개 텍스트555개를 확인했다. 이후 인계는 저장소 원본을 따른다.
+
+제품bb6134f·웹919개·생산 합성 브라우저와 외부 정적24파일 byte일치·실제 HTTPS 비회원 보호/쿠키0/쓰기0을 확인했다. 사용자 탭은 열지 않았고 추가 유료0·main/운영/Actions 변경0이다. 기존 API와 별도 worker0 관측값·설정/수집 일정을 보존했다. 실제 로그인 사용자 완료 흐름은 여전히 별도 확인 대상이다.
+
 ## 생성 결과 읽기 화면 · 개발 반영 · 2026-10-28 KST
 
 [변경·검증](../changes/briefing-reading-experience.md). 새 최종 생성 결과 화면을 요약 우선·비교/시간순 펼침으로 정돈했다. 홈 링크·질문/AI 설명/완료 상태 계층을 맞추고 정확 근거·자료의 서술/불확실성 의미와 요청/권한 검사를 보존했다. 전체 웹919개·정적/타입/빌드/OpenAPI·독립 검토를 통과했다.
