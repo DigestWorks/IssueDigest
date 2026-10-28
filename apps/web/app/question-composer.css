@@ -32,3 +32,17 @@
   display: block;
   opacity: 0.75;
 }
+
+.question-composer .question-stop {
+  padding-inline: 12px;
+  border-color: transparent;
+  background: transparent;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.question-composer .question-stop:hover:enabled {
+  border-color: transparent;
+  background: transparent;
+  color: var(--green);
+}

@@ -39,7 +39,15 @@ export default function QuestionComposer({
   const [message, setMessage] = useState('');
   const [failed, setFailed] = useState(!!pending);
   const request = useRef<AbortController | null>(null);
+  const questionInput = useRef<HTMLTextAreaElement | null>(null);
   const current = useRef(true);
+  const stopped = useRef(false);
+  useEffect(() => {
+    if (!busy && stopped.current) {
+      stopped.current = false;
+      questionInput.current?.focus();
+    }
+  }, [busy]);
   useEffect(() => {
     if (!canEdit) {
       clearPendingQuestion(actor, workspaceId);
@@ -52,6 +60,17 @@ export default function QuestionComposer({
       request.current?.abort();
     };
   }, []);
+  function stopWaiting() {
+    const controller = request.current;
+    if (!controller) return;
+    request.current = null;
+    controller.abort();
+    setBusy(false);
+    setFailed(true);
+    setMessage('응답 대기를 중단했습니다. 같은 질문을 다시 확인할 수 있습니다.');
+    // Restore focus after the textarea becomes enabled and the stop button disappears.
+    stopped.current = true;
+  }
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (request.current || !question.trim() || !canEdit || accessDenied) return;
@@ -70,11 +89,11 @@ export default function QuestionComposer({
       const result = await submitQuestion(workspaceId, value, {
         signal: controller.signal,
         onProgress: () => {
-          if (current.current)
+          if (current.current && request.current === controller)
             setMessage('질문을 분석하고 근거를 살펴보는 중…');
         },
       });
-      if (!current.current) return;
+      if (!current.current || request.current !== controller) return;
       clearPendingQuestion(actor, workspaceId);
       setPending(null);
       if (result.data.kind === 'briefing') {
@@ -89,7 +108,7 @@ export default function QuestionComposer({
             : '현재 자료에서는 질문에 답할 충분한 근거를 확인하지 못했습니다.',
         );
     } catch (error) {
-      if (!current.current) return;
+      if (!current.current || request.current !== controller) return;
       const kind = error instanceof QuestionError ? error.kind : 'unavailable';
       if (['unauthorized', 'forbidden', 'not-found'].includes(kind)) {
         clearPendingQuestion(actor, workspaceId);
@@ -107,7 +126,7 @@ export default function QuestionComposer({
         );
       }
     } finally {
-      if (current.current) {
+      if (current.current && request.current === controller) {
         request.current = null;
         setBusy(false);
       }
@@ -123,6 +142,7 @@ export default function QuestionComposer({
         무엇을 알아볼까요?
       </label>
       <textarea
+        ref={questionInput}
         id="member-question"
         rows={3}
         maxLength={1500}
@@ -137,6 +157,11 @@ export default function QuestionComposer({
         placeholder="궁금한 이슈나 알고 싶은 변화를 적어 주세요"
       />
       <div className="guest-compose-foot">
+        {busy && (
+          <button type="button" className="question-stop" onClick={stopWaiting}>
+            대기 중단
+          </button>
+        )}
         <button
           type="submit"
           disabled={busy || !canEdit || accessDenied || !question.trim()}

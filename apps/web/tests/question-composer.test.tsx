@@ -1,7 +1,8 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter, useLocation } from 'react-router';
 import { afterEach, expect, it, vi } from 'vitest';
+import * as questions from '@issuedigest/api-client';
 import QuestionComposer from '../app/question-composer';
 import {
   clearPendingQuestion,
@@ -14,12 +15,13 @@ const workspace = '22222222-2222-4222-8222-222222222222';
 afterEach(() => {
   sessionStorage.clear();
   vi.unstubAllGlobals();
+  vi.restoreAllMocks();
 });
 function Location() {
   return <div data-testid="location">{useLocation().pathname}</div>;
 }
 function mount(initialQuestion?: string) {
-  render(
+  return render(
     <MemoryRouter>
       <QuestionComposer
         actor={actor}
@@ -44,7 +46,7 @@ it('shows busy immediately, prevents duplicate requests and navigates on real re
   mount('질문');
   const user = userEvent.setup();
   await user.click(screen.getByRole('button', { name: '질문하기' }));
-  expect(screen.getByRole('button')).toBeDisabled();
+  expect(screen.getByRole('button', { name: '브리핑 만드는 중…' })).toBeDisabled();
   expect(screen.getByRole('status')).toHaveTextContent('접수');
   const body = JSON.parse(
     (fetch.mock.calls as unknown as [string, RequestInit][])[0][1]
@@ -194,4 +196,106 @@ it('scopes completion cleanup and reconciles membership loss separately', () => 
   expect(readPendingQuestion(actor, workspace)?.request_id).toBe(actor);
   clearPendingQuestion();
   expect(readPendingQuestion(actor, workspace)).toBeNull();
+});
+
+it('stops the connection without submitting, preserves the question, and retries only explicitly with the same id', async () => {
+  const fetch = vi.fn<(path: string, options: RequestInit) => Promise<Response>>(
+    () => new Promise<Response>(() => {}),
+  );
+  vi.stubGlobal('fetch', fetch);
+  mount('보존할 질문');
+  expect(screen.queryByRole('button', { name: '대기 중단' })).not.toBeInTheDocument();
+  await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+  const first = JSON.parse(fetch.mock.calls[0][1].body as string);
+  const stop = screen.getByRole('button', { name: '대기 중단' });
+  expect(stop).toHaveAttribute('type', 'button');
+  fireEvent.click(stop);
+  fireEvent.click(stop);
+  expect(fetch.mock.calls[0][1].signal?.aborted).toBe(true);
+  expect(screen.getByRole('textbox')).toBeEnabled();
+  expect(screen.getByRole('textbox')).toHaveFocus();
+  expect(screen.getByRole('textbox')).toHaveValue('보존할 질문');
+  expect(screen.getByRole('status')).toHaveTextContent('대기를 중단');
+  expect(screen.queryByRole('button', { name: '대기 중단' })).not.toBeInTheDocument();
+  expect(readPendingQuestion(actor, workspace)).toEqual(first);
+  expect(fetch).toHaveBeenCalledTimes(1);
+  await userEvent.click(screen.getByRole('button', { name: '같은 질문 다시 확인' }));
+  fireEvent.submit(screen.getByRole('textbox').closest('form')!);
+  expect(fetch).toHaveBeenCalledTimes(2);
+  expect(JSON.parse(fetch.mock.calls[1][1].body as string)).toEqual(first);
+  expect(screen.getByRole('textbox')).toBeDisabled();
+});
+
+it('uses a new request id when the stopped question is edited and submitted', async () => {
+  const fetch = vi.fn<(path: string, options: RequestInit) => Promise<Response>>(
+    () => new Promise<Response>(() => {}),
+  );
+  vi.stubGlobal('fetch', fetch);
+  mount('원래 질문');
+  await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+  const first = JSON.parse(fetch.mock.calls[0][1].body as string);
+  await userEvent.click(screen.getByRole('button', { name: '대기 중단' }));
+  await userEvent.clear(screen.getByRole('textbox'));
+  await userEvent.type(screen.getByRole('textbox'), '새 질문');
+  await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+  const next = JSON.parse(fetch.mock.calls[1][1].body as string);
+  expect(next.question).toBe('새 질문');
+  expect(next.request_id).not.toBe(first.request_id);
+  expect(readPendingQuestion(actor, workspace)).toEqual(next);
+});
+
+// The client normally rejects on abort. A deferred service boundary also
+// exercises a callback/terminal already queued when the user stops waiting.
+it.each([
+  ['progress', false], ['success', false], ['failure', false], ['authority', false],
+  ['progress', true], ['success', true], ['failure', true], ['authority', true],
+] as const)(
+  'ignores late %s from a stopped request (new request active: %s)',
+  async (late, retry) => {
+    let resolve!: (value: Awaited<ReturnType<typeof questions.submitQuestion>>) => void;
+    let reject!: (reason: unknown) => void;
+    const submit = vi.spyOn(questions, 'submitQuestion')
+      .mockImplementationOnce(() => new Promise((done, fail) => { resolve = done; reject = fail; }))
+      .mockImplementationOnce(() => new Promise(() => {}));
+    mount('원래 질문');
+    await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+    await userEvent.click(screen.getByRole('button', { name: '대기 중단' }));
+    if (retry) {
+      await userEvent.clear(screen.getByRole('textbox'));
+      await userEvent.type(screen.getByRole('textbox'), '새 질문');
+      await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+    }
+    const pending = readPendingQuestion(actor, workspace);
+    await act(async () => {
+      if (late === 'progress') submit.mock.calls[0][2]?.onProgress?.();
+      else if (late === 'success') resolve({ data: { request_id: actor, kind: 'briefing', job_id: workspace }, requestId: actor });
+      else reject(new questions.QuestionError(late === 'authority' ? 'forbidden' : 'unavailable'));
+    });
+    if (retry) {
+      expect(screen.getByRole('status')).toHaveTextContent('질문을 접수하는 중');
+      expect(screen.getByRole('textbox')).toHaveValue('새 질문');
+      expect(screen.getByRole('textbox')).toBeDisabled();
+      expect(screen.getByRole('button', { name: '대기 중단' })).toBeEnabled();
+    } else {
+      expect(screen.getByRole('status')).toHaveTextContent('대기를 중단');
+      expect(screen.getByRole('textbox')).toHaveValue('원래 질문');
+      expect(screen.getByRole('textbox')).toBeEnabled();
+      expect(screen.getByRole('button', { name: '같은 질문 다시 확인' })).toBeEnabled();
+    }
+    expect(screen.getByTestId('location')).toHaveTextContent('/');
+    expect(readPendingQuestion(actor, workspace)).toEqual(pending);
+  },
+);
+
+it('aborts on unmount while retaining the pending question for explicit recovery', async () => {
+  const fetch = vi.fn<(path: string, options: RequestInit) => Promise<Response>>(
+    () => new Promise<Response>(() => {}),
+  );
+  vi.stubGlobal('fetch', fetch);
+  const view = mount('복구할 질문');
+  await userEvent.click(screen.getByRole('button', { name: '질문하기' }));
+  const pending = readPendingQuestion(actor, workspace);
+  view.unmount();
+  expect(fetch.mock.calls[0][1].signal?.aborted).toBe(true);
+  expect(readPendingQuestion(actor, workspace)).toEqual(pending);
 });

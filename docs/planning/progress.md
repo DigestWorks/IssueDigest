@@ -1,3 +1,7 @@
+## 질문 응답 대기 제어 진행 · 2026-10-28 KST
+
+[범위](../changes/question-wait-control.md). 기다리는 동안 연결 대기를 명시적으로 중단하고 원래 질문·요청ID를 보존해 같은 요청을 다시 확인하는 흐름을 추가한다. 자동 재시도나 모델 비용 환급은 제공하지 않는다. 현재 새 사용자 생성 기록은 없으며 계정을 대신 사용하지 않는다. 웹 구현/검증 후 정적 화면만 반영한다.
+
 ## 읽기 화면 최종 인계 · 2026-10-28 KST
 
 [계획판v161](https://lawdigest-rebuild-plan.ijaesinii.chatgpt.site) 공개 배포 succeeded, 2026-10-28T18:48:21.288331+09:00. source a2443505aade56fde1f5cb8ce7fd78b78b662ad3·saved appgprj_6ac612dd42708191a7a0c8377be64d48~appgver_a4ddba507b5c8191907095aaa6197ae3·deployment appgdep_6ae1c4d37b588191b116ddbf9dd1be81. 원본cf4399c의 문서3개를 byte일치로 반영하고 이전v160을 보존했다. 링크/자산/앵커5,891개와 공개 텍스트555개를 확인했다. 이후 인계는 저장소 원본을 따른다.
