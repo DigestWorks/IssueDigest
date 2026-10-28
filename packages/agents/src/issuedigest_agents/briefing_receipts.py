@@ -21,9 +21,10 @@ from .question_briefing_generation import (
 _INSTRUCTIONS_HASH = sha256(BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest()
 
 
-def validate_briefing_packet(
+def validate_briefing_evidence(
     packet: BriefingJobInputs,
-) -> tuple[tuple[QuestionEvidenceReceipt, ...], str]:
+) -> tuple[QuestionEvidenceReceipt, ...]:
+    """Validate completed source receipts without requiring a paid final request."""
     if (
         type(packet) is not BriefingJobInputs
         or type(packet.question) is not str
@@ -72,7 +73,13 @@ def validate_briefing_packet(
         ):
             raise ValueError("Briefing evidence changed")
         receipts.append(receipt)
-    checked = tuple(receipts)
+    return tuple(receipts)
+
+
+def validate_briefing_packet(
+    packet: BriefingJobInputs,
+) -> tuple[tuple[QuestionEvidenceReceipt, ...], str]:
+    checked = validate_briefing_evidence(packet)
     prompt = question_briefing_prompt(packet.question, packet.sources, checked)
     return checked, sha256(prompt.encode()).hexdigest()
 

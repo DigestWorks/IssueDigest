@@ -86,7 +86,7 @@ export default function QuestionComposer({
         setMessage(
           result.data.kind === 'no_match'
             ? '질문에 답할 수 있는 근거를 찾지 못했습니다.'
-            : '현재 자료로는 브리핑을 만들 수 없습니다.',
+            : '현재 자료에서는 질문에 답할 충분한 근거를 확인하지 못했습니다.',
         );
     } catch (error) {
       if (!current.current) return;

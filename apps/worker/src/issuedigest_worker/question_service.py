@@ -377,6 +377,8 @@ class OwnedQuestionExecutionService:
             return QuestionSubmissionResult(
                 request_id=request_id, kind="briefing", job_id=result.briefing.job_id
             )
+        if result.evidence.status == "evidence_complete":
+            return QuestionSubmissionResult(request_id=request_id, kind="blocked", job_id=None)
         if result.evidence.status not in ("no_match", "blocked"):
             raise QuestionSubmissionError("unavailable")
         return QuestionSubmissionResult(

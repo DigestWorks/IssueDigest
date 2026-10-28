@@ -377,7 +377,13 @@ def test_invalid_model_profile_is_rejected_before_start(model, profile):
         ("gpt-6-astra", "guarded-question-evidence-v5", "1.00"),
     ],
 )
-def test_run_bridge_passes_configured_model_and_reservations(monkeypatch, model, profile, amount):
+@pytest.mark.parametrize(
+    "status,kind",
+    [("no_match", "no_match"), ("blocked", "blocked"), ("evidence_complete", "blocked")],
+)
+def test_run_bridge_passes_configured_model_and_reservations(
+    monkeypatch, model, profile, amount, status, kind
+):
     from decimal import Decimal
     from types import SimpleNamespace
 
@@ -388,7 +394,7 @@ def test_run_bridge_passes_configured_model_and_reservations(monkeypatch, model,
 
     async def run(*args, **kwargs):
         captured.update(kwargs)
-        return api.QuestionBriefingRun(evidence=SimpleNamespace(status="no_match"), briefing=None)
+        return api.QuestionBriefingRun(evidence=SimpleNamespace(status=status), briefing=None)
 
     monkeypatch.setattr(api, "run_question_briefing", run)
     service = api.OwnedQuestionExecutionService(
@@ -397,7 +403,7 @@ def test_run_bridge_passes_configured_model_and_reservations(monkeypatch, model,
     )
     service._client = object()
     result = asyncio.run(service._run_worker("A" * 43, uuid4(), uuid4(), "질문"))
-    assert result.kind == "no_match"
+    assert result.kind == kind and result.job_id is None
     assert captured["model"] == model
     assert captured["evidence_reservation_usd"] == Decimal(amount)
     assert captured["briefing_reservation_usd"] == Decimal(amount)

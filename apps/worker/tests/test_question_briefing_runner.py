@@ -193,6 +193,10 @@ def stages(monkeypatch):
         state.calls.append(("enqueue", pos, kw))
         return state.ack
 
+    async def linked(*pos, **kw):
+        return True
+
+    monkeypatch.setattr(runner, "_linked_evidence", linked)
     monkeypatch.setattr(runner, "run_question_plan", plan)
     monkeypatch.setattr(runner, "submit_briefing_job", submit)
     monkeypatch.setattr(runner, "enqueue_briefing_job", enqueue)
@@ -729,7 +733,7 @@ class FinalBoundaryClient:
         raise AssertionError("Completed analysis must not wait")
 
 
-async def complete_final_boundary_analysis(admitted):
+async def complete_final_boundary_analysis(admitted, *, no_links=False):
     """Produce a real stored SDK receipt before exercising final admission guards."""
     import json
 
@@ -755,16 +759,27 @@ async def complete_final_boundary_analysis(admitted):
         args["question"],
         model=args["model"],
         reservation_usd=args["evidence_reservation_usd"],
+        profile="guarded-question-evidence-v5" if no_links else "guarded-question-evidence-v2",
     )
     requests = []
 
     def serve(request):
         requests.append(json.loads(request.content))
-        stream = events(json.dumps(packet(src)))
+        data = (
+            dict(
+                propositions=[],
+                coverage=dict(linked_proposition_ids=[], unresolved_reason="insufficient"),
+            )
+            if no_links
+            else packet(src)
+        )
+        stream = events(json.dumps(data))
         for row in stream:
             for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
                 if item is not None:
-                    item["name"] = "fill_question_evidence_v2"
+                    item["name"] = (
+                        "fill_question_evidence_v5" if no_links else "fill_question_evidence_v2"
+                    )
         return httpx.Response(
             200, headers={"content-type": "text/event-stream"}, stream=Body(stream)
         )
@@ -773,13 +788,20 @@ async def complete_final_boundary_analysis(admitted):
         provider = AsyncOpenAI(api_key="synthetic", http_client=http, max_retries=0)
         try:
             await execute_evidence_job(
-                repos[1], job.job_id, client=provider, check_ownership=lambda _: True
+                repos[1],
+                job.job_id,
+                client=provider,
+                check_ownership=lambda _: True,
+                expected_profile="guarded-question-evidence-v5"
+                if no_links
+                else "guarded-question-evidence-v2",
             )
         finally:
             await provider.close()
     saved = await asyncio.to_thread(repos[1].get, args["token"], args["workspace_id"], job.job_id)
     assert saved.status == "completed" and saved.receipt is not None
-    assert len(requests) == 1 and "fill_question_evidence_v2" in str(requests[0]["tools"])
+    tool_name = "fill_question_evidence_v5" if no_links else "fill_question_evidence_v2"
+    assert len(requests) == 1 and tool_name in str(requests[0]["tools"])
     return requests
 
 
@@ -948,3 +970,127 @@ def test_astra_underfunded_controls_precede_native_helpers(monkeypatch, field, a
     options[field] = amount
     with pytest.raises(ValueError):
         asyncio.run(runner.run_question_briefing(*repositories(), **options))
+
+
+@pytest.mark.parametrize("case", ["no_links", "linked", "malformed"])
+def test_completed_astra_v5_only_admits_final_with_valid_linked_evidence(monkeypatch, case, engine):
+    from dataclasses import replace
+
+    from issuedigest_agents.evidence_dispatch import EvidenceDispatch
+    from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
+    from issuedigest_agents.question_dispatch import QuestionDispatch
+    from issuedigest_storage.briefing_jobs import BriefingJobRepository
+    from issuedigest_storage.evidence_jobs import EvidenceJobRepository
+    from issuedigest_storage.question_plans import QuestionPlanRepository
+    from issuedigest_worker.question_runner import QuestionEvidenceRun
+    from test_briefing_receipts import packet
+    from test_question_briefing import receipt_v5
+    from test_question_evidence_propositions import packet as evidence_packet
+
+    runner = api()
+    current, receipt = packet(5)
+    if case != "linked":
+        raw = evidence_packet(current.sources[0])
+        raw["coverage"] = dict(linked_proposition_ids=[], unresolved_reason="no_linked_evidence")
+        receipt = receipt_v5(current.sources[0], raw)
+    child = replace(
+        current.children[0], model="gpt-6-astra", receipt=receipt.model_dump(mode="json")
+    )
+    if case == "malformed":
+        child = replace(child, receipt=child.receipt | {"prompt_sha256": "0" * 64})
+    current = replace(current, children=(child,))
+    evidence = QuestionEvidenceRun(
+        QuestionDispatch(
+            current.plan.plan_id,
+            "evidence_complete",
+            1,
+            1,
+            (
+                EvidenceDispatch(
+                    child.job_id, "guarded-evidence-" + str(child.job_id), "completed", False
+                ),
+            ),
+        ),
+        (receipt,),
+    )
+    calls = []
+
+    async def collected(*args, **kwargs):
+        return evidence
+
+    def read(*args):
+        return current
+
+    async def submit(*args, **kwargs):
+        calls.append("submit")
+        return None
+
+    async def forbidden(*args, **kwargs):
+        pytest.fail("No final workflow may be enqueued")
+
+    monkeypatch.setattr(runner, "run_question_plan", collected)
+    monkeypatch.setattr(BriefingJobRepository, "inputs", read)
+    monkeypatch.setattr(runner, "submit_briefing_job", submit)
+    monkeypatch.setattr(runner, "enqueue_briefing_job", forbidden)
+    operation = runner.run_question_briefing(
+        QuestionPlanRepository(engine),
+        EvidenceJobRepository(engine),
+        BriefingJobRepository(engine),
+        client=object(),
+        app_version="synthetic",
+        token="A" * 43,
+        workspace_id=current.plan.workspace_id,
+        request_id=current.plan.request_id,
+        question=current.question,
+        model="gpt-6-astra",
+        evidence_reservation_usd=Decimal("1.00"),
+        briefing_reservation_usd=Decimal("1.00"),
+    )
+    if case == "malformed":
+        with pytest.raises(GuardedResponsesError):
+            asyncio.run(operation)
+        assert calls == []
+    elif case == "no_links":
+        result = asyncio.run(operation)
+        assert result == runner.QuestionBriefingRun(evidence.dispatch, None)
+        assert calls == []
+        # Completed analysis remains intact; the paid final guard still rejects no links.
+        assert current.children[0].receipt == receipt.model_dump(mode="json")
+        from issuedigest_agents.question_briefing_generation import (
+            QuestionBriefingGenerationError,
+            question_briefing_prompt,
+        )
+
+        with pytest.raises(QuestionBriefingGenerationError):
+            question_briefing_prompt(current.question, current.sources, (receipt,))
+    else:
+        assert asyncio.run(operation) is None
+        assert calls == ["submit"]
+
+
+def test_actual_completed_no_link_analysis_is_normal_without_final_reservation(admitted, engine):
+    from issuedigest_storage.question_plans import QuestionPlanRepository
+
+    repos, args, src = admitted
+    repos = (
+        QuestionPlanRepository(engine, evidence_profile="guarded-question-evidence-v5"),
+        *repos[1:],
+    )
+    args = args | dict(
+        model="gpt-6-astra",
+        evidence_reservation_usd=Decimal("1.00"),
+        briefing_reservation_usd=Decimal("1.00"),
+    )
+    client = FinalBoundaryClient()
+
+    async def exercise():
+        await complete_final_boundary_analysis((repos, args, src), no_links=True)
+        before = final_boundary_sql_state(engine)
+        assert before == (1, 0, Decimal("1.00"))
+        for _ in range(2):
+            result = await api().run_question_briefing(*repos, **(args | dict(client=client)))
+            assert result.evidence.status == "evidence_complete" and result.briefing is None
+            assert final_boundary_sql_state(engine) == before
+        assert client.enqueues == [] and client.waits == []
+
+    asyncio.run(exercise())

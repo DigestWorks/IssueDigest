@@ -12,11 +12,13 @@ from issuedigest_agents.briefing_dispatch import (
     BriefingDispatchError,
     enqueue_briefing_job,
 )
+from issuedigest_agents.briefing_receipts import validate_briefing_evidence
 from issuedigest_agents.evidence_dispatch import EvidenceDispatchError
 from issuedigest_agents.guarded_question_evidence_v2 import GuardedQuestionEvidenceGenerationV2
 from issuedigest_agents.guarded_question_evidence_v3 import GuardedQuestionEvidenceGenerationV3
 from issuedigest_agents.guarded_question_evidence_v5 import GuardedQuestionEvidenceGenerationV5
 from issuedigest_agents.guarded_responses_stream import GuardedResponsesError
+from issuedigest_agents.question_briefing import build_question_briefing
 from issuedigest_agents.question_dispatch import QuestionDispatch
 from issuedigest_domain.question_model_policy import (
     briefing_model_allowed,
@@ -51,6 +53,41 @@ class QuestionBriefingRunError(Exception):
 
 def _uuid(value: object) -> bool:
     return type(value) is UUID and value.version == 4
+
+
+async def _linked_evidence(
+    repository: BriefingJobRepository,
+    evidence: QuestionEvidenceRun,
+    token: str,
+    workspace_id: UUID,
+    request_id: UUID,
+    question: str,
+    model: str,
+) -> bool | None:
+    children = tuple(ack.job_id for ack in evidence.dispatch.dispatches)
+    packet = await asyncio.to_thread(
+        repository.inputs, token, workspace_id, evidence.dispatch.plan_id, children
+    )
+    if packet is None:
+        return None
+    receipts = validate_briefing_evidence(packet)
+    if (
+        packet.question != question
+        or packet.plan.workspace_id != workspace_id
+        or packet.plan.request_id != request_id
+        or packet.plan.plan_id != evidence.dispatch.plan_id
+        or tuple(child.job_id for child in packet.children) != children
+        or any(child.model != model for child in packet.children)
+        or receipts != evidence.receipts
+    ):
+        raise QuestionBriefingRunError
+    probe = build_question_briefing(
+        question,
+        packet.sources,
+        receipts,
+        {"outcome": "insufficient_evidence", "message": "근거 검증용", "modules": []},
+    )
+    return any(item.linked_proposition_ids for item in probe.coverage)
 
 
 async def run_question_briefing(
@@ -146,6 +183,13 @@ async def run_question_briefing(
                 not evidence_model_allowed(model, receipt.profile) for receipt in evidence.receipts
             ):
                 raise QuestionBriefingRunError
+            linked = await _linked_evidence(
+                briefing_jobs, evidence, token, workspace_id, request_id, question, model
+            )
+            if linked is None:
+                return None
+            if not linked:
+                return QuestionBriefingRun(dispatch, None)
             children = tuple(ack.job_id for ack in dispatch.dispatches)
             job = await submit_briefing_job(
                 briefing_jobs,

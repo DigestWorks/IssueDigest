@@ -129,12 +129,16 @@ it.each(['no_match', 'blocked'] as const)(
       await screen.findByText(
         kind === 'no_match'
           ? '질문에 답할 수 있는 근거를 찾지 못했습니다.'
-          : '현재 자료로는 브리핑을 만들 수 없습니다.',
+          : '현재 자료에서는 질문에 답할 충분한 근거를 확인하지 못했습니다.',
       ),
     ).toBeInTheDocument();
     expect(screen.getByTestId('location')).toHaveTextContent('/');
     expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     expect(readPendingQuestion(actor, workspace)).toBeNull();
+    expect(screen.getByRole('textbox')).toHaveValue('질문');
+    expect(screen.getByRole('button', { name: '질문하기' })).toBeEnabled();
+    expect(screen.queryByText(/응답을 확인하지 못했습니다/)).not.toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledTimes(1);
   },
 );
 it.each([401, 403, 404])(
