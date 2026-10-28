@@ -1,3 +1,7 @@
+## 최신 개인 개발 API · 2026-10-28 KST
+
+[적용 결과](../docs/research/question-astra-app-runtime-validation.md). 제품e686086·DB0015에 명시 Astra/v5·각1달러 예약을 연결했다. 전체10,946개·독립 검토·서버 밖 전후 full/app 백업·별도PG18.6 public27테이블 복원·이관 리허설/행·ACL 보존을 확인했다. 원래 Sol 기본/이력·공개/비회원 경계·계정/세션·Nginx/static·수집기/cron·main/운영은 유지한다. 사용자 로그인·질문을 대신하지 않았고 Models GET200/유료POST0과 선행 격리 실제 인수를 구분한다. 실제 process/source/복귀 기록은 서버 private 상태에 보존한다. 아래 초기 기록은 현재 상태의 완료 증거가 아니다.
+
 # 개발 서버 실행·확인 기록
 
 공개 브리핑 개발 변경(D020)은 독립 검증/명시1건 게시 후 개인 개발 도메인에 적용했다. 제품 소스와 실제 검사·사후 백업 복원 증거는 [진행 기록](../docs/planning/progress.md)을 따른다. 기존 private 자료·계정/세션·실행을 보존하며 main/운영은 유예한다. 공개0007 테이블의 사전 백업·소유자 migration/최소 권한·별도 복원과 웹/API 경계 검증 절차는 [실행 개발 계약](research-development.md)을 따른다. 아래 초기 서버 기록을 새 게시/적용 완료 증거로 사용하지 않는다.

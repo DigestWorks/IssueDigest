@@ -1,3 +1,11 @@
+## 개발 앱 적용 · Astra 질문 경로 · 2026-10-28 KST
+
+[계약](../changes/question-astra-app-runtime.md)·[검증](../research/question-astra-app-runtime-validation.md). e686086의 서버 model/profile·예약/명시 전송 설정을 개발 API에 적용했고 DB0012→0015를 이관했다. 기본 Sol은 유지하고 개발의 명시 Astra/v5만 각1달러 예약으로 선택한다. 관련30개·전체10,946개(Python10,031·JavaScript915)/정적·타입·빌드/OpenAPI·독립 코드/교체/증거 검토를 통과했다.
+
+서버 밖 전후 full/app 백업·별도PG18.6 public27테이블 복원 rowhash/count·사전 이관 리허설·실제 이관의 기존행/ACL 보존을 확인했다. 예약 수집이 정상1건 추가됐으며 이전229행은 그대로다. 단일 worker·실제 Astra/v5 설정/예약·Models GET200과 외부 home/login/health200·session/질문 비회원401/nocookie·화면/응답 hash 보존을 확인했다. API키/DB/OAuth/계정·세션·Nginx/static·수집기/cron·main/운영은 유지했다.
+
+첫 교체는 서버 Python의 pidfd 함수 미노출로 API 종료/DDL 전에 멈췄고, 파일을 보존했다. 제한된 커널 호환 경로·실제 자기 자신 fd/신호0 권한 검사·최종50개 무송신 검사와 독립 재검토 뒤 새 디렉터리에서 교체했다. 서버 설정 조회GET1/적용 유료POST0이며, 로그인 사용자의 질문은 대신하지 않았다. 실제 사용자 흐름/다양한 이슈 품질·완전 DR은 후속이다. 소유 QA4개/볼륨/포트 정리를 마쳤고 Sites 게시 정보는 이후 인계에 둔다.
+
 ## 최종 인계 · Astra 내구 분석/최종 저장 실제 인수 · 2026-10-27
 
 [Draft PR134](https://github.com/DigestWorks/IssueDigest/pull/134), base feat/question-model-comparison. 코드6c0ab03·결과 사본10440db. 전체10,936개·private 도구98개·태스크/전체/동결/실제 내용 독립 검토를 통과했다. 새 실제 분석1/최종1→ANSWER SQL 저장/전체 reader JSON·재열람·재접수 추가0, 분석/최종 필수3조건 각각3/3 제한 AI 개발판정·다른9 미평가를 기록했다. 공식 단가 추정0.14783달러를 예약2달러/청구 확정과 구분한다.

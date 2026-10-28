@@ -13,6 +13,11 @@ Provider는 공식 endpoint·timeout60·retry0·명시 project/organization 없�
 ## 작업
 
 - [x] T1: 서비스 model/profile/예약·명시 전송 설정 TDD·기존 Sol 및 Astra HTTP 흐름 검증.
-- [ ] T1 독립 검토·필요 범위 전체 검사/타입/빌드/OpenAPI.
-- [ ] T2: 실제 서버 source/process/DB revision·권한·백업/복원 실측과 적용 계획 확정.
-- [ ] T3: 준비 조건 충족 시 개인 개발 앱 연결·외부 검증·기록/PR/Sites. 미충족이면 기존 서비스 보존·부족 조건과 준비 산출물 기록.
+- [x] T1 독립 검토·필요 범위 전체 검사/타입/빌드/OpenAPI.
+- [x] T2: 실제 서버 source/process/DB revision·권한·백업/복원 실측과 적용 계획 확정.
+- [x] T3: 준비 조건 충족 시 개인 개발 앱 연결·외부 검증·기록/PR/Sites. 미충족이면 기존 서비스 보존·부족 조건과 준비 산출물 기록.
+
+
+## 적용 기록
+
+[검증](../research/question-astra-app-runtime-validation.md). 전체10,946개·독립 검토·사전/사후 백업/별도 복원27테이블 및 이관 리허설 후 개발 API/DB0015에 적용했다. 화면/Nginx·계정/세션·수집기/cron·main/운영은 유지했다. 실제 사용자 로그인/질문과 이번 서버의 유료 E2E는 대신 실행하지 않았다.
