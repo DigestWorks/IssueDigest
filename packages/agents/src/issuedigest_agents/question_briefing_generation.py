@@ -49,6 +49,7 @@ BRIEFING_GENERATION_INSTRUCTIONS = (
 
 BRIEFING_INPUT_V1 = "question-briefing-source-v1"
 BRIEFING_INPUT_V2 = "question-briefing-source-v2"
+BRIEFING_INPUT_V3 = "question-briefing-source-v3"
 
 
 def briefing_generation_instructions(input_format: str = BRIEFING_INPUT_V1) -> str:
@@ -61,11 +62,15 @@ def briefing_generation_instructions(input_format: str = BRIEFING_INPUT_V1) -> s
         from .briefing_input_v2 import INPUT_V2_DECODING_INSTRUCTIONS
 
         return BRIEFING_GENERATION_INSTRUCTIONS + INPUT_V2_DECODING_INSTRUCTIONS
+    if input_format == BRIEFING_INPUT_V3:
+        from .briefing_input_v3 import INPUT_V3_DECODING_INSTRUCTIONS
+
+        return BRIEFING_GENERATION_INSTRUCTIONS + INPUT_V3_DECODING_INSTRUCTIONS
     raise ValueError("Invalid briefing input format")
 
 
 def briefing_input_format_from_instructions_hash(instructions_sha256: str) -> str:
-    for input_format in (BRIEFING_INPUT_V1, BRIEFING_INPUT_V2):
+    for input_format in (BRIEFING_INPUT_V1, BRIEFING_INPUT_V2, BRIEFING_INPUT_V3):
         if type(instructions_sha256) is str and instructions_sha256 == _hash(
             briefing_generation_instructions(input_format)
         ):
@@ -80,7 +85,9 @@ class QuestionBriefingGenerationError(GuardedResponsesError):
 class QuestionBriefingGeneration(_StrictModel):
     profile: Literal["question-briefing-generation-v1"]
     transport_profile: Literal["guarded-responses-tool-v1"]
-    input_format: Literal["question-briefing-source-v1", "question-briefing-source-v2"]
+    input_format: Literal[
+        "question-briefing-source-v1", "question-briefing-source-v2", "question-briefing-source-v3"
+    ]
     status: Literal["unreviewed"]
     model: Literal["gpt-6.1-sol", "gpt-6-astra"]
     briefing: QuestionBriefing
@@ -144,6 +151,10 @@ def _preflight(
         from .briefing_input_v2 import encode_briefing_input_v2
 
         prompt = _json(encode_briefing_input_v2(json.loads(prompt)))
+    if input_format == BRIEFING_INPUT_V3:
+        from .briefing_input_v3 import encode_briefing_input_v3
+
+        prompt = _json(encode_briefing_input_v3(json.loads(prompt)))
     tools: list[ToolOutput[BaseModel]] = [
         ToolOutput(
             QuestionBriefingProposal,
@@ -151,6 +162,10 @@ def _preflight(
             strict=True,
         )
     ]
+    if input_format == BRIEFING_INPUT_V3:
+        from .briefing_input_v3 import BriefingToolResultV3
+
+        tools = [ToolOutput(BriefingToolResultV3, name="compose_question_briefing_v2", strict=True)]
     if _request_envelope(prompt, tools, instructions, 4000) > 20000:
         raise ValueError("Invalid final request envelope")
     return prompt, tools, probe
@@ -260,16 +275,28 @@ async def run_question_briefing_generation(
         KnownUsage.model_validate(result.usage.__dict__, strict=True)
         known, terminal = result.usage, True
         _budget(known)
-        if type(result.output) is not QuestionBriefingProposal:
+        output = result.output
+        if input_format == BRIEFING_INPUT_V3:
+            from .briefing_input_v3 import BriefingToolResultV3
+
+            if type(output) is not BriefingToolResultV3:
+                raise ValueError("Invalid final proposal")
+            output = output.canonical()
+        elif type(output) is not QuestionBriefingProposal:
             raise ValueError("Invalid final proposal")
         _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
-        briefing = build_question_briefing(question, sources, receipts, result.output)
+        briefing = build_question_briefing(question, sources, receipts, output)
         _unchanged(question, sources, receipts, originals, prompt, probe, input_format)
         generated = QuestionBriefingGeneration(
             profile="question-briefing-generation-v1",
             transport_profile=GUARDED_RESPONSES_PROFILE,
             input_format=cast(
-                Literal["question-briefing-source-v1", "question-briefing-source-v2"], input_format
+                Literal[
+                    "question-briefing-source-v1",
+                    "question-briefing-source-v2",
+                    "question-briefing-source-v3",
+                ],
+                input_format,
             ),
             status="unreviewed",
             model=cast(Literal["gpt-6.1-sol", "gpt-6-astra"], model),

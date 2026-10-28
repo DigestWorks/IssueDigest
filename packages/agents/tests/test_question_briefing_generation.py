@@ -23,12 +23,12 @@ def api():
     return importlib.import_module(name)
 
 
-def rows(data):
+def rows(data, name="compose_question_briefing_v1"):
     result = events(json.dumps(data))
     for row in result:
         for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
             if item is not None:
-                item["name"] = "compose_question_briefing_v1"
+                item["name"] = name
     return result
 
 
@@ -36,7 +36,12 @@ async def exercise(
     sources, receipts, data, *, stream=None, mutate=None, cancel=False, options=None
 ):
     mod = api()
-    body = stream or Body(rows(data))
+    name = (
+        "compose_question_briefing_v2"
+        if (options or {}).get("input_format") == "question-briefing-source-v3"
+        else "compose_question_briefing_v1"
+    )
+    body = stream or Body(rows(data, name))
     requests = []
 
     def serve(request):
@@ -636,3 +641,44 @@ def test_historical_v1_instructions_and_provider_request_bytes_are_stable():
     assert sha256(mod.BRIEFING_GENERATION_INSTRUCTIONS.encode()).hexdigest() == (
         "026e3c82fbeb8a426635c8ef0a4224546715b31c89c49f6ecfbe50e92bbbc09d"
     )
+
+
+@pytest.mark.parametrize("outcome", ["answer", "insufficient_evidence"])
+def test_v3_outcome_specific_native_wire_and_canonical_receipt(outcome):
+    mod = api()
+    sources, receipts, answer = setup()
+    branch = (
+        {"outcome": "answer", "modules": answer["modules"]}
+        if outcome == "answer"
+        else {"outcome": "insufficient_evidence", "message": "근거의 한계"}
+    )
+    got, _, calls = run(
+        sources,
+        receipts,
+        {"result": branch},
+        options={"input_format": "question-briefing-source-v3"},
+    )
+    assert type(got) is mod.QuestionBriefingGeneration
+    assert got.input_format == "question-briefing-source-v3"
+    assert got.briefing.outcome == outcome
+    assert mod.validate_question_briefing_generation(QUESTION, sources, receipts, got) == got
+    wire = json.loads(calls[0].content)
+    assert wire["tools"][0]["name"] == "compose_question_briefing_v2"
+    assert "anyOf" in wire["tools"][0]["parameters"]["properties"]["result"]
+    assert (
+        mod.briefing_input_format_from_instructions_hash(got.instructions_sha256)
+        == got.input_format
+    )
+
+
+def test_v3_rejects_answer_with_extra_message_without_dropping_it():
+    sources, receipts, answer = setup()
+    answer["message"] = "삭제하면 안 되는 한계"
+    got, _, calls = run(
+        sources,
+        receipts,
+        {"result": answer},
+        options={"input_format": "question-briefing-source-v3"},
+    )
+    assert len(calls) == 1
+    assert type(got) is api().QuestionBriefingGenerationError

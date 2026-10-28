@@ -73,7 +73,11 @@ class QuestionServiceConfig:
             )
             or type(self.input_format) is not str
             or self.input_format
-            not in ("question-briefing-source-v1", "question-briefing-source-v2")
+            not in (
+                "question-briefing-source-v1",
+                "question-briefing-source-v2",
+                "question-briefing-source-v3",
+            )
             or not evidence_model_allowed(self.model, self.evidence_profile)
             or self.app_version != "question-briefing-http-v1"
         ):

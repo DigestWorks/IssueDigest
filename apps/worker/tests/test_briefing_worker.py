@@ -143,7 +143,26 @@ async def exercise(jobs, job, *, mutate=None, ownership=None, body=None):
             headers={"content-type": "text/event-stream"},
             stream=body
             or Body(
-                rows(dict(outcome="insufficient_evidence", message="합성 근거 부족", modules=[]))
+                rows(
+                    {"result": {"outcome": "insufficient_evidence", "message": "합성 근거 부족"}}
+                    if job.instructions_sha256
+                    == sha256(
+                        api()
+                        .briefing_generation_instructions("question-briefing-source-v3")
+                        .encode()
+                    ).hexdigest()
+                    else dict(
+                        outcome="insufficient_evidence", message="합성 근거 부족", modules=[]
+                    ),
+                    "compose_question_briefing_v2"
+                    if job.instructions_sha256
+                    == sha256(
+                        api()
+                        .briefing_generation_instructions("question-briefing-source-v3")
+                        .encode()
+                    ).hexdigest()
+                    else "compose_question_briefing_v1",
+                )
             ),
         )
 
@@ -608,7 +627,10 @@ def test_final_requested_model_must_match_valid_child_before_reservation(jobs, e
         )
 
 
-@pytest.mark.parametrize("selected", ["question-briefing-source-v1", "question-briefing-source-v2"])
+@pytest.mark.parametrize(
+    "selected",
+    ["question-briefing-source-v1", "question-briefing-source-v2", "question-briefing-source-v3"],
+)
 def test_v2_admission_execution_replay_and_v1_idempotency_conflict(jobs, engine, selected):
     from issuedigest_agents.question_briefing_generation import (
         briefing_generation_instructions,
