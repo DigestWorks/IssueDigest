@@ -256,101 +256,125 @@ export function BriefingJobReader({
   }
   return (
     <>
-      <BrandHeader />
-      <main className="briefing-job">
-        {job ? (
-          <>
-            <h1>{job.question}</h1>
-            <p className="briefing-job-label">AI 브리핑</p>
-            <p className="briefing-job-note">
-              자료에 근거한 AI 요약입니다. 자료의 서술은 독립적으로 확인된
-              사실을 뜻하지 않습니다.
-            </p>
-            <p role="status" aria-live="polite">
-              {busy ? '취소 중…' : labels[job.status]}
-            </p>
-            {active(job) && (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void cancel()}
+      <div className="briefing-job-shell">
+        <BrandHeader />
+        <main className="briefing-job">
+          <Link className="briefing-job-back" to="/">
+            홈으로 돌아가기
+          </Link>
+          {job ? (
+            <>
+              <header className="briefing-job-heading">
+                <p className="briefing-job-eyebrow">AI 브리핑</p>
+                <h1>{job.question}</h1>
+                <p className="briefing-job-note">
+                  자료에 근거한 AI 요약입니다. 자료의 서술은 독립적으로 확인된
+                  사실을 뜻하지 않습니다.
+                </p>
+              </header>
+              <p
+                className={job.status === 'completed'
+                  ? 'briefing-job-status-completed'
+                  : 'briefing-job-status'}
+                role="status"
+                aria-live="polite"
               >
-                브리핑 취소
-              </button>
-            )}
-            {job.result?.outcome === 'insufficient_evidence' ? (
-              <p>{job.result.message}</p>
-            ) : (
-              job.result?.modules.map((module, i) => (
-                <section
-                  key={i}
-                  aria-label={module.title}
-                  className={`briefing-job-module briefing-job-${module.kind}`}
+                {busy ? '취소 중…' : labels[job.status]}
+              </p>
+              {active(job) && (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void cancel()}
                 >
-                  <h2>{module.title}</h2>
-                  {module.kind === 'timeline' ? (
-                    <ol
-                      className="briefing-job-timeline-list"
-                      aria-label={`${module.title} 항목`}
-                    >
-                      {module.claims.map((claim, j) => (
-                        <li key={j}>{claimContent(claim)}</li>
-                      ))}
-                    </ol>
-                  ) : module.kind === 'comparison' ? (
-                    <ul
-                      className="briefing-job-comparison-list"
-                      aria-label={`${module.title} 항목`}
-                    >
-                      {module.claims.map((claim, j) => (
-                        <li key={j}>{claimContent(claim)}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    module.claims.map((claim, j) => (
-                      <article key={j}>{claimContent(claim)}</article>
-                    ))
-                  )}
-                </section>
-              ))
-            )}
-            {Boolean(job.result?.additional_quotes.length) && (
-              <details>
-                <summary>더 살펴볼 근거</summary>
-                {quotes(job.result!.additional_quotes)}
-              </details>
-            )}
-          </>
-        ) : (
-          !error && (
-            <p role="status" aria-live="polite">
-              브리핑을 불러오고 있습니다.
-            </p>
-          )
-        )}
-        {error && (
-          <div role="alert">
-            <p>
-              {error === 'unauthorized'
-                ? '로그인이 필요합니다.'
-                : ['forbidden', 'not-found'].includes(error)
-                  ? '이 브리핑에 접근할 수 없습니다.'
-                  : ['timeout', 'network'].includes(error)
-                    ? '연결을 확인하지 못했습니다. 다시 조회해 주세요.'
-                    : '브리핑을 확인하지 못했습니다. 다시 조회해 주세요.'}
-            </p>
-            {error === 'unauthorized' ? (
-              <Link to="/login">로그인</Link>
-            ) : (
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => void refresh()}
-              >
-                다시 조회
-              </button>
-            )}
-          </div>
+                  브리핑 취소
+                </button>
+              )}
+              {job.result?.outcome === 'insufficient_evidence' ? (
+                <p>{job.result.message}</p>
+              ) : (
+                job.result?.modules.map((module, i) => (
+                  <section
+                    key={i}
+                    aria-label={module.title}
+                    className={`briefing-job-module briefing-job-${module.kind}`}
+                  >
+                    {module.kind === 'summary' ? (
+                      <>
+                        <h2>{module.title}</h2>
+                        {module.claims.map((claim, j) => (
+                          <article key={j}>{claimContent(claim)}</article>
+                        ))}
+                      </>
+                    ) : (
+                      <details className="briefing-job-detail">
+                        <summary>
+                          <span className="briefing-job-detail-kind">
+                            {module.kind === 'comparison' ? '자료 비교' : '시간순 정리'}
+                          </span>
+                          <h2>{module.title}</h2>
+                        </summary>
+                        {module.kind === 'timeline' ? (
+                          <ol
+                            className="briefing-job-timeline-list"
+                            aria-label={`${module.title} 항목`}
+                          >
+                            {module.claims.map((claim, j) => (
+                              <li key={j}>{claimContent(claim)}</li>
+                            ))}
+                          </ol>
+                        ) : module.kind === 'comparison' ? (
+                          <ul
+                            className="briefing-job-comparison-list"
+                            aria-label={`${module.title} 항목`}
+                          >
+                            {module.claims.map((claim, j) => (
+                              <li key={j}>{claimContent(claim)}</li>
+                            ))}
+                          </ul>
+                        ) : null}
+                      </details>
+                    )}
+                  </section>
+                ))
+              )}
+              {Boolean(job.result?.additional_quotes.length) && (
+                <details>
+                  <summary>더 살펴볼 근거</summary>
+                  {quotes(job.result!.additional_quotes)}
+                </details>
+              )}
+            </>
+          ) : (
+            !error && (
+              <p role="status" aria-live="polite">
+                브리핑을 불러오고 있습니다.
+              </p>
+            )
+          )}
+          {error && (
+            <div role="alert">
+              <p>
+                {error === 'unauthorized'
+                  ? '로그인이 필요합니다.'
+                  : ['forbidden', 'not-found'].includes(error)
+                    ? '이 브리핑에 접근할 수 없습니다.'
+                    : ['timeout', 'network'].includes(error)
+                      ? '연결을 확인하지 못했습니다. 다시 조회해 주세요.'
+                      : '브리핑을 확인하지 못했습니다. 다시 조회해 주세요.'}
+              </p>
+              {error === 'unauthorized' ? (
+                <Link to="/login">로그인</Link>
+              ) : (
+                <button
+                  type="button"
+                  disabled={busy}
+                  onClick={() => void refresh()}
+                >
+                  다시 조회
+                </button>
+              )}
+            </div>
         )}
         {opening && <p role="status">현재 권한과 원문을 확인하고 있습니다.</p>}
         {reader && (
@@ -361,6 +385,7 @@ export function BriefingJobReader({
           />
         )}
       </main>
+      </div>
     </>
   );
 }

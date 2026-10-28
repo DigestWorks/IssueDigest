@@ -1,3 +1,4 @@
+import userEvent from '@testing-library/user-event';
 import fixture from '../../../tests/fixtures/canvas-synthetic.json';
 
 import {
@@ -113,6 +114,7 @@ it('loads real summary comparison timeline as plaintext without submitting', asy
   await screen.findByText('시간 흐름');
   expect(screen.getByText('<script>자료의 서술</script>')).toBeVisible();
   expect(document.querySelector('script')).toBeNull();
+  fireEvent.click(screen.getByText('비교'));
   expect(screen.getByText('확인하기 어려움')).toBeVisible();
   expect(fetcher).toHaveBeenCalledTimes(1);
   expect(fetcher.mock.calls[0][1].method).toBe('GET');
@@ -216,6 +218,7 @@ it('keeps summary after network failure but requires fresh job before original',
   fireEvent.focus(window);
   await screen.findByRole('alert');
   expect(screen.getByText('요약')).toBeVisible();
+  fireEvent.click(screen.getAllByText('근거 읽기')[0]);
   fireEvent.click(screen.getAllByText('원문 열기')[0]);
   await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(3));
   expect(screen.queryByRole('dialog')).toBeNull();
@@ -270,6 +273,7 @@ it('groups comparison claims and exposes dated timeline items in order', async (
   );
   mount();
   const comparison = await screen.findByRole('region', { name: '비교' });
+  fireEvent.click(within(comparison).getByText('비교'));
   const comparisonList = within(comparison).getByRole('list', {
     name: '비교 항목',
   });
@@ -278,6 +282,7 @@ it('groups comparison claims and exposes dated timeline items in order', async (
   expect(within(claims[0]).getByText('첫 자료')).toBeVisible();
   expect(within(claims[1]).getByText('둘째 자료')).toBeVisible();
   const timeline = screen.getByRole('region', { name: '시간 흐름' });
+  fireEvent.click(within(timeline).getByText('시간 흐름'));
   const events = within(timeline).getByRole('list', { name: '시간 흐름 항목' });
   expect(events.tagName).toBe('OL');
   const event = within(events).getByRole('listitem');
@@ -460,6 +465,7 @@ it.each(['denied', 'binding_changed', 'focus_denied'])(
     vi.stubGlobal('fetch', fetcher);
     mount();
     await screen.findByText('요약');
+    fireEvent.click(screen.getByText('근거 읽기'));
     fireEvent.click(screen.getByRole('button', { name: '원문 열기' }));
     await waitFor(() => expect(evidenceSignal).toBeDefined());
     changed = true;
@@ -503,4 +509,32 @@ it('ignores a body resolving after unmount and aborts its request', async () => 
   await act(async () => resolve(completed()));
   expect(screen.queryByText('요약')).toBeNull();
   expect(screen.queryByRole('dialog')).toBeNull();
+});
+
+it('keeps the answer visible and opens native detail without fetching and preserves its focus', async () => {
+  const user = userEvent.setup();
+  const fetcher = vi
+    .fn()
+    .mockImplementation(() => Promise.resolve(response(completed())));
+  vi.stubGlobal('fetch', fetcher);
+  mount();
+  await screen.findByText('요약');
+  expect(screen.getByText('<script>자료의 서술</script>')).toBeVisible();
+  expect(screen.getByText('첫 자료')).not.toBeVisible();
+  expect(screen.getByText('발생')).not.toBeVisible();
+  const comparison = screen.getByText('비교').closest('summary');
+  expect(comparison).not.toBeNull();
+  expect(comparison!.parentElement).not.toHaveAttribute('open');
+  comparison!.focus();
+  await user.click(comparison!);
+  expect(screen.getByText('첫 자료')).toBeVisible();
+  expect(comparison).toHaveFocus();
+  await user.click(comparison!);
+  expect(screen.getByText('첫 자료')).not.toBeVisible();
+  expect(comparison).toHaveFocus();
+  expect(fetcher).toHaveBeenCalledTimes(1);
+  expect(screen.getByRole('link', { name: '홈으로 돌아가기' })).toHaveAttribute(
+    'href',
+    '/',
+  );
 });

@@ -1,13 +1,23 @@
+/* The shared masthead frames a quieter, narrow reading column. */
+.briefing-job-shell {
+  width: 100%;
+  max-width: 1240px;
+  margin-inline: auto;
+  padding-inline: 48px;
+}
+
 .briefing-job {
-  width: min(100% - 2rem, 46rem);
-  margin: 3rem auto 6rem;
+  width: min(100%, 46rem);
+  margin: 1.5rem auto 6rem;
   overflow-wrap: anywhere;
   line-height: 1.8;
 }
 .briefing-job h1 {
-  font-size: clamp(1.6rem, 5vw, 2.5rem);
-  line-height: 1.4;
+  margin: 0 0 1rem;
+  font-size: clamp(1.65rem, 4vw, 2.65rem);
+  line-height: 1.45;
   letter-spacing: -0.035em;
+  word-break: keep-all;
 }
 .briefing-job h2 {
   font-size: 1.3rem;
@@ -61,9 +71,6 @@
   outline-offset: 3px;
 }
 @media (max-width: 480px) {
-  .briefing-job {
-    margin-top: 1.5rem;
-  }
   .briefing-job blockquote {
     padding-inline: 0.65rem;
   }
@@ -124,3 +131,137 @@
     gap: 2rem;
   }
 }
+
+.briefing-job-back {
+  display: inline-flex;
+  align-items: center;
+  margin-left: -0.8rem;
+  color: var(--muted);
+  font-size: 0.8125rem;
+  text-underline-offset: 0.25em;
+}
+.briefing-job-heading {
+  padding: 1.5rem 0 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.briefing-job-eyebrow {
+  margin: 0 0 0.75rem;
+  color: var(--green);
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.08em;
+}
+.briefing-job-note {
+  max-width: 36rem;
+  margin-bottom: 0;
+  line-height: 1.8;
+}
+.briefing-job-status-completed {
+  margin: 0.75rem 0 2.5rem;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.briefing-job-status {
+  margin-block: 1.25rem;
+  font-weight: 600;
+}
+.briefing-job .briefing-job-summary {
+  margin-top: 1.5rem;
+  border-top: 0;
+  padding-bottom: 1rem;
+}
+.briefing-job .briefing-job-summary > h2 {
+  margin-top: 0;
+  color: var(--green);
+  font-size: 0.875rem;
+  font-weight: 650;
+}
+.briefing-job-claim {
+  margin-top: 0.4rem;
+  word-break: keep-all;
+}
+.briefing-job article > .briefing-job-label,
+.briefing-job li > .briefing-job-label {
+  margin-bottom: 0;
+  font-size: 0.75rem;
+}
+.briefing-job .briefing-job-detail > summary {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.25rem 1rem;
+  padding: 1.25rem 2rem 1.25rem 0;
+  color: var(--ink);
+  list-style: none;
+}
+.briefing-job-detail > summary::-webkit-details-marker {
+  display: none;
+}
+.briefing-job-detail > summary::after {
+  content: '+';
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--green);
+  font-size: 1.5rem;
+  font-weight: 400;
+}
+.briefing-job-detail[open] > summary::after {
+  content: '−';
+}
+.briefing-job-detail-kind {
+  grid-column: 1;
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+.briefing-job .briefing-job-detail > summary h2 {
+  grid-column: 1;
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  font-weight: 600;
+}
+.briefing-job section:has(> .briefing-job-detail) {
+  margin-top: 0;
+}
+.briefing-job-detail[open] {
+  padding-bottom: 1rem;
+}
+.briefing-job blockquote p {
+  white-space: pre-wrap;
+}
+@media (max-width: 760px) {
+  .briefing-job-shell {
+    padding-inline: 24px;
+  }
+}
+@media (max-width: 420px) {
+  .briefing-job-shell {
+    padding-inline: 20px;
+  }
+  .briefing-job {
+    margin-top: 1rem;
+  }
+  .briefing-job-heading {
+    padding-top: 1rem;
+  }
+  .briefing-job-summary .briefing-job-claim {
+    font-size: 1.0625rem;
+  }
+}
+
+  .briefing-job-shell .brand {
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding-block: 1rem;
+  }
+  .briefing-job-shell .brand-identity {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+  }
+  .briefing-job-shell .brand-identity > span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
