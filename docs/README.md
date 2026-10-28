@@ -1,4 +1,6 @@
-최신 인수: [Astra 내구 분석·최종 저장 검증](research/question-native-final-validation.md)·[지원 계약](changes/question-astra-runtime.md)·[전체 인수](changes/question-native-final-acceptance.md). 저장·실행·SDK 지원과 전체10,936개 검사를 통과했고 실제 분석1/최종1→SQL 저장·재열람·재접수 추가0을 확인했습니다. 분석/최종 필수3조건3/3은 제한된 AI 개발판정이고 다른9는 미평가입니다. 현재 앱은 그대로입니다.
+최신 개발 적용: [Astra 질문 경로](research/question-astra-app-runtime-validation.md)·[계약](changes/question-astra-app-runtime.md). 개발 API와 DB0015에 연결했고 전체10,946개·전후 백업/복원·외부 접속/비회원 경계를 확인했습니다. 화면·로그인·수집기·main/운영은 유지했으며 실제 사용자 질문 검증은 남습니다.
+
+선행 격리 인수: [Astra 내구 분석·최종 저장 검증](research/question-native-final-validation.md)·[지원 계약](changes/question-astra-runtime.md)·[전체 인수](changes/question-native-final-acceptance.md). 저장·실행·SDK 지원과 전체10,936개 검사를 통과했고 실제 분석1/최종1→SQL 저장·재열람·재접수 추가0을 확인했습니다. 분석/최종 필수3조건3/3은 제한된 AI 개발판정이고 다른9는 미평가입니다. 당시 앱은 미적용이었으며 현재 상태는 위 적용 기록을 따릅니다.
 
 최신 실제 비교: [근거 생성 모델](research/question-model-comparison.md)·[계약](changes/question-model-comparison.md). 기존 요청에서 model만 Astra로 바꾼 분석1회가 완료·SDK 수용을 통과했습니다. 필수3단위3/3은 제한된 AI 개발판정이며 나머지9는 미평가입니다. 실제 최종 생성/SQL·앱 인수와 운영 모델 채택은 남습니다.
 

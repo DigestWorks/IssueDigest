@@ -13,8 +13,14 @@ from typing import Any
 from uuid import UUID
 
 import dbos._dbos as dbos_runtime
+import httpx2 as httpx
 from dbos import DBOS, DBOSClient
 from issuedigest_agents.question_submission import QuestionSubmissionError
+from issuedigest_domain.question_model_policy import (
+    ASTRA_MODEL,
+    SOL_MODEL,
+    evidence_model_allowed,
+)
 from issuedigest_domain.question_submission import (
     QuestionSubmissionRequest,
     QuestionSubmissionResult,
@@ -45,6 +51,7 @@ class QuestionServiceConfig:
     schema: str = "issuedigest_question_briefing"
     app_version: str = "question-briefing-http-v1"
     evidence_profile: str = "guarded-question-evidence-v2"
+    model: str = SOL_MODEL
 
     def __post_init__(self) -> None:
         if (
@@ -63,9 +70,18 @@ class QuestionServiceConfig:
                 "guarded-question-evidence-v3",
                 "guarded-question-evidence-v5",
             )
+            or not evidence_model_allowed(self.model, self.evidence_profile)
             or self.app_version != "question-briefing-http-v1"
         ):
             raise QuestionSubmissionError("unavailable")
+
+    @property
+    def evidence_reservation_usd(self) -> Decimal:
+        return Decimal("1.00") if self.model == ASTRA_MODEL else Decimal(".50")
+
+    @property
+    def briefing_reservation_usd(self) -> Decimal:
+        return self.evidence_reservation_usd
 
     @classmethod
     def from_environment(cls, values: Mapping[str, str]) -> "QuestionServiceConfig":
@@ -73,6 +89,7 @@ class QuestionServiceConfig:
             raise QuestionSubmissionError("unavailable")
         return cls(
             api_key=values.get("OPENAI_API_KEY", ""),
+            model=values.get("ISSUEDIGEST_QUESTION_MODEL", SOL_MODEL),
             evidence_profile=values.get(
                 "ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE", "guarded-question-evidence-v2"
             ),
@@ -192,7 +209,23 @@ class OwnedQuestionExecutionService:
             check()
             return True
 
-        self._provider = AsyncOpenAI(api_key=self.config.api_key, max_retries=0)
+        transport = httpx.AsyncClient(trust_env=False)
+        try:
+            self._provider = AsyncOpenAI(
+                api_key=self.config.api_key,
+                base_url="https://api.openai.com/v1",
+                max_retries=0,
+                timeout=60,
+                organization=None,
+                project=None,
+                http_client=transport,
+            )
+        except Exception:
+            await transport.aclose()
+            raise
+        # The SDK resolves None through ambient tenant variables in its constructor.
+        self._provider.organization = None
+        self._provider.project = None
         self._owns_dbos = True  # Constructor may leave a partial owned singleton.
         url = self.engine.url.render_as_string(hide_password=False)
         runtime_config = dict(
@@ -334,9 +367,9 @@ class OwnedQuestionExecutionService:
             workspace_id=workspace_id,
             request_id=request_id,
             question=question,
-            model="gpt-6.1-sol",
-            evidence_reservation_usd=Decimal(".50"),
-            briefing_reservation_usd=Decimal(".50"),
+            model=self.config.model,
+            evidence_reservation_usd=self.config.evidence_reservation_usd,
+            briefing_reservation_usd=self.config.briefing_reservation_usd,
         )
         if type(result) is not QuestionBriefingRun:
             raise QuestionSubmissionError("unavailable")

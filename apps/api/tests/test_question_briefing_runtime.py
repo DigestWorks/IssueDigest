@@ -48,7 +48,16 @@ def test_optional_service_lifetime(monkeypatch, fail):
     )
 
 
-def test_native_http_submission_replay_history_and_loop_liveness(engine, database_url, monkeypatch):
+@pytest.mark.parametrize(
+    "model,profile",
+    [
+        ("gpt-6.1-sol", "guarded-question-evidence-v2"),
+        ("gpt-6-astra", "guarded-question-evidence-v5"),
+    ],
+)
+def test_native_http_submission_replay_history_and_loop_liveness(
+    engine, database_url, monkeypatch, model, profile
+):
     import json
     import threading
     from pathlib import Path
@@ -71,8 +80,9 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
     root = Path(__file__).resolve().parents[3]
     for path in ("packages/agents/tests", "apps/worker/tests"):
         monkeypatch.syspath_prepend(str(root / path))
+    from test_guarded_question_evidence_v5 import packet as packet_v5
     from test_guarded_responses_stream import Body, events
-    from test_question_briefing import source
+    from test_question_briefing import TEXT, source
     from test_question_briefing_generation import rows
     from test_question_evidence_propositions import packet
 
@@ -80,7 +90,8 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
     with engine.begin() as conn:
         conn.execute(text("TRUNCATE briefing_jobs, evidence_jobs, question_source_plans"))
     schema = "qwh_" + uuid4().hex
-    original = source()
+    # v5 requires each text reference to resolve uniquely within its citation.
+    original = source(TEXT.replace("기관은 반복한다", "반복한다"))
     raw = original[1].model_dump(mode="json")
     raw["version"]["media_type"] = "text/plain"
     src = original[0], EvidenceBundle.model_validate(raw), original[2]
@@ -113,12 +124,14 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
         requests.append(request)
         loops.append(("use", threading.get_ident(), asyncio.get_running_loop()))
         data = json.loads(request.content)
-        if "fill_question_evidence_v2" in str(data["tools"]):
-            stream = events(json.dumps(packet(src)))
+        tool_name = "fill_question_evidence_" + profile.rsplit("-", 1)[1]
+        assert data["model"] == model
+        if tool_name in str(data["tools"]):
+            stream = events(json.dumps(packet_v5(src) if model == "gpt-6-astra" else packet(src)))
             for row in stream:
                 for item in [row.get("item"), *row.get("response", {}).get("output", [])]:
                     if item is not None:
-                        item["name"] = "fill_question_evidence_v2"
+                        item["name"] = tool_name
             body = Body(stream)
         else:
             body = Body(
@@ -129,9 +142,8 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
     class Provider(AsyncOpenAI):
         def __init__(self, **kwargs):
             loops.append(("create", threading.get_ident(), asyncio.get_running_loop()))
-            super().__init__(
-                **kwargs, http_client=httpx.AsyncClient(transport=httpx.MockTransport(serve))
-            )
+            kwargs["http_client"]._transport = httpx.MockTransport(serve)
+            super().__init__(**kwargs)
 
         async def close(self):
             loops.append(("close", threading.get_ident(), asyncio.get_running_loop()))
@@ -139,7 +151,10 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
 
     monkeypatch.setattr(host, "AsyncOpenAI", Provider)
     service = host.OwnedQuestionExecutionService(
-        engine, host.QuestionServiceConfig(api_key="synthetic", schema=schema)
+        engine,
+        host.QuestionServiceConfig(
+            api_key="synthetic", schema=schema, model=model, evidence_profile=profile
+        ),
     )
     app = create_app(
         question_service=service,
@@ -201,9 +216,33 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
                 "items": [{"job_id": job, "question": "기관", "status": "completed"}]
             }
             before = await asyncio.to_thread(counts)
+            with engine.connect() as conn:
+                for table in ("evidence_jobs", "briefing_jobs"):
+                    stored_model, reservation = conn.execute(
+                        text(f"SELECT model, reservation_usd FROM {table}")
+                    ).one()
+                    assert stored_model == model
+                    assert reservation == service.config.evidence_reservation_usd
             assert await submit() == one
             assert await asyncio.to_thread(counts) == before
             assert len(requests) == 2
+            if model == "gpt-6-astra":
+                from dataclasses import replace
+
+                original_config = service.config
+                service.config = replace(original_config, model="gpt-6.1-sol")
+                try:
+                    conflict = await client.post(
+                        route,
+                        json=dict(request_id=str(request_id), question="기관"),
+                        headers={"Origin": "https://example.test"},
+                    )
+                    assert conflict.status_code == 200, conflict.text
+                    assert "event: error" in conflict.text
+                    assert '"kind":"conflict"' in conflict.text
+                    assert await asyncio.to_thread(counts) == before and len(requests) == 2
+                finally:
+                    service.config = original_config
             identities.set_membership(actor, workspace, "viewer")
             forbidden = await client.post(
                 route,
@@ -222,7 +261,10 @@ def test_native_http_submission_replay_history_and_loop_liveness(engine, databas
             assert conn.scalar(select(text("count(*)")).select_from(statuses)) == 2
             conn.execute(update(statuses).values(status="PENDING", output=None, error=None))
         restarted = host.OwnedQuestionExecutionService(
-            engine, host.QuestionServiceConfig(api_key="synthetic", schema=schema)
+            engine,
+            host.QuestionServiceConfig(
+                api_key="synthetic", schema=schema, model=model, evidence_profile=profile
+            ),
         )
         try:
             await restarted.start()

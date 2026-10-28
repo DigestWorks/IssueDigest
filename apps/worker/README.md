@@ -459,3 +459,19 @@ v9 selector는 공개 `DBOSClient.update_workflow_attributes`로 정확 `{"issue
 기존 relevance body만 exact v9/v10 final strategy로 공통화한다. metadata·attributes·known usage·terminal reconciliation은 exact profile을 받는 private helper와 기존 v9 signature wrapper를 사용한다. 각 profile의 정확 workflow/final namespace·정수 nonbool slot·완료 순서를 raw 읽기 전에 검사한다. v10도 public client로 같은 selector started/hash를 송신 전에 기록하고 모호한 prefix2·변경된 원래 prompt는 재호출 없이 실패한다. 현재 권한/부모/모든 원문·원래 후보 순서·uncached apply 재검사를 유지하고 취소/권한 상실/잘못된 DTO·terminal SIGKILL 이후 known token만 단조 복구한다. 상태/결과/예약은 복원하지 않는다.
 
 최종 v10과 selector는 DBOS 구성 후 launch 전에 기존 v8 model을 빌려 등록한다. 새 provider client를 생성하거나 빌린 client를 닫지 않으며 모델·step retry0를 유지한다. v10은 수치 설명 지침만 늘려 static/actual 예산을 반영한다. schema/API/공개 읽기/레이아웃·원본/수집기는 변경하지 않는다. 합성 PG/FunctionModel 검증은 실제 모델 의미 판정·개발 적용과 별개다.
+
+## 질문 HTTP 앱의 서버 모델 설정
+
+별도 opt-in 앱의 `QuestionServiceConfig.from_environment`는
+`ISSUEDIGEST_QUESTION_BRIEFING_ENABLED=1`과 `OPENAI_API_KEY`가 있어야 시작한다.
+`ISSUEDIGEST_QUESTION_MODEL` 기본값은 `gpt-6.1-sol`이며 기본 근거 profile은
+`guarded-question-evidence-v2`다. Sol의 분석·최종 예약은 각각 0.50달러다.
+명시적으로 `ISSUEDIGEST_QUESTION_MODEL=gpt-6-astra`를 선택할 때는
+`ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE=guarded-question-evidence-v5`도 함께
+설정해야 하며 분석·최종 예약은 각각 1달러로 고정된다. 알 수 없는 모델이나
+Astra/v2·v3 조합은 시작 전에 거부한다. 예약액을 바꾸는 환경 설정은 없다.
+모델·profile·예약은 서버 설정이며 브라우저 입력을 받지 않는다.
+
+이 앱의 provider는 공식 `https://api.openai.com/v1`에 timeout 60초·재시도 0으로
+연결한다. 환경의 endpoint·organization·project·proxy 설정은 사용하지 않는다.
+기존 요청은 원래 저장된 모델·profile identity와 충돌 검사에 따라 처리한다.

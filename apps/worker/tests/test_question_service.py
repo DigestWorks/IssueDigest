@@ -318,3 +318,167 @@ def test_evidence_profile_configuration_is_private_and_strict():
             api.QuestionServiceConfig.from_environment(
                 env | {"ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile}
             )
+
+
+@pytest.mark.parametrize(
+    "model,profile,amount",
+    [
+        ("gpt-6.1-sol", "guarded-question-evidence-v2", ".50"),
+        ("gpt-6-astra", "guarded-question-evidence-v5", "1.00"),
+    ],
+)
+def test_model_configuration_derives_fixed_reservations(model, profile, amount):
+    from decimal import Decimal
+
+    api = service_api()
+    env = {"ISSUEDIGEST_QUESTION_BRIEFING_ENABLED": "1", "OPENAI_API_KEY": "synthetic"}
+    default = api.QuestionServiceConfig.from_environment(env)
+    assert default.model == "gpt-6.1-sol"
+    config = api.QuestionServiceConfig.from_environment(
+        env
+        | {
+            "ISSUEDIGEST_QUESTION_MODEL": model,
+            "ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile,
+            "ISSUEDIGEST_QUESTION_RESERVATION_USD": ".01",
+        }
+    )
+    assert config.model == model
+    assert config.evidence_reservation_usd == Decimal(amount)
+    assert config.briefing_reservation_usd == Decimal(amount)
+
+
+@pytest.mark.parametrize(
+    "model,profile",
+    [
+        ("unknown", "guarded-question-evidence-v5"),
+        ("gpt-6-astra ", "guarded-question-evidence-v5"),
+        ("gpt-6-astra", "guarded-question-evidence-v2"),
+        ("gpt-6-astra", "guarded-question-evidence-v3"),
+    ],
+)
+def test_invalid_model_profile_is_rejected_before_start(model, profile):
+    api = service_api()
+    with pytest.raises(QuestionSubmissionError) as caught:
+        api.QuestionServiceConfig.from_environment(
+            {
+                "ISSUEDIGEST_QUESTION_BRIEFING_ENABLED": "1",
+                "OPENAI_API_KEY": "synthetic",
+                "ISSUEDIGEST_QUESTION_MODEL": model,
+                "ISSUEDIGEST_QUESTION_EVIDENCE_PROFILE": profile,
+            }
+        )
+    assert caught.value.kind == "unavailable"
+
+
+@pytest.mark.parametrize(
+    "model,profile,amount",
+    [
+        ("gpt-6.1-sol", "guarded-question-evidence-v2", ".50"),
+        ("gpt-6-astra", "guarded-question-evidence-v5", "1.00"),
+    ],
+)
+def test_run_bridge_passes_configured_model_and_reservations(monkeypatch, model, profile, amount):
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    api = service_api()
+    captured = {}
+    for name in ("QuestionPlanRepository", "EvidenceJobRepository", "BriefingJobRepository"):
+        monkeypatch.setattr(api, name, lambda *args, **kwargs: None)
+
+    async def run(*args, **kwargs):
+        captured.update(kwargs)
+        return api.QuestionBriefingRun(evidence=SimpleNamespace(status="no_match"), briefing=None)
+
+    monkeypatch.setattr(api, "run_question_briefing", run)
+    service = api.OwnedQuestionExecutionService(
+        create_engine("postgresql+psycopg://synthetic@127.0.0.1:25607/synthetic"),
+        api.QuestionServiceConfig(api_key="synthetic", model=model, evidence_profile=profile),
+    )
+    service._client = object()
+    result = asyncio.run(service._run_worker("A" * 43, uuid4(), uuid4(), "질문"))
+    assert result.kind == "no_match"
+    assert captured["model"] == model
+    assert captured["evidence_reservation_usd"] == Decimal(amount)
+    assert captured["briefing_reservation_usd"] == Decimal(amount)
+
+
+def test_provider_ignores_ambient_endpoint_tenant_and_proxy(monkeypatch):
+    from contextlib import contextmanager
+    from types import SimpleNamespace
+
+    import httpx2
+    from openai import AsyncOpenAI
+
+    api = service_api()
+    for key in ("OPENAI_BASE_URL", "HTTPS_PROXY", "HTTP_PROXY", "ALL_PROXY"):
+        monkeypatch.setenv(key, "https://ambient.invalid")
+    monkeypatch.setenv("OPENAI_ORG_ID", "ambient-org")
+    monkeypatch.setenv("OPENAI_PROJECT_ID", "ambient-project")
+    for name in ("QuestionPlanRepository", "EvidenceJobRepository", "BriefingJobRepository"):
+        monkeypatch.setattr(api, name, lambda *args, **kwargs: None)
+    providers, provider_args, transport_args = [], [], []
+    actual_http = httpx2.AsyncClient
+
+    class Transport(actual_http):
+        def __init__(self, **kwargs):
+            transport_args.append(kwargs)
+            super().__init__(**kwargs)
+
+    def provider(**kwargs):
+        provider_args.append(kwargs)
+        instance = AsyncOpenAI(**kwargs)
+        providers.append(instance)
+        return instance
+
+    @contextmanager
+    def lease(engine):
+        yield lambda: None
+
+    monkeypatch.setattr(api.dbos_runtime, "_dbos_global_instance", None)
+    monkeypatch.setattr(api, "research_worker_lock", lease)
+    monkeypatch.setattr(api, "AsyncOpenAI", provider)
+    monkeypatch.setattr(api.httpx, "AsyncClient", Transport)
+
+    class Runtime:
+        def __init__(self, **kwargs):
+            pass
+
+        @staticmethod
+        def launch():
+            pass
+
+        @staticmethod
+        def destroy(**kwargs):
+            pass
+
+    monkeypatch.setattr(api, "DBOS", Runtime)
+    for name in (
+        "register_evidence_workflow",
+        "register_evidence_workflow_v3",
+        "register_evidence_workflow_v5",
+        "register_briefing_workflow",
+        "configure_briefing_queue",
+    ):
+        monkeypatch.setattr(api, name, lambda *args, **kwargs: None)
+    monkeypatch.setattr(api, "DBOSClient", lambda **kwargs: SimpleNamespace(destroy=lambda: None))
+    service = api.OwnedQuestionExecutionService(
+        create_engine("postgresql+psycopg://synthetic@127.0.0.1:25607/synthetic"),
+        api.QuestionServiceConfig(api_key="synthetic"),
+    )
+
+    async def exercise():
+        try:
+            await service.start()
+            actual = providers[0]
+            assert str(actual.base_url) == "https://api.openai.com/v1/"
+            assert actual.organization is None and actual.project is None
+            assert actual.max_retries == 0 and actual.timeout == 60
+            assert provider_args[0]["organization"] is None
+            assert provider_args[0]["project"] is None
+            assert transport_args == [{"trust_env": False}]
+        finally:
+            await service.aclose()
+        assert providers[0].is_closed()
+
+    asyncio.run(exercise())
