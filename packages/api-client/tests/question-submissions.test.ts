@@ -27,6 +27,40 @@ it('posts once with cookies and accepts split CRLF progress and terminal', async
   expect(fetch).toHaveBeenCalledTimes(1);
   expect(fetch.mock.calls[0][1].credentials).toBe('same-origin');
 });
+it.each([undefined, 'yes'])(
+  'accepts complete progress and result with proxy buffering header %s',
+  async (buffering) => {
+    const r = response(
+      `event: progress\ndata: {"request_id":"${id}","stage":"analysing"}\n\nevent: result\ndata: {"request_id":"${id}","kind":"no_match","job_id":null}\n\n`,
+    );
+    r.headers.delete('X-Accel-Buffering');
+    if (buffering !== undefined) r.headers.set('X-Accel-Buffering', buffering);
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(r));
+    const onProgress = vi.fn();
+    await expect(
+      submitQuestion(id, { request_id: id, question: '질문' }, { onProgress }),
+    ).resolves.toEqual({
+      data: { request_id: id, kind: 'no_match', job_id: null },
+      requestId: id,
+    });
+    expect(onProgress).toHaveBeenCalledTimes(1);
+  },
+);
+it.each(['invalid frame', 'invalid content type'])(
+  'rejects %s when the proxy buffering header is absent',
+  async (invalid) => {
+    const r = response(
+      `event: result\ndata: {"request_id":"${id}","kind":"${invalid === 'invalid frame' ? 'other' : 'no_match'}","job_id":null}\n\n`,
+    );
+    r.headers.delete('X-Accel-Buffering');
+    if (invalid === 'invalid content type')
+      r.headers.set('Content-Type', 'application/json');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(r));
+    await expect(
+      submitQuestion(id, { request_id: id, question: '질문' }),
+    ).rejects.toMatchObject({ kind: 'malformed' });
+  },
+);
 it.each([
   '',
   `event: result\ndata: {"request_id":"${id}","kind":"briefing","job_id":null}\n\n`,
@@ -149,10 +183,12 @@ it('enforces whole body cap even with individually small heartbeats', async () =
     submitQuestion(id, { request_id: id, question: '질문' }),
   ).rejects.toMatchObject({ kind: 'malformed' });
 });
-it.each(['Cache-Control', 'Content-Type', 'X-Request-ID', 'X-Accel-Buffering'])(
+it.each(['Cache-Control', 'Content-Type', 'X-Request-ID'])(
   'rejects missing required %s header',
   async (header) => {
-    const r = response('');
+    const r = response(
+      `event: result\ndata: {"request_id":"${id}","kind":"no_match","job_id":null}\n\n`,
+    );
     r.headers.delete(header);
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(r));
     await expect(

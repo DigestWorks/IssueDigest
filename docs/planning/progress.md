@@ -1,3 +1,13 @@
+## 질문 스트림 연결 오류 수정 · 2026-10-28 KST
+
+사용자 제보 화면에서 일반 오류가 표시됐다. 읽기 전용 점검에서 질문 계획 1건은 선택 완료됐지만 분석·최종 생성 job은 각각 0건이었다. 브라우저 클라이언트가 프록시 내부 제어용 `X-Accel-Buffering: no` 헤더를 필수로 요구하여 정상 프록시 응답을 거부하는 오류를 수정했다. Nginx의 기본 `X-Accel-*` 비전달 동작과 배포 설정을 확인했다. 서버의 버퍼링 제어 헤더는 유지한다.
+
+헤더가 없어도 완결 SSE를 수용하는 테스트는 수정 전 실패했고 수정 후 통과했다. 잘못된 SSE·필수 공개 헤더·EOF·시간/크기 제한 검사는 유지한다. 관련 31개·전체 프론트 918개·독립 검토·타입·린트·빌드를 확인했다. 개발 사이트의 정적 파일 24개를 검증하고 웹 루트만 교체했다. 외부 HTML/JS 15개가 새 빌드와 바이트 일치한다. 이전 정적 파일과 설정을 복귀용으로 보존했다. API·DB·세션·main·Actions 변경과 유료 요청은 없다.
+
+실제 사용자 세션의 재요청·최종 생성 완료는 아직 확인 전이다. 이번 수정은 브라우저의 조기 연결 종료를 해결하며, 개별 질문의 자료 적합성이나 AI 출력 품질까지 인증하지 않는다.
+
+공식 근거: [Nginx proxy_hide_header](https://nginx.org/en/docs/http/ngx_http_proxy_module.html#proxy_hide_header).
+
 ## 최종 인계 · 개발 앱 Astra 연결 · 2026-10-28 KST
 
 [Draft PR135](https://github.com/DigestWorks/IssueDigest/pull/135), base feat/question-native-final-acceptance. 실제 개발 API 소스e686086·DB0015·Astra/v5/각1달러 예약을 확인했다. 전체10,946개·서비스30개·교체 도구50개·독립 코드/교체/적용 증거 검토와 사전/사후 full/app 백업·별도PG18.6 public27테이블 복원·행/ACL 보존을 기록했다. 정기 수집 정상1건 추가는 기존229행 보존과 구분했다. 외부 home/login/health200·비회원session/질문401·쿠키 없음·정적/응답 hash·인증/DB/key/schema 설정 보존·단일 worker를 확인했다.

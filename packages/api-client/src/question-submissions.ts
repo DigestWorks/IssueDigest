@@ -141,7 +141,6 @@ export async function submitQuestion(
       !/^text\/event-stream(?:\s*;\s*charset=utf-8)?$/i.test(
         response.headers.get('Content-Type') ?? '',
       ) ||
-      response.headers.get('X-Accel-Buffering') !== 'no' ||
       !response.body
     )
       throw fail('malformed');
